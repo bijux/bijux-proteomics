@@ -85,7 +85,10 @@ from bijux_proteomics_lab.planning import (
     validate_experiment_plan,
 )
 from bijux_proteomics_lab.readiness import (
+    ControlReadinessSignal,
+    EvidenceReadinessSignal,
     OperationalReadinessReport,
+    ProvenanceReadinessSignal,
     ReagentAvailability,
     ReviewBacklogSnapshot,
     StaffingAvailability,
@@ -772,6 +775,120 @@ def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces()
     assert advisory.open_evidence_gaps == ["assay", "pathway"]
     assert alignment.prioritized_assay_ids[0] == "phosphosite-panel"
     assert capacity_advisory.feasible_batch_ids == ["b-phospho"]
+
+
+def test_constrained_capacity_fixture_keeps_partly_schedulable_follow_up_explicit() -> (
+    None
+):
+    fixture = _planning_fixture("constrained_capacity_follow_up.json")
+
+    report = build_follow_up_practicality_report(
+        ExperimentPlan.model_validate(fixture["plan"]),
+        LabCapacity.model_validate(fixture["capacity"]),
+        [
+            InstrumentAvailability.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+        ],
+        [
+            CandidatePrioritySignal.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["candidate_signals"])
+        ],
+        budget_limit=cast(float, fixture["budget_limit"]),
+        estimated_batch_cost=cast(float, fixture["estimated_batch_cost"]),
+        family_capacities=[
+            FamilyCapacity.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["family_capacities"])
+        ],
+        material_requirements=[
+            MaterialRequirement.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["material_requirements"])
+        ],
+        inventory=[
+            MaterialInventory.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["inventory"])
+        ],
+    )
+
+    assert report.practical_candidate_ids == ["cand-hybrid"]
+    assert report.impractical_candidate_ids == ["cand-cellular"]
+    assert report.constrained_candidate_ids == ["cand-hybrid"]
+    assert report.material_blocked_candidate_ids == []
+    assert any("schedule pressure" in note for note in report.schedule_pressure_notes)
+
+
+def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() -> None:
+    fixture = _planning_fixture("insufficient_material_follow_up.json")
+    plan = ExperimentPlan.model_validate(fixture["plan"])
+    capacity = LabCapacity.model_validate(fixture["capacity"])
+
+    practicality_report = build_follow_up_practicality_report(
+        plan,
+        capacity,
+        [
+            InstrumentAvailability.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+        ],
+        [
+            CandidatePrioritySignal.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["candidate_signals"])
+        ],
+        budget_limit=cast(float, fixture["budget_limit"]),
+        estimated_batch_cost=cast(float, fixture["estimated_batch_cost"]),
+        material_requirements=[
+            MaterialRequirement.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["material_requirements"])
+        ],
+        inventory=[
+            MaterialInventory.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["inventory"])
+        ],
+    )
+    readiness_report = build_operational_readiness_report(
+        plan,
+        capacity=capacity,
+        instrument_availability=[
+            InstrumentAvailability.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+        ],
+        reagent_inventory=[
+            ReagentAvailability.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["reagent_inventory"])
+        ],
+        staffing=[
+            StaffingAvailability.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["staffing"])
+        ],
+        backlog=ReviewBacklogSnapshot.model_validate(fixture["backlog"]),
+        budget_limit=cast(float, fixture["budget_limit"]),
+        estimated_batch_cost=cast(float, fixture["estimated_batch_cost"]),
+        control_readiness=[
+            ControlReadinessSignal.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["control_readiness"])
+        ],
+        provenance_readiness=[
+            ProvenanceReadinessSignal.model_validate(item)
+            for item in cast(
+                list[dict[str, object]], fixture["provenance_readiness"]
+            )
+        ],
+        evidence_readiness=[
+            EvidenceReadinessSignal.model_validate(item)
+            for item in cast(list[dict[str, object]], fixture["evidence_readiness"])
+        ],
+    )
+
+    assert practicality_report.practical_candidate_ids == []
+    assert practicality_report.impractical_candidate_ids == ["cand-material"]
+    assert practicality_report.material_blocked_candidate_ids == ["cand-material"]
+    assert readiness_report.ready_for_execution is False
+    assert readiness_report.blocking_material_ids == ["cell-pellet"]
+    assert readiness_report.missing_control_ids == ["pooled-reference"]
+    assert readiness_report.provenance_gap_ids == ["evidence-bundle-1"]
+    assert readiness_report.weak_evidence_ids == ["ev-weak-1"]
+    assert any(
+        "orthogonal confirmation is still missing" in note
+        for note in readiness_report.risk_notes
+    )
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:

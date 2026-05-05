@@ -687,11 +687,14 @@ class FollowUpPracticalityReport(JsonModel):
     program_id: ProgramId = Field(..., description="Program identifier.")
     practical_candidate_ids: list[str] = Field(default_factory=list)
     impractical_candidate_ids: list[str] = Field(default_factory=list)
+    constrained_candidate_ids: list[str] = Field(default_factory=list)
+    material_blocked_candidate_ids: list[str] = Field(default_factory=list)
     executable_batch_ids: list[BatchId] = Field(default_factory=list)
     blocked_batch_ids: list[BatchId] = Field(default_factory=list)
     estimated_total_cost: float = Field(default=0.0, ge=0.0)
     practicality_score: float = Field(default=0.0, ge=0.0, le=1.0)
     blockers: list[str] = Field(default_factory=list)
+    schedule_pressure_notes: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -2192,6 +2195,9 @@ def build_follow_up_practicality_report(
     *,
     budget_limit: float,
     estimated_batch_cost: float = 1.0,
+    family_capacities: list[FamilyCapacity] | None = None,
+    material_requirements: list[MaterialRequirement] | None = None,
+    inventory: list[MaterialInventory] | None = None,
 ) -> FollowUpPracticalityReport:
     """Assess whether candidate follow-up requests are practical under live constraints."""
     capacity_advisory = build_execution_capacity_advisory(
@@ -2201,6 +2207,33 @@ def build_follow_up_practicality_report(
         budget_limit=budget_limit,
         estimated_batch_cost=estimated_batch_cost,
     )
+    scheduled = (
+        schedule_with_family_capacity(plan, capacity, family_capacities)
+        if family_capacities
+        else schedule_experiment_plan(plan, capacity)
+    )
+    schedule_pressure = summarize_schedule_pressure(scheduled, capacity)
+    schedule_blocked_batches = {
+        batch.batch_id
+        for batch in scheduled.scheduled_batches
+        if batch.deferred_assay_ids
+    } | set(scheduled.unscheduled_batches)
+    schedule_pressure_notes: list[str] = []
+    if schedule_pressure.assay_slot_utilization >= 0.85:
+        schedule_pressure_notes.append("schedule pressure is near cycle saturation")
+    if schedule_pressure.deferred_assay_count > 0:
+        schedule_pressure_notes.append(
+            "schedule pressure from family or slot limits deferred part of the requested follow-up work"
+        )
+    material_blocked_batches: set[str] = set()
+    if material_requirements is not None and inventory is not None:
+        material_blocked_batches = {
+            row.batch_id
+            for row in prioritize_batches_by_material_feasibility(
+                plan, material_requirements, inventory
+            )
+            if not row.material_ready
+        }
     feasible_batches = set(capacity_advisory.feasible_batch_ids)
     assay_to_batch = {
         assay_id: batch.batch_id
@@ -2209,6 +2242,8 @@ def build_follow_up_practicality_report(
     }
     practical_candidate_ids: list[str] = []
     impractical_candidate_ids: list[str] = []
+    constrained_candidate_ids: list[str] = []
+    material_blocked_candidate_ids: list[str] = []
     blockers: list[str] = []
 
     for signal in candidate_signals:
@@ -2227,19 +2262,45 @@ def build_follow_up_practicality_report(
                 f"{signal.candidate_id} is not mapped to any planned executable batch"
             )
             continue
+        if matched_batch_ids.issubset(material_blocked_batches) and material_blocked_batches:
+            impractical_candidate_ids.append(signal.candidate_id)
+            material_blocked_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} only maps to follow-up batches that lack required materials"
+            )
+            continue
         if not signal.decision_ready or signal.contradiction_pressure >= 0.45:
             impractical_candidate_ids.append(signal.candidate_id)
             blockers.append(
                 f"{signal.candidate_id} is not analytically ready for operational spend"
             )
             continue
-        if matched_batch_ids.isdisjoint(feasible_batches):
+        executable_batch_ids = (
+            (matched_batch_ids & feasible_batches)
+            - schedule_blocked_batches
+            - material_blocked_batches
+        )
+        if not executable_batch_ids:
             impractical_candidate_ids.append(signal.candidate_id)
             blockers.append(f"{signal.candidate_id} only maps to deferred batch work")
             continue
+        if matched_batch_ids & material_blocked_batches:
+            constrained_candidate_ids.append(signal.candidate_id)
+            material_blocked_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} still carries material constraints on part of the requested follow-up work"
+            )
+        if matched_batch_ids & schedule_blocked_batches:
+            constrained_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} still carries schedule pressure on part of the requested follow-up work"
+            )
         practical_candidate_ids.append(signal.candidate_id)
 
     notes = list(capacity_advisory.notes)
+    notes.extend(schedule_pressure_notes)
+    if material_blocked_batches:
+        notes.append("material feasibility further narrows which follow-up batches are responsible to schedule")
     if blockers:
         notes.append(
             "candidate practicality is constrained by both analytical skepticism and lab capacity"
@@ -2249,11 +2310,14 @@ def build_follow_up_practicality_report(
         program_id=plan.program_id,
         practical_candidate_ids=sorted(practical_candidate_ids),
         impractical_candidate_ids=sorted(impractical_candidate_ids),
+        constrained_candidate_ids=sorted(set(constrained_candidate_ids)),
+        material_blocked_candidate_ids=sorted(set(material_blocked_candidate_ids)),
         executable_batch_ids=capacity_advisory.feasible_batch_ids,
         blocked_batch_ids=capacity_advisory.deferred_batch_ids,
         estimated_total_cost=capacity_advisory.estimated_total_cost,
         practicality_score=capacity_advisory.practicality_score,
         blockers=sorted(set(blockers)),
+        schedule_pressure_notes=schedule_pressure_notes,
         notes=notes,
     )
 

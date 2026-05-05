@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel, ProgramId
@@ -53,6 +55,46 @@ class ReagentAvailability(JsonModel):
     lead_time_days: float = Field(..., ge=0.0)
 
 
+class ReadinessSeverity(StrEnum):
+    """Severity for readiness findings that affect execution."""
+
+    WARNING = "warning"
+    BLOCKING = "blocking"
+
+
+class ControlReadinessSignal(JsonModel):
+    """Presence of required controls for planned execution work."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    control_id: str = Field(..., min_length=1)
+    required_batch_ids: tuple[str, ...] = Field(default_factory=tuple)
+    present: bool
+    failure_consequence: str = Field(..., min_length=1)
+
+
+class ProvenanceReadinessSignal(JsonModel):
+    """Lineage completeness signal for inputs that support execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    lineage_complete: bool
+    missing_fields: tuple[str, ...] = Field(default_factory=tuple)
+    severity: ReadinessSeverity = ReadinessSeverity.BLOCKING
+
+
+class EvidenceReadinessSignal(JsonModel):
+    """Scientific evidence readiness signal for operational execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    supports_execution: bool = True
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    issue_summary: str | None = Field(default=None, min_length=1)
+
+
 class OperationalReadinessReport(JsonModel):
     """Operational readiness decision across cost, capacity, backlog, and risk."""
 
@@ -67,6 +109,9 @@ class OperationalReadinessReport(JsonModel):
     budget_remaining: float = Field(..., ge=0.0)
     deferred_batch_ids: list[str] = Field(default_factory=list)
     blocking_material_ids: list[str] = Field(default_factory=list)
+    missing_control_ids: list[str] = Field(default_factory=list)
+    provenance_gap_ids: list[str] = Field(default_factory=list)
+    weak_evidence_ids: list[str] = Field(default_factory=list)
     understaffed_roles: list[str] = Field(default_factory=list)
     long_lead_material_ids: list[str] = Field(default_factory=list)
     backlog_pressure_score: float = Field(..., ge=0.0, le=1.0)
@@ -122,8 +167,14 @@ def build_operational_readiness_report(
     backlog: ReviewBacklogSnapshot,
     budget_limit: float,
     estimated_batch_cost: float = 1.0,
+    control_readiness: list[ControlReadinessSignal] | None = None,
+    provenance_readiness: list[ProvenanceReadinessSignal] | None = None,
+    evidence_readiness: list[EvidenceReadinessSignal] | None = None,
 ) -> OperationalReadinessReport:
     """Summarize whether a plan is executable under live lab constraints."""
+    control_readiness = control_readiness or []
+    provenance_readiness = provenance_readiness or []
+    evidence_readiness = evidence_readiness or []
     capacity_advisory = build_execution_capacity_advisory(
         plan,
         capacity,
@@ -147,11 +198,54 @@ def build_operational_readiness_report(
         for item in reagent_inventory
         if item.available_units < item.minimum_units or item.lead_time_days > 7.0
     )
+    batch_ids = {batch.batch_id for batch in plan.batches}
+    missing_control_ids = sorted(
+        signal.control_id
+        for signal in control_readiness
+        if not signal.present
+        and (
+            not signal.required_batch_ids
+            or bool(batch_ids & set(signal.required_batch_ids))
+        )
+    )
+    provenance_gap_ids = sorted(
+        signal.artifact_id
+        for signal in provenance_readiness
+        if not signal.lineage_complete
+    )
+    blocking_provenance_gaps = {
+        signal.artifact_id
+        for signal in provenance_readiness
+        if not signal.lineage_complete
+        and signal.severity is ReadinessSeverity.BLOCKING
+    }
+    weak_evidence_ids = sorted(
+        signal.evidence_id
+        for signal in evidence_readiness
+        if not signal.supports_execution or signal.confidence < 0.6
+    )
     backlog_pressure_score = _backlog_pressure_score(backlog, capacity)
     estimated_total_batch_cost = round(len(plan.batches) * estimated_batch_cost, 4)
 
     risk_notes = list(capacity_advisory.notes)
     risk_notes.extend(material_report.notes)
+    if missing_control_ids:
+        missing_controls = ", ".join(missing_control_ids)
+        risk_notes.append(f"required controls are missing for execution: {missing_controls}")
+    for signal in provenance_readiness:
+        if signal.lineage_complete:
+            continue
+        missing_fields = (
+            ", ".join(signal.missing_fields) if signal.missing_fields else "unknown fields"
+        )
+        risk_notes.append(
+            f"provenance is incomplete for {signal.artifact_id}: {missing_fields}"
+        )
+    for signal in evidence_readiness:
+        if signal.supports_execution and signal.confidence >= 0.6:
+            continue
+        issue_summary = signal.issue_summary or "evidence support is too weak for irreversible spend"
+        risk_notes.append(f"{signal.evidence_id} remains weak for execution: {issue_summary}")
     if understaffed_roles:
         risk_notes.append(
             "understaffed roles block execution: " + ", ".join(understaffed_roles)
@@ -172,10 +266,13 @@ def build_operational_readiness_report(
     ready_for_execution = not (
         capacity_advisory.deferred_batch_ids
         or material_report.blocking_material_ids
+        or missing_control_ids
         or understaffed_roles
         or backlog.blocking_gate_ids
         or backlog_pressure_score >= 0.8
         or long_lead_material_ids
+        or blocking_provenance_gaps
+        or weak_evidence_ids
     )
     return OperationalReadinessReport(
         program_id=plan.program_id,
@@ -188,6 +285,9 @@ def build_operational_readiness_report(
             *backlog.deferred_batch_ids,
         ],
         blocking_material_ids=material_report.blocking_material_ids,
+        missing_control_ids=missing_control_ids,
+        provenance_gap_ids=provenance_gap_ids,
+        weak_evidence_ids=weak_evidence_ids,
         understaffed_roles=understaffed_roles,
         long_lead_material_ids=long_lead_material_ids,
         backlog_pressure_score=backlog_pressure_score,
@@ -196,8 +296,12 @@ def build_operational_readiness_report(
 
 
 __all__ = [
+    "ControlReadinessSignal",
+    "EvidenceReadinessSignal",
     "OperationalReadinessReport",
+    "ProvenanceReadinessSignal",
     "ReagentAvailability",
+    "ReadinessSeverity",
     "ReviewBacklogSnapshot",
     "StaffingAvailability",
     "build_operational_readiness_report",
