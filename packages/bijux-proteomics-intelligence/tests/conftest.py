@@ -30,9 +30,7 @@ def pytest_sessionstart(session: pytest.Session) -> None:
     _remove_intelligence_bytecode_artifacts()
 
 
-def pytest_sessionfinish(
-    session: pytest.Session, exitstatus: pytest.ExitCode
-) -> None:
+def pytest_sessionfinish(session: pytest.Session, exitstatus: pytest.ExitCode) -> None:
     _remove_intelligence_bytecode_artifacts()
 
 

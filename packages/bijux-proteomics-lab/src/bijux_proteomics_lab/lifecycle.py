@@ -212,7 +212,8 @@ class CandidateFollowUpSignal(JsonModel):
     candidate_id: str = Field(..., min_length=1)
     recommendation: str = Field(..., min_length=1)
     decision_ready: bool = Field(
-        ..., description="Whether the upstream recommendation claims decision readiness."
+        ...,
+        description="Whether the upstream recommendation claims decision readiness.",
     )
     contradiction_pressure: float = Field(..., ge=0.0, le=1.0)
     freshness_pressure: float = Field(..., ge=0.0, le=1.0)
@@ -425,7 +426,9 @@ def advance_assay_lifecycle(
             to_stage=None,
             ready_to_advance=False,
             reasons=["assay already reached targeted follow-up"],
-            required_next_actions=["execute the targeted follow-up work and review outcomes"],
+            required_next_actions=[
+                "execute the targeted follow-up work and review outcomes"
+            ],
         )
 
     blockers = list(state.blocking_findings) + blocking_findings
@@ -446,7 +449,9 @@ def advance_assay_lifecycle(
             reasons.append("verification evidence remains incomplete")
         if not reproducibility_ready:
             reasons.append("verification lacks reproducible signal across repeats")
-            required_next_actions_out.append("repeat the verification assay with matched controls")
+            required_next_actions_out.append(
+                "repeat the verification assay with matched controls"
+            )
     else:
         ready_to_advance = (
             evidence_ready
@@ -460,13 +465,19 @@ def advance_assay_lifecycle(
                 "define the targeted follow-up panel and transition controls"
             )
         if not reproducibility_ready:
-            reasons.append("validation evidence is not reproducible enough for targeted follow-up")
+            reasons.append(
+                "validation evidence is not reproducible enough for targeted follow-up"
+            )
         if not evidence_ready:
             reasons.append("validation evidence remains incomplete")
 
     if ready_to_advance:
-        reasons.append(f"advance from {state.current_stage.value} to {next_stage.value}")
-        required_next_actions_out.append(f"prepare {next_stage.value} assays and controls")
+        reasons.append(
+            f"advance from {state.current_stage.value} to {next_stage.value}"
+        )
+        required_next_actions_out.append(
+            f"prepare {next_stage.value} assays and controls"
+        )
 
     return AssayLifecycleDecision(
         assay_id=state.assay_id,
@@ -503,13 +514,17 @@ def validate_candidate_follow_up_handoff(
     if signal.contradiction_pressure >= 0.45:
         blockers.append("contradiction pressure is too high for lab handoff")
     elif signal.contradiction_pressure >= 0.25:
-        skepticism_notes.append("contradiction pressure needs explicit monitoring during handoff")
+        skepticism_notes.append(
+            "contradiction pressure needs explicit monitoring during handoff"
+        )
     if signal.freshness_pressure >= 0.45:
         blockers.append("supporting evidence is too stale for expensive follow-up")
     elif signal.freshness_pressure >= 0.25:
         skepticism_notes.append("refresh supporting evidence before irreversible spend")
     if signal.unresolved_questions:
-        blockers.append("unresolved questions remain open on the intelligence recommendation")
+        blockers.append(
+            "unresolved questions remain open on the intelligence recommendation"
+        )
     if "hold" in signal.recommendation.lower():
         blockers.append("upstream recommendation is still on hold")
     if not ready_for_execution:
@@ -517,7 +532,9 @@ def validate_candidate_follow_up_handoff(
     blockers.extend(operational_blockers)
 
     accepted_assay_ids = sorted(
-        assay_id for assay_id in signal.required_assay_ids if assay_id in available_assay_set
+        assay_id
+        for assay_id in signal.required_assay_ids
+        if assay_id in available_assay_set
     )
     missing_assay_ids = sorted(
         assay_id

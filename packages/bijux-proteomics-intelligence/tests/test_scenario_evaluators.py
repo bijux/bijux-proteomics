@@ -729,9 +729,7 @@ def test_build_review_board_packet_keeps_ranked_evidence_and_qc_caveats_visible(
     assert isinstance(packet, ReviewBoardPacket)
     assert packet.contradiction_summary is not None
     assert packet.ranked_evidence[0].candidate_id == "candidate-1"
-    assert packet.ranked_evidence[0].qc_caveats == [
-        "batch shift remains unresolved"
-    ]
+    assert packet.ranked_evidence[0].qc_caveats == ["batch shift remains unresolved"]
     assert packet.next_step_proposals
 
 

@@ -77,7 +77,8 @@ class OutcomeReconciliationReport(JsonModel):
     claim_belief_update: BatchClaimBeliefUpdate
     rerun_plan: BatchRerunPlan
     ready_for_feedback: bool = Field(
-        ..., description="Whether the reconciliation is specific enough for downstream feedback."
+        ...,
+        description="Whether the reconciliation is specific enough for downstream feedback.",
     )
     intelligence_feedback: IntelligenceFeedbackSignal
     notes: tuple[str, ...] = Field(default_factory=tuple)
@@ -109,9 +110,7 @@ def reconcile_planned_and_observed_outcome(
 ) -> OutcomeReconciliationReport:
     """Reconcile requested assay work against observed outcomes and feedback posture."""
     claim_links = claim_links or {}
-    outcome_by_assay = {
-        assay.assay_id: assay for assay in outcome.assay_outcomes
-    }
+    outcome_by_assay = {assay.assay_id: assay for assay in outcome.assay_outcomes}
     requested_assay_ids = set(execution_request.requested_assay_ids)
     observed_assay_ids = set(outcome_by_assay)
     ordered_assay_ids = sorted(requested_assay_ids | observed_assay_ids)
@@ -141,15 +140,21 @@ def reconcile_planned_and_observed_outcome(
             weakened_assay_ids.append(assay_id)
             notes = ("biological miss should feed back into candidate review",)
         else:
-            execution_gap = "planned assay stayed blocked by technical or interpretive failure"
+            execution_gap = (
+                "planned assay stayed blocked by technical or interpretive failure"
+            )
             blocked_assay_ids.append(assay_id)
-            notes = ("rerun or escalation is required before strong feedback is emitted",)
+            notes = (
+                "rerun or escalation is required before strong feedback is emitted",
+            )
         deltas.append(
             PlannedObservedAssayDelta(
                 assay_id=assay_id,
                 requested=requested,
                 observed=observed,
-                result_state=observed_outcome.result_state.value if observed_outcome is not None else None,
+                result_state=observed_outcome.result_state.value
+                if observed_outcome is not None
+                else None,
                 supports_progression=(
                     observed_outcome is not None
                     and observed_outcome.result_state is AssayResultState.PASSED
@@ -175,9 +180,13 @@ def reconcile_planned_and_observed_outcome(
     )
 
     if blocked_assay_ids:
-        recommended_action = "hold downstream confidence until blocked assay issues are resolved"
+        recommended_action = (
+            "hold downstream confidence until blocked assay issues are resolved"
+        )
     elif weakened_assay_ids:
-        recommended_action = "send weakening feedback into candidate review before further spend"
+        recommended_action = (
+            "send weakening feedback into candidate review before further spend"
+        )
     else:
         recommended_action = "send supporting feedback into downstream follow-up review"
 
@@ -246,9 +255,13 @@ def build_operational_follow_up_path(
         claim_links=claim_links,
     )
     notes = (
-        ("handoff remains refused but the observed batch still produced reviewable reconciliation",)
+        (
+            "handoff remains refused but the observed batch still produced reviewable reconciliation",
+        )
         if refusal is not None
-        else ("handoff and observed outcome form a complete operational follow-up path",)
+        else (
+            "handoff and observed outcome form a complete operational follow-up path",
+        )
     )
     return OperationalFollowUpPath(
         candidate_id=candidate_id,

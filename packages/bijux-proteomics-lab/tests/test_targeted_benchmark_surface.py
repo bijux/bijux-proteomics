@@ -8,9 +8,16 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from bijux_proteomics import SuccessCriterion, create_program_spec, parse_chromatogram_qc_table
+from bijux_proteomics import (
+    SuccessCriterion,
+    create_program_spec,
+    parse_chromatogram_qc_table,
+)
 from bijux_proteomics.programs import MeasurementDirection
-from bijux_proteomics_intelligence import CandidateAssessment, build_follow_up_candidate_path
+from bijux_proteomics_intelligence import (
+    CandidateAssessment,
+    build_follow_up_candidate_path,
+)
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references import (
     KnowledgeWorkflowFamily,
@@ -90,7 +97,9 @@ def _program_from_fixture(payload: dict[str, Any]) -> object:
     return program
 
 
-def _assessments_from_fixture(payload: dict[str, Any]) -> tuple[CandidateAssessment, ...]:
+def _assessments_from_fixture(
+    payload: dict[str, Any],
+) -> tuple[CandidateAssessment, ...]:
     candidates = cast(list[dict[str, Any]], payload["candidates"])
     return tuple(CandidateAssessment.model_validate(item) for item in candidates)
 
@@ -164,7 +173,9 @@ def _supported_operational_path() -> tuple[
         update={
             "approved_transition_ids": ("tr-egfr-1", "tr-egfr-2"),
             "exploratory_transition_ids": (),
-            "notes": ("targeted transition panel is fully ready for benchmark handoff",),
+            "notes": (
+                "targeted transition panel is fully ready for benchmark handoff",
+            ),
         }
     )
     review_packet = ReviewPacket.model_validate(fixture["review_packet"])
@@ -285,9 +296,13 @@ def test_build_targeted_benchmark_report_connects_discovery_evidence_to_lab_outp
         bundle,
         workflow_family=KnowledgeWorkflowFamily.TARGETED,
     )
-    handoff_validation, transition_review, review_packet, executable_plan, operational_path = (
-        _supported_operational_path()
-    )
+    (
+        handoff_validation,
+        transition_review,
+        review_packet,
+        executable_plan,
+        operational_path,
+    ) = _supported_operational_path()
     explanation = build_handoff_explanation(
         candidate_id=handoff_validation.candidate_id,
         handoff_validation=handoff_validation,
@@ -388,9 +403,13 @@ def test_targeted_benchmark_report_separates_partial_support_from_strong_support
         bundle,
         workflow_family=KnowledgeWorkflowFamily.TARGETED,
     )
-    handoff_validation, transition_review, review_packet, executable_plan, operational_path = (
-        _supported_operational_path()
-    )
+    (
+        handoff_validation,
+        transition_review,
+        review_packet,
+        executable_plan,
+        operational_path,
+    ) = _supported_operational_path()
     explanation = build_handoff_explanation(
         candidate_id=handoff_validation.candidate_id,
         handoff_validation=handoff_validation,
@@ -444,9 +463,13 @@ def test_targeted_benchmark_report_refuses_weak_science_and_malformed_qc() -> No
         bundle,
         workflow_family=KnowledgeWorkflowFamily.TARGETED,
     )
-    handoff_validation, transition_review, review_packet, executable_plan, operational_path = (
-        _weak_operational_path()
-    )
+    (
+        handoff_validation,
+        transition_review,
+        review_packet,
+        executable_plan,
+        operational_path,
+    ) = _weak_operational_path()
     explanation = build_handoff_explanation(
         candidate_id=handoff_validation.candidate_id,
         handoff_validation=handoff_validation,

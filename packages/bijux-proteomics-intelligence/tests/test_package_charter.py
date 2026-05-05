@@ -36,13 +36,11 @@ def test_intelligence_charter_keeps_non_owned_surfaces_explicit() -> None:
     )
 
 
-def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() -> (
-    None
-):
+def test_intelligence_charter_entries_stay_release_blocking_and_module_backed() -> None:
     assert list_intelligence_charter_entries() == DEFAULT_INTELLIGENCE_CHARTER_ENTRIES
-    assert {
-        entry.capability for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES
-    } == set(DEFAULT_INTELLIGENCE_CHARTER.capabilities)
+    assert {entry.capability for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES} == set(
+        DEFAULT_INTELLIGENCE_CHARTER.capabilities
+    )
     assert all(entry.required_modules for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
     assert all(entry.release_blocker for entry in DEFAULT_INTELLIGENCE_CHARTER_ENTRIES)
 

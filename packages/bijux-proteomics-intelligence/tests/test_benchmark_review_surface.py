@@ -68,7 +68,9 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert review.workflow_family is KnowledgeWorkflowFamily.DIA
     assert review.ready_for_release_review is True
     capability_claim = next(
-        claim for claim in review.claim_summaries if claim.claim_id == "dia_capability_scope"
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "dia_capability_scope"
     )
     assert capability_claim.support_state is SupportState.ADVISORY
     assert "vendor-library parity" in capability_claim.scientific_limits[0]
@@ -117,7 +119,9 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
     assert review.ready_for_release_review is True
     lfq_limit_claim = next(
-        claim for claim in review.claim_summaries if claim.claim_id == "qc_and_missingness_limits"
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "qc_and_missingness_limits"
     )
     assert lfq_limit_claim.support_state is SupportState.ADVISORY
     assert review.external_reviewer_bundle.evidence_pointer_ids
@@ -141,7 +145,9 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
     assert review.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert review.ready_for_release_review is True
     channel_claim = next(
-        claim for claim in review.claim_summaries if claim.claim_id == "channel_balance_caveats"
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "channel_balance_caveats"
     )
     assert channel_claim.support_state is SupportState.ADVISORY
     assert "chemistry caveats" in channel_claim.scientific_limits[0]

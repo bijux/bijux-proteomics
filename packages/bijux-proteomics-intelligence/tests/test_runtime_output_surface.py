@@ -11,7 +11,13 @@ from bijux_proteomics_runtime.runtime.control import (
     build_replay_contract,
     load_local_run_bundle,
 )
-from bijux_proteomics_runtime.runtime.control.ledger import refresh_runtime_artifact_ledger
+from bijux_proteomics_runtime.runtime.control.ledger import (
+    refresh_runtime_artifact_ledger,
+)
+from bijux_proteomics_runtime.runtime.control.replay import (
+    write_local_run_bundle,
+    write_replay_contract,
+)
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
 
 
@@ -35,26 +41,33 @@ def test_intelligence_can_read_runtime_local_run_bundle_via_public_runtime_surfa
         context.workspace.run_summary_path,
         {"run_id": context.run_id, "outcome": "accepted"},
     )
-    ledger = refresh_runtime_artifact_ledger(
-        context.workspace,
-        run_id=context.run_id,
-        artifact_policy=context.artifact_policy,
-        producer="test",
-    )
     replay_contract = build_replay_contract(
         run_context,
         app_version="1.2.3",
         git_commit="abc123",
         tool_versions={"heuristic_proxy": "0.1"},
     )
-    write_json_atomic(
-        context.workspace.local_run_bundle_path,
+    write_replay_contract(context.workspace, replay_contract)
+    ledger = refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="test",
+    )
+    write_local_run_bundle(
+        context.workspace,
         build_local_run_bundle(
             run_context=run_context,
             replay_contract=replay_contract,
             artifact_ledger=ledger,
             run_summary={"run_id": context.run_id, "outcome": "accepted"},
-        ).to_dict(),
+        ),
+    )
+    ledger = refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="test",
     )
 
     bundle = load_local_run_bundle(context.workspace)

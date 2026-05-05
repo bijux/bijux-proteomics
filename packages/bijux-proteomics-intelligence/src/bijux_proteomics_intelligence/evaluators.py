@@ -991,7 +991,9 @@ def _candidate_next_step_proposals(
     if unresolved_questions:
         proposals.append("address the highest-frequency unresolved review questions")
     if not proposals and ranked_candidate_reasons:
-        proposals.append("advance the top-ranked follow-up while keeping rationale visible")
+        proposals.append(
+            "advance the top-ranked follow-up while keeping rationale visible"
+        )
     return sorted(dict.fromkeys(proposals))
 
 
@@ -1017,7 +1019,9 @@ def build_review_board_packet(
         else None
     )
     assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
-    qc_caveat_list = sorted({str(item).strip() for item in qc_caveats if str(item).strip()})
+    qc_caveat_list = sorted(
+        {str(item).strip() for item in qc_caveats if str(item).strip()}
+    )
     unresolved_ledger = summarize_unresolved_question_ledger(evaluations)
     ranked_evidence: list[ReviewBoardEvidenceLine] = []
     for ranked_candidate in ranking.ranked_candidates[:5]:
@@ -1103,7 +1107,9 @@ def build_comparative_candidate_review_packet(
     preferred_profile = _candidate_multi_objective_profile(
         ranking, preferred_candidate_id
     )
-    compared_profile = _candidate_multi_objective_profile(ranking, compared_candidate_id)
+    compared_profile = _candidate_multi_objective_profile(
+        ranking, compared_candidate_id
+    )
     scientific_value_delta = round(
         preferred_profile.get("scientific_value", 0.0)
         - compared_profile.get("scientific_value", 0.0),

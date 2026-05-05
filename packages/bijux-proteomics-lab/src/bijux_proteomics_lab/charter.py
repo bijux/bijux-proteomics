@@ -80,6 +80,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "artifacts.py",
             "planning.py",
             "handoffs.py",
+            "ptm_follow_up.py",
             "targeted_benchmarking.py",
         ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
@@ -156,6 +157,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.PROGRESSION,
         ),
         reason="Planning owns batching, scheduling, and assay-level operational tradeoffs.",
+    ),
+    LabModuleAuditEntry(
+        module_path="ptm_follow_up.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
+        reason="PTM-specific validation packets keep phospho follow-up risks and controls inside the lab owner package.",
     ),
     LabModuleAuditEntry(
         module_path="protocols.py",

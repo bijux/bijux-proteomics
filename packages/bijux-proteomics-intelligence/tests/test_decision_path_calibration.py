@@ -192,9 +192,7 @@ def test_follow_up_path_rejects_novelty_without_evidence_strength() -> None:
     )
 
 
-def test_review_board_path_holds_when_polished_candidates_face_contradictions() -> (
-    None
-):
+def test_review_board_path_holds_when_polished_candidates_face_contradictions() -> None:
     path = build_review_board_decision_path(
         _program(),
         [

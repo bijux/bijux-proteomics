@@ -115,7 +115,9 @@ class ExperimentDesignValidationReport(JsonModel):
     condition_count: int = Field(..., ge=0)
     fraction_count: int = Field(..., ge=0)
     structure_summary: ExperimentDesignStructureSummary
-    valid_contrasts: tuple[DesignContrastRecommendation, ...] = Field(default_factory=tuple)
+    valid_contrasts: tuple[DesignContrastRecommendation, ...] = Field(
+        default_factory=tuple
+    )
     rejected_contrasts: tuple[DesignContrastRecommendation, ...] = Field(
         default_factory=tuple
     )
@@ -487,9 +489,7 @@ def validate_experiment_design(
             shared_batches = _shared_batches(left_entries, right_entries)
             reasons: list[DesignContrastRejectionReason] = []
             if left_replicates < min_replicates or right_replicates < min_replicates:
-                reasons.append(
-                    DesignContrastRejectionReason.INSUFFICIENT_REPLICATES
-                )
+                reasons.append(DesignContrastRejectionReason.INSUFFICIENT_REPLICATES)
             left_batches = {entry.batch for entry in left_entries if entry.batch}
             right_batches = {entry.batch for entry in right_entries if entry.batch}
             if left_batches and right_batches and not shared_batches:
@@ -561,7 +561,9 @@ def build_sample_tracking_plate_advisory(
     """Build a deterministic plate-layout advisory with controls, blocks, and multiplex context."""
     capacity = row_count * column_count
     unique_entries: list[ExperimentalDesignEntry] = []
-    seen_rows: set[tuple[str, str, int, int, str | None, str | None, str | None]] = set()
+    seen_rows: set[tuple[str, str, int, int, str | None, str | None, str | None]] = (
+        set()
+    )
     for entry in sorted(
         entries,
         key=lambda item: (
@@ -627,8 +629,14 @@ def build_sample_tracking_plate_advisory(
     if capacity:
         preferred_control_slots.extend([0, capacity - 1])
     if column_count > 1:
-        preferred_control_slots.extend([column_count - 1, max(0, capacity - column_count)])
-    available_slots = list(dict.fromkeys(index for index in preferred_control_slots if 0 <= index < capacity))
+        preferred_control_slots.extend(
+            [column_count - 1, max(0, capacity - column_count)]
+        )
+    available_slots = list(
+        dict.fromkeys(
+            index for index in preferred_control_slots if 0 <= index < capacity
+        )
+    )
     if len(ordered_controls) > len(available_slots):
         available_slots.extend(
             index for index in range(capacity) if index not in set(available_slots)

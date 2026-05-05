@@ -83,13 +83,19 @@ def list_ontology_mappings(
     """Return curated ontology mappings, optionally filtered by domain."""
     if domain is None:
         return DEFAULT_ONTOLOGY_MAPPINGS
-    return tuple(mapping for mapping in DEFAULT_ONTOLOGY_MAPPINGS if mapping.domain is domain)
+    return tuple(
+        mapping for mapping in DEFAULT_ONTOLOGY_MAPPINGS if mapping.domain is domain
+    )
 
 
 def get_ontology_mapping(term_id: str) -> KnowledgeOntologyMapping | None:
     """Return one ontology mapping by stable term identifier."""
     return next(
-        (mapping for mapping in DEFAULT_ONTOLOGY_MAPPINGS if mapping.term_id == term_id),
+        (
+            mapping
+            for mapping in DEFAULT_ONTOLOGY_MAPPINGS
+            if mapping.term_id == term_id
+        ),
         None,
     )
 
@@ -100,13 +106,19 @@ def list_scientific_context(
     """Return curated scientific context entries, optionally filtered by domain."""
     if domain is None:
         return DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES
-    return tuple(entry for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES if entry.domain is domain)
+    return tuple(
+        entry for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES if entry.domain is domain
+    )
 
 
 def get_scientific_context(context_id: str) -> ScientificContextEntry | None:
     """Return one scientific context entry by stable identifier."""
     return next(
-        (entry for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES if entry.context_id == context_id),
+        (
+            entry
+            for entry in DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES
+            if entry.context_id == context_id
+        ),
         None,
     )
 
@@ -143,14 +155,20 @@ def list_corpus_manifests(
     if source_kind is None:
         return DEFAULT_CORPUS_MANIFESTS
     return tuple(
-        corpus for corpus in DEFAULT_CORPUS_MANIFESTS if corpus.source_kind is source_kind
+        corpus
+        for corpus in DEFAULT_CORPUS_MANIFESTS
+        if corpus.source_kind is source_kind
     )
 
 
 def get_corpus_manifest(corpus_id: str) -> CorpusManifest | None:
     """Return one corpus manifest by stable identifier."""
     return next(
-        (corpus for corpus in DEFAULT_CORPUS_MANIFESTS if corpus.corpus_id == corpus_id),
+        (
+            corpus
+            for corpus in DEFAULT_CORPUS_MANIFESTS
+            if corpus.corpus_id == corpus_id
+        ),
         None,
     )
 
@@ -213,7 +231,11 @@ def list_scientific_rules(
 def get_scientific_rule(rule_id: str) -> ScientificRuleReference | None:
     """Return one scientific rule mapping by stable identifier."""
     return next(
-        (rule for rule in DEFAULT_SCIENTIFIC_RULE_REFERENCES if rule.rule_id == rule_id),
+        (
+            rule
+            for rule in DEFAULT_SCIENTIFIC_RULE_REFERENCES
+            if rule.rule_id == rule_id
+        ),
         None,
     )
 

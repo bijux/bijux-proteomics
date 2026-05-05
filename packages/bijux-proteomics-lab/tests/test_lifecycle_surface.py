@@ -174,7 +174,9 @@ def test_advance_assay_lifecycle_requires_reproducible_validation_before_targete
     assert decision.ready_to_advance is False
     assert decision.to_stage is None
     assert "replicate drift remains unresolved" in decision.reasons
-    assert any("targeted follow-up panel" in item for item in decision.required_next_actions)
+    assert any(
+        "targeted follow-up panel" in item for item in decision.required_next_actions
+    )
 
 
 def test_validate_candidate_follow_up_handoff_refuses_unjustified_signal() -> None:
@@ -200,7 +202,9 @@ def test_validate_candidate_follow_up_handoff_refuses_unjustified_signal() -> No
     assert validation.accepted is False
     assert "contradiction pressure is too high for lab handoff" in validation.blockers
     assert "upstream recommendation is still on hold" in validation.blockers
-    assert any("operational blockers" in step for step in validation.required_next_actions)
+    assert any(
+        "operational blockers" in step for step in validation.required_next_actions
+    )
 
 
 def test_validate_candidate_follow_up_handoff_accepts_grounded_signal() -> None:

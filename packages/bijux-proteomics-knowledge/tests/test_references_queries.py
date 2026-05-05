@@ -25,7 +25,10 @@ from bijux_proteomics_knowledge.references import (
 def test_reference_queries_return_known_registry_entries() -> None:
     assert get_citation("citation:uniprot_2025") is not None
     assert get_ontology_mapping("ptm:phosphorylation") is not None
-    assert get_benchmark_manifest("benchmark:dia_library_extraction_consistency") is not None
+    assert (
+        get_benchmark_manifest("benchmark:dia_library_extraction_consistency")
+        is not None
+    )
     assert get_corpus_manifest("corpus:quant_fixture_suite") is not None
     assert get_scientific_rule("rule:target_decoy_scope") is not None
 

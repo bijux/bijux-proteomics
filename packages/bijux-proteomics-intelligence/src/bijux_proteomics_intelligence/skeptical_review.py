@@ -67,7 +67,9 @@ class SkepticalReviewReport(JsonModel):
     notes: list[str] = Field(default_factory=list)
 
 
-def _top_candidate_fields(path: ReviewBoardDecisionPath) -> tuple[dict[str, object], dict[str, float]]:
+def _top_candidate_fields(
+    path: ReviewBoardDecisionPath,
+) -> tuple[dict[str, object], dict[str, float]]:
     if not path.follow_up_path.ranking.ranked_candidates:
         return {}, {}
     explainability = path.follow_up_path.ranking.ranked_candidates[0].explainability
@@ -282,7 +284,9 @@ def build_skeptical_review_report(
                 rationale=[
                     f"scientific_value={multi_objective.get('scientific_value', 0.0):.2f}",
                 ],
-                required_follow_up=["tighten recommendation language or improve evidence quality"],
+                required_follow_up=[
+                    "tighten recommendation language or improve evidence quality"
+                ],
             )
         )
     if multi_objective.get("assay_feasibility", 0.0) < 0.55:
@@ -311,9 +315,13 @@ def build_skeptical_review_report(
         finding.code == "unresolved_contradiction_pressure"
         for finding in scientific_findings
     ):
-        recommended_action = "hold recommendation until contradiction-resolving evidence is collected"
+        recommended_action = (
+            "hold recommendation until contradiction-resolving evidence is collected"
+        )
     else:
-        recommended_action = "revise the recommendation package before downstream handoff"
+        recommended_action = (
+            "revise the recommendation package before downstream handoff"
+        )
 
     notes = [
         f"software_findings={len(software_findings)}",

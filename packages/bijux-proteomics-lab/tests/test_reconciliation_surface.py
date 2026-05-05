@@ -61,7 +61,9 @@ def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:
     assert report.claim_belief_update.contributing_assay_count == 2
 
 
-def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays() -> None:
+def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays() -> (
+    None
+):
     report = reconcile_planned_and_observed_outcome(
         candidate_id="cand-2",
         execution_request=LabExecutionRequest(

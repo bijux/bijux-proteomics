@@ -35,12 +35,16 @@ class LabArtifactCompatibilityReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Artifact profile identifier.")
+    profile_id: str = Field(
+        ..., min_length=1, description="Artifact profile identifier."
+    )
     schema_version: str = Field(
         ..., min_length=1, description="Document schema version under evaluation."
     )
     compatible: bool = Field(..., description="Whether the schema is compatible.")
-    notes: list[str] = Field(default_factory=list, description="Compatibility rationale.")
+    notes: list[str] = Field(
+        default_factory=list, description="Compatibility rationale."
+    )
 
 
 class LabArtifactUpgradeAdvisory(JsonModel):
@@ -247,7 +251,9 @@ def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str
     left_keys = set(left_payload.keys())
     right_keys = set(right_payload.keys())
     changed = sorted(
-        key for key in sorted(left_keys & right_keys) if left_payload[key] != right_payload[key]
+        key
+        for key in sorted(left_keys & right_keys)
+        if left_payload[key] != right_payload[key]
     )
     return {
         "added_fields": sorted(right_keys - left_keys),

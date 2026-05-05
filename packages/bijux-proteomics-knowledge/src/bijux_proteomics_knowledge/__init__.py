@@ -196,6 +196,7 @@ from bijux_proteomics_knowledge.schema import (
     default_knowledge_schema_profile,
     evaluate_schema_compatibility,
 )
+
 __all__ = [
     "BundleTrustReport",
     "ClaimEvidenceState",

@@ -21,7 +21,10 @@ def test_workflow_reference_briefings_cover_each_family() -> None:
 def test_workflow_reference_briefing_keeps_provenance_visible() -> None:
     briefing = build_workflow_reference_briefing(KnowledgeWorkflowFamily.DIA)
 
-    assert briefing.benchmark_manifest.benchmark_id == "benchmark:dia_library_extraction_consistency"
+    assert (
+        briefing.benchmark_manifest.benchmark_id
+        == "benchmark:dia_library_extraction_consistency"
+    )
     assert briefing.evidence_claim.citation_ids
     assert briefing.limitation.citation_ids
     assert briefing.scientific_context

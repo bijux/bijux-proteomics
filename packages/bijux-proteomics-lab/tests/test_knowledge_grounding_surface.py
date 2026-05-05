@@ -12,7 +12,10 @@ from bijux_proteomics_knowledge.references import (
 def test_lab_can_consume_knowledge_briefing_with_operational_caveats() -> None:
     briefing = build_workflow_reference_briefing(KnowledgeWorkflowFamily.TARGETED)
 
-    assert briefing.benchmark_manifest.benchmark_id == "benchmark:targeted_transition_quality_control"
+    assert (
+        briefing.benchmark_manifest.benchmark_id
+        == "benchmark:targeted_transition_quality_control"
+    )
     assert briefing.limitation.problem_ids
     assert briefing.literature_groups
     assert briefing.scientific_rules

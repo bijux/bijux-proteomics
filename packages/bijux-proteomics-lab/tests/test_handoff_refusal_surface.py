@@ -66,7 +66,9 @@ def test_build_handoff_explanation_separates_supported_exploratory_and_blocked()
             accepted_assay_ids=["assay-a"],
             blockers=["contradiction pressure is too high for lab handoff"],
             skepticism_notes=["refresh supporting evidence before irreversible spend"],
-            required_next_actions=["clear operational blockers before scheduling handoff"],
+            required_next_actions=[
+                "clear operational blockers before scheduling handoff"
+            ],
         ),
         transition_review=TargetedTransitionReview(
             assay_id="assay-a",
@@ -90,9 +92,13 @@ def test_build_handoff_explanation_separates_supported_exploratory_and_blocked()
         executable_plan=_executable_plan(),
     )
 
-    assert any(item.level is HandoffSupportLevel.SUPPORTED for item in explanation.supported)
+    assert any(
+        item.level is HandoffSupportLevel.SUPPORTED for item in explanation.supported
+    )
     assert any("exploratory" in item.summary for item in explanation.exploratory)
-    assert any("too high for lab handoff" in item.summary for item in explanation.blocked)
+    assert any(
+        "too high for lab handoff" in item.summary for item in explanation.blocked
+    )
 
 
 def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> None:
@@ -105,7 +111,9 @@ def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> 
             accepted_assay_ids=["assay-a"],
             blockers=["contradiction pressure is too high for lab handoff"],
             skepticism_notes=[],
-            required_next_actions=["clear operational blockers before scheduling handoff"],
+            required_next_actions=[
+                "clear operational blockers before scheduling handoff"
+            ],
         ),
         transition_review=TargetedTransitionReview(
             assay_id="assay-a",

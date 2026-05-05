@@ -165,12 +165,16 @@ def test_prioritize_candidates_exposes_grounded_multi_objective_judgment() -> No
 
     assert top_candidate.candidate_id == "candidate-a"
     assert top_candidate.explainability["knowledge_grounding_rule_ids"]
-    assert top_candidate.explainability["multi_objective_profile"][
-        "scientific_value"
-    ] > 0.8
-    assert top_candidate.explainability["multi_objective_profile"][
-        "operational_reliability"
-    ] > 0.8
+    assert (
+        top_candidate.explainability["multi_objective_profile"]["scientific_value"]
+        > 0.8
+    )
+    assert (
+        top_candidate.explainability["multi_objective_profile"][
+            "operational_reliability"
+        ]
+        > 0.8
+    )
     assert sensitivity.dominant_inputs
     assert any(
         entry.input_name in {"scientific_value", "assay_feasibility"}

@@ -663,9 +663,7 @@ def _candidate_priority_inputs(
         "contradiction_control": round(max(0.0, 1.0 - contradiction_pressure), 4),
         "liability_control": round(max(0.0, 1.0 - liability_penalty), 4),
         "lab_cost_efficiency": round(max(0.0, 1.0 - candidate.lab_cost_risk), 4),
-        "operational_reliability": round(
-            max(0.0, 1.0 - candidate.operational_risk), 4
-        ),
+        "operational_reliability": round(max(0.0, 1.0 - candidate.operational_risk), 4),
     }
 
 
@@ -733,10 +731,7 @@ def prioritize_candidates(
         freshness_score = freshness_summary.freshness_score
         freshness_notes = [
             f"freshness_score={freshness_summary.freshness_score:.2f}",
-            *[
-                f"refresh:{action}"
-                for action in freshness_summary.refresh_actions[:2]
-            ],
+            *[f"refresh:{action}" for action in freshness_summary.refresh_actions[:2]],
         ]
         contradiction_pressure = contradiction_summary.contradiction_pressure
         contradiction_notes = [
@@ -923,16 +918,16 @@ def prioritize_candidates(
                 "assay_feasibility": assay_feasibility,
                 "novelty": priority_inputs["novelty"],
                 "lab_cost_efficiency": priority_inputs["lab_cost_efficiency"],
-                "operational_reliability": priority_inputs[
-                    "operational_reliability"
-                ],
+                "operational_reliability": priority_inputs["operational_reliability"],
             },
             "freshness_pressure": round(1.0 - freshness_score, 4),
             "contradiction_pressure": contradiction_pressure,
             "knowledge_grounding_rule_ids": grounding_rule_ids,
             "missing_evidence": [],
         }
-        scored.append((candidate, score, reasons, factor_scores, explainability_payload))
+        scored.append(
+            (candidate, score, reasons, factor_scores, explainability_payload)
+        )
 
     ranked = sorted(
         scored,
@@ -978,9 +973,7 @@ def prioritize_candidates(
             reasons,
             factor_scores,
             explainability_payload,
-        ) in enumerate(
-            ranked, start=1
-        )
+        ) in enumerate(ranked, start=1)
     ]
     provenance_entries = [
         RankingProvenanceEntry(

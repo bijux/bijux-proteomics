@@ -144,8 +144,13 @@ def test_realistic_review_scenarios_rank_grounded_follow_up_candidates(
         workflow_family=workflow_family,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
-    assert packet.ranked_evidence[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
+    assert (
+        packet.ranked_evidence[0].candidate_id == payload["expected_top_candidate_id"]
+    )
     assert packet.qc_caveats == [str(item) for item in qc_caveats]
 
 
@@ -162,10 +167,14 @@ def test_novelty_trap_fixture_does_not_outrank_grounded_follow_up() -> None:
         workflow_family=KnowledgeWorkflowFamily.DIA,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
     assert ranking.ranked_candidates[1].candidate_id == "novelty-trap"
-    assert ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"] > (
-        ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    assert (
+        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
+        > (ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"])
     )
 
 
@@ -209,14 +218,17 @@ def test_seductive_weak_candidate_fixtures_do_not_outrank_grounded_follow_up(
     grounded_candidate = ranking.ranked_candidates[0]
 
     assert grounded_candidate.candidate_id == payload["expected_top_candidate_id"]
-    assert seductive_candidate.explainability["priority_inputs"]["criteria_strength"] > (
-        grounded_candidate.explainability["priority_inputs"]["criteria_strength"]
+    assert (
+        seductive_candidate.explainability["priority_inputs"]["criteria_strength"]
+        > (grounded_candidate.explainability["priority_inputs"]["criteria_strength"])
     )
-    assert seductive_candidate.explainability["priority_inputs"]["evidence_strength"] < (
-        grounded_candidate.explainability["priority_inputs"]["evidence_strength"]
+    assert (
+        seductive_candidate.explainability["priority_inputs"]["evidence_strength"]
+        < (grounded_candidate.explainability["priority_inputs"]["evidence_strength"])
     )
-    assert seductive_candidate.explainability["priority_inputs"]["reproducibility"] < (
-        grounded_candidate.explainability["priority_inputs"]["reproducibility"]
+    assert (
+        seductive_candidate.explainability["priority_inputs"]["reproducibility"]
+        < (grounded_candidate.explainability["priority_inputs"]["reproducibility"])
     )
 
 

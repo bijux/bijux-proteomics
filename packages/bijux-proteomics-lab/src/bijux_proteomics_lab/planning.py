@@ -2106,9 +2106,13 @@ def align_lab_priority_queue(
     if unaligned_candidate_ids:
         notes.append("some candidate signals were not mapped to lab assays")
     if skeptical_candidate_ids:
-        notes.append("skeptical penalties downgraded some candidate-driven assay requests")
+        notes.append(
+            "skeptical penalties downgraded some candidate-driven assay requests"
+        )
     if held_candidate_ids:
-        notes.append("hold recommendations were excluded from the executable assay queue")
+        notes.append(
+            "hold recommendations were excluded from the executable assay queue"
+        )
     return LabPriorityQueueAlignment(
         program_id=program.program_id,
         prioritized_assay_ids=prioritized_assay_ids,
@@ -2171,15 +2175,15 @@ def build_follow_up_practicality_report(
             continue
         if matched_batch_ids.isdisjoint(feasible_batches):
             impractical_candidate_ids.append(signal.candidate_id)
-            blockers.append(
-                f"{signal.candidate_id} only maps to deferred batch work"
-            )
+            blockers.append(f"{signal.candidate_id} only maps to deferred batch work")
             continue
         practical_candidate_ids.append(signal.candidate_id)
 
     notes = list(capacity_advisory.notes)
     if blockers:
-        notes.append("candidate practicality is constrained by both analytical skepticism and lab capacity")
+        notes.append(
+            "candidate practicality is constrained by both analytical skepticism and lab capacity"
+        )
 
     return FollowUpPracticalityReport(
         program_id=plan.program_id,

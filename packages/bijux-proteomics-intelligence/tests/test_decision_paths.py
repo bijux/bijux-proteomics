@@ -6,7 +6,6 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics import (
-    DocumentSchema,
     InstrumentBatchQcReport,
     InstrumentBatchQcRunEntry,
     QuantEntityLevel,
@@ -15,6 +14,7 @@ from bijux_proteomics import (
     SuccessCriterion,
     create_program_spec,
 )
+from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics.programs import MeasurementDirection
 from bijux_proteomics_intelligence import (
     CautiousAnomalyInterpretationPath,
@@ -195,9 +195,7 @@ def test_review_board_decision_path_builds_packet_from_evidence_and_candidates()
     assert path.explanation
 
 
-def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -> (
-    None
-):
+def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -> None:
     batch_report = InstrumentBatchQcReport(
         document_schema=DocumentSchema(
             created_by="test",

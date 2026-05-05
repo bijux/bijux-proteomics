@@ -135,7 +135,9 @@ def test_prioritization_guard_keeps_grounding_and_sensitivity_visible() -> None:
     sensitivity = build_ranking_sensitivity_report(top_candidate)
 
     assert top_candidate.explainability["knowledge_grounding_rule_ids"]
-    assert top_candidate.explainability["multi_objective_profile"]["scientific_value"] > 0
+    assert (
+        top_candidate.explainability["multi_objective_profile"]["scientific_value"] > 0
+    )
     assert sensitivity.dominant_inputs
 
 
@@ -176,7 +178,9 @@ def test_recommendation_guard_keeps_machine_readable_refusal_visible() -> None:
 def test_intelligence_package_does_not_restore_wrapper_only_serialization_surface() -> (
     None
 ):
-    package_dir = Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence"
+    package_dir = (
+        Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence"
+    )
     assert not (package_dir / "serialization.py").exists()
 
 

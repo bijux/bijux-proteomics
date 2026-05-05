@@ -89,7 +89,9 @@ def test_benchmark_registry_carries_reproducible_claim_context() -> None:
         assert manifest.result_claim
 
 
-def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references() -> None:
+def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references() -> (
+    None
+):
     bundled = {
         corpus.corpus_id
         for corpus in DEFAULT_CORPUS_MANIFESTS

@@ -40,7 +40,10 @@ class CorpusManifest(JsonModel):
         if self.source_kind is KnowledgeCorpusSourceKind.BUNDLED_FIXTURE:
             if self.repo_relative_path is None:
                 raise ValueError("bundled fixtures require repo_relative_path")
-            if self.reference_locator is not None or self.reference_accession is not None:
+            if (
+                self.reference_locator is not None
+                or self.reference_accession is not None
+            ):
                 raise ValueError(
                     "bundled fixtures must not declare external reference fields"
                 )
@@ -48,7 +51,9 @@ class CorpusManifest(JsonModel):
             if self.reference_locator is None:
                 raise ValueError("external references require reference_locator")
             if self.repo_relative_path is not None:
-                raise ValueError("external references must not declare repo_relative_path")
+                raise ValueError(
+                    "external references must not declare repo_relative_path"
+                )
             if not self.citation_ids:
                 raise ValueError("external references require at least one citation id")
         return self

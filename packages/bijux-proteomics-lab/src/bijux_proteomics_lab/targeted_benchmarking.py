@@ -162,7 +162,9 @@ def build_targeted_benchmark_report(
 ) -> TargetedBenchmarkReport:
     """Build a benchmark report from discovery evidence to lab-facing targeted outputs."""
     if benchmark_manifest.workflow_family is not KnowledgeWorkflowFamily.TARGETED:
-        raise ValueError("targeted benchmark reports require a targeted workflow manifest")
+        raise ValueError(
+            "targeted benchmark reports require a targeted workflow manifest"
+        )
     if not follow_up_path.recommendations:
         raise ValueError("follow-up path must include at least one recommendation")
 
@@ -188,7 +190,10 @@ def build_targeted_benchmark_report(
             diagnostics=tuple(follow_up_path.unresolved_questions[:3]),
         )
 
-    if chromatogram_report.accepted_points and chromatogram_report.failed_metric_rows == 0:
+    if (
+        chromatogram_report.accepted_points
+        and chromatogram_report.failed_metric_rows == 0
+    ):
         qc_support = (
             TargetedBenchmarkClaimSupport.STRONG_SUPPORT
             if chromatogram_report.unknown_metric_rows == 0
@@ -201,9 +206,7 @@ def build_targeted_benchmark_report(
         )
     else:
         qc_support = TargetedBenchmarkClaimSupport.UNSUPPORTED
-        qc_summary = (
-            "chromatogram QC cannot support a strong targeted claim because malformed rows remain"
-        )
+        qc_summary = "chromatogram QC cannot support a strong targeted claim because malformed rows remain"
     qc_claim = TargetedBenchmarkClaimSummary(
         claim_id="chromatogram_qc",
         support=qc_support,
@@ -218,9 +221,7 @@ def build_targeted_benchmark_report(
 
     if operational_path.refusal is not None:
         handoff_support = TargetedBenchmarkClaimSupport.UNSUPPORTED
-        handoff_summary = (
-            "lab handoff is explicitly refused because the targeted follow-up is not responsible to run"
-        )
+        handoff_summary = "lab handoff is explicitly refused because the targeted follow-up is not responsible to run"
     elif (
         transition_review.approved_transition_ids
         and operational_path.execution_request.ready_for_lab_review
@@ -231,9 +232,7 @@ def build_targeted_benchmark_report(
         )
     else:
         handoff_support = TargetedBenchmarkClaimSupport.PARTIAL_SUPPORT
-        handoff_summary = (
-            "targeted transition evidence remains exploratory even though a handoff packet can be reviewed"
-        )
+        handoff_summary = "targeted transition evidence remains exploratory even though a handoff packet can be reviewed"
     handoff_claim = TargetedBenchmarkClaimSummary(
         claim_id="lab_handoff",
         support=handoff_support,
@@ -245,23 +244,21 @@ def build_targeted_benchmark_report(
         diagnostics=(operational_path.explanation.summary,),
     )
 
-    blocked_feedback = operational_path.reconciliation.intelligence_feedback.blocked_assay_ids
-    weakened_feedback = operational_path.reconciliation.intelligence_feedback.weakened_assay_ids
+    blocked_feedback = (
+        operational_path.reconciliation.intelligence_feedback.blocked_assay_ids
+    )
+    weakened_feedback = (
+        operational_path.reconciliation.intelligence_feedback.weakened_assay_ids
+    )
     if not operational_path.reconciliation.ready_for_feedback:
         feedback_support = TargetedBenchmarkClaimSupport.UNSUPPORTED
-        feedback_summary = (
-            "observed outcomes cannot feed back honestly because the reconciliation still has lineage or execution gaps"
-        )
+        feedback_summary = "observed outcomes cannot feed back honestly because the reconciliation still has lineage or execution gaps"
     elif blocked_feedback or weakened_feedback:
         feedback_support = TargetedBenchmarkClaimSupport.PARTIAL_SUPPORT
-        feedback_summary = (
-            "observed outcomes feed back into review, but they only support a downgraded or mixed targeted claim"
-        )
+        feedback_summary = "observed outcomes feed back into review, but they only support a downgraded or mixed targeted claim"
     else:
         feedback_support = TargetedBenchmarkClaimSupport.STRONG_SUPPORT
-        feedback_summary = (
-            "observed outcomes feed back into downstream review without unresolved execution gaps"
-        )
+        feedback_summary = "observed outcomes feed back into downstream review without unresolved execution gaps"
     feedback_claim = TargetedBenchmarkClaimSummary(
         claim_id="observed_feedback",
         support=feedback_support,
@@ -277,12 +274,12 @@ def build_targeted_benchmark_report(
         cache_summary = "cached benchmark inputs are fresh enough for strong support"
     elif cache_age_days <= degraded_cache_window_days:
         cache_support = TargetedBenchmarkClaimSupport.PARTIAL_SUPPORT
-        cache_summary = (
-            "cached benchmark inputs remain usable but should be refreshed before stronger support is claimed"
-        )
+        cache_summary = "cached benchmark inputs remain usable but should be refreshed before stronger support is claimed"
     else:
         cache_support = TargetedBenchmarkClaimSupport.UNSUPPORTED
-        cache_summary = "cached benchmark inputs are too stale for a strong targeted claim"
+        cache_summary = (
+            "cached benchmark inputs are too stale for a strong targeted claim"
+        )
     cache_claim = TargetedBenchmarkClaimSummary(
         claim_id="cache_freshness",
         support=cache_support,

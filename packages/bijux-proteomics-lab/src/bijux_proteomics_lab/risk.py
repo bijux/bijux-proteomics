@@ -159,7 +159,11 @@ def assess_assay_risk(
         min(
             (
                 (1.0 - peptide_uniqueness_score) * 0.25
-                + ((1.0 - localization_probability) * 0.15 if localization_probability is not None else 0.0)
+                + (
+                    (1.0 - localization_probability) * 0.15
+                    if localization_probability is not None
+                    else 0.0
+                )
                 + (1.0 - quant_reproducibility_score) * 0.25
                 + predicted_failure_risk * 0.2
                 + (1.0 - assay_feasibility_score) * 0.15

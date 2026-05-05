@@ -13,7 +13,13 @@ from bijux_proteomics_runtime.runtime.control import (
     load_artifact_ledger,
     load_local_run_bundle,
 )
-from bijux_proteomics_runtime.runtime.control.ledger import refresh_runtime_artifact_ledger
+from bijux_proteomics_runtime.runtime.control.ledger import (
+    refresh_runtime_artifact_ledger,
+)
+from bijux_proteomics_runtime.runtime.control.replay import (
+    write_local_run_bundle,
+    write_replay_contract,
+)
 from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
 
 
@@ -35,26 +41,33 @@ def test_lab_can_read_runtime_bundle_and_retention_policy_via_public_surface(
     )
     write_json_atomic(context.workspace.report_path, {"report": "ok"})
     write_json_atomic(context.workspace.run_summary_path, {"run_id": context.run_id})
-    ledger = refresh_runtime_artifact_ledger(
-        context.workspace,
-        run_id=context.run_id,
-        artifact_policy=context.artifact_policy,
-        producer="test",
-    )
     replay_contract = build_replay_contract(
         run_context,
         app_version="1.2.3",
         git_commit="abc123",
         tool_versions={"heuristic_proxy": "0.1"},
     )
-    write_json_atomic(
-        context.workspace.local_run_bundle_path,
+    write_replay_contract(context.workspace, replay_contract)
+    ledger = refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="test",
+    )
+    write_local_run_bundle(
+        context.workspace,
         build_local_run_bundle(
             run_context=run_context,
             replay_contract=replay_contract,
             artifact_ledger=ledger,
             run_summary={"run_id": context.run_id},
-        ).to_dict(),
+        ),
+    )
+    ledger = refresh_runtime_artifact_ledger(
+        context.workspace,
+        run_id=context.run_id,
+        artifact_policy=context.artifact_policy,
+        producer="test",
     )
 
     bundle = load_local_run_bundle(context.workspace)
@@ -64,4 +77,6 @@ def test_lab_can_read_runtime_bundle_and_retention_policy_via_public_surface(
         bundle.run_context.artifact_policy.retention_by_role["runtime-report"]
         is RuntimeArtifactRetentionClass.REVIEW_REQUIRED
     )
-    assert any(item.artifact_kind == "runtime-report" for item in reloaded_ledger.entries)
+    assert any(
+        item.artifact_kind == "runtime-report" for item in reloaded_ledger.entries
+    )

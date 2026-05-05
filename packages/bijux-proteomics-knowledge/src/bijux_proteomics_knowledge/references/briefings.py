@@ -46,7 +46,9 @@ class WorkflowReferenceBriefing(JsonModel):
     benchmark_manifest: BenchmarkManifest
     evidence_claim: WorkflowNarrative
     limitation: WorkflowNarrative
-    scientific_context: tuple[ScientificContextEntry, ...] = Field(default_factory=tuple)
+    scientific_context: tuple[ScientificContextEntry, ...] = Field(
+        default_factory=tuple
+    )
     literature_groups: tuple[LiteratureGroup, ...] = Field(default_factory=tuple)
     known_problems: tuple[KnownProblemRegistryEntry, ...] = Field(default_factory=tuple)
     scientific_rules: tuple[ScientificRuleReference, ...] = Field(default_factory=tuple)
@@ -98,13 +100,19 @@ def build_workflow_reference_briefing(
         group
         for group in DEFAULT_LITERATURE_GROUPS
         if benchmark_manifest.benchmark_id in group.benchmark_ids
-        or any(context.context_id in group.context_ids for context in scientific_context)
+        or any(
+            context.context_id in group.context_ids for context in scientific_context
+        )
     )
     known_problems = tuple(
-        entry for entry in DEFAULT_KNOWN_PROBLEM_REGISTRY if entry.problem_id in problem_ids
+        entry
+        for entry in DEFAULT_KNOWN_PROBLEM_REGISTRY
+        if entry.problem_id in problem_ids
     )
     related_rule_ids = {
-        rule_id for context in scientific_context for rule_id in context.related_rule_ids
+        rule_id
+        for context in scientific_context
+        for rule_id in context.related_rule_ids
     }
     scientific_rules = tuple(
         rule

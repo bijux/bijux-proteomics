@@ -40,7 +40,9 @@ def test_interpretation_public_api_contains_expected_exports() -> None:
 
 def test_judgment_public_api_contains_expected_exports() -> None:
     assert "DEFAULT_INTELLIGENCE_CHARTER" in bijux_proteomics_intelligence.__all__
-    assert "DEFAULT_INTELLIGENCE_CHARTER_ENTRIES" in bijux_proteomics_intelligence.__all__
+    assert (
+        "DEFAULT_INTELLIGENCE_CHARTER_ENTRIES" in bijux_proteomics_intelligence.__all__
+    )
     assert "DEFAULT_INTELLIGENCE_MODULE_AUDIT" in bijux_proteomics_intelligence.__all__
     assert "IntelligenceCharterCapability" in bijux_proteomics_intelligence.__all__
     assert "IntelligenceModuleClassification" in bijux_proteomics_intelligence.__all__
@@ -56,7 +58,9 @@ def test_judgment_public_api_contains_expected_exports() -> None:
     assert "ReviewChallenge" in bijux_proteomics_intelligence.__all__
     assert "BenchmarkReviewClaim" in bijux_proteomics_intelligence.__all__
     assert "build_ranking_sensitivity_report" in bijux_proteomics_intelligence.__all__
-    assert "build_ranking_rule_grounding_ledger" in bijux_proteomics_intelligence.__all__
+    assert (
+        "build_ranking_rule_grounding_ledger" in bijux_proteomics_intelligence.__all__
+    )
     assert "build_review_board_packet" in bijux_proteomics_intelligence.__all__
     assert "build_skeptical_review_report" in bijux_proteomics_intelligence.__all__
     assert "build_dda_benchmark_review" in bijux_proteomics_intelligence.__all__

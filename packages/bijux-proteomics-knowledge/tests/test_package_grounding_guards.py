@@ -64,7 +64,9 @@ def test_knowledge_source_does_not_import_runtime_or_intelligence() -> None:
             if module.startswith(FORBIDDEN_IMPORT_PREFIXES)
         }
         if forbidden:
-            violating_modules[path.relative_to(KNOWLEDGE_SRC_ROOT).as_posix()] = forbidden
+            violating_modules[path.relative_to(KNOWLEDGE_SRC_ROOT).as_posix()] = (
+                forbidden
+            )
 
     assert violating_modules == {}
 
@@ -104,7 +106,9 @@ def test_grounding_registries_avoid_vague_internal_notes() -> None:
         for entry in registry:
             rendered = entry.model_dump_json().lower()
             if any(phrase in rendered for phrase in VAGUE_GROUNDING_PHRASES):
-                offending_entries.append(entry.model_dump().get("citation_id", repr(entry)))
+                offending_entries.append(
+                    entry.model_dump().get("citation_id", repr(entry))
+                )
 
     assert offending_entries == []
 

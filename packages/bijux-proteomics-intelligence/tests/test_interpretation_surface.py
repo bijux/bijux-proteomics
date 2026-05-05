@@ -360,8 +360,7 @@ def test_outlier_sample_explainer_uses_batch_and_correlation_signals() -> None:
     assert "C1" not in by_sample
     assert "T2" in by_sample
     assert (
-        by_sample["T2"].classification
-        is OutlierInterpretationClass.TECHNICAL_ANOMALY
+        by_sample["T2"].classification is OutlierInterpretationClass.TECHNICAL_ANOMALY
     )
     assert "low_identification_rate" in by_sample["T2"].reasons
     assert "low_replicate_correlation" in by_sample["T2"].reasons
@@ -433,7 +432,9 @@ def test_outlier_sample_explainer_preserves_plausible_biological_separation() ->
     assert by_sample["T1"].classification is (
         OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
     )
-    assert "condition_separation_without_qc_failure" in by_sample["T1"].biological_reasons
+    assert (
+        "condition_separation_without_qc_failure" in by_sample["T1"].biological_reasons
+    )
 
 
 def test_integrate_quant_qc_evidence_combines_missingness_and_outliers() -> None:

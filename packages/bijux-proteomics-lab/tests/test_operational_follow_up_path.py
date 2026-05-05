@@ -67,7 +67,9 @@ def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
     comparison = compare_alternative_assay_plans(
         tuple(
             AlternativeAssayPlanOption.model_validate(option)
-            for option in cast(list[dict[str, Any]], fixture["alternative_plan_options"])
+            for option in cast(
+                list[dict[str, Any]], fixture["alternative_plan_options"]
+            )
         )
     )
 
@@ -122,7 +124,9 @@ def test_refused_fixture_keeps_weak_science_blockers_explicit() -> None:
     comparison = compare_alternative_assay_plans(
         tuple(
             AlternativeAssayPlanOption.model_validate(option)
-            for option in cast(list[dict[str, Any]], fixture["alternative_plan_options"])
+            for option in cast(
+                list[dict[str, Any]], fixture["alternative_plan_options"]
+            )
         )
     )
 

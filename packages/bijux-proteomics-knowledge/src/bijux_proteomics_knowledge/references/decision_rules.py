@@ -45,7 +45,9 @@ def build_ranking_rule_grounding_ledger(
 ) -> RankingRuleGroundingLedger:
     """Build knowledge-backed rule grounding for one workflow family."""
     briefing = build_workflow_reference_briefing(workflow_family)
-    citation_ids = briefing.evidence_claim.citation_ids + briefing.limitation.citation_ids
+    citation_ids = (
+        briefing.evidence_claim.citation_ids + briefing.limitation.citation_ids
+    )
     benchmark_ids = (briefing.benchmark_manifest.benchmark_id,)
     context_ids = tuple(entry.context_id for entry in briefing.scientific_context)
     known_problem_ids = tuple(entry.problem_id for entry in briefing.known_problems)

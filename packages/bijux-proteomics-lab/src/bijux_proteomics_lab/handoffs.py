@@ -214,9 +214,7 @@ def review_targeted_transition_candidates(
         )
         reasons: list[str] = []
         if missing_controls:
-            reasons.append(
-                "missing required controls: " + ", ".join(missing_controls)
-            )
+            reasons.append("missing required controls: " + ", ".join(missing_controls))
         if not risk_assessment.supported_for_follow_up:
             reasons.append(
                 f"assay risk score {risk_assessment.overall_risk_score:.2f} is too high for confident transition approval"
@@ -277,7 +275,8 @@ def review_targeted_transition_candidates(
                 min(
                     (
                         (len(approved_transition_ids) / max(len(entries), 1)) * 0.75
-                        + (len(exploratory_transition_ids) / max(len(entries), 1)) * 0.25
+                        + (len(exploratory_transition_ids) / max(len(entries), 1))
+                        * 0.25
                     ),
                     1.0,
                 ),
@@ -337,7 +336,9 @@ def build_handoff_explanation(
             HandoffSupportStatement(
                 level=HandoffSupportLevel.SUPPORTED,
                 summary="review packet contains linked evidence for the requested follow-up",
-                evidence_refs=tuple(sorted(review_packet.advancement_evidence.evidence_ids)),
+                evidence_refs=tuple(
+                    sorted(review_packet.advancement_evidence.evidence_ids)
+                ),
             )
         )
 
@@ -510,12 +511,12 @@ def build_lims_export_bundle(
         protocol_id=protocol_attachment.protocol_id,
         protocol_version=protocol_attachment.protocol_version,
         required_controls=tuple(
-            sorted(control.control_id for control in protocol_attachment.required_controls)
+            sorted(
+                control.control_id for control in protocol_attachment.required_controls
+            )
         ),
         readiness_state=(
-            "ready_for_review"
-            if execution_request.ready_for_lab_review
-            else "blocked"
+            "ready_for_review" if execution_request.ready_for_lab_review else "blocked"
         ),
         blocked_reasons=tuple(execution_request.unresolved_risks),
         scientific_rationale=tuple(execution_request.scientific_rationale),
@@ -560,7 +561,9 @@ def compare_alternative_assay_plans(
     scored_options.sort(key=lambda item: (-item[1], item[0]))
     best_plan_id = scored_options[0][0] if scored_options else ""
     notes = (
-        ("comparison favors the strongest evidence gain that still fits practical cost and turnaround",)
+        (
+            "comparison favors the strongest evidence gain that still fits practical cost and turnaround",
+        )
         if scored_options
         else ("no assay plan options were provided",)
     )

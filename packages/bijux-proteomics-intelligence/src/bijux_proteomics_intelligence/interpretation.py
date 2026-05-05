@@ -331,7 +331,9 @@ class AnalyticalContrastRecommendationReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     condition_count: int = Field(..., ge=0)
-    valid_contrasts: tuple[AnalyticalContrastRecommendation, ...] = Field(default_factory=tuple)
+    valid_contrasts: tuple[AnalyticalContrastRecommendation, ...] = Field(
+        default_factory=tuple
+    )
     rejected_contrasts: tuple[AnalyticalContrastRecommendation, ...] = Field(
         default_factory=tuple
     )
@@ -750,13 +752,9 @@ def _build_pathway_interpretation_caution_report(
         )
     blocked = any(caution.blocked_claim for caution in cautions)
     if blocked:
-        safe_summary = (
-            "Pathway-level claims remain blocked; only constrained thematic summaries are safe."
-        )
+        safe_summary = "Pathway-level claims remain blocked; only constrained thematic summaries are safe."
     elif cautions:
-        safe_summary = (
-            "Pathway summaries are usable only with the listed caution notes kept visible."
-        )
+        safe_summary = "Pathway summaries are usable only with the listed caution notes kept visible."
     else:
         safe_summary = "Pathway interpretation has enough support for cautious use."
     return PathwayInterpretationCautionReport(
@@ -1220,7 +1218,8 @@ def explain_outlier_samples(
             and run.identification_rate >= batch_report.median_identification_rate
             and (
                 run.median_abs_mass_error_ppm is None
-                or run.median_abs_mass_error_ppm <= batch_report.median_abs_mass_error_ppm
+                or run.median_abs_mass_error_ppm
+                <= batch_report.median_abs_mass_error_ppm
             )
         ):
             biological_reasons.add("condition_separation_without_qc_failure")
@@ -1230,21 +1229,13 @@ def explain_outlier_samples(
         if reasons:
             if technical_reasons and biological_reasons:
                 classification = OutlierInterpretationClass.MIXED_SIGNAL
-                follow_up = (
-                    "repeat QC checks and verify whether the condition shift persists in orthogonal assays"
-                )
+                follow_up = "repeat QC checks and verify whether the condition shift persists in orthogonal assays"
             elif technical_reasons:
                 classification = OutlierInterpretationClass.TECHNICAL_ANOMALY
-                follow_up = (
-                    "treat the sample as a technical anomaly until acquisition or preparation issues are resolved"
-                )
+                follow_up = "treat the sample as a technical anomaly until acquisition or preparation issues are resolved"
             else:
-                classification = (
-                    OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
-                )
-                follow_up = (
-                    "preserve the sample for biological follow-up and confirm the shift with orthogonal evidence"
-                )
+                classification = OutlierInterpretationClass.PLAUSIBLE_BIOLOGICAL_EFFECT
+                follow_up = "preserve the sample for biological follow-up and confirm the shift with orthogonal evidence"
             explanations.append(
                 OutlierSampleExplanation(
                     sample_id=sample_id,

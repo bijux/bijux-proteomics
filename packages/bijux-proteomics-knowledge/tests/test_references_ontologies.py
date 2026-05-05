@@ -31,7 +31,9 @@ def test_ontology_mappings_normalize_aliases_for_curated_terms() -> None:
         == "ptm:phosphorylation"
     )
     assert (
-        resolve_ontology_mapping(KnowledgeOntologyDomain.INSTRUMENT, "fusion lumos").term_id
+        resolve_ontology_mapping(
+            KnowledgeOntologyDomain.INSTRUMENT, "fusion lumos"
+        ).term_id
         == "instrument:orbitrap"
     )
     assert (
@@ -44,8 +46,6 @@ def test_ontology_mappings_normalize_aliases_for_curated_terms() -> None:
 
 def test_ontology_mappings_return_none_for_unknown_terms() -> None:
     assert (
-        resolve_ontology_mapping(
-            KnowledgeOntologyDomain.ACQUISITION_MODE, "nanopore"
-        )
+        resolve_ontology_mapping(KnowledgeOntologyDomain.ACQUISITION_MODE, "nanopore")
         is None
     )

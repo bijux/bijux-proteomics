@@ -94,7 +94,10 @@ def test_build_lims_export_bundle_reports_field_mapping_and_loss() -> None:
 
     assert bundle.records[0].protocol_version == "2.3"
     assert bundle.lossy_fields == ("scientific_rationale",)
-    assert any(mapping.destination_field == "lims_operator_notes" for mapping in bundle.field_mappings)
+    assert any(
+        mapping.destination_field == "lims_operator_notes"
+        for mapping in bundle.field_mappings
+    )
     assert bundle.notes[0].startswith("handoff remains blocked")
 
 

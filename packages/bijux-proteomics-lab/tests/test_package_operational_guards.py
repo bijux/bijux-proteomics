@@ -47,8 +47,7 @@ def test_lab_root_is_not_dominated_by_packet_and_report_exports() -> None:
     behavior_exports = [
         name
         for name in root_exports
-        if callable(getattr(lab, name, None))
-        and not name.startswith("test_")
+        if callable(getattr(lab, name, None)) and not name.startswith("test_")
     ]
     schema_like_exports = [
         name

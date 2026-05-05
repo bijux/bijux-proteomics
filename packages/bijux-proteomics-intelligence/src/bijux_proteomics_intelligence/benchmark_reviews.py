@@ -285,7 +285,8 @@ def build_dia_benchmark_review(
                 surface="transition_alignment",
                 status=(
                     DiaCapabilityStatus.SUPPORTED
-                    if len(normalization.normalized_records) == review_bundle.psm_summary.total_psms
+                    if len(normalization.normalized_records)
+                    == review_bundle.psm_summary.total_psms
                     else DiaCapabilityStatus.PARTIAL
                 ),
                 note="transition-shaped evidence remains reviewable through normalized precursor identifiers",
@@ -416,7 +417,9 @@ def build_ptm_benchmark_review(
     )
     if manifest.workflow_family is not KnowledgeWorkflowFamily.PTM:
         raise ValueError("PTM benchmark review requires a PTM workflow manifest")
-    active_localization_path = localization_path or (_repo_root() / manifest.dataset_locator)
+    active_localization_path = localization_path or (
+        _repo_root() / manifest.dataset_locator
+    )
     active_feature_path = feature_path or (
         _repo_root()
         / "packages"
@@ -486,7 +489,8 @@ def build_ptm_benchmark_review(
             claim_id="phospho_review_packet",
             support_state=(
                 SupportState.SUPPORTED
-                if phospho_review.motif_window_count >= len(phospho_review.phospho_site_keys)
+                if phospho_review.motif_window_count
+                >= len(phospho_review.phospho_site_keys)
                 else SupportState.INCOMPLETE
             ),
             summary="PTM benchmark review reaches a phospho-specific review packet with motif and occupancy caveats intact",
@@ -807,8 +811,8 @@ def build_multiplex_benchmark_review(
             ),
         ),
     )
-    bundle_artifact_id = (
-        quant_bundle.document_schema.content_hash or fingerprint_model(quant_bundle)
+    bundle_artifact_id = quant_bundle.document_schema.content_hash or fingerprint_model(
+        quant_bundle
     )
     scientific_limits = (
         *manifest.comparison_notes,

@@ -31,8 +31,7 @@ def test_lab_charter_defines_exact_operational_capabilities() -> None:
 def test_lab_module_audit_covers_every_source_module() -> None:
     audited_paths = {entry.module_path for entry in DEFAULT_LAB_MODULE_AUDIT}
     source_paths = {
-        path.relative_to(LAB_SRC_ROOT).as_posix()
-        for path in LAB_SRC_ROOT.rglob("*.py")
+        path.relative_to(LAB_SRC_ROOT).as_posix() for path in LAB_SRC_ROOT.rglob("*.py")
     }
 
     assert audited_paths == source_paths

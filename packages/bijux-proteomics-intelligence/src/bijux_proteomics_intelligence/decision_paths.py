@@ -298,7 +298,9 @@ def build_cautious_anomaly_interpretation_path(
 
     for explanation in explanations:
         if explanation.classification is OutlierInterpretationClass.TECHNICAL_ANOMALY:
-            recommendation = "hold biological interpretation until the technical anomaly is resolved"
+            recommendation = (
+                "hold biological interpretation until the technical anomaly is resolved"
+            )
             questions = ["root cause of the technical anomaly remains unresolved"]
         elif explanation.classification is OutlierInterpretationClass.MIXED_SIGNAL:
             recommendation = "treat the anomaly as unresolved until orthogonal evidence separates technical and biological signal"
@@ -327,14 +329,18 @@ def build_cautious_anomaly_interpretation_path(
         entry.classification is OutlierInterpretationClass.TECHNICAL_ANOMALY
         for entry in interpretations
     ):
-        overall = "hold mechanistic interpretation until technical anomalies are resolved"
+        overall = (
+            "hold mechanistic interpretation until technical anomalies are resolved"
+        )
     elif any(
         entry.classification is OutlierInterpretationClass.MIXED_SIGNAL
         for entry in interpretations
     ):
         overall = "treat observed anomalies as unresolved until orthogonal evidence reduces ambiguity"
     else:
-        overall = "preserve observed anomalies for biological follow-up with explicit caution"
+        overall = (
+            "preserve observed anomalies for biological follow-up with explicit caution"
+        )
 
     return CautiousAnomalyInterpretationPath(
         interpretation_count=len(interpretations),
