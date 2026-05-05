@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.reviews.analysis import (
+from bijux_proteomics_intelligence.reviews.boards import (
     ReviewBoardAgendaEntry,
     ReviewBoardVote,
     ReviewBoardVoteEntry,
