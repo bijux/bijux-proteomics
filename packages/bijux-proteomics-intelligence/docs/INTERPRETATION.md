@@ -1,9 +1,9 @@
 # Proteomics Interpretation Workflows
 
-`interpretation.py` and `analytical_review.py` own the interpretation band for
-`bijux-proteomics-intelligence`. They turn already-typed proteomics evidence
-into reviewable summaries, but they must stay explicit about what they can
-decide and what they must refuse to overclaim.
+`interpretation/summaries.py` and `reviews/analysis.py` own the interpretation
+band for `bijux-proteomics-intelligence`. They turn already-typed proteomics
+evidence into reviewable summaries, but they must stay explicit about what
+they can decide and what they must refuse to overclaim.
 
 ## What this surface can decide
 
@@ -44,10 +44,13 @@ testable without binding the package to one external annotation source.
 ## Typical flow
 
 ```python
-from bijux_proteomics_intelligence import interpretation
+from bijux_proteomics_intelligence.interpretation.summaries import (
+    build_run_interpretation_summary,
+    interpret_differential_abundance,
+)
 
-summary = interpretation.build_run_interpretation_summary(...)
-report = interpretation.interpret_differential_abundance(...)
+summary = build_run_interpretation_summary(...)
+report = interpret_differential_abundance(...)
 ```
 
 In practice:

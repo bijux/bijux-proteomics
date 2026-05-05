@@ -12,11 +12,15 @@ knowledge-owned evidence posture into explicit analytical judgment.
 
 Its architecture is organized around five durable analytical bands:
 
-- `judgment`: `briefs.py`, `policies.py`, `evaluators.py`, `recommendations.py`, `candidates.py`
-- `evidence_posture`: `evidence_posture.py`
-- `interpretation`: `interpretation.py`, `analytical_review.py`
-- `review`: `decision_paths.py`, `review_packets.py`, `skeptical_review.py`, `benchmark_reviews.py`
-- `learning`: `follow_up_learning.py`, `design_loop/`
+- `candidates`: `candidates/ranking.py`, `candidates/lifecycle.py`
+- `judgment`: `judgment/policies.py`, `judgment/scenarios.py`,
+  `judgment/recommendations.py`, `judgment/paths.py`
+- `posture`: `posture/evidence.py`, `posture/skeptical.py`
+- `interpretation`: `interpretation/summaries.py`
+- `reviews`: `reviews/analysis.py`, `reviews/packets.py`,
+  `reviews/benchmarks.py`
+- `learning`: `learning/adaptation.py`, `learning/iterative_design/`
+- `governance`: `governance/charter.py`
 
 ## Design constraints
 
@@ -27,17 +31,20 @@ Its architecture is organized around five durable analytical bands:
 
 ## Module topology
 
-- `briefs.py` owns candidate framing, ranking narratives, and explainability summaries
-- `policies.py` owns ranking factors and policy contracts
-- `evidence_posture.py` owns contradiction, freshness, downgrade, and refusal posture
-- `evaluators.py` owns scenario evaluation and portfolio-facing judgment summaries
-- `recommendations.py` owns recommendation refusal, escalation, uncertainty, and advisory-versus-enforced decision envelopes
-- `review_packets.py` owns review packet assembly and ranked-evidence presentation
-- `decision_paths.py` owns end-to-end analytical decision paths
-- `skeptical_review.py` owns explicit challenge pressure over recommendations
-- `benchmark_reviews.py` owns benchmark-backed release review claims
-- `interpretation.py` and `analytical_review.py` own typed cautious interpretation
-- `follow_up_learning.py` and `design_loop/` own future-oriented learning pressure
+- `candidates/ranking.py` owns candidate framing, ranking narratives, and explainability summaries
+- `candidates/lifecycle.py` owns candidate movement, risk, and portfolio lifecycle semantics
+- `judgment/policies.py` owns ranking factors and policy contracts
+- `judgment/scenarios.py` owns scenario evaluation and portfolio-facing judgment summaries
+- `judgment/recommendations.py` owns recommendation refusal, escalation, uncertainty, and advisory-versus-enforced decision envelopes
+- `judgment/paths.py` owns end-to-end analytical decision paths
+- `posture/evidence.py` owns contradiction, freshness, downgrade, and refusal posture
+- `posture/skeptical.py` owns explicit challenge pressure over recommendations
+- `reviews/packets.py` owns review packet assembly and ranked-evidence presentation
+- `reviews/analysis.py` owns downstream analytical review projections
+- `reviews/benchmarks.py` owns benchmark-backed release review claims
+- `interpretation/summaries.py` owns typed cautious interpretation contracts
+- `learning/adaptation.py` and `learning/iterative_design/` own future-oriented learning pressure
+- `governance/charter.py` owns the machine-readable capability map and charter
 
 ## Dependency direction
 

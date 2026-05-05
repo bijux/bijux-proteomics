@@ -23,16 +23,16 @@ def test_intelligence_docs_name_live_owner_modules_and_analytical_bands() -> Non
     readme, architecture, boundaries, contracts, interpretation = _intelligence_docs()
     combined = "\n".join((readme, architecture, boundaries, contracts, interpretation))
 
-    assert "charter.py" in combined
-    assert "briefs.py" in combined
-    assert "evidence_posture.py" in combined
-    assert "decision_paths.py" in combined
-    assert "benchmark_reviews.py" in combined
-    assert "follow_up_learning.py" in combined
-    assert "recommendations.py" in combined
-    assert "review_packets.py" in combined
+    assert "governance/charter.py" in combined
+    assert "candidates/ranking.py" in combined
+    assert "posture/evidence.py" in combined
+    assert "judgment/paths.py" in combined
+    assert "reviews/benchmarks.py" in combined
+    assert "learning/adaptation.py" in combined
+    assert "judgment/recommendations.py" in combined
+    assert "reviews/packets.py" in combined
     assert "judgment" in combined
-    assert "evidence posture" in combined
+    assert "posture" in combined
     assert "interpretation" in combined
     assert "review" in combined
     assert "learning" in combined
@@ -44,8 +44,14 @@ def test_intelligence_docs_teach_curated_namespaces_instead_of_symbol_menu_impor
     readme, architecture, boundaries, contracts, interpretation = _intelligence_docs()
     combined = "\n".join((readme, architecture, boundaries, contracts, interpretation))
 
-    assert "from bijux_proteomics_intelligence import (\n    benchmark_reviews," in readme
-    assert "from bijux_proteomics_intelligence import interpretation" in interpretation
+    assert (
+        "from bijux_proteomics_intelligence.candidates.ranking import prioritize_candidates"
+        in readme
+    )
+    assert (
+        "from bijux_proteomics_intelligence.interpretation.summaries import ("
+        in interpretation
+    )
     assert "from bijux_proteomics_intelligence import prioritize_candidates" not in combined
     assert (
         "from bijux_proteomics_intelligence import build_run_interpretation_summary"

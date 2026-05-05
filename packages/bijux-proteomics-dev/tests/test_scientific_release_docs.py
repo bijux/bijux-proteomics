@@ -46,6 +46,6 @@ def test_readmes_point_reviewers_to_benchmark_backed_scope() -> None:
         in intelligence_readme
     )
     assert "`lfq`, and `multiplex`" in intelligence_readme
-    assert "benchmark_reviews.py" in intelligence_readme
+    assert "reviews/benchmarks.py" in intelligence_readme
     assert "build_scientific_release_dossier()" in dev_readme
     assert "scientific-release-workflows.toml" in dev_readme
