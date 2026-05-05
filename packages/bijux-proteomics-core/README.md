@@ -32,32 +32,31 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-core` defines the central protein program domain, including
-entities, lifecycle transitions, review gates, assay requirements, and
-execution interfaces used across the platform.
+`bijux-proteomics-core` is the scientific heart of the suite. It owns the
+proteomics domain models, evidence normalization, uncertainty-aware review
+artifacts, and workflow contracts that the surrounding packages consume.
 
-Use this package when you need stage-based governance for protein programs,
-deterministic progression rules, and enforceable domain contracts for decision
-and execution pipelines.
+Use this package when the change defines scientific meaning that should remain
+true before runtime execution, knowledge curation, intelligence judgment, or
+lab operations are layered on top.
 
-This package now also owns the canonical scientific workflow blueprint surface.
-That blueprint is intentionally narrow: it describes workflow stages and
-blocking contracts without stealing evidence, ranking, runtime, or lab
-ownership from adjacent packages.
+Core also owns workflow blueprints and execution requests, but only as
+runtime-agnostic scientific contracts. It does not take over provider binding,
+run orchestration, ranking policy, reference curation, or lab readiness.
 
 ## Why teams pick this package
 
-- explicit protein program contracts with validated lifecycle progression rules
-- deterministic gate transitions that prevent invalid stage advancement
-- strongly typed models for targets, assays, reviews, and governance outcomes
-- stable interfaces for orchestration and repository integration
+- explicit scientific contracts for sequence, chemistry, identification, quantification, PTM, DIA, study, and review surfaces
+- deterministic evidence normalization with honest loss and refusal reporting
+- workflow contracts that stay runtime-agnostic while preserving scientific meaning
+- reviewable artifacts that downstream packages can consume without redefining core domain truth
 
 ## Typical use cases
 
-- model a protein program from inception through review-gated progression
-- enforce invariant checks before promotion, approval, or execution
-- build service layers on top of shared program and repository contracts
-- integrate CLI-driven domain workflows in local or CI automation
+- normalize proteomics evidence into durable core contracts before higher-layer judgment begins
+- model program, target, assay, review, and workflow state with explicit scientific semantics
+- inspect unsupported or lossy scientific inputs without hiding uncertainty
+- build reviewable scientific artifacts that runtime, knowledge, intelligence, and lab can consume
 
 ## Installation
 
@@ -82,6 +81,26 @@ Import-driven usage starts from the core domain package:
 ```python
 from bijux_proteomics import program_spec, validation
 ```
+
+For reader-facing examples that stay inside the scientific package boundary:
+
+```python
+from bijux_proteomics.interfaces import (
+    build_glycopeptide_refusal_example,
+    build_loss_aware_search_normalization_example,
+    build_sequence_digest_example,
+)
+
+digest_example = build_sequence_digest_example()
+refusal_example = build_glycopeptide_refusal_example()
+loss_example = build_loss_aware_search_normalization_example()
+```
+
+Those examples are built from real core functions and show:
+
+- a digest walkthrough that needs no runtime context
+- an explicit refusal when glycopeptide evidence is incomplete
+- a loss-aware normalization report for external search-engine fields
 
 Sequence intake and FASTA operations now live in the same package surface:
 
@@ -520,38 +539,39 @@ interpretation, advisory versus enforced findings, and failed-run diagnosis.
 
 - Distribution name: `bijux-proteomics-core`
 - Import root: `bijux_proteomics`
-- Stable entrypoints: `program_spec`, `validation`, `repositories`, `interfaces`, and `sequences`
+- Stable entrypoints: `domain`, `sequences`, `chemistry`, `identification`, `study`, `quantification`, `ptm`, `dia`, `review`, `workflow`, and `interfaces`
 
 ## Package boundaries
 
-This package owns lifecycle domain models, progression rules, and validation invariants.
+This package owns scientific meaning: domain models, evidence normalization,
+uncertainty-aware review artifacts, and workflow contracts that preserve
+proteomics semantics before execution and recommendation layers consume them.
 
-It does not own evidence trust policy, ranking policy, or lab scheduling behavior.
+It does not own provider binding, run orchestration, reference curation,
+ranking policy, recommendation judgment, or lab scheduling behavior.
 
-It also should not pretend that one domain model already solves the whole
-proteomics workflow problem. Core owns the stage blueprint and transition law,
-then hands the rest to knowledge, intelligence, lab, and runtime.
+Core also does not pretend that one domain model solves the whole suite. It
+defines the scientific source of truth, then hands execution, curation,
+judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 
 ## Contract checkpoints
 
+- scientific normalization must preserve mapped, unsupported, refused, and lost evidence states explicitly
 - lifecycle transitions must flow through declared stage and gate rules
-- validators must return stable issue types instead of ad hoc failures
 - repository and execution protocols must stay replaceable and runtime-agnostic
-- downstream packages should consume core rules rather than restating lifecycle semantics
+- downstream packages should consume core scientific rules instead of restating them
 
 ## Choose this package when
 
-- you need canonical lifecycle, review-gate, or program-state semantics
-- the change defines domain truth that higher layers should consume rather than
-  reinterpret
-- repository or execution protocols must stay runtime-agnostic
+- you need canonical proteomics semantics that higher layers should consume rather than reinterpret
+- the change defines evidence normalization, scientific ambiguity, or reviewable domain truth
+- workflow contracts must stay runtime-agnostic while preserving scientific meaning
 
 ## Route elsewhere when
 
-- the change defines evidence trust, ranking policy, lab scheduling, or
-  operator transport behavior
-- the helper exists only to adapt core data into CLI, API, or replay payloads
-- the behavior is workflow-local instead of a reusable program-domain rule
+- the change defines provider behavior, reference curation, ranking policy, or lab operations
+- the helper exists only to adapt core data into CLI, API, execution, or replay transport payloads
+- the behavior is workflow-local glue instead of reusable scientific meaning
 
 ## Verification route
 
@@ -564,55 +584,48 @@ then hands the rest to knowledge, intelligence, lab, and runtime.
 
 ## Review questions
 
-- does the change preserve lifecycle rules, protocol contracts, or durable
-  state semantics rather than orchestration or delivery concerns
-- would another package become the de facto owner of state transition meaning if
-  this behavior stayed outside core
-- can the change be justified without claiming evidence, ranking, lab, or
-  runtime transport ownership
+- does the change strengthen scientific meaning rather than execution, ranking, or operational transport
+- would another package become the de facto owner of proteomics evidence semantics if this behavior stayed outside core
+- can the change be justified without claiming runtime, knowledge, intelligence, or lab ownership
 
 ## Escalation route
 
-- route the change outward when the behavior mainly shapes evidence trust,
-  ranking policy, lab execution, or operator transport
-- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
-  proposal introduces package-specific workflow semantics instead of reusable
-  lifecycle law
-- escalate before release when downstream packages would need to reinterpret
-  core state transitions differently to adopt the change
+- route the change outward when the behavior mainly shapes provider execution, reference curation, ranking policy, or lab operations
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the proposal introduces workflow glue instead of reusable scientific law
+- escalate before release when downstream packages would need to reinterpret core evidence semantics to adopt the change
 
 ## Consumer impact signals
 
-- expect coordinated downstream review when lifecycle rules, validators, or
-  repository protocols change because higher layers consume core state meaning
-- treat changes that alter transition semantics or protocol obligations as
-  high-impact even when import paths stay stable
-- expect a narrower release burden when the change only improves internal core
-  implementation without changing lifecycle or protocol behavior
+- expect coordinated downstream review when evidence semantics, lifecycle rules, or workflow contracts change because higher layers consume that scientific meaning
+- treat changes that alter normalization loss, refusal boundaries, or transition semantics as high-impact even when import paths stay stable
+- expect a narrower release burden when the change only improves internal implementation without changing scientific outputs or contracts
 
 ## Explicit non-goals
 
-- this package does not own runtime transport, provider binding, or replay
-  orchestration
-- this package does not define evidence semantics, ranking policy, or lab
-  workflow decisions
-- this package does not exist to preserve legacy imports that belong in the
-  compatibility package
+- this package does not own runtime transport, provider binding, or replay orchestration
+- this package does not own knowledge curation, ranking judgment, or lab workflow decisions
+- this package does not exist to preserve stale compatibility wrappers that have no live consumer value
 
 ## Source guide
 
-- [`src/bijux_proteomics/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/program_spec.py) for core program entities and progression contracts
-- [`src/bijux_proteomics/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/repositories.py) for decision and gate repository protocols
-- [`src/bijux_proteomics/sequences.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences.py) for FASTA parsing, protein normalization, checksums, filtering, provenance, and target-decoy utilities
-- [`src/bijux_proteomics/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py) for protease rules, digestion modes, peptide filters, uniqueness, and peptide-to-protein indexing
-- [`src/bijux_proteomics/chemistry.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry.py) for peptide masses, precursor m/z, fragment ions, neutral losses, modification registries, and modified-peptide parsing
-- [`src/bijux_proteomics/identification.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification.py) for PSM parsing, validation, target-decoy labeling, stable export, sorting, best-hit selection, and peptide/protein rollups
-- [`src/bijux_proteomics/formats.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/formats.py) for mzML parsing, format detection, design-table validation, normalized conversion, and run bundles
-- [`src/bijux_proteomics/search_adapters.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py) for engine-specific manifests, adapter normalization, capability matrices, and adapter provenance
-- [`src/bijux_proteomics/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/spectra.py) for spectrum models, MGF parsing/rendering, peak normalization and filtering, fragment annotation, and plot payload export
-- [`src/bijux_proteomics/workflow_runtime.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow_runtime.py) for workflow manifests, DAG projection, container and HPC planning, cache contracts, artifact lineage, streaming policy, and checkpoints
-- [`src/bijux_proteomics/validation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/validation.py) for invariant checks
-- [`src/bijux_proteomics/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces) for CLI boundaries
+- [`src/bijux_proteomics/domain/program_spec.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/domain/program_spec.py) for canonical program entities and stage semantics
+- [`src/bijux_proteomics/domain/programs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/domain/programs.py) for review-gated progression and execution requests
+- [`src/bijux_proteomics/sequences/core.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py) for FASTA parsing, target-decoy generation, and sequence normalization
+- [`src/bijux_proteomics/sequences/digestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py) for protease rules, digestion modes, peptide filters, and peptide-to-protein indexing
+- [`src/bijux_proteomics/chemistry/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py) for peptide masses, fragment ions, neutral losses, and modification semantics
+- [`src/bijux_proteomics/identification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py) for stable PSM parsing, target-decoy evaluation, and peptide/protein evidence rollups
+- [`src/bijux_proteomics/identification/search_adapters.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py) for engine-specific manifests, normalization, conformance, and loss accounting
+- [`src/bijux_proteomics/io/formats.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py) for format detection, mzML parsing, design-table support, and normalized run bundles
+- [`src/bijux_proteomics/io/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py) for mzIdentML, mzTab, mzML-decoding, chromatogram, and boundary-aware ingestion reports
+- [`src/bijux_proteomics/io/spectra.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py) for spectrum models, MGF parsing, fragment annotation, and plot payload export
+- [`src/bijux_proteomics/quantification/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/quantification/__init__.py) for LFQ, multiplex, normalization, missingness, and DA-ready quant contracts
+- [`src/bijux_proteomics/ptm/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/ptm/__init__.py) for PTM evidence parsing, site aggregation, site FDR, occupancy, and motif context
+- [`src/bijux_proteomics/dia/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/dia/__init__.py) for DIA-native evidence, library validation, and targeted candidate export
+- [`src/bijux_proteomics/review/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/review/__init__.py) for contradiction-aware review packets and evidence-gap reporting
+- [`src/bijux_proteomics/workflow/blueprint.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow/blueprint.py) for runtime-agnostic scientific workflow blueprints
+- [`src/bijux_proteomics/workflow/runtime.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runtime.py) for workflow manifests, cache contracts, archive bundles, and checkpoints
+- [`src/bijux_proteomics/interfaces/examples.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/examples.py) for reader-facing digest, refusal, and loss-aware package examples
+- [`src/bijux_proteomics/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/charter.py) for the machine-readable scientific domain map and boundary audit
 - [`docs/FORMAT_INGESTION.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FORMAT_INGESTION.md) for mzML, design-table, format-conversion, and run-bundle workflows
 - [`docs/WORKFLOW_RUNTIME.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/WORKFLOW_RUNTIME.md) for workflow manifests, DAG projection, cache/artifact planning, scheduler export, and checkpoint semantics
 - [`docs/PROTEIN_INFERENCE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PROTEIN_INFERENCE.md) for multi-level FDR, grouping, parsimony, picked protein FDR, and sequence-aware coverage workflows
