@@ -129,6 +129,7 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
             "briefs.py",
             "policies.py",
             "evaluators.py",
+            "recommendations.py",
             "candidates.py",
         ),
         decision_scope=(
@@ -181,6 +182,7 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
         ),
         required_modules=(
             "decision_paths.py",
+            "review_packets.py",
             "skeptical_review.py",
             "benchmark_reviews.py",
         ),
@@ -229,7 +231,8 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
-            "evaluators.py",
+            "review_packets.py",
+            "recommendations.py",
             "decision_paths.py",
             "skeptical_review.py",
             "benchmark_reviews.py",
@@ -310,10 +313,8 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(
             IntelligenceCharterCapability.CONTRADICTION_HANDLING,
-            IntelligenceCharterCapability.REVIEW_REASONING,
-            IntelligenceCharterCapability.RECOMMENDATION,
         ),
-        reason="Scenario evaluators and review packets are core analytical behavior, not downstream display glue.",
+        reason="Scenario evaluators keep progression, redesign, synthesis, and scale-up judgment explicit instead of burying it inside review formatting.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="evidence_posture.py",
@@ -341,6 +342,21 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.PRIORITIZATION,),
         reason="Policy lineage and factor validation make ranking reproducible instead of ad hoc.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="recommendations.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(
+            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
+            IntelligenceCharterCapability.RECOMMENDATION,
+        ),
+        reason="Recommendation refusal, escalation, and unresolved-question posture now live with the advisory decision contract they actually own.",
+    ),
+    IntelligenceModuleAuditEntry(
+        module_path="review_packets.py",
+        classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
+        anchor_capabilities=(IntelligenceCharterCapability.REVIEW_REASONING,),
+        reason="Review packet assembly now stays separate from scenario policy so review-facing evidence and recommendation artifacts have a clear owner.",
     ),
     IntelligenceModuleAuditEntry(
         module_path="skeptical_review.py",

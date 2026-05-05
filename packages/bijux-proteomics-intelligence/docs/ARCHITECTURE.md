@@ -12,10 +12,10 @@ knowledge-owned evidence posture into explicit analytical judgment.
 
 Its architecture is organized around five durable analytical bands:
 
-- `judgment`: `briefs.py`, `policies.py`, `evaluators.py`, `candidates.py`
+- `judgment`: `briefs.py`, `policies.py`, `evaluators.py`, `recommendations.py`, `candidates.py`
 - `evidence_posture`: `evidence_posture.py`
 - `interpretation`: `interpretation.py`, `analytical_review.py`
-- `review`: `decision_paths.py`, `skeptical_review.py`, `benchmark_reviews.py`
+- `review`: `decision_paths.py`, `review_packets.py`, `skeptical_review.py`, `benchmark_reviews.py`
 - `learning`: `follow_up_learning.py`, `design_loop/`
 
 ## Design constraints
@@ -30,7 +30,9 @@ Its architecture is organized around five durable analytical bands:
 - `briefs.py` owns candidate framing, ranking narratives, and explainability summaries
 - `policies.py` owns ranking factors and policy contracts
 - `evidence_posture.py` owns contradiction, freshness, downgrade, and refusal posture
-- `evaluators.py` owns scenario evaluation and review packet assembly
+- `evaluators.py` owns scenario evaluation and portfolio-facing judgment summaries
+- `recommendations.py` owns recommendation refusal, escalation, uncertainty, and advisory-versus-enforced decision envelopes
+- `review_packets.py` owns review packet assembly and ranked-evidence presentation
 - `decision_paths.py` owns end-to-end analytical decision paths
 - `skeptical_review.py` owns explicit challenge pressure over recommendations
 - `benchmark_reviews.py` owns benchmark-backed release review claims

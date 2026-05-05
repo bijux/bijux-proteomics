@@ -14,17 +14,21 @@ from bijux_proteomics_intelligence.briefs import (
 )
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
 from bijux_proteomics_intelligence.evaluators import (
-    ComparativeCandidateReviewPacket,
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
-    build_comparative_candidate_review_packet,
-    build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
+)
+from bijux_proteomics_intelligence.recommendations import (
+    build_final_decision_recommendation,
+)
+from bijux_proteomics_intelligence.review_packets import (
+    ComparativeCandidateReviewPacket,
+    build_comparative_candidate_review_packet,
 )
 from bijux_proteomics_knowledge.references.decision_rules import (
     build_ranking_rule_grounding_ledger,

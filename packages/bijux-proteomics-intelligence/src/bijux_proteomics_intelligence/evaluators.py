@@ -11,16 +11,9 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_foundation.results import OperationResult
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
-from bijux_proteomics_intelligence.evidence_posture import (
-    EvidenceContradictionSummary,
-    assess_recommendation_readiness,
-    summarize_evidence_contradictions,
-)
-from bijux_proteomics_knowledge.evidence import DecisionReadiness, EvidenceBundle
-from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.evidence import DecisionReadiness
 
 
 class ScenarioAction(StrEnum):
@@ -196,6 +189,25 @@ class ScenarioSetEvaluation(JsonModel):
     redesign: ScenarioEvaluation = Field(..., description="Redesign evaluation.")
 
 
+class ScenarioDecisionConsensus(JsonModel):
+    """Consensus summary across scenario evaluations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    recommended_action: ScenarioAction = Field(
+        ..., description="Consensus recommended action."
+    )
+    action_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Count of scenario actions by action label.",
+    )
+    conflicting_actions: bool = Field(
+        ...,
+        description="Whether scenario evaluations disagree on action direction.",
+    )
+    notes: list[str] = Field(default_factory=list, description="Short consensus notes.")
+
+
 class PortfolioDecisionReport(JsonModel):
     """Portfolio-level quality report for ranked candidates."""
 
@@ -216,74 +228,6 @@ class PortfolioDecisionReport(JsonModel):
     notes: list[str] = Field(
         default_factory=list, description="Short explanation of portfolio quality."
     )
-
-
-class ScenarioDecisionConsensus(JsonModel):
-    """Consensus summary across scenario evaluations."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    recommended_action: ScenarioAction = Field(
-        ..., description="Consensus recommended action."
-    )
-    action_counts: dict[str, int] = Field(
-        default_factory=dict,
-        description="Count of scenario actions by action label.",
-    )
-    conflicting_actions: bool = Field(
-        ...,
-        description="Whether scenario evaluations disagree on action direction.",
-    )
-    notes: list[str] = Field(default_factory=list, description="Short consensus notes.")
-
-
-class IntelligenceReviewPacket(JsonModel):
-    """Integrated intelligence packet for review-gate decision meetings."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    consensus: ScenarioDecisionConsensus = Field(
-        ...,
-        description="Consensus across scenario evaluations.",
-    )
-    portfolio: PortfolioDecisionReport = Field(
-        ...,
-        description="Portfolio risk/diversity report for top candidates.",
-    )
-    review_ready: bool = Field(
-        ...,
-        description="Whether intelligence outputs are coherent enough for a progression review.",
-    )
-    notes: list[str] = Field(default_factory=list, description="Review-facing notes.")
-
-
-class ReviewBoardEvidenceLine(JsonModel):
-    """One ranked evidence line for a scientific review board packet."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    candidate_id: str = Field(..., min_length=1)
-    rank: int | None = Field(default=None, ge=1)
-    score: float = Field(...)
-    evidence_support: float = Field(..., ge=0.0, le=1.0)
-    contradiction_pressure: float = Field(..., ge=0.0, le=1.0)
-    freshness_pressure: float = Field(..., ge=0.0, le=1.0)
-    reasons: list[str] = Field(default_factory=list)
-    qc_caveats: list[str] = Field(default_factory=list)
-    next_step_proposals: list[str] = Field(default_factory=list)
-
-
-class ReviewBoardPacket(JsonModel):
-    """Review-board packet that keeps ranking, contradictions, and QC caveats aligned."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    consensus: ScenarioDecisionConsensus = Field(...)
-    recommendation: FinalDecisionRecommendation = Field(...)
-    contradiction_summary: EvidenceContradictionSummary | None = Field(default=None)
-    ranked_evidence: list[ReviewBoardEvidenceLine] = Field(default_factory=list)
-    qc_caveats: list[str] = Field(default_factory=list)
-    next_step_proposals: list[str] = Field(default_factory=list)
 
 
 class HoldPressureSummary(JsonModel):
@@ -354,137 +298,6 @@ class AssessmentMetricCoverageReport(JsonModel):
     )
 
 
-class DecisionEscalationFlags(JsonModel):
-    """Escalation flags indicating when human arbitration should be mandatory."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    conflicting_actions: bool = Field(..., description="Scenario actions conflict.")
-    high_hold_pressure: bool = Field(..., description="Hold pressure is high.")
-    wide_confidence_spread: bool = Field(
-        ..., description="Confidence spread exceeds threshold."
-    )
-    escalate_to_human_review: bool = Field(
-        ..., description="Overall escalation recommendation."
-    )
-
-
-class FinalDecisionRecommendation(JsonModel):
-    """Final intelligence recommendation combining consensus and escalation."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    action: ScenarioAction = Field(..., description="Recommended final action.")
-    requires_human_review: bool = Field(
-        ..., description="Whether human arbitration is required."
-    )
-    gate_result: OperationResult | None = Field(
-        default=None,
-        description="Optional machine-readable refusal or degraded-success gate result.",
-    )
-    reasons: list[str] = Field(
-        default_factory=list, description="Reasons supporting the final recommendation."
-    )
-
-
-class UnresolvedQuestionLedger(JsonModel):
-    """Deduplicated unresolved question ledger across scenario outputs."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    question_counts: dict[str, int] = Field(
-        default_factory=dict,
-        description="Count of unresolved question occurrences across scenarios.",
-    )
-    prioritized_questions: list[str] = Field(
-        default_factory=list,
-        description="Questions sorted by frequency and then lexicographic order.",
-    )
-
-
-class AdvancedIntelligenceReviewPacket(JsonModel):
-    """Review packet including escalation and uncertainty-ledger context."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    base_packet: IntelligenceReviewPacket = Field(
-        ..., description="Base intelligence review packet."
-    )
-    escalation: DecisionEscalationFlags = Field(
-        ..., description="Escalation flags for decision governance."
-    )
-    unresolved_questions: UnresolvedQuestionLedger = Field(
-        ...,
-        description="Deduplicated unresolved question ledger.",
-    )
-
-
-class ScenarioUncertaintyEntry(JsonModel):
-    """Scenario-specific uncertainty that should remain visible to reviewers."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    scenario: str = Field(..., min_length=1)
-    action: ScenarioAction
-    confidence: float = Field(..., ge=0.0, le=1.0)
-    hypothesis_status: HypothesisStatus
-    unresolved_questions: list[str] = Field(default_factory=list)
-
-
-class UncertaintyPreservingInterpretationSummary(JsonModel):
-    """Summary that preserves scenario disagreement and unresolved questions."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    consensus_action: ScenarioAction = Field(...)
-    conflicting_actions: bool = Field(...)
-    confidence_spread: float = Field(..., ge=0.0, le=1.0)
-    unresolved_question_count: int = Field(default=0, ge=0)
-    scenario_entries: list[ScenarioUncertaintyEntry] = Field(default_factory=list)
-    notes: list[str] = Field(default_factory=list)
-
-
-class ComparativeCandidateReviewPacket(JsonModel):
-    """Evidence-aware comparison between two candidate options."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    program_id: str = Field(..., min_length=1)
-    preferred_candidate_id: str = Field(..., min_length=1)
-    compared_candidate_id: str = Field(..., min_length=1)
-    preferred_rank: int | None = Field(default=None, ge=1)
-    compared_rank: int | None = Field(default=None, ge=1)
-    preferred_score: float = Field(...)
-    compared_score: float = Field(...)
-    evidence_support_delta: float = Field(...)
-    residual_risk_delta: float = Field(...)
-    scientific_value_delta: float = Field(default=0.0)
-    assay_feasibility_delta: float = Field(default=0.0)
-    novelty_delta: float = Field(default=0.0)
-    lab_cost_efficiency_delta: float = Field(default=0.0)
-    operational_reliability_delta: float = Field(default=0.0)
-    rationale: list[str] = Field(default_factory=list)
-
-
-class IntelligenceOutputMode(StrEnum):
-    """Governance mode for intelligence outputs."""
-
-    ADVISORY = "advisory"
-    ENFORCED = "enforced"
-
-
-class IntelligenceDecisionSupportEnvelope(JsonModel):
-    """Explicit boundary between advisory intelligence and enforced policy."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    recommendation: FinalDecisionRecommendation = Field(...)
-    mode: IntelligenceOutputMode = Field(default=IntelligenceOutputMode.ADVISORY)
-    enforced_policy_id: str | None = Field(default=None)
-    promoted_by: str | None = Field(default=None)
-    promotion_rationale: str | None = Field(default=None)
-
-
 def _top_candidate(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
@@ -530,24 +343,6 @@ def _top_candidate_confidence(ranking: CandidateRanking) -> float | None:
         return float(confidence)
     except (TypeError, ValueError):
         return None
-
-
-def _candidate_multi_objective_profile(
-    ranking: CandidateRanking,
-    candidate_id: str,
-) -> dict[str, float]:
-    for candidate in ranking.ranked_candidates:
-        if candidate.candidate_id != candidate_id:
-            continue
-        raw_profile = candidate.explainability.get("multi_objective_profile", {})
-        if not isinstance(raw_profile, dict):
-            return {}
-        profile: dict[str, float] = {}
-        for key, value in raw_profile.items():
-            if isinstance(value, (int, float)):
-                profile[str(key)] = round(float(value), 4)
-        return profile
-    return {}
 
 
 def evaluate_for_progression(
@@ -948,249 +743,6 @@ def summarize_scenario_consensus(
     )
 
 
-def build_intelligence_review_packet(
-    evaluations: ScenarioSetEvaluation,
-    ranking: CandidateRanking,
-    risks: list[CandidateRiskProfile],
-) -> IntelligenceReviewPacket:
-    """Build a review packet from scenario and portfolio intelligence outputs."""
-    consensus = summarize_scenario_consensus(evaluations)
-    portfolio = evaluate_portfolio_balance(ranking, risks)
-    review_ready = not consensus.conflicting_actions and portfolio.balanced_portfolio
-    notes: list[str] = []
-    if consensus.conflicting_actions:
-        notes.append("scenario recommendations conflict and require adjudication")
-    if not portfolio.balanced_portfolio:
-        notes.append(
-            "portfolio balance is weak and should be improved before progression"
-        )
-    if not notes:
-        notes.append("intelligence outputs are aligned for review discussion")
-    return IntelligenceReviewPacket(
-        consensus=consensus,
-        portfolio=portfolio,
-        review_ready=review_ready,
-        notes=notes,
-    )
-
-
-def _candidate_next_step_proposals(
-    candidate: CandidateAssessment | None,
-    ranked_candidate_reasons: list[str],
-    qc_caveats: list[str],
-    unresolved_questions: list[str],
-    contradiction_pressure: float,
-) -> list[str]:
-    proposals: list[str] = []
-    if candidate is not None and candidate.evidence_support < 0.6:
-        proposals.append("collect stronger orthogonal evidence before advancement")
-    if contradiction_pressure > 0.0:
-        proposals.append("resolve conflicting evidence before making a strong claim")
-    if qc_caveats:
-        proposals.append("clear QC caveats before treating the ranking as decisive")
-    if unresolved_questions:
-        proposals.append("address the highest-frequency unresolved review questions")
-    if not proposals and ranked_candidate_reasons:
-        proposals.append(
-            "advance the top-ranked follow-up while keeping rationale visible"
-        )
-    return sorted(dict.fromkeys(proposals))
-
-
-def build_review_board_packet(
-    evaluations: ScenarioSetEvaluation,
-    ranking: CandidateRanking,
-    assessments: list[CandidateAssessment],
-    *,
-    evidence_bundle: EvidenceBundle | None = None,
-    qc_caveats: list[str] | tuple[str, ...] = (),
-    workflow_family: KnowledgeWorkflowFamily | None = None,
-) -> ReviewBoardPacket:
-    """Build a review-board packet with ranked evidence, contradictions, and QC caveats."""
-    consensus = summarize_scenario_consensus(evaluations)
-    recommendation = build_final_decision_recommendation(
-        evaluations,
-        evidence_bundle=evidence_bundle,
-        workflow_family=workflow_family,
-    )
-    contradiction_summary = (
-        summarize_evidence_contradictions(evidence_bundle)
-        if evidence_bundle is not None
-        else None
-    )
-    assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
-    qc_caveat_list = sorted(
-        {str(item).strip() for item in qc_caveats if str(item).strip()}
-    )
-    unresolved_ledger = summarize_unresolved_question_ledger(evaluations)
-    ranked_evidence: list[ReviewBoardEvidenceLine] = []
-    for ranked_candidate in ranking.ranked_candidates[:5]:
-        assessment = assessment_map.get(ranked_candidate.candidate_id)
-        explainability = ranked_candidate.explainability
-        contradiction_pressure = float(
-            explainability.get("contradiction_pressure", 0.0)
-        )
-        freshness_pressure = float(explainability.get("freshness_pressure", 0.0))
-        ranked_reasons = [str(reason) for reason in ranked_candidate.reasons[:4]]
-        ranked_evidence.append(
-            ReviewBoardEvidenceLine(
-                candidate_id=ranked_candidate.candidate_id,
-                rank=ranked_candidate.rank,
-                score=ranked_candidate.score,
-                evidence_support=(
-                    assessment.evidence_support if assessment is not None else 0.0
-                ),
-                contradiction_pressure=contradiction_pressure,
-                freshness_pressure=freshness_pressure,
-                reasons=ranked_reasons,
-                qc_caveats=qc_caveat_list,
-                next_step_proposals=_candidate_next_step_proposals(
-                    assessment,
-                    ranked_reasons,
-                    qc_caveat_list,
-                    unresolved_ledger.prioritized_questions,
-                    contradiction_pressure,
-                ),
-            )
-        )
-    next_step_proposals = sorted(
-        dict.fromkeys(
-            proposal
-            for line in ranked_evidence
-            for proposal in line.next_step_proposals
-        )
-    )
-    if recommendation.gate_result is not None and recommendation.gate_result.refusal:
-        next_step_proposals.append(recommendation.gate_result.refusal.reason)
-    return ReviewBoardPacket(
-        consensus=consensus,
-        recommendation=recommendation,
-        contradiction_summary=contradiction_summary,
-        ranked_evidence=ranked_evidence,
-        qc_caveats=qc_caveat_list,
-        next_step_proposals=sorted(dict.fromkeys(next_step_proposals)),
-    )
-
-
-def build_comparative_candidate_review_packet(
-    ranking: CandidateRanking,
-    assessments: list[CandidateAssessment],
-    risks: list[CandidateRiskProfile],
-    *,
-    preferred_candidate_id: str,
-    compared_candidate_id: str,
-) -> ComparativeCandidateReviewPacket:
-    """Explain why one candidate is preferred over another using evidence and risk."""
-    ranked_map = {
-        candidate.candidate_id: candidate for candidate in ranking.ranked_candidates
-    }
-    assessment_map = {assessment.candidate_id: assessment for assessment in assessments}
-    risk_map = {risk.candidate_id: risk for risk in risks}
-    preferred = ranked_map.get(preferred_candidate_id)
-    compared = ranked_map.get(compared_candidate_id)
-    if preferred is None or compared is None:
-        raise ValueError("both candidates must be present in the ranked candidate set")
-    preferred_assessment = assessment_map.get(preferred_candidate_id)
-    compared_assessment = assessment_map.get(compared_candidate_id)
-    if preferred_assessment is None or compared_assessment is None:
-        raise ValueError(
-            "candidate assessments are required for both compared candidates"
-        )
-    preferred_risk = risk_map.get(preferred_candidate_id)
-    compared_risk = risk_map.get(compared_candidate_id)
-    preferred_residual_risk = (
-        preferred_risk.residual_risk if preferred_risk is not None else 0.0
-    )
-    compared_residual_risk = (
-        compared_risk.residual_risk if compared_risk is not None else 0.0
-    )
-    preferred_profile = _candidate_multi_objective_profile(
-        ranking, preferred_candidate_id
-    )
-    compared_profile = _candidate_multi_objective_profile(
-        ranking, compared_candidate_id
-    )
-    scientific_value_delta = round(
-        preferred_profile.get("scientific_value", 0.0)
-        - compared_profile.get("scientific_value", 0.0),
-        4,
-    )
-    assay_feasibility_delta = round(
-        preferred_profile.get("assay_feasibility", 0.0)
-        - compared_profile.get("assay_feasibility", 0.0),
-        4,
-    )
-    novelty_delta = round(
-        preferred_profile.get("novelty", 0.0) - compared_profile.get("novelty", 0.0),
-        4,
-    )
-    lab_cost_efficiency_delta = round(
-        preferred_profile.get("lab_cost_efficiency", 0.0)
-        - compared_profile.get("lab_cost_efficiency", 0.0),
-        4,
-    )
-    operational_reliability_delta = round(
-        preferred_profile.get("operational_reliability", 0.0)
-        - compared_profile.get("operational_reliability", 0.0),
-        4,
-    )
-    rationale = [
-        f"score delta = {preferred.score - compared.score:.4f}",
-        f"evidence support delta = {preferred_assessment.evidence_support - compared_assessment.evidence_support:.4f}",
-        f"residual risk delta = {compared_residual_risk - preferred_residual_risk:.4f}",
-        f"scientific value delta = {scientific_value_delta:.4f}",
-        f"assay feasibility delta = {assay_feasibility_delta:.4f}",
-    ]
-    if preferred.score <= compared.score:
-        rationale.append(
-            "preferred candidate is being justified despite a non-positive score delta"
-        )
-    if novelty_delta > 0:
-        rationale.append(
-            f"preferred candidate preserves more differentiated learning value ({novelty_delta:.4f})"
-        )
-    if lab_cost_efficiency_delta < 0 or operational_reliability_delta < 0:
-        rationale.append(
-            "preferred candidate carries higher operational cost or fragility and needs explicit justification"
-        )
-    preferred_drivers = preferred.explainability.get("top_drivers", [])
-    if isinstance(preferred_drivers, list) and preferred_drivers:
-        rationale.append(
-            "preferred drivers: "
-            + ", ".join(str(item) for item in preferred_drivers[:3])
-        )
-    compared_blockers = compared.explainability.get("blockers", [])
-    if isinstance(compared_blockers, list) and compared_blockers:
-        rationale.append(
-            "compared blockers: "
-            + ", ".join(str(item) for item in compared_blockers[:3])
-        )
-    return ComparativeCandidateReviewPacket(
-        program_id=ranking.program_id,
-        preferred_candidate_id=preferred_candidate_id,
-        compared_candidate_id=compared_candidate_id,
-        preferred_rank=preferred.rank,
-        compared_rank=compared.rank,
-        preferred_score=preferred.score,
-        compared_score=compared.score,
-        evidence_support_delta=round(
-            preferred_assessment.evidence_support
-            - compared_assessment.evidence_support,
-            4,
-        ),
-        residual_risk_delta=round(
-            compared_residual_risk - preferred_residual_risk,
-            4,
-        ),
-        scientific_value_delta=scientific_value_delta,
-        assay_feasibility_delta=assay_feasibility_delta,
-        novelty_delta=novelty_delta,
-        lab_cost_efficiency_delta=lab_cost_efficiency_delta,
-        operational_reliability_delta=operational_reliability_delta,
-        rationale=rationale,
-    )
-
-
 def summarize_hold_pressure(
     evaluations: ScenarioSetEvaluation,
     *,
@@ -1234,56 +786,6 @@ def summarize_scenario_confidence_spread(
     )
 
 
-def summarize_uncertainty_preserving_interpretation(
-    evaluations: ScenarioSetEvaluation,
-) -> UncertaintyPreservingInterpretationSummary:
-    """Summarize scenario outputs without flattening disagreement away."""
-    scenarios = [
-        evaluations.progression,
-        evaluations.synthesis,
-        evaluations.scale_up,
-        evaluations.redesign,
-    ]
-    consensus = summarize_scenario_consensus(evaluations)
-    spread = summarize_scenario_confidence_spread(evaluations)
-    entries = [
-        ScenarioUncertaintyEntry(
-            scenario=scenario.scenario,
-            action=scenario.action,
-            confidence=scenario.confidence,
-            hypothesis_status=scenario.hypothesis_status,
-            unresolved_questions=scenario.unresolved_questions,
-        )
-        for scenario in scenarios
-    ]
-    unresolved_questions = {
-        question for scenario in scenarios for question in scenario.unresolved_questions
-    }
-    notes: list[str] = []
-    if consensus.conflicting_actions:
-        notes.append("scenario actions disagree and should remain visible to reviewers")
-    if spread.spread >= 0.2:
-        notes.append(
-            "scenario confidence spread is wide enough to keep uncertainty explicit"
-        )
-    if unresolved_questions:
-        notes.append(
-            f"{len(unresolved_questions)} unresolved questions still influence the decision"
-        )
-    if not notes:
-        notes.append(
-            "scenario uncertainty is narrow enough for a stable advisory interpretation"
-        )
-    return UncertaintyPreservingInterpretationSummary(
-        consensus_action=consensus.recommended_action,
-        conflicting_actions=consensus.conflicting_actions,
-        confidence_spread=spread.spread,
-        unresolved_question_count=len(unresolved_questions),
-        scenario_entries=entries,
-        notes=notes,
-    )
-
-
 def summarize_assessment_metric_coverage(
     assessments: list[CandidateAssessment],
     *,
@@ -1318,133 +820,4 @@ def summarize_assessment_metric_coverage(
         coverage_ratio=coverage_ratio,
         liability_diversity=len(liability_labels),
         mean_residual_risk=mean_residual_risk,
-    )
-
-
-def derive_decision_escalation_flags(
-    evaluations: ScenarioSetEvaluation,
-    *,
-    hold_threshold: float = 0.5,
-    confidence_spread_threshold: float = 0.25,
-) -> DecisionEscalationFlags:
-    """Derive escalation flags from scenario consensus, hold pressure, and confidence spread."""
-    consensus = summarize_scenario_consensus(evaluations)
-    hold_pressure = summarize_hold_pressure(evaluations, threshold=hold_threshold)
-    spread = summarize_scenario_confidence_spread(evaluations)
-    wide_spread = spread.spread >= confidence_spread_threshold
-    escalate = (
-        consensus.conflicting_actions or hold_pressure.high_hold_pressure or wide_spread
-    )
-    return DecisionEscalationFlags(
-        conflicting_actions=consensus.conflicting_actions,
-        high_hold_pressure=hold_pressure.high_hold_pressure,
-        wide_confidence_spread=wide_spread,
-        escalate_to_human_review=escalate,
-    )
-
-
-def build_final_decision_recommendation(
-    evaluations: ScenarioSetEvaluation,
-    *,
-    evidence_bundle: EvidenceBundle | None = None,
-    workflow_family: KnowledgeWorkflowFamily | None = None,
-) -> FinalDecisionRecommendation:
-    """Build final recommendation from scenario consensus and escalation signals."""
-    consensus = summarize_scenario_consensus(evaluations)
-    escalation = derive_decision_escalation_flags(evaluations)
-    reasons = list(consensus.notes)
-    if escalation.high_hold_pressure:
-        reasons.append("hold pressure is high across scenario evaluations")
-    if escalation.wide_confidence_spread:
-        reasons.append("scenario confidence spread is wide")
-    if escalation.conflicting_actions:
-        reasons.append("scenario actions conflict")
-    gate_result: OperationResult | None = None
-    action = consensus.recommended_action
-    requires_human_review = escalation.escalate_to_human_review
-    if evidence_bundle is not None:
-        gate_result = assess_recommendation_readiness(evidence_bundle)
-        if gate_result.disposition.value == "refused":
-            action = ScenarioAction.HOLD
-            requires_human_review = True
-            reasons.append(gate_result.summary)
-            if gate_result.refusal is not None:
-                reasons.extend(gate_result.refusal.reason_details)
-        elif gate_result.disposition.value == "degraded_success":
-            requires_human_review = True
-            reasons.append(gate_result.summary)
-            reasons.extend(gate_result.degradation_reasons)
-    if workflow_family is not None:
-        reasons.append(f"workflow_family={workflow_family.value}")
-    return FinalDecisionRecommendation(
-        action=action,
-        requires_human_review=requires_human_review,
-        gate_result=gate_result,
-        reasons=reasons,
-    )
-
-
-def build_intelligence_decision_support_envelope(
-    recommendation: FinalDecisionRecommendation,
-) -> IntelligenceDecisionSupportEnvelope:
-    """Wrap intelligence output as advisory decision support by default."""
-    return IntelligenceDecisionSupportEnvelope(recommendation=recommendation)
-
-
-def promote_intelligence_output_to_policy(
-    envelope: IntelligenceDecisionSupportEnvelope,
-    *,
-    policy_id: str,
-    promoted_by: str,
-    rationale: str,
-) -> IntelligenceDecisionSupportEnvelope:
-    """Explicitly promote advisory intelligence output into enforced policy."""
-    if envelope.mode is IntelligenceOutputMode.ENFORCED:
-        raise ValueError("intelligence output is already enforced")
-    return envelope.model_copy(
-        update={
-            "mode": IntelligenceOutputMode.ENFORCED,
-            "enforced_policy_id": policy_id,
-            "promoted_by": promoted_by,
-            "promotion_rationale": rationale,
-        }
-    )
-
-
-def summarize_unresolved_question_ledger(
-    evaluations: ScenarioSetEvaluation,
-) -> UnresolvedQuestionLedger:
-    """Build deduplicated unresolved question ledger across scenarios."""
-    questions = (
-        evaluations.progression.unresolved_questions
-        + evaluations.synthesis.unresolved_questions
-        + evaluations.scale_up.unresolved_questions
-        + evaluations.redesign.unresolved_questions
-    )
-    counts: dict[str, int] = {}
-    for question in questions:
-        cleaned = question.strip()
-        if not cleaned:
-            continue
-        counts[cleaned] = counts.get(cleaned, 0) + 1
-    prioritized = sorted(counts, key=lambda item: (-counts[item], item))
-    return UnresolvedQuestionLedger(
-        question_counts=counts,
-        prioritized_questions=prioritized,
-    )
-
-
-def build_advanced_review_packet(
-    evaluations: ScenarioSetEvaluation,
-    ranking: CandidateRanking,
-    risks: list[CandidateRiskProfile],
-) -> AdvancedIntelligenceReviewPacket:
-    """Build advanced review packet with escalation and unresolved question ledger."""
-    base = build_intelligence_review_packet(evaluations, ranking, risks)
-    escalation = derive_decision_escalation_flags(evaluations)
-    ledger = summarize_unresolved_question_ledger(evaluations)
-    return AdvancedIntelligenceReviewPacket(
-        base_packet=base,
-        escalation=escalation,
-        unresolved_questions=ledger,
     )

@@ -29,6 +29,8 @@ def test_intelligence_docs_name_live_owner_modules_and_analytical_bands() -> Non
     assert "decision_paths.py" in combined
     assert "benchmark_reviews.py" in combined
     assert "follow_up_learning.py" in combined
+    assert "recommendations.py" in combined
+    assert "review_packets.py" in combined
     assert "judgment" in combined
     assert "evidence posture" in combined
     assert "interpretation" in combined

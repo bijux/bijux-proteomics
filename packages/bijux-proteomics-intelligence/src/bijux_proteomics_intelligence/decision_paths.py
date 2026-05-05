@@ -25,15 +25,19 @@ from bijux_proteomics_intelligence.candidates import (
 )
 from bijux_proteomics_intelligence.evaluators import (
     EvaluatorPolicyBundle,
-    ReviewBoardPacket,
     ScenarioSetEvaluation,
-    build_review_board_packet,
     evaluate_all_scenarios,
-    summarize_unresolved_question_ledger,
 )
 from bijux_proteomics_intelligence.interpretation import (
     OutlierInterpretationClass,
     explain_outlier_samples,
+)
+from bijux_proteomics_intelligence.recommendations import (
+    summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.review_packets import (
+    ReviewBoardPacket,
+    build_review_board_packet,
 )
 from bijux_proteomics_knowledge.evidence import (
     DecisionReadiness,

@@ -25,6 +25,8 @@ from bijux_proteomics_intelligence.evaluators import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
+)
+from bijux_proteomics_intelligence.recommendations import (
     build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.skeptical_review import build_skeptical_review_report

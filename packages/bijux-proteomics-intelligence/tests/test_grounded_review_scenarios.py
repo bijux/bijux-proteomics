@@ -19,12 +19,14 @@ from bijux_proteomics_intelligence.evaluators import (
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
-    build_final_decision_recommendation,
-    build_review_board_packet,
 )
 from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
 )
+from bijux_proteomics_intelligence.recommendations import (
+    build_final_decision_recommendation,
+)
+from bijux_proteomics_intelligence.review_packets import build_review_board_packet
 from bijux_proteomics_knowledge import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
