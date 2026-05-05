@@ -10,7 +10,7 @@ from bijux_proteomics_knowledge.references.benchmarks import (
     KnowledgeWorkflowFamily,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_benchmark_manifests_cover_each_workflow_family() -> None:

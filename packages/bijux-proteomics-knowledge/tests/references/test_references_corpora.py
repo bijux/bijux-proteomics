@@ -11,7 +11,7 @@ from bijux_proteomics_knowledge.references.corpora import (
 )
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_corpus_manifests_split_bundled_and_external_sources() -> None:

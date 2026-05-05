@@ -29,7 +29,7 @@ from bijux_proteomics_knowledge.references.rules import (
 )
 
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_scientific_rules_require_references_and_benchmark_rationale() -> None:
