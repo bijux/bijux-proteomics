@@ -13,6 +13,12 @@ from bijux_proteomics_runtime.runtime.control.ledger import (
     RuntimeArtifactLedger,
     load_artifact_ledger,
 )
+from bijux_proteomics_runtime.runtime.control.preflight import (
+    PreflightCheck,
+    PreflightCheckState,
+    RuntimePreflightReport,
+    build_runtime_preflight_report,
+)
 from bijux_proteomics_runtime.runtime.control.replay import (
     LocalRunBundle,
     ReplayContract,
@@ -30,11 +36,15 @@ __all__ = [
     "ArtifactLedgerEntry",
     "ExecutionSnapshots",
     "LocalRunBundle",
+    "PreflightCheck",
+    "PreflightCheckState",
     "ReplayContract",
     "ReplayEligibility",
     "RunStateMachine",
     "RuntimeArtifactLedger",
+    "RuntimePreflightReport",
     "apply_transition",
+    "build_runtime_preflight_report",
     "build_local_run_bundle",
     "build_replay_contract",
     "compare_runs",

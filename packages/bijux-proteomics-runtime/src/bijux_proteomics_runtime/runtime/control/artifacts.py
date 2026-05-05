@@ -23,6 +23,10 @@ from bijux_proteomics_runtime.runtime.adapters import (
 from bijux_proteomics_runtime.runtime.context import RuntimeArtifactRetentionClass
 from bijux_proteomics_runtime.runtime.context import RunContext
 from bijux_proteomics_runtime.runtime.control.ledger import record_artifact_entry
+from bijux_proteomics_runtime.runtime.control.failure_reports import (
+    build_runtime_failure_report,
+    write_runtime_failure_report,
+)
 from bijux_proteomics_runtime.runtime.workspace import (
     RunWorkspace,
     write_json_atomic,
@@ -70,6 +74,15 @@ def write_failure_artifacts(
         "next_action": suggest_next_action(failure_type),
     }
     write_json_atomic(run_context.workspace.error_path, payload)
+    write_runtime_failure_report(
+        run_context.workspace,
+        build_runtime_failure_report(
+            run_id=run_context.run_id,
+            failure_type=failure_type.value,
+            message=str(details),
+            detail_codes=tuple(sorted(details.keys())),
+        ),
+    )
     record_artifact_entry(
         run_context.workspace,
         run_id=run_context.run_id,

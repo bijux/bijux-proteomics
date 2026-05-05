@@ -99,6 +99,14 @@ from bijux_proteomics_runtime.runtime.control.ledger import (
     load_artifact_ledger,
     refresh_runtime_artifact_ledger,
 )
+from bijux_proteomics_runtime.runtime.control.failure_reports import (
+    build_runtime_failure_report,
+    write_runtime_failure_report,
+)
+from bijux_proteomics_runtime.runtime.control.preflight import (
+    build_runtime_preflight_report,
+    write_runtime_preflight_report,
+)
 from bijux_proteomics_runtime.runtime.control.replay import (
     build_local_run_bundle,
     build_replay_contract,
@@ -1036,6 +1044,20 @@ class RunManager:
             context.workspace.run_context_path,
             run_context_contract.to_dict(),
         )
+        preflight_report = build_runtime_preflight_report(
+            context.workspace,
+            run_id=context.run_id,
+            provider_name=selected_tool.name,
+        )
+        write_runtime_preflight_report(context.workspace, preflight_report)
+        if not preflight_report.passed:
+            preflight_messages = [check.message for check in preflight_report.checks]
+            return self._fail_fast(
+                context,
+                preflight_messages,
+                FailureType.CAPABILITY_MISSING.value,
+                selected_tool,
+            )
         capability_errors, capability_warnings = validate_runtime_capabilities(
             context.config, allow_unknown=explicit_tool
         )
@@ -1084,6 +1106,15 @@ class RunManager:
         except Exception:
             error_report["next_action"] = suggest_next_action(FailureType.UNKNOWN)
         write_json_atomic(context.workspace.error_path, error_report)
+        write_runtime_failure_report(
+            context.workspace,
+            build_runtime_failure_report(
+                run_id=context.run_id,
+                failure_type=failure_type,
+                message=error_report["message"],
+                detail_codes=tuple(sorted(warnings)),
+            ),
+        )
         version_info = _version_info(tool)
         output = RunOutput(
             run_id=context.run_id,
