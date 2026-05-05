@@ -217,6 +217,13 @@ from bijux_proteomics_lab.protocols import (
     build_lab_protocol_evidence_bundle,
     build_protocol_attachment,
 )
+from bijux_proteomics_lab.readiness import (
+    OperationalReadinessReport,
+    ReagentAvailability,
+    ReviewBacklogSnapshot,
+    StaffingAvailability,
+    build_operational_readiness_report,
+)
 from bijux_proteomics_lab.repositories import (
     CycleWorkloadForecast,
     ExperimentPlanRepository,
@@ -290,6 +297,7 @@ __all__ = [
     "build_lab_execution_request",
     "build_lab_protocol_evidence_bundle",
     "build_protocol_attachment",
+    "build_operational_readiness_report",
     "build_power_analysis_advisory",
     "CarryoverRiskAdvisory",
     "CarryoverRiskFlag",
@@ -331,6 +339,8 @@ __all__ = [
     "RandomizedRunSlot",
     "ReplicationStrategySummary",
     "SamplePreparationMetadata",
+    "StaffingAvailability",
+    "ReagentAvailability",
     "SampleTrackingPlateAdvisory",
     "SampleTrackingPlateAssignment",
     "SpikeInQcInsertion",
@@ -404,6 +414,7 @@ __all__ = [
     "LabExecutionRequest",
     "LabPriorityQueueAlignment",
     "LabReviewPacketBundle",
+    "OperationalReadinessReport",
     "ExecutionCapacityAdvisory",
     "GateCoverageGapReport",
     "AssayContradictionPressure",
@@ -458,6 +469,7 @@ __all__ = [
     "build_canonical_artifact_envelope",
     "verify_canonical_artifact_envelope",
     "ReviewPacket",
+    "ReviewBacklogSnapshot",
     "ReviewRiskProfile",
     "ScheduledBatch",
     "ScheduledPlan",

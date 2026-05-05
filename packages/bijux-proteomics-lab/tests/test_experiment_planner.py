@@ -33,12 +33,16 @@ from bijux_proteomics_lab import (
     FamilyCapacity,
     InstrumentAvailability,
     LabCapacity,
+    OperationalReadinessReport,
     MaterialInventory,
     MaterialRequirement,
     OrthogonalPolicy,
     PlanningPolicy,
     ProgressDecision,
+    ReagentAvailability,
+    ReviewBacklogSnapshot,
     RerunPolicy,
+    StaffingAvailability,
     align_lab_priority_queue,
     assay_family_priority,
     assess_dependency_integrity,
@@ -50,6 +54,7 @@ from bijux_proteomics_lab import (
     build_lab_cycle_brief,
     build_lab_execution_request,
     build_lab_review_packet_bundle,
+    build_operational_readiness_report,
     build_review_packet,
     build_review_risk_profile,
     build_workflow_batch_outline,
@@ -517,6 +522,81 @@ def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressu
     assert advisory.feasible_batch_ids == ["b1"]
     assert advisory.deferred_batch_ids == ["b2"]
     assert advisory.budget_remaining == 0.5
+
+
+def test_build_operational_readiness_report_combines_budget_staffing_and_backlog() -> (
+    None
+):
+    plan = ExperimentPlan(
+        program_id="prog-readiness",
+        batches=[
+            ExperimentBatch(
+                batch_id="b1",
+                objective="binding batch",
+                assay_ids=["a1"],
+                priority=1,
+                sample_requirements=["biophysical"],
+            ),
+            ExperimentBatch(
+                batch_id="b2",
+                objective="cellular batch",
+                assay_ids=["a2"],
+                priority=2,
+                sample_requirements=["cellular"],
+            ),
+        ],
+    )
+
+    report = build_operational_readiness_report(
+        plan,
+        capacity=LabCapacity(
+            cycle_id="cycle-readiness",
+            max_batches=1,
+            max_assays_per_batch=2,
+        ),
+        instrument_availability=[
+            InstrumentAvailability(
+                instrument_id="orbitrap",
+                available_days=1.0,
+                supported_sample_kinds=["biophysical"],
+            )
+        ],
+        reagent_inventory=[
+            ReagentAvailability(
+                material_id="protein",
+                available_units=0.5,
+                minimum_units=1.0,
+                unit="mg",
+                lead_time_days=10.0,
+            )
+        ],
+        staffing=[
+            StaffingAvailability(
+                role_name="mass-spec-operator",
+                available_operators=0,
+                required_operators=1,
+                available_operator_days=0.0,
+            )
+        ],
+        backlog=ReviewBacklogSnapshot(
+            queued_review_entries=4,
+            blocking_gate_ids=("gate-a",),
+            deferred_batch_ids=("b3",),
+            oldest_entry_days=9.0,
+        ),
+        budget_limit=1.5,
+    )
+
+    assert isinstance(report, OperationalReadinessReport)
+    assert report.ready_for_execution is False
+    assert report.deferred_batch_ids[:2] == ["b2", "b3"]
+    assert report.blocking_material_ids == ["protein"]
+    assert report.understaffed_roles == ["mass-spec-operator"]
+    assert report.long_lead_material_ids == ["protein"]
+    assert report.backlog_pressure_score > 0.5
+    assert any(
+        "blocking review gates remain queued" in note for note in report.risk_notes
+    )
 
 
 def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
