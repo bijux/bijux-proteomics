@@ -163,6 +163,82 @@ class PromotionDecisionState(StrEnum):
     SUPERSEDED = "superseded"
 
 
+class AssayLifecycleStage(StrEnum):
+    """Operational assay lifecycle stage from discovery through targeted follow-up."""
+
+    DISCOVERY = "discovery"
+    VERIFICATION = "verification"
+    VALIDATION = "validation"
+    TARGETED_FOLLOW_UP = "targeted_follow_up"
+
+
+class AssayLifecycleState(JsonModel):
+    """Current lifecycle state for one assay across discovery and follow-up."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    current_stage: AssayLifecycleStage = Field(
+        ..., description="Current lifecycle stage."
+    )
+    completed_stages: tuple[AssayLifecycleStage, ...] = Field(default_factory=tuple)
+    blocking_findings: tuple[str, ...] = Field(default_factory=tuple)
+    required_transition_evidence: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class AssayLifecycleDecision(JsonModel):
+    """Advance, hold, or complete one assay lifecycle transition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: AssayId = Field(..., description="Assay identifier.")
+    from_stage: AssayLifecycleStage
+    to_stage: AssayLifecycleStage | None = Field(
+        default=None,
+        description="Next lifecycle stage when advancement is allowed.",
+    )
+    ready_to_advance: bool = Field(
+        ..., description="Whether the assay may advance to the next stage."
+    )
+    reasons: list[str] = Field(default_factory=list)
+    required_next_actions: list[str] = Field(default_factory=list)
+
+
+class CandidateFollowUpSignal(JsonModel):
+    """Lab-facing summary of one intelligence recommendation that needs skepticism."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    recommendation: str = Field(..., min_length=1)
+    decision_ready: bool = Field(
+        ..., description="Whether the upstream recommendation claims decision readiness."
+    )
+    contradiction_pressure: float = Field(..., ge=0.0, le=1.0)
+    freshness_pressure: float = Field(..., ge=0.0, le=1.0)
+    unresolved_questions: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_ids: tuple[str, ...] = Field(default_factory=tuple)
+    required_assay_ids: tuple[AssayId, ...] = Field(default_factory=tuple)
+    recommended_next_steps: tuple[str, ...] = Field(default_factory=tuple)
+    policy_lineage_id: str | None = Field(default=None, min_length=1)
+
+
+class CandidateHandoffValidation(JsonModel):
+    """Validation result for turning an intelligence follow-up signal into lab work."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    program_id: ProgramId = Field(..., description="Program identifier.")
+    candidate_id: str = Field(..., min_length=1)
+    accepted: bool = Field(
+        ..., description="Whether the handoff is justified for lab progression."
+    )
+    accepted_assay_ids: list[AssayId] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
+    skepticism_notes: list[str] = Field(default_factory=list)
+    required_next_actions: list[str] = Field(default_factory=list)
+
+
 class PromotionDecision(JsonModel):
     """Current promotion state for one assay outcome."""
 
@@ -319,6 +395,164 @@ def validate_promotion_transition_history(
                 )
             )
     return issues
+
+
+_LIFECYCLE_NEXT_STAGE: dict[AssayLifecycleStage, AssayLifecycleStage | None] = {
+    AssayLifecycleStage.DISCOVERY: AssayLifecycleStage.VERIFICATION,
+    AssayLifecycleStage.VERIFICATION: AssayLifecycleStage.VALIDATION,
+    AssayLifecycleStage.VALIDATION: AssayLifecycleStage.TARGETED_FOLLOW_UP,
+    AssayLifecycleStage.TARGETED_FOLLOW_UP: None,
+}
+
+
+def advance_assay_lifecycle(
+    state: AssayLifecycleState,
+    *,
+    evidence_ready: bool,
+    reproducibility_ready: bool,
+    targeted_panel_ready: bool,
+    blocking_findings: list[str] | None = None,
+    recommended_actions: list[str] | None = None,
+) -> AssayLifecycleDecision:
+    """Advance one assay through discovery, verification, validation, and follow-up."""
+    blocking_findings = list(blocking_findings or [])
+    recommended_actions = list(recommended_actions or [])
+    next_stage = _LIFECYCLE_NEXT_STAGE[state.current_stage]
+    if next_stage is None:
+        return AssayLifecycleDecision(
+            assay_id=state.assay_id,
+            from_stage=state.current_stage,
+            to_stage=None,
+            ready_to_advance=False,
+            reasons=["assay already reached targeted follow-up"],
+            required_next_actions=["execute the targeted follow-up work and review outcomes"],
+        )
+
+    blockers = list(state.blocking_findings) + blocking_findings
+    reasons: list[str] = []
+    required_next_actions_out = list(recommended_actions)
+    ready_to_advance = False
+
+    if blockers:
+        reasons.extend(blockers)
+    if state.current_stage is AssayLifecycleStage.DISCOVERY:
+        ready_to_advance = evidence_ready and not blockers
+        if not evidence_ready:
+            reasons.append("discovery evidence is not strong enough for verification")
+            required_next_actions_out.append("collect stronger discovery evidence")
+    elif state.current_stage is AssayLifecycleStage.VERIFICATION:
+        ready_to_advance = evidence_ready and reproducibility_ready and not blockers
+        if not evidence_ready:
+            reasons.append("verification evidence remains incomplete")
+        if not reproducibility_ready:
+            reasons.append("verification lacks reproducible signal across repeats")
+            required_next_actions_out.append("repeat the verification assay with matched controls")
+    else:
+        ready_to_advance = (
+            evidence_ready
+            and reproducibility_ready
+            and targeted_panel_ready
+            and not blockers
+        )
+        if not targeted_panel_ready:
+            reasons.append("targeted follow-up panel is not yet justified")
+            required_next_actions_out.append(
+                "define the targeted follow-up panel and transition controls"
+            )
+        if not reproducibility_ready:
+            reasons.append("validation evidence is not reproducible enough for targeted follow-up")
+        if not evidence_ready:
+            reasons.append("validation evidence remains incomplete")
+
+    if ready_to_advance:
+        reasons.append(f"advance from {state.current_stage.value} to {next_stage.value}")
+        required_next_actions_out.append(f"prepare {next_stage.value} assays and controls")
+
+    return AssayLifecycleDecision(
+        assay_id=state.assay_id,
+        from_stage=state.current_stage,
+        to_stage=next_stage if ready_to_advance else None,
+        ready_to_advance=ready_to_advance,
+        reasons=reasons or ["lifecycle state is ready to advance"],
+        required_next_actions=sorted(
+            {action for action in required_next_actions_out if action.strip()}
+        ),
+    )
+
+
+def validate_candidate_follow_up_handoff(
+    *,
+    program_id: ProgramId,
+    signal: CandidateFollowUpSignal,
+    available_assay_ids: list[AssayId],
+    ready_for_execution: bool,
+    operational_blockers: list[str] | None = None,
+) -> CandidateHandoffValidation:
+    """Refuse lab handoff when recommendation posture is not operationally justified."""
+    operational_blockers = list(operational_blockers or [])
+    available_assay_set = set(available_assay_ids)
+    blockers: list[str] = []
+    skepticism_notes: list[str] = []
+
+    if not signal.decision_ready:
+        blockers.append("upstream follow-up signal is not decision-ready")
+    if not signal.policy_lineage_id:
+        blockers.append("upstream follow-up signal does not expose policy lineage")
+    if not signal.evidence_ids:
+        blockers.append("upstream follow-up signal does not attach supporting evidence")
+    if signal.contradiction_pressure >= 0.45:
+        blockers.append("contradiction pressure is too high for lab handoff")
+    elif signal.contradiction_pressure >= 0.25:
+        skepticism_notes.append("contradiction pressure needs explicit monitoring during handoff")
+    if signal.freshness_pressure >= 0.45:
+        blockers.append("supporting evidence is too stale for expensive follow-up")
+    elif signal.freshness_pressure >= 0.25:
+        skepticism_notes.append("refresh supporting evidence before irreversible spend")
+    if signal.unresolved_questions:
+        blockers.append("unresolved questions remain open on the intelligence recommendation")
+    if "hold" in signal.recommendation.lower():
+        blockers.append("upstream recommendation is still on hold")
+    if not ready_for_execution:
+        blockers.append("lab execution is not currently ready")
+    blockers.extend(operational_blockers)
+
+    accepted_assay_ids = sorted(
+        assay_id for assay_id in signal.required_assay_ids if assay_id in available_assay_set
+    )
+    missing_assay_ids = sorted(
+        assay_id
+        for assay_id in signal.required_assay_ids
+        if assay_id not in available_assay_set
+    )
+    if missing_assay_ids:
+        blockers.append(
+            "required follow-up assays are not currently available: "
+            + ", ".join(missing_assay_ids)
+        )
+    if not accepted_assay_ids and signal.required_assay_ids:
+        skepticism_notes.append("no required assays are immediately executable")
+
+    accepted = not blockers
+    required_next_actions = sorted(
+        {
+            *signal.recommended_next_steps,
+            *(
+                ["clear operational blockers before scheduling handoff"]
+                if blockers
+                else ["schedule accepted follow-up assays"]
+            ),
+        }
+    )
+
+    return CandidateHandoffValidation(
+        program_id=program_id,
+        candidate_id=signal.candidate_id,
+        accepted=accepted,
+        accepted_assay_ids=accepted_assay_ids,
+        blockers=blockers,
+        skepticism_notes=skepticism_notes,
+        required_next_actions=required_next_actions,
+    )
 
 
 def decide_candidate_lab_advancement(

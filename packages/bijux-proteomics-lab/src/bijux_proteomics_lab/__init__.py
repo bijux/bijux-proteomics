@@ -44,8 +44,13 @@ from bijux_proteomics_lab.design import (
     validate_experiment_design,
 )
 from bijux_proteomics_lab.lifecycle import (
+    AssayLifecycleDecision,
+    AssayLifecycleStage,
+    AssayLifecycleState,
     CandidateLabAdvancementDecision,
     CandidateLabAdvancementDisposition,
+    CandidateFollowUpSignal,
+    CandidateHandoffValidation,
     PromotionDecision,
     PromotionDecisionState,
     PromotionLifecycleAuditIssue,
@@ -54,9 +59,11 @@ from bijux_proteomics_lab.lifecycle import (
     ReviewQueueDecision,
     ReviewQueueState,
     ReviewQueueTransition,
+    advance_assay_lifecycle,
     decide_candidate_lab_advancement,
     transition_promotion_decision,
     transition_review_queue,
+    validate_candidate_follow_up_handoff,
     validate_promotion_transition_history,
     validate_review_transition_history,
 )
@@ -282,8 +289,14 @@ from bijux_proteomics_lab.artifacts import (
 
 __all__ = [
     "AcceptanceOperator",
+    "advance_assay_lifecycle",
+    "AssayLifecycleDecision",
+    "AssayLifecycleStage",
+    "AssayLifecycleState",
     "CandidateLabAdvancementDecision",
     "CandidateLabAdvancementDisposition",
+    "CandidateFollowUpSignal",
+    "CandidateHandoffValidation",
     "AssayAcceptanceRule",
     "AssayCategory",
     "AssayDefinition",
@@ -325,6 +338,7 @@ __all__ = [
     "transition_promotion_decision",
     "validate_promotion_transition_history",
     "transition_review_queue",
+    "validate_candidate_follow_up_handoff",
     "validate_review_transition_history",
     "ExperimentDesignValidationIssue",
     "ExperimentDesignValidationReport",

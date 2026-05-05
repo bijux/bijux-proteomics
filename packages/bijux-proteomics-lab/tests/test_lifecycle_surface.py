@@ -6,12 +6,17 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics_lab import (
+    AssayLifecycleStage,
+    AssayLifecycleState,
     CandidateLabAdvancementDisposition,
+    CandidateFollowUpSignal,
     PromotionDecisionState,
     ReviewQueueState,
+    advance_assay_lifecycle,
     decide_candidate_lab_advancement,
     transition_promotion_decision,
     transition_review_queue,
+    validate_candidate_follow_up_handoff,
     validate_promotion_transition_history,
     validate_review_transition_history,
 )
@@ -144,3 +149,79 @@ def test_decide_candidate_lab_advancement_returns_promote_and_refuse_outcomes() 
     assert promoted.disposition is CandidateLabAdvancementDisposition.PROMOTE
     assert refused.disposition is CandidateLabAdvancementDisposition.REFUSE
     assert refused.reasons == ["missing orthogonal confirmation"]
+
+
+def test_advance_assay_lifecycle_requires_reproducible_validation_before_targeted_work() -> (
+    None
+):
+    decision = advance_assay_lifecycle(
+        AssayLifecycleState(
+            assay_id="assay-validate",
+            current_stage=AssayLifecycleStage.VALIDATION,
+            completed_stages=(
+                AssayLifecycleStage.DISCOVERY,
+                AssayLifecycleStage.VERIFICATION,
+            ),
+            required_transition_evidence=("orthogonal assay", "matched controls"),
+        ),
+        evidence_ready=True,
+        reproducibility_ready=False,
+        targeted_panel_ready=False,
+        blocking_findings=["replicate drift remains unresolved"],
+        recommended_actions=["repeat validation with matched controls"],
+    )
+
+    assert decision.ready_to_advance is False
+    assert decision.to_stage is None
+    assert "replicate drift remains unresolved" in decision.reasons
+    assert any("targeted follow-up panel" in item for item in decision.required_next_actions)
+
+
+def test_validate_candidate_follow_up_handoff_refuses_unjustified_signal() -> None:
+    validation = validate_candidate_follow_up_handoff(
+        program_id="prog-lab-handoff",
+        signal=CandidateFollowUpSignal(
+            candidate_id="cand-uncertain",
+            recommendation="hold candidate until contradictions are resolved",
+            decision_ready=False,
+            contradiction_pressure=0.62,
+            freshness_pressure=0.18,
+            unresolved_questions=("does the orthogonal assay reproduce",),
+            evidence_ids=("ev-1",),
+            required_assay_ids=("assay-a", "assay-b"),
+            recommended_next_steps=("resolve the orthogonal assay contradiction",),
+            policy_lineage_id="policy-balanced",
+        ),
+        available_assay_ids=["assay-a"],
+        ready_for_execution=False,
+        operational_blockers=["instrument maintenance window is still open"],
+    )
+
+    assert validation.accepted is False
+    assert "contradiction pressure is too high for lab handoff" in validation.blockers
+    assert "upstream recommendation is still on hold" in validation.blockers
+    assert any("operational blockers" in step for step in validation.required_next_actions)
+
+
+def test_validate_candidate_follow_up_handoff_accepts_grounded_signal() -> None:
+    validation = validate_candidate_follow_up_handoff(
+        program_id="prog-lab-handoff",
+        signal=CandidateFollowUpSignal(
+            candidate_id="cand-ready",
+            recommendation="prioritize candidate-ready for follow-up review",
+            decision_ready=True,
+            contradiction_pressure=0.11,
+            freshness_pressure=0.08,
+            unresolved_questions=(),
+            evidence_ids=("ev-1", "ev-2"),
+            required_assay_ids=("assay-a", "assay-b"),
+            recommended_next_steps=("schedule orthogonal follow-up assays",),
+            policy_lineage_id="policy-balanced",
+        ),
+        available_assay_ids=["assay-a", "assay-b", "assay-c"],
+        ready_for_execution=True,
+    )
+
+    assert validation.accepted is True
+    assert validation.accepted_assay_ids == ["assay-a", "assay-b"]
+    assert "schedule accepted follow-up assays" in validation.required_next_actions
