@@ -61,7 +61,7 @@ design_loop/__init__.py,domain_ownership,bijux-proteomics-intelligence,"Design-l
 design_loop/convergence.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
 design_loop/loop.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
 design_loop/stagnation.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
-domain/__init__.py,domain_ownership,bijux-proteomics-core,Domain package aggregation belongs to canonical lower-layer domain ownership rather than runtime.
+domain/__init__.py,domain_ownership,bijux-proteomics-intelligence,Domain package aggregation now forwards directly to canonical intelligence domain ownership.
 domain/candidates/__init__.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/candidates/filters.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/candidates/model.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
@@ -70,8 +70,8 @@ domain/candidates/selection.py,domain_ownership,bijux-proteomics-intelligence,"C
 domain/candidates/store.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/candidates/transform.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
 domain/candidates/updates.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/confidence/__init__.py,domain_ownership,bijux-proteomics-knowledge,Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership.
-domain/confidence/segments.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation drives downstream interpretation and belongs in intelligence ownership.
+domain/confidence/__init__.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation now forwards directly to canonical intelligence confidence semantics.
+domain/confidence/segments.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation now forwards directly to canonical intelligence confidence semantics.
 domain/metrics/__init__.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
 domain/metrics/compute.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
 domain/metrics/quality.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
@@ -113,10 +113,10 @@ providers/local/rosettafold.py,runtime_execution_ownership,bijux-proteomics-runt
 registry/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Registry package exports now forward directly to canonical runtime registry surfaces.
 registry/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry exports now forward directly to canonical runtime registry contracts.
 registry/tools.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool registry exports now forward directly to canonical runtime registry contracts.
-report/__init__.py,domain_ownership,bijux-proteomics-intelligence,Report package exports now forward directly to canonical intelligence reporting surfaces.
-report/compute.py,domain_ownership,bijux-proteomics-intelligence,Report computation now forwards directly to canonical intelligence scoring and summary surfaces.
-report/model.py,domain_ownership,bijux-proteomics-intelligence,Report data modeling now forwards directly to canonical intelligence report schemas.
-report/render.py,domain_ownership,bijux-proteomics-intelligence,Report rendering now forwards directly to canonical intelligence presentation surfaces.
+report/__init__.py,domain_ownership,bijux-proteomics-core,Structure report package exports now forward directly to canonical core scientific report surfaces.
+report/compute.py,domain_ownership,bijux-proteomics-core,Structure report computation now forwards directly to canonical core scientific summary surfaces.
+report/model.py,domain_ownership,bijux-proteomics-core,Structure report data modeling now forwards directly to canonical core scientific report schemas.
+report/render.py,domain_ownership,bijux-proteomics-core,Structure report rendering now forwards directly to canonical core presentation surfaces.
 runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/context/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/context/context.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."

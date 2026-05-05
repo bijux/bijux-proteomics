@@ -63,6 +63,14 @@ _CANONICAL_IMPORT_PREFIXES = (
     "bijux_proteomics_runtime",
 )
 _COMPAT_IMPORT_PREFIX = "agentic_proteins"
+_OWNER_BY_IMPORT_ROOT = {
+    "bijux_proteomics": "bijux-proteomics-core",
+    "bijux_proteomics_foundation": "bijux-proteomics-foundation",
+    "bijux_proteomics_intelligence": "bijux-proteomics-intelligence",
+    "bijux_proteomics_knowledge": "bijux-proteomics-knowledge",
+    "bijux_proteomics_lab": "bijux-proteomics-lab",
+    "bijux_proteomics_runtime": "bijux-proteomics-runtime",
+}
 
 
 class AgenticModuleClassification(StrEnum):
@@ -120,6 +128,30 @@ def _compat_targets(tree: ast.Module) -> tuple[str, ...]:
         or name.startswith(f"{_COMPAT_IMPORT_PREFIX}.")
     }
     return tuple(sorted(targets))
+
+
+def _local_definition_names(tree: ast.Module) -> tuple[str, ...]:
+    names: list[str] = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            names.append(node.name)
+    return tuple(names)
+
+
+def _inferred_owner_package(
+    canonical_targets: tuple[str, ...],
+    fallback_owner_package: str,
+) -> str:
+    if not canonical_targets:
+        return fallback_owner_package
+    owner_packages = {
+        _OWNER_BY_IMPORT_ROOT[target.split(".", 1)[0]]
+        for target in canonical_targets
+        if target.split(".", 1)[0] in _OWNER_BY_IMPORT_ROOT
+    }
+    if len(owner_packages) == 1:
+        return next(iter(owner_packages))
+    return fallback_owner_package
 
 
 def _is_docstring_expr(node: ast.stmt) -> bool:
@@ -289,12 +321,17 @@ def build_agentic_compatibility_inventory(
         module_path = path.relative_to(MODULE_ROOT).as_posix()
         tree = parse_python_module(path).tree
         classification = _classification_for(tree)
+        canonical_targets = _canonical_targets(tree)
+        fallback_owner_package = owner_by_module.get(module_path, "agentic-proteins-compat")
         entry = AgenticCompatibilityInventoryEntry(
             module_path=module_path,
             import_path=_module_import_path(module_path),
             classification=classification,
-            owner_package=owner_by_module.get(module_path, "agentic-proteins-compat"),
-            canonical_targets=_canonical_targets(tree),
+            owner_package=_inferred_owner_package(
+                canonical_targets,
+                fallback_owner_package=fallback_owner_package,
+            ),
+            canonical_targets=canonical_targets,
             migration_action="",
         )
         entries.append(
@@ -317,6 +354,7 @@ def validate_agentic_compatibility_inventory(
 
     issues: list[AgenticCompatibilityInventoryIssue] = []
     for entry in build_agentic_compatibility_inventory(repo_root):
+        tree = parse_python_module(MODULE_ROOT / entry.module_path).tree
         if entry.classification in {
             AgenticModuleClassification.CANONICAL,
             AgenticModuleClassification.DUPLICATE,
@@ -342,6 +380,28 @@ def validate_agentic_compatibility_inventory(
                     detail=(
                         f"{entry.module_path} is wrapper-only but does not name a canonical "
                         "target import"
+                    ),
+                )
+            )
+        compat_targets = _compat_targets(tree)
+        if compat_targets:
+            issues.append(
+                AgenticCompatibilityInventoryIssue(
+                    code="compat-import-hop",
+                    detail=(
+                        f"{entry.module_path} still imports compatibility modules "
+                        f"instead of canonical owners: {', '.join(compat_targets)}"
+                    ),
+                )
+            )
+        local_definitions = _local_definition_names(tree)
+        if local_definitions:
+            issues.append(
+                AgenticCompatibilityInventoryIssue(
+                    code="compat-local-definition",
+                    detail=(
+                        f"{entry.module_path} still defines local compatibility logic: "
+                        f"{', '.join(local_definitions)}"
                     ),
                 )
             )
@@ -380,9 +440,16 @@ def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> st
         classification: 0 for classification in AgenticModuleClassification
     }
     owner_counts: dict[str, int] = {}
+    compat_import_hops = 0
+    local_definition_count = 0
     for entry in entries:
         counts[entry.classification] += 1
         owner_counts[entry.owner_package] = owner_counts.get(entry.owner_package, 0) + 1
+        tree = parse_python_module(MODULE_ROOT / entry.module_path).tree
+        if _compat_targets(tree):
+            compat_import_hops += 1
+        if _local_definition_names(tree):
+            local_definition_count += 1
 
     lines = [
         "---",
@@ -425,6 +492,8 @@ def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> st
             "- `wrapper` means the module is only preserving an old import or patch seam while delegating live behavior to a canonical package.",
             "- `dead` means the module no longer carries meaningful behavior and can be removed once callers disappear.",
             "- `canonical` or `duplicate` are not allowed to survive in the compatibility family at release time.",
+            f"- direct compat-to-compat import hops remaining: {compat_import_hops}",
+            f"- wrapper modules with local definitions remaining: {local_definition_count}",
             "",
             "## First Proof Check",
             "",

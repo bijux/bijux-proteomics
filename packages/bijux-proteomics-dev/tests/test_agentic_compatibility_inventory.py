@@ -28,6 +28,11 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
         by_path["runtime/infra/capabilities.py"].classification
         is AgenticModuleClassification.WRAPPER
     )
+    assert by_path["report/render.py"].owner_package == "bijux-proteomics-core"
+    assert (
+        by_path["domain/confidence/segments.py"].owner_package
+        == "bijux-proteomics-intelligence"
+    )
     assert by_path["registry/__init__.py"].classification is AgenticModuleClassification.WRAPPER
     assert by_path["validation/__init__.py"].classification is AgenticModuleClassification.WRAPPER
     assert AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.exists()
@@ -37,3 +42,11 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
 def test_agentic_compatibility_inventory_rejects_non_wrapper_logic() -> None:
     issues = validate_agentic_compatibility_inventory(REPO_ROOT)
     assert issues == ()
+
+
+def test_agentic_compatibility_inventory_summary_tracks_direct_wrapper_counts() -> None:
+    summary_text = AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.read_text(
+        encoding="utf-8"
+    )
+    assert "direct compat-to-compat import hops remaining: 0" in summary_text
+    assert "wrapper modules with local definitions remaining: 0" in summary_text

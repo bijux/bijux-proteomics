@@ -23,9 +23,8 @@ About 74 percent of the ledger is already classified as clear runtime execution 
 ## Target Owner Distribution
 
 - `bijux-proteomics-runtime`: 113
-- `bijux-proteomics-intelligence`: 20
-- `bijux-proteomics-core`: 12
-- `bijux-proteomics-knowledge`: 2
+- `bijux-proteomics-intelligence`: 19
+- `bijux-proteomics-core`: 15
 - `agentic-proteins-compat`: 1
 
 ## Review Hotspots

@@ -387,26 +387,26 @@ reason = "Registry surfaces are runtime-support utilities pending explicit owner
 [[rule]]
 pattern = "report/__init__.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report package exports now forward directly to canonical intelligence reporting surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report package exports now forward directly to canonical core scientific report surfaces."
 
 [[rule]]
 pattern = "report/compute.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report computation now forwards directly to canonical intelligence scoring and summary surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report computation now forwards directly to canonical core scientific summary surfaces."
 
 [[rule]]
 pattern = "report/model.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report data modeling now forwards directly to canonical intelligence report schemas."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report data modeling now forwards directly to canonical core scientific report schemas."
 
 [[rule]]
 pattern = "report/render.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report rendering now forwards directly to canonical intelligence presentation surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report rendering now forwards directly to canonical core presentation surfaces."
 
 [[rule]]
 pattern = "report/**"
@@ -495,8 +495,8 @@ reason = "Candidate modeling, filtering, and selection are intelligence-layer ra
 [[rule]]
 pattern = "domain/confidence/**"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-knowledge"
-reason = "Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership."
+owner_package = "bijux-proteomics-intelligence"
+reason = "Confidence segmentation now forwards directly to canonical intelligence confidence semantics."
 
 [[rule]]
 pattern = "domain/metrics/**"
@@ -519,5 +519,5 @@ reason = "Structure domain representations are canonical program-domain ownershi
 [[rule]]
 pattern = "domain/__init__.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-core"
-reason = "Domain package aggregation belongs to canonical lower-layer domain ownership rather than runtime."
+owner_package = "bijux-proteomics-intelligence"
+reason = "Domain package aggregation now forwards directly to canonical intelligence domain ownership."

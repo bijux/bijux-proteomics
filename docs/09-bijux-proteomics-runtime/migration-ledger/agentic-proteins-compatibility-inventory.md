@@ -22,9 +22,8 @@ last_reviewed: 2026-05-05
 ## Owner Distribution
 
 - `bijux-proteomics-runtime`: 113
-- `bijux-proteomics-intelligence`: 20
-- `bijux-proteomics-core`: 12
-- `bijux-proteomics-knowledge`: 2
+- `bijux-proteomics-intelligence`: 19
+- `bijux-proteomics-core`: 15
 - `agentic-proteins-compat`: 1
 
 ## Release Rule
@@ -32,6 +31,8 @@ last_reviewed: 2026-05-05
 - `wrapper` means the module is only preserving an old import or patch seam while delegating live behavior to a canonical package.
 - `dead` means the module no longer carries meaningful behavior and can be removed once callers disappear.
 - `canonical` or `duplicate` are not allowed to survive in the compatibility family at release time.
+- direct compat-to-compat import hops remaining: 0
+- wrapper modules with local definitions remaining: 0
 
 ## First Proof Check
 
