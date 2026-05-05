@@ -1,0 +1,62 @@
+# Generated package-root line-count report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_line_counts
+
+[guard]
+max_total_init_line_count = 170
+max_total_top_level_python_module_count = 67
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+init_line_count = 25
+top_level_python_module_count = 1
+public_symbol_count = 3
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_root = "bijux_proteomics_dev"
+init_line_count = 1
+top_level_python_module_count = 2
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+init_line_count = 43
+top_level_python_module_count = 18
+public_symbol_count = 15
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+init_line_count = 13
+top_level_python_module_count = 10
+public_symbol_count = 5
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+init_line_count = 26
+top_level_python_module_count = 3
+public_symbol_count = 4
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+init_line_count = 32
+top_level_python_module_count = 15
+public_symbol_count = 10
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+init_line_count = 19
+top_level_python_module_count = 9
+public_symbol_count = 5
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+init_line_count = 11
+top_level_python_module_count = 9
+public_symbol_count = 4

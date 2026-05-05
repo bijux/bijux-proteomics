@@ -1,0 +1,72 @@
+# Generated package-root budget report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_budgets
+
+total_init_line_count = 170
+over_budget_packages = []
+
+[evidence]
+package_root_line_counts_path = "configs/package-governance/package-root-line-counts.toml"
+
+[[package]]
+distribution_name = "agentic-proteins"
+init_line_count = 25
+public_symbol_count = 3
+max_init_lines = null
+max_public_symbols = null
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+init_line_count = 1
+public_symbol_count = 0
+max_init_lines = null
+max_public_symbols = null
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+init_line_count = 43
+public_symbol_count = 15
+max_init_lines = 45
+max_public_symbols = 15
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+init_line_count = 13
+public_symbol_count = 5
+max_init_lines = 20
+max_public_symbols = 5
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+init_line_count = 26
+public_symbol_count = 4
+max_init_lines = 28
+max_public_symbols = 4
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+init_line_count = 32
+public_symbol_count = 10
+max_init_lines = 32
+max_public_symbols = 10
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+init_line_count = 19
+public_symbol_count = 5
+max_init_lines = 19
+max_public_symbols = 5
+within_budget = true
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+init_line_count = 11
+public_symbol_count = 4
+max_init_lines = 16
+max_public_symbols = 4
+within_budget = true
