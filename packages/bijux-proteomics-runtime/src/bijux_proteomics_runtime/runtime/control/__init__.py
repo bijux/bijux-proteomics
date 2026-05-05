@@ -7,6 +7,12 @@ from bijux_proteomics_runtime.runtime.control.artifacts import (
     compare_runs,
     require_human_decision,
 )
+from bijux_proteomics_runtime.runtime.control.cache import (
+    RuntimeCacheClaim,
+    RuntimeCacheDecision,
+    claim_runtime_cache,
+    release_runtime_cache_claim,
+)
 from bijux_proteomics_runtime.runtime.control.execution import run_flow
 from bijux_proteomics_runtime.runtime.control.operations import (
     build_runtime_run_config,
@@ -102,6 +108,8 @@ __all__ = [
     "ReplayEligibility",
     "ResumeCheckpoint",
     "RunStateMachine",
+    "RuntimeCacheClaim",
+    "RuntimeCacheDecision",
     "RuntimeImportTrace",
     "RuntimeReviewableOutputPath",
     "RuntimeArtifactLedger",
@@ -123,6 +131,7 @@ __all__ = [
     "build_local_run_bundle",
     "build_partial_rerun_plan",
     "build_replay_contract",
+    "claim_runtime_cache",
     "compare_runs",
     "compare_run_operation",
     "evaluate_replay_eligibility",
@@ -139,6 +148,7 @@ __all__ = [
     "load_local_run_bundle",
     "load_resume_checkpoint",
     "load_scheduler_job_bundle",
+    "release_runtime_cache_claim",
     "require_human_decision",
     "resume_candidate_operation",
     "run_flow",
