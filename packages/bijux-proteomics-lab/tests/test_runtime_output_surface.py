@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runs import (
+from bijux_proteomics_runtime.runs.context import create_run_context
+from bijux_proteomics_runtime.runs.contracts import (
     RuntimeArtifactRetentionClass,
     build_run_context_contract,
-    create_run_context,
 )
 from bijux_proteomics_runtime.runs.replay import (
     build_local_run_bundle,

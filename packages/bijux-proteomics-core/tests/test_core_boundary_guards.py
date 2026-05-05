@@ -10,7 +10,8 @@ from pathlib import Path
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
     "execution/runtime_adapter.py": {
-        "bijux_proteomics_runtime.runs",
+        "bijux_proteomics_runtime.runs.manager",
+        "bijux_proteomics_runtime.runs.run_config",
     },
     "interfaces/cli/app.py": {
         "bijux_proteomics_runtime.workflows.plans",

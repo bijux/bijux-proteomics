@@ -18,9 +18,18 @@ def test_runtime_boundary_policy_loads_expected_import_roots() -> None:
     }
     assert "packages/bijux-proteomics-core/src" in roots
     assert "packages/bijux-proteomics-runtime/src" not in roots
+    assert (
+        policy.runtime_imports.allowed_imports_by_consumer[
+            "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py"
+        ]
+        == (
+            "bijux_proteomics_runtime.runs.manager",
+            "bijux_proteomics_runtime.runs.run_config",
+        )
+    )
 
 
-def test_lower_layers_do_not_import_runtime_package() -> None:
+def test_lower_layers_only_use_declared_runtime_owner_imports() -> None:
     policy = load_policy(REPO_ROOT)
     failures = check_lower_layer_runtime_imports(policy)
-    assert not failures, "runtime import direction violations:\n" + "\n".join(failures)
+    assert not failures, "runtime import boundary violations:\n" + "\n".join(failures)
