@@ -152,6 +152,23 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
             )
         )
 
+    reopened_completion_claims = _load_report("package-reopened-completion-claims.toml")
+    for package in reopened_completion_claims["package"]:
+        distribution_name = str(package["distribution_name"])
+        reopened_reasons = tuple(str(value) for value in package["reopened_reasons"])
+        if not reopened_reasons:
+            continue
+        entries.append(
+            ReopenedDebtEntry(
+                debt_id=f"{distribution_name}:reopened-completion-claim",
+                distribution_name=distribution_name,
+                debt_family="reopened-completion-claim",
+                severity="high",
+                summary=reopened_reasons[0],
+                evidence_report="configs/package-governance/package-reopened-completion-claims.toml",
+            )
+        )
+
     return ReopenedDebtLedgerReport(
         entries=tuple(
             sorted(

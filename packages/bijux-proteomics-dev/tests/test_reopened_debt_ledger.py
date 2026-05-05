@@ -19,6 +19,7 @@ def test_reopened_debt_ledger_tracks_live_structural_debt() -> None:
     assert REOPENED_DEBT_LEDGER_PATH.exists()
     assert "bijux-proteomics-core:mixed-responsibility-modules" in debt_ids
     assert "bijux-proteomics-foundation:compatibility-surfaces" in debt_ids
+    assert "bijux-proteomics-runtime:reopened-completion-claim" in debt_ids
     assert "bijux-proteomics-lab:docs-claim-gap" in debt_ids
     assert any(entry.severity == "high" for entry in report.entries)
 

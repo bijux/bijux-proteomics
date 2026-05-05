@@ -2,6 +2,14 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.reopened_debt_ledger
 
 [[debt]]
+debt_id = "agentic-proteins:reopened-completion-claim"
+distribution_name = "agentic-proteins"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
 debt_id = "agentic-proteins:test-tree-gaps"
 distribution_name = "agentic-proteins"
 debt_family = "test-tree-gaps"
@@ -26,6 +34,14 @@ summary = "17 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
+debt_id = "bijux-proteomics-core:reopened-completion-claim"
+distribution_name = "bijux-proteomics-core"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
 debt_id = "bijux-proteomics-core:test-tree-gaps"
 distribution_name = "bijux-proteomics-core"
 debt_family = "test-tree-gaps"
@@ -42,6 +58,14 @@ summary = "public docs still outrun proof for integrity"
 evidence_report = "configs/package-governance/package-docs-claim-proof.toml"
 
 [[debt]]
+debt_id = "bijux-proteomics-dev:reopened-completion-claim"
+distribution_name = "bijux-proteomics-dev"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "README maturity language still outruns owned logic and proof"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
 debt_id = "bijux-proteomics-dev:test-tree-gaps"
 distribution_name = "bijux-proteomics-dev"
 debt_family = "test-tree-gaps"
@@ -56,6 +80,14 @@ debt_family = "compatibility-surfaces"
 severity = "medium"
 summary = "7 compatibility surfaces still survive at the package root"
 evidence_report = "configs/package-governance/package-tree-dossiers.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-foundation:reopened-completion-claim"
+distribution_name = "bijux-proteomics-foundation"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-foundation:test-tree-gaps"
@@ -80,6 +112,14 @@ debt_family = "mixed-responsibility-modules"
 severity = "high"
 summary = "5 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-intelligence:reopened-completion-claim"
+distribution_name = "bijux-proteomics-intelligence"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-intelligence:test-tree-gaps"
@@ -122,6 +162,14 @@ summary = "3 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
+debt_id = "bijux-proteomics-knowledge:reopened-completion-claim"
+distribution_name = "bijux-proteomics-knowledge"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
 debt_id = "bijux-proteomics-knowledge:tree-quality"
 distribution_name = "bijux-proteomics-knowledge"
 debt_family = "tree-quality"
@@ -154,6 +202,14 @@ summary = "3 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
+debt_id = "bijux-proteomics-lab:reopened-completion-claim"
+distribution_name = "bijux-proteomics-lab"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
 debt_id = "bijux-proteomics-lab:tree-quality"
 distribution_name = "bijux-proteomics-lab"
 debt_family = "tree-quality"
@@ -168,6 +224,14 @@ debt_family = "mixed-responsibility-modules"
 severity = "high"
 summary = "3 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-runtime:reopened-completion-claim"
+distribution_name = "bijux-proteomics-runtime"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "docs and tree still contradict each other"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-runtime:test-tree-gaps"
