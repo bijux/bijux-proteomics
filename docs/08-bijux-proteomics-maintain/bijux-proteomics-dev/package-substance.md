@@ -22,7 +22,7 @@ This report makes package-boundary substance explicit. The five real product pac
 
 - `agentic-proteins`: role=compatibility_bridge, owned_logic=0, wrappers=147, thin=0, ready=yes
 - `bijux-proteomics-core`: role=canonical_product, owned_logic=89, wrappers=0, thin=25, ready=yes
-- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=52, wrappers=0, thin=8, ready=yes
+- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=53, wrappers=0, thin=8, ready=yes
 - `bijux-proteomics-foundation`: role=shared_kernel, owned_logic=21, wrappers=7, thin=1, ready=yes
 - `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=11, wrappers=0, thin=1, ready=yes
 - `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=20, wrappers=0, thin=2, ready=yes
