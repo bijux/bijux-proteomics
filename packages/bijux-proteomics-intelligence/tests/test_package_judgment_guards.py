@@ -11,12 +11,16 @@ from bijux_proteomics.programs import MeasurementDirection
 from bijux_proteomics_intelligence import (
     CandidateAssessment,
     DEFAULT_INTELLIGENCE_CHARTER,
+    DEFAULT_INTELLIGENCE_MODULE_AUDIT,
+    IntelligenceModuleClassification,
     ScenarioAction,
     ScenarioEvaluation,
     ScenarioSetEvaluation,
     build_final_decision_recommendation,
+    build_review_board_decision_path,
     build_ranking_rule_grounding_ledger,
     build_ranking_sensitivity_report,
+    build_skeptical_review_report,
     prioritize_candidates,
 )
 from bijux_proteomics_knowledge import (
@@ -174,3 +178,51 @@ def test_intelligence_package_does_not_restore_wrapper_only_serialization_surfac
 ):
     package_dir = Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_intelligence"
     assert not (package_dir / "serialization.py").exists()
+
+
+def test_intelligence_package_keeps_multiple_analytical_modules_release_blocking() -> (
+    None
+):
+    analytical_modules = [
+        entry
+        for entry in DEFAULT_INTELLIGENCE_MODULE_AUDIT
+        if entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    ]
+
+    assert len(analytical_modules) >= 8
+
+
+def test_skeptical_review_guard_proves_value_beyond_core_and_runtime() -> None:
+    path = build_review_board_decision_path(
+        _program(),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-a",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.86},
+                manufacturability_score=0.84,
+                uncertainty=0.08,
+                evidence_support=0.87,
+                reproducibility_score=0.9,
+                effect_size_score=0.78,
+                assay_feasibility_score=0.88,
+                novelty_score=0.61,
+                lab_cost_risk=0.12,
+                operational_risk=0.09,
+            )
+        ],
+        _bundle(contradictory=False),
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    report = build_skeptical_review_report(path)
+
+    assert len(report.analytical_value_signals) >= 4
+
+
+def test_intelligence_readme_advertises_live_judgment_entrypoints() -> None:
+    readme_path = Path(__file__).resolve().parents[1] / "README.md"
+    readme_text = readme_path.read_text()
+
+    assert "skeptical_review" in readme_text
+    assert "grounding.py" not in readme_text

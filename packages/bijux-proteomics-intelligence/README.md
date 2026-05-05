@@ -88,6 +88,7 @@ For grounded recommendation judgment:
 from bijux_proteomics_intelligence import (
     assess_recommendation_readiness,
     build_ranking_rule_grounding_ledger,
+    build_skeptical_review_report,
     build_ranking_sensitivity_report,
     prioritize_candidates,
 )
@@ -108,7 +109,8 @@ from bijux_proteomics_intelligence import (
 - Distribution name: `bijux-proteomics-intelligence`
 - Import root: `bijux_proteomics_intelligence`
 - Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`,
-  `outcomes`, `interpretation`, `charter`, `grounding`, and `evidence_posture`
+  `outcomes`, `interpretation`, `charter`, `decision_paths`,
+  `skeptical_review`, and `evidence_posture`
 
 ## Package boundaries
 
@@ -137,6 +139,7 @@ parallel workflow story of its own.
 - ranking and scenario outputs must carry typed rationale instead of opaque scores
 - non-obvious ranking rules must remain grounded in knowledge-owned benchmark and reference surfaces
 - recommendation outputs must surface contradiction pressure, freshness pressure, and machine-readable refusal when evidence is not strong enough
+- skeptical review outputs must surface explicit software and scientific objections before a recommendation is treated as downstream-ready
 - policy models must remain reproducible inputs for repeated evaluations
 - portfolio and rejection summaries must stay explicit enough for review-gate use
 - downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
@@ -147,6 +150,7 @@ parallel workflow story of its own.
   logic
 - the change affects decision meaning rather than the way results are delivered
 - policy and rationale should stay explicit and reproducible
+- you need skeptical analytical review over whether a recommendation is truly defensible
 
 ## Route elsewhere when
 
@@ -205,10 +209,11 @@ parallel workflow story of its own.
 
 - [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
 - [`src/bijux_proteomics_intelligence/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/charter.py) for the machine-readable intelligence product charter
-- [`src/bijux_proteomics_intelligence/grounding.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/grounding.py) for knowledge-backed ranking rule provenance
 - [`src/bijux_proteomics_intelligence/evidence_posture.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evidence_posture.py) for contradiction, freshness, and recommendation-gate summaries
 - [`src/bijux_proteomics_intelligence/policies.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py) for ranking and decision policy models
 - [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
+- [`src/bijux_proteomics_intelligence/decision_paths.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py) for readable end-to-end follow-up and review-board decision paths
+- [`src/bijux_proteomics_intelligence/skeptical_review.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/skeptical_review.py) for software and scientific challenge reports over intelligence recommendations
 - [`src/bijux_proteomics_intelligence/interpretation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py) for run summaries, proteomics interpretation, and enrichment contracts
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 
