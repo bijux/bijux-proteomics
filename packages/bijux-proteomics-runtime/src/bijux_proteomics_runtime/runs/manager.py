@@ -895,6 +895,9 @@ class RunManager:
             context.workspace,
             run_id=context.run_id,
             provider_name=engine_name,
+            source_path=source_path,
+            required_tool_versions=context.config.get("tool_versions"),
+            available_tool_versions={engine_name: engine_version},
         )
         write_runtime_preflight_report(context.workspace, preflight_report)
         if not preflight_report.passed:
@@ -1307,6 +1310,8 @@ class RunManager:
             context.workspace,
             run_id=context.run_id,
             provider_name=selected_tool.name,
+            required_tool_versions=context.config.get("tool_versions"),
+            available_tool_versions={selected_tool.name: selected_tool.version},
         )
         write_runtime_preflight_report(context.workspace, preflight_report)
         if not preflight_report.passed:

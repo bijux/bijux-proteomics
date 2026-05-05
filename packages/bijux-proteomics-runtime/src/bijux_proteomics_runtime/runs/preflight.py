@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import json
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -49,6 +51,9 @@ def build_runtime_preflight_report(
     *,
     run_id: str,
     provider_name: str,
+    source_path: Path | None = None,
+    required_tool_versions: dict[str, str] | None = None,
+    available_tool_versions: dict[str, str] | None = None,
 ) -> RuntimePreflightReport:
     """Build a runtime preflight report before execution starts."""
     checks: list[PreflightCheck] = []
@@ -105,6 +110,74 @@ def build_runtime_preflight_report(
             else ("workspace_candidate_store_root_missing",),
         )
     )
+    if source_path is not None:
+        dataset_exists = source_path.exists() and source_path.is_file()
+        checks.append(
+            PreflightCheck(
+                check_id="source_dataset",
+                state=(
+                    PreflightCheckState.PASS
+                    if dataset_exists
+                    else PreflightCheckState.FAIL
+                ),
+                message=(
+                    "source dataset is available"
+                    if dataset_exists
+                    else "source dataset is missing"
+                ),
+                detail_codes=()
+                if dataset_exists
+                else ("source_dataset_missing",),
+            )
+        )
+        if dataset_exists:
+            try:
+                payload = json.loads(source_path.read_text(encoding="utf-8"))
+                layout_valid = isinstance(payload, (dict, list))
+            except json.JSONDecodeError:
+                layout_valid = False
+            checks.append(
+                PreflightCheck(
+                    check_id="source_dataset_layout",
+                    state=(
+                        PreflightCheckState.PASS
+                        if layout_valid
+                        else PreflightCheckState.FAIL
+                    ),
+                    message=(
+                        "source dataset layout is valid"
+                        if layout_valid
+                        else "source dataset layout is invalid"
+                    ),
+                    detail_codes=()
+                    if layout_valid
+                    else ("source_dataset_layout_invalid",),
+                )
+            )
+    required_versions = required_tool_versions or {}
+    available_versions = available_tool_versions or {}
+    version_mismatches = tuple(
+        f"{tool_name}:expected={expected}:actual={available_versions.get(tool_name, 'missing')}"
+        for tool_name, expected in sorted(required_versions.items())
+        if available_versions.get(tool_name) != expected
+    )
+    if required_versions:
+        checks.append(
+            PreflightCheck(
+                check_id="tool_versions",
+                state=(
+                    PreflightCheckState.PASS
+                    if not version_mismatches
+                    else PreflightCheckState.FAIL
+                ),
+                message=(
+                    "tool versions match runtime expectations"
+                    if not version_mismatches
+                    else "tool versions do not match runtime expectations"
+                ),
+                detail_codes=version_mismatches,
+            )
+        )
     return RuntimePreflightReport(
         run_id=run_id,
         provider_name=provider_name,

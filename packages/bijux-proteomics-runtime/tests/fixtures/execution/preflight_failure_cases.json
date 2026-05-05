@@ -1,0 +1,26 @@
+{
+  "missing_tool_case": {
+    "provider_name": "local_esmfold",
+    "detail_codes": [
+      "missing_dependency:transformers"
+    ]
+  },
+  "missing_dataset_case": {
+    "provider_name": "spectronaut",
+    "source_filename": "missing-dia.json"
+  },
+  "wrong_version_case": {
+    "provider_name": "spectronaut",
+    "required_tool_versions": {
+      "spectronaut": "19.0"
+    },
+    "available_tool_versions": {
+      "spectronaut": "18.5"
+    }
+  },
+  "invalid_layout_case": {
+    "provider_name": "maxquant",
+    "source_filename": "invalid-layout.json",
+    "source_payload": "{not-json"
+  }
+}
