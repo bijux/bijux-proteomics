@@ -7,7 +7,7 @@ from pydantic import ValidationError
 import pytest
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
-from bijux_proteomics_knowledge.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 
 
 def test_knowledge_evidence_models_use_foundation_primitives() -> None:

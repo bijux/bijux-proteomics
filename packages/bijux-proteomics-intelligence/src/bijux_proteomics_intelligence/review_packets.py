@@ -30,7 +30,7 @@ from bijux_proteomics_intelligence.recommendations import (
     derive_decision_escalation_flags,
     summarize_unresolved_question_ledger,
 )
-from bijux_proteomics_knowledge.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 class IntelligenceReviewPacket(JsonModel):

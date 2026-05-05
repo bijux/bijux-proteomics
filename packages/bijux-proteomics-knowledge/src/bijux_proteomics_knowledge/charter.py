@@ -113,11 +113,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The package root is an export surface and deliberately forwards stable scientific memory entrypoints.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="claims.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat claim path is kept only as a compatibility shim over knowledge memory owners.",
-    ),
-    KnowledgeModuleAuditEntry(
         module_path="charter.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
@@ -136,21 +131,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
         reason="Schema profiles preserve stable reviewable knowledge documents over time.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="evidence.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat evidence path is kept only as a compatibility shim over knowledge memory owners.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="graph.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat evidence-graph path is kept only as a compatibility shim over knowledge memory owners.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="ingestion.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat ingestion path is kept only as a compatibility shim over knowledge memory owners.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="memory/__init__.py",
@@ -293,11 +273,6 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
             KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
         reason="Scientific rules and grounded judgment ledgers translate reference provenance into reusable interpretation boundaries.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="resolution.py",
-        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
-        reason="The flat resolution path is kept only as a compatibility shim over knowledge memory owners.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="review.py",

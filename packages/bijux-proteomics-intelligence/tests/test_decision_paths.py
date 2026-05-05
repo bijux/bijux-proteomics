@@ -23,7 +23,7 @@ from bijux_proteomics_intelligence.decision_paths import (
     build_follow_up_candidate_path,
     build_review_board_decision_path,
 )
-from bijux_proteomics_knowledge.evidence import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

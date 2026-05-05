@@ -24,6 +24,7 @@ def test_knowledge_surface_consumer_matrix_records_current_owner_usage() -> None
         entry_by_module["bijux_proteomics_knowledge.memory.evidence"].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
+        "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",
     }
     assert set(

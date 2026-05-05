@@ -14,7 +14,7 @@ from bijux_proteomics_intelligence.skeptical_review import (
     SkepticalReviewReport,
     build_skeptical_review_report,
 )
-from bijux_proteomics_knowledge.evidence import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

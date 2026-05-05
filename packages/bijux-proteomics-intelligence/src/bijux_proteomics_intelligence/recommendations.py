@@ -23,7 +23,7 @@ from bijux_proteomics_intelligence.evaluators import (
 from bijux_proteomics_intelligence.evidence_posture import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_knowledge.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 

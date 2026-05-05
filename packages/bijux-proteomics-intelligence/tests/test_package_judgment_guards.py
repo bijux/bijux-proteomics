@@ -30,7 +30,7 @@ from bijux_proteomics_intelligence.recommendations import (
     build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.skeptical_review import build_skeptical_review_report
-from bijux_proteomics_knowledge.evidence import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

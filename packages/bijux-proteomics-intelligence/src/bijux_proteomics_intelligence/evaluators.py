@@ -13,7 +13,7 @@ from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
-from bijux_proteomics_knowledge.evidence import DecisionReadiness
+from bijux_proteomics_knowledge.memory.evidence import DecisionReadiness
 
 
 class ScenarioAction(StrEnum):

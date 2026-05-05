@@ -27,7 +27,7 @@ from bijux_proteomics_intelligence.recommendations import (
     build_final_decision_recommendation,
 )
 from bijux_proteomics_intelligence.review_packets import build_review_board_packet
-from bijux_proteomics_knowledge.evidence import EvidenceBundle, EvidenceRecord
+from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
 
 

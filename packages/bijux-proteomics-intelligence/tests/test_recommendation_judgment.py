@@ -35,7 +35,7 @@ from bijux_proteomics_intelligence.review_packets import (
 from bijux_proteomics_knowledge.references.rules import (
     build_ranking_rule_grounding_ledger,
 )
-from bijux_proteomics_knowledge.evidence import (
+from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

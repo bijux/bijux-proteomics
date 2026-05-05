@@ -55,7 +55,7 @@ from bijux_proteomics_intelligence.review_packets import (
     build_intelligence_review_packet,
     build_review_board_packet,
 )
-from bijux_proteomics_knowledge.evidence import (
+from bijux_proteomics_knowledge.memory.evidence import (
     DecisionReadiness,
     EvidenceCoverage,
     EvidenceBundle,
