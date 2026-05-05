@@ -31,6 +31,18 @@ from bijux_proteomics_knowledge.references.rules import (
     KnowledgeRuleDomain,
     ScientificRuleReference,
 )
+from bijux_proteomics_knowledge.references.queries import (
+    get_benchmark_manifest,
+    get_citation,
+    get_corpus_manifest,
+    get_ontology_mapping,
+    get_scientific_rule,
+    list_benchmark_manifests,
+    list_citations,
+    list_corpus_manifests,
+    list_ontology_mappings,
+    list_scientific_rules,
+)
 
 __all__ = [
     "BenchmarkManifest",
@@ -48,5 +60,15 @@ __all__ = [
     "KnowledgeRuleDomain",
     "KnowledgeWorkflowFamily",
     "ScientificRuleReference",
+    "get_benchmark_manifest",
+    "get_citation",
+    "get_corpus_manifest",
+    "get_ontology_mapping",
+    "get_scientific_rule",
+    "list_benchmark_manifests",
+    "list_citations",
+    "list_corpus_manifests",
+    "list_ontology_mappings",
+    "list_scientific_rules",
     "resolve_ontology_mapping",
 ]
