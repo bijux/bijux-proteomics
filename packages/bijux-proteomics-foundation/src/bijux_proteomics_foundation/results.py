@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field, model_validator
+from pydantic import AliasChoices, ConfigDict, Field, model_validator
 
 from bijux_proteomics_foundation.ordering import stable_order_strings
 from bijux_proteomics_foundation.provenance import ProvenancePointer
@@ -31,7 +31,11 @@ class OperationResult(JsonModel):
 
     operation: str = Field(..., min_length=1)
     disposition: OperationDisposition
-    state: SupportState
+    support_state: SupportState = Field(
+        ...,
+        validation_alias=AliasChoices("support_state", "state"),
+        serialization_alias="support_state",
+    )
     summary: str = Field(..., min_length=1)
     refusal: OperationRefusal | None = None
     degradation_reasons: tuple[str, ...] = Field(default_factory=tuple)
@@ -45,7 +49,7 @@ class OperationResult(JsonModel):
                 raise ValueError("successful results cannot carry a refusal")
             if self.degradation_reasons:
                 raise ValueError("successful results cannot carry degradation reasons")
-            if self.state is not SupportState.SUPPORTED:
+            if self.support_state is not SupportState.SUPPORTED:
                 raise ValueError("successful results must use supported state")
             return self
         if self.disposition is OperationDisposition.REFUSED:
@@ -53,7 +57,7 @@ class OperationResult(JsonModel):
                 raise ValueError("refused results must carry one refusal")
             if self.degradation_reasons:
                 raise ValueError("refused results cannot carry degradation reasons")
-            if self.state is not SupportState.REFUSED:
+            if self.support_state is not SupportState.REFUSED:
                 raise ValueError("refused results must use refused state")
             return self
         if self.refusal is not None:
@@ -62,7 +66,7 @@ class OperationResult(JsonModel):
             raise ValueError(
                 "degraded successful results must carry degradation reasons"
             )
-        if self.state not in {
+        if self.support_state not in {
             SupportState.AMBIGUOUS,
             SupportState.INCOMPLETE,
             SupportState.LOSSY,
@@ -85,7 +89,7 @@ class OperationResult(JsonModel):
         return cls(
             operation=operation,
             disposition=OperationDisposition.SUCCESS,
-            state=SupportState.SUPPORTED,
+            support_state=SupportState.SUPPORTED,
             summary=summary,
             provenance=provenance,
             output_fingerprint=output_fingerprint,
@@ -104,7 +108,7 @@ class OperationResult(JsonModel):
         return cls(
             operation=operation,
             disposition=OperationDisposition.REFUSED,
-            state=SupportState.REFUSED,
+            support_state=SupportState.REFUSED,
             summary=summary,
             refusal=refusal,
             provenance=provenance,
@@ -125,7 +129,7 @@ class OperationResult(JsonModel):
         return cls(
             operation=operation,
             disposition=OperationDisposition.DEGRADED_SUCCESS,
-            state=state,
+            support_state=state,
             summary=summary,
             degradation_reasons=stable_order_strings(degradation_reasons),
             provenance=provenance,

@@ -112,7 +112,7 @@ def test_shared_operation_result_distinguishes_success_refusal_and_degraded_succ
     pointer = ProvenancePointer(
         pointer_kind=ProvenancePointerKind.ARTIFACT,
         locator="artifacts/foundation/result.json",
-        role="result_artifact",
+        pointer_role="result_artifact",
     )
     refusal = OperationRefusal(
         operation="mzml_ingestion",
@@ -184,7 +184,7 @@ def test_refusal_serialization_preserves_normalized_reason_codes() -> None:
         kind=RefusalKind.AMBIGUOUS,
         code="Engine Timeout",
         reason="the source export stopped before peptide-level evidence finished",
-        details=("run log truncated", "peptide section missing"),
+        reason_details=("run log truncated", "peptide section missing"),
     )
 
     restored = OperationRefusal.model_validate_json(refusal.model_dump_json())
@@ -222,6 +222,6 @@ def test_operation_result_rejects_inconsistent_disposition_state_combinations() 
         OperationResult(
             operation="ingest",
             disposition=OperationDisposition.REFUSED,
-            state=SupportState.REFUSED,
+            support_state=SupportState.REFUSED,
             summary="ingestion refused",
         )

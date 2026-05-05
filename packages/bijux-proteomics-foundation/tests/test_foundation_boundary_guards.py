@@ -42,6 +42,7 @@ FORBIDDEN_RUNTIME_TRANSPORT_TOKENS = {
     "schemaformatcompatibilityreport",
     "schemaformatcontract",
 }
+FORBIDDEN_THIN_MODULE_STEMS = {"evolution", "nullability", "primitives"}
 FORBIDDEN_HIGHER_LAYER_IMPORTS = (
     "agentic_proteins",
     "bijux_proteomics.",
@@ -161,6 +162,16 @@ def test_foundation_excludes_runtime_transport_contract_surfaces() -> None:
         ):
             violations.append(str(path.relative_to(FOUNDATION_SRC_ROOT)))
     assert violations == []
+
+
+def test_foundation_excludes_thin_standalone_contract_modules() -> None:
+    thin_modules = sorted(
+        path.relative_to(FOUNDATION_SRC_ROOT)
+        for path in FOUNDATION_SRC_ROOT.glob("*.py")
+        if path.stem in FORBIDDEN_THIN_MODULE_STEMS
+    )
+
+    assert thin_modules == []
 
 
 def test_foundation_does_not_import_higher_layer_packages() -> None:

@@ -22,7 +22,10 @@ class JsonModel(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible dictionary."""
-        return cast(dict[str, Any], normalize_json_value(self.model_dump(mode="json")))
+        return cast(
+            dict[str, Any],
+            normalize_json_value(self.model_dump(mode="json", by_alias=True)),
+        )
 
     def to_json(self) -> str:
         """Return a formatted JSON string."""

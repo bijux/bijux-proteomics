@@ -95,16 +95,16 @@ def test_support_state_refusal_and_error_models_serialize_deterministically() ->
     pointer = ProvenancePointer(
         pointer_kind=ProvenancePointerKind.ARTIFACT,
         locator="artifacts/review/run-7.json",
-        role="review_artifact",
-        labels=("review", "canonical"),
+        pointer_role="review_artifact",
+        pointer_labels=("review", "canonical"),
     )
     refusal = OperationRefusal(
         operation="mzidentml_ingestion",
         kind=RefusalKind.UNSUPPORTED,
         code="Engine Timeout",
         reason="the engine output is incomplete",
-        state=SupportState.INCOMPLETE,
-        details=("missing peptide evidence", "engine timeout"),
+        support_state=SupportState.INCOMPLETE,
+        reason_details=("missing peptide evidence", "engine timeout"),
         recommended_actions=("retry with full export", "collect complete run log"),
         provenance=(pointer,),
     )
@@ -118,11 +118,15 @@ def test_support_state_refusal_and_error_models_serialize_deterministically() ->
     )
 
     assert refusal.code == "engine_timeout"
-    assert refusal.state is SupportState.INCOMPLETE
+    assert refusal.support_state is SupportState.INCOMPLETE
     assert envelope.code == "engine_timeout"
     assert envelope.context[0] == ("run_id", "run-77")
     assert envelope.cause_chain == ("timeout", "adapter")
-    assert to_canonical_json(envelope).count("engine_timeout") == 1
+    rendered_envelope = to_canonical_json(envelope)
+
+    assert rendered_envelope.count("engine_timeout") == 1
+    assert '"support_state":"incomplete"' in rendered_envelope
+    assert '"pointer_role":"review_artifact"' in to_canonical_json(pointer)
 
 
 def test_document_schema_uses_normalized_additive_versions() -> None:

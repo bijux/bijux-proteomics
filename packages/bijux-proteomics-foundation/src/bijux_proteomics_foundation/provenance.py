@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.ordering import stable_order_strings
 from bijux_proteomics_foundation.json_models import JsonModel
@@ -30,12 +30,21 @@ class ProvenancePointer(JsonModel):
 
     pointer_kind: ProvenancePointerKind
     locator: str = Field(..., min_length=1)
-    role: str = Field(..., min_length=1)
+    pointer_role: str = Field(
+        ...,
+        min_length=1,
+        validation_alias=AliasChoices("pointer_role", "role"),
+        serialization_alias="pointer_role",
+    )
     source_system: str = Field(default="bijux-proteomics", min_length=1)
     fingerprint: str | None = None
-    labels: tuple[str, ...] = Field(default_factory=tuple)
+    pointer_labels: tuple[str, ...] = Field(
+        default_factory=tuple,
+        validation_alias=AliasChoices("pointer_labels", "labels"),
+        serialization_alias="pointer_labels",
+    )
 
-    @field_validator("labels")
+    @field_validator("pointer_labels")
     @classmethod
     def _order_labels(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return stable_order_strings(value)

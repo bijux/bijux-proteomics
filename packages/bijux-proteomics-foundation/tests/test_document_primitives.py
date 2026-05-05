@@ -30,9 +30,19 @@ from bijux_proteomics_foundation.errors import (
     MigrationExecutionError,
     MigrationPathError,
 )
-from bijux_proteomics_foundation.evolution import (
+from bijux_proteomics_foundation.compatibility import (
     SchemaEvolutionAssessment,
     assess_schema_evolution,
+)
+from bijux_proteomics_foundation.documents import (
+    DurationValue,
+    NullabilityState,
+    NullableValue,
+    SequenceCoordinateRange,
+    SequenceCoordinateSystem,
+    UtcTimestamp,
+    absent_value,
+    present_value,
 )
 from bijux_proteomics_foundation.hashing import StableHashPolicy, default_hash_policy
 from bijux_proteomics_foundation.ids import (
@@ -45,18 +55,6 @@ from bijux_proteomics_foundation.ids import (
     classify_identifier,
 )
 from bijux_proteomics_foundation.migrations import MigrationRegistry, SchemaMigration
-from bijux_proteomics_foundation.nullability import (
-    NullabilityState,
-    NullableValue,
-    absent_value,
-    present_value,
-)
-from bijux_proteomics_foundation.primitives import (
-    DurationValue,
-    SequenceCoordinateRange,
-    SequenceCoordinateSystem,
-    UtcTimestamp,
-)
 
 
 class DemoDocument(JsonModel):
@@ -244,29 +242,29 @@ def test_sequence_coordinate_range_rejects_inverted_intervals() -> None:
 def test_nullable_value_tracks_present_payloads_explicitly() -> None:
     payload = present_value(0.82)
 
-    assert payload.state is NullabilityState.PRESENT
+    assert payload.presence is NullabilityState.PRESENT
     assert payload.as_optional() == 0.82
 
 
 def test_nullable_value_tracks_absent_states_without_payloads() -> None:
     payload = absent_value(
         NullabilityState.NOT_MEASURED,
-        reason="instrument channel was disabled",
+        absence_reason="instrument channel was disabled",
     )
 
     assert payload.value is None
-    assert payload.reason == "instrument channel was disabled"
+    assert payload.absence_reason == "instrument channel was disabled"
 
 
 def test_nullable_value_rejects_inconsistent_state_and_payload_combinations() -> None:
     with pytest.raises(ValidationError, match="present values must carry"):
-        NullableValue(state=NullabilityState.PRESENT, value=None)
+        NullableValue(presence=NullabilityState.PRESENT, value=None)
 
     with pytest.raises(ValidationError, match="must not carry a payload"):
-        NullableValue(state=NullabilityState.UNKNOWN, value=1.0)
+        NullableValue(presence=NullabilityState.UNKNOWN, value=1.0)
 
     with pytest.raises(ValidationError, match="must include a reason"):
-        NullableValue(state=NullabilityState.WITHHELD)
+        NullableValue(presence=NullabilityState.WITHHELD)
 
 
 def test_hash_payload_uses_explicit_stable_policy() -> None:

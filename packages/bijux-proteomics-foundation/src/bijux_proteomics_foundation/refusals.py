@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.ordering import stable_order_strings
 from bijux_proteomics_foundation.provenance import ProvenancePointer
@@ -33,8 +33,16 @@ class OperationRefusal(JsonModel):
     kind: RefusalKind
     code: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
-    state: SupportState = Field(default=SupportState.REFUSED)
-    details: tuple[str, ...] = Field(default_factory=tuple)
+    support_state: SupportState = Field(
+        default=SupportState.REFUSED,
+        validation_alias=AliasChoices("support_state", "state"),
+        serialization_alias="support_state",
+    )
+    reason_details: tuple[str, ...] = Field(
+        default_factory=tuple,
+        validation_alias=AliasChoices("reason_details", "details"),
+        serialization_alias="reason_details",
+    )
     recommended_actions: tuple[str, ...] = Field(default_factory=tuple)
     provenance: tuple[ProvenancePointer, ...] = Field(default_factory=tuple)
 
@@ -43,7 +51,7 @@ class OperationRefusal(JsonModel):
     def _normalize_code(cls, value: str) -> str:
         return value.strip().lower().replace(" ", "_").replace("-", "_")
 
-    @field_validator("details", "recommended_actions")
+    @field_validator("reason_details", "recommended_actions")
     @classmethod
     def _order_strings(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         return stable_order_strings(value)

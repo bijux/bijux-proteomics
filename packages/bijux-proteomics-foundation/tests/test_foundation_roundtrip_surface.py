@@ -9,9 +9,10 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
-from bijux_proteomics_foundation.nullability import NullabilityState, NullableValue
-from bijux_proteomics_foundation.primitives import (
+from bijux_proteomics_foundation.documents import (
     DurationValue,
+    NullabilityState,
+    NullableValue,
     SequenceCoordinateRange,
     UtcTimestamp,
 )
@@ -39,8 +40,8 @@ def test_foundation_surface_round_trips_across_json_jsonl_and_tsv(
         peptide_span=SequenceCoordinateRange(start=14, end=22),
         phosphorylation="mod:phospho",
         occupancy=NullableValue(
-            state=NullabilityState.NOT_MEASURED,
-            reason="site occupancy standard was not run",
+            presence=NullabilityState.NOT_MEASURED,
+            absence_reason="site occupancy standard was not run",
         ),
     )
 
@@ -56,7 +57,7 @@ def test_foundation_surface_round_trips_across_json_jsonl_and_tsv(
     tsv_lines = tsv_path.read_text().splitlines()
 
     assert restored == document
-    assert restored.occupancy.reason == "site occupancy standard was not run"
+    assert restored.occupancy.absence_reason == "site occupancy standard was not run"
     assert jsonl_path.read_text().count("\n") == 1
     assert "phosphorylation" not in tsv_lines[1]
     assert "mod:phospho" in tsv_lines[1]

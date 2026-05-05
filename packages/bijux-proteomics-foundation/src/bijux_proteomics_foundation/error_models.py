@@ -8,7 +8,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.ordering import stable_order_pairs
 from bijux_proteomics_foundation.provenance import ProvenancePointer
@@ -34,7 +34,11 @@ class ErrorEnvelope(JsonModel):
     category: ErrorCategory
     code: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
-    state: SupportState = Field(default=SupportState.INCOMPLETE)
+    support_state: SupportState = Field(
+        default=SupportState.INCOMPLETE,
+        validation_alias=AliasChoices("support_state", "state"),
+        serialization_alias="support_state",
+    )
     retryable: bool = False
     context: tuple[tuple[str, Any], ...] = Field(default_factory=tuple)
     cause_chain: tuple[str, ...] = Field(default_factory=tuple)
@@ -87,7 +91,7 @@ def build_error_envelope_from_exception(
         category=category,
         code=code,
         message=message or str(error) or type(error).__name__,
-        state=state,
+        support_state=state,
         retryable=retryable,
         context=context,
         cause_chain=summarize_exception_chain(error),
