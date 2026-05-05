@@ -169,11 +169,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Targeted benchmark rehearsals keep operator, failure, and external-review delivery separate from claim construction.",
     ),
     LabModuleAuditEntry(
-        module_path="benchmarks/targeted.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The historical targeted benchmark module now remains only as a compatibility facade over narrower benchmark owners.",
-    ),
-    LabModuleAuditEntry(
         module_path="governance/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The governance band exposes package-boundary metadata without adding operational behavior.",
@@ -221,11 +216,6 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.HANDOFF_PACKETS,),
         reason="LIMS export bundles and assay-plan comparisons belong to delivery ownership rather than transition review ownership.",
-    ),
-    LabModuleAuditEntry(
-        module_path="handoffs/packets.py",
-        classification=LabModuleClassification.THIN_ABSTRACTION,
-        reason="The historical handoff packet import path now remains only as a compatibility facade over narrower handoff owners.",
     ),
     LabModuleAuditEntry(
         module_path="handoffs/risk.py",

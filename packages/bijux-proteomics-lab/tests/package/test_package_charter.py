@@ -61,11 +61,9 @@ def test_only_curated_compatibility_paths_remain_thin_abstraction() -> None:
     assert thin_paths == {
         "__init__.py",
         "benchmarks/__init__.py",
-        "benchmarks/targeted.py",
         "design/__init__.py",
         "governance/__init__.py",
         "handoffs/__init__.py",
-        "handoffs/packets.py",
         "lifecycle/__init__.py",
         "outcomes/__init__.py",
         "planning/__init__.py",
