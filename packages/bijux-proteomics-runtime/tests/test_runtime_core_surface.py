@@ -17,8 +17,9 @@ from bijux_proteomics_runtime.core import (
     stable_json,
     suggest_next_action,
 )
+from bijux_proteomics_runtime.core.contracts import EXECUTION_REVIEW_CONTRACT
 from bijux_proteomics_runtime.core.execution import ExecutionContext
-from bijux_proteomics_runtime.core.surface_area import PUBLIC_ENTRYPOINTS
+from bijux_proteomics_runtime.core.surface_area import CONFIG_KNOBS, PUBLIC_ENTRYPOINTS
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
 
 
@@ -64,9 +65,47 @@ def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
     assert "bijux_proteomics_runtime.runtime.RunManager" in PUBLIC_ENTRYPOINTS
 
 
+def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
+    assert (
+        "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path"
+        in PUBLIC_ENTRYPOINTS
+    )
+    assert (
+        "bijux_proteomics_runtime.runtime.control.run_reviewable_import_path"
+        in PUBLIC_ENTRYPOINTS
+    )
+
+
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
     from bijux_proteomics_runtime.core.surface_area import EXTENSION_POINTS
 
     assert "bijux_proteomics_runtime.providers" in EXTENSION_POINTS
     assert "bijux_proteomics_runtime.providers.experimental" in EXTENSION_POINTS
     assert "bijux_proteomics_runtime.sandbox" in EXTENSION_POINTS
+
+
+def test_runtime_surface_area_tracks_live_run_config_knobs() -> None:
+    assert "RunConfig.execution_mode" in CONFIG_KNOBS
+    assert "RunConfig.launch_surface" in CONFIG_KNOBS
+    assert "RunConfig.max_bundle_artifact_bytes" in CONFIG_KNOBS
+
+
+def test_runtime_contracts_track_review_and_failure_surfaces() -> None:
+    assert (
+        EXECUTION_REVIEW_CONTRACT["sequence_review_path"]
+        == "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path"
+    )
+    assert (
+        EXECUTION_REVIEW_CONTRACT["failure_report_writer"]
+        == "bijux_proteomics_runtime.runtime.control.write_runtime_failure_report"
+    )
+
+
+def test_runtime_core_contract_metadata_avoids_stale_biology_symbols() -> None:
+    combined = (
+        *PUBLIC_ENTRYPOINTS,
+        *CONFIG_KNOBS,
+        *EXECUTION_REVIEW_CONTRACT.values(),
+    )
+    assert not any("bijux_proteomics.biology" in entry for entry in combined)
+    assert not any("PathwayContract" in entry for entry in combined)

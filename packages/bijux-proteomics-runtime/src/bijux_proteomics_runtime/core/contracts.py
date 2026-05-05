@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Frozen contracts for agent execution."""
+"""Frozen contracts for reviewable runtime execution."""
 
 from __future__ import annotations
 
-AGENT_EXECUTION_CONTRACT = {
-    "step_entrypoint": "bijux_proteomics.biology.pathway.PathwayExecutor.step",
-    "transition_validator": "bijux_proteomics.biology.validation.validate_transition",
-    "failure_semantics": "bijux_proteomics.biology.protein_agent.FailureEvent",
-    "failure_disable": "bijux_proteomics.biology.protein_agent.ProteinFailure.DISABLED",
+EXECUTION_REVIEW_CONTRACT = {
+    "sequence_review_path": "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path",
+    "import_review_path": "bijux_proteomics_runtime.runtime.control.run_reviewable_import_path",
+    "rerun_planning": "bijux_proteomics_runtime.runtime.control.build_runtime_partial_rerun_plan",
+    "local_bundle_loader": "bijux_proteomics_runtime.runtime.control.load_local_run_bundle",
+    "failure_report_writer": "bijux_proteomics_runtime.runtime.control.write_runtime_failure_report",
 }
 
-__all__ = ["AGENT_EXECUTION_CONTRACT"]
+__all__ = ["EXECUTION_REVIEW_CONTRACT"]

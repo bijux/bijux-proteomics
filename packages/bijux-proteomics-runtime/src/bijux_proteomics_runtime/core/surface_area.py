@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Surface-area budgets for public interfaces."""
+"""Surface-area budgets for concrete runtime interfaces."""
 
 from __future__ import annotations
 
 PUBLIC_ENTRYPOINTS = (
     "bijux_proteomics_runtime.interfaces.cli.cli",
+    "bijux_proteomics_runtime.api.create_app",
     "bijux_proteomics_runtime.runtime.RunManager",
-    "bijux_proteomics.biology.PathwayExecutor",
-    "bijux_proteomics.biology.ProteinAgent",
-    "bijux_proteomics.biology.SignalPayload",
+    "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path",
+    "bijux_proteomics_runtime.runtime.control.run_reviewable_import_path",
 )
 
 EXTENSION_POINTS = (
@@ -21,13 +21,16 @@ EXTENSION_POINTS = (
 )
 
 CONFIG_KNOBS = (
+    "RunConfig.predictors_enabled",
+    "RunConfig.resource_limits",
+    "RunConfig.retry_policy",
+    "RunConfig.logging_enabled",
     "RunConfig.seed",
+    "RunConfig.require_human_decision",
     "RunConfig.artifacts_dir",
-    "RunConfig.provider",
-    "PathwayContract.max_incoming_signals",
-    "PathwayContract.max_outgoing_signals",
-    "PathwayContract.max_dependency_depth",
-    "PathwayContract.activation_mass_limit",
+    "RunConfig.execution_mode",
+    "RunConfig.launch_surface",
+    "RunConfig.max_bundle_artifact_bytes",
 )
 
 SURFACE_CAPS = {
