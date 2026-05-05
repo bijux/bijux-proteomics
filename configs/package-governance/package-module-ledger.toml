@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 372
+min_owner_logic_module_count = 375
 max_compatibility_surface_count = 23
 max_import_glue_module_count = 211
 max_dead_weight_module_count = 4
@@ -4905,6 +4905,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/package_scorecard.py"
+module_import_path = "bijux_proteomics_dev.api.package_scorecard"
+module_kind = "owner_logic"
+public_definition_count = 6
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/package_surface_pressure.py"
+module_import_path = "bijux_proteomics_dev.api.package_surface_pressure"
+module_kind = "owner_logic"
+public_definition_count = 6
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/package_test_tree_mirror.py"
 module_import_path = "bijux_proteomics_dev.api.package_test_tree_mirror"
 module_kind = "owner_logic"
@@ -4950,6 +4966,14 @@ module_import_path = "bijux_proteomics_dev.api.public_surfaces"
 module_kind = "owner_logic"
 public_definition_count = 3
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/public_symbol_ledger.py"
+module_import_path = "bijux_proteomics_dev.api.public_symbol_ledger"
+module_kind = "owner_logic"
+public_definition_count = 6
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -6193,8 +6217,24 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/test_package_scorecard.py"
+module_import_path = "tests.bijux_proteomics_dev.test_package_scorecard"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/tests/test_package_substance.py"
 module_import_path = "tests.bijux_proteomics_dev.test_package_substance"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/test_package_surface_pressure.py"
+module_import_path = "tests.bijux_proteomics_dev.test_package_surface_pressure"
 module_kind = "test_only_helper"
 public_definition_count = 3
 workspace_import_root_count = 1
@@ -6253,6 +6293,14 @@ module_path = "packages/bijux-proteomics-dev/tests/test_public_surface_contracts
 module_import_path = "tests.bijux_proteomics_dev.test_public_surface_contracts"
 module_kind = "test_only_helper"
 public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/tests/test_public_symbol_ledger.py"
+module_import_path = "tests.bijux_proteomics_dev.test_public_symbol_ledger"
+module_kind = "test_only_helper"
+public_definition_count = 3
 workspace_import_root_count = 1
 
 [[module]]

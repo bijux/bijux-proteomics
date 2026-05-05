@@ -1,0 +1,87 @@
+# Generated package surface pressure report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_surface_pressure
+
+[guard]
+max_total_root_export_symbol_count = 46
+max_total_public_breadth_count = 105
+max_overexposed_package_count = 2
+
+[[package]]
+distribution_name = "agentic-proteins"
+owner_logic_module_count = 0
+compatibility_surface_count = 0
+root_export_symbol_count = 3
+public_module_count = 0
+public_breadth_count = 3
+breadth_to_owner_ratio = 3.0
+breadth_outpaces_owner_logic = true
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+owner_logic_module_count = 67
+compatibility_surface_count = 4
+root_export_symbol_count = 5
+public_module_count = 9
+public_breadth_count = 14
+breadth_to_owner_ratio = 0.209
+breadth_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+owner_logic_module_count = 104
+compatibility_surface_count = 0
+root_export_symbol_count = 0
+public_module_count = 1
+public_breadth_count = 1
+breadth_to_owner_ratio = 0.0096
+breadth_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+owner_logic_module_count = 17
+compatibility_surface_count = 7
+root_export_symbol_count = 15
+public_module_count = 17
+public_breadth_count = 32
+breadth_to_owner_ratio = 1.8824
+breadth_outpaces_owner_logic = true
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+owner_logic_module_count = 30
+compatibility_surface_count = 0
+root_export_symbol_count = 10
+public_module_count = 14
+public_breadth_count = 24
+breadth_to_owner_ratio = 0.8
+breadth_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+owner_logic_module_count = 19
+compatibility_surface_count = 6
+root_export_symbol_count = 5
+public_module_count = 8
+public_breadth_count = 13
+breadth_to_owner_ratio = 0.6842
+breadth_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+owner_logic_module_count = 18
+compatibility_surface_count = 6
+root_export_symbol_count = 4
+public_module_count = 8
+public_breadth_count = 12
+breadth_to_owner_ratio = 0.6667
+breadth_outpaces_owner_logic = false
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+owner_logic_module_count = 120
+compatibility_surface_count = 0
+root_export_symbol_count = 4
+public_module_count = 2
+public_breadth_count = 6
+breadth_to_owner_ratio = 0.05
+breadth_outpaces_owner_logic = false
