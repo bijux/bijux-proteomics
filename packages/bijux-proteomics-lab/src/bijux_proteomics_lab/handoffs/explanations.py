@@ -56,8 +56,44 @@ class LabExecutionRefusal(JsonModel):
     candidate_id: str = Field(..., min_length=1)
     blocked_assay_ids: tuple[AssayId, ...] = Field(default_factory=tuple)
     explanation: HandoffExplanation
+    refusal_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
     operational_consequences: tuple[str, ...] = Field(default_factory=tuple)
     result: OperationResult
+
+
+def _refusal_reason_codes(
+    *,
+    handoff_validation: CandidateHandoffValidation,
+    transition_review: TargetedTransitionReview,
+    review_packet: ReviewPacket,
+    executable_plan: ExecutableAssayPlan,
+) -> tuple[str, ...]:
+    codes: set[str] = set()
+    for blocker in handoff_validation.blockers:
+        lowered = blocker.lower()
+        if "contradiction pressure" in lowered:
+            codes.add("analytical_contradiction_pressure")
+        elif "decision-ready" in lowered:
+            codes.add("upstream_not_decision_ready")
+        elif "policy lineage" in lowered:
+            codes.add("missing_policy_lineage")
+        elif "supporting evidence" in lowered:
+            codes.add("missing_supporting_evidence")
+        elif "too stale" in lowered:
+            codes.add("stale_supporting_evidence")
+        elif "not currently available" in lowered:
+            codes.add("missing_follow_up_assays")
+        elif "not currently ready" in lowered:
+            codes.add("lab_not_ready")
+        else:
+            codes.add("handoff_validation_blocker")
+    if transition_review.refused_transition_ids:
+        codes.add("refused_targeted_transition")
+    if executable_plan.blocked_by or not executable_plan.ready_for_execution:
+        codes.add("execution_plan_blocked")
+    if review_packet.blocking_findings:
+        codes.add("review_packet_blocked")
+    return tuple(sorted(codes))
 
 
 def build_handoff_explanation(
@@ -196,6 +232,12 @@ def refuse_irresponsible_assay_handoff(
     )
     if not should_refuse:
         return None
+    refusal_reason_codes = _refusal_reason_codes(
+        handoff_validation=handoff_validation,
+        transition_review=transition_review,
+        review_packet=review_packet,
+        executable_plan=executable_plan,
+    )
     operational_consequences = tuple(
         sorted(
             {
@@ -230,6 +272,7 @@ def refuse_irresponsible_assay_handoff(
         candidate_id=candidate_id,
         blocked_assay_ids=blocked_assay_ids,
         explanation=explanation,
+        refusal_reason_codes=refusal_reason_codes,
         operational_consequences=operational_consequences,
         result=OperationResult.refused(
             operation="lab_execution_handoff",

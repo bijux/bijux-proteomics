@@ -199,8 +199,10 @@ class AssayLifecycleDecision(JsonModel):
     ready_to_advance: bool = Field(
         ..., description="Whether the assay may advance to the next stage."
     )
+    decision_code: str = Field(..., min_length=1)
     reasons: list[str] = Field(default_factory=list)
     required_next_actions: list[str] = Field(default_factory=list)
+    audit_trail: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class CandidateFollowUpSignal(JsonModel):
@@ -305,6 +307,7 @@ class CandidateLabAdvancementDecision(JsonModel):
     disposition: CandidateLabAdvancementDisposition = Field(
         ..., description="Whether the candidate advances into lab work."
     )
+    decision_code: str = Field(..., min_length=1)
     evidence_ids: list[str] = Field(
         default_factory=list,
         description="Evidence identifiers attached to the decision.",
@@ -317,6 +320,7 @@ class CandidateLabAdvancementDecision(JsonModel):
         default_factory=list,
         description="Actions that must happen next.",
     )
+    audit_trail: tuple[str, ...] = Field(default_factory=tuple)
 
 
 _ALLOWED_PROMOTION_TRANSITIONS: dict[
@@ -417,6 +421,12 @@ def advance_assay_lifecycle(
     """Advance one assay through discovery, verification, validation, and follow-up."""
     blocking_findings = list(blocking_findings or [])
     recommended_actions = list(recommended_actions or [])
+    audit_trail = [
+        f"stage={state.current_stage.value}",
+        f"evidence_ready={str(evidence_ready).lower()}",
+        f"reproducibility_ready={str(reproducibility_ready).lower()}",
+        f"targeted_panel_ready={str(targeted_panel_ready).lower()}",
+    ]
     next_stage = _LIFECYCLE_NEXT_STAGE[state.current_stage]
     if next_stage is None:
         return AssayLifecycleDecision(
@@ -424,10 +434,12 @@ def advance_assay_lifecycle(
             from_stage=state.current_stage,
             to_stage=None,
             ready_to_advance=False,
+            decision_code="targeted_follow_up_terminal_stage",
             reasons=["assay already reached targeted follow-up"],
             required_next_actions=[
                 "execute the targeted follow-up work and review outcomes"
             ],
+            audit_trail=tuple(audit_trail + ["terminal targeted follow-up stage reached"]),
         )
 
     blockers = list(state.blocking_findings) + blocking_findings
@@ -437,6 +449,7 @@ def advance_assay_lifecycle(
 
     if blockers:
         reasons.extend(blockers)
+        audit_trail.append("blocking findings remain unresolved")
     if state.current_stage is AssayLifecycleStage.DISCOVERY:
         ready_to_advance = evidence_ready and not blockers
         if not evidence_ready:
@@ -471,6 +484,31 @@ def advance_assay_lifecycle(
             reasons.append("validation evidence remains incomplete")
 
     if ready_to_advance:
+        decision_code = f"advance_to_{next_stage.value}"
+        audit_trail.append(f"advance to {next_stage.value}")
+    elif blockers:
+        decision_code = "hold_for_blockers"
+        audit_trail.append("hold because blocking findings remain")
+    elif not evidence_ready:
+        decision_code = "hold_for_evidence"
+        audit_trail.append("hold because evidence readiness is incomplete")
+    elif (
+        state.current_stage is AssayLifecycleStage.VERIFICATION
+        and not reproducibility_ready
+    ):
+        decision_code = "hold_for_reproducibility"
+        audit_trail.append("hold because reproducibility is insufficient")
+    elif (
+        state.current_stage is AssayLifecycleStage.VALIDATION
+        and not targeted_panel_ready
+    ):
+        decision_code = "hold_for_targeted_panel"
+        audit_trail.append("hold because the targeted panel is not justified")
+    else:
+        decision_code = "hold_for_readiness"
+        audit_trail.append("hold because readiness is incomplete")
+
+    if ready_to_advance:
         reasons.append(
             f"advance from {state.current_stage.value} to {next_stage.value}"
         )
@@ -483,10 +521,12 @@ def advance_assay_lifecycle(
         from_stage=state.current_stage,
         to_stage=next_stage if ready_to_advance else None,
         ready_to_advance=ready_to_advance,
+        decision_code=decision_code,
         reasons=reasons or ["lifecycle state is ready to advance"],
         required_next_actions=sorted(
             {action for action in required_next_actions_out if action.strip()}
         ),
+        audit_trail=tuple(audit_trail),
     )
 
 
@@ -586,15 +626,27 @@ def decide_candidate_lab_advancement(
             program_id=program_id,
             candidate_id=candidate_id,
             disposition=CandidateLabAdvancementDisposition.PROMOTE,
+            decision_code="candidate_ready_for_lab_execution",
             evidence_ids=evidence_ids,
             reasons=["review packet is ready for lab execution"],
             follow_up_actions=recommended_actions,
+            audit_trail=(
+                "review packet is synthesis-ready",
+                "no blocking findings remain",
+                "candidate advances into lab execution",
+            ),
         )
     return CandidateLabAdvancementDecision(
         program_id=program_id,
         candidate_id=candidate_id,
         disposition=CandidateLabAdvancementDisposition.REFUSE,
+        decision_code="candidate_refused_for_lab_execution",
         evidence_ids=evidence_ids,
         reasons=blocking_findings or ["review packet is not ready for lab execution"],
         follow_up_actions=recommended_actions,
+        audit_trail=(
+            "review packet is not synthesis-ready",
+            "blocking findings remain open",
+            "candidate stays out of lab execution",
+        ),
     )

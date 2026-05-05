@@ -147,8 +147,11 @@ def test_decide_candidate_lab_advancement_returns_promote_and_refuse_outcomes() 
     )
 
     assert promoted.disposition is CandidateLabAdvancementDisposition.PROMOTE
+    assert promoted.decision_code == "candidate_ready_for_lab_execution"
     assert refused.disposition is CandidateLabAdvancementDisposition.REFUSE
+    assert refused.decision_code == "candidate_refused_for_lab_execution"
     assert refused.reasons == ["missing orthogonal confirmation"]
+    assert "candidate stays out of lab execution" in refused.audit_trail
 
 
 def test_advance_assay_lifecycle_requires_reproducible_validation_before_targeted_work() -> (
@@ -173,10 +176,12 @@ def test_advance_assay_lifecycle_requires_reproducible_validation_before_targete
 
     assert decision.ready_to_advance is False
     assert decision.to_stage is None
+    assert decision.decision_code == "hold_for_blockers"
     assert "replicate drift remains unresolved" in decision.reasons
     assert any(
         "targeted follow-up panel" in item for item in decision.required_next_actions
     )
+    assert "hold because blocking findings remain" in decision.audit_trail
 
 
 def test_validate_candidate_follow_up_handoff_refuses_unjustified_signal() -> None:

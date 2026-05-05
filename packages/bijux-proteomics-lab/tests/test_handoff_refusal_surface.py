@@ -129,6 +129,15 @@ def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> 
     )
 
     assert refusal is not None
+    assert refusal.refusal_reason_codes == (
+        "analytical_contradiction_pressure",
+        "execution_plan_blocked",
+        "refused_targeted_transition",
+        "review_packet_blocked",
+    )
+    assert "lab scheduling must stop before irreversible spend" in (
+        refusal.operational_consequences
+    )
     assert refusal.result.disposition.value == "refused"
     assert refusal.result.refusal is not None
     assert refusal.result.refusal.code == "irresponsible_assay_handoff"
