@@ -54,6 +54,15 @@ pip install agentic-proteins
 
 ## Quick start
 
+For new workflow execution, start from the canonical runtime CLI:
+
+```bash
+bijux-proteomics-runtime --help
+```
+
+Use the compatibility CLI only when an existing integration still depends on
+the legacy command:
+
 ```bash
 agentic-proteins --help
 ```
@@ -74,7 +83,7 @@ from agentic_proteins.interfaces.cli import cli
 
 - Distribution name: `agentic-proteins`
 - Import root: `agentic_proteins`
-- Legacy CLI command: `agentic-proteins`
+- Legacy compatibility CLI command: `agentic-proteins`
 - Canonical replacement package: `bijux-proteomics-runtime`
 
 ## Package boundaries

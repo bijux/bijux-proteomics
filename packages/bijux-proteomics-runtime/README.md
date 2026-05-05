@@ -76,6 +76,9 @@ pip install bijux-proteomics-runtime
 
 ## Quick start
 
+Use the runtime CLI for end-to-end workflow execution, replay, and reviewable
+run outputs:
+
 ```bash
 bijux-proteomics-runtime --help
 ```
@@ -90,7 +93,7 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
-- Canonical CLI command: `bijux-proteomics-runtime`
+- Canonical workflow CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
 - Execution charter: `src/bijux_proteomics_runtime/charter.py`
 - Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, `runtime.control.recovery`, `runtime.control.preflight`, `runtime.control.integrity`, and `runtime.control.failure_reports`

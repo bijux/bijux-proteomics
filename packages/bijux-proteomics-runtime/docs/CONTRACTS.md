@@ -12,7 +12,7 @@ integrators can rely on at the canonical execution boundary.
 
 ## Stable contracts
 
-- `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical CLI entrypoint.
+- `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical workflow CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
 - `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
 - runtime exports typed run context, reviewable outputs, failure reports, and
