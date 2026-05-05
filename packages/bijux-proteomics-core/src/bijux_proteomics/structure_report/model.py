@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from bijux_proteomics_intelligence.report.compute import Metrics
+    from bijux_proteomics.structure_report.compute import Metrics
 
 
 @dataclass(frozen=True)

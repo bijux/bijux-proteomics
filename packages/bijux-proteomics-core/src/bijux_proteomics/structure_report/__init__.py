@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.report.compute import (
+from bijux_proteomics.structure_report.compute import (
     SS8,
     Metrics,
     Percentage,
@@ -20,9 +20,9 @@ from bijux_proteomics_intelligence.report.compute import (
     json_safe,
     report_hash,
 )
-from bijux_proteomics_intelligence.report.model import Report
-from bijux_proteomics_intelligence.report.model import Report as ReportModel
-from bijux_proteomics_intelligence.report.render import (
+from bijux_proteomics.structure_report.model import Report
+from bijux_proteomics.structure_report.model import Report as ReportModel
+from bijux_proteomics.structure_report.render import (
     confidence_summary,
     format_pct,
     format_value,

@@ -14,7 +14,7 @@ from typing import Any, cast
 
 import numpy as np
 
-from bijux_proteomics_intelligence.report.compute import (
+from bijux_proteomics.structure_report.compute import (
     SS8,
     Metrics,
     PLDDTBand,
@@ -23,22 +23,35 @@ from bijux_proteomics_intelligence.report.compute import (
     TertiarySummary,
     json_safe,
 )
-from bijux_proteomics_intelligence.report.model import Report
+from bijux_proteomics.structure_report.model import Report
 
 SummaryGenerator = Callable[[Report], str]
 TextGenerator = Callable[[str], str]
+LANGCHAIN_AVAILABLE: bool | None = None
+HuggingFaceHub: type[Any] | None = None
+PromptTemplate: type[Any] | None = None
 
 
 def _load_langchain_dependencies() -> tuple[type[Any], type[Any]] | None:
+    global LANGCHAIN_AVAILABLE, HuggingFaceHub, PromptTemplate
+    if LANGCHAIN_AVAILABLE is False:
+        return None
+    if LANGCHAIN_AVAILABLE is True and HuggingFaceHub is not None and PromptTemplate is not None:
+        return HuggingFaceHub, PromptTemplate
     try:
         llms = importlib.import_module("langchain_community.llms")
         prompts = importlib.import_module("langchain_core.prompts")
     except ImportError:
+        LANGCHAIN_AVAILABLE = False
         return None
     hub = getattr(llms, "HuggingFaceHub", None)
     prompt_template = getattr(prompts, "PromptTemplate", None)
     if hub is None or prompt_template is None:
+        LANGCHAIN_AVAILABLE = False
         return None
+    LANGCHAIN_AVAILABLE = True
+    HuggingFaceHub = hub
+    PromptTemplate = prompt_template
     return hub, prompt_template
 
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field
 from enum import StrEnum
+import hashlib
 import json
 import numbers
 from typing import Any, NewType, cast
@@ -15,8 +16,7 @@ from typing import Any, NewType, cast
 from loguru import logger
 import numpy as np
 
-from bijux_proteomics_intelligence.domain._hashing import sha256_hex
-from bijux_proteomics_intelligence.report.model import Report
+from bijux_proteomics.structure_report.model import Report
 
 Percentage = NewType("Percentage", float)  # [0,100]
 Probability = NewType("Probability", float)  # [0,1]
@@ -270,7 +270,7 @@ def compute_report_warnings(metrics: Metrics) -> list[str]:
 def report_hash(report: Report) -> str:
     """report_hash."""
     norm_json = json.dumps(json_safe(asdict(report)), sort_keys=True)
-    return sha256_hex(norm_json)
+    return hashlib.sha256(norm_json.encode("utf-8")).hexdigest()
 
 
 def compare_reports(report: Report, other: Report) -> dict[str, Any]:
