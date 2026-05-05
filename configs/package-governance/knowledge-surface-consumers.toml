@@ -1,0 +1,107 @@
+# Generated knowledge surface consumer matrix.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge_surface_consumers
+
+[[surface]]
+name = "bijux_proteomics_knowledge"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.benchmarks"
+consumer_count = 8
+consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/decision_paths.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/recommendations.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/review_packets.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/targeted_benchmarking.py"]
+imported_symbols = ["BenchmarkManifest", "DEFAULT_BENCHMARK_MANIFESTS", "KnowledgeWorkflowFamily"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.briefings"
+consumer_count = 1
+consumer_distributions = ["bijux-proteomics-dev"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py"]
+imported_symbols = ["build_workflow_reference_briefing", "list_workflow_reference_briefings"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.ontologies"
+consumer_count = 1
+consumer_distributions = ["bijux-proteomics-dev"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py"]
+imported_symbols = ["DEFAULT_ONTOLOGY_MAPPINGS"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.registry_queries"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.rules"
+consumer_count = 2
+consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/knowledge_reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py"]
+imported_symbols = ["DEFAULT_SCIENTIFIC_RULE_REFERENCES", "build_ranking_rule_grounding_ledger"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.references.workflow_queries"
+consumer_count = 2
+consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/scientific_readiness.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/benchmark_reviews.py"]
+imported_symbols = ["get_benchmark_manifest"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.memory.claims"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.memory.evidence"
+consumer_count = 4
+consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/serialization_compatibility.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/workflow_readiness.py"]
+imported_symbols = ["EvidenceBundle", "EvidenceKind", "EvidenceSourceType", "EvidenceStrength", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "triangulate_evidence"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.memory.graph"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.memory.ingestion"
+consumer_count = 1
+consumer_distributions = ["bijux-proteomics-lab"]
+consumer_modules = ["packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py"]
+imported_symbols = ["NormalizedEvidenceInput"]
+
+[[surface]]
+name = "bijux_proteomics_knowledge.memory.resolution"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.reviews.packets"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
+
+[[surface]]
+name = "bijux_proteomics_knowledge.reviews.queries"
+consumer_count = 0
+consumer_distributions = []
+consumer_modules = []
+imported_symbols = []
