@@ -19,6 +19,6 @@ Performance advice is only useful when it points to the real owner of the bottle
 
 ## First Proof Check
 
-- `src/bijux_proteomics_lab/targeted_benchmarking.py` and `planning.py`
-- `src/bijux_proteomics_lab/outcomes.py` and `repositories.py`
+- `src/bijux_proteomics_lab/benchmarks/rehearsals.py` and `planning/assays.py`
+- `src/bijux_proteomics_lab/outcomes/observations.py` and `repositories.py`
 - `packages/bijux-proteomics-lab/tests`

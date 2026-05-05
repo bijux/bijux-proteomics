@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Study metadata and lab handoff surfaces for iteration 08."""
+"""Study metadata and lab handoff surfaces."""
 
 from __future__ import annotations
 

@@ -111,7 +111,7 @@ schema = DocumentSchema(
 Identifiers:
 
 ```python
-from bijux_proteomics_foundation.ids import IdentifierKind, build_identifier
+from bijux_proteomics_foundation.identity.ids import IdentifierKind, build_identifier
 
 run_id = build_identifier(IdentifierKind.RUN, "Orbitrap Batch 7")
 ```
@@ -129,8 +129,8 @@ rendered = to_canonical_json(payload)
 Refusals:
 
 ```python
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.support.states import SupportState
 
 refusal = OperationRefusal(
     operation="artifact_validation",
@@ -144,7 +144,10 @@ refusal = OperationRefusal(
 Error envelopes:
 
 ```python
-from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
+from bijux_proteomics_foundation.support.error_models import (
+    ErrorCategory,
+    ErrorEnvelope,
+)
 
 envelope = ErrorEnvelope(
     category=ErrorCategory.RUNTIME,
@@ -156,7 +159,7 @@ envelope = ErrorEnvelope(
 Operation results:
 
 ```python
-from bijux_proteomics_foundation.results import OperationResult
+from bijux_proteomics_foundation.outcomes.results import OperationResult
 
 result = OperationResult.success(
     operation="contract_validation",

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""DIA, spectral-library, and targeted proteomics surfaces for iteration 12."""
+"""DIA, spectral-library, and targeted proteomics surfaces."""
 
 from __future__ import annotations
 

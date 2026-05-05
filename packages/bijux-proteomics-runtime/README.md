@@ -190,8 +190,8 @@ schema = DocumentSchema(
 Runtime refusal:
 
 ```python
-from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
-from bijux_proteomics_foundation.states import SupportState
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.support.states import SupportState
 
 refusal = OperationRefusal(
     operation="mzidentml_ingestion",
@@ -205,7 +205,10 @@ refusal = OperationRefusal(
 Runtime error envelope:
 
 ```python
-from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
+from bijux_proteomics_foundation.support.error_models import (
+    ErrorCategory,
+    ErrorEnvelope,
+)
 
 envelope = ErrorEnvelope(
     category=ErrorCategory.RUNTIME,
@@ -217,7 +220,7 @@ envelope = ErrorEnvelope(
 Runtime operation result:
 
 ```python
-from bijux_proteomics_foundation.results import OperationResult
+from bijux_proteomics_foundation.outcomes.results import OperationResult
 
 result = OperationResult.success(
     operation="hash_manifest",

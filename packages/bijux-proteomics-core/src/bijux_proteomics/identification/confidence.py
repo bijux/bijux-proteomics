@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Iteration-04 identification, FDR, and inference capability surfaces."""
+"""Identification, FDR, and inference capability surfaces."""
 
 from __future__ import annotations
 

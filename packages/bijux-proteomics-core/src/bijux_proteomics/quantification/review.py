@@ -278,7 +278,7 @@ def build_multiplex_channel_balance_diagnostics_report(
 
 
 class QuantNormalizationPolicyKind(StrEnum):
-    """Normalization policy families tracked by the iteration-05 comparison matrix."""
+    """Normalization policy families compared by the quant review matrix."""
 
     NONE = "none"
     TOTAL = "total"
@@ -384,7 +384,7 @@ def build_normalization_policy_comparison_matrix_report(
 
 
 class ProteinRollupStrategyKind(StrEnum):
-    """Protein rollup strategies compared for iteration-05 quant analysis."""
+    """Protein rollup strategies compared by the quant analysis surface."""
 
     SUM = "sum"
     TOP_N = "top_n"
