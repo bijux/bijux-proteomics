@@ -46,7 +46,6 @@ def test_knowledge_under_curated_workflow_report_captures_current_shallow_famili
 
     assert KNOWLEDGE_UNDER_CURATED_WORKFLOWS_PATH.exists()
     assert reasons_by_family == {
-        "dia": {"fewer than two scientific rules"},
         "targeted": {
             "fewer than two scientific context entries",
             "fewer than two scientific rules",
@@ -54,7 +53,7 @@ def test_knowledge_under_curated_workflow_report_captures_current_shallow_famili
     }
 
 
-def test_knowledge_orphan_reference_report_records_current_rule_hotspots() -> None:
+def test_knowledge_orphan_reference_report_records_current_usage_gaps() -> None:
     entries = build_knowledge_orphan_reference_report()
     orphan_ids_by_surface = {entry.surface_name: entry.orphan_ids for entry in entries}
 
@@ -65,7 +64,4 @@ def test_knowledge_orphan_reference_report_records_current_rule_hotspots() -> No
     assert orphan_ids_by_surface["scientific_context"] == ()
     assert orphan_ids_by_surface["known_problems"] == ()
     assert orphan_ids_by_surface["literature_groups"] == ()
-    assert orphan_ids_by_surface["scientific_rules"] == (
-        "rule:target_decoy_scope",
-        "rule:tmtpro_channel_interpretation",
-    )
+    assert orphan_ids_by_surface["scientific_rules"] == ()

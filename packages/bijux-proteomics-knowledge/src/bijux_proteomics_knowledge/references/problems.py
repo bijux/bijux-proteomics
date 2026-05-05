@@ -102,6 +102,22 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006", "citation:protein_inference_2012"),
     ),
     KnownProblemRegistryEntry(
+        problem_id="problem:fdr_scope_overclaim",
+        problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
+        title="Target-decoy confidence can be over-read across evidence levels",
+        problem_summary="A stable target-decoy surface at the peptide-spectrum or peptide level can still be over-interpreted as protein-level certainty when rollup scope is left implicit.",
+        mitigation_guidance="Keep peptide-spectrum, peptide, and protein confidence scopes explicit whenever DDA summaries move beyond the exact evidence level benchmarked.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
+        affected_workflow_families=(KnowledgeWorkflowFamily.DDA,),
+        affected_corpus_ids=(
+            "corpus:search_adapter_fixture_suite",
+            "corpus:target_decoy_method_reference",
+        ),
+        affected_benchmark_ids=("benchmark:dda_search_reproducibility",),
+        citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
+    ),
+    KnownProblemRegistryEntry(
         problem_id="problem:quant_fixture_missingness_shortcut",
         problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
         title="Quantification fixtures can hide missingness pain",
@@ -118,6 +134,22 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
             "benchmark:lfq_quantification_repeatability",
             "benchmark:multiplex_tmtpro_quantification",
         ),
+        citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
+    ),
+    KnownProblemRegistryEntry(
+        problem_id="problem:multiplex_interference_shortcut",
+        problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
+        title="Stable reporter ratios can hide multiplex interference",
+        problem_summary="A clean multiplex fixture can make reporter-channel summaries look more portable than they really are when co-isolation, ratio compression, or channel imbalance are muted by the fixture shape.",
+        mitigation_guidance="Keep reporter interference, channel imbalance, and rollup caveats attached whenever multiplex outputs are summarized beyond the exact benchmarked fixture scope.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
+        affected_workflow_families=(KnowledgeWorkflowFamily.MULTIPLEX,),
+        affected_corpus_ids=(
+            "corpus:quant_fixture_suite",
+            "corpus:tmtpro_labeling_reference",
+        ),
+        affected_benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
         citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
     ),
     KnownProblemRegistryEntry(
@@ -141,6 +173,22 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
             "benchmark:targeted_transition_quality_control",
         ),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
+    ),
+    KnownProblemRegistryEntry(
+        problem_id="problem:dia_library_transfer_overclaim",
+        problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
+        title="Library-conditioned DIA consistency can be over-generalized",
+        problem_summary="A reproducible DIA extraction surface can still depend on one library shape and one transfer pattern more heavily than a downstream review packet makes obvious.",
+        mitigation_guidance="Keep library composition, transition compatibility, and peptide-centric scope explicit before turning one stable DIA extraction benchmark into broader protein-facing portability claims.",
+        version_trace=("Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",),
+        retrieval_trace=("The linked benchmark ids, corpus ids, and citation ids were re-verified on 2026-05-05.",),
+        affected_workflow_families=(KnowledgeWorkflowFamily.DIA,),
+        affected_corpus_ids=(
+            "corpus:search_adapter_fixture_suite",
+            "corpus:swath_method_reference",
+        ),
+        affected_benchmark_ids=("benchmark:dia_library_extraction_consistency",),
+        citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012", "citation:protein_inference_2012"),
     ),
 )
 

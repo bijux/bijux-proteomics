@@ -16,6 +16,7 @@ class LiteratureFocusArea(StrEnum):
     """Literature-group themes curated by the knowledge package."""
 
     ENZYME = "enzyme"
+    MULTIPLEX = "multiplex"
     QC = "qc"
     FDR = "fdr"
     QUANTIFICATION = "quantification"
@@ -100,7 +101,10 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
-        context_ids=("context:digestion_tryptic_specificity",),
+        context_ids=(
+            "context:digestion_tryptic_specificity",
+            "context:fdr_scope_boundary",
+        ),
     ),
     LiteratureGroup(
         group_id="literature:quantification_rollup",
@@ -120,6 +124,20 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         ),
         context_ids=(
             "context:quant_missingness_is_informative",
+            "context:quant_rollup_changes_claim_scope",
+        ),
+    ),
+    LiteratureGroup(
+        group_id="literature:multiplex_interference_limits",
+        focus_area=LiteratureFocusArea.MULTIPLEX,
+        title="Multiplex interference and reporter-scope limits",
+        curation_note="Multiplex interpretation needs literature support for reporter interference, channel-specific caveats, and the boundary between reporter ratios and broader abundance claims.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
+        context_ids=(
+            "context:multiplex_reporter_interference",
             "context:quant_rollup_changes_claim_scope",
         ),
     ),

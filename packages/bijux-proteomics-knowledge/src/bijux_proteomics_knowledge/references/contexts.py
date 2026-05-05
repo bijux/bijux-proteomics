@@ -16,6 +16,7 @@ class KnowledgeContextDomain(StrEnum):
     """Scientific context families curated by the knowledge package."""
 
     DIGESTION_CLEAVAGE = "digestion_cleavage"
+    IDENTIFICATION_CONFIDENCE = "identification_confidence"
     PTM_LOCALIZATION = "ptm_localization"
     DIA_SPECTRAL_LIBRARY = "dia_spectral_library"
     QUANTIFICATION_INTERPRETATION = "quantification_interpretation"
@@ -98,6 +99,19 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         related_term_ids=("enzyme:trypsin", "enzyme:lysc"),
     ),
     ScientificContextEntry(
+        context_id="context:fdr_scope_boundary",
+        domain=KnowledgeContextDomain.IDENTIFICATION_CONFIDENCE,
+        title="Target-decoy scope must stay attached to the claim level",
+        scientific_assertion="Target-decoy framing can support confidence claims only when the peptide-spectrum, peptide, or protein scope of that claim remains explicit.",
+        interpretation_caveat="A clean score threshold or stable decoy rate at one evidence level does not automatically transfer to broader protein-facing certainty without an explicit rollup boundary.",
+        version_trace=("Context wording was reviewed against linked confidence references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
+        citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:dda_search_reproducibility",),
+        related_rule_ids=("rule:target_decoy_scope",),
+        related_term_ids=(),
+    ),
+    ScientificContextEntry(
         context_id="context:ptm_localization_confidence",
         domain=KnowledgeContextDomain.PTM_LOCALIZATION,
         title="PTM localization confidence must stay explicit",
@@ -163,6 +177,19 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
         related_term_ids=("acquisition_mode:dia",),
     ),
     ScientificContextEntry(
+        context_id="context:dia_library_transfer_boundary",
+        domain=KnowledgeContextDomain.DIA_SPECTRAL_LIBRARY,
+        title="DIA library transfer limits must stay explicit",
+        scientific_assertion="Library-conditioned DIA extraction can look reproducible while still depending on library composition, assay transfer choices, and transition compatibility that do not automatically generalize to a new cohort.",
+        interpretation_caveat="A stable extraction surface is not evidence that unseen peptides, altered libraries, or shifted chromatographic behavior would preserve the same peptide-centric support in a broader setting.",
+        version_trace=("Context wording was reviewed against linked DIA references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
+        citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:dia_library_extraction_consistency",),
+        related_rule_ids=("rule:dia_library_transfer_scope",),
+        related_term_ids=("acquisition_mode:dia",),
+    ),
+    ScientificContextEntry(
         context_id="context:quant_missingness_is_informative",
         domain=KnowledgeContextDomain.QUANTIFICATION_INTERPRETATION,
         title="Quantitative missingness is informative",
@@ -193,6 +220,19 @@ DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES: tuple[ScientificContextEntry, ...] = (
             "benchmark:targeted_transition_quality_control",
         ),
         related_rule_ids=("rule:protein_inference_rollup",),
+        related_term_ids=(),
+    ),
+    ScientificContextEntry(
+        context_id="context:multiplex_reporter_interference",
+        domain=KnowledgeContextDomain.QUANTIFICATION_INTERPRETATION,
+        title="Reporter-channel interference limits multiplex interpretation",
+        scientific_assertion="TMTpro-style reporter summaries stay interpretable only when channel interference, ratio compression, and channel-specific missingness remain visible rather than being treated as label-free abundance truth.",
+        interpretation_caveat="Stable reporter ratios in a fixture can still mask co-isolation pressure or channel imbalance that would change how broadly a multiplex result should be trusted.",
+        version_trace=("Context wording was reviewed against linked multiplex references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, benchmark ids, and related rule anchors were re-verified on 2026-05-05.",),
+        citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
+        related_rule_ids=("rule:tmtpro_channel_interpretation",),
         related_term_ids=(),
     ),
 )

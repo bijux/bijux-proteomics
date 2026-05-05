@@ -14,6 +14,7 @@ def test_scientific_context_registry_covers_required_domains() -> None:
 
     assert domains == {
         KnowledgeContextDomain.DIGESTION_CLEAVAGE,
+        KnowledgeContextDomain.IDENTIFICATION_CONFIDENCE,
         KnowledgeContextDomain.PTM_LOCALIZATION,
         KnowledgeContextDomain.DIA_SPECTRAL_LIBRARY,
         KnowledgeContextDomain.QUANTIFICATION_INTERPRETATION,

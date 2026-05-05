@@ -14,6 +14,7 @@ def test_literature_groups_cover_required_focus_areas() -> None:
 
     assert focus_areas == {
         LiteratureFocusArea.ENZYME,
+        LiteratureFocusArea.MULTIPLEX,
         LiteratureFocusArea.QC,
         LiteratureFocusArea.FDR,
         LiteratureFocusArea.QUANTIFICATION,

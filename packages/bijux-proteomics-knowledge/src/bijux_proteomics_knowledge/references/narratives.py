@@ -71,10 +71,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
             "context:digestion_tryptic_specificity",
             "context:digestion_protease_comparability",
             "context:digestion_panel_scope",
+            "context:fdr_scope_boundary",
         ),
         problem_ids=(
             "problem:search_adapter_fixture_overconfidence",
             "problem:protease_panel_equivalence_shortcut",
+            "problem:fdr_scope_overclaim",
         ),
         scope_limit_notes=(
             "Applies to adapter-normalized DDA search outputs in the bundled fixture corpus, not arbitrary production exports.",
@@ -94,10 +96,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:digestion_protease_comparability",
             "context:digestion_panel_scope",
+            "context:fdr_scope_boundary",
         ),
         problem_ids=(
             "problem:search_adapter_fixture_overconfidence",
             "problem:protease_panel_equivalence_shortcut",
+            "problem:fdr_scope_overclaim",
         ),
         scope_limit_notes=(
             "Does not cover protease-mixed production cohorts beyond the curated fixture suite.",
@@ -117,10 +121,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:dia_transition_grounding",
             "context:dia_library_scope",
+            "context:dia_library_transfer_boundary",
         ),
         problem_ids=(
             "problem:search_adapter_fixture_overconfidence",
             "problem:targeted_rollup_shortcut",
+            "problem:dia_library_transfer_overclaim",
         ),
         scope_limit_notes=(
             "Applies to library-conditioned extraction semantics in the benchmarked fixture corpus, not open-ended biological absence claims.",
@@ -140,8 +146,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:dia_transition_grounding",
             "context:dia_library_scope",
+            "context:dia_library_transfer_boundary",
         ),
-        problem_ids=("problem:targeted_rollup_shortcut",),
+        problem_ids=(
+            "problem:targeted_rollup_shortcut",
+            "problem:dia_library_transfer_overclaim",
+        ),
         scope_limit_notes=(
             "Does not claim that missing extraction proves biological absence outside the benchmarked library context.",
             "Does not widen transition evidence into unqualified protein-level certainty.",
@@ -201,8 +211,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:quant_missingness_is_informative",
             "context:quant_rollup_changes_claim_scope",
+            "context:multiplex_reporter_interference",
         ),
-        problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        problem_ids=(
+            "problem:quant_fixture_missingness_shortcut",
+            "problem:multiplex_interference_shortcut",
+        ),
         scope_limit_notes=(
             "Applies to repeatable LFQ behavior in the bundled study-scale fixtures, not every broader cohort shape.",
             "Keeps missingness and rollup level explicit instead of treating protein summaries as scope-free abundance truth.",
@@ -255,8 +269,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
         citation_ids=("citation:tmtpro_2020", "citation:protein_inference_2012"),
-        context_ids=("context:quant_rollup_changes_claim_scope",),
-        problem_ids=("problem:quant_fixture_missingness_shortcut",),
+        context_ids=(
+            "context:quant_rollup_changes_claim_scope",
+            "context:multiplex_reporter_interference",
+        ),
+        problem_ids=(
+            "problem:quant_fixture_missingness_shortcut",
+            "problem:multiplex_interference_shortcut",
+        ),
         scope_limit_notes=(
             "Does not claim that reporter summaries are interchangeable with label-free abundance evidence.",
             "Does not erase interference and rollup caveats just because the fixture outputs stay stable.",

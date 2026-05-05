@@ -157,6 +157,18 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         related_term_ids=(),
     ),
     ScientificRuleReference(
+        rule_id="rule:dia_library_transfer_scope",
+        domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
+        title="DIA library transfer claims need explicit scope",
+        rule_statement="DIA narratives must keep library composition, assay transfer limits, and peptide-centric evidence scope explicit instead of treating one stable extraction surface as proof of broad protein-level portability.",
+        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:dia_library_extraction_consistency",),
+        benchmark_rationale="A library-conditioned DIA fixture can stay internally consistent while still overstating how safely the same extraction surface transfers to new libraries, cohorts, or protein-facing interpretations.",
+        related_term_ids=("acquisition_mode:dia",),
+    ),
+    ScientificRuleReference(
         rule_id="rule:protein_inference_rollup",
         domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
         title="Protein inference rollup caution",
