@@ -1,0 +1,77 @@
+# Generated package root-surface illusion report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_surface_illusions
+
+[guard]
+max_total_root_surface_illusion_count = 6
+
+[[package]]
+distribution_name = "agentic-proteins"
+compatibility_surfaces = []
+root_public_module_count = 0
+root_export_symbol_count = 3
+owner_logic_module_count = 0
+illusion_reasons = ["root public breadth still exceeds owner logic depth"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+compatibility_surfaces = ["cli", "liabilities", "search_adapters", "workflow_blueprint"]
+root_public_module_count = 9
+root_export_symbol_count = 5
+owner_logic_module_count = 67
+illusion_reasons = ["4 compatibility surfaces still survive at the package root"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+compatibility_surfaces = []
+root_public_module_count = 1
+root_export_symbol_count = 0
+owner_logic_module_count = 111
+illusion_reasons = []
+root_surface_hides_owner_depth = false
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+compatibility_surfaces = ["canonicalization", "hashing", "ids", "provenance", "refusals", "results", "states"]
+root_public_module_count = 17
+root_export_symbol_count = 15
+owner_logic_module_count = 17
+illusion_reasons = ["7 compatibility surfaces still survive at the package root", "root public breadth still exceeds owner logic depth", "root public module count still rivals the package owner-family count"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+compatibility_surfaces = []
+root_public_module_count = 14
+root_export_symbol_count = 10
+owner_logic_module_count = 30
+illusion_reasons = ["root public module count still rivals the package owner-family count"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+compatibility_surfaces = ["claims", "evidence", "graph", "ingestion", "resolution", "review"]
+root_public_module_count = 8
+root_export_symbol_count = 5
+owner_logic_module_count = 19
+illusion_reasons = ["6 compatibility surfaces still survive at the package root", "root public module count still rivals the package owner-family count"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+compatibility_surfaces = ["artifacts", "protocols", "ptm_follow_up", "risk", "targeted_benchmarking", "workflow_readiness"]
+root_public_module_count = 8
+root_export_symbol_count = 4
+owner_logic_module_count = 18
+illusion_reasons = ["6 compatibility surfaces still survive at the package root", "root public module count still rivals the package owner-family count"]
+root_surface_hides_owner_depth = true
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+compatibility_surfaces = []
+root_public_module_count = 2
+root_export_symbol_count = 4
+owner_logic_module_count = 120
+illusion_reasons = []
+root_surface_hides_owner_depth = false
