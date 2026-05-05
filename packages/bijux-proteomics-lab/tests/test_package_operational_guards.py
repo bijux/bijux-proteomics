@@ -43,5 +43,7 @@ def test_lab_module_audit_keeps_multiple_operational_owner_modules() -> None:
     }
 
     assert "planning/assays.py" in operational_paths
-    assert "handoffs/packets.py" in operational_paths
+    assert "handoffs/transitions.py" in operational_paths
+    assert "handoffs/explanations.py" in operational_paths
+    assert "handoffs/exports.py" in operational_paths
     assert "benchmarks/targeted.py" in operational_paths

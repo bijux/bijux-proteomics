@@ -64,6 +64,7 @@ def test_only_curated_compatibility_paths_remain_thin_abstraction() -> None:
         "benchmarks/__init__.py",
         "design/__init__.py",
         "handoffs/__init__.py",
+        "handoffs/packets.py",
         "lifecycle/__init__.py",
         "outcomes/__init__.py",
         "planning/__init__.py",

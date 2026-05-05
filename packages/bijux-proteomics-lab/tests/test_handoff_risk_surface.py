@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab.handoffs.packets import (
+from bijux_proteomics_lab.handoffs.transitions import (
     TargetedTransitionCandidate,
     TransitionReviewDisposition,
     review_targeted_transition_candidates,

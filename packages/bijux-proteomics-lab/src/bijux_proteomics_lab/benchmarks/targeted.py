@@ -22,10 +22,8 @@ from bijux_proteomics_knowledge.references.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_lab.handoffs.packets import (
-    LimsExportBundle,
-    TargetedTransitionReview,
-)
+from bijux_proteomics_lab.handoffs.exports import LimsExportBundle
+from bijux_proteomics_lab.handoffs.transitions import TargetedTransitionReview
 from bijux_proteomics_lab.reconciliation.follow_up import OperationalFollowUpPath
 
 

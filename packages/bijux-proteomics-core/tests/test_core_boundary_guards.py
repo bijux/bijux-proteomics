@@ -28,7 +28,7 @@ ALLOWED_CROSS_PACKAGE_IMPORTS = {
         "bijux_proteomics_lab.planning",
     },
     "ptm/review.py": {
-        "bijux_proteomics_lab.ptm_follow_up",
+        "bijux_proteomics_lab.handoffs.ptm",
     },
 }
 REMOVED_COMPATIBILITY_IMPORTS = {

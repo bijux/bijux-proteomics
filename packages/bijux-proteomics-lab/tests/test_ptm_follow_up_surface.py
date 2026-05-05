@@ -16,7 +16,7 @@ from bijux_proteomics.ptm.review import (
 )
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics_lab.ptm_follow_up import build_ptm_lab_validation_packet
+from bijux_proteomics_lab.handoffs.ptm import build_ptm_lab_validation_packet
 
 
 def _fixture_path(name: str) -> Path:

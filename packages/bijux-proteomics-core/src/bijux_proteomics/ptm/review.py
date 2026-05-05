@@ -781,7 +781,7 @@ def build_ptm_lab_validation_packet(
     cooccurrence_report: PtmCooccurrenceCautionReport | None = None,
 ):
     """Route PTM lab-validation packet construction through the lab owner package."""
-    from bijux_proteomics_lab.ptm_follow_up import (
+    from bijux_proteomics_lab.handoffs.ptm import (
         build_ptm_lab_validation_packet as _build,
     )
 
