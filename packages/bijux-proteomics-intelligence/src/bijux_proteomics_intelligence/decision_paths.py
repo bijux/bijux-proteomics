@@ -253,6 +253,17 @@ def build_review_board_decision_path(
         follow_up_path.unresolved_questions
         + summarize_unresolved_question_ledger(evaluations).prioritized_questions
     )
+    if (
+        not unresolved
+        and packet.recommendation.gate_result is not None
+        and packet.recommendation.gate_result.refusal is not None
+    ):
+        unresolved = _dedupe_nonblank(
+            [
+                packet.recommendation.gate_result.refusal.reason,
+                *packet.recommendation.gate_result.refusal.reason_details,
+            ]
+        )
     return ReviewBoardDecisionPath(
         program_id=program.program_id,
         workflow_family=workflow_family,
