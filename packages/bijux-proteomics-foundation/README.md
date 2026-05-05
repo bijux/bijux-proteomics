@@ -32,15 +32,14 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-foundation` provides the shared document-contract layer for
-the package family, including canonical JSON behavior, deterministic hashing,
-document fingerprints, and compatibility contracts for persisted scientific
-records.
+`bijux-proteomics-foundation` is the shared contract kernel for the package
+family, including canonical JSON behavior, deterministic hashing, document
+fingerprints, and compatibility contracts for persisted scientific records.
 
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
-## Why teams pick this package
+## Why teams pick this kernel
 
 - one canonical document-contract baseline across every proteomics package
 - stable fingerprints for cache keys, lineage, and provenance checks
@@ -78,7 +77,8 @@ from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonic
 ## Package boundaries
 
 This package owns shared document metadata, canonical serialization, and
-migration compatibility helpers.
+migration compatibility helpers as a shared kernel rather than a user-facing
+workflow package.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
 The exact allowed primitive surface is audited in `charter.py`.
@@ -92,15 +92,18 @@ The exact allowed primitive surface is audited in `charter.py`.
 
 ## Contract examples
 
+These examples stay at the shared-kernel layer. Workflow-owned, CLI-owned, and
+runtime-owned examples belong in the package that owns that behavior.
+
 Document metadata:
 
 ```python
 from bijux_proteomics_foundation import DocumentSchema
 
 schema = DocumentSchema(
-    created_by="bijux-proteomics-runtime",
-    document_kind="artifact_bundle",
-    package_name="bijux-proteomics-runtime",
+    created_by="bijux-proteomics-foundation",
+    document_kind="contract_bundle",
+    package_name="bijux-proteomics-foundation",
     package_version="0.1.0",
 )
 ```
@@ -130,10 +133,10 @@ from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.states import SupportState
 
 refusal = OperationRefusal(
-    operation="mzidentml_ingestion",
+    operation="artifact_validation",
     kind=RefusalKind.UNSUPPORTED,
     code="unsupported_construct",
-    reason="the source export cannot be normalized honestly",
+    reason="the payload cannot be normalized without changing shared meaning",
     support_state=SupportState.REFUSED,
 )
 ```
@@ -145,8 +148,8 @@ from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelop
 
 envelope = ErrorEnvelope(
     category=ErrorCategory.RUNTIME,
-    code="engine_timeout",
-    message="external engine did not complete before timeout",
+    code="contract_rejection",
+    message="canonical document validation rejected the payload",
 )
 ```
 
@@ -156,8 +159,8 @@ Operation results:
 from bijux_proteomics_foundation.results import OperationResult
 
 result = OperationResult.success(
-    operation="hash_manifest",
-    summary="hash computed successfully",
+    operation="contract_validation",
+    summary="shared contract validation completed successfully",
     output_fingerprint="a" * 64,
 )
 ```

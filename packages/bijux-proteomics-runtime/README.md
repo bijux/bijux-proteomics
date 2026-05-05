@@ -140,6 +140,63 @@ remain in their dedicated lower-layer packages.
 - run context, artifact ledger, replay/import bundles, checkpoint artifacts, and preflight outputs must remain machine-readable and reviewable
 - changes to canonical ownership should land in runtime before compat forwarding expands
 
+## Foundation-backed runtime contract examples
+
+Runtime-owned examples that depend on shared foundation primitives stay here so
+the foundation package does not read like a workflow product.
+
+Document metadata:
+
+```python
+from bijux_proteomics_foundation import DocumentSchema
+
+schema = DocumentSchema(
+    created_by="bijux-proteomics-runtime",
+    document_kind="artifact_bundle",
+    package_name="bijux-proteomics-runtime",
+    package_version="0.1.0",
+)
+```
+
+Runtime refusal:
+
+```python
+from bijux_proteomics_foundation.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.states import SupportState
+
+refusal = OperationRefusal(
+    operation="mzidentml_ingestion",
+    kind=RefusalKind.UNSUPPORTED,
+    code="unsupported_construct",
+    reason="the source export cannot be normalized honestly",
+    support_state=SupportState.REFUSED,
+)
+```
+
+Runtime error envelope:
+
+```python
+from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
+
+envelope = ErrorEnvelope(
+    category=ErrorCategory.RUNTIME,
+    code="engine_timeout",
+    message="external engine did not complete before timeout",
+)
+```
+
+Runtime operation result:
+
+```python
+from bijux_proteomics_foundation.results import OperationResult
+
+result = OperationResult.success(
+    operation="hash_manifest",
+    summary="hash computed successfully",
+    output_fingerprint="a" * 64,
+)
+```
+
 ## Choose this package when
 
 - you need canonical CLI, API, provider binding, or replay-safe orchestration
