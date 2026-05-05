@@ -20,6 +20,11 @@ from bijux_proteomics_knowledge.references.corpora import (
     DEFAULT_CORPUS_MANIFESTS,
     KnowledgeCorpusSourceKind,
 )
+from bijux_proteomics_knowledge.references.contexts import (
+    DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
+    KnowledgeContextDomain,
+    ScientificContextEntry,
+)
 from bijux_proteomics_knowledge.references.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
     KnowledgeOntologyDomain,
@@ -54,11 +59,14 @@ __all__ = [
     "DEFAULT_CORPUS_MANIFESTS",
     "DEFAULT_ONTOLOGY_MAPPINGS",
     "DEFAULT_SCIENTIFIC_RULE_REFERENCES",
+    "DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES",
+    "KnowledgeContextDomain",
     "KnowledgeCorpusSourceKind",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
     "KnowledgeRuleDomain",
     "KnowledgeWorkflowFamily",
+    "ScientificContextEntry",
     "ScientificRuleReference",
     "get_benchmark_manifest",
     "get_citation",
