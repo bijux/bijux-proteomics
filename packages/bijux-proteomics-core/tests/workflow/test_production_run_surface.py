@@ -26,7 +26,7 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics_runtime.runtime.control.workflow_plans import (
+from bijux_proteomics_runtime.workflows.plans import (
     WorkflowTemplateKind,
     build_proteomics_workflow_runtime_bundle,
     build_proteomics_workflow_template,

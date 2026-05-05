@@ -33,8 +33,8 @@ def test_core_runtime_adapter_uses_canonical_runtime_imports() -> None:
     )
     content = _read(runtime_adapter)
 
-    assert "from bijux_proteomics_runtime.runtime import RunManager" in content
-    assert "from bijux_proteomics_runtime.runtime.context import RunConfig" in content
+    assert "from bijux_proteomics_runtime.runs import RunManager" in content
+    assert "from bijux_proteomics_runtime.runs import RunConfig" in content
 
 
 def test_knowledge_does_not_depend_on_intelligence_or_lab() -> None:

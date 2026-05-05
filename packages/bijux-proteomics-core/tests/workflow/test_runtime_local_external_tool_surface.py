@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runtime.control.workflow_runs import run_local_external_tool
+from bijux_proteomics_runtime.workflows.runs import run_local_external_tool
 
 
 def test_run_local_external_tool_executes_and_validates_artifact(

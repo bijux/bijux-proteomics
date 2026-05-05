@@ -7,7 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import parse_ms1_feature_table
-from bijux_proteomics_runtime.runtime.control.workflow_runs import run_quant_workflow_end_to_end
+from bijux_proteomics_runtime.workflows.runs import run_quant_workflow_end_to_end
 
 
 def _fixture_path(name: str) -> Path:

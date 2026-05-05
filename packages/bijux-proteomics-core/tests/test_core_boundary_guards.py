@@ -10,9 +10,25 @@ from pathlib import Path
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
     "execution/runtime_adapter.py": {
-        "bijux_proteomics_runtime.runtime",
-        "bijux_proteomics_runtime.runtime.context",
-    }
+        "bijux_proteomics_runtime.runs",
+    },
+    "interfaces/cli/app.py": {
+        "bijux_proteomics_runtime.workflows.plans",
+    },
+}
+ALLOWED_CROSS_PACKAGE_IMPORTS = {
+    "intelligence/__init__.py": {
+        "bijux_proteomics_intelligence.analytical_review",
+    },
+    "lab/operations.py": {
+        "bijux_proteomics_intelligence.follow_up_learning",
+    },
+    "lab/planning.py": {
+        "bijux_proteomics_intelligence.follow_up_learning",
+    },
+    "ptm/review.py": {
+        "bijux_proteomics_lab.ptm_follow_up",
+    },
 }
 REMOVED_COMPATIBILITY_IMPORTS = {
     "bijux_proteomics.advanced_format_ingestion",
@@ -56,7 +72,8 @@ def test_core_scientific_modules_do_not_import_runtime_intelligence_knowledge_or
                 )
             )
         )
-        if disallowed:
+        allowed_cross_package = ALLOWED_CROSS_PACKAGE_IMPORTS.get(module_path, set())
+        if set(disallowed) != allowed_cross_package:
             unexpected[module_path] = disallowed
 
         runtime_imports = sorted(

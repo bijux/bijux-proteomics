@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.control.workflow_reproducibility import (
+from bijux_proteomics_runtime.workflows.reproducibility import (
     WorkflowRunDiffCategory,
     WorkflowRunSnapshot,
     build_workflow_run_diff_report,

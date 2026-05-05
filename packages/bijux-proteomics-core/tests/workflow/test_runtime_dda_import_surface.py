@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.control.workflow_runs import (
+from bijux_proteomics_runtime.workflows.runs import (
     DdaSearchHitInput,
     run_dda_import_workflow_end_to_end,
 )
