@@ -1,23 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""Schema metadata and compatibility helpers for lab artifacts."""
+"""Artifact contracts and envelopes for lab planning outputs."""
 
 from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import DocumentSchema as SchemaMetadata
-from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation import (
+    DocumentSchema as SchemaMetadata,
+    JsonModel,
+    hash_payload,
+)
 
 
-class LabSchemaProfile(JsonModel):
+class LabArtifactProfile(JsonModel):
     """Version profile for lab planning and outcome artifacts."""
 
     model_config = ConfigDict(extra="forbid")
 
     profile_id: str = Field(
-        ..., min_length=1, description="Stable schema profile identifier."
+        ..., min_length=1, description="Stable artifact profile identifier."
     )
     minimum_schema_version: str = Field(
         ..., min_length=1, description="Minimum compatible schema version."
@@ -27,40 +30,28 @@ class LabSchemaProfile(JsonModel):
     )
 
 
-class LabSchemaCompatibilityReport(JsonModel):
+class LabArtifactCompatibilityReport(JsonModel):
     """Compatibility report for a lab document schema."""
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(..., min_length=1, description="Schema profile identifier.")
+    profile_id: str = Field(..., min_length=1, description="Artifact profile identifier.")
     schema_version: str = Field(
         ..., min_length=1, description="Document schema version under evaluation."
     )
     compatible: bool = Field(..., description="Whether the schema is compatible.")
-    notes: list[str] = Field(
-        default_factory=list, description="Compatibility rationale."
-    )
+    notes: list[str] = Field(default_factory=list, description="Compatibility rationale.")
 
 
-class LabSchemaUpgradeAdvisory(JsonModel):
-    """Upgrade advisory derived from schema compatibility evaluation."""
+class LabArtifactUpgradeAdvisory(JsonModel):
+    """Upgrade advisory derived from artifact compatibility evaluation."""
 
     model_config = ConfigDict(extra="forbid")
 
-    profile_id: str = Field(
-        ..., min_length=1, description="Profile identifier used for evaluation."
-    )
-    current_schema_version: str = Field(
-        ..., min_length=1, description="Current schema version."
-    )
-    recommended_schema_version: str = Field(
-        ..., min_length=1, description="Recommended schema version."
-    )
-    action: str = Field(
-        ...,
-        min_length=1,
-        description="Action recommendation: keep, upgrade, or investigate.",
-    )
+    profile_id: str = Field(..., min_length=1, description="Profile identifier.")
+    current_schema_version: str = Field(..., min_length=1)
+    recommended_schema_version: str = Field(..., min_length=1)
+    action: str = Field(..., min_length=1)
     notes: list[str] = Field(default_factory=list, description="Upgrade rationale.")
 
 
@@ -69,55 +60,44 @@ class LabArtifactSchemaContract(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    artifact_kind: str = Field(
-        ...,
-        min_length=1,
-        description="Artifact kind such as plan, outcome, or feedback.",
-    )
-    required_created_by: str = Field(
-        ..., min_length=1, description="Expected created_by provenance value."
-    )
-    minimum_schema_version: str = Field(
-        ..., min_length=1, description="Minimum allowed schema version."
-    )
+    artifact_kind: str = Field(..., min_length=1)
+    required_created_by: str = Field(..., min_length=1)
+    minimum_schema_version: str = Field(..., min_length=1)
 
 
-class LabSchemaContractRegistry(JsonModel):
+class LabArtifactContractRegistry(JsonModel):
     """Registry of artifact contracts used in lab schema validation."""
 
     model_config = ConfigDict(extra="forbid")
 
-    contracts: list[LabArtifactSchemaContract] = Field(
-        default_factory=list,
-        description="Registered artifact contracts.",
-    )
+    contracts: list[LabArtifactSchemaContract] = Field(default_factory=list)
 
 
-class LabSchemaContractIssue(JsonModel):
-    """Validation issue for schema contract registry quality."""
+class LabArtifactContractIssue(JsonModel):
+    """Validation issue for artifact contract registry quality."""
 
     model_config = ConfigDict(extra="forbid")
 
-    code: str = Field(..., min_length=1, description="Stable issue code.")
-    message: str = Field(..., min_length=1, description="Issue description.")
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
 
 
-def default_lab_schema_profile() -> LabSchemaProfile:
-    """Return the default schema profile for lab artifacts."""
-    return LabSchemaProfile(
+def default_lab_artifact_profile() -> LabArtifactProfile:
+    """Return the default artifact profile for lab outputs."""
+    return LabArtifactProfile(
         profile_id="lab-default-profile",
         minimum_schema_version="1.0.0",
         recommended_schema_version="1.0.0",
     )
 
 
-def evaluate_lab_schema_compatibility(
+def evaluate_lab_artifact_compatibility(
     schema: SchemaMetadata,
     *,
-    profile: LabSchemaProfile | None = None,
-) -> LabSchemaCompatibilityReport:
+    profile: LabArtifactProfile | None = None,
+) -> LabArtifactCompatibilityReport:
     """Evaluate schema metadata compatibility for lab package artifacts."""
-    profile = profile or default_lab_schema_profile()
+    profile = profile or default_lab_artifact_profile()
     compatible = schema.schema_version >= profile.minimum_schema_version
     notes = (
         ["schema version satisfies minimum compatibility requirement"]
@@ -126,7 +106,7 @@ def evaluate_lab_schema_compatibility(
     )
     if schema.schema_version != profile.recommended_schema_version:
         notes.append("schema version differs from recommended profile version")
-    return LabSchemaCompatibilityReport(
+    return LabArtifactCompatibilityReport(
         profile_id=profile.profile_id,
         schema_version=schema.schema_version,
         compatible=compatible,
@@ -138,7 +118,7 @@ def evaluate_lab_artifact_schema_contract(
     schema: SchemaMetadata,
     *,
     contract: LabArtifactSchemaContract,
-) -> LabSchemaCompatibilityReport:
+) -> LabArtifactCompatibilityReport:
     """Evaluate schema metadata against an artifact-specific contract."""
     compatible = (
         schema.schema_version >= contract.minimum_schema_version
@@ -151,7 +131,7 @@ def evaluate_lab_artifact_schema_contract(
         notes.append("created_by does not match artifact contract")
     if not notes:
         notes.append("artifact schema contract is satisfied")
-    return LabSchemaCompatibilityReport(
+    return LabArtifactCompatibilityReport(
         profile_id=f"artifact:{contract.artifact_kind}",
         schema_version=schema.schema_version,
         compatible=compatible,
@@ -159,9 +139,9 @@ def evaluate_lab_artifact_schema_contract(
     )
 
 
-def default_lab_schema_contract_registry() -> LabSchemaContractRegistry:
+def default_lab_artifact_contract_registry() -> LabArtifactContractRegistry:
     """Return a default registry for canonical lab artifacts."""
-    return LabSchemaContractRegistry(
+    return LabArtifactContractRegistry(
         contracts=[
             LabArtifactSchemaContract(
                 artifact_kind="plan",
@@ -186,16 +166,16 @@ def evaluate_lab_artifact_with_registry(
     schema: SchemaMetadata,
     *,
     artifact_kind: str,
-    registry: LabSchemaContractRegistry | None = None,
-) -> LabSchemaCompatibilityReport:
-    """Evaluate schema metadata by resolving artifact contract from a registry."""
-    registry = registry or default_lab_schema_contract_registry()
+    registry: LabArtifactContractRegistry | None = None,
+) -> LabArtifactCompatibilityReport:
+    """Evaluate schema metadata by resolving an artifact contract from a registry."""
+    registry = registry or default_lab_artifact_contract_registry()
     contract = next(
         (item for item in registry.contracts if item.artifact_kind == artifact_kind),
         None,
     )
     if contract is None:
-        return LabSchemaCompatibilityReport(
+        return LabArtifactCompatibilityReport(
             profile_id=f"artifact:{artifact_kind}",
             schema_version=schema.schema_version,
             compatible=False,
@@ -206,14 +186,14 @@ def evaluate_lab_artifact_with_registry(
     return evaluate_lab_artifact_schema_contract(schema, contract=contract)
 
 
-def build_lab_schema_upgrade_advisory(
+def build_lab_artifact_upgrade_advisory(
     schema: SchemaMetadata,
     *,
-    profile: LabSchemaProfile | None = None,
-) -> LabSchemaUpgradeAdvisory:
+    profile: LabArtifactProfile | None = None,
+) -> LabArtifactUpgradeAdvisory:
     """Build actionable schema upgrade guidance for lab artifacts."""
-    profile = profile or default_lab_schema_profile()
-    compatibility = evaluate_lab_schema_compatibility(schema, profile=profile)
+    profile = profile or default_lab_artifact_profile()
+    compatibility = evaluate_lab_artifact_compatibility(schema, profile=profile)
     if not compatibility.compatible:
         action = "upgrade"
         notes = ["schema is below minimum compatibility threshold"]
@@ -223,7 +203,7 @@ def build_lab_schema_upgrade_advisory(
     else:
         action = "keep"
         notes = ["schema aligns with recommended profile"]
-    return LabSchemaUpgradeAdvisory(
+    return LabArtifactUpgradeAdvisory(
         profile_id=profile.profile_id,
         current_schema_version=schema.schema_version,
         recommended_schema_version=profile.recommended_schema_version,
@@ -232,16 +212,16 @@ def build_lab_schema_upgrade_advisory(
     )
 
 
-def lint_lab_schema_contract_registry(
-    registry: LabSchemaContractRegistry,
-) -> list[LabSchemaContractIssue]:
+def lint_lab_artifact_contract_registry(
+    registry: LabArtifactContractRegistry,
+) -> list[LabArtifactContractIssue]:
     """Lint contract registry for duplicate kinds and invalid version ranges."""
-    issues: list[LabSchemaContractIssue] = []
+    issues: list[LabArtifactContractIssue] = []
     seen: set[str] = set()
     for contract in registry.contracts:
         if contract.artifact_kind in seen:
             issues.append(
-                LabSchemaContractIssue(
+                LabArtifactContractIssue(
                     code="duplicate-artifact-kind",
                     message=f"duplicate contract for artifact kind '{contract.artifact_kind}'",
                 )
@@ -249,7 +229,7 @@ def lint_lab_schema_contract_registry(
         seen.add(contract.artifact_kind)
         if contract.minimum_schema_version > "9.9.9":
             issues.append(
-                LabSchemaContractIssue(
+                LabArtifactContractIssue(
                     code="schema-version-suspicious",
                     message=f"contract '{contract.artifact_kind}' has suspicious minimum schema version",
                 )
@@ -257,19 +237,90 @@ def lint_lab_schema_contract_registry(
     return issues
 
 
+def diff_model_payloads(left: JsonModel, right: JsonModel) -> dict[str, list[str]]:
+    """Compute a deterministic field-level diff between two model payloads."""
+    ignored_fields = {"document_schema"}
+    left_payload = {k: v for k, v in left.to_dict().items() if k not in ignored_fields}
+    right_payload = {
+        k: v for k, v in right.to_dict().items() if k not in ignored_fields
+    }
+    left_keys = set(left_payload.keys())
+    right_keys = set(right_payload.keys())
+    changed = sorted(
+        key for key in sorted(left_keys & right_keys) if left_payload[key] != right_payload[key]
+    )
+    return {
+        "added_fields": sorted(right_keys - left_keys),
+        "removed_fields": sorted(left_keys - right_keys),
+        "changed_fields": changed,
+    }
+
+
+def build_canonical_artifact_envelope(
+    model: JsonModel,
+    *,
+    artifact_kind: str,
+    schema: SchemaMetadata,
+) -> dict[str, object]:
+    """Build canonical envelope for lab artifact transport and auditing."""
+    payload = model.to_dict()
+    fingerprint = hash_payload(payload)
+    return {
+        "artifact_kind": artifact_kind,
+        "schema": schema.to_dict(),
+        "fingerprint": fingerprint,
+        "payload": payload,
+    }
+
+
+def verify_canonical_artifact_envelope(envelope: dict[str, object]) -> bool:
+    """Verify canonical envelope fingerprint integrity."""
+    payload = envelope.get("payload")
+    fingerprint = envelope.get("fingerprint")
+    if not isinstance(payload, dict) or not isinstance(fingerprint, str):
+        return False
+    expected = hash_payload(payload)
+    return expected == fingerprint
+
+
+LabSchemaProfile = LabArtifactProfile
+LabSchemaCompatibilityReport = LabArtifactCompatibilityReport
+LabSchemaUpgradeAdvisory = LabArtifactUpgradeAdvisory
+LabSchemaContractRegistry = LabArtifactContractRegistry
+LabSchemaContractIssue = LabArtifactContractIssue
+
+default_lab_schema_profile = default_lab_artifact_profile
+evaluate_lab_schema_compatibility = evaluate_lab_artifact_compatibility
+build_lab_schema_upgrade_advisory = build_lab_artifact_upgrade_advisory
+default_lab_schema_contract_registry = default_lab_artifact_contract_registry
+lint_lab_schema_contract_registry = lint_lab_artifact_contract_registry
+
+
 __all__ = [
-    "SchemaMetadata",
-    "LabSchemaProfile",
-    "LabSchemaCompatibilityReport",
-    "LabSchemaUpgradeAdvisory",
-    "default_lab_schema_profile",
-    "evaluate_lab_schema_compatibility",
+    "LabArtifactCompatibilityReport",
+    "LabArtifactContractIssue",
+    "LabArtifactContractRegistry",
+    "LabArtifactProfile",
     "LabArtifactSchemaContract",
-    "evaluate_lab_artifact_schema_contract",
-    "LabSchemaContractRegistry",
-    "LabSchemaContractIssue",
-    "default_lab_schema_contract_registry",
-    "evaluate_lab_artifact_with_registry",
+    "LabArtifactUpgradeAdvisory",
+    "build_canonical_artifact_envelope",
+    "build_lab_artifact_upgrade_advisory",
     "build_lab_schema_upgrade_advisory",
+    "default_lab_artifact_contract_registry",
+    "default_lab_artifact_profile",
+    "default_lab_schema_contract_registry",
+    "default_lab_schema_profile",
+    "diff_model_payloads",
+    "evaluate_lab_artifact_compatibility",
+    "evaluate_lab_artifact_schema_contract",
+    "evaluate_lab_artifact_with_registry",
+    "evaluate_lab_schema_compatibility",
+    "LabSchemaCompatibilityReport",
+    "LabSchemaContractIssue",
+    "LabSchemaContractRegistry",
+    "LabSchemaProfile",
+    "LabSchemaUpgradeAdvisory",
+    "lint_lab_artifact_contract_registry",
     "lint_lab_schema_contract_registry",
+    "verify_canonical_artifact_envelope",
 ]

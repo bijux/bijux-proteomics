@@ -5,7 +5,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import (
+    DocumentSchema,
+    JsonModel,
+    fingerprint_model,
+    to_canonical_json,
+)
 from bijux_proteomics_lab.design import (
     BatchRandomizationPlan,
     CarryoverRiskAdvisory,
@@ -251,7 +256,7 @@ from bijux_proteomics_lab.repositories import (
     summarize_review_queue_sla,
     summarize_review_queue_workload,
 )
-from bijux_proteomics_lab.schema import (
+from bijux_proteomics_lab.artifacts import (
     LabArtifactSchemaContract,
     LabSchemaCompatibilityReport,
     LabSchemaContractIssue,
@@ -265,12 +270,8 @@ from bijux_proteomics_lab.schema import (
     evaluate_lab_artifact_with_registry,
     evaluate_lab_schema_compatibility,
     lint_lab_schema_contract_registry,
-)
-from bijux_proteomics_lab.serialization import (
     build_canonical_artifact_envelope,
     diff_model_payloads,
-    fingerprint_model,
-    to_canonical_json,
     verify_canonical_artifact_envelope,
 )
 
