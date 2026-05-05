@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_fixture_realism
 
 [guard]
-max_total_toy_named_fixture_count = 1
-min_total_realistic_fixture_count = 47
+max_total_toy_named_fixture_count = 0
+min_total_realistic_fixture_count = 54
 min_serious_package_with_realistic_fixtures_count = 4
 
 [[package]]
@@ -33,25 +33,25 @@ toy_named_fixture_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-core"
 serious_product_area = true
-fixture_file_count = 127
+fixture_file_count = 130
 small_fixture_count_lt_512 = 92
-realistic_fixture_count_ge_1024 = 16
-toy_named_fixture_count = 1
+realistic_fixture_count_ge_1024 = 17
+toy_named_fixture_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 serious_product_area = true
-fixture_file_count = 13
+fixture_file_count = 15
 small_fixture_count_lt_512 = 0
-realistic_fixture_count_ge_1024 = 6
+realistic_fixture_count_ge_1024 = 8
 toy_named_fixture_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 serious_product_area = true
-fixture_file_count = 17
+fixture_file_count = 20
 small_fixture_count_lt_512 = 2
-realistic_fixture_count_ge_1024 = 15
+realistic_fixture_count_ge_1024 = 18
 toy_named_fixture_count = 0
 
 [[package]]
@@ -65,7 +65,7 @@ toy_named_fixture_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 serious_product_area = true
-fixture_file_count = 16
+fixture_file_count = 17
 small_fixture_count_lt_512 = 4
-realistic_fixture_count_ge_1024 = 10
+realistic_fixture_count_ge_1024 = 11
 toy_named_fixture_count = 0
