@@ -187,7 +187,6 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "build_ubiquitin_remnant_workflow_report" in bijux_proteomics.__all__
     assert "evaluate_glycopeptide_support_boundary" in bijux_proteomics.__all__
     assert "build_ptm_cooccurrence_caution_report" in bijux_proteomics.__all__
-    assert "build_ptm_lab_validation_packet" in bijux_proteomics.__all__
     assert "build_ptm_motif_background_report" in bijux_proteomics.__all__
     assert "PtmOccupancyUncertainty" in bijux_proteomics.__all__
     assert "PtmSiteLocalizationEvidenceGraph" in bijux_proteomics.__all__
@@ -199,7 +198,6 @@ def test_core_public_api_contains_expected_exports() -> None:
     assert "UbiquitinRemnantWorkflowReport" in bijux_proteomics.__all__
     assert "GlycopeptideSupportBoundaryReport" in bijux_proteomics.__all__
     assert "PtmCooccurrenceCautionReport" in bijux_proteomics.__all__
-    assert "PtmLabValidationPacket" in bijux_proteomics.__all__
     assert "build_lcms_run_qc_report" in bijux_proteomics.__all__
     assert "build_instrument_batch_qc_report" in bijux_proteomics.__all__
     assert "build_study_qc_summary" in bijux_proteomics.__all__
