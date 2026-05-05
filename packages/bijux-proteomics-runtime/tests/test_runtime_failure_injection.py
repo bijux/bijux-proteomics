@@ -9,7 +9,7 @@ from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runtime.control.failure_reports import (
+from bijux_proteomics_runtime.runs.failure_reports import (
     RuntimeFailureCategory,
     RuntimeFailureReport,
 )
@@ -25,7 +25,7 @@ def test_runtime_failure_injection_reports_broken_container_requirements(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.preflight.provider_requirements",
+        "bijux_proteomics_runtime.runs.preflight.provider_requirements",
         lambda _name: ["missing_dependency:docker"],
     )
     manager = RunManager(
@@ -48,7 +48,7 @@ def test_runtime_failure_injection_reports_missing_tool_requirements(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_runtime.runtime.control.preflight.provider_requirements",
+        "bijux_proteomics_runtime.runs.preflight.provider_requirements",
         lambda _name: ["missing_dependency:transformers"],
     )
     manager = RunManager(

@@ -97,7 +97,7 @@ def test_runtime_contracts_track_review_and_failure_surfaces() -> None:
     )
     assert (
         EXECUTION_REVIEW_CONTRACT["failure_report_writer"]
-        == "bijux_proteomics_runtime.runtime.control.write_runtime_failure_report"
+        == "bijux_proteomics_runtime.runs.failure_reports.write_runtime_failure_report"
     )
 
 

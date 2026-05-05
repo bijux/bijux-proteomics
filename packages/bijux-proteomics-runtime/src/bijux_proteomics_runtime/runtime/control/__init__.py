@@ -11,7 +11,7 @@ _CONTROL_EXPORT_GROUPS = {
         "compare_runs",
         "require_human_decision",
     ],
-    "bijux_proteomics_runtime.runtime.control.cache": [
+    "bijux_proteomics_runtime.runs.cache": [
         "RuntimeCacheClaim",
         "RuntimeCacheDecision",
         "claim_runtime_cache",
@@ -58,13 +58,13 @@ _CONTROL_EXPORT_GROUPS = {
         "ResumeCheckpoint",
         "load_resume_checkpoint",
     ],
-    "bijux_proteomics_runtime.runtime.control.cleanup": [
+    "bijux_proteomics_runtime.runs.cleanup": [
         "RuntimeCleanupArtifact",
         "RuntimeCleanupPlan",
         "apply_runtime_cleanup_plan",
         "build_runtime_cleanup_plan",
     ],
-    "bijux_proteomics_runtime.runtime.control.failure_reports": [
+    "bijux_proteomics_runtime.runs.failure_reports": [
         "RuntimeFailureCategory",
         "RuntimeFailureReport",
         "build_runtime_failure_report",
@@ -77,13 +77,13 @@ _CONTROL_EXPORT_GROUPS = {
         "load_artifact_ledger",
         "refresh_runtime_artifact_ledger",
     ],
-    "bijux_proteomics_runtime.runtime.control.preflight": [
+    "bijux_proteomics_runtime.runs.preflight": [
         "PreflightCheck",
         "PreflightCheckState",
         "RuntimePreflightReport",
         "build_runtime_preflight_report",
     ],
-    "bijux_proteomics_runtime.runtime.control.recovery": [
+    "bijux_proteomics_runtime.runs.recovery": [
         "FailureRecoveryArtifact",
         "RuntimeFailureRecoveryAudit",
         "build_runtime_failure_recovery_audit",

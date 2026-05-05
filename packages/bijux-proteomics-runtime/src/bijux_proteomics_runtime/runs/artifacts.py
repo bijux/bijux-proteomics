@@ -24,7 +24,7 @@ from bijux_proteomics_runtime.core.tooling import ToolError
 from bijux_proteomics_runtime.runs.contracts import RuntimeArtifactRetentionClass
 from bijux_proteomics_runtime.runs.context import RunContext
 from bijux_proteomics_runtime.runs.ledger import record_artifact_entry
-from bijux_proteomics_runtime.runtime.control.failure_reports import (
+from bijux_proteomics_runtime.runs.failure_reports import (
     build_runtime_failure_report,
     write_runtime_failure_report,
 )
