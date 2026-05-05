@@ -44,7 +44,7 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
     LocalExecutor,
     materialize_observation,
 )
-from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
 from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
 from bijux_proteomics_runtime.tools.schemas import (
@@ -79,8 +79,8 @@ class EvaluationRunner:
         scorecard_inputs: dict[str, list[dict[str, object]]] = {}
 
         for case in cases:
-            if not AgentRegistry.list():
-                raise ValueError("AgentRegistry must be populated before evaluation.")
+            if not AgentCatalog.list():
+                raise ValueError("AgentCatalog must be populated before evaluation.")
 
             planner = PlannerAgent()
             plan_decision = planner.decide(PlannerAgentInput(goal=case.description))
@@ -286,7 +286,7 @@ def _aggregate_scorecards(
             if isinstance(uncertainty_value, (int, float)):
                 uncertainty_total += float(uncertainty_value)
         try:
-            agent_cls = AgentRegistry.get(agent_name)
+            agent_cls = AgentCatalog.get(agent_name)
             cost_total = agent_cls.cost_budget * cases
             latency_total = agent_cls.latency_budget_ms * cases
         except KeyError:

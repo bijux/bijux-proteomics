@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.agents.schemas import (
 )
 from bijux_proteomics_runtime.core.decisions import DecisionExplanation
 from bijux_proteomics_runtime.memory.schemas import MemoryScope
-from bijux_proteomics_runtime.validation.agents import validate_critic_input
+from bijux_proteomics_runtime.agents.contracts import validate_critic_input
 
 
 class CriticAgent(AgentRole):

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics.domain.sequence.validation import validate_sequence
 from bijux_proteomics_runtime.agents.planning.schemas import Plan
-from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.runtime.adapters import Candidate
 
 
@@ -44,7 +44,7 @@ def validate_plan(plan: Plan) -> None:
         if task_id != task.task_id:
             raise ValueError(f"Task id mismatch for {task_id}.")
         try:
-            agent_cls = AgentRegistry.get(task.agent_name)
+            agent_cls = AgentCatalog.get(task.agent_name)
         except KeyError as exc:
             raise ValueError(f"Unknown agent: {task.agent_name}") from exc
         if task.required_capabilities:

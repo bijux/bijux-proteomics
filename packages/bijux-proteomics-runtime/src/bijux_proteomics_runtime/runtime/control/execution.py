@@ -65,7 +65,7 @@ from bijux_proteomics_runtime.execution.runtime.executor import (
     materialize_observation,
 )
 from bijux_proteomics_runtime.execution.validation import validate_outputs
-from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.runtime.adapters import (
     Candidate,
     CandidateStore,
@@ -660,18 +660,17 @@ class PipelineExecutor:
 
 def register_runtime_agents() -> None:
     """register_runtime_agents."""
-    if AgentRegistry.list():
+    if AgentCatalog.list():
         return
-    AgentRegistry._registry.clear()
-    AgentRegistry._locked = False
-    AgentRegistry.register(PlannerAgent)
-    AgentRegistry.register(InputValidationAgent)
-    AgentRegistry.register(QualityControlAgent)
-    AgentRegistry.register(CriticAgent)
-    AgentRegistry.register(FailureAnalysisAgent)
-    AgentRegistry.register(ReportingAgent)
-    AgentRegistry.register(CoordinatorAgent)
-    AgentRegistry.lock()
+    AgentCatalog.clear()
+    AgentCatalog.register(PlannerAgent)
+    AgentCatalog.register(InputValidationAgent)
+    AgentCatalog.register(QualityControlAgent)
+    AgentCatalog.register(CriticAgent)
+    AgentCatalog.register(FailureAnalysisAgent)
+    AgentCatalog.register(ReportingAgent)
+    AgentCatalog.register(CoordinatorAgent)
+    AgentCatalog.lock()
 
 
 class RuntimeStateMachine:

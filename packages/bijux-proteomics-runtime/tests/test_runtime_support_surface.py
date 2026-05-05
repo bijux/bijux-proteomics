@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from bijux_proteomics_runtime.registry.agents import AgentRegistry
+from bijux_proteomics_runtime.agents.catalog import AgentCatalog
 
 
 def test_runtime_registry_surface_smoke() -> None:
-    AgentRegistry.clear()
+    AgentCatalog.clear()
 
     class ExampleAgent:
         name = "example"
 
-    AgentRegistry.register(ExampleAgent)
-    assert AgentRegistry.get("example") is ExampleAgent
+    AgentCatalog.register(ExampleAgent)
+    assert AgentCatalog.get("example") is ExampleAgent

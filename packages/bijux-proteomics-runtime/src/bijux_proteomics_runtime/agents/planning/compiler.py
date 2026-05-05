@@ -14,7 +14,7 @@ from bijux_proteomics_runtime.core.execution import (
     RetryPolicy,
 )
 from bijux_proteomics_runtime.core.tooling import ToolInvocationSpec
-from bijux_proteomics_runtime.validation.state import validate_execution_graph
+from bijux_proteomics_runtime.execution.graph_validation import validate_execution_graph
 
 
 def compile_plan_to_execution(plan: Plan, decisions: list[Decision]) -> ExecutionGraph:
