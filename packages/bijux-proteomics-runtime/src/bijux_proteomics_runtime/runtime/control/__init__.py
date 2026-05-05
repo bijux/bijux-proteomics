@@ -65,6 +65,14 @@ from bijux_proteomics_runtime.runtime.control.replay import (
     evaluate_replay_eligibility,
     load_local_run_bundle,
 )
+from bijux_proteomics_runtime.runtime.control.reruns import (
+    PartialRerunPlan,
+    PartialRerunStep,
+    RuntimeDependencyNode,
+    build_partial_rerun_plan,
+    build_runtime_dependency_graph,
+    build_runtime_partial_rerun_plan,
+)
 from bijux_proteomics_runtime.runtime.control.state_machine import (
     RunStateMachine,
     apply_transition,
@@ -88,6 +96,8 @@ __all__ = [
     "LocalRunBundle",
     "PreflightCheck",
     "PreflightCheckState",
+    "PartialRerunPlan",
+    "PartialRerunStep",
     "ReplayContract",
     "ReplayEligibility",
     "ResumeCheckpoint",
@@ -95,6 +105,7 @@ __all__ = [
     "RuntimeImportTrace",
     "RuntimeReviewableOutputPath",
     "RuntimeArtifactLedger",
+    "RuntimeDependencyNode",
     "RuntimePreflightReport",
     "RuntimeSmokeWorkflow",
     "RuntimeWorkflowStep",
@@ -106,8 +117,11 @@ __all__ = [
     "build_scheduler_job_bundle",
     "build_runtime_preflight_report",
     "build_runtime_run_config",
+    "build_runtime_dependency_graph",
     "build_runtime_smoke_workflows",
+    "build_runtime_partial_rerun_plan",
     "build_local_run_bundle",
+    "build_partial_rerun_plan",
     "build_replay_contract",
     "compare_runs",
     "compare_run_operation",
