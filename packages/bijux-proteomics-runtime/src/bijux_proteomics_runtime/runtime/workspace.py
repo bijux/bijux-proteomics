@@ -136,6 +136,11 @@ class RunWorkspace:
         return self.run_dir / "failure_report.json"
 
     @property
+    def execution_decision_report_path(self) -> Path:
+        """execution_decision_report_path."""
+        return self.run_dir / "execution_decision_report.json"
+
+    @property
     def artifact_ledger_path(self) -> Path:
         """artifact_ledger_path."""
         return self.run_dir / "artifact_ledger.json"

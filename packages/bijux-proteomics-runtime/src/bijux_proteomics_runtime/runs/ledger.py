@@ -55,6 +55,11 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("run_context_path", "run_context", "runtime-run-context"),
     ("error_path", "run_error", "runtime-error"),
     ("failure_report_path", "failure_report", "runtime-failure-report"),
+    (
+        "execution_decision_report_path",
+        "execution_decision_report",
+        "runtime-execution-decision-report",
+    ),
     ("lifecycle_path", "run_lifecycle", "runtime-lifecycle"),
     (
         "execution_snapshots_path",

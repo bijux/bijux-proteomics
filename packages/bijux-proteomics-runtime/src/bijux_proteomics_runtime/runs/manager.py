@@ -129,11 +129,18 @@ from bijux_proteomics_runtime.runs.checkpoints import (
     build_resume_checkpoint,
     write_resume_checkpoint,
 )
+from bijux_proteomics_runtime.runs.execution_decisions import (
+    build_runtime_degraded_execution_report,
+    build_runtime_refusal_decision_report,
+    write_runtime_execution_decision_report,
+)
 from bijux_proteomics_runtime.runs.failure_reports import (
+    RuntimeFailureCategory,
     build_runtime_failure_report,
     write_runtime_failure_report,
 )
 from bijux_proteomics_runtime.runs.preflight import (
+    RuntimePreflightReport,
     build_runtime_preflight_report,
     write_runtime_preflight_report,
 )
@@ -1175,6 +1182,11 @@ class RunManager:
         write_json_atomic(
             context.workspace.run_output_path, output.model_dump(mode="json")
         )
+        if summary["tool_status"] == ToolStatus.DEGRADED.value:
+            write_runtime_execution_decision_report(
+                context.workspace,
+                build_runtime_degraded_execution_report(summary),
+            )
         run_context_contract = RunContextContract.load_json(
             context.workspace.run_context_path
         )
@@ -1374,15 +1386,32 @@ class RunManager:
         except Exception:
             error_report["next_action"] = suggest_next_action(FailureType.UNKNOWN)
         write_json_atomic(context.workspace.error_path, error_report)
+        failure_report = build_runtime_failure_report(
+            run_id=context.run_id,
+            failure_type=failure_type,
+            message=error_report["message"],
+            detail_codes=tuple(sorted(warnings)),
+        )
         write_runtime_failure_report(
             context.workspace,
-            build_runtime_failure_report(
-                run_id=context.run_id,
-                failure_type=failure_type,
-                message=error_report["message"],
-                detail_codes=tuple(sorted(warnings)),
-            ),
+            failure_report,
         )
+        preflight_report = _load_preflight_report_if_available(context.workspace)
+        if preflight_report is not None or failure_report.failure_category in {
+            RuntimeFailureCategory.CONTAINER,
+            RuntimeFailureCategory.IMPORT,
+            RuntimeFailureCategory.SCHEDULER,
+            RuntimeFailureCategory.VALIDATION,
+            RuntimeFailureCategory.WORKSPACE,
+        }:
+            write_runtime_execution_decision_report(
+                context.workspace,
+                build_runtime_refusal_decision_report(
+                    provider_name=tool.name if tool else "unknown",
+                    preflight_report=preflight_report,
+                    failure_report=failure_report,
+                ),
+            )
         version_info = _version_info(tool)
         output = RunOutput(
             run_id=context.run_id,
@@ -1504,6 +1533,14 @@ def _build_run_summary(
             "tool_versions": version_info.tool_versions,
         },
     }
+
+
+def _load_preflight_report_if_available(
+    workspace: Any,
+) -> RuntimePreflightReport | None:
+    if not workspace.preflight_report_path.exists():
+        return None
+    return RuntimePreflightReport.load_json(workspace.preflight_report_path)
 
 
 def _version_info(tool: Tool | None) -> VersionInfo:
