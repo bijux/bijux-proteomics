@@ -10,10 +10,15 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import ProgramSpec
+from bijux_proteomics_foundation.results import OperationResult
 from bijux_proteomics_intelligence.briefs import CandidateAssessment, CandidateRanking
 from bijux_proteomics_intelligence.candidates import CandidateRiskProfile
+from bijux_proteomics_intelligence.evidence_posture import (
+    assess_recommendation_readiness,
+)
 from bijux_proteomics_intelligence.serialization import JsonModel
-from bijux_proteomics_knowledge import DecisionReadiness
+from bijux_proteomics_knowledge import DecisionReadiness, EvidenceBundle
+from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 
 class ScenarioAction(StrEnum):
@@ -342,6 +347,10 @@ class FinalDecisionRecommendation(JsonModel):
     requires_human_review: bool = Field(
         ..., description="Whether human arbitration is required."
     )
+    gate_result: OperationResult | None = Field(
+        default=None,
+        description="Optional machine-readable refusal or degraded-success gate result.",
+    )
     reasons: list[str] = Field(
         default_factory=list, description="Reasons supporting the final recommendation."
     )
@@ -418,6 +427,11 @@ class ComparativeCandidateReviewPacket(JsonModel):
     compared_score: float = Field(...)
     evidence_support_delta: float = Field(...)
     residual_risk_delta: float = Field(...)
+    scientific_value_delta: float = Field(default=0.0)
+    assay_feasibility_delta: float = Field(default=0.0)
+    novelty_delta: float = Field(default=0.0)
+    lab_cost_efficiency_delta: float = Field(default=0.0)
+    operational_reliability_delta: float = Field(default=0.0)
     rationale: list[str] = Field(default_factory=list)
 
 
@@ -485,6 +499,24 @@ def _top_candidate_confidence(ranking: CandidateRanking) -> float | None:
         return float(confidence)
     except (TypeError, ValueError):
         return None
+
+
+def _candidate_multi_objective_profile(
+    ranking: CandidateRanking,
+    candidate_id: str,
+) -> dict[str, float]:
+    for candidate in ranking.ranked_candidates:
+        if candidate.candidate_id != candidate_id:
+            continue
+        raw_profile = candidate.explainability.get("multi_objective_profile", {})
+        if not isinstance(raw_profile, dict):
+            return {}
+        profile: dict[str, float] = {}
+        for key, value in raw_profile.items():
+            if isinstance(value, (int, float)):
+                profile[str(key)] = round(float(value), 4)
+        return profile
+    return {}
 
 
 def evaluate_for_progression(
@@ -943,14 +975,52 @@ def build_comparative_candidate_review_packet(
     compared_residual_risk = (
         compared_risk.residual_risk if compared_risk is not None else 0.0
     )
+    preferred_profile = _candidate_multi_objective_profile(
+        ranking, preferred_candidate_id
+    )
+    compared_profile = _candidate_multi_objective_profile(ranking, compared_candidate_id)
+    scientific_value_delta = round(
+        preferred_profile.get("scientific_value", 0.0)
+        - compared_profile.get("scientific_value", 0.0),
+        4,
+    )
+    assay_feasibility_delta = round(
+        preferred_profile.get("assay_feasibility", 0.0)
+        - compared_profile.get("assay_feasibility", 0.0),
+        4,
+    )
+    novelty_delta = round(
+        preferred_profile.get("novelty", 0.0) - compared_profile.get("novelty", 0.0),
+        4,
+    )
+    lab_cost_efficiency_delta = round(
+        preferred_profile.get("lab_cost_efficiency", 0.0)
+        - compared_profile.get("lab_cost_efficiency", 0.0),
+        4,
+    )
+    operational_reliability_delta = round(
+        preferred_profile.get("operational_reliability", 0.0)
+        - compared_profile.get("operational_reliability", 0.0),
+        4,
+    )
     rationale = [
         f"score delta = {preferred.score - compared.score:.4f}",
         f"evidence support delta = {preferred_assessment.evidence_support - compared_assessment.evidence_support:.4f}",
         f"residual risk delta = {compared_residual_risk - preferred_residual_risk:.4f}",
+        f"scientific value delta = {scientific_value_delta:.4f}",
+        f"assay feasibility delta = {assay_feasibility_delta:.4f}",
     ]
     if preferred.score <= compared.score:
         rationale.append(
             "preferred candidate is being justified despite a non-positive score delta"
+        )
+    if novelty_delta > 0:
+        rationale.append(
+            f"preferred candidate preserves more differentiated learning value ({novelty_delta:.4f})"
+        )
+    if lab_cost_efficiency_delta < 0 or operational_reliability_delta < 0:
+        rationale.append(
+            "preferred candidate carries higher operational cost or fragility and needs explicit justification"
         )
     preferred_drivers = preferred.explainability.get("top_drivers", [])
     if isinstance(preferred_drivers, list) and preferred_drivers:
@@ -981,6 +1051,11 @@ def build_comparative_candidate_review_packet(
             compared_residual_risk - preferred_residual_risk,
             4,
         ),
+        scientific_value_delta=scientific_value_delta,
+        assay_feasibility_delta=assay_feasibility_delta,
+        novelty_delta=novelty_delta,
+        lab_cost_efficiency_delta=lab_cost_efficiency_delta,
+        operational_reliability_delta=operational_reliability_delta,
         rationale=rationale,
     )
 
@@ -1139,6 +1214,9 @@ def derive_decision_escalation_flags(
 
 def build_final_decision_recommendation(
     evaluations: ScenarioSetEvaluation,
+    *,
+    evidence_bundle: EvidenceBundle | None = None,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
 ) -> FinalDecisionRecommendation:
     """Build final recommendation from scenario consensus and escalation signals."""
     consensus = summarize_scenario_consensus(evaluations)
@@ -1150,9 +1228,27 @@ def build_final_decision_recommendation(
         reasons.append("scenario confidence spread is wide")
     if escalation.conflicting_actions:
         reasons.append("scenario actions conflict")
+    gate_result: OperationResult | None = None
+    action = consensus.recommended_action
+    requires_human_review = escalation.escalate_to_human_review
+    if evidence_bundle is not None:
+        gate_result = assess_recommendation_readiness(evidence_bundle)
+        if gate_result.disposition.value == "refused":
+            action = ScenarioAction.HOLD
+            requires_human_review = True
+            reasons.append(gate_result.summary)
+            if gate_result.refusal is not None:
+                reasons.extend(gate_result.refusal.reason_details)
+        elif gate_result.disposition.value == "degraded_success":
+            requires_human_review = True
+            reasons.append(gate_result.summary)
+            reasons.extend(gate_result.degradation_reasons)
+    if workflow_family is not None:
+        reasons.append(f"workflow_family={workflow_family.value}")
     return FinalDecisionRecommendation(
-        action=consensus.recommended_action,
-        requires_human_review=escalation.escalate_to_human_review,
+        action=action,
+        requires_human_review=requires_human_review,
+        gate_result=gate_result,
         reasons=reasons,
     )
 

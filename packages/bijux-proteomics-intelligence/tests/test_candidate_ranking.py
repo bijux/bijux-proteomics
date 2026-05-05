@@ -212,11 +212,18 @@ def test_prioritize_candidates_rewards_support_and_penalizes_liabilities() -> No
     assert ranking.rejections[0].recommended_experiments
     assert ranking.ranked_candidates[0].explainability["confidence"] == 0.9
     assert ranking.ranked_candidates[0].explainability["factor_scores"] == {
-        RankingFactor.CRITERIA.value: 0.7289,
-        RankingFactor.EVIDENCE.value: 0.8,
-        RankingFactor.MANUFACTURABILITY.value: 0.8,
+        RankingFactor.CRITERIA.value: 0.6322,
+        RankingFactor.EVIDENCE.value: 0.7667,
+        RankingFactor.MANUFACTURABILITY.value: 0.575,
         RankingFactor.LIABILITY.value: 1.0,
-        RankingFactor.UNCERTAINTY.value: 0.9,
+        RankingFactor.UNCERTAINTY.value: 0.95,
+    }
+    assert ranking.ranked_candidates[0].explainability["multi_objective_profile"] == {
+        "scientific_value": 0.6322,
+        "assay_feasibility": 0.65,
+        "novelty": 0.5,
+        "lab_cost_efficiency": 1.0,
+        "operational_reliability": 1.0,
     }
     assert ranking.provenance_entries[0].candidate_id == "candidate-a"
     assert ranking.provenance_entries[0].accepted is True
@@ -303,6 +310,9 @@ def test_analyze_ranking_stability_reports_sensitivity_to_policy_weights() -> No
             manufacturability_score=0.55,
             uncertainty=0.15,
             evidence_support=0.92,
+            reproducibility_score=0.94,
+            effect_size_score=0.72,
+            assay_feasibility_score=0.35,
         ),
         CandidateAssessment(
             candidate_id="candidate-b",
@@ -311,6 +321,9 @@ def test_analyze_ranking_stability_reports_sensitivity_to_policy_weights() -> No
             manufacturability_score=0.9,
             uncertainty=0.2,
             evidence_support=0.58,
+            reproducibility_score=0.58,
+            effect_size_score=0.68,
+            assay_feasibility_score=0.94,
         ),
     ]
 
@@ -555,9 +568,9 @@ def test_summarize_candidate_explainability_carries_evidence_gaps() -> None:
         CandidateExplainabilitySummary(
             candidate_id="candidate-a",
             strengths=[
-                "criteria_factor=0.72",
-                "evidence_factor=0.78",
-                "manufacturability_factor=0.82",
+                "scientific_value=0.62",
+                "reproducibility=0.50",
+                "assay_feasibility=0.66",
                 "assessment confidence remains high enough for active consideration",
             ],
             open_risks=["Predicted aggregation hotspot"],

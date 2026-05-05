@@ -11,6 +11,13 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.programs import MeasurementDirection, ProgramSpec
 from bijux_proteomics_foundation import CandidateId, ProgramId, TargetId
+from bijux_proteomics_intelligence.evidence_posture import (
+    summarize_evidence_contradictions,
+    summarize_evidence_freshness,
+)
+from bijux_proteomics_intelligence.grounding import (
+    build_ranking_rule_grounding_ledger,
+)
 from bijux_proteomics_intelligence.outcomes import (
     CandidateRejection,
     RejectionReasonCode,
@@ -28,6 +35,7 @@ from bijux_proteomics_intelligence.policies import (
 )
 from bijux_proteomics_intelligence.serialization import JsonModel
 from bijux_proteomics_knowledge import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge.references import KnowledgeWorkflowFamily
 
 
 class OptimizationAxis(StrEnum):
@@ -136,6 +144,42 @@ class CandidateAssessment(JsonModel):
         ge=0.0,
         le=1.0,
         description="How well the candidate is supported by current evidence.",
+    )
+    reproducibility_score: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="How repeatable the observed support looks across runs or cohorts.",
+    )
+    effect_size_score: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="How materially strong the observed effect looks for decision value.",
+    )
+    assay_feasibility_score: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="How feasible it is to validate the candidate with downstream assays.",
+    )
+    novelty_score: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="How much differentiated learning value the candidate adds.",
+    )
+    lab_cost_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Cost pressure introduced by progressing the candidate into lab work.",
+    )
+    operational_risk: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="Operational fragility introduced by follow-up execution demands.",
     )
 
 
@@ -453,6 +497,27 @@ class RankingDiagnostics(JsonModel):
     )
 
 
+class RankingSensitivityInput(JsonModel):
+    """One weighted input contribution behind a ranked result."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_name: str = Field(..., min_length=1)
+    contribution: float = Field(..., ge=-1.0, le=1.0)
+    summary: str = Field(..., min_length=1)
+
+
+class RankingSensitivityReport(JsonModel):
+    """Decision-facing report showing which inputs dominate one ranking outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: CandidateId = Field(..., description="Candidate identifier.")
+    dominant_inputs: list[RankingSensitivityInput] = Field(default_factory=list)
+    fragile_inputs: list[str] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 def _metric_weight_name(metric: str) -> OptimizationAxis:
     metric_class = classify_metric_name(metric)
     if metric_class is ScientificMetricClass.AFFINITY:
@@ -549,6 +614,44 @@ def _criterion_score(candidate: CandidateAssessment, program: ProgramSpec) -> fl
     return total
 
 
+def _mean(values: list[float]) -> float:
+    """Return a rounded arithmetic mean for bounded score inputs."""
+    return round(sum(values) / len(values), 4) if values else 0.0
+
+
+def _candidate_priority_inputs(
+    candidate: CandidateAssessment,
+    *,
+    criterion_score: float,
+    threshold_count: int,
+    freshness_score: float,
+    contradiction_pressure: float,
+) -> dict[str, float]:
+    """Build the visible priority inputs used by ranking and sensitivity reports."""
+    criterion_strength = min(criterion_score / max(threshold_count * 1.5, 1), 1.0)
+    liability_penalty = min(
+        sum(flag.severity for flag in candidate.liabilities) / 10.0,
+        1.0,
+    )
+    return {
+        "criteria_strength": round(criterion_strength, 4),
+        "evidence_strength": round(candidate.evidence_support, 4),
+        "reproducibility": round(candidate.reproducibility_score, 4),
+        "effect_size": round(candidate.effect_size_score, 4),
+        "assay_feasibility": round(candidate.assay_feasibility_score, 4),
+        "novelty": round(candidate.novelty_score, 4),
+        "manufacturability": round(candidate.manufacturability_score, 4),
+        "freshness": round(freshness_score, 4),
+        "uncertainty_control": round(max(0.0, 1.0 - candidate.uncertainty), 4),
+        "contradiction_control": round(max(0.0, 1.0 - contradiction_pressure), 4),
+        "liability_control": round(max(0.0, 1.0 - liability_penalty), 4),
+        "lab_cost_efficiency": round(max(0.0, 1.0 - candidate.lab_cost_risk), 4),
+        "operational_reliability": round(
+            max(0.0, 1.0 - candidate.operational_risk), 4
+        ),
+    }
+
+
 def _screen_candidate(
     candidate: CandidateAssessment,
     program: ProgramSpec,
@@ -595,10 +698,50 @@ def prioritize_candidates(
     program: ProgramSpec,
     candidates: list[CandidateAssessment],
     policy: RankingPolicy | None = None,
+    *,
+    evidence_bundle: EvidenceBundle | None = None,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
 ) -> CandidateRanking:
     """Rank candidates with transparent penalties for risk and weak support."""
     policy = policy or RankingPolicy(policy_id="default-balance")
-    scored: list[tuple[CandidateAssessment, float, list[str], dict[str, float]]] = []
+    freshness_score = 1.0
+    freshness_notes: list[str] = []
+    contradiction_pressure = 0.0
+    contradiction_notes: list[str] = []
+    grounding_rule_ids: list[str] = []
+    if evidence_bundle is not None:
+        freshness_summary = summarize_evidence_freshness(evidence_bundle)
+        contradiction_summary = summarize_evidence_contradictions(evidence_bundle)
+        freshness_score = freshness_summary.freshness_score
+        freshness_notes = [
+            f"freshness_score={freshness_summary.freshness_score:.2f}",
+            *[
+                f"refresh:{action}"
+                for action in freshness_summary.refresh_actions[:2]
+            ],
+        ]
+        contradiction_pressure = contradiction_summary.contradiction_pressure
+        contradiction_notes = [
+            f"contradiction_pressure={contradiction_summary.contradiction_pressure:.2f}",
+            *[
+                f"contradiction:{conflict_type}"
+                for conflict_type in contradiction_summary.dominant_conflict_types[:2]
+            ],
+        ]
+    if workflow_family is not None:
+        grounding_rule_ids = [
+            rule.rule_id
+            for rule in build_ranking_rule_grounding_ledger(workflow_family).rules
+        ]
+    scored: list[
+        tuple[
+            CandidateAssessment,
+            float,
+            list[str],
+            dict[str, float],
+            dict[str, object],
+        ]
+    ] = []
     rejected: list[str] = []
     rejections: list[CandidateRejection] = []
     for candidate in candidates:
@@ -626,35 +769,119 @@ def prioritize_candidates(
             )
             continue
         threshold_count = max(len(program.success_criteria), 1)
+        priority_inputs = _candidate_priority_inputs(
+            candidate,
+            criterion_score=criterion_score,
+            threshold_count=threshold_count,
+            freshness_score=freshness_score,
+            contradiction_pressure=contradiction_pressure,
+        )
+        scientific_value = _mean(
+            [
+                priority_inputs["criteria_strength"],
+                priority_inputs["evidence_strength"],
+                priority_inputs["reproducibility"],
+                priority_inputs["effect_size"],
+            ]
+        )
+        assay_feasibility = _mean(
+            [
+                priority_inputs["manufacturability"],
+                priority_inputs["assay_feasibility"],
+            ]
+        )
+        liability_control = _mean(
+            [
+                priority_inputs["liability_control"],
+                priority_inputs["lab_cost_efficiency"],
+                priority_inputs["operational_reliability"],
+            ]
+        )
         factor_scores = {
-            RankingFactor.CRITERIA.value: round(
-                min(criterion_score / (threshold_count * 1.5), 1.0), 4
+            RankingFactor.CRITERIA.value: scientific_value,
+            RankingFactor.EVIDENCE.value: _mean(
+                [
+                    priority_inputs["evidence_strength"],
+                    priority_inputs["reproducibility"],
+                    priority_inputs["freshness"],
+                ]
             ),
-            RankingFactor.EVIDENCE.value: round(candidate.evidence_support, 4),
-            RankingFactor.MANUFACTURABILITY.value: round(
-                candidate.manufacturability_score, 4
+            RankingFactor.MANUFACTURABILITY.value: _mean(
+                [assay_feasibility, priority_inputs["novelty"]]
             ),
-            RankingFactor.LIABILITY.value: round(
-                max(
-                    0.0,
-                    1.0 - (sum(flag.severity for flag in candidate.liabilities) / 10.0),
-                ),
-                4,
-            ),
-            RankingFactor.UNCERTAINTY.value: round(
-                max(0.0, 1.0 - candidate.uncertainty), 4
+            RankingFactor.LIABILITY.value: liability_control,
+            RankingFactor.UNCERTAINTY.value: _mean(
+                [
+                    priority_inputs["uncertainty_control"],
+                    priority_inputs["contradiction_control"],
+                ]
             ),
         }
-        score = sum(
+        weighted_factor_score = sum(
             factor_scores[factor.value] * weight
             for factor, weight in policy.factor_weights.items()
         )
+        novelty_bonus = round(
+            priority_inputs["novelty"] * policy.diversity_bonus_weight,
+            4,
+        )
+        score = round(max(0.0, weighted_factor_score + novelty_bonus), 4)
+        input_contributions = {
+            "scientific_value": round(
+                scientific_value * policy.factor_weights[RankingFactor.CRITERIA],
+                4,
+            ),
+            "reproducibility": round(
+                priority_inputs["reproducibility"]
+                * policy.factor_weights[RankingFactor.EVIDENCE]
+                / 2.0,
+                4,
+            ),
+            "effect_size": round(
+                priority_inputs["effect_size"]
+                * policy.factor_weights[RankingFactor.CRITERIA]
+                / 3.0,
+                4,
+            ),
+            "assay_feasibility": round(
+                assay_feasibility
+                * policy.factor_weights[RankingFactor.MANUFACTURABILITY],
+                4,
+            ),
+            "novelty": novelty_bonus,
+            "lab_cost_efficiency": round(
+                priority_inputs["lab_cost_efficiency"]
+                * policy.factor_weights[RankingFactor.LIABILITY]
+                / 2.0,
+                4,
+            ),
+            "operational_reliability": round(
+                priority_inputs["operational_reliability"]
+                * policy.factor_weights[RankingFactor.LIABILITY]
+                / 2.0,
+                4,
+            ),
+            "freshness": round(
+                priority_inputs["freshness"]
+                * policy.factor_weights[RankingFactor.EVIDENCE]
+                / 2.0,
+                4,
+            ),
+            "contradiction_control": round(
+                priority_inputs["contradiction_control"]
+                * policy.factor_weights[RankingFactor.UNCERTAINTY]
+                / 2.0,
+                4,
+            ),
+        }
         reasons = [
-            f"criteria_factor={factor_scores[RankingFactor.CRITERIA.value]:.2f}",
-            f"evidence_factor={factor_scores[RankingFactor.EVIDENCE.value]:.2f}",
-            f"manufacturability_factor={factor_scores[RankingFactor.MANUFACTURABILITY.value]:.2f}",
-            f"uncertainty_factor={factor_scores[RankingFactor.UNCERTAINTY.value]:.2f}",
+            f"scientific_value={scientific_value:.2f}",
+            f"reproducibility={priority_inputs['reproducibility']:.2f}",
+            f"assay_feasibility={assay_feasibility:.2f}",
+            f"novelty={priority_inputs['novelty']:.2f}",
         ]
+        reasons.extend(freshness_notes[:1])
+        reasons.extend(contradiction_notes[:1])
         if candidate.liabilities:
             reasons.append(
                 "liabilities="
@@ -665,7 +892,28 @@ def prioritize_candidates(
                     )
                 )
             )
-        scored.append((candidate, score, reasons, factor_scores))
+        explainability_payload: dict[str, object] = {
+            "top_drivers": reasons[:3],
+            "blockers": [flag.summary for flag in candidate.liabilities[:3]],
+            "confidence": round(1.0 - candidate.uncertainty, 4),
+            "factor_scores": factor_scores,
+            "priority_inputs": priority_inputs,
+            "input_contributions": input_contributions,
+            "multi_objective_profile": {
+                "scientific_value": scientific_value,
+                "assay_feasibility": assay_feasibility,
+                "novelty": priority_inputs["novelty"],
+                "lab_cost_efficiency": priority_inputs["lab_cost_efficiency"],
+                "operational_reliability": priority_inputs[
+                    "operational_reliability"
+                ],
+            },
+            "freshness_pressure": round(1.0 - freshness_score, 4),
+            "contradiction_pressure": contradiction_pressure,
+            "knowledge_grounding_rule_ids": grounding_rule_ids,
+            "missing_evidence": [],
+        }
+        scored.append((candidate, score, reasons, factor_scores, explainability_payload))
 
     ranked = sorted(
         scored,
@@ -703,15 +951,15 @@ def prioritize_candidates(
             score=round(score, 4),
             rank=index,
             reasons=reasons,
-            explainability={
-                "top_drivers": reasons[:3],
-                "blockers": [flag.summary for flag in candidate.liabilities[:3]],
-                "confidence": round(1.0 - candidate.uncertainty, 4),
-                "factor_scores": factor_scores,
-                "missing_evidence": [],
-            },
+            explainability=explainability_payload,
         )
-        for index, (candidate, score, reasons, factor_scores) in enumerate(
+        for index, (
+            candidate,
+            score,
+            reasons,
+            factor_scores,
+            explainability_payload,
+        ) in enumerate(
             ranked, start=1
         )
     ]
@@ -731,7 +979,7 @@ def prioritize_candidates(
             applied_rules=[rule.value for rule in policy.tie_break_rules],
             rationale=reasons,
         )
-        for candidate, score, reasons, factor_scores in ranked
+        for candidate, score, reasons, factor_scores, _ in ranked
     ] + [
         RankingProvenanceEntry(
             candidate_id=rejection.candidate_id,
@@ -1143,4 +1391,50 @@ def build_ranking_diagnostics(
     return RankingDiagnostics(
         robustness=build_ranking_robustness_report(ranking),
         rejection_summary=summarize_rejections(ranking.rejections),
+    )
+
+
+def build_ranking_sensitivity_report(
+    ranked_candidate: RankedCandidate,
+) -> RankingSensitivityReport:
+    """Expose which weighted inputs dominate a ranked candidate outcome."""
+    raw_contributions = ranked_candidate.explainability.get("input_contributions", {})
+    parsed_contributions: dict[str, float] = {}
+    if isinstance(raw_contributions, dict):
+        for key, value in raw_contributions.items():
+            if isinstance(value, (int, float)):
+                parsed_contributions[str(key)] = round(float(value), 4)
+    dominant = sorted(
+        parsed_contributions.items(),
+        key=lambda item: (-abs(item[1]), item[0]),
+    )[:5]
+    dominant_inputs = [
+        RankingSensitivityInput(
+            input_name=name,
+            contribution=value,
+            summary=f"{name.replace('_', ' ')} contributes {value:.2f} to the composite score",
+        )
+        for name, value in dominant
+    ]
+    fragile_inputs = [
+        name
+        for name, value in dominant
+        if name in {"freshness", "contradiction_control", "novelty"} and value >= 0.05
+    ]
+    notes: list[str] = []
+    if dominant:
+        notes.append(
+            f"{dominant[0][0].replace('_', ' ')} is the strongest visible driver"
+        )
+    if fragile_inputs:
+        notes.append(
+            "ranking remains sensitive to freshness, contradiction, or novelty assumptions"
+        )
+    if not notes:
+        notes.append("no fragile dominance signal was detected in the ranking inputs")
+    return RankingSensitivityReport(
+        candidate_id=ranked_candidate.candidate_id,
+        dominant_inputs=dominant_inputs,
+        fragile_inputs=fragile_inputs,
+        notes=notes,
     )

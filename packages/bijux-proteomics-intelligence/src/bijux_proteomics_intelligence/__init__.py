@@ -26,6 +26,8 @@ from bijux_proteomics_intelligence.briefs import (
     RankingDriftReport,
     RankingProvenanceEntry,
     RankingRobustnessReport,
+    RankingSensitivityInput,
+    RankingSensitivityReport,
     RankingStabilityReport,
     UncertaintyPressureSummary,
     analyze_ranking_stability,
@@ -33,6 +35,7 @@ from bijux_proteomics_intelligence.briefs import (
     build_ranking_diagnostics,
     build_ranking_provenance_report,
     build_ranking_robustness_report,
+    build_ranking_sensitivity_report,
     candidate_score_breakdown,
     criterion_satisfaction_vector,
     prioritize_candidates,
@@ -42,6 +45,19 @@ from bijux_proteomics_intelligence.briefs import (
     summarize_novelty_diversity,
     summarize_ranking_drift,
     summarize_uncertainty_pressure,
+)
+from bijux_proteomics_intelligence.charter import (
+    DEFAULT_INTELLIGENCE_CHARTER,
+    IntelligenceCharterCapability,
+    IntelligenceProductCharter,
+    list_intelligence_capabilities,
+)
+from bijux_proteomics_intelligence.evidence_posture import (
+    EvidenceContradictionSummary,
+    EvidenceFreshnessSummary,
+    assess_recommendation_readiness,
+    summarize_evidence_contradictions,
+    summarize_evidence_freshness,
 )
 from bijux_proteomics_intelligence.candidates import (
     CandidateAssayAgendaItem,
@@ -131,6 +147,12 @@ from bijux_proteomics_intelligence.evaluators import (
     summarize_scenario_consensus,
     summarize_uncertainty_preserving_interpretation,
     summarize_unresolved_question_ledger,
+)
+from bijux_proteomics_intelligence.grounding import (
+    GroundedDecisionRule,
+    RankingRuleGroundingLedger,
+    build_ranking_rule_grounding_ledger,
+    rule_grounding_map,
 )
 from bijux_proteomics_intelligence.interpretation import (
     AnnotationCategory,
@@ -224,6 +246,8 @@ __all__ = [
     "RankingAssumptionScenario",
     "RankingProvenanceEntry",
     "RankingStabilityReport",
+    "RankingSensitivityInput",
+    "RankingSensitivityReport",
     "CandidateDecision",
     "CandidateRanking",
     "CandidatePortfolio",
@@ -250,6 +274,13 @@ __all__ = [
     "MutationAnnotation",
     "SequenceRiskSignals",
     "DesignBrief",
+    "DEFAULT_INTELLIGENCE_CHARTER",
+    "IntelligenceCharterCapability",
+    "IntelligenceProductCharter",
+    "GroundedDecisionRule",
+    "RankingRuleGroundingLedger",
+    "EvidenceContradictionSummary",
+    "EvidenceFreshnessSummary",
     "EvaluatorPolicyBundle",
     "JsonModel",
     "LiabilityFlag",
@@ -297,6 +328,12 @@ __all__ = [
     "HoldPolicyConfig",
     "HypothesisStatus",
     "build_design_brief",
+    "list_intelligence_capabilities",
+    "summarize_evidence_contradictions",
+    "summarize_evidence_freshness",
+    "assess_recommendation_readiness",
+    "build_ranking_rule_grounding_ledger",
+    "rule_grounding_map",
     "build_risk_profile",
     "evaluate_for_progression",
     "evaluate_for_redesign",
@@ -382,6 +419,7 @@ __all__ = [
     "summarize_uncertainty_pressure",
     "summarize_novelty_diversity",
     "build_ranking_robustness_report",
+    "build_ranking_sensitivity_report",
     "analyze_ranking_stability",
     "summarize_metric_coverage",
     "criterion_satisfaction_vector",
