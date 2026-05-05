@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel, ProgramId
 from bijux_proteomics_intelligence.decision_paths import ReviewBoardDecisionPath
 from bijux_proteomics_intelligence.evaluators import ScenarioAction
+from bijux_proteomics_foundation.outcomes.results import OperationDisposition
 
 
 class ReviewChallengeDomain(StrEnum):
@@ -192,6 +193,25 @@ def build_skeptical_review_report(
                 ],
             )
         )
+    elif (
+        path.packet.recommendation.gate_result.disposition
+        is OperationDisposition.DEGRADED_SUCCESS
+    ):
+        software_findings.append(
+            ReviewChallenge(
+                domain=ReviewChallengeDomain.SOFTWARE,
+                severity=ReviewChallengeSeverity.BLOCK,
+                code="degraded_recommendation_support",
+                summary="recommendation remains degraded and should not be treated as a clean conclusion",
+                rationale=list(path.packet.recommendation.gate_result.degradation_reasons)
+                or [
+                    "downstream review should not flatten a degraded gate result into a clean recommendation",
+                ],
+                required_follow_up=[
+                    "resolve degraded evidence posture reasons before downstream handoff",
+                ],
+            )
+        )
     if not path.packet.recommendation.reasons:
         software_findings.append(
             ReviewChallenge(
@@ -220,6 +240,21 @@ def build_skeptical_review_report(
                 ],
                 required_follow_up=[
                     "publish the unresolved questions that keep the recommendation on hold",
+                ],
+            )
+        )
+    if len(path.unresolved_questions) >= 3:
+        software_findings.append(
+            ReviewChallenge(
+                domain=ReviewChallengeDomain.SOFTWARE,
+                severity=ReviewChallengeSeverity.BLOCK,
+                code="unresolved_question_burden",
+                summary="recommendation carries too many unresolved questions for a clean handoff",
+                rationale=[
+                    f"review path still exposes {len(path.unresolved_questions)} unresolved questions",
+                ],
+                required_follow_up=[
+                    "reduce unresolved question burden before downstream handoff",
                 ],
             )
         )
@@ -304,6 +339,43 @@ def build_skeptical_review_report(
                 ],
             )
         )
+    novelty_score = multi_objective.get("novelty", 0.0)
+    scientific_value = multi_objective.get("scientific_value", 0.0)
+    if novelty_score > scientific_value and evidence_support < 0.7:
+        scientific_findings.append(
+            ReviewChallenge(
+                domain=ReviewChallengeDomain.SCIENTIFIC,
+                severity=ReviewChallengeSeverity.BLOCK,
+                code="novelty_outpaces_grounding",
+                summary="recommendation novelty pressure outpaces its scientific grounding",
+                rationale=[
+                    f"novelty={novelty_score:.2f}",
+                    f"scientific_value={scientific_value:.2f}",
+                    f"evidence_support={evidence_support:.2f}",
+                ],
+                required_follow_up=[
+                    "add stronger grounding before novelty-heavy follow-up is recommended",
+                ],
+            )
+        )
+    if multi_objective.get("operational_reliability", 0.0) < 0.55:
+        scientific_findings.append(
+            ReviewChallenge(
+                domain=ReviewChallengeDomain.SCIENTIFIC,
+                severity=ReviewChallengeSeverity.BLOCK,
+                code="fragile_follow_up_plan",
+                summary="recommended follow-up remains too operationally fragile for downstream handoff",
+                rationale=[
+                    (
+                        "operational_reliability="
+                        f"{multi_objective.get('operational_reliability', 0.0):.2f}"
+                    ),
+                ],
+                required_follow_up=[
+                    "reduce operational fragility before downstream handoff",
+                ],
+            )
+        )
 
     release_ready = not any(
         finding.severity is ReviewChallengeSeverity.BLOCK
@@ -317,6 +389,18 @@ def build_skeptical_review_report(
     ):
         recommended_action = (
             "hold recommendation until contradiction-resolving evidence is collected"
+        )
+    elif any(
+        finding.code in {
+            "degraded_recommendation_support",
+            "unresolved_question_burden",
+            "novelty_outpaces_grounding",
+            "fragile_follow_up_plan",
+        }
+        for finding in [*software_findings, *scientific_findings]
+    ):
+        recommended_action = (
+            "hold recommendation until support and follow-up discipline are strengthened"
         )
     else:
         recommended_action = (

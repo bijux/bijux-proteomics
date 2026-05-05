@@ -138,6 +138,40 @@ def _contradictory_bundle() -> EvidenceBundle:
     )
 
 
+def _aging_bundle() -> EvidenceBundle:
+    now = datetime.now(UTC)
+    return EvidenceBundle(
+        bundle_id="bundle-skeptical-aging",
+        target_id="target-skeptical-review",
+        records=[
+            EvidenceRecord(
+                evidence_id="evidence-assay-aging",
+                kind=EvidenceKind.ASSAY,
+                title="Aging assay support",
+                source="lab-assay-aging",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="supports progression with historical assay support",
+                confidence=0.88,
+                strength=EvidenceStrength.DECISIVE,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=170),
+            ),
+            EvidenceRecord(
+                evidence_id="evidence-literature-aging",
+                kind=EvidenceKind.LITERATURE,
+                title="Aging literature support",
+                source="PMID:skeptical-aging",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="supports disease-relevant target engagement",
+                confidence=0.8,
+                strength=EvidenceStrength.SUPPORTING,
+                decision_tags=["progression"],
+                observed_at=now - timedelta(days=340),
+            ),
+        ],
+    )
+
+
 def test_skeptical_review_report_confirms_grounded_recommendation_value() -> None:
     path = build_review_board_decision_path(
         _program(),
@@ -201,6 +235,47 @@ def test_skeptical_review_report_blocks_contradictory_recommendation() -> None:
     assert report.release_ready is False
     assert any(
         finding.code == "unresolved_contradiction_pressure"
+        and finding.severity is ReviewChallengeSeverity.BLOCK
+        for finding in report.scientific_findings
+    )
+    assert report.recommended_action.startswith("hold recommendation")
+
+
+def test_skeptical_review_report_blocks_degraded_support_and_operational_fragility() -> (
+    None
+):
+    path = build_review_board_decision_path(
+        _program(),
+        [
+            CandidateAssessment(
+                candidate_id="candidate-fragile",
+                sequence="ACDEFGHIKLMNPQRSTVWY",
+                metric_scores={"binding_score": 0.91},
+                manufacturability_score=0.73,
+                uncertainty=0.18,
+                evidence_support=0.63,
+                reproducibility_score=0.58,
+                effect_size_score=0.74,
+                assay_feasibility_score=0.57,
+                novelty_score=0.88,
+                lab_cost_risk=0.52,
+                operational_risk=0.61,
+            )
+        ],
+        _aging_bundle(),
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+    )
+
+    report = build_skeptical_review_report(path)
+
+    assert report.release_ready is False
+    assert any(
+        finding.code == "degraded_recommendation_support"
+        and finding.severity is ReviewChallengeSeverity.BLOCK
+        for finding in report.software_findings
+    )
+    assert any(
+        finding.code in {"novelty_outpaces_grounding", "fragile_follow_up_plan"}
         and finding.severity is ReviewChallengeSeverity.BLOCK
         for finding in report.scientific_findings
     )
