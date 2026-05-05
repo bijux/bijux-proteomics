@@ -6,25 +6,15 @@
 from __future__ import annotations
 
 from importlib import metadata
-from typing import Any
+
+from bijux_proteomics.structure_report import Metrics, Report
+from bijux_proteomics_intelligence.domain import low_confidence_segments
 
 __all__ = [
     "Report",
     "Metrics",
     "low_confidence_segments",
 ]
-
-
-def __getattr__(name: str) -> Any:
-    if name in {"Metrics", "Report"}:
-        from bijux_proteomics import structure_report as _report
-
-        return getattr(_report, name)
-    if name == "low_confidence_segments":
-        from bijux_proteomics_intelligence.domain import low_confidence_segments
-
-        return low_confidence_segments
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 try:

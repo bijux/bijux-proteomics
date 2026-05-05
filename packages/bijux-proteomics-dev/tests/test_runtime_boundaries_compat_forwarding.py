@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (
+    validate_agentic_compatibility_inventory,
+)
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     _is_forwarding_module,
-    check_agentic_compat_forwarding,
     load_policy,
     parse_python_module,
 )
@@ -12,10 +14,11 @@ from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_agentic_compat_forwarding_is_enforced_by_allowlist_contract() -> None:
-    policy = load_policy(REPO_ROOT)
-    failures = check_agentic_compat_forwarding(policy)
-    assert not failures, "agentic compat forwarding violations:\n" + "\n".join(failures)
+def test_agentic_compatibility_layer_is_wrapper_only_or_dead() -> None:
+    issues = validate_agentic_compatibility_inventory(REPO_ROOT)
+    assert not issues, "agentic compat inventory issues:\n" + "\n".join(
+        f"{issue.code}: {issue.detail}" for issue in issues
+    )
 
 
 def test_agentic_compat_allowlist_is_empty_in_strict_mode() -> None:
