@@ -53,7 +53,7 @@ def _seed_run(base_dir: Path, run_id: str) -> None:
 
 
 def _fixture_path(name: str) -> Path:
-    return Path(__file__).resolve().parent / "fixtures" / "api" / name
+    return Path(__file__).resolve().parents[1] / "fixtures" / "api" / name
 
 
 def _normalize_paths(value: object, base_dir: Path) -> object:
@@ -61,7 +61,17 @@ def _normalize_paths(value: object, base_dir: Path) -> object:
     if isinstance(value, dict):
         return {key: _normalize_paths(item, base_dir) for key, item in value.items()}
     if isinstance(value, list):
-        return [_normalize_paths(item, base_dir) for item in value]
+        normalized = [_normalize_paths(item, base_dir) for item in value]
+        if normalized and all(isinstance(item, dict) for item in normalized):
+            return sorted(
+                normalized,
+                key=lambda item: (
+                    str(item.get("run_id", "")),
+                    str(item.get("artifact_key", "")),
+                    str(item.get("path", "")),
+                ),
+            )
+        return normalized
     if isinstance(value, str):
         return value.replace(base_text, "<workspace>")
     return value

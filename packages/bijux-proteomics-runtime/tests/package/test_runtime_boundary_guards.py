@@ -7,7 +7,7 @@ from bijux_proteomics_runtime.governance.charter import DEFAULT_RUNTIME_CHARTER_
 
 
 def _runtime_source_root() -> Path:
-    return Path(__file__).resolve().parents[1] / "src" / "bijux_proteomics_runtime"
+    return Path(__file__).resolve().parents[2] / "src" / "bijux_proteomics_runtime"
 
 
 def test_runtime_source_tree_excludes_removed_legacy_buckets() -> None:
