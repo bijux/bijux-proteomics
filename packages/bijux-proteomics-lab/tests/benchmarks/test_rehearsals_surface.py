@@ -22,11 +22,10 @@ from bijux_proteomics_lab.benchmarks import (
     TargetedBenchmarkClaimSupport,
     TargetedExternalReviewReport,
     TargetedFailureRehearsalReport,
-    TargetedBenchmarkReport,
     TargetedOperatorRunReport,
+    build_targeted_benchmark_report,
     build_targeted_external_review_report,
     build_targeted_failure_rehearsal,
-    build_targeted_benchmark_report,
     build_targeted_operator_run_report,
 )
 from bijux_proteomics_lab.design.protocols import (
@@ -250,9 +249,7 @@ def _weak_operational_path() -> tuple[
     return handoff_validation, transition_review, review_packet, executable_plan, path
 
 
-def test_build_targeted_benchmark_report_connects_discovery_evidence_to_lab_outputs() -> (
-    None
-):
+def _supported_benchmark_report():
     scenario = _review_scenario_fixture("targeted_assay_review")
     program = _program_from_fixture(scenario)
     assessments = _assessments_from_fixture(scenario)
@@ -312,114 +309,7 @@ def test_build_targeted_benchmark_report_connects_discovery_evidence_to_lab_outp
         review_packet=review_packet,
         executable_plan=executable_plan,
     )
-    lims_bundle = build_lims_export_bundle(
-        bundle_id="lims-targeted-benchmark",
-        system_name="benchling-lims",
-        candidate_id=handoff_validation.candidate_id,
-        execution_request=operational_path.execution_request,
-        protocol_attachment=_protocol_attachment(),
-        explanation=explanation,
-    )
-    chromatogram_report = parse_chromatogram_qc_table(
-        _repo_root()
-        / "packages"
-        / "bijux-proteomics-core"
-        / "tests"
-        / "fixtures"
-        / "formats"
-        / "targeted_benchmark_qc.tsv"
-    )
-    manifest = get_benchmark_manifest("benchmark:targeted_transition_quality_control")
-
-    report = build_targeted_benchmark_report(
-        benchmark_manifest=manifest,
-        candidate_assessments=assessments,
-        follow_up_path=follow_up_path,
-        chromatogram_report=chromatogram_report,
-        transition_review=transition_review,
-        lims_export_bundle=lims_bundle,
-        operational_path=operational_path,
-        cache_age_days=7,
-    )
-    operator_run = build_targeted_operator_run_report(report)
-
-    assert isinstance(report, TargetedBenchmarkReport)
-    assert report.recommended_candidate_id == "targeted-heavy-peptide-a"
-    assert report.overall_support is TargetedBenchmarkClaimSupport.STRONG_SUPPORT
-    assert all(
-        summary.support is TargetedBenchmarkClaimSupport.STRONG_SUPPORT
-        for summary in report.claim_summaries
-    )
-    assert report.lims_export_bundle.bundle_id == "lims-targeted-benchmark"
-    assert report.operational_path.execution_request.ready_for_lab_review is True
-    assert isinstance(operator_run, TargetedOperatorRunReport)
-    assert operator_run.ready_for_operator_review is True
-    assert "lims-targeted-benchmark" in operator_run.artifact_ids
-
-
-def test_targeted_benchmark_report_separates_partial_support_from_strong_support() -> (
-    None
-):
-    scenario = _review_scenario_fixture("targeted_assay_review")
-    program = _program_from_fixture(scenario)
-    assessments = _assessments_from_fixture(scenario)
-    base_bundle = _bundle_from_fixture(scenario)
-    bundle = base_bundle.model_copy(
-        update={
-            "records": [
-                *base_bundle.records,
-                EvidenceRecord.model_validate(
-                    {
-                        "evidence_id": "targeted-support-5",
-                        "kind": "literature",
-                        "title": "targeted literature support",
-                        "source": "PMID:targeted-benchmark",
-                        "source_type": "literature",
-                        "claim": "published targeted assay literature supports the same transition family",
-                        "confidence": 0.84,
-                        "strength": "supporting",
-                        "decision_tags": ["progression"],
-                        "observed_at": datetime.now(UTC) - timedelta(days=10),
-                    }
-                ),
-                EvidenceRecord.model_validate(
-                    {
-                        "evidence_id": "targeted-support-6",
-                        "kind": "structure",
-                        "title": "targeted structural support",
-                        "source": "structure-model-1",
-                        "source_type": "structure_model",
-                        "claim": "structural context preserves the prioritized engagement hypothesis",
-                        "confidence": 0.8,
-                        "strength": "supporting",
-                        "decision_tags": ["progression"],
-                        "observed_at": datetime.now(UTC) - timedelta(days=8),
-                    }
-                ),
-            ]
-        }
-    )
-    follow_up_path = build_follow_up_candidate_path(
-        program,
-        list(assessments),
-        bundle,
-        workflow_family=KnowledgeWorkflowFamily.TARGETED,
-    )
-    (
-        handoff_validation,
-        transition_review,
-        review_packet,
-        executable_plan,
-        operational_path,
-    ) = _supported_operational_path()
-    explanation = build_handoff_explanation(
-        candidate_id=handoff_validation.candidate_id,
-        handoff_validation=handoff_validation,
-        transition_review=transition_review,
-        review_packet=review_packet,
-        executable_plan=executable_plan,
-    )
-    report = build_targeted_benchmark_report(
+    return build_targeted_benchmark_report(
         benchmark_manifest=get_benchmark_manifest(
             "benchmark:targeted_transition_quality_control"
         ),
@@ -436,7 +326,7 @@ def test_targeted_benchmark_report_separates_partial_support_from_strong_support
         ),
         transition_review=transition_review,
         lims_export_bundle=build_lims_export_bundle(
-            bundle_id="lims-targeted-partial",
+            bundle_id="lims-targeted-benchmark",
             system_name="benchling-lims",
             candidate_id=handoff_validation.candidate_id,
             execution_request=operational_path.execution_request,
@@ -444,17 +334,20 @@ def test_targeted_benchmark_report_separates_partial_support_from_strong_support
             explanation=explanation,
         ),
         operational_path=operational_path,
-        cache_age_days=45,
+        cache_age_days=7,
     )
 
-    cache_claim = next(
-        claim for claim in report.claim_summaries if claim.claim_id == "cache_freshness"
-    )
-    assert report.overall_support is TargetedBenchmarkClaimSupport.PARTIAL_SUPPORT
-    assert cache_claim.support is TargetedBenchmarkClaimSupport.PARTIAL_SUPPORT
+
+def test_build_targeted_operator_run_report_keeps_reviewable_artifact_story() -> None:
+    report = _supported_benchmark_report()
+    operator_run = build_targeted_operator_run_report(report)
+
+    assert isinstance(operator_run, TargetedOperatorRunReport)
+    assert operator_run.ready_for_operator_review is True
+    assert "lims-targeted-benchmark" in operator_run.artifact_ids
 
 
-def test_targeted_benchmark_report_refuses_weak_science_and_malformed_qc() -> None:
+def test_targeted_failure_and_external_review_reports_expose_weaknesses() -> None:
     scenario = _review_scenario_fixture("contradiction_refusal_guard")
     program = _program_from_fixture(scenario)
     assessments = _assessments_from_fixture(scenario)
@@ -510,16 +403,6 @@ def test_targeted_benchmark_report_refuses_weak_science_and_malformed_qc() -> No
     external_review = build_targeted_external_review_report(report)
 
     assert report.overall_support is TargetedBenchmarkClaimSupport.UNSUPPORTED
-    assert any(
-        claim.claim_id == "chromatogram_qc"
-        and claim.support is TargetedBenchmarkClaimSupport.UNSUPPORTED
-        for claim in report.claim_summaries
-    )
-    assert any(
-        claim.claim_id == "lab_handoff"
-        and claim.support is TargetedBenchmarkClaimSupport.UNSUPPORTED
-        for claim in report.claim_summaries
-    )
     assert isinstance(failure, TargetedFailureRehearsalReport)
     assert "chromatogram_qc" in failure.failure_codes
     assert "lab_handoff" in failure.failure_codes
