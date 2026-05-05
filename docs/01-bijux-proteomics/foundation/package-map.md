@@ -24,7 +24,7 @@ flowchart TB
     intelligence["recommendation policy and explanations"]
     lab["assay planning and outcomes"]
     runtime["execution and replay"]
-    bridge["legacy runtime forwarding"]
+    bridge["compatibility bridge<br/>legacy imports and retirement path"]
 
     question --> foundation
     question --> core
@@ -32,7 +32,7 @@ flowchart TB
     question --> intelligence
     question --> lab
     question --> runtime
-    question --> bridge
+    runtime --> bridge
 ```
 
 This page should let a reader classify work before diffing the whole repository. The table is useful, but it becomes much easier to use once the package choices are visible as a routing model instead of a long lookup list.
@@ -55,6 +55,15 @@ This page should let a reader classify work before diffing the whole repository.
   for cross-package rules and root-owned assets
 - the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
   for repository-health automation
+
+## Checked Ownership Proofs
+
+- `configs/package-governance/public-root-symbol-owners.toml` for the
+  machine-readable map of canonical package-root exports
+- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
+  for the wrapper-only compatibility inventory
+- `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md`
+  for the legacy-import migration path
 
 ## First Proof Check
 

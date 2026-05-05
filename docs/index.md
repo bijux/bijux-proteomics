@@ -123,6 +123,9 @@ and advancement decisions.
 
 ## Package Family At A Glance
 
+The live publishable shape is six real product packages plus one compatibility
+bridge:
+
 | Package | Owns |
 | --- | --- |
 | `bijux-proteomics-foundation` | shared schema compatibility, identifiers, and deterministic serialization |
@@ -131,7 +134,7 @@ and advancement decisions.
 | `bijux-proteomics-intelligence` | scoring, ranking, scenario evaluation, and explanations |
 | `bijux-proteomics-lab` | assay planning, outcome capture, and lab-facing loop control |
 | `bijux-proteomics-runtime` | execution, replay, provider integration, and operator entrypoints |
-| `agentic-proteins` | temporary compatibility forwarding for legacy runtime imports and CLI paths |
+| `agentic-proteins` | explicit compatibility bridge for legacy imports and checked migration-off paths |
 
 <code>bijux-proteomics-runtime</code> governs execution and replay.
 <code>agentic-proteins</code> preserves compatibility entrypoints.
