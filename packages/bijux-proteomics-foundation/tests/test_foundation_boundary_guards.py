@@ -33,9 +33,12 @@ FORBIDDEN_PRESENTATION_TOKENS = {
     "apiresponse",
     "cli",
     "console",
+    "markdown",
     "formatter",
     "render",
     "response",
+    "route",
+    "router",
 }
 FORBIDDEN_RUNTIME_TRANSPORT_TOKENS = {
     "artifactformat",

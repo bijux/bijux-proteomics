@@ -1,0 +1,16 @@
+# Generated foundation kernel boundary report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation_kernel_boundaries
+
+[[check]]
+policy_id = "no-product-specific-fixtures"
+checked_path_count = 38
+checked_symbol_count = 217
+ready = true
+violations = []
+
+[[check]]
+policy_id = "no-route-cli-markdown-helpers"
+checked_path_count = 29
+checked_symbol_count = 121
+ready = true
+violations = []
