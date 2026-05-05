@@ -96,7 +96,8 @@ from bijux_proteomics_runtime import AppConfig, RunManager, create_app
 - Canonical workflow CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `interfaces.cli:cli`
 - Execution charter: `src/bijux_proteomics_runtime/charter.py`
-- Runtime control surfaces: `runtime.control.operations`, `runtime.control.workflow_paths`, `runtime.control.reruns`, `runtime.control.cache`, `runtime.control.cleanup`, `runtime.control.recovery`, `runtime.control.preflight`, `runtime.control.integrity`, and `runtime.control.failure_reports`
+- First-level owner families: `runs/`, `workflows/`, `providers/`, `agents/`, `execution/`, `tools/`, `memory/`, and `state/`
+- Compatibility forwarding remains under `runtime.context` and `runtime.control` while owner logic lives in those first-level families
 
 ## Package boundaries
 
@@ -135,7 +136,7 @@ remain in their dedicated lower-layer packages.
 ## Contract checkpoints
 
 - runtime entrypoints must remain canonical while compat imports forward to them
-- lower-layer meaning must stay below runtime control surfaces rather than being redefined here
+- lower-layer meaning must stay below runtime owner families rather than being redefined here
 - replay, artifact, and provider contracts must remain explicit and testable
 - run context, artifact ledger, replay/import bundles, checkpoint artifacts, and preflight outputs must remain machine-readable and reviewable
 - changes to canonical ownership should land in runtime before compat forwarding expands
@@ -261,12 +262,13 @@ result = OperationResult.success(
 
 ## Source guide
 
-- [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
-- [`src/bijux_proteomics_runtime/runtime/context`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/context) for typed run-context and artifact-policy contracts
+- [`src/bijux_proteomics_runtime/runs`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs) for typed run contracts, canonical run operations, and execution ownership
+- [`src/bijux_proteomics_runtime/workflows`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows) for workflow planning, reproducibility, and reviewable path manifests
 - [`src/bijux_proteomics_runtime/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/charter.py) for the machine-readable execution charter and module audit
 - [`src/bijux_proteomics_runtime/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
-- [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding
+- [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding, capability gates, and provider execution support
+- [`src/bijux_proteomics_runtime/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime) for compatibility forwarding only
 - [`artifacts/<run-id>`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime) for persisted runtime bundle, checkpoint, and integrity outputs at execution time
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/tests) for executable surface and migration expectations
 

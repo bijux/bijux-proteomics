@@ -62,16 +62,16 @@ def test_runtime_surface_area_uses_canonical_cli_entrypoint() -> None:
 
 
 def test_runtime_surface_area_uses_canonical_run_manager_entrypoint() -> None:
-    assert "bijux_proteomics_runtime.runtime.RunManager" in PUBLIC_ENTRYPOINTS
+    assert "bijux_proteomics_runtime.runs.RunManager" in PUBLIC_ENTRYPOINTS
 
 
 def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
     assert (
-        "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path"
+        "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path"
         in PUBLIC_ENTRYPOINTS
     )
     assert (
-        "bijux_proteomics_runtime.runtime.control.run_reviewable_import_path"
+        "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path"
         in PUBLIC_ENTRYPOINTS
     )
 
@@ -93,7 +93,7 @@ def test_runtime_surface_area_tracks_live_run_config_knobs() -> None:
 def test_runtime_contracts_track_review_and_failure_surfaces() -> None:
     assert (
         EXECUTION_REVIEW_CONTRACT["sequence_review_path"]
-        == "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path"
+        == "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path"
     )
     assert (
         EXECUTION_REVIEW_CONTRACT["failure_report_writer"]

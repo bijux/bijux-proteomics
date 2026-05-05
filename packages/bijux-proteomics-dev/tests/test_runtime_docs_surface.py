@@ -17,8 +17,9 @@ def test_runtime_docs_publish_live_charter_and_topology() -> None:
     assert "charter.py" in readme
     assert "Execution charter" in readme
     assert "charter.py" in architecture
-    assert "runtime/context/" in architecture
-    assert "runtime/control/" in architecture
+    assert "runs/" in architecture
+    assert "workflows/" in architecture
+    assert "providers/" in architecture
     assert "Runtime charter entries stay backed by live modules" in contracts
 
 
@@ -37,3 +38,5 @@ def test_runtime_docs_reject_removed_topology_names() -> None:
     assert "api/correlation.py" not in text
     assert "api/deps.py" not in text
     assert "api/middleware.py" not in text
+    assert "`runtime/context/` owns" not in text
+    assert "`runtime/control/` owns orchestration" not in text

@@ -8,9 +8,9 @@ from __future__ import annotations
 PUBLIC_ENTRYPOINTS = (
     "bijux_proteomics_runtime.interfaces.cli.cli",
     "bijux_proteomics_runtime.api.create_app",
-    "bijux_proteomics_runtime.runtime.RunManager",
-    "bijux_proteomics_runtime.runtime.control.run_reviewable_sequence_path",
-    "bijux_proteomics_runtime.runtime.control.run_reviewable_import_path",
+    "bijux_proteomics_runtime.runs.RunManager",
+    "bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path",
+    "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path",
 )
 
 EXTENSION_POINTS = (

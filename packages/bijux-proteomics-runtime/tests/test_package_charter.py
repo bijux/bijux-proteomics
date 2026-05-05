@@ -75,4 +75,8 @@ def test_runtime_thin_abstractions_are_only_namespace_initializers() -> None:
     }
 
     assert thin_paths
-    assert all(path.endswith("__init__.py") for path in thin_paths)
+    assert all(
+        path.endswith("__init__.py")
+        or path.startswith(("runtime/context/", "runtime/control/"))
+        for path in thin_paths
+    )

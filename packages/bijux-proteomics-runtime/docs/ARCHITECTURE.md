@@ -27,11 +27,11 @@ Runtime-owned capabilities:
 
 ## Execution charter
 
-- canonical entrypoints: `interfaces/`, `api/`, and `runtime/control/operations.py`
-- provider binding: `providers/` and `runtime/control/provider_capabilities.py`
-- workflow execution: `agents/`, `execution/`, `tools/`, and `runtime/control/execution.py`
-- replay and recovery: `runtime/context/`, `runtime/control/`, `memory/`, `state/`, and `runtime/workspace.py`
-- reviewable outputs: `api/catalog.py`, `runtime/control/execution_surfaces.py`, `runtime/control/failure_reports.py`, and `runtime/control/workflow_paths.py`
+- canonical entrypoints: `interfaces/`, `api/`, and `runs/operations.py`
+- provider binding: `providers/`, `providers/capabilities.py`, and `providers/support.py`
+- workflow execution: `agents/`, `execution/`, `tools/`, `runs/manager.py`, and `workflows/`
+- replay and recovery: `runs/`, `runtime/control/`, `memory/`, `state/`, and `runtime/workspace.py`
+- reviewable outputs: `api/catalog.py`, `runtime/control/execution_surfaces.py`, `runtime/control/failure_reports.py`, and `workflows/paths.py`
 
 ## Execution model
 
@@ -62,9 +62,10 @@ flowchart TD
 - `charter.py` owns the machine-readable execution charter and release-blocking module audit
 - `interfaces/` owns CLI-facing runtime contracts
 - `api/` owns HTTP entrypoints, request logging, and request-scoped base-dir wiring
-- `runtime/context/` owns run identity, run config, correlation, and typed execution context
-- `runtime/control/` owns orchestration, provider capability gates, replay, reruns, integrity, cleanup, recovery, and reviewable workflow paths
-- `providers/` owns provider binding and provider-specific execution surfaces
+- `runs/` owns run identity, run config, correlation, canonical run operations, and typed execution context
+- `workflows/` owns workflow planning, reproducibility, reviewable path manifests, and end-to-end workflow run reports
+- `providers/` owns provider binding, capability gates, and provider execution support
+- `runtime/context/` and moved `runtime/control/*` modules remain compatibility forwarding surfaces only
 - `agents/`, `execution/`, and `tools/` own runtime-local execution planning and coordination support
 - `memory/` and `state/` own replayable state, history, and review-safe persistence contracts
 
@@ -95,8 +96,8 @@ land here before compat forwarding in `agentic-proteins` grows.
 
 - add code here when a new concern changes canonical operator entrypoints,
   provider binding, replay safety, or orchestration coordination
-- extend `interfaces/`, `api/`, `runtime/context/`, `runtime/control/`, or
-  `providers/` before compat or lower packages invent runtime-local entrypoints
+- extend `interfaces/`, `api/`, `runs/`, `workflows/`, or `providers/` before
+  compat or lower packages invent runtime-local entrypoints
 - keep new transport and orchestration behavior here when it changes how
   canonical execution runs rather than what lower-layer domain truth means
 

@@ -15,6 +15,8 @@ integrators can rely on at the canonical execution boundary.
 - `bijux_proteomics_runtime.interfaces.cli:cli` is the canonical workflow CLI entrypoint.
 - `bijux_proteomics_runtime.api.app:app` exposes the canonical FastAPI app.
 - `bijux_proteomics_runtime.RunManager` remains the canonical orchestration root.
+- `bijux_proteomics_runtime.runs` and `bijux_proteomics_runtime.workflows` are
+  the canonical exact-owner imports inside the runtime package.
 - runtime exports typed run context, reviewable outputs, failure reports, and
   replay artifacts without forcing downstream users to parse private workspaces.
 

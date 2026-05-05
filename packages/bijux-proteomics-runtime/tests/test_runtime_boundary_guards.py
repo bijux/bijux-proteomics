@@ -26,7 +26,8 @@ def test_runtime_source_tree_excludes_removed_generic_http_helper_names() -> Non
     assert not (runtime_root / "api" / "correlation.py").exists()
     assert not (runtime_root / "api" / "deps.py").exists()
     assert not (runtime_root / "api" / "middleware.py").exists()
-    assert (runtime_root / "runtime" / "context" / "correlation.py").exists()
+    assert (runtime_root / "runs" / "correlation.py").exists()
+    assert (runtime_root / "workflows" / "paths.py").exists()
     assert (runtime_root / "api" / "request_context.py").exists()
     assert (runtime_root / "api" / "request_logging.py").exists()
 

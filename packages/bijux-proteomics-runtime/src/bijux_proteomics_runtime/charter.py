@@ -107,7 +107,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
             "interfaces/cli.py",
             "api/app.py",
             "api/v1/endpoints/run.py",
-            "runtime/control/operations.py",
+            "runs/operations.py",
         ),
         release_blocker="Runtime cannot ship if operators must bypass canonical CLI or HTTP surfaces to trigger supported execution paths.",
     ),
@@ -117,7 +117,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         required_modules=(
             "providers/factory.py",
             "providers/base.py",
-            "runtime/control/provider_capabilities.py",
+            "providers/capabilities.py",
         ),
         release_blocker="Runtime cannot ship if provider dependency and capability rules fragment across compat or downstream packages.",
     ),
@@ -125,7 +125,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.WORKFLOW_EXECUTION,
         owned_surface="Execution coordination that turns runtime requests into tool, provider, and agent work over proteomics workflows.",
         required_modules=(
-            "runtime/control/execution.py",
+            "runs/manager.py",
             "agents/execution/coordinator.py",
             "execution/runtime/executor.py",
         ),
@@ -148,10 +148,10 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         owned_surface="Typed run contracts, review packets, artifact inventories, histories, and failure reports that downstream packages can consume without private file coupling.",
         required_modules=(
             "api/catalog.py",
-            "runtime/context/contracts.py",
+            "runs/contracts.py",
             "runtime/control/execution_surfaces.py",
             "runtime/control/failure_reports.py",
-            "runtime/control/workflow_paths.py",
+            "workflows/paths.py",
         ),
         release_blocker="Runtime cannot ship if operators or downstream packages lose stable reviewable run outputs and fall back to private workspace parsing.",
     ),
@@ -160,6 +160,30 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
 
 def _runtime_source_root() -> Path:
     return Path(__file__).resolve().parent
+
+
+_COMPATIBILITY_FORWARDERS = {
+    "runtime/context/context.py",
+    "runtime/context/contracts.py",
+    "runtime/context/correlation.py",
+    "runtime/context/lifecycle.py",
+    "runtime/context/logging.py",
+    "runtime/context/output.py",
+    "runtime/context/request.py",
+    "runtime/context/run_config.py",
+    "runtime/context/telemetry.py",
+    "runtime/control/execution.py",
+    "runtime/control/operations.py",
+    "runtime/control/provider_capabilities.py",
+    "runtime/control/provider_support.py",
+    "runtime/control/run_analysis.py",
+    "runtime/control/state_machine.py",
+    "runtime/control/tool_reliability.py",
+    "runtime/control/workflow_paths.py",
+    "runtime/control/workflow_plans.py",
+    "runtime/control/workflow_reproducibility.py",
+    "runtime/control/workflow_runs.py",
+}
 
 
 def _execution_value_entry(
@@ -190,6 +214,13 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             reason="Namespace package initializers only aggregate stable runtime-owned sub-surfaces.",
         )
 
+    if module_path in _COMPATIBILITY_FORWARDERS:
+        return RuntimeModuleAuditEntry(
+            module_path=module_path,
+            classification=RuntimeModuleClassification.THIN_ABSTRACTION,
+            reason="Compatibility forwarding stays isolated under legacy runtime namespaces while owner logic lives in first-level runtime families.",
+        )
+
     if (
         module_path.startswith(("api/", "interfaces/"))
         or module_path == "runtime_identity.py"
@@ -208,6 +239,43 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             module_path,
             (RuntimeCharterCapability.PROVIDER_BINDING,),
             "Provider construction, dependency checks, and capability metadata are canonical runtime ownership.",
+        )
+
+    if module_path == "runs/operations.py":
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.CANONICAL_ENTRYPOINTS,
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+            ),
+            "Run operations keep CLI and API entrypoints pinned to one canonical execution owner.",
+        )
+
+    if module_path == "runs/manager.py":
+        return _execution_value_entry(
+            module_path,
+            (RuntimeCharterCapability.WORKFLOW_EXECUTION,),
+            "The run manager owns canonical execution coordination over providers, agents, and runtime artifacts.",
+        )
+
+    if module_path.startswith("runs/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.REPLAY_AND_RECOVERY,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Run-owned contracts keep execution context, replay metadata, and reviewable outputs under one stable owner family.",
+        )
+
+    if module_path.startswith("workflows/"):
+        return _execution_value_entry(
+            module_path,
+            (
+                RuntimeCharterCapability.WORKFLOW_EXECUTION,
+                RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
+            ),
+            "Workflow-owned planning, reproducibility, and run reports stay grouped under one navigable runtime family.",
         )
 
     if module_path == "charter.py":
@@ -237,7 +305,7 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "Typed memory and state artifacts preserve replay-safe execution history and reviewable downstream consumption.",
         )
 
-    if module_path.startswith("runtime/context/") or module_path in {
+    if module_path in {
         "runtime/contracts.py",
         "runtime/workspace.py",
     }:
@@ -248,13 +316,6 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
             "Typed run context, workspace, and contract code keep runtime execution reproducible, inspectable, and exportable.",
-        )
-
-    if module_path == "runtime/control/provider_capabilities.py":
-        return _execution_value_entry(
-            module_path,
-            (RuntimeCharterCapability.PROVIDER_BINDING,),
-            "Capability validation must stay in runtime so compat and downstream packages do not fork provider rules.",
         )
 
     if module_path.startswith("runtime/control/"):
