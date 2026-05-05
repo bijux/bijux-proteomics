@@ -8,28 +8,29 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics import (
-    DecisionQuery,
-    DuplicateReviewDecisionError,
-    ExecutionRequest,
+from bijux_proteomics.domain.context import (
     ProgramContext,
     ProgramDeliveryContext,
-    ProgramExecutionRequest,
-    ProgramNotFoundError,
     ProgramPortfolioContext,
-    ProgramRevisionConflictError,
+)
+from bijux_proteomics.domain.criteria import criterion_passes
+from bijux_proteomics.domain.program_spec import (
     ProgramSpec,
-    ProgramValidationError,
-    ProgramValidationIssue,
-    ReviewDecision,
-    ReviewGateBlockedError,
-    ReviewGateEvaluation,
-    ReviewGateState,
-    ReviewOutcome,
     StageEligibility,
     assess_stage_eligibility,
     create_program_spec,
-    criterion_passes,
+    program_summary,
+    revise_program,
+)
+from bijux_proteomics.domain.repositories import (
+    DecisionQuery,
+    DuplicateReviewDecisionError,
+    ProgramNotFoundError,
+    ProgramRevisionConflictError,
+    ReviewDecision,
+    ReviewGateEvaluation,
+    ReviewGateState,
+    ReviewOutcome,
     decision_timeline,
     ensure_program_revision,
     ensure_review_clearance,
@@ -38,16 +39,20 @@ from bijux_proteomics import (
     latest_gate_decision,
     list_decisions_by_outcome,
     list_gate_decisions,
-    program_summary,
     query_decisions,
     require_program,
-    revise_program,
+    validate_review_decision,
+)
+from bijux_proteomics.domain.validation import (
+    ProgramValidationIssue,
     validate_assay_dependencies,
     validate_program,
     validate_program_readiness,
-    validate_review_decision,
 )
 from bijux_proteomics.domain.constraints import ConstraintCategory
+from bijux_proteomics.exceptions import ProgramValidationError, ReviewGateBlockedError
+from bijux_proteomics.execution.backend import ExecutionRequest
+from bijux_proteomics.execution.runner import ProgramExecutionRequest
 from bijux_proteomics.programs import (
     AssayRequirement,
     LiabilityCategory,

@@ -7,20 +7,19 @@ import json
 from pathlib import Path
 from typing import Any, Protocol, cast
 
-from bijux_proteomics import (
+from bijux_proteomics.chemistry import calculate_peptide_mz
+from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
+from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
-    NormalizationMethod,
-    PsmRecord,
+    parse_experimental_design_table,
+)
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
+from bijux_proteomics.qc import (
     QcAssessmentSeverity,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
-    QuantEntityLevel,
-    SpectrumModel,
-    SpectrumPeak,
-    TargetDecoyLabel,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
-    build_label_free_intensity_table,
     build_lcms_run_qc_report,
     build_performance_snapshot,
     build_qc_evidence_manifest,
@@ -28,13 +27,16 @@ from bijux_proteomics import (
     build_qc_run_bundle_summary,
     build_run_qc_assessment,
     build_study_qc_summary,
-    calculate_peptide_mz,
     default_qc_threshold_policy,
-    normalize_label_free_table,
-    parse_experimental_design_table,
-    parse_ms1_feature_table,
     render_qc_assessment_html,
     render_qc_assessment_tsv,
+)
+from bijux_proteomics.quantification import (
+    NormalizationMethod,
+    QuantEntityLevel,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
 )
 from bijux_proteomics.qc import QcThresholdPolicy
 

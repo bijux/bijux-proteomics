@@ -5,10 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.identification.search_adapters import SearchAdapterKind
+from bijux_proteomics_runtime.runtime.control.workflow_plans import (
     ExternalToolCapabilityReport,
     RerunComparisonScope,
-    SearchAdapterKind,
     WorkflowArchiveMedium,
     WorkflowCacheMissReason,
     WorkflowCheckpointStatus,

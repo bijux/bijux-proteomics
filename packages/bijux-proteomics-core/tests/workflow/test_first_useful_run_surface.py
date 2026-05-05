@@ -7,21 +7,21 @@ import hashlib
 import json
 from pathlib import Path
 
-from bijux_proteomics import (
-    FastaParseMode,
+from bijux_proteomics.digestion import digest_protein_records, get_protease_rule
+from bijux_proteomics.identification import (
     SearchResultColumnMapping,
-    annotate_spectrum_fragments,
     apply_q_values,
     build_protein_summary_report,
     build_psm_summary_report,
-    build_spectrum_collection_summary,
-    digest_protein_records,
     filter_psms_by_fdr,
-    get_protease_rule,
-    parse_fasta_document,
-    parse_mgf,
     parse_psm_tsv,
 )
+from bijux_proteomics.io.spectra import (
+    annotate_spectrum_fragments,
+    build_spectrum_collection_summary,
+    parse_mgf,
+)
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def _workflow_fixture(name: str) -> Path:

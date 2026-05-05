@@ -3,15 +3,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics import (
-    AssayRequirement,
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.program_spec import (
     EvidenceNeed,
     ProgramStage,
-    ReviewGate,
+    create_program_spec,
+)
+from bijux_proteomics.domain.reviews import ReviewGate
+from bijux_proteomics.workflow.blueprint import (
     ScientificWorkflowBlueprint,
     WorkflowStageKind,
     WorkflowStepBlueprint,
-    create_program_spec,
     workflow_blueprint_for_program,
     workflow_blueprint_summary,
 )

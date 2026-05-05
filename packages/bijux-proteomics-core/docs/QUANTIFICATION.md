@@ -62,7 +62,8 @@ Batch advisories prefer the explicit `batch` field and fall back to
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
@@ -70,7 +71,6 @@ from bijux_proteomics import (
     build_replicate_correlation_report,
     normalize_label_free_table,
     NormalizationMethod,
-    parse_experimental_design_table,
     parse_ms1_feature_table,
     QuantEntityLevel,
     QuantRollupMethod,

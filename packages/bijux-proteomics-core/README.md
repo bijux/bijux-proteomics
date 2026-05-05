@@ -79,7 +79,8 @@ For end-to-end workflow execution and reviewable runs, start from
 Import-driven usage starts from the core domain package:
 
 ```python
-from bijux_proteomics import program_spec, validation
+import bijux_proteomics.domain.program_spec as program_spec
+import bijux_proteomics.domain.validation as validation
 ```
 
 For reader-facing examples that stay inside the scientific package boundary:
@@ -127,7 +128,7 @@ bijux-proteomics fasta-decoy proteins.fasta \
 Import-driven sequence usage is also public and stable:
 
 ```python
-from bijux_proteomics import (
+from bijux_proteomics.sequences import (
     FastaParseMode,
     build_fasta_stats,
     parse_fasta_document,
@@ -138,7 +139,7 @@ from bijux_proteomics import (
 Peptide generation and indexing surfaces are available from the same package:
 
 ```python
-from bijux_proteomics import (
+from bijux_proteomics.digestion import (
     PeptideDigestionMode,
     build_digest_duplicate_accounting,
     build_digest_policy,
@@ -191,7 +192,7 @@ Peptide chemistry and modification handling are also first-class contracts in
 the same package:
 
 ```python
-from bijux_proteomics import (
+from bijux_proteomics.chemistry import (
     approximate_peptide_isotope_envelope,
     build_modification_localization_advisory,
     build_modified_peptide,
@@ -228,7 +229,7 @@ the package:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     parse_psm_tsv,
     rollup_peptide_evidence,
@@ -256,13 +257,13 @@ exports, and provenance capture:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
-    build_search_result_provenance_manifest,
-    filter_psms_by_fdr,
+from bijux_proteomics.identification import (
     FdrPolicy,
-    parse_psm_tsv,
     SearchResultColumnMapping,
     TargetDecoyLabelPolicy,
+    build_search_result_provenance_manifest,
+    filter_psms_by_fdr,
+    parse_psm_tsv,
 )
 
 mapping = SearchResultColumnMapping(
@@ -303,13 +304,13 @@ correlations, and basic differential abundance output:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,
     normalize_label_free_table,
     NormalizationMethod,
-    parse_experimental_design_table,
     parse_ms1_feature_table,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -359,7 +360,7 @@ Spectrum and MGF handling are also first-class contracts in the package:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.io.spectra import (
     annotate_spectrum_fragments,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
@@ -478,16 +479,14 @@ contracts:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.spectra import parse_mgf
+from bijux_proteomics.qc import (
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
-    parse_experimental_design_table,
-    parse_fasta_document,
-    parse_psm_tsv,
-    parse_mgf,
-    SearchResultColumnMapping,
 )
-from bijux_proteomics.sequences import FastaParseMode
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 design = parse_experimental_design_table(Path("batch.design.tsv")).accepted_entries
 fasta = parse_fasta_document(Path("proteins.fasta").read_text(), mode=FastaParseMode.STRICT)
