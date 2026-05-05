@@ -13,6 +13,7 @@ def test_literature_groups_cover_required_focus_areas() -> None:
     focus_areas = {group.focus_area for group in DEFAULT_LITERATURE_GROUPS}
 
     assert focus_areas == {
+        LiteratureFocusArea.ENZYME,
         LiteratureFocusArea.QC,
         LiteratureFocusArea.FDR,
         LiteratureFocusArea.QUANTIFICATION,

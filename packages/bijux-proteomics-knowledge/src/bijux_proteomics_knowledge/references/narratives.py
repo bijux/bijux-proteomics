@@ -70,8 +70,12 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:digestion_tryptic_specificity",
             "context:digestion_protease_comparability",
+            "context:digestion_panel_scope",
         ),
-        problem_ids=("problem:search_adapter_fixture_overconfidence",),
+        problem_ids=(
+            "problem:search_adapter_fixture_overconfidence",
+            "problem:protease_panel_equivalence_shortcut",
+        ),
         scope_limit_notes=(
             "Applies to adapter-normalized DDA search outputs in the bundled fixture corpus, not arbitrary production exports.",
             "Preserves peptide-spectrum confidence framing and reviewed-proteome grounding, but does not widen the claim to protein certainty by itself.",
@@ -87,8 +91,14 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
-        context_ids=("context:digestion_protease_comparability",),
-        problem_ids=("problem:search_adapter_fixture_overconfidence",),
+        context_ids=(
+            "context:digestion_protease_comparability",
+            "context:digestion_panel_scope",
+        ),
+        problem_ids=(
+            "problem:search_adapter_fixture_overconfidence",
+            "problem:protease_panel_equivalence_shortcut",
+        ),
         scope_limit_notes=(
             "Does not cover protease-mixed production cohorts beyond the curated fixture suite.",
             "Does not justify unqualified protein certainty when peptide evidence remains shared or sparse.",
@@ -150,8 +160,9 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         context_ids=(
             "context:ptm_localization_confidence",
             "context:ptm_occupancy_scope",
+            "context:ptm_regulation_boundary",
         ),
-        problem_ids=(),
+        problem_ids=("problem:ptm_regulation_overclaim",),
         scope_limit_notes=(
             "Applies to phosphorylation concept grounding and localization confidence in the curated PTM fixtures.",
             "Distinguishes localized evidence from merely modified peptide evidence without claiming occupancy or regulation breadth.",
@@ -167,8 +178,11 @@ DEFAULT_WORKFLOW_NARRATIVES: tuple[WorkflowNarrative, ...] = (
         retrieval_trace=("The linked benchmark ids, citation ids, context ids, and problem ids were re-verified on 2026-05-05.",),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
-        context_ids=("context:ptm_occupancy_scope",),
-        problem_ids=(),
+        context_ids=(
+            "context:ptm_occupancy_scope",
+            "context:ptm_regulation_boundary",
+        ),
+        problem_ids=("problem:ptm_regulation_overclaim",),
         scope_limit_notes=(
             "Does not claim stoichiometric occupancy or broad condition-specific regulation from localization fixtures alone.",
             "Does not erase ambiguous-site handling when the benchmark only establishes localization confidence.",

@@ -15,6 +15,7 @@ from bijux_proteomics_foundation.json_models import JsonModel
 class LiteratureFocusArea(StrEnum):
     """Literature-group themes curated by the knowledge package."""
 
+    ENZYME = "enzyme"
     QC = "qc"
     FDR = "fdr"
     QUANTIFICATION = "quantification"
@@ -54,6 +55,20 @@ class LiteratureGroup(JsonModel):
 
 
 DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
+    LiteratureGroup(
+        group_id="literature:enzyme_panel_comparability",
+        focus_area=LiteratureFocusArea.ENZYME,
+        title="Protease specificity and panel comparability",
+        curation_note="Enzyme-sensitive benchmarking needs literature support for cleavage expectations, peptide detectability, and the limits of cross-protease comparison.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:dda_search_reproducibility",),
+        context_ids=(
+            "context:digestion_tryptic_specificity",
+            "context:digestion_panel_scope",
+        ),
+    ),
     LiteratureGroup(
         group_id="literature:qc_signal_quality",
         focus_area=LiteratureFocusArea.QC,
@@ -120,6 +135,20 @@ DEFAULT_LITERATURE_GROUPS: tuple[LiteratureGroup, ...] = (
         context_ids=(
             "context:ptm_localization_confidence",
             "context:ptm_occupancy_scope",
+        ),
+    ),
+    LiteratureGroup(
+        group_id="literature:ptm_regulation_limits",
+        focus_area=LiteratureFocusArea.PTM,
+        title="PTM regulation and occupancy limits",
+        curation_note="PTM interpretation stays honest when localization confidence is kept distinct from occupancy, regulation, and pathway-level biological storytelling.",
+        version_trace=("This literature cluster was reviewed against its linked benchmark and context surfaces on 2026-05-05.",),
+        retrieval_trace=("The linked citations, context ids, and benchmark ids were re-verified on 2026-05-05.",),
+        citation_ids=("citation:psi_mod_2008", "citation:ascore_2006", "citation:protein_inference_2012"),
+        benchmark_ids=("benchmark:ptm_site_localization_confidence",),
+        context_ids=(
+            "context:ptm_occupancy_scope",
+            "context:ptm_regulation_boundary",
         ),
     ),
     LiteratureGroup(

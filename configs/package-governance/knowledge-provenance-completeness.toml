@@ -24,15 +24,15 @@ incomplete_entry_ids = []
 
 [[surface]]
 name = "contexts"
-entry_count = 8
-complete_entry_count = 8
+entry_count = 10
+complete_entry_count = 10
 required_fields = ["scientific_assertion", "interpretation_caveat", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids"]
 incomplete_entry_ids = []
 
 [[surface]]
 name = "literature_groups"
-entry_count = 6
-complete_entry_count = 6
+entry_count = 8
+complete_entry_count = 8
 required_fields = ["curation_note", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids"]
 incomplete_entry_ids = []
 
@@ -52,14 +52,14 @@ incomplete_entry_ids = []
 
 [[surface]]
 name = "known_problems"
-entry_count = 3
-complete_entry_count = 3
+entry_count = 5
+complete_entry_count = 5
 required_fields = ["problem_summary", "mitigation_guidance", "version_trace", "retrieval_trace", "affected_workflow_families", "affected_benchmark_ids", "citation_ids"]
 incomplete_entry_ids = []
 
 [[surface]]
 name = "scientific_rules"
-entry_count = 5
-complete_entry_count = 5
+entry_count = 7
+complete_entry_count = 7
 required_fields = ["rule_statement", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids", "benchmark_rationale"]
 incomplete_entry_ids = []

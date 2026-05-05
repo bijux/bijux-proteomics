@@ -21,24 +21,24 @@ orphan_ids = []
 
 [[surface]]
 name = "scientific_context"
-entry_count = 8
+entry_count = 10
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "known_problems"
-entry_count = 3
+entry_count = 5
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "literature_groups"
-entry_count = 6
+entry_count = 8
 orphan_count = 0
 orphan_ids = []
 
 [[surface]]
 name = "scientific_rules"
-entry_count = 5
+entry_count = 7
 orphan_count = 2
 orphan_ids = ["rule:target_decoy_scope", "rule:tmtpro_channel_interpretation"]

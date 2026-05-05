@@ -47,11 +47,6 @@ def test_knowledge_under_curated_workflow_report_captures_current_shallow_famili
     assert KNOWLEDGE_UNDER_CURATED_WORKFLOWS_PATH.exists()
     assert reasons_by_family == {
         "dia": {"fewer than two scientific rules"},
-        "ptm": {
-            "fewer than two literature groups",
-            "fewer than two scientific rules",
-            "no known problem entry",
-        },
         "targeted": {
             "fewer than two scientific context entries",
             "fewer than two scientific rules",
