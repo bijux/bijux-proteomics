@@ -1,0 +1,62 @@
+{
+  "run_id": "runtime-replay-proof-1",
+  "sequence": "MPEPTIDERKAAALSYIFCLVFADYKDDDDA",
+  "workflow_family": "sequence_to_digest",
+  "exact_reuse": {
+    "provider_name": "heuristic_proxy",
+    "tool_versions": {
+      "heuristic_proxy": "0.1"
+    },
+    "expected_reuse_steps": [
+      "dataset_input",
+      "planning",
+      "execution",
+      "review",
+      "handoff"
+    ],
+    "expected_rerun_steps": []
+  },
+  "partial_rerun": {
+    "provider_name": "local_esmfold",
+    "tool_versions": {
+      "local_esmfold": "2.1.0"
+    },
+    "expected_invalidation_reasons": [
+      "parameters_changed",
+      "tools_changed"
+    ],
+    "expected_reuse_steps": [
+      "dataset_input",
+      "planning"
+    ],
+    "expected_rerun_steps": [
+      "execution",
+      "review",
+      "handoff"
+    ]
+  },
+  "full_rerun": {
+    "sequence": "MPEPTIDERKAAALSYIFCLVFADYKQQQQQ",
+    "expected_invalidation_reasons": [
+      "input_changed"
+    ],
+    "expected_reuse_steps": [],
+    "expected_rerun_steps": [
+      "dataset_input",
+      "planning",
+      "execution",
+      "review",
+      "handoff"
+    ]
+  },
+  "artifact_kinds": [
+    "runtime-run-context",
+    "runtime-plan",
+    "runtime-replay-contract",
+    "runtime-status",
+    "runtime-report",
+    "runtime-local-run-bundle",
+    "runtime-integrity-report",
+    "runtime-artifact-item"
+  ]
+}

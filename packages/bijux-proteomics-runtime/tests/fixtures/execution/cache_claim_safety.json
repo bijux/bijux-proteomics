@@ -1,0 +1,26 @@
+{
+  "cache_key": "dia-library-human-liver",
+  "claims": [
+    {
+      "run_id": "review-a",
+      "access_mode": "shared_read",
+      "input_fingerprint": "dia-library:v1",
+      "expected_allowed": true,
+      "expected_holder_run_id": "review-a"
+    },
+    {
+      "run_id": "review-b",
+      "access_mode": "shared_read",
+      "input_fingerprint": "dia-library:v1",
+      "expected_allowed": true,
+      "expected_holder_run_id": "review-a"
+    },
+    {
+      "run_id": "review-c",
+      "access_mode": "exclusive_write",
+      "input_fingerprint": "dia-library:v2",
+      "expected_allowed": false,
+      "expected_holder_run_id": "review-a"
+    }
+  ]
+}
