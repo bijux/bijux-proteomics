@@ -24,7 +24,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceSourceType,
 )
 from bijux_proteomics_knowledge.resolution import ConflictResolution
-from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_foundation import JsonModel
 
 
 class EvidenceBundleRepository(Protocol):

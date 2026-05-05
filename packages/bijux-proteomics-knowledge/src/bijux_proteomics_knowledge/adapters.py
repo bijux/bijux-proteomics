@@ -19,7 +19,7 @@ from bijux_proteomics_knowledge.evidence import (
     EvidenceStrength,
     QuantitativeSupport,
 )
-from bijux_proteomics_knowledge.serialization import JsonModel, fingerprint_model
+from bijux_proteomics_foundation import JsonModel, fingerprint_model
 
 
 class NormalizedEvidenceInput(JsonModel):

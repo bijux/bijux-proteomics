@@ -5,7 +5,12 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation import DocumentSchema, JsonModel
+from bijux_proteomics_foundation import (
+    DocumentSchema,
+    JsonModel,
+    fingerprint_model,
+    to_canonical_json,
+)
 from bijux_proteomics_knowledge.adapters import (
     AssayResultIngestionAdapter,
     IngestionReport,
@@ -205,11 +210,6 @@ from bijux_proteomics_knowledge.schema import (
     default_knowledge_schema_profile,
     evaluate_schema_compatibility,
 )
-from bijux_proteomics_knowledge.serialization import (
-    fingerprint_model,
-    to_canonical_json,
-)
-
 __all__ = [
     "AssayResultIngestionAdapter",
     "BundleTrustReport",

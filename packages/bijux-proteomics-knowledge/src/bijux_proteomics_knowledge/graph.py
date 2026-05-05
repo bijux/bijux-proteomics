@@ -11,7 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_knowledge.claims import EvidenceClaim
 from bijux_proteomics_knowledge.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.serialization import JsonModel
+from bijux_proteomics_foundation import JsonModel
 
 
 class EvidenceNodeType(StrEnum):
