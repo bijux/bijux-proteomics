@@ -4,19 +4,19 @@
 [metrics]
 analytical_band_count = 5
 owned_surface_count = 5
-required_module_count = 12
+required_module_count = 14
 decision_scope_count = 11
 refusal_scope_count = 10
 
 [guard]
 baseline_analytical_band_count = 5
 baseline_owned_surface_count = 5
-baseline_required_module_count = 12
+baseline_required_module_count = 14
 
 [[band]]
 band = "judgment"
 owned_surface = "ranking policy, candidate framing, rejection semantics, and scenario evaluation that turn typed evidence into explicit analytical judgment"
-required_modules = ["briefs.py", "policies.py", "evaluators.py", "candidates.py"]
+required_modules = ["briefs.py", "policies.py", "evaluators.py", "recommendations.py", "candidates.py"]
 decision_scope_count = 3
 refusal_scope_count = 2
 
@@ -37,7 +37,7 @@ refusal_scope_count = 2
 [[band]]
 band = "review"
 owned_surface = "review packets, skeptical challenge reports, benchmark-backed review, and end-to-end decision paths"
-required_modules = ["decision_paths.py", "skeptical_review.py", "benchmark_reviews.py"]
+required_modules = ["decision_paths.py", "review_packets.py", "skeptical_review.py", "benchmark_reviews.py"]
 decision_scope_count = 2
 refusal_scope_count = 2
 

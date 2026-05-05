@@ -2,14 +2,14 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_boundary_mix
 
 [metrics]
-scanned_module_count = 15
-hotspot_count = 1
+scanned_module_count = 16
+hotspot_count = 2
 max_touched_band_count = 3
 
 [guard]
-baseline_hotspot_count = 1
+baseline_hotspot_count = 2
 baseline_max_touched_band_count = 3
-baseline_hotspot_modules = ["decision_paths.py"]
+baseline_hotspot_modules = ["decision_paths.py", "review_packets.py"]
 
 [[module]]
 module_path = "analytical_review.py"
@@ -34,7 +34,7 @@ module_path = "briefs.py"
 band = "judgment"
 touched_band_count = 2
 cross_band_import_count = 1
-internal_import_count = 3
+internal_import_count = 2
 touched_bands = ["evidence_posture", "judgment"]
 hotspot = false
 
@@ -51,8 +51,8 @@ hotspot = false
 module_path = "decision_paths.py"
 band = "review"
 touched_band_count = 3
-cross_band_import_count = 4
-internal_import_count = 4
+cross_band_import_count = 5
+internal_import_count = 6
 touched_bands = ["interpretation", "judgment", "review"]
 hotspot = true
 
@@ -86,10 +86,10 @@ hotspot = false
 [[module]]
 module_path = "evaluators.py"
 band = "judgment"
-touched_band_count = 2
-cross_band_import_count = 1
-internal_import_count = 3
-touched_bands = ["evidence_posture", "judgment"]
+touched_band_count = 1
+cross_band_import_count = 0
+internal_import_count = 2
+touched_bands = ["judgment"]
 hotspot = false
 
 [[module]]
@@ -120,7 +120,7 @@ touched_bands = ["interpretation"]
 hotspot = false
 
 [[module]]
-module_path = "outcomes.py"
+module_path = "policies.py"
 band = "judgment"
 touched_band_count = 1
 cross_band_import_count = 0
@@ -129,13 +129,22 @@ touched_bands = ["judgment"]
 hotspot = false
 
 [[module]]
-module_path = "policies.py"
+module_path = "recommendations.py"
 band = "judgment"
-touched_band_count = 1
-cross_band_import_count = 0
-internal_import_count = 0
-touched_bands = ["judgment"]
+touched_band_count = 2
+cross_band_import_count = 1
+internal_import_count = 2
+touched_bands = ["evidence_posture", "judgment"]
 hotspot = false
+
+[[module]]
+module_path = "review_packets.py"
+band = "review"
+touched_band_count = 3
+cross_band_import_count = 5
+internal_import_count = 5
+touched_bands = ["evidence_posture", "judgment", "review"]
+hotspot = true
 
 [[module]]
 module_path = "skeptical_review.py"

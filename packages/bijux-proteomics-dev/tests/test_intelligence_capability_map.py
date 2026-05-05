@@ -33,7 +33,7 @@ def test_intelligence_capability_map_keeps_five_stable_analytical_bands() -> Non
     assert metrics.analytical_band_count == guard.baseline_analytical_band_count
     assert metrics.analytical_band_count == 5
     assert metrics.owned_surface_count == 5
-    assert metrics.required_module_count == 12
+    assert metrics.required_module_count == 14
     assert metrics.decision_scope_count == 11
     assert metrics.refusal_scope_count == 10
     assert len(list_intelligence_capability_map()) == metrics.owned_surface_count
