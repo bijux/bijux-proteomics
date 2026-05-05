@@ -122,18 +122,21 @@ def _toml_text(report: PackageRootBudgetReport) -> str:
         "",
     ]
     for entry in report.entries:
-        max_init_lines = "null" if entry.max_init_lines is None else str(entry.max_init_lines)
-        max_public_symbols = (
-            "null" if entry.max_public_symbols is None else str(entry.max_public_symbols)
-        )
         lines.extend(
             [
                 "[[package]]",
                 f'distribution_name = "{entry.distribution_name}"',
                 f"init_line_count = {entry.init_line_count}",
                 f"public_symbol_count = {entry.public_symbol_count}",
-                f"max_init_lines = {max_init_lines}",
-                f"max_public_symbols = {max_public_symbols}",
+                f"budgeted = {str(entry.max_init_lines is not None).lower()}",
+            ]
+        )
+        if entry.max_init_lines is not None:
+            lines.append(f"max_init_lines = {entry.max_init_lines}")
+        if entry.max_public_symbols is not None:
+            lines.append(f"max_public_symbols = {entry.max_public_symbols}")
+        lines.extend(
+            [
                 f"within_budget = {str(entry.within_budget).lower()}",
                 "",
             ]
