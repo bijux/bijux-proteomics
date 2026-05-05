@@ -3,6 +3,13 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+from bijux_proteomics_dev.api.foundation_publishability import (
+    FOUNDATION_PUBLISHABILITY_PATH,
+    build_foundation_publishability_report,
+    run,
+    validate_foundation_publishability,
+)
+
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PRODUCT_IMPORT_ROOTS = {
@@ -108,3 +115,32 @@ def test_foundation_docs_state_explicit_non_goals_for_kernel_boundary() -> None:
         "route-shaped, CLI-shaped, and Markdown-shaped",
     ):
         assert expected_text in combined
+
+
+def test_foundation_publishability_report_is_up_to_date() -> None:
+    assert run(check=True) == 0
+
+
+def test_foundation_publishability_keeps_surface_narrow_and_reused() -> None:
+    report = build_foundation_publishability_report()
+
+    assert FOUNDATION_PUBLISHABILITY_PATH.exists()
+    assert report.supported_attributes == (
+        "DocumentSchema",
+        "JsonModel",
+        "hash_payload",
+        "to_canonical_json",
+    )
+    assert report.supported_attribute_count == 4
+    assert report.root_public_symbol_count == 15
+    assert report.downstream_distribution_count == 6
+    assert report.supported_multi_distribution_count == 3
+    assert report.supported_single_distribution_count == 1
+    assert report.unsupported_reuse_gaps == ()
+    assert report.kernel_boundaries_ready is True
+    assert report.size_reuse_ready is True
+    assert report.publishable is True
+
+
+def test_foundation_publishability_release_guard_has_no_failures() -> None:
+    assert validate_foundation_publishability() == ()
