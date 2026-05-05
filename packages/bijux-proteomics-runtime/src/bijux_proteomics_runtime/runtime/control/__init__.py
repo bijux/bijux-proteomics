@@ -26,6 +26,7 @@ from bijux_proteomics_runtime.runtime.control.replay import (
     build_local_run_bundle,
     build_replay_contract,
     evaluate_replay_eligibility,
+    load_local_run_bundle,
 )
 from bijux_proteomics_runtime.runtime.control.state_machine import (
     RunStateMachine,
@@ -50,6 +51,7 @@ __all__ = [
     "compare_runs",
     "evaluate_replay_eligibility",
     "load_artifact_ledger",
+    "load_local_run_bundle",
     "require_human_decision",
     "run_flow",
 ]

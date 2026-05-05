@@ -77,3 +77,15 @@ def test_repository_docs_describe_runtime_as_canonical_and_agentic_as_compat() -
     assert "`bijux-proteomics-runtime` governs execution, replay" in platform_overview
     assert "`agentic-proteins` is the strict compatibility package" in compat_index
     assert "apis/bijux-proteomics-runtime/v1/" in api_governance
+
+
+def test_runtime_readme_mentions_integrity_outputs() -> None:
+    readme = (
+        REPO_ROOT
+        / "packages"
+        / "bijux-proteomics-runtime"
+        / "README.md"
+    ).read_text(encoding="utf-8")
+
+    assert "typed run context, artifact ledger, replay contract" in readme
+    assert "preflight and failure reports" in readme

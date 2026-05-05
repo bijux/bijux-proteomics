@@ -145,6 +145,11 @@ def write_local_run_bundle(workspace: RunWorkspace, bundle: LocalRunBundle) -> N
     write_json_atomic(workspace.local_run_bundle_path, bundle.to_dict())
 
 
+def load_local_run_bundle(workspace: RunWorkspace) -> LocalRunBundle:
+    """Load the local run bundle from disk."""
+    return LocalRunBundle.load_json(workspace.local_run_bundle_path)
+
+
 __all__ = [
     "LocalRunBundle",
     "ReplayContract",
@@ -152,6 +157,7 @@ __all__ = [
     "build_local_run_bundle",
     "build_replay_contract",
     "evaluate_replay_eligibility",
+    "load_local_run_bundle",
     "write_local_run_bundle",
     "write_replay_contract",
 ]

@@ -49,6 +49,8 @@ needs.
 
 - one canonical runtime surface for CLI, API, orchestration, and providers
 - deterministic replay and artifact shaping for repeatable execution outcomes
+- typed run context, artifact ledger, replay contract, and local run bundle outputs
+- preflight and failure reports that fail early on missing execution requirements
 - adapter-based composition that keeps lower layers runtime-agnostic
 - explicit migration target for `agentic-proteins` compatibility forwarding
 
@@ -96,6 +98,8 @@ remain in their dedicated lower-layer packages.
 - runtime entrypoints must remain canonical while compat imports forward to them
 - lower-layer meaning must stay below runtime adapters rather than being redefined here
 - replay, artifact, and provider contracts must remain explicit and testable
+- run context, artifact ledger, replay bundle, and preflight outputs must remain
+  machine-readable and reviewable
 - changes to canonical ownership should land in runtime before compat forwarding expands
 
 ## Choose this package when
@@ -163,6 +167,7 @@ remain in their dedicated lower-layer packages.
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runtime/control`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control) for orchestration, replay, and execution helpers
+- [`src/bijux_proteomics_runtime/runtime/context`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/context) for typed run-context and artifact-policy contracts
 - [`src/bijux_proteomics_runtime/interfaces`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
 - [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding
