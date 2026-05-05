@@ -17,23 +17,10 @@ from bijux_proteomics.context import (
     ProgramDeliveryContext,
     ProgramPortfolioContext,
 )
-from bijux_proteomics.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
-from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
-from bijux_proteomics.lifecycle import (
-    ProgramLifecycle,
-    advance_stage,
-    allowed_next_stages,
-)
-from bijux_proteomics.operating_model import (
-    DecisionOwnerRole,
-    OperatingModel,
-    ReviewCadence,
-)
-from bijux_proteomics.program_spec import ProgramSpec, ProgramStage
-from bijux_proteomics.reviews import ReviewGate
-from bijux_proteomics.sequences import ProteinSequence, sequence_length
-from bijux_proteomics.targets import (
+from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
+from bijux_proteomics.domain.program_spec import ProgramSpec, ProgramStage
+from bijux_proteomics.domain.reviews import ReviewGate
+from bijux_proteomics.domain.targets import (
     ComplexMembership,
     MechanismLiability,
     OutcomeSeverity,
@@ -47,6 +34,19 @@ from bijux_proteomics.targets import (
     summarize_tractability,
     target_summary,
 )
+from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
+from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
+from bijux_proteomics.lifecycle import (
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
+from bijux_proteomics.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
+from bijux_proteomics.sequences import ProteinSequence, sequence_length
 
 
 def test_domain_modules_define_program_components() -> None:
