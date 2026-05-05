@@ -8,11 +8,11 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.migrations import MigrationRegistry
-from bijux_proteomics_foundation.schema import (
+from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.json_models import JsonModel
 
 
 class SchemaEvolutionAssessment(JsonModel):

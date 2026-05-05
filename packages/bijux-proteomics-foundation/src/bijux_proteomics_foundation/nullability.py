@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field, model_validator
 
-from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.json_models import JsonModel
 
 
 class NullabilityState(StrEnum):

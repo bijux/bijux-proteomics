@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.ordering import stable_order_value
-from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.json_models import JsonModel
 
 
 class StableHashAlgorithm(StrEnum):

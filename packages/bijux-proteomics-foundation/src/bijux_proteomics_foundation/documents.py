@@ -1,18 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""Shared schema metadata for Bijux Proteomics documents."""
+"""Document metadata models shared across Bijux product packages."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from enum import StrEnum
 
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.hashing import hash_payload
-from bijux_proteomics_foundation.serialization import JsonModel
-from bijux_proteomics_foundation.versions import SchemaVersion, normalize_schema_version
+from bijux_proteomics_foundation.json_models import JsonModel
+from bijux_proteomics_foundation.versions import normalize_schema_version
 
 
 class DocumentSchema(JsonModel):
@@ -103,7 +102,7 @@ class DocumentSchema(JsonModel):
     def _normalize_schema_version(cls, value: str) -> str:
         return normalize_schema_version(value)
 
-    def touch(self, actor: str, *, tag: str | None = None) -> DocumentSchema:
+    def touch(self, actor: str, *, tag: str | None = None) -> "DocumentSchema":
         """Return a copy with updated audit metadata."""
         tags = list(self.tags)
         if tag is not None and tag not in tags:
@@ -117,28 +116,9 @@ class DocumentSchema(JsonModel):
             }
         )
 
-    def with_content_hash(self, payload: dict[str, object]) -> DocumentSchema:
+    def with_content_hash(self, payload: dict[str, object]) -> "DocumentSchema":
         """Return a copy with deterministic content hash from a payload."""
         return self.model_copy(update={"content_hash": hash_payload(payload)})
 
 
-class SchemaCompatibility(StrEnum):
-    """Compatibility status for expected versus observed schema versions."""
-
-    COMPATIBLE = "compatible"
-    FORWARD_INCOMPATIBLE = "forward_incompatible"
-    BACKWARD_INCOMPATIBLE = "backward_incompatible"
-
-
-def assess_schema_compatibility(
-    observed: str,
-    expected: str,
-) -> SchemaCompatibility:
-    """Assess compatibility using major/minor version semantics."""
-    observed_version = SchemaVersion.parse(observed)
-    expected_version = SchemaVersion.parse(expected)
-    if observed_version.major != expected_version.major:
-        return SchemaCompatibility.BACKWARD_INCOMPATIBLE
-    if not observed_version.is_additive_compatible_with(expected_version):
-        return SchemaCompatibility.FORWARD_INCOMPATIBLE
-    return SchemaCompatibility.COMPATIBLE
+__all__ = ["DocumentSchema"]

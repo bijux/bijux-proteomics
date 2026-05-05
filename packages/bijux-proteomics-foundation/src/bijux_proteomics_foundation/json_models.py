@@ -1,38 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""Shared serialization helpers for Bijux Proteomics documents."""
+"""Reusable JSON-backed model helpers for durable Bijux documents."""
 
 from __future__ import annotations
 
-from datetime import datetime
 import json
 from pathlib import Path
 from typing import Any, Self, cast
 
 from pydantic import BaseModel
 
-from bijux_proteomics_foundation.ordering import stable_order_value
-
-
-def _normalize_for_json(value: Any) -> Any:
-    if isinstance(value, datetime):
-        return value.isoformat().replace("+00:00", "Z")
-    return stable_order_value(value)
-
-
-def _flatten_for_tsv(value: Any, *, prefix: str = "") -> dict[str, str]:
-    if isinstance(value, dict):
-        flattened: dict[str, str] = {}
-        for key, inner in sorted(value.items(), key=lambda item: str(item[0])):
-            nested_prefix = f"{prefix}.{key}" if prefix else str(key)
-            flattened.update(_flatten_for_tsv(inner, prefix=nested_prefix))
-        return flattened
-    if isinstance(value, list):
-        return {prefix: json.dumps(value, separators=(",", ":"))}
-    if value is None:
-        return {prefix: ""}
-    return {prefix: str(value)}
+from bijux_proteomics_foundation.canonicalization import (
+    flatten_tsv_mapping,
+    normalize_json_value,
+)
 
 
 class JsonModel(BaseModel):
@@ -40,7 +22,7 @@ class JsonModel(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-compatible dictionary."""
-        return cast(dict[str, Any], _normalize_for_json(self.model_dump(mode="json")))
+        return cast(dict[str, Any], normalize_json_value(self.model_dump(mode="json")))
 
     def to_json(self) -> str:
         """Return a formatted JSON string."""
@@ -61,7 +43,7 @@ class JsonModel(BaseModel):
 
     def to_flat_dict(self) -> dict[str, str]:
         """Return a flattened scalar map suitable for TSV output."""
-        return _flatten_for_tsv(self.to_dict())
+        return flatten_tsv_mapping(self.to_dict())
 
     def to_tsv_row(self, *, columns: list[str] | None = None) -> tuple[str, str]:
         """Return TSV header and row strings for flattened payload fields."""
@@ -114,16 +96,11 @@ class JsonModel(BaseModel):
         return cls.from_json(path.read_text())
 
 
-def to_canonical_json(model: JsonModel | dict[str, Any]) -> str:
-    """Serialize one model or payload with deterministic key ordering."""
-    payload = (
-        model.to_dict() if isinstance(model, JsonModel) else _normalize_for_json(model)
-    )
-    return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-
-
 def fingerprint_model(model: JsonModel) -> str:
     """Return the stable fingerprint for one model."""
     from bijux_proteomics_foundation.hashing import hash_model
 
     return hash_model(model)
+
+
+__all__ = ["JsonModel", "fingerprint_model"]

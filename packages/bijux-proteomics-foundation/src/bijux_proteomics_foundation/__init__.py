@@ -5,6 +5,12 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_foundation.canonicalization import to_canonical_json
+from bijux_proteomics_foundation.compatibility import (
+    SchemaCompatibility,
+    assess_schema_compatibility,
+)
+from bijux_proteomics_foundation.documents import DocumentSchema
 from bijux_proteomics_foundation.error_models import ErrorCategory, ErrorEnvelope
 from bijux_proteomics_foundation.error_models import (
     build_error_envelope_from_exception,
@@ -94,16 +100,7 @@ from bijux_proteomics_foundation.results import (
     OperationDisposition,
     OperationResult,
 )
-from bijux_proteomics_foundation.schema import (
-    DocumentSchema,
-    SchemaCompatibility,
-    assess_schema_compatibility,
-)
-from bijux_proteomics_foundation.serialization import (
-    JsonModel,
-    fingerprint_model,
-    to_canonical_json,
-)
+from bijux_proteomics_foundation.json_models import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.states import SupportState
 from bijux_proteomics_foundation.versions import (
     SchemaVersion,

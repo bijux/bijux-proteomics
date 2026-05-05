@@ -11,7 +11,7 @@ from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.ordering import stable_order_strings
 from bijux_proteomics_foundation.provenance import ProvenancePointer
-from bijux_proteomics_foundation.serialization import JsonModel
+from bijux_proteomics_foundation.json_models import JsonModel
 from bijux_proteomics_foundation.states import SupportState
 
 
