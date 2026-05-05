@@ -135,7 +135,6 @@ runtime/infra/observability.py,runtime_execution_ownership,bijux-proteomics-runt
 runtime/infra/reliability.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/infra/telemetry.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
 runtime/workspace.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-sandbox/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution sandboxing is runtime infrastructure ownership.
 state/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/snapshot.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.

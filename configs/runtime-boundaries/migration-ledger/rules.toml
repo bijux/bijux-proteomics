@@ -37,12 +37,6 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution snapshots and runtime state persistence are runtime-owned concerns."
 
 [[rule]]
-pattern = "sandbox/**"
-bucket = "runtime_execution_ownership"
-owner_package = "bijux-proteomics-runtime"
-reason = "Execution sandboxing is runtime infrastructure ownership."
-
-[[rule]]
 pattern = "execution/runtime/**"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"

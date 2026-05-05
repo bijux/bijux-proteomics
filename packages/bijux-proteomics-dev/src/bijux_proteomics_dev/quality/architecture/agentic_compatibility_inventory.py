@@ -71,6 +71,13 @@ _OWNER_BY_IMPORT_ROOT = {
     "bijux_proteomics_lab": "bijux-proteomics-lab",
     "bijux_proteomics_runtime": "bijux-proteomics-runtime",
 }
+_FORBIDDEN_COMPAT_OWNER_PACKAGES = frozenset(
+    {
+        "bijux-proteomics-foundation",
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-lab",
+    }
+)
 
 
 class AgenticModuleClassification(StrEnum):
@@ -383,6 +390,16 @@ def validate_agentic_compatibility_inventory(
                     ),
                 )
             )
+        if entry.owner_package in _FORBIDDEN_COMPAT_OWNER_PACKAGES:
+            issues.append(
+                AgenticCompatibilityInventoryIssue(
+                    code="compat-owner-family-not-allowed",
+                    detail=(
+                        f"{entry.module_path} still resolves to forbidden bridge owner "
+                        f"{entry.owner_package}"
+                    ),
+                )
+            )
         compat_targets = _compat_targets(tree)
         if compat_targets:
             issues.append(
@@ -487,11 +504,21 @@ def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> st
     lines.extend(
         [
             "",
+            "## Forbidden Owner Families",
+            "",
+        ]
+    )
+    for owner_package in sorted(_FORBIDDEN_COMPAT_OWNER_PACKAGES):
+        lines.append(f"- `{owner_package}`: {owner_counts.get(owner_package, 0)}")
+    lines.extend(
+        [
+            "",
             "## Release Rule",
             "",
             "- `wrapper` means the module is only preserving an old import or patch seam while delegating live behavior to a canonical package.",
             "- `dead` means the module no longer carries meaningful behavior and can be removed once callers disappear.",
             "- `canonical` or `duplicate` are not allowed to survive in the compatibility family at release time.",
+            "- foundation, knowledge, and lab ownership are not allowed to survive in the compatibility family at release time.",
             f"- direct compat-to-compat import hops remaining: {compat_import_hops}",
             f"- wrapper modules with local definitions remaining: {local_definition_count}",
             "",

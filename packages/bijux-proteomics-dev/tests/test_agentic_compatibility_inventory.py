@@ -23,6 +23,7 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
     by_path = {entry.module_path: entry for entry in entries}
 
     assert len(entries) >= 100
+    assert "sandbox/__init__.py" not in by_path
     assert by_path["report/render.py"].classification is AgenticModuleClassification.WRAPPER
     assert (
         by_path["runtime/infra/capabilities.py"].classification
@@ -48,5 +49,8 @@ def test_agentic_compatibility_inventory_summary_tracks_direct_wrapper_counts() 
     summary_text = AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.read_text(
         encoding="utf-8"
     )
+    assert "`bijux-proteomics-foundation`: 0" in summary_text
+    assert "`bijux-proteomics-knowledge`: 0" in summary_text
+    assert "`bijux-proteomics-lab`: 0" in summary_text
     assert "direct compat-to-compat import hops remaining: 0" in summary_text
     assert "wrapper modules with local definitions remaining: 0" in summary_text

@@ -13,16 +13,16 @@ This summary gives the current migration posture in one page. The signal is wher
 
 ## Current Counts
 
-- total modules: 148
-- `runtime_execution_ownership`: 109
+- total modules: 147
+- `runtime_execution_ownership`: 108
 - `runtime_support_internal_review`: 5
 - `domain_ownership`: 34
 
-About 74 percent of the ledger is already classified as clear runtime execution ownership, about 3 percent still needs internal review, and about 23 percent is already marked for lower-layer ownership.
+About 73 percent of the ledger is already classified as clear runtime execution ownership, about 3 percent still needs internal review, and about 23 percent is already marked for lower-layer ownership.
 
 ## Target Owner Distribution
 
-- `bijux-proteomics-runtime`: 113
+- `bijux-proteomics-runtime`: 112
 - `bijux-proteomics-intelligence`: 19
 - `bijux-proteomics-core`: 15
 - `agentic-proteins-compat`: 1

@@ -51,7 +51,6 @@ def test_nested_compat_init_modules_must_be_forwarding_only() -> None:
     policy = load_policy(REPO_ROOT)
     nested_init_paths = [
         policy.compat_forwarding.package_root / "core" / "__init__.py",
-        policy.compat_forwarding.package_root / "sandbox" / "__init__.py",
     ]
     failures: list[str] = []
     for path in nested_init_paths:
@@ -63,3 +62,11 @@ def test_nested_compat_init_modules_must_be_forwarding_only() -> None:
     assert not failures, (
         "nested compat __init__ modules must forward only:\n" + "\n".join(failures)
     )
+
+
+def test_removed_compat_modules_do_not_return() -> None:
+    removed_paths = [
+        Path("packages/agentic-proteins/src/agentic_proteins/sandbox/__init__.py"),
+    ]
+
+    assert all(not (REPO_ROOT / path).exists() for path in removed_paths)

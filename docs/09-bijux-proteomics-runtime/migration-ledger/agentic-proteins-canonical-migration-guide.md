@@ -13,8 +13,8 @@ This guide shows how compatibility imports map back to canonical package ownersh
 
 ## Current Posture
 
-- total compatibility modules: 148
-- wrapper modules: 148
+- total compatibility modules: 147
+- wrapper modules: 147
 - dead modules: 0
 
 ## Migration Map
@@ -157,7 +157,6 @@ This guide shows how compatibility imports map back to canonical package ownersh
 | `agentic_proteins.runtime.infra.reliability` | `wrapper` | `bijux_proteomics_runtime.runtime.control.tool_reliability` | replace `agentic_proteins.runtime.infra.reliability` with `bijux_proteomics_runtime.runtime.control.tool_reliability` and retire the compat import |
 | `agentic_proteins.runtime.infra.telemetry` | `wrapper` | `bijux_proteomics_runtime.runtime.context.telemetry` | replace `agentic_proteins.runtime.infra.telemetry` with `bijux_proteomics_runtime.runtime.context.telemetry` and retire the compat import |
 | `agentic_proteins.runtime.workspace` | `wrapper` | `bijux_proteomics_runtime.runtime.workspace` | replace `agentic_proteins.runtime.workspace` with `bijux_proteomics_runtime.runtime.workspace` and retire the compat import |
-| `agentic_proteins.sandbox` | `wrapper` | `bijux_proteomics_runtime.sandbox` | replace `agentic_proteins.sandbox` with `bijux_proteomics_runtime.sandbox` and retire the compat import |
 | `agentic_proteins.state` | `wrapper` | `bijux_proteomics_runtime.state` | replace `agentic_proteins.state` with `bijux_proteomics_runtime.state` and retire the compat import |
 | `agentic_proteins.state.schemas` | `wrapper` | `bijux_proteomics_runtime.state.schemas` | replace `agentic_proteins.state.schemas` with `bijux_proteomics_runtime.state.schemas` and retire the compat import |
 | `agentic_proteins.state.snapshot` | `wrapper` | `bijux_proteomics_runtime.state.snapshot` | replace `agentic_proteins.state.snapshot` with `bijux_proteomics_runtime.state.snapshot` and retire the compat import |
