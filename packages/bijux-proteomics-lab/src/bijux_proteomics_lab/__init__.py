@@ -229,6 +229,11 @@ from bijux_proteomics_lab.readiness import (
     StaffingAvailability,
     build_operational_readiness_report,
 )
+from bijux_proteomics_lab.workflow_readiness import (
+    WorkflowReadinessStep,
+    WorkflowReadinessSummary,
+    summarize_workflow_readiness,
+)
 from bijux_proteomics_lab.repositories import (
     CycleWorkloadForecast,
     ExperimentPlanRepository,
@@ -299,6 +304,7 @@ __all__ = [
     "build_lab_protocol_evidence_bundle",
     "build_protocol_attachment",
     "build_operational_readiness_report",
+    "summarize_workflow_readiness",
     "build_power_analysis_advisory",
     "CarryoverRiskAdvisory",
     "CarryoverRiskFlag",
@@ -363,6 +369,8 @@ __all__ = [
     "MaterialFeasibilityPriority",
     "PlanValidationIssue",
     "WorkflowBatchOutline",
+    "WorkflowReadinessStep",
+    "WorkflowReadinessSummary",
     "assess_dependency_integrity",
     "detect_dependency_cycle",
     "dependency_critical_path",

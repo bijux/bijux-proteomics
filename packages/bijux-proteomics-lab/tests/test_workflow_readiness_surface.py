@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
 from __future__ import annotations
 
 from bijux_proteomics import ReviewGate, create_program_spec
 from bijux_proteomics.programs import AssayRequirement
-from bijux_proteomics_intelligence import summarize_workflow_readiness
 from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
     EvidenceStrength,
 )
+from bijux_proteomics_lab import summarize_workflow_readiness
 
 
 def test_summarize_workflow_readiness_surfaces_missing_assay_and_reviews() -> None:

@@ -22,6 +22,8 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "SampleTrackingPlateAdvisory" in bijux_proteomics_lab.__all__
     assert "InstrumentMethodMetadata" in bijux_proteomics_lab.__all__
     assert "ReplicationStrategySummary" in bijux_proteomics_lab.__all__
+    assert "WorkflowReadinessStep" in bijux_proteomics_lab.__all__
+    assert "WorkflowReadinessSummary" in bijux_proteomics_lab.__all__
     assert "validate_experiment_design" in bijux_proteomics_lab.__all__
     assert "build_power_analysis_advisory" in bijux_proteomics_lab.__all__
     assert "plan_batch_randomization" in bijux_proteomics_lab.__all__
@@ -32,3 +34,4 @@ def test_design_public_api_contains_expected_exports() -> None:
     assert "build_lab_protocol_evidence_bundle" in bijux_proteomics_lab.__all__
     assert "build_operational_readiness_report" in bijux_proteomics_lab.__all__
     assert "build_protocol_attachment" in bijux_proteomics_lab.__all__
+    assert "summarize_workflow_readiness" in bijux_proteomics_lab.__all__

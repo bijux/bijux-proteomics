@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-# Copyright © 2025 Bijan Mousavi
+# Copyright © 2026 Bijan Mousavi
 
-"""Workflow readiness summaries for proteomics programs."""
+"""Workflow-stage readiness summaries for lab-facing program execution."""
 
 from __future__ import annotations
 
@@ -104,3 +104,10 @@ def summarize_workflow_readiness(
         blocking_review_gate_ids=list(blueprint.blocking_review_gate_ids),
         step_statuses=step_statuses,
     )
+
+
+__all__ = [
+    "WorkflowReadinessStep",
+    "WorkflowReadinessSummary",
+    "summarize_workflow_readiness",
+]
