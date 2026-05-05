@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics.stable_isotope_labeling import (
+from bijux_proteomics.chemistry.stable_isotope_labeling import (
     StableIsotopeLabelChannel,
     StableIsotopeLabelChemistry,
     build_stable_isotope_labeling_model,

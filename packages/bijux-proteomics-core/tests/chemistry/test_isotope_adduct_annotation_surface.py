@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.chemistry import IsotopeEnvelopeStatus
-from bijux_proteomics.isotope_adduct_annotation import (
+from bijux_proteomics.chemistry.isotope_adduct_annotation import (
     annotate_isotope_and_adduct_hypotheses,
 )
 

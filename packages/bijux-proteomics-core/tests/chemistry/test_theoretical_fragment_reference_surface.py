@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.theoretical_fragment_reference import (
+from bijux_proteomics.chemistry.theoretical_fragment_reference import (
     TheoreticalFragmentReferenceCase,
     validate_theoretical_fragment_reference_cases,
 )

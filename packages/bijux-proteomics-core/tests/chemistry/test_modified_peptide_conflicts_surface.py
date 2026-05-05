@@ -8,7 +8,7 @@ from bijux_proteomics.chemistry import (
     ModificationPosition,
     ParsedModifiedPeptide,
 )
-from bijux_proteomics.modified_peptide_conflicts import (
+from bijux_proteomics.chemistry.modified_peptide_conflicts import (
     validate_advanced_modified_peptide_conflicts,
 )
 

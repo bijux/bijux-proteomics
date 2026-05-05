@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.open_search_unknown_mod import (
+from bijux_proteomics.chemistry.open_search_unknown_mod import (
     UnknownModificationHypothesis,
     build_open_search_unknown_mod_report,
 )
