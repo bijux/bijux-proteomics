@@ -146,6 +146,11 @@ class RunWorkspace:
         return self.run_dir / "replay_contract.json"
 
     @property
+    def replay_decision_report_path(self) -> Path:
+        """replay_decision_report_path."""
+        return self.run_dir / "replay_decision_report.json"
+
+    @property
     def local_run_bundle_path(self) -> Path:
         """local_run_bundle_path."""
         return self.run_dir / "local_run_bundle.json"

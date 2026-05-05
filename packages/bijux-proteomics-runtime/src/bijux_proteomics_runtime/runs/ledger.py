@@ -73,6 +73,11 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
         "runtime-candidate-selection",
     ),
     ("replay_contract_path", "replay_contract", "runtime-replay-contract"),
+    (
+        "replay_decision_report_path",
+        "replay_decision_report",
+        "runtime-replay-decision-report",
+    ),
     ("local_run_bundle_path", "local_run_bundle", "runtime-local-run-bundle"),
     (
         "container_run_bundle_path",
