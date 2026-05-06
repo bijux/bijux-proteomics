@@ -28,7 +28,7 @@ def test_runtime_docs_publish_live_charter_owner_modules_and_topology() -> None:
     assert "runs/import_lineage.py" in architecture
     assert "runtime docs must name the current owner modules" in contracts.lower()
     assert "runs.manager" in boundaries
-    assert "providers.factory" in boundaries
+    assert "providers.selection" in boundaries
     assert "run_reviewable_sequence_path" in combined
     assert "run_reviewable_import_path" in combined
 

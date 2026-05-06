@@ -11,7 +11,7 @@ from bijux_proteomics_runtime.governance.charter import (
     DEFAULT_RUNTIME_MODULE_AUDIT,
     RuntimeModuleClassification,
 )
-from bijux_proteomics_runtime.core.surface_area import (
+from bijux_proteomics_runtime.support.primitives.surface_area import (
     CONFIG_KNOBS,
     EXTENSION_POINTS,
     PUBLIC_ENTRYPOINTS,

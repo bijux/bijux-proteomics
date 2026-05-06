@@ -19,19 +19,14 @@ def test_runtime_topology_budget_locks_current_first_level_runtime_shape() -> No
     assert RUNTIME_TOPOLOGY_PATH.exists()
     assert budget.actual_first_level_subtrees <= budget.max_first_level_subtrees
     assert subtree_names == [
-        "agents",
         "api",
-        "core",
         "execution",
-        "interfaces",
-        "memory",
+        "governance",
         "providers",
         "runs",
-        "runtime",
-        "sandbox",
         "state",
-        "tools",
+        "support",
         "workflows",
     ]
-    assert module_counts["runs"] > module_counts["runtime"]
-    assert module_counts["workflows"] > module_counts["sandbox"]
+    assert module_counts["runs"] > module_counts["state"]
+    assert module_counts["execution"] > module_counts["governance"]
