@@ -10,6 +10,10 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification.readiness import (
+    QuantDecisionReadinessReport,
+    build_quant_decision_readiness_report,
+)
 from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
@@ -988,6 +992,7 @@ class QuantReviewBundle(JsonModel):
     effect_size_da_report: EffectSizeFirstDaReport | None = None
     missingness_profile: MissingnessMechanismProfileReport
     qc_report: ReplicateAndBatchQcReport
+    decision_readiness: QuantDecisionReadinessReport
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     caveats: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -1034,6 +1039,10 @@ def build_quant_review_bundle(
         normalized_table,
         design_entries=design_entries,
     )
+    decision_readiness = build_quant_decision_readiness_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
     conditions = tuple(sorted({entry.condition for entry in design_entries}))
     da_report = None
     if len(conditions) >= 2:
@@ -1052,12 +1061,15 @@ def build_quant_review_bundle(
         caveats.append(
             "qc outlier samples were detected and should be reviewed before publication decisions"
         )
+    if decision_readiness.readiness_state.value != "decision_grade":
+        caveats.append(decision_readiness.note)
     evidence_pointers = (
         "quant_artifact_bundle.matrix_export",
         "lfq_provenance.feature_entries",
         "rollup_strategy_comparison.entries",
         "missingness_profile.entries",
         "replicate_batch_qc.outlier_samples",
+        "quant_decision_readiness",
     )
     return QuantReviewBundle(
         artifact_bundle_hash=artifact_bundle.document_schema.content_hash or "",
@@ -1067,6 +1079,7 @@ def build_quant_review_bundle(
         effect_size_da_report=da_report,
         missingness_profile=missingness,
         qc_report=qc_report,
+        decision_readiness=decision_readiness,
         evidence_pointers=evidence_pointers,
         caveats=tuple(caveats),
     )
