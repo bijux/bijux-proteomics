@@ -36,10 +36,12 @@ DOCS_CHECK_PREPARE_TARGETS := bijux-docs-sync docs-prepare-source
 DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 
 .PHONY: \
-	help list list-all install lock lock-check fmt lint quality security test docs docs-check docs-serve api build sbom clean all \
+	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	sync-badges sync-license-assets quality-docs-links quality-docs-consistency security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py
+
+check: lock-check lint test quality security docs api build sbom ## Run the full repository verification flow
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
@@ -48,6 +50,9 @@ nlenv: ## Print activate command
 
 sync-badges: root-check-env ## Render shared badge blocks into managed README surfaces
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.badge_sync sync
+
+check-badges: root-check-env ## Verify README badge blocks match docs/badges.md
+	@$(DEV_RUN) -m bijux_proteomics_dev.docs.badge_sync check
 
 sync-license-assets: root-check-env ## Sync package LICENSE and NOTICE links from root sources
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.license_assets sync

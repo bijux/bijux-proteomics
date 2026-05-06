@@ -48,9 +48,13 @@ def test_root_pyproject_declares_documented_security_tooling() -> None:
 
 def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None:
     dependency_groups = _root_pyproject()["dependency-groups"]
-    assert {"api", "local-esmfold", "local-rosettafold", "nl"}.issubset(
-        dependency_groups
-    )
+    assert set(dependency_groups) == {
+        "dev",
+        "api",
+        "local-esmfold",
+        "local-rosettafold",
+        "nl",
+    }
 
 
 def test_root_make_declares_documented_repository_extensions() -> None:
