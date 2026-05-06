@@ -340,9 +340,7 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
     IntelligenceModuleAuditEntry(
         module_path="judgment/scenarios.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
-        anchor_capabilities=(
-            IntelligenceCharterCapability.CONTRADICTION_HANDLING,
-        ),
+        anchor_capabilities=(IntelligenceCharterCapability.CONTRADICTION_HANDLING,),
         reason="Scenario evaluators keep progression, redesign, synthesis, and scale-up judgment explicit instead of burying it inside review formatting.",
     ),
     IntelligenceModuleAuditEntry(

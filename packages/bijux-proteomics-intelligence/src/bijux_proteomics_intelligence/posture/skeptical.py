@@ -203,7 +203,9 @@ def build_skeptical_review_report(
                 severity=ReviewChallengeSeverity.BLOCK,
                 code="degraded_recommendation_support",
                 summary="recommendation remains degraded and should not be treated as a clean conclusion",
-                rationale=list(path.packet.recommendation.gate_result.degradation_reasons)
+                rationale=list(
+                    path.packet.recommendation.gate_result.degradation_reasons
+                )
                 or [
                     "downstream review should not flatten a degraded gate result into a clean recommendation",
                 ],
@@ -391,7 +393,8 @@ def build_skeptical_review_report(
             "hold recommendation until contradiction-resolving evidence is collected"
         )
     elif any(
-        finding.code in {
+        finding.code
+        in {
             "degraded_recommendation_support",
             "unresolved_question_burden",
             "novelty_outpaces_grounding",
@@ -399,9 +402,7 @@ def build_skeptical_review_report(
         }
         for finding in [*software_findings, *scientific_findings]
     ):
-        recommended_action = (
-            "hold recommendation until support and follow-up discipline are strengthened"
-        )
+        recommended_action = "hold recommendation until support and follow-up discipline are strengthened"
     else:
         recommended_action = (
             "revise the recommendation package before downstream handoff"

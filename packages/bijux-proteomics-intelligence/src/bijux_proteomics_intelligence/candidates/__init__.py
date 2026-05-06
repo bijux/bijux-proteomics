@@ -11,7 +11,10 @@ from bijux_proteomics_intelligence.candidates.records import (
     CandidateScore,
     CandidateSelection,
 )
-from bijux_proteomics_intelligence.candidates.schema import Candidate, CandidateStructure
+from bijux_proteomics_intelligence.candidates.schema import (
+    Candidate,
+    CandidateStructure,
+)
 from bijux_proteomics_intelligence.candidates.selection import (
     RankingWeights,
     pareto_frontier,

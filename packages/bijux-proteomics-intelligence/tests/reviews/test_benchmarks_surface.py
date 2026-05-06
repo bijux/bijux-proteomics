@@ -14,7 +14,9 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _repo_root() -> Path:

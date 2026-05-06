@@ -42,7 +42,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
 from bijux_proteomics_knowledge.references.grounding.rules import (
     build_ranking_rule_grounding_ledger,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _program():

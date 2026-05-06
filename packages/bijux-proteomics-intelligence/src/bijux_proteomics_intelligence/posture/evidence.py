@@ -112,10 +112,7 @@ def summarize_evidence_contradictions(
         else:
             posture = ContradictionPosture.UNRESOLVED
     unresolved_questions = tuple(
-        sorted(
-            f"resolve contradiction: {reason}"
-            for reason in exact_conflict_reasons
-        )
+        sorted(f"resolve contradiction: {reason}" for reason in exact_conflict_reasons)
     )
     return EvidenceContradictionSummary(
         bundle_id=bundle.bundle_id,
@@ -209,7 +206,9 @@ def assess_recommendation_readiness(
     recommended_actions: set[str] = set(freshness.refresh_actions)
     recommended_actions.update(contradictions.resolution_actions)
     evidence_kinds = {record.kind for record in bundle.records}
-    decisive_record_count = sum(1 for record in bundle.records if record.strength.value == "decisive")
+    decisive_record_count = sum(
+        1 for record in bundle.records if record.strength.value == "decisive"
+    )
     source_types = {record.source_type for record in bundle.records}
     grounding_reasons: set[str] = set()
     if len(bundle.records) < minimum_record_count:
@@ -301,7 +300,9 @@ def assess_recommendation_readiness(
             operation="intelligence_recommendation",
             summary="recommendation is usable only with explicit evidence posture caveats",
             state=degradation_state,
-            degradation_reasons=tuple(sorted({*degradation_reasons, *freshness.refresh_actions})),
+            degradation_reasons=tuple(
+                sorted({*degradation_reasons, *freshness.refresh_actions})
+            ),
         )
     return OperationResult.success(
         operation="intelligence_recommendation",

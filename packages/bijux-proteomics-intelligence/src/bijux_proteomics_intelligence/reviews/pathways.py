@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 
+
 class EnrichmentCorrectionMethod(StrEnum):
     """Multiple-testing correction method for enrichment analyses."""
 

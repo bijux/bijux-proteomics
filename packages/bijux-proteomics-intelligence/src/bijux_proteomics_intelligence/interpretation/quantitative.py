@@ -19,6 +19,7 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics_foundation import JsonModel
 
+
 class MissingnessPatternLabel(StrEnum):
     """Advisory pattern labels for missing-value structure."""
 
@@ -29,12 +30,14 @@ class MissingnessPatternLabel(StrEnum):
     MAR_LIKE = "mar_like_random"
     MIXED = "mixed"
 
+
 class OutlierInterpretationClass(StrEnum):
     """Classification of whether an outlier looks technical or biological."""
 
     TECHNICAL_ANOMALY = "technical_anomaly"
     PLAUSIBLE_BIOLOGICAL_EFFECT = "plausible_biological_effect"
     MIXED_SIGNAL = "mixed_signal"
+
 
 class MissingnessPatternEntry(JsonModel):
     """Pattern summary for one quantified entity."""
@@ -48,6 +51,7 @@ class MissingnessPatternEntry(JsonModel):
     condition_missing_counts: dict[str, int] = Field(default_factory=dict)
     note: str = Field(..., min_length=1)
 
+
 class MissingnessPatternAnalysis(JsonModel):
     """Advisory classification of missingness behavior."""
 
@@ -57,6 +61,7 @@ class MissingnessPatternAnalysis(JsonModel):
     overall_label: MissingnessPatternLabel
     entries: tuple[MissingnessPatternEntry, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
+
 
 class OutlierSampleExplanation(JsonModel):
     """Explanation for a sample or run flagged as an outlier."""
@@ -73,6 +78,7 @@ class OutlierSampleExplanation(JsonModel):
     recommended_follow_up: str = Field(..., min_length=1)
     interpretation_summary: str = Field(..., min_length=1)
 
+
 class QuantQcEvidenceIntegrationReport(JsonModel):
     """Joint missingness, outlier, and QC interpretation over one quant surface."""
 
@@ -83,6 +89,7 @@ class QuantQcEvidenceIntegrationReport(JsonModel):
     outliers: tuple[OutlierSampleExplanation, ...] = Field(default_factory=tuple)
     blocked_run_ids: tuple[str, ...] = Field(default_factory=tuple)
     notes: tuple[str, ...] = Field(default_factory=tuple)
+
 
 def analyze_missingness_patterns(
     table: LabelFreeQuantTable,
@@ -181,6 +188,7 @@ def analyze_missingness_patterns(
         entries=tuple(entries),
         interpretation_summary=f"{label_counts[overall]} entities primarily show {overall.value}.",
     )
+
 
 def explain_outlier_samples(
     batch_report: InstrumentBatchQcReport,
@@ -287,6 +295,7 @@ def explain_outlier_samples(
                 )
             )
     return tuple(explanations)
+
 
 def integrate_quant_qc_evidence(
     table: LabelFreeQuantTable,

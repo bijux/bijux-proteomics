@@ -33,7 +33,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _program() -> object:
@@ -202,7 +204,9 @@ def test_follow_up_candidate_path_keeps_public_channels_separate() -> None:
     assert top.unresolved_questions
     assert path.unresolved_questions
     assert set(top.explanation).isdisjoint(set(top.unresolved_questions))
-    assert all(question not in top.recommendation for question in top.unresolved_questions)
+    assert all(
+        question not in top.recommendation for question in top.unresolved_questions
+    )
 
 
 def test_review_board_decision_path_builds_packet_from_evidence_and_candidates() -> (
@@ -279,7 +283,9 @@ def test_review_board_decision_path_keeps_public_channels_separate() -> None:
     assert path.unresolved_questions
     assert path.packet.recommendation.reasons
     assert set(path.explanation).isdisjoint(set(path.unresolved_questions))
-    assert all(question not in path.recommendation for question in path.unresolved_questions)
+    assert all(
+        question not in path.recommendation for question in path.unresolved_questions
+    )
 
 
 def test_cautious_anomaly_interpretation_path_keeps_contract_fields_separate() -> None:

@@ -22,6 +22,7 @@ from bijux_proteomics_intelligence.interpretation.pathways import (
     _annotation_lookup,
 )
 
+
 class PtmInterpretationSite(JsonModel):
     """One interpreted PTM site signal."""
 
@@ -33,6 +34,7 @@ class PtmInterpretationSite(JsonModel):
     advisory_terms: tuple[str, ...] = Field(default_factory=tuple)
     accepted: bool
 
+
 class PtmInterpretationReport(JsonModel):
     """Interpretation report for PTM site signals."""
 
@@ -43,6 +45,7 @@ class PtmInterpretationReport(JsonModel):
     advisory_kinases: tuple[str, ...] = Field(default_factory=tuple)
     advisory_pathways: tuple[str, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
+
 
 def interpret_ptm_sites(
     site_table: tuple[PtmSiteEntry, ...],

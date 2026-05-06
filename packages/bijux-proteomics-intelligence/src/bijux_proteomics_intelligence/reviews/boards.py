@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 
+
 class ReviewBoardVote(StrEnum):
     """Review-board vote states for candidate decisions."""
 

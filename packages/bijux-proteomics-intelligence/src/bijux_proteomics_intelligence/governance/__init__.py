@@ -2,4 +2,3 @@
 # Copyright © 2026 Bijan Mousavi
 
 """Governance contracts for intelligence-owned analytical boundaries."""
-

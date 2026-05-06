@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 
+
 class QuantOutlierObservation(JsonModel):
     """Observed quant outlier bound to run/sample/protein context."""
 

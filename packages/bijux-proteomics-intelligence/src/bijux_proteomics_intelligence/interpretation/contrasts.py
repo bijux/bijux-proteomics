@@ -13,12 +13,14 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics_foundation import JsonModel
 
+
 class AnalyticalContrastRejectionReason(StrEnum):
     """Reasons an analytical contrast recommendation is not valid yet."""
 
     INSUFFICIENT_REPLICATES = "insufficient_replicates"
     BATCH_CONFOUNDED = "batch_confounded"
     SINGLE_CONDITION = "single_condition"
+
 
 class AnalyticalContrastRecommendation(JsonModel):
     """One recommended or rejected analytical contrast."""
@@ -35,6 +37,7 @@ class AnalyticalContrastRecommendation(JsonModel):
     )
     rationale: str = Field(..., min_length=1)
 
+
 class AnalyticalContrastRecommendationReport(JsonModel):
     """Recommended and rejected analytical contrasts over a design table."""
 
@@ -47,6 +50,7 @@ class AnalyticalContrastRecommendationReport(JsonModel):
     rejected_contrasts: tuple[AnalyticalContrastRecommendation, ...] = Field(
         default_factory=tuple
     )
+
 
 def recommend_experimental_contrasts(
     entries: tuple[ExperimentalDesignEntry, ...],

@@ -19,7 +19,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _program() -> object:

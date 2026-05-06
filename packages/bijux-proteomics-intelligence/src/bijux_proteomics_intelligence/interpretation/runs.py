@@ -15,6 +15,7 @@ from bijux_proteomics.study.qc import (
 from bijux_proteomics.quantification import LabelFreeQuantTable
 from bijux_proteomics_foundation import JsonModel
 
+
 class RunInterpretationSignal(JsonModel):
     """One compact run-level interpretation signal."""
 
@@ -24,6 +25,7 @@ class RunInterpretationSignal(JsonModel):
     summary: str = Field(..., min_length=1)
     severity: QcAssessmentSeverity
     evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class RunInterpretationSummary(JsonModel):
     """Reviewable summary of one proteomics run."""
@@ -40,6 +42,7 @@ class RunInterpretationSummary(JsonModel):
     qc_blocked: bool
     major_signals: tuple[RunInterpretationSignal, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
+
 
 def build_run_interpretation_summary(
     run_report: LcmsRunQcReport,

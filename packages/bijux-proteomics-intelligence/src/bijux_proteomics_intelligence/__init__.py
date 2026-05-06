@@ -8,7 +8,15 @@ from __future__ import annotations
 from importlib import import_module
 from types import ModuleType
 
-__all__ = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+__all__ = [
+    "candidates",
+    "governance",
+    "interpretation",
+    "judgment",
+    "learning",
+    "posture",
+    "reviews",
+]
 _INTELLIGENCE_ROOT_MODULES = {name: f"{__name__}.{name}" for name in __all__}
 
 

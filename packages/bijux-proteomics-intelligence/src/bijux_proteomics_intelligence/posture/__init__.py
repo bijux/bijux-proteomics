@@ -2,4 +2,3 @@
 # Copyright © 2026 Bijan Mousavi
 
 """Evidence posture and skeptical challenge owners for intelligence."""
-

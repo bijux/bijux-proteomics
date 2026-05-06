@@ -107,7 +107,9 @@ def apply_planned_observed_learning_loop(
                     score_delta=0.0,
                     posture_shift="unchanged_without_observation",
                     next_review_action="keep the original analytical posture until an outcome arrives",
-                    learning_rationale=("no observed outcome was linked to this decision",),
+                    learning_rationale=(
+                        "no observed outcome was linked to this decision",
+                    ),
                     historical_decision_locked=True,
                 )
             )
@@ -120,20 +122,28 @@ def apply_planned_observed_learning_loop(
         learning_rationale: list[str] = []
         if disposition is OutcomeLearningDisposition.CONFIRMED:
             delta = 0.2 * outcome.outcome_strength
-            learning_rationale.append("observed outcome confirmed the planned expectation")
+            learning_rationale.append(
+                "observed outcome confirmed the planned expectation"
+            )
         elif disposition is OutcomeLearningDisposition.CONTRADICTED:
             delta = -(0.25 * outcome.outcome_strength)
             posture_shift = "hold_for_recheck"
             recommended_action = "hold for contradiction review"
-            next_review_action = "collect contradiction-resolving follow-up before re-ranking"
+            next_review_action = (
+                "collect contradiction-resolving follow-up before re-ranking"
+            )
             learning_rationale.append(
                 "observed outcome contradicted the planned expectation"
             )
         elif disposition is OutcomeLearningDisposition.OPERATIONALLY_BLOCKED:
-            delta = -(0.15 * outcome.outcome_strength) - (0.1 * outcome.follow_up_burden)
+            delta = -(0.15 * outcome.outcome_strength) - (
+                0.1 * outcome.follow_up_burden
+            )
             posture_shift = "redesign_follow_up"
             recommended_action = "redesign follow-up before retry"
-            next_review_action = "lower execution burden before repeating the recommendation"
+            next_review_action = (
+                "lower execution burden before repeating the recommendation"
+            )
             learning_rationale.append(
                 "observed outcome exposed operational fragility in the planned follow-up"
             )
@@ -141,7 +151,9 @@ def apply_planned_observed_learning_loop(
             delta = -(0.05 * outcome.outcome_strength)
             posture_shift = "collect_clearer_signal"
             recommended_action = "collect clearer outcome signal"
-            next_review_action = "gather a cleaner outcome before strengthening analytical claims"
+            next_review_action = (
+                "gather a cleaner outcome before strengthening analytical claims"
+            )
             learning_rationale.append(
                 "observed outcome stayed too inconclusive to strengthen the analytical posture"
             )

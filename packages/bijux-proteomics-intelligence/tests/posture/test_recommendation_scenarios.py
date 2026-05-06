@@ -27,8 +27,13 @@ from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
 from bijux_proteomics_intelligence.reviews.packets import build_review_board_packet
-from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle, EvidenceRecord
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.memory.models.evidence import (
+    EvidenceBundle,
+    EvidenceRecord,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _fixture_dir() -> Path:
@@ -198,19 +203,28 @@ def test_novelty_pressure_fixture_keeps_grounded_follow_up_on_top() -> None:
         workflow_family=KnowledgeWorkflowFamily.DIA,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
     assert ranking.ranked_candidates[1].candidate_id == "novelty-pressure-candidate"
     assert (
         ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
         > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
     )
     assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"]["evidence_strength"]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"]["evidence_strength"]
+        ranking.ranked_candidates[1].explainability["priority_inputs"][
+            "evidence_strength"
+        ]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"][
+            "evidence_strength"
+        ]
     )
 
 
-def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity() -> None:
+def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity() -> (
+    None
+):
     payload = _load_scenario_fixture("ambiguity_follow_up_guard")
     program = _program_from_fixture(payload)
     assessments = _assessments_from_fixture(payload)
@@ -223,15 +237,22 @@ def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity(
         workflow_family=KnowledgeWorkflowFamily.PTM,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
     assert ranking.ranked_candidates[1].candidate_id == "ambiguity-polish-candidate"
     assert (
         ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
         > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
     )
     assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"]["reproducibility"]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"]["reproducibility"]
+        ranking.ranked_candidates[1].explainability["priority_inputs"][
+            "reproducibility"
+        ]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"][
+            "reproducibility"
+        ]
     )
 
 
@@ -308,10 +329,12 @@ def test_stale_polish_fixture_degrades_polished_recommendation_readiness() -> No
 
     assert result.disposition.value == "degraded_success"
     assert any(
-        reason.startswith("stale-polish-assay:") for reason in result.degradation_reasons
+        reason.startswith("stale-polish-assay:")
+        for reason in result.degradation_reasons
     )
     assert any(
-        "stale and should be refreshed" in reason for reason in result.degradation_reasons
+        "stale and should be refreshed" in reason
+        for reason in result.degradation_reasons
     )
 
 
@@ -377,7 +400,10 @@ def test_contradiction_pressure_fixture_refuses_polished_recommendation() -> Non
         workflow_family=KnowledgeWorkflowFamily.DIA,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
     assert recommendation.action is ScenarioAction.HOLD
     assert recommendation.gate_result is not None
     assert recommendation.gate_result.disposition.value == "refused"
@@ -398,7 +424,10 @@ def test_operational_fragility_fixture_prefers_executable_follow_up() -> None:
         workflow_family=KnowledgeWorkflowFamily.MULTIPLEX,
     )
 
-    assert ranking.ranked_candidates[0].candidate_id == payload["expected_top_candidate_id"]
+    assert (
+        ranking.ranked_candidates[0].candidate_id
+        == payload["expected_top_candidate_id"]
+    )
     fragile_candidate = next(
         candidate
         for candidate in ranking.ranked_candidates
@@ -410,7 +439,9 @@ def test_operational_fragility_fixture_prefers_executable_follow_up() -> None:
     )
     assert (
         fragile_candidate.explainability["priority_inputs"]["assay_feasibility"]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"]["assay_feasibility"]
+        < ranking.ranked_candidates[0].explainability["priority_inputs"][
+            "assay_feasibility"
+        ]
     )
     assert fragile_candidate.score < ranking.ranked_candidates[0].score
 
