@@ -7,7 +7,10 @@ import importlib
 from pathlib import Path
 import re
 
-from bijux_proteomics.charter import DEFAULT_CORE_MODULE_AUDIT, CoreModuleClassification
+from bijux_proteomics.governance.charter import (
+    DEFAULT_CORE_MODULE_AUDIT,
+    CoreModuleClassification,
+)
 
 
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
@@ -48,7 +51,7 @@ def _module_import_name(module_path: str) -> str:
 def test_remaining_core_compatibility_exports_stay_root_level() -> None:
     wrapper_paths = _wrapper_targets()
 
-    assert wrapper_paths
+    assert wrapper_paths == {}
     assert all("/" not in path for path in wrapper_paths)
 
 

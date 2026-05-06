@@ -13,7 +13,7 @@ ALLOWED_RUNTIME_IMPORTS = {
         "bijux_proteomics_runtime.runs.manager",
         "bijux_proteomics_runtime.runs.run_config",
     },
-    "interfaces/cli/app.py": {
+    "workflow/runtime_bundles.py": {
         "bijux_proteomics_runtime.workflows.plans",
     },
 }

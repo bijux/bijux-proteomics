@@ -6,7 +6,10 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-from bijux_proteomics.charter import DEFAULT_CORE_MODULE_AUDIT, CoreModuleClassification
+from bijux_proteomics.governance.charter import (
+    DEFAULT_CORE_MODULE_AUDIT,
+    CoreModuleClassification,
+)
 from bijux_proteomics_dev.api.foundation_root_consumers import REPO_ROOT, downstream_packages
 
 __all__ = [
