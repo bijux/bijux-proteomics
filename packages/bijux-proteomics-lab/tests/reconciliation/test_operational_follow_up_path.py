@@ -22,6 +22,7 @@ from bijux_proteomics_lab.lifecycle import (
 from bijux_proteomics_lab.outcomes import ExperimentOutcome
 from bijux_proteomics_lab.planning import (
     ExecutableAssayPlan,
+    ProgressDecision,
     ReviewPacket,
 )
 from bijux_proteomics_lab.readiness.stages import WorkflowReadinessSummary
@@ -36,10 +37,7 @@ def _handoff_fixture(name: str) -> dict[str, Any]:
         dict[str, Any],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "handoffs"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "handoffs" / name
             ).read_text(encoding="utf-8")
         ),
     )
@@ -99,11 +97,17 @@ def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
     assert path.refusal is None
     assert path.execution_request.ready_for_lab_review is True
     assert path.reconciliation.ready_for_feedback is True
+    assert path.reconciliation.next_cycle_packet.decision is ProgressDecision.REDESIGN
     assert path.reconciliation.intelligence_feedback.supported_assay_ids == (
         "prm-assay",
     )
     assert path.reconciliation.intelligence_feedback.weakened_assay_ids == (
         "orthogonal-assay",
+    )
+    assert any(
+        action.action == "return-to-candidate-review"
+        and action.assay_id == "orthogonal-assay"
+        for action in path.reconciliation.operator_actions
     )
     assert comparison.recommended_plan_id == "orthogonal-first"
 
@@ -199,7 +203,9 @@ def test_ambiguous_peptide_fixture_keeps_weak_target_follow_up_blocked() -> None
     assert workflow.blocked_step_count == 4
     assert handoff_validation.accepted is False
     assert any("ambiguous" in blocker for blocker in handoff_validation.blockers)
-    assert any("weak target signal" in blocker for blocker in handoff_validation.blockers)
+    assert any(
+        "weak target signal" in blocker for blocker in handoff_validation.blockers
+    )
     assert transition_review.refused_transition_ids == ("tr-her2-ambiguous",)
     assert refusal is not None
     assert "refused_targeted_transition" in refusal.refusal_reason_codes

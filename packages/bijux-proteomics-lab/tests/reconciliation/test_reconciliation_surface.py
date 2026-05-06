@@ -13,7 +13,7 @@ from bijux_proteomics_lab.outcomes import (
     FailureClass,
     RerunPolicy,
 )
-from bijux_proteomics_lab.planning import LabExecutionRequest
+from bijux_proteomics_lab.planning import LabExecutionRequest, ProgressDecision
 from bijux_proteomics_lab.reconciliation import reconcile_planned_and_observed_outcome
 
 
@@ -75,10 +75,17 @@ def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:
     )
     assert report.intelligence_feedback.recommended_action.startswith("send")
     assert (
-        "route weakened assays back into candidate review: assay-b"
-        in report.operational_follow_through
+        "return-to-candidate-review: assay-b" in report.operational_follow_through
     )
     assert report.claim_belief_update.contributing_assay_count == 2
+    assert report.next_cycle_packet.decision is ProgressDecision.REDESIGN
+    assert report.next_cycle_packet.assay_backlog == ["assay-b"]
+    assert any(
+        action.action == "return-to-candidate-review"
+        and action.assay_id == "assay-b"
+        and action.required_before_progression
+        for action in report.operator_actions
+    )
 
 
 def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays() -> (
@@ -120,10 +127,18 @@ def test_reconcile_planned_and_observed_outcome_flags_missing_requested_assays()
     )
     assert report.belief_posture == "blocked"
     assert any(
-        action.startswith("resolve blocked assays before downstream confidence")
+        action == "resolve-blocked-assay: assay-b"
         for action in report.operational_follow_through
     )
     assert "assay-b" in report.intelligence_feedback.blocked_assay_ids
+    assert report.next_cycle_packet.decision is ProgressDecision.HOLD
+    assert report.next_cycle_packet.assay_backlog == ["assay-a", "assay-b"]
+    assert any(
+        action.action == "resolve-blocked-assay"
+        and action.assay_id == "assay-b"
+        and action.required_before_progression
+        for action in report.operator_actions
+    )
 
 
 def test_reconciliation_fixtures_cover_confirm_weaken_and_overturn_feedback() -> None:

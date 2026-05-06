@@ -28,8 +28,10 @@ from bijux_proteomics_lab.outcomes import (
     promote_batch_outcome_to_evidence,
 )
 from bijux_proteomics_lab.planning import (
+    ClosedLoopPlan,
     ExecutableAssayPlan,
     LabExecutionRequest,
+    ProgressDecision,
     ReviewPacket,
     build_lab_execution_request,
 )
@@ -120,9 +122,13 @@ class OutcomeReconciliationReport(JsonModel):
     promotion_report: BatchEvidencePromotionReport
     claim_belief_update: BatchClaimBeliefUpdate
     rerun_plan: BatchRerunPlan
+    next_cycle_packet: ClosedLoopPlan
     belief_posture: str = Field(..., min_length=1)
     belief_update_summary: tuple[str, ...] = Field(default_factory=tuple)
     operational_follow_through: tuple[str, ...] = Field(default_factory=tuple)
+    operator_actions: tuple["OperatorFollowThroughAction", ...] = Field(
+        default_factory=tuple
+    )
     ready_for_feedback: bool = Field(
         ...,
         description="Whether the reconciliation is specific enough for downstream feedback.",
@@ -145,6 +151,19 @@ class OperationalFollowUpPath(JsonModel):
     refusal: LabExecutionRefusal | None = None
     reconciliation: OutcomeReconciliationReport
     notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class OperatorFollowThroughAction(JsonModel):
+    """Structured operator action tied to a scientifically meaningful outcome."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assay_id: str | None = Field(default=None, min_length=1)
+    action: str = Field(..., min_length=1)
+    scientific_reason: str = Field(..., min_length=1)
+    required_before_progression: bool = Field(
+        ..., description="Whether progression should stop until the action is complete."
+    )
 
 
 def _belief_posture(
@@ -179,33 +198,140 @@ def _belief_posture(
     return posture, tuple(summary)
 
 
-def _operational_follow_through(
+def _operator_follow_through_actions(
     *,
+    deltas: tuple[PlannedObservedAssayDelta, ...],
     promotion_report: BatchEvidencePromotionReport,
     rerun_plan: BatchRerunPlan,
     blocked_assay_ids: list[str],
     weakened_assay_ids: list[str],
+) -> tuple[OperatorFollowThroughAction, ...]:
+    rows: list[OperatorFollowThroughAction] = []
+    for assay_id in sorted(promotion_report.promoted_assay_ids):
+        rows.append(
+            OperatorFollowThroughAction(
+                assay_id=assay_id,
+                action="promote-evidence",
+                scientific_reason=(
+                    "observed assay passed strongly enough to support downstream evidence promotion"
+                ),
+                required_before_progression=False,
+            )
+        )
+    for delta in deltas:
+        if delta.assay_id in blocked_assay_ids:
+            rows.append(
+                OperatorFollowThroughAction(
+                    assay_id=delta.assay_id,
+                    action="resolve-blocked-assay",
+                    scientific_reason=delta.execution_gap,
+                    required_before_progression=True,
+                )
+            )
+        elif delta.assay_id in weakened_assay_ids:
+            rows.append(
+                OperatorFollowThroughAction(
+                    assay_id=delta.assay_id,
+                    action="return-to-candidate-review",
+                    scientific_reason=delta.execution_gap,
+                    required_before_progression=True,
+                )
+            )
+    for rerun_action in rerun_plan.actions:
+        rows.append(
+            OperatorFollowThroughAction(
+                assay_id=rerun_action.assay_id,
+                action=rerun_action.action,
+                scientific_reason=rerun_action.rationale,
+                required_before_progression=True,
+            )
+        )
+    if not rows:
+        rows.append(
+            OperatorFollowThroughAction(
+                assay_id=None,
+                action="carry-supporting-outcomes-forward",
+                scientific_reason=(
+                    "all observed outcomes support progression without unresolved assay drift"
+                ),
+                required_before_progression=False,
+            )
+        )
+    deduped: list[OperatorFollowThroughAction] = []
+    seen: set[tuple[str | None, str, str, bool]] = set()
+    for row in rows:
+        key = (
+            row.assay_id,
+            row.action,
+            row.scientific_reason,
+            row.required_before_progression,
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(row)
+    return tuple(deduped)
+
+
+def _operational_follow_through(
+    actions: tuple[OperatorFollowThroughAction, ...],
 ) -> tuple[str, ...]:
-    actions: list[str] = []
-    if promotion_report.promoted_assay_ids:
-        actions.append(
-            "promote evidence for assays: "
-            + ", ".join(sorted(promotion_report.promoted_assay_ids))
+    summaries = [
+        (
+            f"{action.action}: {action.assay_id}"
+            if action.assay_id is not None
+            else action.action
         )
+        for action in actions
+    ]
+    return tuple(dict.fromkeys(summaries))
+
+
+def _build_next_cycle_packet(
+    *,
+    execution_request: LabExecutionRequest,
+    blocked_assay_ids: list[str],
+    weakened_assay_ids: list[str],
+    supported_assay_ids: list[str],
+    operator_actions: tuple[OperatorFollowThroughAction, ...],
+) -> ClosedLoopPlan:
+    evidence_backlog = list(dict.fromkeys(execution_request.unresolved_risks))
+    notes: list[str] = []
     if blocked_assay_ids:
-        actions.append(
-            "resolve blocked assays before downstream confidence: "
-            + ", ".join(sorted(blocked_assay_ids))
+        decision = ProgressDecision.HOLD
+        assay_backlog = sorted(blocked_assay_ids)
+        notes.append("requested follow-up remained operationally blocked after execution reconciliation")
+    elif weakened_assay_ids:
+        decision = ProgressDecision.REDESIGN
+        assay_backlog = sorted(weakened_assay_ids)
+        notes.append("observed biological outcomes weakened the progression hypothesis")
+    elif evidence_backlog:
+        decision = ProgressDecision.HOLD
+        assay_backlog = []
+        notes.append("supporting assays landed, but unresolved scientific risks still block progression")
+    else:
+        decision = ProgressDecision.ADVANCE
+        assay_backlog = []
+        notes.append("requested follow-up produced progression-supporting outcomes without unresolved drift")
+    if supported_assay_ids:
+        notes.append(
+            "progression-supporting assays: " + ", ".join(sorted(supported_assay_ids))
         )
-    if weakened_assay_ids:
-        actions.append(
-            "route weakened assays back into candidate review: "
-            + ", ".join(sorted(weakened_assay_ids))
-        )
-    actions.extend(action.action for action in rerun_plan.actions)
-    if not actions:
-        actions.append("carry supporting outcomes into downstream review")
-    return tuple(dict.fromkeys(actions))
+    notes.extend(
+        action.scientific_reason
+        for action in operator_actions
+        if action.required_before_progression
+    )
+    return ClosedLoopPlan(
+        program_id=execution_request.program_id,
+        decision=decision,
+        evidence_backlog=evidence_backlog,
+        assay_backlog=assay_backlog,
+        notes=list(dict.fromkeys(notes)),
+        evidence_trust_score=0.0,
+        promotion_ready_count=len(supported_assay_ids),
+        technical_failure_count=len(blocked_assay_ids),
+    )
 
 
 def reconcile_planned_and_observed_outcome(
@@ -285,12 +411,14 @@ def reconcile_planned_and_observed_outcome(
         claim_belief_update=claim_belief_update,
         blocked_assay_ids=blocked_assay_ids,
     )
-    operational_follow_through = _operational_follow_through(
+    operator_actions = _operator_follow_through_actions(
+        deltas=tuple(deltas),
         promotion_report=promotion_report,
         rerun_plan=rerun_plan,
         blocked_assay_ids=blocked_assay_ids,
         weakened_assay_ids=weakened_assay_ids,
     )
+    operational_follow_through = _operational_follow_through(operator_actions)
     promoted_evidence_ids = tuple(payload.evidence_id for payload in promoted_payloads)
     ready_for_feedback = bool(deltas) and not any(
         delta.execution_gap == "unexpected assay is absent from the execution request"
@@ -307,6 +435,13 @@ def reconcile_planned_and_observed_outcome(
         )
     else:
         recommended_action = "send supporting feedback into downstream follow-up review"
+    next_cycle_packet = _build_next_cycle_packet(
+        execution_request=execution_request,
+        blocked_assay_ids=blocked_assay_ids,
+        weakened_assay_ids=weakened_assay_ids,
+        supported_assay_ids=supported_assay_ids,
+        operator_actions=operator_actions,
+    )
 
     intelligence_feedback = IntelligenceFeedbackSignal(
         candidate_id=candidate_id,
@@ -338,9 +473,11 @@ def reconcile_planned_and_observed_outcome(
         promotion_report=promotion_report,
         claim_belief_update=claim_belief_update,
         rerun_plan=rerun_plan,
+        next_cycle_packet=next_cycle_packet,
         belief_posture=belief_posture,
         belief_update_summary=belief_update_summary,
         operational_follow_through=operational_follow_through,
+        operator_actions=operator_actions,
         ready_for_feedback=ready_for_feedback,
         intelligence_feedback=intelligence_feedback,
         notes=notes,
@@ -440,6 +577,7 @@ __all__ = [
     "IntelligenceFeedbackReport",
     "IntelligenceFeedbackSignal",
     "LabObservedOutcomeSignal",
+    "OperatorFollowThroughAction",
     "OperationalFollowUpPath",
     "OutcomeReconciliationReport",
     "PlannedObservedAssayDelta",
