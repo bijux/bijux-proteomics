@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 80
+min_total_owner_domain_count = 76
 max_total_compatibility_surface_count = 4
 min_total_excluded_responsibility_count = 29
 
@@ -41,7 +41,7 @@ excluded_responsibilities = ["evidence trust and contradiction resolution", "ran
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 import_root = "bijux_proteomics_runtime"
-owner_domains = ["agents", "api", "core", "execution", "governance", "providers", "runs", "runtime", "sandbox", "state", "support", "workflows"]
+owner_domains = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
 public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]

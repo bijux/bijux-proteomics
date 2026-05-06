@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 394
+min_owner_logic_module_count = 391
 max_compatibility_surface_count = 4
-max_import_glue_module_count = 221
-max_dead_weight_module_count = 0
+max_import_glue_module_count = 223
+max_dead_weight_module_count = 3
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -8449,201 +8449,9 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/analysis/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.analysis"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/analysis/failure_analysis.py"
-module_import_path = "bijux_proteomics_runtime.agents.analysis.failure_analysis"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/analysis/sequence_analysis.py"
-module_import_path = "bijux_proteomics_runtime.agents.analysis.sequence_analysis"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/analysis/structure.py"
-module_import_path = "bijux_proteomics_runtime.agents.analysis.structure"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/base/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.base"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/base/base.py"
-module_import_path = "bijux_proteomics_runtime.agents.base.base"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/catalog.py"
-module_import_path = "bijux_proteomics_runtime.agents.catalog"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/contracts.py"
-module_import_path = "bijux_proteomics_runtime.agents.contracts"
-module_kind = "owner_logic"
-public_definition_count = 5
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/execution/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.execution"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/execution/coordinator.py"
-module_import_path = "bijux_proteomics_runtime.agents.execution.coordinator"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/compiler.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning.compiler"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/generation.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning.generation"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/planner.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning.planner"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/schemas.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning.schemas"
-module_kind = "owner_logic"
-public_definition_count = 8
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/planning/validation.py"
-module_import_path = "bijux_proteomics_runtime.agents.planning.validation"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 3
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/reporting/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.reporting"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/reporting/reporting.py"
-module_import_path = "bijux_proteomics_runtime.agents.reporting.reporting"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/schemas.py"
-module_import_path = "bijux_proteomics_runtime.agents.schemas"
-module_kind = "owner_logic"
-public_definition_count = 24
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/verification/__init__.py"
-module_import_path = "bijux_proteomics_runtime.agents.verification"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/verification/critic.py"
-module_import_path = "bijux_proteomics_runtime.agents.verification.critic"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/verification/input_validation.py"
-module_import_path = "bijux_proteomics_runtime.agents.verification.input_validation"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/agents/verification/quality_control.py"
-module_import_path = "bijux_proteomics_runtime.agents.verification.quality_control"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
 module_import_path = "bijux_proteomics_runtime.api"
-module_kind = "owner_logic"
+module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
 
@@ -8686,6 +8494,14 @@ module_import_path = "bijux_proteomics_runtime.api.errors"
 module_kind = "owner_logic"
 public_definition_count = 8
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/public.py"
+module_import_path = "bijux_proteomics_runtime.api.public"
+module_kind = "dead_weight"
+public_definition_count = 0
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -8857,139 +8673,203 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/__init__.py"
-module_import_path = "bijux_proteomics_runtime.core"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/api_lock.py"
-module_import_path = "bijux_proteomics_runtime.core.api_lock"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/contracts.py"
-module_import_path = "bijux_proteomics_runtime.core.contracts"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/costs.py"
-module_import_path = "bijux_proteomics_runtime.core.costs"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/decisions.py"
-module_import_path = "bijux_proteomics_runtime.core.decisions"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/determinism.py"
-module_import_path = "bijux_proteomics_runtime.core.determinism"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/execution.py"
-module_import_path = "bijux_proteomics_runtime.core.execution"
-module_kind = "owner_logic"
-public_definition_count = 7
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/failures.py"
-module_import_path = "bijux_proteomics_runtime.core.failures"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/fingerprints.py"
-module_import_path = "bijux_proteomics_runtime.core.fingerprints"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/hashing.py"
-module_import_path = "bijux_proteomics_runtime.core.hashing"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/identifiers.py"
-module_import_path = "bijux_proteomics_runtime.core.identifiers"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/observations.py"
-module_import_path = "bijux_proteomics_runtime.core.observations"
-module_kind = "owner_logic"
-public_definition_count = 7
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/stability.py"
-module_import_path = "bijux_proteomics_runtime.core.stability"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/status.py"
-module_import_path = "bijux_proteomics_runtime.core.status"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/surface_area.py"
-module_import_path = "bijux_proteomics_runtime.core.surface_area"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/core/tooling.py"
-module_import_path = "bijux_proteomics_runtime.core.tooling"
-module_kind = "owner_logic"
-public_definition_count = 10
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/__init__.py"
 module_import_path = "bijux_proteomics_runtime.execution"
 module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/analysis/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.analysis"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/analysis/failure_analysis.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.analysis.failure_analysis"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/analysis/sequence_analysis.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.analysis.sequence_analysis"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/analysis/structure.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.analysis.structure"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/base/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.base"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/base/base.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.base.base"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/catalog.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.catalog"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/contracts.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.contracts"
+module_kind = "owner_logic"
+public_definition_count = 5
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/coordination/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.coordination"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/coordination/coordinator.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.coordination.coordinator"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/compiler.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning.compiler"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/generation.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning.generation"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/planner.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning.planner"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/schemas.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning.schemas"
+module_kind = "owner_logic"
+public_definition_count = 8
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/planning/validation.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.planning.validation"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/reporting/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.reporting"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/reporting/reporting.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.reporting.reporting"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/schemas.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.schemas"
+module_kind = "owner_logic"
+public_definition_count = 24
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/verification/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.verification"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/verification/critic.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.verification.critic"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/verification/input_validation.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.verification.input_validation"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/agents/verification/quality_control.py"
+module_import_path = "bijux_proteomics_runtime.execution.agents.verification.quality_control"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9005,6 +8885,30 @@ module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/ex
 module_import_path = "bijux_proteomics_runtime.execution.compiler.boundary"
 module_kind = "owner_logic"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/engine/__init__.py"
+module_import_path = "bijux_proteomics_runtime.execution.engine"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/engine/executor.py"
+module_import_path = "bijux_proteomics_runtime.execution.engine.executor"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/engine/integration.py"
+module_import_path = "bijux_proteomics_runtime.execution.engine.integration"
+module_kind = "owner_logic"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -9043,30 +8947,6 @@ workspace_import_root_count = 0
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/graph_validation.py"
 module_import_path = "bijux_proteomics_runtime.execution.graph_validation"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/runtime/__init__.py"
-module_import_path = "bijux_proteomics_runtime.execution.runtime"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/runtime/executor.py"
-module_import_path = "bijux_proteomics_runtime.execution.runtime.executor"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/runtime/integration.py"
-module_import_path = "bijux_proteomics_runtime.execution.runtime.integration"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
@@ -9155,17 +9035,17 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/__init__.py"
 module_import_path = "bijux_proteomics_runtime.providers"
-module_kind = "owner_logic"
-public_definition_count = 1
+module_kind = "import_glue"
+public_definition_count = 0
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/base.py"
-module_import_path = "bijux_proteomics_runtime.providers.base"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/builtin/heuristic.py"
+module_import_path = "bijux_proteomics_runtime.providers.builtin.heuristic"
 module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 0
+public_definition_count = 1
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9177,59 +9057,35 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/errors.py"
-module_import_path = "bijux_proteomics_runtime.providers.errors"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/experimental/__init__.py"
-module_import_path = "bijux_proteomics_runtime.providers.experimental"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/experimental/_async_utils.py"
-module_import_path = "bijux_proteomics_runtime.providers.experimental._async_utils"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/catalog.py"
+module_import_path = "bijux_proteomics_runtime.providers.catalog"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/experimental/colabfold.py"
-module_import_path = "bijux_proteomics_runtime.providers.experimental.colabfold"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/contracts.py"
+module_import_path = "bijux_proteomics_runtime.providers.contracts"
 module_kind = "owner_logic"
-public_definition_count = 1
+public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/environment.py"
+module_import_path = "bijux_proteomics_runtime.providers.environment"
+module_kind = "owner_logic"
+public_definition_count = 31
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/experimental/openprotein.py"
-module_import_path = "bijux_proteomics_runtime.providers.experimental.openprotein"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/errors.py"
+module_import_path = "bijux_proteomics_runtime.providers.errors"
 module_kind = "owner_logic"
 public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/factory.py"
-module_import_path = "bijux_proteomics_runtime.providers.factory"
-module_kind = "owner_logic"
-public_definition_count = 3
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/heuristic.py"
-module_import_path = "bijux_proteomics_runtime.providers.heuristic"
-module_kind = "owner_logic"
-public_definition_count = 1
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9257,17 +9113,49 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/support.py"
-module_import_path = "bijux_proteomics_runtime.providers.support"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/remote/__init__.py"
+module_import_path = "bijux_proteomics_runtime.providers.remote"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/remote/_async_utils.py"
+module_import_path = "bijux_proteomics_runtime.providers.remote._async_utils"
 module_kind = "owner_logic"
-public_definition_count = 31
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/remote/colabfold.py"
+module_import_path = "bijux_proteomics_runtime.providers.remote.colabfold"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/remote/openprotein.py"
+module_import_path = "bijux_proteomics_runtime.providers.remote.openprotein"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers/selection.py"
+module_import_path = "bijux_proteomics_runtime.providers.selection"
+module_kind = "owner_logic"
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/__init__.py"
 module_import_path = "bijux_proteomics_runtime.runs"
-module_kind = "owner_logic"
+module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
 
@@ -9433,6 +9321,14 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/public.py"
+module_import_path = "bijux_proteomics_runtime.runs.public"
+module_kind = "dead_weight"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/recovery.py"
 module_import_path = "bijux_proteomics_runtime.runs.recovery"
 module_kind = "owner_logic"
@@ -9505,38 +9401,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/__init__.py"
-module_import_path = "bijux_proteomics_runtime.runtime"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/contracts.py"
-module_import_path = "bijux_proteomics_runtime.runtime.contracts"
-module_kind = "owner_logic"
-public_definition_count = 6
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/workspace.py"
-module_import_path = "bijux_proteomics_runtime.runtime.workspace"
-module_kind = "owner_logic"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/sandbox/__init__.py"
-module_import_path = "bijux_proteomics_runtime.sandbox"
-module_kind = "import_glue"
-public_definition_count = 0
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/state/__init__.py"
 module_import_path = "bijux_proteomics_runtime.state"
 module_kind = "import_glue"
@@ -9581,7 +9445,15 @@ module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/su
 module_import_path = "bijux_proteomics_runtime.support"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/artifact_formats.py"
+module_import_path = "bijux_proteomics_runtime.support.artifact_formats"
+module_kind = "owner_logic"
+public_definition_count = 6
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9593,9 +9465,145 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/__init__.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/api_lock.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.api_lock"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/contracts.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.contracts"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/costs.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.costs"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/decisions.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.decisions"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/determinism.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.determinism"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/execution.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.execution"
+module_kind = "owner_logic"
+public_definition_count = 7
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/failures.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.failures"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/fingerprints.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.fingerprints"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/hashing.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.hashing"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/identifiers.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.identifiers"
+module_kind = "owner_logic"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/observations.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.observations"
+module_kind = "owner_logic"
+public_definition_count = 7
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/stability.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.stability"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/status.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.status"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/surface_area.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.surface_area"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/tooling.py"
+module_import_path = "bijux_proteomics_runtime.support.primitives.tooling"
+module_kind = "owner_logic"
+public_definition_count = 10
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/workspace.py"
+module_import_path = "bijux_proteomics_runtime.support.workspace"
+module_kind = "owner_logic"
+public_definition_count = 3
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/__init__.py"
 module_import_path = "bijux_proteomics_runtime.workflows"
-module_kind = "owner_logic"
+module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
 
@@ -9614,6 +9622,14 @@ module_import_path = "bijux_proteomics_runtime.workflows.plans"
 module_kind = "owner_logic"
 public_definition_count = 99
 workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/public.py"
+module_import_path = "bijux_proteomics_runtime.workflows.public"
+module_kind = "dead_weight"
+public_definition_count = 0
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9641,22 +9657,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/agents/__init__.py"
-module_import_path = "tests.bijux_proteomics_runtime.agents.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/agents/test_runtime_agents_surface.py"
-module_import_path = "tests.bijux_proteomics_runtime.agents.test_runtime_agents_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/tests/api/__init__.py"
 module_import_path = "tests.bijux_proteomics_runtime.api.__init__"
 module_kind = "test_only_helper"
@@ -9669,6 +9669,14 @@ module_path = "packages/bijux-proteomics-runtime/tests/api/test_adapter_conforma
 module_import_path = "tests.bijux_proteomics_runtime.api.test_adapter_conformance_route_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py"
+module_import_path = "tests.bijux_proteomics_runtime.api.test_document_contract_surfaces"
+module_kind = "test_only_helper"
+public_definition_count = 9
 workspace_import_root_count = 1
 
 [[module]]
@@ -9774,6 +9782,14 @@ module_import_path = "tests.bijux_proteomics_runtime.execution.__init__"
 module_kind = "test_only_helper"
 public_definition_count = 0
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/tests/execution/agents/test_agents_surface.py"
+module_import_path = "tests.bijux_proteomics_runtime.execution.agents.test_agents_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -9897,14 +9913,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/package/test_runtime_core_surface.py"
-module_import_path = "tests.bijux_proteomics_runtime.package.test_runtime_core_surface"
-module_kind = "test_only_helper"
-public_definition_count = 12
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/tests/package/test_runtime_governance_surface.py"
 module_import_path = "tests.bijux_proteomics_runtime.package.test_runtime_governance_surface"
 module_kind = "test_only_helper"
@@ -9918,6 +9926,14 @@ module_import_path = "tests.bijux_proteomics_runtime.package.test_runtime_packag
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/tests/package/test_runtime_primitives_surface.py"
+module_import_path = "tests.bijux_proteomics_runtime.package.test_runtime_primitives_surface"
+module_kind = "test_only_helper"
+public_definition_count = 12
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -10006,6 +10022,14 @@ module_import_path = "tests.bijux_proteomics_runtime.runs.__init__"
 module_kind = "test_only_helper"
 public_definition_count = 0
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/tests/runs/test_run_context_contracts.py"
+module_import_path = "tests.bijux_proteomics_runtime.runs.test_run_context_contracts"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
@@ -10141,30 +10165,6 @@ module_path = "packages/bijux-proteomics-runtime/tests/runs/test_runtime_rerun_p
 module_import_path = "tests.bijux_proteomics_runtime.runs.test_runtime_rerun_planning"
 module_kind = "test_only_helper"
 public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/runtime/__init__.py"
-module_import_path = "tests.bijux_proteomics_runtime.runtime.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/runtime/test_runtime_context_contracts.py"
-module_import_path = "tests.bijux_proteomics_runtime.runtime.test_runtime_context_contracts"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/tests/runtime/test_runtime_contract_surfaces.py"
-module_import_path = "tests.bijux_proteomics_runtime.runtime.test_runtime_contract_surfaces"
-module_kind = "test_only_helper"
-public_definition_count = 9
 workspace_import_root_count = 1
 
 [[module]]

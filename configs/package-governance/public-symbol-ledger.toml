@@ -403,7 +403,7 @@ symbol_kind = "class"
 owner_distribution_name = "bijux-proteomics-runtime"
 owner_module_name = "bijux_proteomics_runtime.api"
 owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-runtime"
@@ -423,7 +423,7 @@ symbol_kind = "data"
 owner_distribution_name = "bijux-proteomics-runtime"
 owner_module_name = "bijux_proteomics_runtime.api.cli"
 owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-runtime"
@@ -433,4 +433,4 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-runtime"
 owner_module_name = "bijux_proteomics_runtime.api"
 owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
