@@ -17,6 +17,7 @@ from bijux_proteomics_knowledge.references.grounding.rules import (
     ScientificRuleReference,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    BenchmarkEvidenceTier,
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
@@ -26,17 +27,36 @@ from bijux_proteomics_knowledge.references.workflows.briefings import (
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_manifest,
+    get_benchmark_registry_entry,
+    list_benchmark_registry_entries,
+)
+from bijux_proteomics_knowledge.references.workflows.registry import (
+    BenchmarkAuthorityAssessment,
+    BenchmarkAuthorityStatus,
+    BenchmarkRegistryEntry,
+    BenchmarkRegistryReport,
+    assess_benchmark_authority,
+    build_benchmark_registry,
 )
 
 __all__ = [
+    "BenchmarkAuthorityAssessment",
+    "BenchmarkAuthorityStatus",
+    "BenchmarkEvidenceTier",
     "BenchmarkManifest",
+    "BenchmarkRegistryEntry",
+    "BenchmarkRegistryReport",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
     "KnowledgeWorkflowFamily",
     "ScientificContextEntry",
     "ScientificRuleReference",
     "WorkflowReferenceBriefing",
+    "assess_benchmark_authority",
+    "build_benchmark_registry",
     "build_workflow_reference_briefing",
     "get_benchmark_manifest",
+    "get_benchmark_registry_entry",
+    "list_benchmark_registry_entries",
     "resolve_ontology_mapping",
 ]

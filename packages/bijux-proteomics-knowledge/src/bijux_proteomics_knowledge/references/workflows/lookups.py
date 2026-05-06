@@ -10,6 +10,12 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.registry import (
+    BenchmarkRegistryEntry,
+    BenchmarkRegistryReport,
+    build_benchmark_registry,
+    build_benchmark_registry_entry,
+)
 from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
     WorkflowNarrative,
@@ -44,6 +50,23 @@ def get_benchmark_manifest(benchmark_id: str) -> BenchmarkManifest | None:
     )
 
 
+def list_benchmark_registry_entries(
+    *, workflow_family: KnowledgeWorkflowFamily | None = None
+) -> tuple[BenchmarkRegistryEntry, ...]:
+    """Return public benchmark registry entries with authority posture."""
+
+    return build_benchmark_registry(workflow_family=workflow_family).entries
+
+
+def get_benchmark_registry_entry(benchmark_id: str) -> BenchmarkRegistryEntry | None:
+    """Return one public benchmark registry entry by stable benchmark identifier."""
+
+    manifest = get_benchmark_manifest(benchmark_id)
+    if manifest is None:
+        return None
+    return build_benchmark_registry_entry(manifest)
+
+
 def list_workflow_narratives(
     *,
     workflow_family: KnowledgeWorkflowFamily | None = None,
@@ -74,7 +97,11 @@ def get_workflow_narrative(narrative_id: str) -> WorkflowNarrative | None:
 
 __all__ = [
     "get_benchmark_manifest",
+    "get_benchmark_registry_entry",
     "get_workflow_narrative",
+    "list_benchmark_registry_entries",
     "list_benchmark_manifests",
     "list_workflow_narratives",
+    "BenchmarkRegistryEntry",
+    "BenchmarkRegistryReport",
 ]
