@@ -4,13 +4,13 @@
 [[check]]
 policy_id = "no-product-specific-fixtures"
 checked_path_count = 38
-checked_symbol_count = 217
+checked_symbol_count = 212
 ready = true
 violations = []
 
 [[check]]
 policy_id = "no-route-cli-markdown-helpers"
-checked_path_count = 29
-checked_symbol_count = 121
+checked_path_count = 24
+checked_symbol_count = 117
 ready = true
 violations = []

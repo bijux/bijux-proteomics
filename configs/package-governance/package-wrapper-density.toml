@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_wrapper_density
 
 [guard]
-max_total_wrapper_module_count = 232
-max_average_wrapper_density = 0.3087
+max_total_wrapper_module_count = 240
+max_average_wrapper_density = 0.3246
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -21,9 +21,9 @@ max_wrapper_module_count = 8
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-total_source_module_count = 23
+total_source_module_count = 24
 wrapper_module_count = 6
-wrapper_density = 0.2609
+wrapper_density = 0.25
 max_wrapper_module_count = 6
 
 [[package]]
@@ -35,24 +35,24 @@ max_wrapper_module_count = 19
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-total_source_module_count = 149
-wrapper_module_count = 28
-wrapper_density = 0.1879
-max_wrapper_module_count = 28
+total_source_module_count = 151
+wrapper_module_count = 30
+wrapper_density = 0.1987
+max_wrapper_module_count = 30
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-total_source_module_count = 41
-wrapper_module_count = 10
-wrapper_density = 0.2439
-max_wrapper_module_count = 10
+total_source_module_count = 44
+wrapper_module_count = 8
+wrapper_density = 0.1818
+max_wrapper_module_count = 8
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-total_source_module_count = 26
-wrapper_module_count = 5
-wrapper_density = 0.1923
-max_wrapper_module_count = 5
+total_source_module_count = 34
+wrapper_module_count = 13
+wrapper_density = 0.3824
+max_wrapper_module_count = 13
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"

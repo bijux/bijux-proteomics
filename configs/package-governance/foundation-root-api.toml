@@ -26,7 +26,7 @@ rationale = "knowledge and lab packages both consume claim identifiers from the 
 
 [[symbol]]
 name = "DocumentSchema"
-owner_module = "bijux_proteomics_foundation.serialization.documents"
+owner_module = "bijux_proteomics_foundation.serialization.document_schema"
 rationale = "document metadata is the most reused foundation contract across the full package suite."
 
 [[symbol]]
@@ -36,7 +36,7 @@ rationale = "core and knowledge share evidence identifiers in public contracts."
 
 [[symbol]]
 name = "fingerprint_model"
-owner_module = "bijux_proteomics_foundation.serialization.json_models"
+owner_module = "bijux_proteomics_foundation.serialization.json_contracts"
 rationale = "multiple downstream packages fingerprint model instances directly without rebuilding helper logic."
 
 [[symbol]]
@@ -46,22 +46,22 @@ rationale = "review-gate identifiers stay shared across core and lab packages."
 
 [[symbol]]
 name = "hash_model"
-owner_module = "bijux_proteomics_foundation.serialization.hashing"
+owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
 rationale = "foundation exposes one model-hash helper for downstream artifacts that already carry JsonModel contracts."
 
 [[symbol]]
 name = "hash_payload"
-owner_module = "bijux_proteomics_foundation.serialization.hashing"
+owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
 rationale = "runtime, intelligence, and lab surfaces reuse payload hashing as a shared primitive."
 
 [[symbol]]
 name = "hash_text"
-owner_module = "bijux_proteomics_foundation.serialization.hashing"
+owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
 rationale = "runtime and intelligence use stable text hashing directly from the foundation root."
 
 [[symbol]]
 name = "JsonModel"
-owner_module = "bijux_proteomics_foundation.serialization.json_models"
+owner_module = "bijux_proteomics_foundation.serialization.json_contracts"
 rationale = "JsonModel remains the central shared base class consumed by every real product package."
 
 [[symbol]]
@@ -76,5 +76,5 @@ rationale = "target identifiers appear across core, intelligence, and knowledge 
 
 [[symbol]]
 name = "to_canonical_json"
-owner_module = "bijux_proteomics_foundation.serialization.canonicalization"
+owner_module = "bijux_proteomics_foundation.serialization.canonical_json"
 rationale = "stable canonical serialization remains a shared downstream-facing primitive."

@@ -23,7 +23,7 @@ live_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ensure_
 dead_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "EvidenceId", "ExperimentId", "GateId", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "ProteinId", "PtmId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier"]
 
 [[surface]]
-module_name = "bijux_proteomics_foundation.outcomes.error_envelopes"
+module_name = "bijux_proteomics_foundation.outcomes.failures"
 consumer_count = 0
 exported_symbols = []
 live_symbols = []
@@ -51,11 +51,11 @@ live_symbols = ["OperationDisposition", "OperationResult"]
 dead_symbols = []
 
 [[surface]]
-module_name = "bijux_proteomics_foundation.serialization.documents"
+module_name = "bijux_proteomics_foundation.serialization.document_schema"
 consumer_count = 0
-exported_symbols = ["DocumentSchema", "DurationValue", "NullabilityState", "NullableValue", "SequenceCoordinateRange", "SequenceCoordinateSystem", "UtcTimestamp", "absent_value", "present_value"]
+exported_symbols = ["DocumentSchema"]
 live_symbols = []
-dead_symbols = ["DocumentSchema", "DurationValue", "NullabilityState", "NullableValue", "SequenceCoordinateRange", "SequenceCoordinateSystem", "UtcTimestamp", "absent_value", "present_value"]
+dead_symbols = ["DocumentSchema"]
 
 [[surface]]
 module_name = "bijux_proteomics_foundation.serialization.fingerprints"
@@ -65,14 +65,14 @@ live_symbols = []
 dead_symbols = []
 
 [[surface]]
-module_name = "bijux_proteomics_foundation.serialization.hashing"
+module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
 consumer_count = 1
 exported_symbols = ["StableHashAlgorithm", "StableHashPolicy", "default_hash_policy", "hash_model", "hash_payload", "hash_text"]
 live_symbols = ["StableHashPolicy", "default_hash_policy"]
 dead_symbols = ["StableHashAlgorithm", "hash_model", "hash_payload", "hash_text"]
 
 [[surface]]
-module_name = "bijux_proteomics_foundation.serialization.json_models"
+module_name = "bijux_proteomics_foundation.serialization.json_contracts"
 consumer_count = 12
 exported_symbols = ["JsonModel", "fingerprint_model"]
 live_symbols = ["JsonModel"]

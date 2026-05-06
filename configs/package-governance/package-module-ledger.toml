@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 391
+min_owner_logic_module_count = 392
 max_compatibility_surface_count = 4
 max_import_glue_module_count = 231
 max_dead_weight_module_count = 3
@@ -6697,24 +6697,24 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/evolution.py"
-module_import_path = "bijux_proteomics_foundation.compatibility.evolution"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_assessments.py"
+module_import_path = "bijux_proteomics_foundation.compatibility.schema_assessments"
 module_kind = "owner_logic"
 public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/migrations.py"
-module_import_path = "bijux_proteomics_foundation.compatibility.migrations"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_migrations.py"
+module_import_path = "bijux_proteomics_foundation.compatibility.schema_migrations"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/versions.py"
-module_import_path = "bijux_proteomics_foundation.compatibility.versions"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_versions.py"
+module_import_path = "bijux_proteomics_foundation.compatibility.schema_versions"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
@@ -6745,19 +6745,19 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/error_envelopes.py"
-module_import_path = "bijux_proteomics_foundation.outcomes.error_envelopes"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/exceptions.py"
 module_import_path = "bijux_proteomics_foundation.outcomes.exceptions"
 module_kind = "owner_logic"
 public_definition_count = 6
 workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/failures.py"
+module_import_path = "bijux_proteomics_foundation.outcomes.failures"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
@@ -6785,18 +6785,18 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonicalization.py"
-module_import_path = "bijux_proteomics_foundation.serialization.canonicalization"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonical_json.py"
+module_import_path = "bijux_proteomics_foundation.serialization.canonical_json"
 module_kind = "owner_logic"
 public_definition_count = 3
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/documents.py"
-module_import_path = "bijux_proteomics_foundation.serialization.documents"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/document_schema.py"
+module_import_path = "bijux_proteomics_foundation.serialization.document_schema"
 module_kind = "owner_logic"
-public_definition_count = 9
+public_definition_count = 1
 workspace_import_root_count = 1
 
 [[module]]
@@ -6809,24 +6809,32 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/hashing.py"
-module_import_path = "bijux_proteomics_foundation.serialization.hashing"
-module_kind = "owner_logic"
-public_definition_count = 6
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_models.py"
-module_import_path = "bijux_proteomics_foundation.serialization.json_models"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py"
+module_import_path = "bijux_proteomics_foundation.serialization.json_contracts"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/ordering.py"
-module_import_path = "bijux_proteomics_foundation.serialization.ordering"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/scientific_values.py"
+module_import_path = "bijux_proteomics_foundation.serialization.scientific_values"
+module_kind = "owner_logic"
+public_definition_count = 8
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+module_import_path = "bijux_proteomics_foundation.serialization.stable_hashes"
+module_kind = "owner_logic"
+public_definition_count = 6
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_values.py"
+module_import_path = "bijux_proteomics_foundation.serialization.stable_values"
 module_kind = "owner_logic"
 public_definition_count = 3
 workspace_import_root_count = 0
@@ -6889,10 +6897,26 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/identity/test_identifier_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.identity.test_identifier_surface"
+module_kind = "test_only_helper"
+public_definition_count = 5
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/tests/outcomes/test_exception_surface.py"
 module_import_path = "tests.bijux_proteomics_foundation.outcomes.test_exception_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/outcomes/test_failure_and_result_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.outcomes.test_failure_and_result_surface"
+module_kind = "test_only_helper"
+public_definition_count = 12
 workspace_import_root_count = 1
 
 [[module]]
@@ -6905,14 +6929,6 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/tests/package/test_contract_property_surface.py"
-module_import_path = "tests.bijux_proteomics_foundation.package.test_contract_property_surface"
-module_kind = "test_only_helper"
-public_definition_count = 19
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/tests/package/test_package_charter.py"
 module_import_path = "tests.bijux_proteomics_foundation.package.test_package_charter"
 module_kind = "test_only_helper"
@@ -6921,10 +6937,10 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-foundation"
-module_path = "packages/bijux-proteomics-foundation/tests/package/test_shared_contract_surface.py"
-module_import_path = "tests.bijux_proteomics_foundation.package.test_shared_contract_surface"
+module_path = "packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.package.test_public_api_surface"
 module_kind = "test_only_helper"
-public_definition_count = 6
+public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -6933,6 +6949,14 @@ module_path = "packages/bijux-proteomics-foundation/tests/performance/test_hashi
 module_import_path = "tests.bijux_proteomics_foundation.performance.test_hashing_and_serialization_benchmark_surface"
 module_kind = "test_only_helper"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.serialization.test_canonical_json_surface"
+module_kind = "test_only_helper"
+public_definition_count = 8
 workspace_import_root_count = 1
 
 [[module]]
@@ -6947,6 +6971,14 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-foundation"
 module_path = "packages/bijux-proteomics-foundation/tests/serialization/test_document_roundtrip_surface.py"
 module_import_path = "tests.bijux_proteomics_foundation.serialization.test_document_roundtrip_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-foundation"
+module_path = "packages/bijux-proteomics-foundation/tests/support/test_provenance_surface.py"
+module_import_path = "tests.bijux_proteomics_foundation.support.test_provenance_surface"
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 1

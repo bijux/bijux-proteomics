@@ -28,14 +28,14 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-owner_logic_module_count = 17
+owner_logic_module_count = 18
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-owner_logic_module_count = 30
+owner_logic_module_count = 35
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
@@ -56,7 +56,7 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 120
+owner_logic_module_count = 117
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false

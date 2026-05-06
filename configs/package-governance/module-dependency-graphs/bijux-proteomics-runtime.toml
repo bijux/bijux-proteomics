@@ -636,7 +636,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_runtime.support.artifact_formats"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.hashing", "bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts", "bijux_proteomics_foundation.serialization.stable_hashes"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.support.identity"

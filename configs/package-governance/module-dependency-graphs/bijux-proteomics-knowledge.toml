@@ -91,37 +91,37 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.citations"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.contexts"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.corpora"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.literature"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.ontologies"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.problems"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.grounding.rules"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.public"
@@ -136,12 +136,12 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.workflows.benchmarks"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.workflows.briefings"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.narratives"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.workflows.lookups"
@@ -151,7 +151,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_knowledge.references.workflows.narratives"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_models"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.reviews"
