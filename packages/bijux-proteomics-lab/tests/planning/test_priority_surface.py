@@ -101,13 +101,11 @@ def _planning_fixture(name: str) -> dict[str, object]:
         dict[str, object],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "planning"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "planning" / name
             ).read_text(encoding="utf-8")
         ),
     )
+
 
 def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> None:
     program = create_program_spec(
@@ -169,12 +167,31 @@ def test_align_lab_priority_queue_reconciles_candidate_and_assay_priority() -> N
                 unresolved_questions=["orthogonal assay remains unresolved"],
                 recommended_action="hold candidate until contradictions are resolved",
             ),
+            CandidatePrioritySignal(
+                candidate_id="cand-4",
+                score=0.98,
+                assay_ids=["gate-binding"],
+                decision_ready=True,
+                contradiction_pressure=0.02,
+                freshness_pressure=0.01,
+                grounding_pressure=0.62,
+                grounding_findings=[
+                    "knowledge support still depends on one narrow non-lab source family"
+                ],
+                policy_lineage_id="policy-balanced",
+            ),
         ],
     )
 
     assert alignment.prioritized_assay_ids[0] == "gate-binding"
     assert alignment.unaligned_candidate_ids == ["cand-2"]
     assert alignment.held_candidate_ids == ["cand-3"]
+    assert "cand-4" in alignment.skeptical_candidate_ids
+    assert (
+        alignment.candidate_assay_scores["cand-1:gate-binding"]
+        > alignment.candidate_assay_scores["cand-4:gate-binding"]
+    )
+
 
 def test_build_follow_up_practicality_report_blocks_candidates_without_practical_path() -> (
     None
@@ -227,15 +244,35 @@ def test_build_follow_up_practicality_report_blocks_candidates_without_practical
                 contradiction_pressure=0.52,
                 recommended_action="hold candidate until contradictions are resolved",
             ),
+            CandidatePrioritySignal(
+                candidate_id="cand-thin-grounding",
+                score=0.99,
+                assay_ids=["gate-binding"],
+                decision_ready=True,
+                contradiction_pressure=0.04,
+                freshness_pressure=0.02,
+                grounding_pressure=0.58,
+                grounding_findings=[
+                    "orthogonal grounding remains missing for the requested follow-up"
+                ],
+                policy_lineage_id="policy-balanced",
+            ),
         ],
         budget_limit=1.5,
     )
 
     assert report.practical_candidate_ids == ["cand-practical"]
-    assert report.impractical_candidate_ids == ["cand-impractical"]
+    assert report.impractical_candidate_ids == [
+        "cand-impractical",
+        "cand-thin-grounding",
+    ]
     assert report.executable_batch_ids == ["b1"]
     assert report.blocked_batch_ids == ["b2"]
     assert report.practicality_score == 0.42
+    assert any(
+        "grounded strongly enough" in blocker for blocker in report.blockers
+    )
+
 
 def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces() -> (
     None
@@ -305,6 +342,7 @@ def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces()
     assert alignment.prioritized_assay_ids[0] == "phosphosite-panel"
     assert capacity_advisory.feasible_batch_ids == ["b-phospho"]
 
+
 def test_constrained_capacity_fixture_keeps_partly_schedulable_follow_up_explicit() -> (
     None
 ):
@@ -315,7 +353,9 @@ def test_constrained_capacity_fixture_keeps_partly_schedulable_follow_up_explici
         LabCapacity.model_validate(fixture["capacity"]),
         [
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         [
             CandidatePrioritySignal.model_validate(item)
@@ -342,8 +382,6 @@ def test_constrained_capacity_fixture_keeps_partly_schedulable_follow_up_explici
     assert report.constrained_candidate_ids == ["cand-hybrid"]
     assert report.material_blocked_candidate_ids == []
     assert any("schedule pressure" in note for note in report.schedule_pressure_notes)
-
-
 
 
 def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
@@ -373,6 +411,7 @@ def test_score_assay_gate_impact_prioritizes_blocking_gates() -> None:
 
     assert scores[0].assay_id == "a1"
     assert scores[0].impact_score > scores[1].impact_score
+
 
 def test_estimate_assay_execution_burden_accounts_for_sample_kind_and_gates() -> None:
     plan = ExperimentPlan(
@@ -405,6 +444,7 @@ def test_estimate_assay_execution_burden_accounts_for_sample_kind_and_gates() ->
 
     assert burden[0].assay_id == "cell-a"
     assert burden[0].burden_score > burden[1].burden_score
+
 
 def test_build_lab_cycle_brief_combines_impact_burden_and_priorities() -> None:
     program = create_program_spec(
@@ -450,6 +490,7 @@ def test_build_lab_cycle_brief_combines_impact_burden_and_priorities() -> None:
     assert brief.top_gate_impacts
     assert brief.next_assay_priorities
 
+
 def test_score_assay_information_gain_reflects_gate_and_conflict_pressure() -> None:
     breakdown = score_assay_information_gain(
         assay_id="assay-priority",
@@ -462,6 +503,7 @@ def test_score_assay_information_gain_reflects_gate_and_conflict_pressure() -> N
     assert breakdown.decision_gate_impact == 0.9
     assert breakdown.contradiction_resolution_value > 0.0
     assert 0.0 <= breakdown.final_score <= 1.0
+
 
 def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
     program = create_program_spec(
@@ -506,6 +548,7 @@ def test_prioritize_next_assays_prefers_blocking_and_unobserved_work() -> None:
 
     assert ranked[0].assay_id == "a-block"
     assert ranked[0].estimated_cost > 0
+
 
 def test_score_assay_information_gain_supports_custom_planning_policy() -> None:
     breakdown = score_assay_information_gain(

@@ -40,6 +40,7 @@ from bijux_proteomics_lab.planning.scheduling import (
     summarize_schedule_pressure,
 )
 
+
 class NextAssayPriority(JsonModel):
     """Priority score for selecting the next assay based on information gain."""
 
@@ -61,6 +62,7 @@ class NextAssayPriority(JsonModel):
         default_factory=list, description="Short rationale points."
     )
 
+
 class CandidatePrioritySignal(JsonModel):
     """External candidate-priority input aligned against lab assays."""
 
@@ -72,10 +74,13 @@ class CandidatePrioritySignal(JsonModel):
     decision_ready: bool = True
     contradiction_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
     freshness_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
+    grounding_pressure: float = Field(default=0.0, ge=0.0, le=1.0)
     unresolved_questions: list[str] = Field(default_factory=list)
+    grounding_findings: list[str] = Field(default_factory=list)
     recommended_action: str | None = Field(default=None, min_length=1)
     policy_lineage_id: str | None = Field(default=None, min_length=1)
     rationale: list[str] = Field(default_factory=list)
+
 
 class LabPriorityQueueAlignment(JsonModel):
     """Alignment report between candidate ranking signals and assay priorities."""
@@ -89,6 +94,7 @@ class LabPriorityQueueAlignment(JsonModel):
     held_candidate_ids: list[str] = Field(default_factory=list)
     candidate_assay_scores: dict[str, float] = Field(default_factory=dict)
     notes: list[str] = Field(default_factory=list)
+
 
 class FollowUpPracticalityReport(JsonModel):
     """Practicality report for candidate follow-up under real lab constraints."""
@@ -107,6 +113,7 @@ class FollowUpPracticalityReport(JsonModel):
     blockers: list[str] = Field(default_factory=list)
     schedule_pressure_notes: list[str] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+
 
 class InformationGainBreakdown(JsonModel):
     """Multiparameter information-gain score components for an assay."""
@@ -136,6 +143,7 @@ class InformationGainBreakdown(JsonModel):
         ..., ge=0.0, le=1.0, description="Combined information-gain score."
     )
 
+
 class GateImpactScore(JsonModel):
     """Decision-gate impact score for an assay in the current experiment plan."""
 
@@ -153,6 +161,7 @@ class GateImpactScore(JsonModel):
         default_factory=list, description="Human-readable impact rationale."
     )
 
+
 class AssayExecutionBurden(JsonModel):
     """Estimated execution burden for one assay inside an experiment plan."""
 
@@ -169,6 +178,7 @@ class AssayExecutionBurden(JsonModel):
     drivers: list[str] = Field(
         default_factory=list, description="Primary burden drivers."
     )
+
 
 class LabCycleBrief(JsonModel):
     """Decision brief for the next laboratory cycle."""
@@ -194,6 +204,7 @@ class LabCycleBrief(JsonModel):
         default_factory=list, description="Summary notes for review."
     )
 
+
 class MaterialReservation(JsonModel):
     """Material reservation request tied to a specific batch."""
 
@@ -206,6 +217,7 @@ class MaterialReservation(JsonModel):
     feasible: bool = Field(
         ..., description="Whether reservation is feasible with current inventory."
     )
+
 
 class LabExecutionDirective(JsonModel):
     """Operational directive for the next lab cycle based on outcome triage."""
@@ -222,6 +234,7 @@ class LabExecutionDirective(JsonModel):
     immediate_actions: list[str] = Field(
         default_factory=list, description="Immediate execution actions."
     )
+
 
 class PlanningPolicy(JsonModel):
     """Weights and penalties for information-gain planning calculations."""
@@ -255,6 +268,7 @@ class PlanningPolicy(JsonModel):
         le=1.0,
         description="Burden penalty for non-blocking assays.",
     )
+
 
 def prioritize_next_assays(
     program: ProgramSpec,
@@ -303,6 +317,7 @@ def prioritize_next_assays(
         )
     return sorted(ranked, key=lambda item: item.score, reverse=True)
 
+
 def align_lab_priority_queue(
     program: ProgramSpec,
     priorities: list[NextAssayPriority],
@@ -330,7 +345,9 @@ def align_lab_priority_queue(
             skepticism_penalty += 0.5
         skepticism_penalty += signal.contradiction_pressure * 0.75
         skepticism_penalty += signal.freshness_pressure * 0.35
+        skepticism_penalty += signal.grounding_pressure * 0.9
         skepticism_penalty += min(len(signal.unresolved_questions) * 0.08, 0.24)
+        skepticism_penalty += min(len(signal.grounding_findings) * 0.06, 0.18)
         if signal.policy_lineage_id is None:
             skepticism_penalty += 0.15
         if skepticism_penalty >= 0.45:
@@ -357,6 +374,10 @@ def align_lab_priority_queue(
         notes.append(
             "skeptical penalties downgraded some candidate-driven assay requests"
         )
+    if any(signal.grounding_pressure >= 0.45 for signal in candidate_signals):
+        notes.append(
+            "weak knowledge grounding prevented some numerically attractive requests from dominating the lab queue"
+        )
     if held_candidate_ids:
         notes.append(
             "hold recommendations were excluded from the executable assay queue"
@@ -370,6 +391,7 @@ def align_lab_priority_queue(
         candidate_assay_scores=candidate_assay_scores,
         notes=notes,
     )
+
 
 def build_follow_up_practicality_report(
     plan: ExperimentPlan,
@@ -446,7 +468,10 @@ def build_follow_up_practicality_report(
                 f"{signal.candidate_id} is not mapped to any planned executable batch"
             )
             continue
-        if matched_batch_ids.issubset(material_blocked_batches) and material_blocked_batches:
+        if (
+            matched_batch_ids.issubset(material_blocked_batches)
+            and material_blocked_batches
+        ):
             impractical_candidate_ids.append(signal.candidate_id)
             material_blocked_candidate_ids.append(signal.candidate_id)
             blockers.append(
@@ -457,6 +482,12 @@ def build_follow_up_practicality_report(
             impractical_candidate_ids.append(signal.candidate_id)
             blockers.append(
                 f"{signal.candidate_id} is not analytically ready for operational spend"
+            )
+            continue
+        if signal.grounding_pressure >= 0.45:
+            impractical_candidate_ids.append(signal.candidate_id)
+            blockers.append(
+                f"{signal.candidate_id} is not grounded strongly enough for responsible lab spend"
             )
             continue
         executable_batch_ids = (
@@ -484,10 +515,16 @@ def build_follow_up_practicality_report(
     notes = list(capacity_advisory.notes)
     notes.extend(schedule_pressure_notes)
     if material_blocked_batches:
-        notes.append("material feasibility further narrows which follow-up batches are responsible to schedule")
+        notes.append(
+            "material feasibility further narrows which follow-up batches are responsible to schedule"
+        )
     if blockers:
         notes.append(
             "candidate practicality is constrained by both analytical skepticism and lab capacity"
+        )
+    if any(signal.grounding_pressure >= 0.45 for signal in candidate_signals):
+        notes.append(
+            "high nominal scores still require credible grounding before the queue treats them as executable follow-up"
         )
 
     return FollowUpPracticalityReport(
@@ -504,6 +541,7 @@ def build_follow_up_practicality_report(
         schedule_pressure_notes=schedule_pressure_notes,
         notes=notes,
     )
+
 
 def score_assay_information_gain(
     *,
@@ -554,6 +592,7 @@ def score_assay_information_gain(
         final_score=final_score,
     )
 
+
 def score_assay_gate_impact(plan: ExperimentPlan) -> list[GateImpactScore]:
     """Score assay-level impact on decision gates using batch gate load and priority."""
     results: list[GateImpactScore] = []
@@ -582,6 +621,7 @@ def score_assay_gate_impact(plan: ExperimentPlan) -> list[GateImpactScore]:
                 )
             )
     return sorted(results, key=lambda item: item.impact_score, reverse=True)
+
 
 def estimate_assay_execution_burden(plan: ExperimentPlan) -> list[AssayExecutionBurden]:
     """Estimate execution burden for each assay from batch planning context."""
@@ -623,6 +663,7 @@ def estimate_assay_execution_burden(plan: ExperimentPlan) -> list[AssayExecution
             )
     return sorted(burdens, key=lambda item: item.burden_score, reverse=True)
 
+
 def build_lab_cycle_brief(
     program: ProgramSpec,
     plan: ExperimentPlan,
@@ -654,6 +695,7 @@ def build_lab_cycle_brief(
         notes=notes,
     )
 
+
 def plan_material_reservations(
     plan: ExperimentPlan,
     requirements: list[MaterialRequirement],
@@ -684,6 +726,7 @@ def plan_material_reservations(
                 0.0, available - reserved_units
             )
     return reservations
+
 
 def derive_lab_execution_directive(outcome: ExperimentOutcome) -> LabExecutionDirective:
     """Derive an operational directive from batch outcome and triage signals."""
