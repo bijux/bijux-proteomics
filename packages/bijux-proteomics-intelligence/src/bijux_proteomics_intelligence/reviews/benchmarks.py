@@ -39,8 +39,10 @@ from bijux_proteomics.quantification import (
     LabelBasedQuantPolicy,
     MissingChannelPolicy,
     MultiplexNormalizationPolicy,
+    QuantDecisionReadinessState,
     QuantEntityLevel,
     QuantRollupMethod,
+    build_quant_decision_readiness_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     parse_ms1_feature_table,
@@ -58,6 +60,10 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_manifest,
+    get_benchmark_registry_entry,
+)
+from bijux_proteomics_knowledge.references.workflows.registry import (
+    BenchmarkAuthorityStatus,
 )
 
 
@@ -92,8 +98,11 @@ class WorkflowBenchmarkReview(JsonModel):
     benchmark_id: str = Field(..., min_length=1)
     dataset_id: str = Field(..., min_length=1)
     workflow_family: KnowledgeWorkflowFamily
+    benchmark_authority_status: BenchmarkAuthorityStatus
     title: str = Field(..., min_length=1)
     reviewer_summary: str = Field(..., min_length=1)
+    supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
+    authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
     review_artifacts: tuple[BenchmarkReviewArtifact, ...] = Field(default_factory=tuple)
     claim_summaries: tuple[BenchmarkReviewClaim, ...] = Field(default_factory=tuple)
@@ -112,6 +121,13 @@ def _require_manifest(benchmark_id: str) -> BenchmarkManifest:
     if manifest is None:
         raise ValueError(f"unknown benchmark manifest: {benchmark_id}")
     return manifest
+
+
+def _require_registry_entry(benchmark_id: str):
+    entry = get_benchmark_registry_entry(benchmark_id)
+    if entry is None:
+        raise ValueError(f"unknown benchmark registry entry: {benchmark_id}")
+    return entry
 
 
 def _build_external_bundle(
@@ -151,6 +167,7 @@ def build_dda_benchmark_review(
     manifest = benchmark_manifest or _require_manifest(
         "benchmark:dda_search_reproducibility"
     )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.DDA:
         raise ValueError("DDA benchmark review requires a DDA workflow manifest")
     result_path = source_path or (_repo_root() / manifest.dataset_locator)
@@ -231,11 +248,14 @@ def build_dda_benchmark_review(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
         workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
             "DDA benchmark review preserves external-engine normalization, target-decoy posture, "
             "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun."
         ),
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
             "bijux-proteomics-core: identification.search_adapters",
             "bijux-proteomics-core: identification.review_ready_evidence_bundle",
@@ -275,6 +295,7 @@ def build_dia_benchmark_review(
     manifest = benchmark_manifest or _require_manifest(
         "benchmark:dia_library_extraction_consistency"
     )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.DIA:
         raise ValueError("DIA benchmark review requires a DIA workflow manifest")
     result_path = source_path or (_repo_root() / manifest.dataset_locator)
@@ -375,11 +396,14 @@ def build_dia_benchmark_review(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
         workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
             "DIA benchmark review turns a checked-in Spectronaut-style export into a reviewable "
             "bundle with explicit capability limits, rather than presenting adapter coverage as full pipeline parity."
         ),
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
             "bijux-proteomics-core: identification.search_adapters",
             "bijux-proteomics-core: dia.capability_matrix",
@@ -427,6 +451,7 @@ def build_ptm_benchmark_review(
     manifest = benchmark_manifest or _require_manifest(
         "benchmark:ptm_site_localization_confidence"
     )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.PTM:
         raise ValueError("PTM benchmark review requires a PTM workflow manifest")
     active_localization_path = localization_path or (
@@ -536,11 +561,14 @@ def build_ptm_benchmark_review(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
         workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
             "PTM benchmark review turns checked-in localization evidence into a phospho review packet "
             "while preserving explicit ambiguity and motif-scope limits."
         ),
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
             "bijux-proteomics-core: ptm.localization",
             "bijux-proteomics-core: ptm.review",
@@ -581,6 +609,7 @@ def build_lfq_benchmark_review(
     manifest = benchmark_manifest or _require_manifest(
         "benchmark:lfq_quantification_repeatability"
     )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.LFQ:
         raise ValueError("LFQ benchmark review requires an LFQ workflow manifest")
     active_feature_path = feature_path or (_repo_root() / manifest.dataset_locator)
@@ -633,6 +662,24 @@ def build_lfq_benchmark_review(
                 "repeatability claims remain bounded by the checked-in LFQ study-scale fixture and any QC caveats in the review bundle",
             ),
         ),
+        BenchmarkReviewClaim(
+            claim_id="decision_grade_boundary",
+            support_state=(
+                SupportState.SUPPORTED
+                if quant_review.decision_readiness.readiness_state
+                is QuantDecisionReadinessState.DECISION_GRADE
+                else SupportState.ADVISORY
+            ),
+            summary="LFQ review separates quantitative values from decision-grade evidence authority",
+            evidence_refs=(
+                quant_review.decision_readiness.readiness_state.value,
+                *quant_review.decision_readiness.advisory_reasons[:2],
+                *quant_review.decision_readiness.blocking_reasons[:2],
+            ),
+            scientific_limits=(
+                "decision-grade abundance claims are withheld whenever replicate or batch posture keeps the benchmark review-grade only",
+            ),
+        ),
     )
     scientific_limits = (
         *manifest.comparison_notes,
@@ -657,11 +704,14 @@ def build_lfq_benchmark_review(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
         workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
             "LFQ benchmark review turns checked-in feature evidence into a reviewable quant bundle "
-            "with missingness, QC, and rollup limits kept explicit."
+            "with missingness, QC, rollup limits, and decision-grade boundaries kept explicit."
         ),
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
             "bijux-proteomics-core: quantification.feature_ingestion",
             "bijux-proteomics-core: quantification.review",
@@ -745,6 +795,7 @@ def build_multiplex_benchmark_review(
     manifest = benchmark_manifest or _require_manifest(
         "benchmark:multiplex_tmtpro_quantification"
     )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX:
         raise ValueError(
             "multiplex benchmark review requires a multiplex workflow manifest"
@@ -778,6 +829,10 @@ def build_multiplex_benchmark_review(
         design_entries=design_report.accepted_entries,
         quant_policy=policy,
         normalization_policy=MultiplexNormalizationPolicy(balance_ratio_threshold=1.2),
+    )
+    decision_readiness = build_quant_decision_readiness_report(
+        table,
+        design_entries=design_report.accepted_entries,
     )
 
     claim_summaries = (
@@ -822,6 +877,24 @@ def build_multiplex_benchmark_review(
                 "TMTpro-style support claims stop at explicit channel semantics, balance diagnostics, and checked-in chemistry caveats",
             ),
         ),
+        BenchmarkReviewClaim(
+            claim_id="decision_grade_boundary",
+            support_state=(
+                SupportState.SUPPORTED
+                if decision_readiness.readiness_state
+                is QuantDecisionReadinessState.DECISION_GRADE
+                else SupportState.ADVISORY
+            ),
+            summary="multiplex review separates stable reporter summaries from decision-grade biological authority",
+            evidence_refs=(
+                decision_readiness.readiness_state.value,
+                *decision_readiness.advisory_reasons[:2],
+                *decision_readiness.blocking_reasons[:2],
+            ),
+            scientific_limits=(
+                "reporter-channel values remain review-grade whenever replicate or batch posture blocks decision-grade interpretation",
+            ),
+        ),
     )
     bundle_artifact_id = quant_bundle.document_schema.content_hash or fingerprint_model(
         quant_bundle
@@ -849,11 +922,14 @@ def build_multiplex_benchmark_review(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
         workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
             "Multiplex benchmark review turns checked-in reporter evidence into a reviewable "
-            "channel manifest with explicit missing-channel, imbalance, and chemistry caveats."
+            "channel manifest with explicit missing-channel, imbalance, chemistry caveats, and decision-grade boundaries."
         ),
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
             "bijux-proteomics-core: quantification.label_based_quant_bundle",
             "bijux-proteomics-core: quantification.multiplex_balance",

@@ -14,6 +14,9 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
 )
+from bijux_proteomics_knowledge.references.workflows.registry import (
+    BenchmarkAuthorityStatus,
+)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
@@ -41,6 +44,8 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.DDA
+    assert review.benchmark_authority_status is BenchmarkAuthorityStatus.ACTIVE
+    assert review.supported_repo_claims
     assert review.ready_for_release_review is True
     assert "bijux-proteomics-intelligence: benchmark_reviews" in review.owner_surfaces
     assert any(
@@ -120,12 +125,19 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
     assert review.ready_for_release_review is True
+    assert review.authorized_claim_scope
     lfq_limit_claim = next(
         claim
         for claim in review.claim_summaries
         if claim.claim_id == "qc_and_missingness_limits"
     )
     assert lfq_limit_claim.support_state is SupportState.ADVISORY
+    decision_boundary_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "decision_grade_boundary"
+    )
+    assert decision_boundary_claim.evidence_refs
     assert review.external_reviewer_bundle.evidence_pointer_ids
     assert "missingness" in review.reviewer_summary
 
@@ -146,11 +158,18 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert review.ready_for_release_review is True
+    assert review.supported_repo_claims
     channel_claim = next(
         claim
         for claim in review.claim_summaries
         if claim.claim_id == "channel_balance_caveats"
     )
     assert channel_claim.support_state is SupportState.ADVISORY
+    decision_boundary_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "decision_grade_boundary"
+    )
+    assert decision_boundary_claim.evidence_refs
     assert "chemistry caveats" in channel_claim.scientific_limits[0]
     assert "missing-channel" in review.reviewer_summary
