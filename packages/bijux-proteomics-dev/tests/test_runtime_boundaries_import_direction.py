@@ -7,7 +7,7 @@ from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     load_policy,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
 
 
 def test_runtime_boundary_policy_loads_expected_import_roots() -> None:

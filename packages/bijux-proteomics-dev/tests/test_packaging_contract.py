@@ -4,7 +4,7 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
 EXPECTED_FALLBACK_VERSION = "0.3.6"
 EXPECTED_REQUIRES_PYTHON = ">=3.11,<4"
 

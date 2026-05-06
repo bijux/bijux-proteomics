@@ -32,7 +32,7 @@ import stat
 import sys
 import textwrap
 
-from bijux_proteomics_dev.trusted_process import TrustedCommandError, run_text
+from bijux_proteomics_dev.security.trusted_process import TrustedCommandError, run_text
 
 # --- Dependency Checks ---
 try:
