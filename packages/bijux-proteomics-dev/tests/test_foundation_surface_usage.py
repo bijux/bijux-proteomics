@@ -52,14 +52,14 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
     }
     assert set(
         entry_by_module[
-            "bijux_proteomics_foundation.serialization.hashing"
+            "bijux_proteomics_foundation.serialization.stable_hashes"
         ].consumer_distributions
     ) == {
         "bijux-proteomics-runtime",
     }
     assert set(
         entry_by_module[
-            "bijux_proteomics_foundation.serialization.json_models"
+            "bijux_proteomics_foundation.serialization.json_contracts"
         ].consumer_distributions
     ) == {
         "bijux-proteomics-intelligence",
@@ -86,13 +86,13 @@ def test_foundation_dead_export_report_marks_directly_unused_exports() -> None:
 
     assert entry_by_module["bijux_proteomics_foundation"].dead_symbols == ()
     assert entry_by_module[
-        "bijux_proteomics_foundation.serialization.hashing"
+        "bijux_proteomics_foundation.serialization.stable_hashes"
     ].live_symbols == (
         "StableHashPolicy",
         "default_hash_policy",
     )
     assert entry_by_module[
-        "bijux_proteomics_foundation.serialization.hashing"
+        "bijux_proteomics_foundation.serialization.stable_hashes"
     ].dead_symbols == (
         "StableHashAlgorithm",
         "hash_model",

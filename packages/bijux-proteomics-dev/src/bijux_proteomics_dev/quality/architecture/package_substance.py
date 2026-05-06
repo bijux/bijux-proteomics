@@ -142,7 +142,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         maximum_thin_module_count=2,
         evidence_locator=(
             "packages/bijux-proteomics-intelligence/src/"
-            "bijux_proteomics_intelligence/charter.py"
+            "bijux_proteomics_intelligence/governance/charter.py"
         ),
     ),
     "bijux-proteomics-knowledge": _PackageSubstanceExpectation(
@@ -179,17 +179,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     ),
 }
 
-FOUNDATION_COMPATIBILITY_WRAPPER_PATHS = frozenset(
-    {
-        "canonicalization.py",
-        "hashing.py",
-        "ids.py",
-        "provenance.py",
-        "refusals.py",
-        "results.py",
-        "states.py",
-    }
-)
+FOUNDATION_COMPATIBILITY_WRAPPER_PATHS = frozenset()
 
 
 def _source_module_paths(package: WorkspacePackage) -> tuple[Path, ...]:

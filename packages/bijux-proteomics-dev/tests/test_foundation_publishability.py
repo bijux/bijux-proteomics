@@ -80,12 +80,14 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
     ):
         assert f"`{stale_entrypoint}`" not in combined
     for stale_module in (
-        "schema.py",
-        "serialization.py",
+        "src/bijux_proteomics_foundation/schema.py",
+        "src/bijux_proteomics_foundation/serialization.py",
         "src/bijux_proteomics_foundation/ids.py",
         "src/bijux_proteomics_foundation/documents.py",
         "src/bijux_proteomics_foundation/errors.py",
         "src/bijux_proteomics_foundation/migrations.py",
+        "src/bijux_proteomics_foundation/serialization/documents.py",
+        "src/bijux_proteomics_foundation/compatibility/migrations.py",
     ):
         assert stale_module not in combined
     for current_entrypoint in (

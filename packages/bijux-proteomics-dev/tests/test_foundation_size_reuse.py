@@ -22,7 +22,7 @@ def test_foundation_size_reuse_report_keeps_root_breadth_paired_with_reuse() -> 
     assert metrics.root_consumer_module_count == guard.baseline_root_consumer_module_count
     assert metrics.root_consumer_distribution_count == 6
     assert metrics.root_consumer_modules_per_symbol >= 7.4
-    assert metrics.live_compatibility_wrapper_count == 5
+    assert metrics.live_compatibility_wrapper_count == 0
     assert metrics.dead_direct_export_count > metrics.live_direct_export_count
 
 

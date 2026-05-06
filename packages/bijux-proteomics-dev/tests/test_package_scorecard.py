@@ -19,7 +19,7 @@ def test_package_scorecard_combines_owner_depth_breadth_and_proof() -> None:
     assert PACKAGE_SCORECARD_PATH.exists()
     assert len(report.entries) == 8
     assert by_package["bijux-proteomics-runtime"].proof_depth_count >= 1
-    assert by_package["bijux-proteomics-foundation"].wrapper_module_count >= 1
+    assert by_package["bijux-proteomics-foundation"].wrapper_module_count == 6
     assert by_package["bijux-proteomics-lab"].architectural_ready is False
     assert any(not entry.architectural_ready for entry in report.entries)
 
