@@ -23,7 +23,9 @@ from bijux_proteomics_knowledge.memory.integrity.graph import (
     extract_decision_subgraph,
     trace_decision_paths,
 )
-from bijux_proteomics_knowledge.memory.reconciliation.resolution import resolve_conflicts
+from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
+    resolve_conflicts,
+)
 from bijux_proteomics_knowledge.reviews.packets import (
     DecisionGateProfile,
     KnowledgeReviewPacket,

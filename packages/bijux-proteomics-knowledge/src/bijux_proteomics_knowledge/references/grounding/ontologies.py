@@ -71,8 +71,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("swissprot", "swiss_prot", "reviewed protein"),
         source_name="UniProtKB",
         external_accession="reviewed",
-        version_trace=("Pinned to the UniProt 2025 release framing used by citation:uniprot_2025.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the UniProt 2025 release framing used by citation:uniprot_2025.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:uniprot_2025",),
     ),
     KnowledgeOntologyMapping(
@@ -83,8 +87,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("protein isoform", "splice isoform"),
         source_name="UniProtKB",
         external_accession="isoform",
-        version_trace=("Pinned to the UniProt 2025 release framing used by citation:uniprot_2025.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the UniProt 2025 release framing used by citation:uniprot_2025.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:uniprot_2025",),
     ),
     KnowledgeOntologyMapping(
@@ -95,8 +103,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("phospho", "phosphorylated"),
         source_name="PSI-MOD",
         external_accession="MOD:00696",
-        version_trace=("Pinned to the PSI-MOD concept framing cited in citation:psi_mod_2008.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MOD concept framing cited in citation:psi_mod_2008.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
     ),
     KnowledgeOntologyMapping(
@@ -107,8 +119,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("oxidized", "methionine oxidation"),
         source_name="PSI-MOD",
         external_accession=None,
-        version_trace=("Pinned to the PSI-MOD concept framing cited in citation:psi_mod_2008.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MOD concept framing cited in citation:psi_mod_2008.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_mod_2008",),
     ),
     KnowledgeOntologyMapping(
@@ -119,8 +135,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("thermo orbitrap", "exploris", "fusion lumos"),
         source_name="PSI-MS CV",
         external_accession=None,
-        version_trace=("Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_ms_cv_2012",),
     ),
     KnowledgeOntologyMapping(
@@ -131,8 +151,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("bruker timstof", "tims_tof"),
         source_name="PSI-MS CV",
         external_accession=None,
-        version_trace=("Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_ms_cv_2012",),
     ),
     KnowledgeOntologyMapping(
@@ -143,8 +167,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("data dependent acquisition", "ida"),
         source_name="PSI-MS CV",
         external_accession=None,
-        version_trace=("Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MS controlled-vocabulary framing cited in citation:psi_ms_cv_2012.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_ms_cv_2012",),
     ),
     KnowledgeOntologyMapping(
@@ -155,8 +183,12 @@ DEFAULT_ONTOLOGY_MAPPINGS: tuple[KnowledgeOntologyMapping, ...] = (
         aliases=("data independent acquisition", "swath", "swath_ms"),
         source_name="PSI-MS CV",
         external_accession=None,
-        version_trace=("Pinned to the PSI-MS and SWATH vocabulary framing cited in citation:psi_ms_cv_2012 and citation:swath_2012.",),
-        retrieval_trace=("Ontology label and alias review was refreshed against the linked source on 2026-05-05.",),
+        version_trace=(
+            "Pinned to the PSI-MS and SWATH vocabulary framing cited in citation:psi_ms_cv_2012 and citation:swath_2012.",
+        ),
+        retrieval_trace=(
+            "Ontology label and alias review was refreshed against the linked source on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_ms_cv_2012", "citation:swath_2012"),
     ),
 )

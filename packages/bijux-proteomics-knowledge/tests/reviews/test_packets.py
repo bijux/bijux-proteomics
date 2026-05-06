@@ -18,6 +18,7 @@ from bijux_proteomics_knowledge.reviews.packets import (
     summarize_multi_decision_readiness,
 )
 
+
 def test_build_knowledge_review_packet_returns_integrated_sections(
     supported_progression_bundle: EvidenceBundle,
     supported_progression_claims: list[object],

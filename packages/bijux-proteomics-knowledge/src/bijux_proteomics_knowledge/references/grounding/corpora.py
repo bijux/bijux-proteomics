@@ -39,7 +39,9 @@ class CorpusManifest(JsonModel):
     citation_ids: tuple[str, ...] = Field(default_factory=tuple)
     benchmark_ids: tuple[str, ...] = Field(default_factory=tuple)
 
-    @field_validator("version_trace", "retrieval_trace", "citation_ids", "benchmark_ids")
+    @field_validator(
+        "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids"
+    )
     @classmethod
     def _strip_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
         cleaned = tuple(item.strip() for item in value if item.strip())

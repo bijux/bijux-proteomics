@@ -4,13 +4,17 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
-from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle, EvidenceKind
+from bijux_proteomics_knowledge.memory.models.evidence import (
+    EvidenceBundle,
+    EvidenceKind,
+)
 from bijux_proteomics_knowledge.reviews.explanations import (
     CandidateDecisionDisposition,
     CandidateDecisionGraphExplanation,
     CandidateDecisionGraphQuery,
     explain_candidate_decision_with_graph,
 )
+
 
 def test_explain_candidate_decision_with_graph_surfaces_support_and_blockers(
     contradictory_progression_bundle: EvidenceBundle,

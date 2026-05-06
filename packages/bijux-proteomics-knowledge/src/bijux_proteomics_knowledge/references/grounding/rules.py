@@ -10,7 +10,9 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 class KnowledgeRuleDomain(StrEnum):
@@ -86,8 +88,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.ENZYME,
         title="Trypsin specificity rule",
         rule_statement="Benchmark claims that assume tryptic digestion must state trypsin or LysC-style cleavage expectations explicitly before peptide-level evidence is interpreted.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:uniprot_2025",),
         benchmark_ids=(
             "benchmark:dda_search_reproducibility",
@@ -101,8 +107,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.ENZYME,
         title="Protease panel equivalence needs explicit evidence",
         rule_statement="Claims that compare tryptic and LysC-style peptide panels must keep protease-specific detectability limits explicit instead of treating one clean fixture panel as evidence of cross-protease interchangeability.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012"),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         benchmark_rationale="Adapter-normalized DDA fixture outputs can look consistent across protease-shaped exports even when peptide detectability and downstream rollup meaning are not equivalent.",
@@ -113,8 +123,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.PTM_ASSUMPTION,
         title="Phosphorylation localization rule",
         rule_statement="Any phosphorylation claim must preserve localization-confidence evidence and PSI-MOD grounded PTM labels instead of collapsing ambiguous sites into unqualified protein conclusions.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:psi_mod_2008", "citation:ascore_2006"),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         benchmark_rationale="The PTM fixture suite is only useful if ambiguous localization remains distinguishable from confidently localized phosphorylation sites.",
@@ -125,9 +139,17 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.PTM_ASSUMPTION,
         title="PTM regulation claims need evidence beyond localization",
         rule_statement="PTM narratives must keep localization evidence separate from regulation or occupancy claims unless the benchmarked evidence also carries the quantitative and design context needed to support that broader interpretation.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
-        citation_ids=("citation:psi_mod_2008", "citation:ascore_2006", "citation:protein_inference_2012"),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
+        citation_ids=(
+            "citation:psi_mod_2008",
+            "citation:ascore_2006",
+            "citation:protein_inference_2012",
+        ),
         benchmark_ids=("benchmark:ptm_site_localization_confidence",),
         benchmark_rationale="The PTM localization fixture proves concept grounding and site confidence, but it does not by itself justify regulation-scale biological claims.",
         related_term_ids=("ptm:phosphorylation",),
@@ -137,8 +159,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.LABEL_CHEMISTRY,
         title="TMTpro channel interpretation rule",
         rule_statement="Multiplex claims must retain TMTpro reporter-channel assumptions and avoid treating channel-level summaries as label-free abundance evidence.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:tmtpro_2020",),
         benchmark_ids=("benchmark:multiplex_tmtpro_quantification",),
         benchmark_rationale="The multiplex quantification fixture suite exists to preserve label-chemistry semantics during reporter-channel interpretation.",
@@ -149,8 +175,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.FDR_CAVEAT,
         title="Target-decoy scope rule",
         rule_statement="False-discovery claims must state the scope they apply to, because peptide-spectrum, peptide, and protein rollups do not share identical error guarantees.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:target_decoy_2007", "citation:protein_inference_2012"),
         benchmark_ids=("benchmark:dda_search_reproducibility",),
         benchmark_rationale="Adapter-normalized search outputs can only support reliable FDR claims when the asserted scope remains explicit across evidence rollups.",
@@ -161,9 +191,17 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
         title="DIA library transfer claims need explicit scope",
         rule_statement="DIA narratives must keep library composition, assay transfer limits, and peptide-centric evidence scope explicit instead of treating one stable extraction surface as proof of broad protein-level portability.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
-        citation_ids=("citation:swath_2012", "citation:psi_ms_cv_2012", "citation:protein_inference_2012"),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
+        citation_ids=(
+            "citation:swath_2012",
+            "citation:psi_ms_cv_2012",
+            "citation:protein_inference_2012",
+        ),
         benchmark_ids=("benchmark:dia_library_extraction_consistency",),
         benchmark_rationale="A library-conditioned DIA fixture can stay internally consistent while still overstating how safely the same extraction surface transfers to new libraries, cohorts, or protein-facing interpretations.",
         related_term_ids=("acquisition_mode:dia",),
@@ -173,8 +211,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
         title="Protein inference rollup caution",
         rule_statement="Protein-level summaries must remain explicitly qualified when peptide evidence is shared, sparse, or transition-derived rather than directly protein-specific.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         benchmark_ids=(
             "benchmark:targeted_transition_quality_control",
@@ -188,9 +230,17 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
         title="Quantification claims need explicit design scope",
         rule_statement="LFQ and multiplex narratives must keep the benchmarked study design, contrast structure, and cohort balance explicit instead of treating one repeatable fixture contrast as universal quantitative readiness.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
-        citation_ids=("citation:uniprot_2025", "citation:protein_inference_2012", "citation:tmtpro_2020"),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
+        citation_ids=(
+            "citation:uniprot_2025",
+            "citation:protein_inference_2012",
+            "citation:tmtpro_2020",
+        ),
         benchmark_ids=(
             "benchmark:lfq_quantification_repeatability",
             "benchmark:multiplex_tmtpro_quantification",
@@ -203,8 +253,12 @@ DEFAULT_SCIENTIFIC_RULE_REFERENCES: tuple[ScientificRuleReference, ...] = (
         domain=KnowledgeRuleDomain.INFERENCE_CAUTION,
         title="Targeted assay transfer needs explicit scope",
         rule_statement="Targeted narratives must keep assay-panel coverage, transition selection limits, and transition-to-protein rollup boundaries explicit instead of treating one stable QC panel as proof of broader assay portability.",
-        version_trace=("Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",),
-        retrieval_trace=("The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",),
+        version_trace=(
+            "Rule wording was reviewed against the linked references and benchmark surfaces on 2026-05-05.",
+        ),
+        retrieval_trace=(
+            "The linked citation ids, benchmark ids, and related term ids were re-verified on 2026-05-05.",
+        ),
         citation_ids=("citation:protein_inference_2012", "citation:swath_2012"),
         benchmark_ids=("benchmark:targeted_transition_quality_control",),
         benchmark_rationale="A targeted QC fixture can show panel stability while still overstating how safely the same transition set transfers to new matrices, assays, or protein-facing summaries.",

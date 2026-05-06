@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
     GroundedDecisionRule,
