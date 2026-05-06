@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    BenchmarkCrossCheckStatus,
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
@@ -32,8 +33,16 @@ def test_benchmark_manifests_carry_reproducibility_inputs() -> None:
     for manifest in DEFAULT_BENCHMARK_MANIFESTS:
         assert manifest.dataset_id
         assert manifest.dataset_locator
+        assert manifest.sample_count >= 1
+        assert manifest.replicate_count >= 1
+        assert manifest.truth_surfaces
         assert manifest.primary_citation_ids
         assert manifest.corpus_ids
+        assert manifest.cross_check_status in {
+            BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+            BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        }
+        assert manifest.cross_check_note
         assert manifest.version_trace
         assert manifest.retrieval_trace
         assert manifest.dataset_license_and_reuse_note
@@ -43,6 +52,10 @@ def test_benchmark_manifests_carry_reproducibility_inputs() -> None:
         assert manifest.exclusion_notes
         assert manifest.weakness_notes
         assert manifest.failure_mode_notes
+        assert manifest.expected_failure_conditions
+        assert manifest.non_transfer_zones
+        assert manifest.freshness_window_days >= 1
+        assert manifest.obsolescence_conditions
         assert manifest.success_metric
         assert manifest.result_claim
 
@@ -63,11 +76,40 @@ def test_benchmark_manifests_carry_explicit_comparison_scope() -> None:
         )
 
 
-def test_benchmark_manifests_carry_explicit_exclusions_weaknesses_and_failures() -> None:
+def test_benchmark_manifests_carry_explicit_exclusions_weaknesses_and_failures() -> (
+    None
+):
     for manifest in DEFAULT_BENCHMARK_MANIFESTS:
         assert len(manifest.exclusion_notes) >= 2
         assert len(manifest.weakness_notes) >= 2
         assert len(manifest.failure_mode_notes) >= 2
         assert any("excludes" in note.lower() for note in manifest.exclusion_notes)
-        assert any("fixture" in note.lower() or "production" in note.lower() for note in manifest.weakness_notes)
+        assert any(
+            "fixture" in note.lower() or "production" in note.lower()
+            for note in manifest.weakness_notes
+        )
         assert any("can" in note.lower() for note in manifest.failure_mode_notes)
+
+
+def test_benchmark_manifests_carry_exact_scope_transfer_and_staleness_metadata() -> (
+    None
+):
+    for manifest in DEFAULT_BENCHMARK_MANIFESTS:
+        assert manifest.sample_count >= manifest.replicate_count
+        assert len(manifest.truth_surfaces) >= 3
+        assert len(manifest.expected_failure_conditions) >= 2
+        assert len(manifest.non_transfer_zones) >= 2
+        assert len(manifest.obsolescence_conditions) >= 2
+        assert any(
+            token in note.lower()
+            for note in manifest.non_transfer_zones
+            for token in (
+                "fixture",
+                "outside",
+                "vendor",
+                "parity",
+                "unseen",
+                "cohort",
+                "claims",
+            )
+        )

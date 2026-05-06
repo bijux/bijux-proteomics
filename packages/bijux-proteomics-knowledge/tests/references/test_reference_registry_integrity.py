@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
+    BenchmarkCrossCheckStatus,
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
@@ -74,9 +75,14 @@ def test_benchmark_manifests_require_reproduction_metadata() -> None:
             scientific_focus="This should fail because reproduction inputs are incomplete.",
             dataset_id="dataset:missing_reproduction_metadata",
             dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+            sample_count=1,
+            replicate_count=1,
             acquisition_mode="data-independent acquisition",
+            truth_surfaces=("transition semantics",),
             success_metric="Not enough structure for a reproducible claim.",
             result_claim="Incomplete manifests should not validate.",
+            cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+            cross_check_note="This benchmark still lacks the required reproducibility metadata.",
             primary_citation_ids=("citation:swath_2012",),
             corpus_ids=("corpus:search_adapter_fixture_suite",),
             benchmark_rationale="A rationale exists, but reproduction requirements are missing.",
@@ -89,6 +95,10 @@ def test_benchmark_manifests_require_reproduction_metadata() -> None:
             exclusion_notes=("This benchmark still needs explicit exclusions.",),
             weakness_notes=("This benchmark still needs explicit weaknesses.",),
             failure_mode_notes=("This benchmark still needs explicit failure modes.",),
+            expected_failure_conditions=("This benchmark still needs explicit failure conditions.",),
+            non_transfer_zones=("This benchmark still needs explicit non-transfer zones.",),
+            freshness_window_days=365,
+            obsolescence_conditions=("This benchmark still needs explicit obsolescence conditions.",),
         )
 
 
@@ -102,12 +112,20 @@ def test_benchmark_registry_carries_reproducible_claim_context() -> None:
         assert manifest.version_trace
         assert manifest.retrieval_trace
         assert manifest.dataset_license_and_reuse_note
+        assert manifest.sample_count >= 1
+        assert manifest.replicate_count >= 1
+        assert manifest.truth_surfaces
+        assert manifest.cross_check_note
         assert len(manifest.reproduction_requirements) >= 3
         assert manifest.success_metric
         assert manifest.result_claim
         assert manifest.exclusion_notes
         assert manifest.weakness_notes
         assert manifest.failure_mode_notes
+        assert manifest.expected_failure_conditions
+        assert manifest.non_transfer_zones
+        assert manifest.freshness_window_days >= 1
+        assert manifest.obsolescence_conditions
 
 
 def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references() -> (

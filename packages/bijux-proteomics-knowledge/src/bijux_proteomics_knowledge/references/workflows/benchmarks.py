@@ -23,6 +23,13 @@ class KnowledgeWorkflowFamily(StrEnum):
     TARGETED = "targeted"
 
 
+class BenchmarkCrossCheckStatus(StrEnum):
+    """How far a benchmark claim has been cross-checked beyond internal consistency."""
+
+    INTERNAL_ONLY = "internal_only"
+    EXTERNAL_OUTPUT_COMPARISON = "external_output_comparison"
+
+
 class BenchmarkManifest(JsonModel):
     """One reproducible benchmark contract for a workflow family."""
 
@@ -34,9 +41,14 @@ class BenchmarkManifest(JsonModel):
     scientific_focus: str = Field(..., min_length=1)
     dataset_id: str = Field(..., min_length=1)
     dataset_locator: str = Field(..., min_length=1)
+    sample_count: int = Field(..., ge=1)
+    replicate_count: int = Field(..., ge=1)
     acquisition_mode: str = Field(..., min_length=1)
+    truth_surfaces: tuple[str, ...] = Field(..., min_length=1)
     success_metric: str = Field(..., min_length=1)
     result_claim: str = Field(..., min_length=1)
+    cross_check_status: BenchmarkCrossCheckStatus
+    cross_check_note: str = Field(..., min_length=1)
     primary_citation_ids: tuple[str, ...] = Field(..., min_length=1)
     corpus_ids: tuple[str, ...] = Field(..., min_length=1)
     benchmark_rationale: str = Field(..., min_length=1)
@@ -49,8 +61,13 @@ class BenchmarkManifest(JsonModel):
     exclusion_notes: tuple[str, ...] = Field(..., min_length=1)
     weakness_notes: tuple[str, ...] = Field(..., min_length=1)
     failure_mode_notes: tuple[str, ...] = Field(..., min_length=1)
+    expected_failure_conditions: tuple[str, ...] = Field(..., min_length=1)
+    non_transfer_zones: tuple[str, ...] = Field(..., min_length=1)
+    freshness_window_days: int = Field(..., ge=1)
+    obsolescence_conditions: tuple[str, ...] = Field(..., min_length=1)
 
     @field_validator(
+        "truth_surfaces",
         "primary_citation_ids",
         "corpus_ids",
         "version_trace",
@@ -61,6 +78,9 @@ class BenchmarkManifest(JsonModel):
         "exclusion_notes",
         "weakness_notes",
         "failure_mode_notes",
+        "expected_failure_conditions",
+        "non_transfer_zones",
+        "obsolescence_conditions",
     )
     @classmethod
     def _forbid_blank_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
@@ -78,9 +98,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Peptide-spectrum match reproducibility across search adapter inputs.",
         dataset_id="dataset:msfragger_search_adapter_fixture",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_results.tsv",
+        sample_count=1,
+        replicate_count=1,
         acquisition_mode="data-dependent acquisition",
+        truth_surfaces=(
+            "target-decoy confidence scope",
+            "adapter-normalized peptide identity",
+            "reviewed-proteome mapping",
+        ),
         success_metric="Stable peptide and protein identification counts after adapter normalization.",
         result_claim="Adapter-normalized DDA evidence should preserve target-decoy semantics and reviewed-proteome mapping.",
+        cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        cross_check_note="The manifest is checked against a pinned MSFragger export, but the repository still does not rerun the external engine.",
         primary_citation_ids=(
             "citation:target_decoy_2007",
             "citation:uniprot_2025",
@@ -119,6 +148,19 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Target-decoy columns can be normalized while semantic scope is still misread at peptide versus protein levels.",
             "Reviewed-proteome identifiers can appear stable even when protease comparability quietly drifts.",
         ),
+        expected_failure_conditions=(
+            "Adapter normalization drops or misreads decoy labels.",
+            "Reviewed-proteome accessions drift during import or rollup.",
+        ),
+        non_transfer_zones=(
+            "Unrepresented proteases or mixed-protease exports.",
+            "Raw-spectrum scoring parity and engine-side calibration behavior.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "Search-engine export columns change in a way that the checked fixture no longer reflects current outputs.",
+            "Reference-proteome mapping rules change without a corresponding fixture refresh.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:dia_library_extraction_consistency",
@@ -127,9 +169,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Consistency of peptide-centric extraction across DIA-style reports.",
         dataset_id="dataset:spectronaut_dia_fixture_export",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+        sample_count=1,
+        replicate_count=1,
         acquisition_mode="data-independent acquisition",
+        truth_surfaces=(
+            "transition-aligned peptide extraction",
+            "library-conditioned DIA semantics",
+            "controlled-vocabulary normalization",
+        ),
         success_metric="Stable extracted peptide quantities and aligned DIA transition semantics.",
         result_claim="DIA adapters should preserve acquisition semantics, transition alignment, and SWATH-style extraction expectations.",
+        cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        cross_check_note="The manifest is checked against a pinned Spectronaut-style output, but not against live DIA-NN or Spectronaut execution inside the repo.",
         primary_citation_ids=(
             "citation:swath_2012",
             "citation:psi_ms_cv_2012",
@@ -168,6 +219,19 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Transition evidence can be over-read as direct protein confirmation when library scope stays implicit.",
             "Vocabulary normalization can stay syntactically correct while transition alignment semantics still drift.",
         ),
+        expected_failure_conditions=(
+            "Transition semantics drift while column names still normalize cleanly.",
+            "Library scope is dropped from the final review surface.",
+        ),
+        non_transfer_zones=(
+            "Unseen library compositions, vendor-tuned extraction heuristics, and chromatographic drift outside the fixture.",
+            "Protein-level absence claims inferred from library-conditioned missing peptides.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "Supported DIA export dialects change without fixture refresh.",
+            "Controlled-vocabulary mappings or library assumptions change materially.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:ptm_site_localization_confidence",
@@ -176,9 +240,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Phosphorylation localization confidence and PTM term normalization.",
         dataset_id="dataset:ptm_localization_fixture",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+        sample_count=4,
+        replicate_count=2,
         acquisition_mode="data-dependent acquisition",
+        truth_surfaces=(
+            "localized-site confidence",
+            "ambiguous-site preservation",
+            "PSI-MOD concept grounding",
+        ),
         success_metric="Stable localization confidence assignments with curated PTM term provenance.",
         result_claim="PTM localization outputs should retain both PSI-MOD concept mapping and Ascore-style evidence interpretation.",
+        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+        cross_check_note="The manifest is benchmarked against a pinned localization fixture and method references, but not yet against an external rescoring lane.",
         primary_citation_ids=(
             "citation:psi_mod_2008",
             "citation:ascore_2006",
@@ -217,6 +290,19 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Ambiguous-site groups can be flattened into one confident-sounding label if the downstream consumer drops localization qualifiers.",
             "Ontology grounding can look complete while site-level ambiguity remains unresolved.",
         ),
+        expected_failure_conditions=(
+            "Localized and ambiguous site groups are collapsed into one accepted site claim.",
+            "PTM concept identifiers resolve while localization confidence is discarded.",
+        ),
+        non_transfer_zones=(
+            "Stoichiometric occupancy and broad regulatory claims.",
+            "PTM families that are not represented by the phosphorylation-oriented fixture.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "PTM localization conventions change without a fixture refresh.",
+            "Supported PTM families broaden or narrow without updating the benchmark scope.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:lfq_quantification_repeatability",
@@ -225,9 +311,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Label-free quantification repeatability on study-scale fixture inputs.",
         dataset_id="dataset:lfq_study_scale_fixture",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+        sample_count=4,
+        replicate_count=2,
         acquisition_mode="data-dependent acquisition",
+        truth_surfaces=(
+            "protein-level abundance rollup",
+            "study-design preservation",
+            "repeatability under bounded missingness",
+        ),
         success_metric="Consistent protein abundance summaries across repeated LFQ fixture runs.",
         result_claim="Label-free quantification outputs should preserve study design semantics and repeatable abundance rollups.",
+        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+        cross_check_note="The manifest proves repeatability over the bundled LFQ fixture, not parity with an external LFQ engine or a broader cohort truth set.",
         primary_citation_ids=("citation:uniprot_2025",),
         corpus_ids=(
             "corpus:quant_fixture_suite",
@@ -263,6 +358,19 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Stable rollups can be mistaken for scope-free abundance truth even when missingness remains informative.",
             "Design labels can survive normalization while the downstream claim quietly widens past the benchmarked cohort shape.",
         ),
+        expected_failure_conditions=(
+            "Protein rollups remain numerically stable while missingness or contrast semantics drift.",
+            "Design annotations survive import but no longer match the benchmarked comparison.",
+        ),
+        non_transfer_zones=(
+            "Large heterogeneous cohorts with stronger missing-not-at-random behavior.",
+            "Accuracy claims against external LFQ pipelines or spike-in truth sets.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "LFQ design fixtures change in sample structure without metadata refresh.",
+            "Quantification claims expand beyond repeatability into accuracy without new truth evidence.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:multiplex_tmtpro_quantification",
@@ -271,9 +379,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Isobaric multiplex assumptions and reporter-channel interpretation.",
         dataset_id="dataset:tmtpro_multiplex_fixture",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+        sample_count=6,
+        replicate_count=2,
         acquisition_mode="data-dependent acquisition",
+        truth_surfaces=(
+            "reporter-channel identity preservation",
+            "label-chemistry scope retention",
+            "bounded multiplex rollup interpretation",
+        ),
         success_metric="Stable multiplex abundance outputs with explicit TMTpro chemistry assumptions.",
         result_claim="Multiplex quantification should preserve TMTpro channel semantics and label-chemistry caveats.",
+        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+        cross_check_note="The manifest is bounded to the bundled multiplex fixture and published chemistry framing rather than a live vendor multiplex pipeline.",
         primary_citation_ids=("citation:tmtpro_2020",),
         corpus_ids=(
             "corpus:quant_fixture_suite",
@@ -309,6 +426,19 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Reporter-channel summaries can be over-read as label-free abundance evidence when chemistry caveats are dropped.",
             "Rollup outputs can stay numerically stable while missing-channel pressure is hidden from reviewers.",
         ),
+        expected_failure_conditions=(
+            "Reporter-channel assignments drift or collapse during quantification rollup.",
+            "Channel-level caveats disappear from the final interpretation surface.",
+        ),
+        non_transfer_zones=(
+            "Severe interference, carrier overload, and vendor-specific multiplex tuning outside the bundled fixture.",
+            "Claims that reporter summaries are interchangeable with label-free abundance truth.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "Multiplex channel mappings or fixture design change without metadata refresh.",
+            "Supported multiplex chemistry families change without benchmark scope review.",
+        ),
     ),
     BenchmarkManifest(
         benchmark_id="benchmark:targeted_transition_quality_control",
@@ -317,9 +447,18 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         scientific_focus="Transition-level quality checks over chromatogram-shaped targeted outputs.",
         dataset_id="dataset:chromatogram_qc_transition_fixture",
         dataset_locator="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+        sample_count=2,
+        replicate_count=2,
         acquisition_mode="targeted acquisition",
+        truth_surfaces=(
+            "transition-level QC retention",
+            "bounded protein-rollup caution",
+            "chromatogram-derived operator review signals",
+        ),
         success_metric="Stable transition-level QC summaries for bundled chromatogram evidence.",
         result_claim="Targeted-style chromatogram summaries should preserve transition-level evidence and protein-inference caution when rolled up.",
+        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+        cross_check_note="The manifest is grounded in the bundled chromatogram fixture and inference references, not in a live vendor targeted workflow.",
         primary_citation_ids=("citation:protein_inference_2012",),
         corpus_ids=(
             "corpus:chromatogram_qc_fixture",
@@ -355,12 +494,26 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Transition-level evidence can be collapsed into protein certainty too early if inference caution is not preserved.",
             "QC summaries can stay stable while chromatogram-specific edge cases remain outside the benchmarked fixture surface.",
         ),
+        expected_failure_conditions=(
+            "Transition QC stays numerically stable while rollup removes protein-inference caution.",
+            "Chromatogram warnings are flattened into a clean targeted-support claim.",
+        ),
+        non_transfer_zones=(
+            "Vendor-specific chromatogram behavior, calibration standards, and transition-interference edge cases outside the bundled fixture.",
+            "Claims that targeted QC alone resolves shared-peptide ambiguity or confirms protein truth.",
+        ),
+        freshness_window_days=365,
+        obsolescence_conditions=(
+            "Targeted fixture schema changes without updated transition-level metadata.",
+            "Targeted support claims expand into vendor or calibration parity without new benchmark evidence.",
+        ),
     ),
 )
 
 
 __all__ = [
     "BenchmarkManifest",
+    "BenchmarkCrossCheckStatus",
     "DEFAULT_BENCHMARK_MANIFESTS",
     "KnowledgeWorkflowFamily",
 ]
