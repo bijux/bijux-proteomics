@@ -96,7 +96,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.knowledge_breadth"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.foundation_root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.citations", "bijux_proteomics_knowledge.references.contexts", "bijux_proteomics_knowledge.references.corpora", "bijux_proteomics_knowledge.references.literature", "bijux_proteomics_knowledge.references.narratives", "bijux_proteomics_knowledge.references.ontologies", "bijux_proteomics_knowledge.references.problems", "bijux_proteomics_knowledge.references.rules"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.narratives"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.knowledge_publishability"
@@ -106,7 +106,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.knowledge_reference_quality"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.foundation_root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.briefings", "bijux_proteomics_knowledge.references.citations", "bijux_proteomics_knowledge.references.contexts", "bijux_proteomics_knowledge.references.corpora", "bijux_proteomics_knowledge.references.literature", "bijux_proteomics_knowledge.references.narratives", "bijux_proteomics_knowledge.references.ontologies", "bijux_proteomics_knowledge.references.problems", "bijux_proteomics_knowledge.references.rules"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings", "bijux_proteomics_knowledge.references.workflows.narratives"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.knowledge_surface_consumers"
@@ -326,7 +326,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_breadth"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.runtime_topology"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.core.surface_area", "bijux_proteomics_runtime.governance.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.support.primitives.surface_area"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.runtime_import_graph"
@@ -351,7 +351,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.serialization_compatibility"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.evidence", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.planning.assays"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.planning.assays"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.source_delivery_history"
@@ -441,7 +441,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.package_substance"
 outgoing_internal_modules = ["bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory", "bijux_proteomics_dev.quality.package_graph"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation.support.charter", "bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_knowledge.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.governance.charter"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation.support.charter", "bijux_proteomics_intelligence.governance.charter", "bijux_proteomics_knowledge.governance.charter", "bijux_proteomics_lab.governance.charter", "bijux_proteomics_runtime.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.quality.architecture.runtime_boundaries"
@@ -536,7 +536,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.release.scientific_readiness"
 outgoing_internal_modules = ["bijux_proteomics_dev.quality.package_graph", "bijux_proteomics_dev.release.ssot_readiness"]
-outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.benchmarks", "bijux_proteomics_knowledge.references.workflow_queries"]
+outgoing_workspace_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.lookups"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.release.ssot_readiness"
