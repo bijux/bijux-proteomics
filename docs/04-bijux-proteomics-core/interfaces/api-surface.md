@@ -20,5 +20,5 @@ An API surface is only real when the package actually owns the network-facing co
 ## First Proof Check
 
 - `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py`
-- `src/bijux_proteomics/cli.py` and `interfaces/cli/app.py`
+- `src/bijux_proteomics/interfaces/cli/app.py` and `interfaces/cli/__main__.py`
 - `packages/bijux-proteomics-core/tests`

@@ -39,7 +39,12 @@ def test_core_readme_source_guide_points_to_live_core_modules() -> None:
         "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/blueprint.py",
         "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py",
         "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/examples.py",
-        "packages/bijux-proteomics-core/src/bijux_proteomics/charter.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/governance/charter.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/review/protein_family_graphs.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/proteoforms.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py",
+        "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/__main__.py",
     )
 
     for relative_path in expected_paths:

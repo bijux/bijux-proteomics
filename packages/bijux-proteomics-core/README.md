@@ -482,7 +482,7 @@ from pathlib import Path
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.io.spectra import parse_mgf
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
 )
@@ -622,9 +622,14 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 - [`src/bijux_proteomics/dia/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/dia/__init__.py) for DIA-native evidence, library validation, and targeted candidate export
 - [`src/bijux_proteomics/review/__init__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/review/__init__.py) for contradiction-aware review packets and evidence-gap reporting
 - [`src/bijux_proteomics/workflow/blueprint.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow/blueprint.py) for runtime-agnostic scientific workflow blueprints
+- [`src/bijux_proteomics/workflow/runtime_bundles.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runtime_bundles.py) for the explicit workflow-planning seam that imports runtime bundle validation without widening the core root
 - [`src/bijux_proteomics/execution/runtime_adapter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py) for the explicit runtime adapter seam that keeps workflow execution ownership outside core
 - [`src/bijux_proteomics/interfaces/examples.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/examples.py) for reader-facing digest, refusal, and loss-aware package examples
-- [`src/bijux_proteomics/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/charter.py) for the machine-readable scientific domain map and boundary audit
+- [`src/bijux_proteomics/interfaces/cli/app.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py) and [`src/bijux_proteomics/interfaces/cli/__main__.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/__main__.py) for package-owned contract workflows exposed through the core CLI entrypoint
+- [`src/bijux_proteomics/study/qc.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py) for LC-MS run diagnostics, batch QC, and publication-threshold decisions
+- [`src/bijux_proteomics/review/protein_family_graphs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/review/protein_family_graphs.py) for contradiction-aware protein-family evidence projection
+- [`src/bijux_proteomics/ptm/proteoforms.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/ptm/proteoforms.py) for canonical proteoform identity records anchored in PTM evidence
+- [`src/bijux_proteomics/governance/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/src/bijux_proteomics/governance/charter.py) for the machine-readable scientific domain map and boundary audit
 - [`docs/FORMAT_INGESTION.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/FORMAT_INGESTION.md) for mzML, design-table, format-conversion, and run-bundle workflows
 - [`docs/WORKFLOW_RUNTIME.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/WORKFLOW_RUNTIME.md) for workflow manifests, DAG projection, cache/artifact planning, scheduler export, and checkpoint semantics
 - [`docs/PROTEIN_INFERENCE.md`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-core/docs/PROTEIN_INFERENCE.md) for multi-level FDR, grouping, parsimony, picked protein FDR, and sequence-aware coverage workflows
