@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from .version_resolver import resolve_version
+from ..versioning.version_resolver import resolve_version
 
 
 def parse_args() -> argparse.Namespace:

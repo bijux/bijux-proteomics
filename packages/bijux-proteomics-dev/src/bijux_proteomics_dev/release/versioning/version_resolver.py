@@ -9,7 +9,7 @@ import sys
 import tomllib
 from typing import Any, cast
 
-from bijux_proteomics_dev.trusted_process import run_text
+from bijux_proteomics_dev.security.trusted_process import run_text
 
 
 def parse_args() -> argparse.Namespace:

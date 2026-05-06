@@ -5,8 +5,8 @@ from pathlib import Path
 import tomllib
 from typing import Any
 
-from bijux_proteomics_dev.api.package_scorecard import build_package_scorecard_report
-from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
+from bijux_proteomics_dev.api.package_shape.package_scorecard import build_package_scorecard_report
+from bijux_proteomics_dev.quality.graphs.package_graph import load_workspace_packages
 
 __all__ = [
     "PackageFamilyReadinessEntry",

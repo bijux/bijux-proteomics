@@ -8,7 +8,11 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
-REPO_ROOT = Path(__file__).resolve().parents[5]
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "pyproject.toml").exists()
+)
 MANAGED_FILENAMES: tuple[str, str] = ("LICENSE", "NOTICE")
 ROOT_LEGAL_ARTIFACTS = {
     "LICENSE": Path("..") / ".." / "LICENSE",

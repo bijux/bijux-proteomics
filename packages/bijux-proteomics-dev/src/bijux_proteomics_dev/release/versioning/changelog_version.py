@@ -6,7 +6,7 @@ from pathlib import Path
 import shutil
 import sys
 
-from bijux_proteomics_dev.trusted_process import run_text
+from bijux_proteomics_dev.security.trusted_process import run_text
 
 
 def _git_executable() -> str:
