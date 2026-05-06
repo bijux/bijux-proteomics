@@ -14,8 +14,8 @@ from bijux_proteomics.domain.errors import (
     ProgramValidationError,
     ReviewGateBlockedError,
 )
-from bijux_proteomics.execution.backend import ExecutionRequest
-from bijux_proteomics.execution.runtime_adapter import require_backend
+from bijux_proteomics.interfaces.execution.backend import ExecutionRequest
+from bijux_proteomics.interfaces.execution.runtime_adapter import require_backend
 from bijux_proteomics.domain.programs import ProgramSpec, program_summary
 from bijux_proteomics.domain.repositories import ReviewDecision, ensure_review_clearance
 from bijux_proteomics.domain.validation import validate_program

@@ -7,7 +7,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from bijux_proteomics.execution.backend import ExecutionBackend, ExecutionRequest
+from bijux_proteomics.interfaces.execution.backend import (
+    ExecutionBackend,
+    ExecutionRequest,
+)
 
 
 class AgenticProteinsBackend:

@@ -65,9 +65,9 @@ from bijux_proteomics.domain.errors import (
     ProgramValidationError,
     ReviewGateBlockedError,
 )
-from bijux_proteomics.execution.backend import ExecutionRequest
-from bijux_proteomics.execution.runner import ProgramExecutionRequest
-from bijux_proteomics.execution.runtime_adapter import MissingExecutionBackendError
+from bijux_proteomics.interfaces.execution.backend import ExecutionRequest
+from bijux_proteomics.interfaces.execution.runner import ProgramExecutionRequest
+from bijux_proteomics.interfaces.execution.runtime_adapter import MissingExecutionBackendError
 
 
 def test_create_program_spec_enforces_sequence_contract() -> None:
@@ -326,7 +326,7 @@ def test_execute_program_request_rejects_missing_blocking_approval(
     )
 
     with pytest.raises(ReviewGateBlockedError):
-        from bijux_proteomics.execution.runner import execute_program
+        from bijux_proteomics.interfaces.execution.runner import execute_program
 
         execute_program(request)
 
@@ -351,7 +351,7 @@ def test_execute_program_requires_injected_backend(tmp_path: Path) -> None:
     )
 
     with pytest.raises(MissingExecutionBackendError):
-        from bijux_proteomics.execution.runner import execute_program
+        from bijux_proteomics.interfaces.execution.runner import execute_program
 
         execute_program(request)
 
@@ -383,7 +383,7 @@ def test_execute_program_uses_injected_backend(tmp_path: Path) -> None:
         backend=StubBackend(),
     )
 
-    from bijux_proteomics.execution.runner import execute_program
+    from bijux_proteomics.interfaces.execution.runner import execute_program
 
     result = execute_program(request)
 
@@ -1037,7 +1037,7 @@ def test_execute_program_rejects_invalid_program_before_backend_use(
     )
 
     with pytest.raises(ProgramValidationError) as excinfo:
-        from bijux_proteomics.execution.runner import execute_program
+        from bijux_proteomics.interfaces.execution.runner import execute_program
 
         execute_program(request)
 

@@ -155,7 +155,7 @@ from bijux_proteomics.io.spectra import (
     export_spectrum_annotation_tsv,
     parse_mgf,
 )
-from bijux_proteomics.workflow.runtime_bundles import (
+from bijux_proteomics.interfaces.runtime_plans import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,
