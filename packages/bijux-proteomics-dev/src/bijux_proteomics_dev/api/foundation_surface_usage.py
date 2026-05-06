@@ -93,7 +93,7 @@ def public_foundation_surfaces() -> tuple[PublicFoundationSurface, ...]:
             module_name="bijux_proteomics_foundation.identity.identifiers"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.outcomes.error_envelopes"
+            module_name="bijux_proteomics_foundation.outcomes.failures"
         ),
         PublicFoundationSurface(
             module_name="bijux_proteomics_foundation.outcomes.exceptions"
@@ -105,16 +105,16 @@ def public_foundation_surfaces() -> tuple[PublicFoundationSurface, ...]:
             module_name="bijux_proteomics_foundation.outcomes.results"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.serialization.documents"
+            module_name="bijux_proteomics_foundation.serialization.document_schema"
         ),
         PublicFoundationSurface(
             module_name="bijux_proteomics_foundation.serialization.fingerprints"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.serialization.hashing"
+            module_name="bijux_proteomics_foundation.serialization.stable_hashes"
         ),
         PublicFoundationSurface(
-            module_name="bijux_proteomics_foundation.serialization.json_models"
+            module_name="bijux_proteomics_foundation.serialization.json_contracts"
         ),
         PublicFoundationSurface(module_name="bijux_proteomics_foundation.support.states"),
     )

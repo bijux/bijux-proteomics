@@ -18,7 +18,7 @@ from bijux_proteomics_foundation import (
     hash_payload,
     to_canonical_json,
 )
-from bijux_proteomics_foundation.outcomes.error_envelopes import (
+from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
     ErrorEnvelope,
     build_error_envelope_from_exception,
@@ -30,8 +30,8 @@ from bijux_proteomics_foundation.identity.identifiers import (
     classify_identifier,
     ensure_identifier_kind,
 )
-from bijux_proteomics_foundation.serialization.ordering import stable_order_value
-from bijux_proteomics_foundation.serialization.canonicalization import normalize_json_value
+from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
+from bijux_proteomics_foundation.serialization.canonical_json import normalize_json_value
 from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.outcomes.results import (
     OperationDisposition,

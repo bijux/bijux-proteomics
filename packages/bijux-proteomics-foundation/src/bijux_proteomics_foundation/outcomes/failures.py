@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Structured error envelopes for deterministic machine-readable failures."""
+"""Structured failure contracts for deterministic machine-readable errors."""
 
 from __future__ import annotations
 
@@ -12,8 +12,8 @@ from pydantic import AliasChoices, ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.support.provenance import ProvenancePointer
 from bijux_proteomics_foundation.support.states import SupportState
-from bijux_proteomics_foundation.serialization.json_models import JsonModel
-from bijux_proteomics_foundation.serialization.ordering import stable_order_pairs
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
+from bijux_proteomics_foundation.serialization.stable_values import stable_order_pairs
 
 
 class ErrorCategory(StrEnum):

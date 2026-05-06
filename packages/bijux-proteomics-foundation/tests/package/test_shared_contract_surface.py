@@ -11,7 +11,7 @@ from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_foundation.outcomes.error_envelopes import (
+from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
     ErrorEnvelope,
 )

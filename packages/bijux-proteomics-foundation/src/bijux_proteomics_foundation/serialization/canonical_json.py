@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Deterministic canonicalization helpers for durable document payloads."""
+"""Deterministic canonical JSON helpers for durable document payloads."""
 
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ from datetime import datetime
 import json
 from typing import TYPE_CHECKING, Any
 
-from bijux_proteomics_foundation.serialization.ordering import stable_order_value
+from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
 
 if TYPE_CHECKING:
-    from bijux_proteomics_foundation.serialization.json_models import JsonModel
+    from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 
 def normalize_json_value(value: Any) -> Any:
@@ -39,7 +39,7 @@ def flatten_tsv_mapping(value: Any, *, prefix: str = "") -> dict[str, str]:
 
 def to_canonical_json(model: "JsonModel | dict[str, Any]") -> str:
     """Serialize one model or payload with deterministic key ordering."""
-    from bijux_proteomics_foundation.serialization.json_models import JsonModel
+    from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
     payload = (
         model.to_dict() if isinstance(model, JsonModel) else normalize_json_value(model)

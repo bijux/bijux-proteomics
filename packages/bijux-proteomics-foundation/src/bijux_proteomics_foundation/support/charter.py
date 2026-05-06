@@ -10,7 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.serialization.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 
 class FoundationCharterCapability(StrEnum):
@@ -103,7 +103,7 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
             "identity/identifiers.py",
             "support/provenance.py",
             "support/states.py",
-            "compatibility/versions.py",
+            "compatibility/schema_versions.py",
         ),
         release_blocker="Foundation cannot ship if shared identifiers, states, or provenance drift into per-package variants.",
     ),
@@ -111,10 +111,10 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         capability=FoundationCharterCapability.HASHING_AND_ORDERING,
         owned_surface="Canonical hashing, fingerprint, and ordering mechanics used to produce stable cross-package artifacts and comparisons.",
         required_modules=(
-            "serialization/canonicalization.py",
+            "serialization/canonical_json.py",
             "serialization/fingerprints.py",
-            "serialization/hashing.py",
-            "serialization/ordering.py",
+            "serialization/stable_hashes.py",
+            "serialization/stable_values.py",
         ),
         release_blocker="Foundation cannot ship if canonical hashing or ordering is reimplemented differently in downstream packages.",
     ),
@@ -122,8 +122,9 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         capability=FoundationCharterCapability.DOCUMENT_CONTRACTS,
         owned_surface="Shared JSON-backed document and model contracts for stable persisted payloads.",
         required_modules=(
-            "serialization/documents.py",
-            "serialization/json_models.py",
+            "serialization/document_schema.py",
+            "serialization/json_contracts.py",
+            "serialization/scientific_values.py",
         ),
         release_blocker="Foundation cannot ship if shared document contracts or JSON model behavior move into package-local semantics.",
     ),
@@ -132,7 +133,7 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         owned_surface="Shared refusal, error-envelope, and operation-result contracts for deterministic cross-package failure semantics.",
         required_modules=(
             "outcomes/refusals.py",
-            "outcomes/error_envelopes.py",
+            "outcomes/failures.py",
             "outcomes/exceptions.py",
             "outcomes/results.py",
         ),
@@ -141,7 +142,12 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
     FoundationCharterEntry(
         capability=FoundationCharterCapability.COMPATIBILITY_AND_MIGRATIONS,
         owned_surface="Version compatibility and migration primitives that keep persisted contracts evolvable without package-local hacks.",
-        required_modules=("compatibility.py", "migrations.py"),
+        required_modules=(
+            "compatibility/__init__.py",
+            "compatibility/schema_assessments.py",
+            "compatibility/schema_migrations.py",
+            "compatibility/schema_versions.py",
+        ),
         release_blocker="Foundation cannot ship if document compatibility or migrations depend on ad hoc downstream exceptions.",
     ),
 )
@@ -200,11 +206,11 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "serialization/fingerprints.py",
         "serialization/__init__.py",
-        "serialization/canonicalization.py",
-        "serialization/hashing.py",
-        "serialization/ordering.py",
+        "serialization/canonical_json.py",
+        "serialization/fingerprints.py",
+        "serialization/stable_hashes.py",
+        "serialization/stable_values.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -213,8 +219,9 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "serialization/documents.py",
-        "serialization/json_models.py",
+        "serialization/document_schema.py",
+        "serialization/json_contracts.py",
+        "serialization/scientific_values.py",
     }:
         return _shared_contract_entry(
             module_path,
@@ -223,7 +230,7 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "outcomes/error_envelopes.py",
+        "outcomes/failures.py",
         "outcomes/exceptions.py",
         "outcomes/__init__.py",
         "outcomes/refusals.py",
@@ -236,10 +243,10 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         )
 
     if module_path in {
-        "compatibility/versions.py",
+        "compatibility/schema_versions.py",
         "compatibility/__init__.py",
-        "compatibility/evolution.py",
-        "compatibility/migrations.py",
+        "compatibility/schema_assessments.py",
+        "compatibility/schema_migrations.py",
     }:
         return _shared_contract_entry(
             module_path,

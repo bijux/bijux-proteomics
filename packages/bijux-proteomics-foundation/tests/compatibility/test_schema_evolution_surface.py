@@ -11,7 +11,7 @@ from bijux_proteomics_foundation.compatibility import (
     assess_schema_compatibility,
     assess_schema_evolution,
 )
-from bijux_proteomics_foundation.compatibility.migrations import (
+from bijux_proteomics_foundation.compatibility.schema_migrations import (
     MigrationRegistry,
     SchemaMigration,
 )

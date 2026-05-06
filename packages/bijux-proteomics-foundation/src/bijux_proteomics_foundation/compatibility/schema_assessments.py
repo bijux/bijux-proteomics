@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Schema compatibility assessments for durable document metadata."""
+"""Schema compatibility assessments for durable document contracts."""
 
 from __future__ import annotations
 
@@ -9,9 +9,11 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation.compatibility.migrations import MigrationRegistry
-from bijux_proteomics_foundation.compatibility.versions import SchemaVersion
-from bijux_proteomics_foundation.serialization.json_models import JsonModel
+from bijux_proteomics_foundation.compatibility.schema_migrations import (
+    MigrationRegistry,
+)
+from bijux_proteomics_foundation.compatibility.schema_versions import SchemaVersion
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 
 class SchemaCompatibility(StrEnum):

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Deterministic ordering helpers shared by serializable public models."""
+"""Deterministic value-ordering helpers shared by serializable contracts."""
 
 from __future__ import annotations
 

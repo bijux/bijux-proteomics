@@ -15,7 +15,7 @@ from bijux_proteomics_foundation import (
     hash_model,
     hash_payload,
 )
-from bijux_proteomics_foundation.serialization.documents import (
+from bijux_proteomics_foundation.serialization.scientific_values import (
     DurationValue,
     NullabilityState,
     NullableValue,
@@ -25,7 +25,7 @@ from bijux_proteomics_foundation.serialization.documents import (
     absent_value,
     present_value,
 )
-from bijux_proteomics_foundation.serialization.hashing import (
+from bijux_proteomics_foundation.serialization.stable_hashes import (
     StableHashPolicy,
     default_hash_policy,
 )
@@ -208,4 +208,3 @@ def test_json_model_supports_jsonl_and_tsv_transport_helpers(tmp_path: Path) -> 
     assert "value" in header
     assert "demo" in row
     assert tsv_path.read_text().splitlines()[0] == header
-

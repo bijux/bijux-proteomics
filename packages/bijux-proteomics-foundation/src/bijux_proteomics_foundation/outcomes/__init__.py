@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Owner paths for shared refusal, result, and error contracts."""
+"""Owner paths for shared refusal, failure, and result contracts."""
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation.outcomes.error_envelopes import (
+from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
     ErrorEnvelope,
     build_error_envelope_from_exception,

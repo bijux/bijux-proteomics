@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.outcomes.exceptions import (
     MigrationExecutionError,
     MigrationPathError,
 )
-from bijux_proteomics_foundation.serialization.json_models import JsonModel
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Reusable JSON-backed model helpers for durable Bijux documents."""
+"""Reusable JSON-backed contract helpers for durable Bijux payloads."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Any, Self, cast
 
 from pydantic import BaseModel
 
-from bijux_proteomics_foundation.serialization.canonicalization import (
+from bijux_proteomics_foundation.serialization.canonical_json import (
     flatten_tsv_mapping,
     normalize_json_value,
 )
@@ -58,7 +58,7 @@ class JsonModel(BaseModel):
 
     def content_fingerprint(self) -> str:
         """Return a deterministic SHA-256 fingerprint for model content."""
-        from bijux_proteomics_foundation.serialization.hashing import hash_model
+        from bijux_proteomics_foundation.serialization.stable_hashes import hash_model
 
         return hash_model(self)
 
@@ -101,7 +101,7 @@ class JsonModel(BaseModel):
 
 def fingerprint_model(model: JsonModel) -> str:
     """Return the stable fingerprint for one model."""
-    from bijux_proteomics_foundation.serialization.hashing import hash_model
+    from bijux_proteomics_foundation.serialization.stable_hashes import hash_model
 
     return hash_model(model)
 
