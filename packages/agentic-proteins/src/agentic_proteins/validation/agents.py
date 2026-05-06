@@ -1,6 +1,6 @@
 """Compatibility forwarding module for canonical runtime validation ownership."""
 
-from bijux_proteomics_runtime.agents.contracts import (
+from bijux_proteomics_runtime.execution.agents.contracts import (
     ALLOWED_TOOL_NAMESPACE,
     _minimal_payload,
     _placeholder_for_type,

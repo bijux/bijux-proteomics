@@ -10,7 +10,7 @@ from agentic_proteins.core.stability import STABILITY_EXPECTATIONS
 
 def test_module_stability_annotations() -> None:
     assert "bijux_proteomics_runtime.providers" in STABILITY_EXPECTATIONS
-    assert "bijux_proteomics_runtime.runtime" in STABILITY_EXPECTATIONS
+    assert "bijux_proteomics_runtime.support" in STABILITY_EXPECTATIONS
     for module_path, expected in STABILITY_EXPECTATIONS.items():
         module = importlib.import_module(module_path)
         actual = getattr(module, "__stability__", None)

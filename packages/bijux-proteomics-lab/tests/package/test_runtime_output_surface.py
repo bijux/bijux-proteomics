@@ -18,7 +18,7 @@ from bijux_proteomics_runtime.runs.replay import (
 from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
 from bijux_proteomics_runtime.runs.replay import write_local_run_bundle
 from bijux_proteomics_runtime.runs.replay import write_replay_contract
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 def test_lab_can_read_runtime_bundle_and_retention_policy_via_public_surface(

@@ -12,7 +12,7 @@ from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
 from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
 from bijux_proteomics_runtime.runs.replay import write_local_run_bundle
 from bijux_proteomics_runtime.runs.replay import write_replay_contract
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 def test_intelligence_can_read_runtime_local_run_bundle_via_public_runtime_surface(

@@ -134,11 +134,11 @@ from bijux_proteomics_runtime.api.cli import (
 from bijux_proteomics_runtime.api.cli import (
     cli as runtime_cli,
 )
-from bijux_proteomics_runtime.providers.base import _time_left as runtime_time_left
-from bijux_proteomics_runtime.providers.factory import (
+from bijux_proteomics_runtime.providers.contracts import _time_left as runtime_time_left
+from bijux_proteomics_runtime.providers.selection import (
     _require_module as runtime_require_module,
 )
-from bijux_proteomics_runtime.agents.catalog import AgentCatalog as RuntimeAgentCatalog
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog as RuntimeAgentCatalog
 from bijux_proteomics_runtime.execution.tools.catalog import (
     ToolCatalog as RuntimeToolCatalog,
 )
@@ -164,10 +164,10 @@ from bijux_proteomics_runtime.providers.capabilities import (
 from bijux_proteomics_runtime.providers.capabilities import (
     validate_runtime_capabilities as runtime_validate_runtime_capabilities,
 )
-from bijux_proteomics_runtime.agents.contracts import (
+from bijux_proteomics_runtime.execution.agents.contracts import (
     _minimal_payload as runtime_minimal_payload,
 )
-from bijux_proteomics_runtime.agents.contracts import (
+from bijux_proteomics_runtime.execution.agents.contracts import (
     _placeholder_for_type as runtime_placeholder_for_type,
 )
 

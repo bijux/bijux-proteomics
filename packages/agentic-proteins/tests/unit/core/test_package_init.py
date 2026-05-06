@@ -6,7 +6,7 @@ from __future__ import annotations
 import agentic_proteins as pkg
 import agentic_proteins.core as compat_core
 import bijux_proteomics.structure_report as structure_report
-import bijux_proteomics_runtime.core as runtime_core
+import bijux_proteomics_runtime.support.primitives as runtime_primitives
 from bijux_proteomics_intelligence.interpretation.structures import (
     low_confidence_segments,
 )
@@ -18,9 +18,9 @@ def test_package_exports() -> None:
 
 
 def test_core_package_forwards_to_runtime_exports() -> None:
-    assert compat_core.CostSummary is runtime_core.CostSummary
-    assert compat_core.FailureType is runtime_core.FailureType
-    assert compat_core.ExecutionStatus is runtime_core.ExecutionStatus
+    assert compat_core.CostSummary is runtime_primitives.CostSummary
+    assert compat_core.FailureType is runtime_primitives.FailureType
+    assert compat_core.ExecutionStatus is runtime_primitives.ExecutionStatus
 
 
 def test_root_package_routes_report_conveniences_through_core() -> None:
