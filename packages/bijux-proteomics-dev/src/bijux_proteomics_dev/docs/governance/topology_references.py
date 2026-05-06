@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from pathlib import Path
 import re
 
-from bijux_proteomics_dev.api.support.workspace_inventory import (
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_docs,
     workspace_package_names,
 )
-from bijux_proteomics_dev.api.runtime.topology import REPO_ROOT
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "DOCS_TOPOLOGY_REFERENCES_PATH",

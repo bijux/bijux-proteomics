@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from bijux_proteomics_dev.api.support.workspace_inventory import package_root
+from bijux_proteomics_dev.governance.support.workspace_inventory import package_root
 
 __all__ = [
     "architecture_doc_path",
