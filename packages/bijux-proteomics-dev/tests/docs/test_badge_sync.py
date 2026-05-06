@@ -33,6 +33,14 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
     )
     assert "https://pypi.org/project/bijux-proteomics-runtime/" in rendered
     assert "https://pypi.org/project/agentic-proteins/" in rendered
+    assert (
+        "https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main"
+        in rendered
+    )
+    assert (
+        "https://img.shields.io/badge/release-pypi%20workflow-2563EB?logo=githubactions&logoColor=white"
+        in rendered
+    )
     assert rendered.index("bijux-proteomics-runtime/") < rendered.index(
         "agentic-proteins/"
     )
@@ -52,6 +60,10 @@ def test_package_badge_block_prioritizes_the_current_distribution() -> None:
             kind="package",
             package_slug="agentic-proteins",
         )
+    )
+    assert (
+        "https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main"
+        in rendered
     )
     assert (
         "\n[![agentic-proteins](https://img.shields.io/pypi/v/agentic-proteins"
@@ -78,6 +90,7 @@ def test_managed_surfaces_only_use_generated_badges() -> None:
         Path("packages/agentic-proteins/README.md"),
         Path("packages/bijux-proteomics-foundation/README.md"),
         Path("packages/bijux-proteomics-core/README.md"),
+        Path("packages/bijux-proteomics-runtime/README.md"),
         Path("packages/bijux-proteomics-intelligence/README.md"),
         Path("packages/bijux-proteomics-knowledge/README.md"),
         Path("packages/bijux-proteomics-lab/README.md"),
