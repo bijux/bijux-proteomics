@@ -28,9 +28,9 @@ Runtime-owned capabilities:
 ## Execution charter
 
 - canonical entrypoints: `api/cli.py`, `api/app.py`, `api/v1/endpoints/`, and `runs/manager.py`
-- provider binding: `providers/base.py`, `providers/factory.py`, `providers/capabilities.py`, and `providers/support.py`
-- workflow execution: `runs/manager.py`, `workflows/paths.py`, `workflows/plans.py`, `agents/`, `execution/`, and `execution/tools/`
-- replay and recovery: `runs/replay.py`, `runs/reruns.py`, `runs/recovery.py`, `runs/preflight.py`, `state/`, `support/`, and `runtime/workspace.py`
+- provider binding: `providers/catalog.py`, `providers/contracts.py`, `providers/selection.py`, `providers/capabilities.py`, and `providers/environment.py`
+- workflow execution: `runs/manager.py`, `workflows/paths.py`, `workflows/plans.py`, `execution/agents/`, `execution/`, and `execution/tools/`
+- replay and recovery: `runs/replay.py`, `runs/reruns.py`, `runs/recovery.py`, `runs/preflight.py`, `state/`, `support/`, and `support/workspace.py`
 - reviewable outputs: `api/catalog.py`, `runs/contracts.py`, `runs/import_lineage.py`, `runs/launch_bundles.py`, `runs/failure_reports.py`, and `workflows/paths.py`
 
 ## Execution model
@@ -64,11 +64,10 @@ flowchart TD
 - `api/cli.py` owns the canonical CLI contract and operator-safe command output
 - `runs/` owns run identity, run config, preflight, recovery, decisions, lineage, bundles, and typed execution context
 - `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, and reviewable path manifests
-- `providers/` owns provider binding, capability gates, provider metadata, and provider execution support
-- `runtime/` holds only internal workspace and transport contracts that do not belong to the run-owned families
-- `agents/` and `execution/` own runtime-local execution planning and coordination support
-- `state/` owns replayable state, history, and review-safe persistence contracts, including the former memory records and store surfaces
-- `support/` owns package support surfaces such as runtime identity and shared test/support contracts
+- `providers/` owns provider cataloging, capability gates, selection, metadata, and execution environment contracts
+- `execution/agents/` and `execution/` own runtime-local planning, coordination, engine, graph, and tool support
+- `state/` owns replayable state, history, and review-safe persistence contracts
+- `support/` owns runtime identity, execution primitives, artifact format contracts, and workspace support
 
 ## Route owners
 
@@ -110,7 +109,7 @@ runtime-specific schemas.
 ## Downstream expectations
 
 Downstream callers should integrate through exact owner modules such as
-`api.app`, `runs.manager`, `workflows.paths`, and `providers.factory` instead
+`api.app`, `runs.manager`, `workflows.paths`, and `providers.selection` instead
 of teaching internal consumers to widen package-root imports.
 
 New orchestration features should land here before compat forwarding in

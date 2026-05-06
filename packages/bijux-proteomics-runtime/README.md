@@ -104,7 +104,7 @@ instead of widening `bijux_proteomics_runtime` into a convenience bucket.
 - Canonical workflow CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `api.cli:cli`
 - Execution charter: `src/bijux_proteomics_runtime/governance/charter.py`
-- First-level owner families: `api/`, `providers/`, `runs/`, `workflows/`, `state/`, `support/`, `execution/`, `agents/`, `runtime/`, `core/`, `sandbox/`, and `governance/`
+- First-level owner families: `api/`, `execution/`, `governance/`, `providers/`, `runs/`, `state/`, `support/`, and `workflows/`
 - Compatibility forwarding lives in `agentic-proteins`; the canonical runtime package keeps only owner paths
 
 ## Package boundaries
@@ -151,7 +151,7 @@ Non-goals for these surfaces:
 - `bijux_proteomics_runtime.runs.replay_decisions` and `runs.execution_decisions` for operator-visible reuse and degraded-mode reasoning
 - `bijux_proteomics_runtime.runs.import_lineage` for import traces and derived-artifact separation
 - `bijux_proteomics_runtime.workflows.paths` for reviewable runtime path manifests
-- `bijux_proteomics_runtime.providers.factory` and `providers.capabilities` for provider binding and capability gates
+- `bijux_proteomics_runtime.providers.selection` and `providers.capabilities` for provider binding and capability gates
 
 ## Operational review paths
 
@@ -298,8 +298,8 @@ result = OperationResult.success(
 - [`src/bijux_proteomics_runtime/governance/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py) for the machine-readable execution charter and module audit
 - [`src/bijux_proteomics_runtime/api/cli.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
-- [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider binding, capability gates, and provider execution support
-- [`src/bijux_proteomics_runtime/runtime`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime) for internal workspace and transport contracts only
+- [`src/bijux_proteomics_runtime/providers`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/providers) for provider cataloging, capability gates, selection, and execution environment contracts
+- [`src/bijux_proteomics_runtime/support`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support) for execution primitives, artifact format contracts, and workspace support
 - [`artifacts/<run-id>`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime) for persisted runtime bundle, checkpoint, and integrity outputs at execution time
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/tests) for executable surface and migration expectations
 

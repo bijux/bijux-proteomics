@@ -11,8 +11,8 @@ parsing private workspace layout.
 
 ## Run context and artifact policy
 
-- owner code: `src/bijux_proteomics_runtime/runs/contracts.py`, `src/bijux_proteomics_runtime/runtime/workspace.py`
-- owner tests: `tests/runtime/test_runtime_context_contracts.py`, `tests/api/test_runtime_transport_contracts.py`
+- owner code: `src/bijux_proteomics_runtime/runs/contracts.py`, `src/bijux_proteomics_runtime/support/artifact_formats.py`, `src/bijux_proteomics_runtime/support/workspace.py`
+- owner tests: `tests/runs/test_run_context_contracts.py`, `tests/api/test_runtime_transport_contracts.py`
 - owner fixtures: `tests/fixtures/execution/sequence_review_path.json`
 - contract: run identity, dataset identity, environment identity, and retention classes remain machine-readable
 

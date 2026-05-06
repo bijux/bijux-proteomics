@@ -21,7 +21,7 @@ integrators can rely on at the canonical execution boundary.
 
 ## Exact owner import contracts
 
-- internal and package-maintainer code should import `api.app`, `runs.manager`, `workflows.paths`, `providers.factory`, and `providers.capabilities` directly
+- internal and package-maintainer code should import `api.app`, `runs.manager`, `workflows.paths`, `providers.catalog`, `providers.selection`, and `providers.capabilities` directly
 - HTTP route ownership is pinned to `api/routes/runtime_execution.py`, `review_packets.py`, `quant_reports.py`, `ptm_reports.py`, `evidence_graph.py`, `lab_handoffs.py`, and `adapter_conformance.py`
 - import provenance ownership is pinned to `runs/import_lineage.py`
 - preflight, replay-decision, and execution-decision ownership is pinned to `runs/preflight.py`, `runs/replay_decisions.py`, and `runs/execution_decisions.py`

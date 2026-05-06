@@ -84,8 +84,8 @@ policy, or scientific derivation claims for imported evidence.
 Downstream callers should treat runtime as the canonical owner of
 orchestration, provider binding, and operator-facing entrypoints, while in-repo
 and package-internal consumers should import exact owners such as `api.app`,
-`runs.manager`, `runs.preflight`, `runs.import_lineage`, `workflows.paths`, and
-`providers.factory`.
+`runs.manager`, `runs.preflight`, `runs.import_lineage`, `workflows.paths`,
+`providers.catalog`, and `providers.selection`.
 
 Lower layers should stay meaningful without importing runtime shapes.
 
