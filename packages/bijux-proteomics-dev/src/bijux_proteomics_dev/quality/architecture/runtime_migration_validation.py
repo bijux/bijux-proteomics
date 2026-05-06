@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 
-from bijux_proteomics_dev.api.freeze_contracts import run as run_api_freeze
+from bijux_proteomics_dev.api.contracts.freeze_contracts import run as run_api_freeze
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     run as run_runtime_boundaries,
 )
@@ -18,8 +18,8 @@ REQUIRED_RELEASE_SLUGS = ("agentic-proteins",)
 COMPATIBILITY_TESTS = (
     "packages/agentic-proteins/tests/unit/compat/test_import_forwarding.py",
     "packages/bijux-proteomics-dev/tests/test_runtime_boundaries_compat_forwarding.py",
-    "packages/bijux-proteomics-dev/tests/test_runtime_api_contract_roots.py",
-    "packages/bijux-proteomics-dev/tests/test_runtime_public_surfaces.py",
+    "packages/bijux-proteomics-dev/tests/api/runtime/test_api_contract_roots.py",
+    "packages/bijux-proteomics-dev/tests/api/runtime/test_public_surfaces.py",
 )
 
 

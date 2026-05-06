@@ -5,7 +5,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
+from bijux_proteomics_dev.quality.graphs.package_graph import load_workspace_packages
 
 __all__ = [
     "DUPLICATE_MODEL_OWNERSHIP_CSV_PATH",
@@ -227,7 +227,7 @@ def _summary_text(definitions: tuple[DuplicateModelDefinition, ...]) -> str:
             "",
             f"- `{DUPLICATE_MODEL_OWNERSHIP_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
             f"- `{DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            "- `packages/bijux-proteomics-dev/tests/test_duplicate_model_ownership.py`",
+            "- `packages/bijux-proteomics-dev/tests/quality/architecture/test_duplicate_model_ownership.py`",
             "",
         ]
     )

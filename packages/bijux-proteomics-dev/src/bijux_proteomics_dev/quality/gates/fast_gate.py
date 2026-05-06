@@ -30,27 +30,27 @@ def default_fast_gate_targets() -> tuple[FastGateTarget, ...]:
     return (
         FastGateTarget(
             surface="digest",
-            test_path="packages/bijux-proteomics-core/tests/test_digestion_engine_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/sequences/test_digestion_surface.py",
             rationale="prove digestion basics remain correct",
         ),
         FastGateTarget(
             surface="identification",
-            test_path="packages/bijux-proteomics-core/tests/test_identification_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/identification/test_identification_surface.py",
             rationale="prove identification confidence and FDR basics remain intact",
         ),
         FastGateTarget(
             surface="format",
-            test_path="packages/bijux-proteomics-core/tests/test_format_ingestion_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py",
             rationale="prove format detection and ingestion basics remain intact",
         ),
         FastGateTarget(
             surface="qc",
-            test_path="packages/bijux-proteomics-core/tests/test_qc_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/study/test_qc_surface.py",
             rationale="prove QC policy and reporting basics remain intact",
         ),
         FastGateTarget(
             surface="runtime-artifact",
-            test_path="packages/bijux-proteomics-core/tests/test_production_run_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/workflow/test_production_run_surface.py",
             rationale="prove runtime artifact bundle basics remain intact",
         ),
         FastGateTarget(

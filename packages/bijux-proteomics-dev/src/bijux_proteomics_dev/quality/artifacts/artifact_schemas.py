@@ -6,7 +6,7 @@ import re
 import tomllib
 from typing import Any
 
-from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
+from bijux_proteomics_dev.quality.graphs.package_graph import load_workspace_packages
 
 __all__ = [
     "ArtifactSchemaIssue",

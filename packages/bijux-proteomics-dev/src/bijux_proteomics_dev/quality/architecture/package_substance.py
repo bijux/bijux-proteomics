@@ -31,7 +31,7 @@ from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory i
     build_agentic_compatibility_inventory,
     validate_agentic_compatibility_inventory,
 )
-from bijux_proteomics_dev.quality.package_graph import (
+from bijux_proteomics_dev.quality.graphs.package_graph import (
     WorkspacePackage,
     load_workspace_packages,
 )
@@ -565,7 +565,7 @@ def _summary_text(entries: tuple[PackageSubstanceEntry, ...]) -> str:
             "",
             f"- `{PACKAGE_SUBSTANCE_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
             f"- `{PACKAGE_SUBSTANCE_SUMMARY_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            "- `packages/bijux-proteomics-dev/tests/test_package_substance.py`",
+            "- `packages/bijux-proteomics-dev/tests/quality/architecture/test_package_substance.py`",
             "",
         ]
     )

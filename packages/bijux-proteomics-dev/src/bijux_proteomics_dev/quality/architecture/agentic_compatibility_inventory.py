@@ -531,7 +531,7 @@ def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> st
             "",
             f"- `{AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.relative_to(REPO_ROOT).as_posix()}`",
             f"- `{AGENTIC_COMPATIBILITY_INVENTORY_SUMMARY_PATH.relative_to(REPO_ROOT).as_posix()}`",
-            "- `packages/bijux-proteomics-dev/tests/test_agentic_compatibility_inventory.py`",
+            "- `packages/bijux-proteomics-dev/tests/quality/architecture/test_agentic_compatibility_inventory.py`",
             "",
         ]
     )

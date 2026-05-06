@@ -5,7 +5,7 @@ from pathlib import Path
 import tomllib
 from typing import Any
 
-from bijux_proteomics_dev.quality.artifact_schemas import (
+from bijux_proteomics_dev.quality.artifacts.artifact_schemas import (
     load_high_value_artifact_schemas,
 )
 

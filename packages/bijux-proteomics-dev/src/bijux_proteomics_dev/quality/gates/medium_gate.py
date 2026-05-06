@@ -7,19 +7,19 @@ from pathlib import Path
 import subprocess  # nosec B404
 import sys
 
-from bijux_proteomics_dev.quality.artifact_schemas import (
+from bijux_proteomics_dev.quality.artifacts.artifact_schemas import (
     validate_high_value_artifact_schemas,
 )
-from bijux_proteomics_dev.quality.benchmark_artifacts import (
+from bijux_proteomics_dev.quality.artifacts.benchmark_artifacts import (
     validate_benchmark_artifact_definitions,
 )
-from bijux_proteomics_dev.quality.bundle_verification import (
+from bijux_proteomics_dev.quality.artifacts.bundle_verification import (
     validate_bundle_verification_profiles,
 )
-from bijux_proteomics_dev.quality.dependency_boundaries import (
+from bijux_proteomics_dev.quality.dependencies.dependency_boundaries import (
     validate_workspace_dependency_boundaries,
 )
-from bijux_proteomics_dev.release.package_family_readiness import (
+from bijux_proteomics_dev.release.readiness.package_family_readiness import (
     validate_package_family_readiness,
 )
 
@@ -46,7 +46,7 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
     return (
         MediumGateTarget(
             surface="workflow-reproducibility",
-            test_path="packages/bijux-proteomics-core/tests/test_workflow_runtime_surface.py",
+            test_path="packages/bijux-proteomics-core/tests/workflow/test_runtime_surface.py",
             rationale="prove runtime export, archive, and rerun contracts stay reproducible",
         ),
         MediumGateTarget(
@@ -56,12 +56,12 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
         ),
         MediumGateTarget(
             surface="runtime-service",
-            test_path="packages/bijux-proteomics-runtime/tests/test_runtime_contract_surfaces.py",
+            test_path="packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py",
             rationale="prove runtime contract publication and service surfaces stay aligned",
         ),
         MediumGateTarget(
             surface="package-boundaries",
-            test_path="packages/bijux-proteomics-dev/tests/test_dependency_boundaries.py",
+            test_path="packages/bijux-proteomics-dev/tests/quality/dependencies/test_dependency_boundaries.py",
             rationale="prove package-boundary discipline does not drift under integration pressure",
         ),
     )

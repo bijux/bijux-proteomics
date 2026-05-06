@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.package_graph import build_workspace_package_graph
+from bijux_proteomics_dev.quality.graphs.package_graph import build_workspace_package_graph
 
 __all__ = [
     "PackageCouplingHotspot",
