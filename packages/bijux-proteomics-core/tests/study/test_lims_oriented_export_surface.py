@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics.study.laboratory_operations import (
     LimsExportInputRow,
     build_lims_oriented_export_bundle,
 )

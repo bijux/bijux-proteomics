@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics.lab.planning import (
+from bijux_proteomics.study.laboratory_plans import (
     AssayProgressionModel,
     AssayProgressionState,
     transition_assay_progression,

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.planning import (
+from bijux_proteomics.study.laboratory_plans import (
     build_capacity_model_with_uncertainty,
 )
 

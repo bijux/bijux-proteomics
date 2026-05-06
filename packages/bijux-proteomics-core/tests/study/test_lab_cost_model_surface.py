@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics.study.laboratory_operations import (
     LabCostModelInput,
     build_lab_cost_model_report,
 )

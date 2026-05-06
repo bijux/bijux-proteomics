@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics.study.laboratory_operations import (
     LabOutcomeIngestionPolicy,
     LabOutcomeIngestionRecord,
     ingest_lab_outcomes_with_versioned_policy,

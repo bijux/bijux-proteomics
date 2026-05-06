@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.operations import (
+from bijux_proteomics.study.laboratory_operations import (
     ValidationStageProgressionInput,
     evaluate_validation_stage_progression_policy,
 )

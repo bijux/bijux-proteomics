@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.lab.planning import (
+from bijux_proteomics.study.laboratory_plans import (
     LabReviewPacketInput,
     render_lab_review_packet,
 )

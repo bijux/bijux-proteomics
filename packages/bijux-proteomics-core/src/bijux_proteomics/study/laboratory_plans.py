@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Lab planning and assay progression surfaces."""
+"""Study-owned laboratory planning and targeted-method contracts."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ import json
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_lab.planning import *  # noqa: F401,F403
 
 
 class AssayProgressionState(StrEnum):

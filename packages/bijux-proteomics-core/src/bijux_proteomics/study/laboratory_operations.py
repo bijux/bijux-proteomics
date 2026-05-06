@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Lab operations and assay follow-up surfaces."""
+"""Study-owned laboratory operations, handoff, and follow-up contracts."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ import random
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_lab.reconciliation import *  # noqa: F401,F403
 
 
 class LabCostModelInput(JsonModel):
