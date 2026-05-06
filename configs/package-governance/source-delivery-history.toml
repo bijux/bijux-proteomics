@@ -1,5 +1,5 @@
 # Generated source delivery-history report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.source_delivery_history
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.docs.governance.source_delivery_history
 
 [guard]
 max_total_violation_count = 0

@@ -1,5 +1,5 @@
 # Generated intelligence capability map.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_capability_map
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence.capability_map
 
 [metrics]
 analytical_band_count = 6

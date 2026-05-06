@@ -1,5 +1,5 @@
 # Generated package dependency graph.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_dependency_graph
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.dependencies.package_dependency_graph
 
 [guard]
 max_total_edges = 24
@@ -58,42 +58,42 @@ target_modules = ["bijux_proteomics_runtime.runs.manager", "bijux_proteomics_run
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-core"
 source_module_count = 4
-source_modules = ["bijux_proteomics_dev.api.core_compatibility_exports", "bijux_proteomics_dev.tools.golden_path_example", "bijux_proteomics_dev.tools.mre_agentic_protein", "bijux_proteomics_dev.tools.visualize_invariants"]
+source_modules = ["bijux_proteomics_dev.api.core.compatibility_exports", "bijux_proteomics_dev.tools.golden_path_example", "bijux_proteomics_dev.tools.mre_agentic_protein", "bijux_proteomics_dev.tools.visualize_invariants"]
 target_modules = ["bijux_proteomics.biology", "bijux_proteomics.biology.pathway", "bijux_proteomics.biology.protein_agent", "bijux_proteomics.biology.signals", "bijux_proteomics.governance.charter"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-foundation"
 source_module_count = 2
-source_modules = ["bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance"]
+source_modules = ["bijux_proteomics_dev.api.contracts.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance"]
 target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.compatibility", "bijux_proteomics_foundation.support.charter"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-intelligence"
 source_module_count = 3
-source_modules = ["bijux_proteomics_dev.api.intelligence_boundary_mix", "bijux_proteomics_dev.api.intelligence_capability_map", "bijux_proteomics_dev.quality.architecture.package_substance"]
+source_modules = ["bijux_proteomics_dev.api.intelligence.boundary_mix", "bijux_proteomics_dev.api.intelligence.capability_map", "bijux_proteomics_dev.quality.architecture.package_substance"]
 target_modules = ["bijux_proteomics_intelligence.governance.charter"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-knowledge"
 source_module_count = 5
-source_modules = ["bijux_proteomics_dev.api.knowledge_breadth", "bijux_proteomics_dev.api.knowledge_reference_quality", "bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance", "bijux_proteomics_dev.release.scientific_readiness"]
+source_modules = ["bijux_proteomics_dev.api.contracts.serialization_compatibility", "bijux_proteomics_dev.api.knowledge.breadth", "bijux_proteomics_dev.api.knowledge.reference_quality", "bijux_proteomics_dev.quality.architecture.package_substance", "bijux_proteomics_dev.release.readiness.scientific_readiness"]
 target_modules = ["bijux_proteomics_knowledge.contracts.schema", "bijux_proteomics_knowledge.governance.charter", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.grounding.citations", "bijux_proteomics_knowledge.references.grounding.contexts", "bijux_proteomics_knowledge.references.grounding.corpora", "bijux_proteomics_knowledge.references.grounding.literature", "bijux_proteomics_knowledge.references.grounding.ontologies", "bijux_proteomics_knowledge.references.grounding.problems", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings", "bijux_proteomics_knowledge.references.workflows.lookups", "bijux_proteomics_knowledge.references.workflows.narratives"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-lab"
 source_module_count = 4
-source_modules = ["bijux_proteomics_dev.api.lab_operational_ownership", "bijux_proteomics_dev.api.lab_packet_only_modules", "bijux_proteomics_dev.api.serialization_compatibility", "bijux_proteomics_dev.quality.architecture.package_substance"]
+source_modules = ["bijux_proteomics_dev.api.contracts.serialization_compatibility", "bijux_proteomics_dev.api.lab.operational_ownership", "bijux_proteomics_dev.api.lab.packet_only_modules", "bijux_proteomics_dev.quality.architecture.package_substance"]
 target_modules = ["bijux_proteomics_lab.governance.charter", "bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.planning.assays"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-dev"
 target_distribution = "bijux-proteomics-runtime"
 source_module_count = 4
-source_modules = ["bijux_proteomics_dev.api.runtime_breadth", "bijux_proteomics_dev.api.runtime_live_contracts", "bijux_proteomics_dev.api.runtime_thin_modules", "bijux_proteomics_dev.quality.architecture.package_substance"]
+source_modules = ["bijux_proteomics_dev.api.runtime.breadth", "bijux_proteomics_dev.api.runtime.live_contracts", "bijux_proteomics_dev.api.runtime.thin_modules", "bijux_proteomics_dev.quality.architecture.package_substance"]
 target_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.governance.charter", "bijux_proteomics_runtime.support.primitives.surface_area"]
 
 [[edge]]

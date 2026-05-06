@@ -1,10 +1,10 @@
 # Generated lab publishability report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_publishability
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.publishability
 
 [metrics]
 root_entrypoint_count = 4
 source_owner_family_count = 8
-test_family_count = 10
+test_family_count = 9
 mirrored_owner_family_count = 8
 flat_test_module_count = 0
 honesty_ready = true
@@ -18,7 +18,7 @@ publishable = true
 [guard]
 max_root_entrypoint_count = 4
 min_source_owner_family_count = 8
-min_test_family_count = 10
+min_test_family_count = 9
 min_mirrored_owner_family_count = 8
 max_flat_test_module_count = 0
 

@@ -1,5 +1,5 @@
 # Generated reopened debt ledger.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.reopened_debt_ledger
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.reopened_debt_ledger
 
 [[debt]]
 debt_id = "agentic-proteins:reopened-completion-claim"
@@ -16,14 +16,6 @@ debt_family = "test-tree-gaps"
 severity = "medium"
 summary = "15 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-core:compatibility-surfaces"
-distribution_name = "bijux-proteomics-core"
-debt_family = "compatibility-surfaces"
-severity = "medium"
-summary = "4 compatibility surfaces still survive at the package root"
-evidence_report = "configs/package-governance/package-tree-dossiers.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-core:mixed-responsibility-modules"
@@ -46,7 +38,7 @@ debt_id = "bijux-proteomics-core:test-tree-gaps"
 distribution_name = "bijux-proteomics-core"
 debt_family = "test-tree-gaps"
 severity = "medium"
-summary = "2 source owner families still lack matching test families"
+summary = "3 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
@@ -70,16 +62,8 @@ debt_id = "bijux-proteomics-dev:test-tree-gaps"
 distribution_name = "bijux-proteomics-dev"
 debt_family = "test-tree-gaps"
 severity = "medium"
-summary = "6 source owner families still lack matching test families"
+summary = "1 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-foundation:compatibility-surfaces"
-distribution_name = "bijux-proteomics-foundation"
-debt_family = "compatibility-surfaces"
-severity = "medium"
-summary = "7 compatibility surfaces still survive at the package root"
-evidence_report = "configs/package-governance/package-tree-dossiers.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-foundation:reopened-completion-claim"
@@ -90,27 +74,11 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-foundation:test-tree-gaps"
-distribution_name = "bijux-proteomics-foundation"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "4 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-foundation:tree-quality"
-distribution_name = "bijux-proteomics-foundation"
-debt_family = "tree-quality"
-severity = "high"
-summary = "overall tree quality remains below reviewer comfort at 33.65"
-evidence_report = "configs/package-governance/repository-tree-quality.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-intelligence:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-intelligence"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
-summary = "5 oversized mixed-responsibility modules still need owner splits"
+summary = "4 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
@@ -126,24 +94,8 @@ debt_id = "bijux-proteomics-intelligence:test-tree-gaps"
 distribution_name = "bijux-proteomics-intelligence"
 debt_family = "test-tree-gaps"
 severity = "medium"
-summary = "2 source owner families still lack matching test families"
+summary = "1 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-intelligence:tree-quality"
-distribution_name = "bijux-proteomics-intelligence"
-debt_family = "tree-quality"
-severity = "high"
-summary = "overall tree quality remains below reviewer comfort at 50.40"
-evidence_report = "configs/package-governance/repository-tree-quality.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-knowledge:compatibility-surfaces"
-distribution_name = "bijux-proteomics-knowledge"
-debt_family = "compatibility-surfaces"
-severity = "medium"
-summary = "6 compatibility surfaces still survive at the package root"
-evidence_report = "configs/package-governance/package-tree-dossiers.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-knowledge:docs-claim-gap"
@@ -170,22 +122,6 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-knowledge:tree-quality"
-distribution_name = "bijux-proteomics-knowledge"
-debt_family = "tree-quality"
-severity = "high"
-summary = "overall tree quality remains below reviewer comfort at 67.26"
-evidence_report = "configs/package-governance/repository-tree-quality.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-lab:compatibility-surfaces"
-distribution_name = "bijux-proteomics-lab"
-debt_family = "compatibility-surfaces"
-severity = "medium"
-summary = "6 compatibility surfaces still survive at the package root"
-evidence_report = "configs/package-governance/package-tree-dossiers.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-lab:docs-claim-gap"
 distribution_name = "bijux-proteomics-lab"
 debt_family = "docs-claim-gap"
@@ -198,7 +134,7 @@ debt_id = "bijux-proteomics-lab:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-lab"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
-summary = "3 oversized mixed-responsibility modules still need owner splits"
+summary = "4 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
@@ -210,12 +146,12 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-lab:tree-quality"
+debt_id = "bijux-proteomics-lab:test-tree-gaps"
 distribution_name = "bijux-proteomics-lab"
-debt_family = "tree-quality"
-severity = "high"
-summary = "overall tree quality remains below reviewer comfort at 68.86"
-evidence_report = "configs/package-governance/repository-tree-quality.toml"
+debt_family = "test-tree-gaps"
+severity = "medium"
+summary = "1 source owner families still lack matching test families"
+evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-runtime:mixed-responsibility-modules"
@@ -238,5 +174,5 @@ debt_id = "bijux-proteomics-runtime:test-tree-gaps"
 distribution_name = "bijux-proteomics-runtime"
 debt_family = "test-tree-gaps"
 severity = "medium"
-summary = "13 source owner families still lack matching test families"
+summary = "2 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"

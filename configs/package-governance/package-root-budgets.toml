@@ -1,7 +1,7 @@
 # Generated package-root budget report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_budgets
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_budgets
 
-total_init_line_count = 172
+total_init_line_count = 155
 over_budget_packages = []
 
 [evidence]
@@ -50,16 +50,16 @@ within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-init_line_count = 32
-public_symbol_count = 10
+init_line_count = 21
+public_symbol_count = 7
 budgeted = true
 max_init_lines = 32
-max_public_symbols = 10
+max_public_symbols = 7
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-init_line_count = 19
+init_line_count = 13
 public_symbol_count = 5
 budgeted = true
 max_init_lines = 19

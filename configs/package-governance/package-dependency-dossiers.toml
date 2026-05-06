@@ -1,5 +1,5 @@
 # Generated package dependency dossiers.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_dependency_dossiers
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.dependencies.package_dependency_dossiers
 
 [[package]]
 distribution_name = "agentic-proteins"

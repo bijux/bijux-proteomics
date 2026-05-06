@@ -1,8 +1,8 @@
 # Generated intelligence broad-root import report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_broad_root_imports
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence.broad_root_imports
 
 [metrics]
-scanned_module_count = 34
+scanned_module_count = 44
 banned_root_count = 3
 violation_count = 0
 

@@ -1,8 +1,8 @@
 # Generated package thin-module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_thin_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 145
+max_total_thin_module_count = 143
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -783,13 +783,6 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/cli.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/domain/assays.py"
 nonempty_line_count = 20
 public_function_count = 0
@@ -811,14 +804,7 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/liabilities.py"
-nonempty_line_count = 3
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/search_adapters.py"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/__main__.py"
 nonempty_line_count = 5
 public_function_count = 0
 public_class_count = 0
@@ -832,8 +818,8 @@ public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow_blueprint.py"
-nonempty_line_count = 3
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runtime_bundles.py"
+nonempty_line_count = 12
 public_function_count = 0
 public_class_count = 0
 

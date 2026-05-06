@@ -1,11 +1,11 @@
 # Generated repository tree-quality report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.repository_tree_quality
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.repository_tree_quality
 
 [guard]
-max_total_root_python_module_count = 53
-max_total_wrapper_module_count = 23
+max_total_root_python_module_count = 0
+max_total_wrapper_module_count = 0
 max_total_broad_root_import_count = 0
-min_average_test_tree_mirroring_score = 37.09
+min_average_test_tree_mirroring_score = 78.19
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -27,118 +27,118 @@ overall_tree_quality_score = 81.25
 [[package]]
 distribution_name = "bijux-proteomics-dev"
 import_root = "bijux_proteomics_dev"
-root_python_module_count = 1
+root_python_module_count = 0
 public_symbol_count = 0
 compatibility_wrapper_count = 0
 broad_root_import_count = 0
 source_owner_family_count = 6
-test_family_count = 0
-mirrored_owner_family_count = 0
-flatness_score = 90.0
+test_family_count = 5
+mirrored_owner_family_count = 5
+flatness_score = 100.0
 root_bloat_score = 100.0
 wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 0.0
-overall_tree_quality_score = 78.0
+test_tree_mirroring_score = 83.33
+overall_tree_quality_score = 96.67
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 import_root = "bijux_proteomics_foundation"
-root_python_module_count = 16
+root_python_module_count = 0
 public_symbol_count = 15
-compatibility_wrapper_count = 7
+compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 4
-test_family_count = 1
-mirrored_owner_family_count = 0
-flatness_score = 0.0
+source_owner_family_count = 5
+test_family_count = 7
+mirrored_owner_family_count = 5
+flatness_score = 100.0
 root_bloat_score = 12.0
-wrapper_density_score = 56.25
+wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 0.0
-overall_tree_quality_score = 33.65
+test_tree_mirroring_score = 100.0
+overall_tree_quality_score = 82.4
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
 import_root = "bijux_proteomics"
-root_python_module_count = 8
+root_python_module_count = 0
 public_symbol_count = 5
-compatibility_wrapper_count = 4
+compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 21
+source_owner_family_count = 22
 test_family_count = 22
 mirrored_owner_family_count = 19
-flatness_score = 20.0
+flatness_score = 100.0
 root_bloat_score = 92.0
-wrapper_density_score = 50.0
+wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 90.48
-overall_tree_quality_score = 70.5
+test_tree_mirroring_score = 86.36
+overall_tree_quality_score = 95.67
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 import_root = "bijux_proteomics_runtime"
-root_python_module_count = 1
+root_python_module_count = 0
 public_symbol_count = 4
 compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 13
-test_family_count = 1
-mirrored_owner_family_count = 0
-flatness_score = 90.0
+source_owner_family_count = 8
+test_family_count = 8
+mirrored_owner_family_count = 6
+flatness_score = 100.0
 root_bloat_score = 100.0
 wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 0.0
-overall_tree_quality_score = 78.0
+test_tree_mirroring_score = 75.0
+overall_tree_quality_score = 95.0
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 import_root = "bijux_proteomics_intelligence"
-root_python_module_count = 13
-public_symbol_count = 10
+root_python_module_count = 0
+public_symbol_count = 7
 compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 2
-test_family_count = 0
-mirrored_owner_family_count = 0
-flatness_score = 0.0
-root_bloat_score = 52.0
+source_owner_family_count = 7
+test_family_count = 8
+mirrored_owner_family_count = 6
+flatness_score = 100.0
+root_bloat_score = 76.0
 wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 0.0
-overall_tree_quality_score = 50.4
+test_tree_mirroring_score = 85.71
+overall_tree_quality_score = 92.34
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
-root_python_module_count = 7
+root_python_module_count = 0
 public_symbol_count = 5
-compatibility_wrapper_count = 6
+compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 3
-test_family_count = 4
-mirrored_owner_family_count = 3
-flatness_score = 30.0
+source_owner_family_count = 5
+test_family_count = 6
+mirrored_owner_family_count = 5
+flatness_score = 100.0
 root_bloat_score = 92.0
-wrapper_density_score = 14.29
+wrapper_density_score = 100.0
 broad_root_import_score = 100.0
 test_tree_mirroring_score = 100.0
-overall_tree_quality_score = 67.26
+overall_tree_quality_score = 98.4
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 import_root = "bijux_proteomics_lab"
-root_python_module_count = 7
+root_python_module_count = 0
 public_symbol_count = 4
-compatibility_wrapper_count = 6
+compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 8
-test_family_count = 10
+source_owner_family_count = 9
+test_family_count = 9
 mirrored_owner_family_count = 8
-flatness_score = 30.0
+flatness_score = 100.0
 root_bloat_score = 100.0
-wrapper_density_score = 14.29
+wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 100.0
-overall_tree_quality_score = 68.86
+test_tree_mirroring_score = 88.89
+overall_tree_quality_score = 97.78

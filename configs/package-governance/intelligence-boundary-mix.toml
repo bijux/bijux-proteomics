@@ -1,5 +1,5 @@
 # Generated intelligence boundary-mix report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence_boundary_mix
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.intelligence.boundary_mix
 
 [metrics]
 scanned_module_count = 26

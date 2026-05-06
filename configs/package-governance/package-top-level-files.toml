@@ -1,8 +1,8 @@
 # Generated package top-level file report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_top_level_files
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_top_level_files
 
 [guard]
-max_total_top_level_file_count = 9
+max_total_top_level_file_count = 8
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -10,7 +10,7 @@ top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-top_level_files = ["__init__.py", "trusted_process.py"]
+top_level_files = ["__init__.py"]
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"

@@ -1,5 +1,5 @@
 # Generated package scorecard.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_scorecard
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_scorecard
 
 [guard]
 min_architectural_ready_package_count = 0
@@ -13,15 +13,15 @@ wrapper_module_count = 146
 missing_test_family_count = 15
 flat_test_module_count = 0
 proof_depth_count = 1
-unresolved_debt_count = 1
+unresolved_debt_count = 2
 architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 67
-public_breadth_count = 14
-wrapper_module_count = 19
-missing_test_family_count = 2
+owner_logic_module_count = 68
+public_breadth_count = 5
+wrapper_module_count = 17
+missing_test_family_count = 3
 flat_test_module_count = 10
 proof_depth_count = 13
 unresolved_debt_count = 3
@@ -29,30 +29,30 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-owner_logic_module_count = 104
-public_breadth_count = 1
-wrapper_module_count = 8
-missing_test_family_count = 6
-flat_test_module_count = 148
+owner_logic_module_count = 111
+public_breadth_count = 0
+wrapper_module_count = 27
+missing_test_family_count = 1
+flat_test_module_count = 15
 proof_depth_count = 3
-unresolved_debt_count = 2
-architectural_ready = false
-
-[[package]]
-distribution_name = "bijux-proteomics-foundation"
-owner_logic_module_count = 17
-public_breadth_count = 32
-wrapper_module_count = 6
-missing_test_family_count = 0
-flat_test_module_count = 0
-proof_depth_count = 1
 unresolved_debt_count = 3
 architectural_ready = false
 
 [[package]]
+distribution_name = "bijux-proteomics-foundation"
+owner_logic_module_count = 18
+public_breadth_count = 15
+wrapper_module_count = 6
+missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 1
+unresolved_debt_count = 1
+architectural_ready = false
+
+[[package]]
 distribution_name = "bijux-proteomics-intelligence"
-owner_logic_module_count = 30
-public_breadth_count = 24
+owner_logic_module_count = 35
+public_breadth_count = 7
 wrapper_module_count = 8
 missing_test_family_count = 1
 flat_test_module_count = 0
@@ -62,33 +62,33 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-owner_logic_module_count = 19
-public_breadth_count = 13
+owner_logic_module_count = 21
+public_breadth_count = 5
 wrapper_module_count = 13
 missing_test_family_count = 0
+flat_test_module_count = 0
+proof_depth_count = 2
+unresolved_debt_count = 3
+architectural_ready = false
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+owner_logic_module_count = 23
+public_breadth_count = 4
+wrapper_module_count = 10
+missing_test_family_count = 1
 flat_test_module_count = 0
 proof_depth_count = 2
 unresolved_debt_count = 4
 architectural_ready = false
 
 [[package]]
-distribution_name = "bijux-proteomics-lab"
-owner_logic_module_count = 18
-public_breadth_count = 12
-wrapper_module_count = 10
-missing_test_family_count = 1
-flat_test_module_count = 0
-proof_depth_count = 1
-unresolved_debt_count = 4
-architectural_ready = false
-
-[[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 120
-public_breadth_count = 6
+owner_logic_module_count = 117
+public_breadth_count = 4
 wrapper_module_count = 30
 missing_test_family_count = 2
 flat_test_module_count = 0
 proof_depth_count = 7
-unresolved_debt_count = 2
+unresolved_debt_count = 3
 architectural_ready = false

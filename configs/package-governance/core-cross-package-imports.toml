@@ -1,5 +1,5 @@
 # Generated core cross-package import report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.core_cross_package_imports
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.core.cross_package_imports
 
 [guard]
 max_runtime_edges = 3

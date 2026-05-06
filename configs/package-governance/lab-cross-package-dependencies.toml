@@ -1,5 +1,5 @@
 # Generated lab cross-package dependency report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab_cross_package_dependencies
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.cross_package_dependencies
 
 [guard]
 max_core_edges = 13
@@ -42,7 +42,7 @@ imported_symbols = ["FollowUpCandidatePath"]
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.references.benchmarks"
+imported_module_name = "bijux_proteomics_knowledge.references.workflows.benchmarks"
 imported_symbols = ["BenchmarkManifest", "KnowledgeWorkflowFamily"]
 
 [[dependency]]
@@ -174,13 +174,13 @@ imported_symbols = ["AssayId", "BatchId", "ClaimId", "JsonModel"]
 [[dependency]]
 importer_module_path = "outcomes/observations.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
 imported_symbols = ["EvidenceKind", "EvidenceSourceType", "EvidenceStrength"]
 
 [[dependency]]
 importer_module_path = "outcomes/observations.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.ingestion"
+imported_module_name = "bijux_proteomics_knowledge.memory.normalization.ingestion"
 imported_symbols = ["NormalizedEvidenceInput"]
 
 [[dependency]]
@@ -216,7 +216,7 @@ imported_symbols = ["CycleId"]
 [[dependency]]
 importer_module_path = "planning/assays.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
 imported_symbols = ["EvidenceBundle", "assess_decision_readiness", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "triangulate_evidence"]
 
 [[dependency]]
@@ -234,7 +234,7 @@ imported_symbols = ["AssayId", "JsonModel", "ProgramId"]
 [[dependency]]
 importer_module_path = "planning/next_cycle.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
 imported_symbols = ["EvidenceBundle", "compute_bundle_trust", "evidence_gaps", "flag_conflicting_evidence", "triangulate_evidence"]
 
 [[dependency]]
@@ -252,7 +252,7 @@ imported_symbols = ["AssayId", "BatchId", "JsonModel", "ProgramId"]
 [[dependency]]
 importer_module_path = "planning/priorities.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
 imported_symbols = ["EvidenceBundle", "assess_decision_readiness", "compute_bundle_trust", "flag_conflicting_evidence"]
 
 [[dependency]]
@@ -300,7 +300,7 @@ imported_symbols = ["JsonModel", "ProgramId"]
 [[dependency]]
 importer_module_path = "readiness/stages.py"
 owner_distribution = "bijux-proteomics-knowledge"
-imported_module_name = "bijux_proteomics_knowledge.memory.evidence"
+imported_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
 imported_symbols = ["EvidenceBundle", "evidence_gaps"]
 
 [[dependency]]

@@ -1,9 +1,9 @@
 # Generated package topology drift report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_topology_drift
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_topology_drift
 
 [guard]
-max_total_top_level_root_file_count = 9
-max_total_undocumented_owner_family_count = 55
+max_total_top_level_root_file_count = 0
+max_total_undocumented_owner_family_count = 56
 max_total_stale_documented_path_count = 0
 max_total_historical_shape_count = 0
 
@@ -19,7 +19,7 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-top_level_root_file_count = 1
+top_level_root_file_count = 0
 documented_owner_families = ["api", "docs", "quality", "release", "security", "tools"]
 undocumented_owner_families = []
 stale_documented_paths = []
@@ -39,9 +39,9 @@ historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-top_level_root_file_count = 8
+top_level_root_file_count = 0
 documented_owner_families = ["domain", "execution", "interfaces", "io", "workflow"]
-undocumented_owner_families = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "identification", "intelligence", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study"]
+undocumented_owner_families = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "governance", "identification", "intelligence", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true
@@ -50,8 +50,8 @@ historical_shape_dominates_design = false
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 top_level_root_file_count = 0
-documented_owner_families = ["agents", "api", "api/routes", "api/v1/endpoints", "execution", "providers", "runs", "runtime", "state", "support", "workflows"]
-undocumented_owner_families = ["core", "governance", "sandbox"]
+documented_owner_families = ["api", "api/routes", "api/v1/endpoints", "execution", "execution/agents", "providers", "runs", "state", "support", "workflows"]
+undocumented_owner_families = ["governance"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true
@@ -70,8 +70,8 @@ historical_shape_dominates_design = false
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 top_level_root_file_count = 0
-documented_owner_families = ["references"]
-undocumented_owner_families = ["contracts", "memory", "reviews"]
+documented_owner_families = ["references/grounding", "references/workflows"]
+undocumented_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true

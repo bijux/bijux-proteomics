@@ -1,16 +1,16 @@
 # Generated package release dossiers.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_release_dossiers
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_release_dossiers
 
 [[package]]
 distribution_name = "agentic-proteins"
 strongest_value = "agentic-proteins owns its documented package surface."
-weakest_value = "15 source owner families still lack matching test families"
-broadest_debt = "15 source owner families still lack matching test families"
+weakest_value = "docs and tree still contradict each other"
+broadest_debt = "docs and tree still contradict each other"
 strengths = ["owner domains: 16", "dependency dossier: 3 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/agentic-proteins.toml"]
 limits = ["core program and review-gate domain contracts", "candidate-ranking and scenario decision policy logic", "evidence trust and contradiction-resolution semantics", "lab planning and execution-outcome scheduling behavior"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["agentic-proteins:test-tree-gaps"]
-exact_not_ready_reasons = ["15 source owner families still lack matching test families"]
+unresolved_debt_ids = ["agentic-proteins:reopened-completion-claim", "agentic-proteins:test-tree-gaps"]
+exact_not_ready_reasons = ["docs and tree still contradict each other", "15 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
@@ -21,20 +21,20 @@ broadest_debt = "public docs still outrun proof for integrity"
 strengths = ["owner domains: 6", "dependency dossier: 6 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-dev.toml"]
 limits = ["runtime product APIs", "canonical proteomics domain models", "package-specific scientific semantics"]
 proofs = ["docs proof artifacts: 3", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["bijux-proteomics-dev:docs-claim-gap", "bijux-proteomics-dev:test-tree-gaps"]
-exact_not_ready_reasons = ["public docs still outrun proof for integrity", "6 source owner families still lack matching test families"]
+unresolved_debt_ids = ["bijux-proteomics-dev:docs-claim-gap", "bijux-proteomics-dev:reopened-completion-claim", "bijux-proteomics-dev:test-tree-gaps"]
+exact_not_ready_reasons = ["public docs still outrun proof for integrity", "README maturity language still outruns owned logic and proof", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 strongest_value = "bijux-proteomics-foundation owns its documented package surface."
-weakest_value = "overall tree quality remains below reviewer comfort at 33.65"
-broadest_debt = "overall tree quality remains below reviewer comfort at 33.65"
-strengths = ["owner domains: 4", "dependency dossier: 0 outbound edges and 6 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-foundation.toml"]
+weakest_value = "docs and tree still contradict each other"
+broadest_debt = "docs and tree still contradict each other"
+strengths = ["owner domains: 5", "dependency dossier: 0 outbound edges and 6 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-foundation.toml"]
 limits = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
-proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 7"]
-unresolved_debt_ids = ["bijux-proteomics-foundation:tree-quality", "bijux-proteomics-foundation:compatibility-surfaces", "bijux-proteomics-foundation:test-tree-gaps"]
-exact_not_ready_reasons = ["overall tree quality remains below reviewer comfort at 33.65", "7 compatibility surfaces still survive at the package root", "4 source owner families still lack matching test families"]
+proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
+unresolved_debt_ids = ["bijux-proteomics-foundation:reopened-completion-claim"]
+exact_not_ready_reasons = ["docs and tree still contradict each other"]
 publishable = false
 
 [[package]]
@@ -42,11 +42,11 @@ distribution_name = "bijux-proteomics-core"
 strongest_value = "bijux-proteomics-core owns its documented package surface."
 weakest_value = "17 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "17 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 21", "dependency dossier: 4 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
+strengths = ["owner domains: 22", "dependency dossier: 4 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
 limits = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
-proofs = ["docs proof artifacts: 13", "scenario fixtures: medium=17 negative=9 ambiguity=2 contradiction=2", "compatibility surfaces: 4"]
-unresolved_debt_ids = ["bijux-proteomics-core:mixed-responsibility-modules", "bijux-proteomics-core:compatibility-surfaces", "bijux-proteomics-core:test-tree-gaps"]
-exact_not_ready_reasons = ["17 oversized mixed-responsibility modules still need owner splits", "4 compatibility surfaces still survive at the package root", "2 source owner families still lack matching test families"]
+proofs = ["docs proof artifacts: 13", "scenario fixtures: medium=17 negative=9 ambiguity=2 contradiction=2", "compatibility surfaces: 0"]
+unresolved_debt_ids = ["bijux-proteomics-core:mixed-responsibility-modules", "bijux-proteomics-core:reopened-completion-claim", "bijux-proteomics-core:test-tree-gaps"]
+exact_not_ready_reasons = ["17 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "3 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
@@ -54,23 +54,23 @@ distribution_name = "bijux-proteomics-runtime"
 strongest_value = "This package owns:"
 weakest_value = "3 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "3 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 13", "dependency dossier: 3 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-runtime.toml"]
+strengths = ["owner domains: 8", "dependency dossier: 3 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-runtime.toml"]
 limits = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]
 proofs = ["docs proof artifacts: 7", "scenario fixtures: medium=8 negative=2 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["bijux-proteomics-runtime:mixed-responsibility-modules", "bijux-proteomics-runtime:test-tree-gaps"]
-exact_not_ready_reasons = ["3 oversized mixed-responsibility modules still need owner splits", "13 source owner families still lack matching test families"]
+unresolved_debt_ids = ["bijux-proteomics-runtime:mixed-responsibility-modules", "bijux-proteomics-runtime:reopened-completion-claim", "bijux-proteomics-runtime:test-tree-gaps"]
+exact_not_ready_reasons = ["3 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "2 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 strongest_value = "bijux-proteomics-intelligence owns its documented package surface."
-weakest_value = "5 oversized mixed-responsibility modules still need owner splits"
-broadest_debt = "5 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 2", "dependency dossier: 3 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
+weakest_value = "4 oversized mixed-responsibility modules still need owner splits"
+broadest_debt = "4 oversized mixed-responsibility modules still need owner splits"
+strengths = ["owner domains: 7", "dependency dossier: 3 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
 limits = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=18 negative=6 ambiguity=1 contradiction=2", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["bijux-proteomics-intelligence:mixed-responsibility-modules", "bijux-proteomics-intelligence:tree-quality", "bijux-proteomics-intelligence:test-tree-gaps"]
-exact_not_ready_reasons = ["5 oversized mixed-responsibility modules still need owner splits", "overall tree quality remains below reviewer comfort at 50.40", "2 source owner families still lack matching test families"]
+unresolved_debt_ids = ["bijux-proteomics-intelligence:mixed-responsibility-modules", "bijux-proteomics-intelligence:reopened-completion-claim", "bijux-proteomics-intelligence:test-tree-gaps"]
+exact_not_ready_reasons = ["4 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
@@ -78,11 +78,11 @@ distribution_name = "bijux-proteomics-knowledge"
 strongest_value = "bijux-proteomics-knowledge owns its documented package surface."
 weakest_value = "public docs still outrun proof for replay"
 broadest_debt = "public docs still outrun proof for replay"
-strengths = ["owner domains: 3", "dependency dossier: 1 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-knowledge.toml"]
+strengths = ["owner domains: 5", "dependency dossier: 1 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-knowledge.toml"]
 limits = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
-proofs = ["docs proof artifacts: 2", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 6"]
-unresolved_debt_ids = ["bijux-proteomics-knowledge:docs-claim-gap", "bijux-proteomics-knowledge:mixed-responsibility-modules", "bijux-proteomics-knowledge:tree-quality", "bijux-proteomics-knowledge:compatibility-surfaces"]
-exact_not_ready_reasons = ["public docs still outrun proof for replay", "3 oversized mixed-responsibility modules still need owner splits", "overall tree quality remains below reviewer comfort at 67.26", "6 compatibility surfaces still survive at the package root"]
+proofs = ["docs proof artifacts: 2", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
+unresolved_debt_ids = ["bijux-proteomics-knowledge:docs-claim-gap", "bijux-proteomics-knowledge:mixed-responsibility-modules", "bijux-proteomics-knowledge:reopened-completion-claim"]
+exact_not_ready_reasons = ["public docs still outrun proof for replay", "3 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other"]
 publishable = false
 
 [[package]]
@@ -90,9 +90,9 @@ distribution_name = "bijux-proteomics-lab"
 strongest_value = "material limits instrument gaps explicit before spend is committed export notes work and records supported, weakened, or blocked follow-through story is supportable"
 weakest_value = "public docs still outrun proof for integrity"
 broadest_debt = "public docs still outrun proof for integrity"
-strengths = ["owner domains: 8", "dependency dossier: 4 outbound edges and 2 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-lab.toml"]
+strengths = ["owner domains: 9", "dependency dossier: 4 outbound edges and 2 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-lab.toml"]
 limits = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]
-proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=11 negative=3 ambiguity=1 contradiction=0", "compatibility surfaces: 6"]
-unresolved_debt_ids = ["bijux-proteomics-lab:docs-claim-gap", "bijux-proteomics-lab:mixed-responsibility-modules", "bijux-proteomics-lab:tree-quality", "bijux-proteomics-lab:compatibility-surfaces"]
-exact_not_ready_reasons = ["public docs still outrun proof for integrity", "3 oversized mixed-responsibility modules still need owner splits", "overall tree quality remains below reviewer comfort at 68.86", "6 compatibility surfaces still survive at the package root"]
+proofs = ["docs proof artifacts: 2", "scenario fixtures: medium=11 negative=3 ambiguity=1 contradiction=0", "compatibility surfaces: 0"]
+unresolved_debt_ids = ["bijux-proteomics-lab:docs-claim-gap", "bijux-proteomics-lab:mixed-responsibility-modules", "bijux-proteomics-lab:reopened-completion-claim", "bijux-proteomics-lab:test-tree-gaps"]
+exact_not_ready_reasons = ["public docs still outrun proof for integrity", "4 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false

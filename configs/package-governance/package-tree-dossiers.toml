@@ -1,5 +1,5 @@
 # Generated package-tree dossier report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_tree_dossiers
 
 [guard]
 min_total_owner_domain_count = 78
@@ -18,7 +18,7 @@ excluded_responsibilities = ["core program and review-gate domain contracts", "c
 distribution_name = "bijux-proteomics-dev"
 import_root = "bijux_proteomics_dev"
 owner_domains = ["api", "docs", "quality", "release", "security", "tools"]
-public_modules = ["trusted_process"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["runtime product APIs", "canonical proteomics domain models", "package-specific scientific semantics"]
 

@@ -1,9 +1,9 @@
 # Generated package wrapper-owner balance report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_wrapper_owner_balance
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_wrapper_owner_balance
 
 [guard]
 max_total_wrapper_outpaces_owner_count = 0
-max_average_wrapper_to_owner_ratio = 0.0075
+max_average_wrapper_to_owner_ratio = 0.0
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -14,9 +14,9 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 67
-wrapper_module_count = 4
-wrapper_to_owner_ratio = 0.0597
+owner_logic_module_count = 68
+wrapper_module_count = 0
+wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false
 
 [[package]]

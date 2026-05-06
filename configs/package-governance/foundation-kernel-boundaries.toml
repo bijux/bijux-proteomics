@@ -1,5 +1,5 @@
 # Generated foundation kernel boundary report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation_kernel_boundaries
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.kernel_boundaries
 
 [[check]]
 policy_id = "no-product-specific-fixtures"

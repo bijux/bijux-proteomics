@@ -15,9 +15,9 @@ last_reviewed: 2026-05-05
 
 - total modules: 147
 - `canonical`: 0
-- `dead`: 0
+- `dead`: 1
 - `duplicate`: 0
-- `wrapper`: 147
+- `wrapper`: 146
 
 ## Owner Distribution
 
@@ -45,4 +45,4 @@ last_reviewed: 2026-05-05
 
 - `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.csv`
 - `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
-- `packages/bijux-proteomics-dev/tests/test_agentic_compatibility_inventory.py`
+- `packages/bijux-proteomics-dev/tests/quality/architecture/test_agentic_compatibility_inventory.py`

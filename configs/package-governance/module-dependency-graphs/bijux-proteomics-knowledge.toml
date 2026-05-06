@@ -1,5 +1,5 @@
 # Generated module dependency graph.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.module_dependency_graphs
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.dependencies.module_dependency_graphs
 
 distribution_name = "bijux-proteomics-knowledge"
 

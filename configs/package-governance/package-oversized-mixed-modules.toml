@@ -1,5 +1,5 @@
 # Generated package oversized mixed-module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_oversized_mixed_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_oversized_mixed_modules
 
 [guard]
 max_total_oversized_mixed_module_count = 31
@@ -35,7 +35,7 @@ module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cl
 nonempty_line_count = 2557
 public_function_count = 36
 public_class_count = 0
-workspace_import_root_count = 2
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -47,7 +47,7 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
 nonempty_line_count = 2040
 public_function_count = 33
 public_class_count = 43
@@ -63,7 +63,7 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/qc.py"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py"
 nonempty_line_count = 1574
 public_function_count = 14
 public_class_count = 34
@@ -111,7 +111,7 @@ workspace_import_root_count = 3
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
 nonempty_line_count = 1012
 public_function_count = 18
 public_class_count = 19
@@ -231,7 +231,7 @@ workspace_import_root_count = 4
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/resolution.py"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py"
 nonempty_line_count = 656
 public_function_count = 9
 public_class_count = 15

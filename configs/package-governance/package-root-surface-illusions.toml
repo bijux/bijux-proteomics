@@ -1,8 +1,8 @@
 # Generated package root-surface illusion report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_root_surface_illusions
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_surface_illusions
 
 [guard]
-max_total_root_surface_illusion_count = 2
+max_total_root_surface_illusion_count = 1
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -15,17 +15,17 @@ root_surface_hides_owner_depth = true
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-compatibility_surfaces = ["cli", "liabilities", "search_adapters", "workflow_blueprint"]
-root_public_module_count = 9
+compatibility_surfaces = []
+root_public_module_count = 0
 root_export_symbol_count = 5
-owner_logic_module_count = 67
-illusion_reasons = ["4 compatibility surfaces still survive at the package root"]
-root_surface_hides_owner_depth = true
+owner_logic_module_count = 68
+illusion_reasons = []
+root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
 compatibility_surfaces = []
-root_public_module_count = 1
+root_public_module_count = 0
 root_export_symbol_count = 0
 owner_logic_module_count = 111
 illusion_reasons = []
@@ -36,7 +36,7 @@ distribution_name = "bijux-proteomics-foundation"
 compatibility_surfaces = []
 root_public_module_count = 0
 root_export_symbol_count = 15
-owner_logic_module_count = 17
+owner_logic_module_count = 18
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
@@ -44,15 +44,15 @@ root_surface_hides_owner_depth = false
 distribution_name = "bijux-proteomics-intelligence"
 compatibility_surfaces = []
 root_public_module_count = 0
-root_export_symbol_count = 10
-owner_logic_module_count = 30
+root_export_symbol_count = 7
+owner_logic_module_count = 35
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 compatibility_surfaces = []
-root_public_module_count = 1
+root_public_module_count = 0
 root_export_symbol_count = 5
 owner_logic_module_count = 21
 illusion_reasons = []
@@ -72,6 +72,6 @@ distribution_name = "bijux-proteomics-runtime"
 compatibility_surfaces = []
 root_public_module_count = 0
 root_export_symbol_count = 4
-owner_logic_module_count = 120
+owner_logic_module_count = 117
 illusion_reasons = []
 root_surface_hides_owner_depth = false
