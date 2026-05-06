@@ -12,6 +12,8 @@
 - forwarding keeps legacy imports available while canonical packages own behavior
 - CLI, HTTP, execution, provider, state, agent, and tool compatibility surfaces
   mirror canonical contracts without reclaiming ownership
+- durable bridge ownership lives under `orchestration/`, while `execution/`
+  remains a legacy alias for migration safety
 - new workflow usage should start from `bijux-proteomics-runtime`, not this package
 - compat documentation names the canonical package that now owns each surface
 

@@ -92,7 +92,9 @@ from agentic_proteins.interfaces.cli import cli
 
 - this package owns compatibility routing only
 - this package keeps the durable bridge tree under `interfaces/`, `agents/`,
-  `execution/`, `providers/`, `state/`, and `tools/`
+  `orchestration/`, `providers/`, `state/`, and `tools/`
+- historical `execution/`, `agents/execution/`, and
+  `providers/experimental/` paths remain only as legacy aliases
 - canonical runtime behavior belongs in `bijux-proteomics-runtime`
 - canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
 - new features should land in canonical packages before compat forwarding expands

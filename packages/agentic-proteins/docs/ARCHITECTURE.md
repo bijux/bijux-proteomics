@@ -20,8 +20,10 @@ entrypoints.
 ## Module topology
 
 - package root exposes version metadata only
-- `interfaces/`, `agents/`, `execution/`, `providers/`, `state/`, and `tools/`
-  are the only durable bridge families
+- `interfaces/`, `agents/`, `orchestration/`, `providers/`, `state/`, and
+  `tools/` are the durable bridge families
+- `execution/`, `agents/execution/`, and `providers/experimental/` survive
+  only as legacy aliases that forward into the durable families
 - compat docs explain canonical owners and the migration route away from each
   surviving family
 

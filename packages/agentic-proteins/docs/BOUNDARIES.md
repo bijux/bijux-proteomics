@@ -10,7 +10,9 @@
 
 - compatibility routing and legacy entrypoint continuity
 - forwarding-only import surfaces grouped under `interfaces/`, `agents/`,
-  `execution/`, `providers/`, `state/`, and `tools/`
+  `orchestration/`, `providers/`, `state/`, and `tools/`
+- compatibility aliases under `execution/`, `agents/execution/`, and
+  `providers/experimental/` only
 - migration-safe preservation of historical CLI and package roots
 
 ## This package does not own
