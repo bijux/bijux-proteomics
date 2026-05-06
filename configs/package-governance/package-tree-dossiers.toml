@@ -2,14 +2,14 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 68
+min_total_owner_domain_count = 69
 max_total_compatibility_surface_count = 0
 min_total_excluded_responsibility_count = 29
 
 [[package]]
 distribution_name = "agentic-proteins"
 import_root = "agentic_proteins"
-owner_domains = ["agents", "execution", "interfaces", "providers", "state", "tools"]
+owner_domains = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
 public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["core program and review-gate domain contracts", "candidate-ranking and scenario decision policy logic", "evidence trust and contradiction-resolution semantics", "lab planning and execution-outcome scheduling behavior"]

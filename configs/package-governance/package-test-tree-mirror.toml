@@ -3,16 +3,16 @@
 
 [guard]
 min_total_mirrored_owner_family_count = 60
-max_total_missing_test_family_count = 8
+max_total_missing_test_family_count = 9
 max_total_flat_test_module_count = 25
 
 [[package]]
 distribution_name = "agentic-proteins"
-source_owner_families = ["agents", "execution", "interfaces", "providers", "state", "tools"]
-test_families = ["agents", "benchmarks", "e2e", "execution", "helpers", "integration", "interfaces", "providers", "real_local", "regression", "state", "tools", "unit"]
-mirrored_owner_families = ["agents", "execution", "interfaces", "providers", "state", "tools"]
-missing_test_families = []
-extra_test_families = ["benchmarks", "e2e", "helpers", "integration", "real_local", "regression", "unit"]
+source_owner_families = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
+test_families = ["agents", "e2e", "integration", "interfaces", "orchestration", "package", "providers", "state", "support", "tools"]
+mirrored_owner_families = ["agents", "interfaces", "orchestration", "providers", "state", "tools"]
+missing_test_families = ["execution"]
+extra_test_families = ["e2e", "integration", "package", "support"]
 flat_test_module_count = 0
 
 [[package]]

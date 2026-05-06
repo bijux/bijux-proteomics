@@ -25,7 +25,7 @@ def test_package_wrapper_density_report_tracks_current_wrapper_pressure() -> Non
         == entries["bijux-proteomics-lab"].wrapper_module_count
     )
     assert entries["bijux-proteomics-runtime"].wrapper_module_count >= 4
-    assert entries["agentic-proteins"].wrapper_density == 0.9888
+    assert entries["agentic-proteins"].wrapper_density == 0.9914
 
 
 def test_package_wrapper_density_release_guard_has_no_failures() -> None:

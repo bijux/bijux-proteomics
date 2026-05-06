@@ -13,7 +13,7 @@ symbol_kind = "data"
 owner_distribution_name = "agentic-proteins"
 owner_module_name = "agentic_proteins"
 owner_module_path = "packages/agentic-proteins/src/agentic_proteins/__init__.py"
-owner_test_paths = ["packages/agentic-proteins/tests/unit/governance/test_import_boundaries.py"]
+owner_test_paths = ["packages/agentic-proteins/tests/package/test_import_boundaries.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-core"

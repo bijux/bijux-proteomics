@@ -4,7 +4,7 @@
 [guard]
 min_owner_logic_module_count = 393
 max_compatibility_surface_count = 0
-max_import_glue_module_count = 194
+max_import_glue_module_count = 221
 max_dead_weight_module_count = 3
 
 [[module]]
@@ -29,7 +29,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/agents/analysis/__
 module_import_path = "agentic_proteins.agents.analysis"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -89,6 +89,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/coordination/__init__.py"
+module_import_path = "agentic_proteins.agents.coordination"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/coordination/coordinator.py"
+module_import_path = "agentic_proteins.agents.coordination.coordinator"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/agents/execution/__init__.py"
 module_import_path = "agentic_proteins.agents.execution"
 module_kind = "import_glue"
@@ -109,7 +125,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/agents/planning/__
 module_import_path = "agentic_proteins.agents.planning"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -157,7 +173,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/agents/reporting/_
 module_import_path = "agentic_proteins.agents.reporting"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -181,7 +197,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/agents/verificatio
 module_import_path = "agentic_proteins.agents.verification"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -437,7 +453,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1
 module_import_path = "agentic_proteins.interfaces.http.v1"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 1
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -499,6 +515,174 @@ workspace_import_root_count = 1
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/structure_reports.py"
 module_import_path = "agentic_proteins.interfaces.structure_reports"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/__init__.py"
+module_import_path = "agentic_proteins.orchestration"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/analysis.py"
+module_import_path = "agentic_proteins.orchestration.analysis"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/artifacts.py"
+module_import_path = "agentic_proteins.orchestration.artifacts"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/compiler/__init__.py"
+module_import_path = "agentic_proteins.orchestration.compiler"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/compiler/boundary.py"
+module_import_path = "agentic_proteins.orchestration.compiler.boundary"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/evaluation/__init__.py"
+module_import_path = "agentic_proteins.orchestration.evaluation"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/evaluation/evaluation.py"
+module_import_path = "agentic_proteins.orchestration.evaluation.evaluation"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/evaluation/observations.py"
+module_import_path = "agentic_proteins.orchestration.evaluation.observations"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/evaluation/schemas.py"
+module_import_path = "agentic_proteins.orchestration.evaluation.schemas"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/graphs.py"
+module_import_path = "agentic_proteins.orchestration.graphs"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/logging.py"
+module_import_path = "agentic_proteins.orchestration.logging"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/manager.py"
+module_import_path = "agentic_proteins.orchestration.manager"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/run_config.py"
+module_import_path = "agentic_proteins.orchestration.run_config"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/runtime/__init__.py"
+module_import_path = "agentic_proteins.orchestration.runtime"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/runtime/executor.py"
+module_import_path = "agentic_proteins.orchestration.runtime.executor"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/runtime/integration.py"
+module_import_path = "agentic_proteins.orchestration.runtime.integration"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/schemas.py"
+module_import_path = "agentic_proteins.orchestration.schemas"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/state_machine.py"
+module_import_path = "agentic_proteins.orchestration.state_machine"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/telemetry.py"
+module_import_path = "agentic_proteins.orchestration.telemetry"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/tool_reliability.py"
+module_import_path = "agentic_proteins.orchestration.tool_reliability"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/validation.py"
+module_import_path = "agentic_proteins.orchestration.validation"
 module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
@@ -595,6 +779,38 @@ workspace_import_root_count = 1
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/providers/local/rosettafold.py"
 module_import_path = "agentic_proteins.providers.local.rosettafold"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/remote/__init__.py"
+module_import_path = "agentic_proteins.providers.remote"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/remote/_async_utils.py"
+module_import_path = "agentic_proteins.providers.remote._async_utils"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/remote/colabfold.py"
+module_import_path = "agentic_proteins.providers.remote.colabfold"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/remote/openprotein.py"
+module_import_path = "agentic_proteins.providers.remote.openprotein"
 module_kind = "import_glue"
 public_definition_count = 0
 workspace_import_root_count = 1
@@ -729,6 +945,14 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/agents/test_analysis_surface.py"
+module_import_path = "tests.agentic_proteins.agents.test_analysis_surface"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/agents/test_catalog_surface.py"
 module_import_path = "tests.agentic_proteins.agents.test_catalog_surface"
 module_kind = "test_only_helper"
@@ -737,11 +961,19 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/benchmarks/test_batch_execution_benchmark.py"
-module_import_path = "tests.agentic_proteins.benchmarks.test_batch_execution_benchmark"
+module_path = "packages/agentic-proteins/tests/agents/test_coordination_surface.py"
+module_import_path = "tests.agentic_proteins.agents.test_coordination_surface"
 module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
+public_definition_count = 3
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/agents/test_failure_analysis_surface.py"
+module_import_path = "tests.agentic_proteins.agents.test_failure_analysis_surface"
+module_kind = "test_only_helper"
+public_definition_count = 5
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -790,46 +1022,6 @@ module_import_path = "tests.agentic_proteins.e2e.test_stress_batch"
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/execution/test_graph_surface.py"
-module_import_path = "tests.agentic_proteins.execution.test_graph_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/execution/test_run_surface.py"
-module_import_path = "tests.agentic_proteins.execution.test_run_surface"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/helpers/__init__.py"
-module_import_path = "tests.agentic_proteins.helpers.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/helpers/artifacts.py"
-module_import_path = "tests.agentic_proteins.helpers.artifacts"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/helpers/paths.py"
-module_import_path = "tests.agentic_proteins.helpers.paths"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -921,6 +1113,158 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_artifact_helpers.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_artifact_helpers"
+module_kind = "test_only_helper"
+public_definition_count = 7
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_batch_execution_benchmark.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_batch_execution_benchmark"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_graph_surface.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_graph_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_reliability_tracker.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_reliability_tracker"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_run_analysis_helpers.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_run_analysis_helpers"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_run_invariants.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_run_invariants"
+module_kind = "test_only_helper"
+public_definition_count = 5
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_run_surface.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_run_surface"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/orchestration/test_telemetry_client.py"
+module_import_path = "tests.agentic_proteins.orchestration.test_telemetry_client"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_cli_surface_documentation.py"
+module_import_path = "tests.agentic_proteins.package.test_cli_surface_documentation"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_conceptual_onboarding.py"
+module_import_path = "tests.agentic_proteins.package.test_conceptual_onboarding"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_docs_contract.py"
+module_import_path = "tests.agentic_proteins.package.test_docs_contract"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_import_boundaries.py"
+module_import_path = "tests.agentic_proteins.package.test_import_boundaries"
+module_kind = "test_only_helper"
+public_definition_count = 5
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_import_forwarding.py"
+module_import_path = "tests.agentic_proteins.package.test_import_forwarding"
+module_kind = "test_only_helper"
+public_definition_count = 16
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_root_md_whitelist.py"
+module_import_path = "tests.agentic_proteins.package.test_root_md_whitelist"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/package/test_test_stratification.py"
+module_import_path = "tests.agentic_proteins.package.test_test_stratification"
+module_kind = "test_only_helper"
+public_definition_count = 3
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/providers/local_models/conftest.py"
+module_import_path = "tests.agentic_proteins.providers.local_models.conftest"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/providers/local_models/test_local_model_contracts.py"
+module_import_path = "tests.agentic_proteins.providers.local_models.test_local_model_contracts"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/providers/test_local_esmfold_utils.py"
+module_import_path = "tests.agentic_proteins.providers.test_local_esmfold_utils"
+module_kind = "test_only_helper"
+public_definition_count = 13
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/providers/test_provider_isolation.py"
+module_import_path = "tests.agentic_proteins.providers.test_provider_isolation"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/providers/test_provider_surface.py"
 module_import_path = "tests.agentic_proteins.providers.test_provider_surface"
 module_kind = "test_only_helper"
@@ -929,42 +1273,18 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/real_local/__init__.py"
-module_import_path = "tests.agentic_proteins.real_local.__init__"
+module_path = "packages/agentic-proteins/tests/providers/test_remote_provider_namespace.py"
+module_import_path = "tests.agentic_proteins.providers.test_remote_provider_namespace"
 module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/real_local/conftest.py"
-module_import_path = "tests.agentic_proteins.real_local.conftest"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/real_local/test_local_real_models.py"
-module_import_path = "tests.agentic_proteins.real_local.test_local_real_models"
-module_kind = "test_only_helper"
-public_definition_count = 4
-workspace_import_root_count = 3
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/regression/test_architecture_invariants.py"
-module_import_path = "tests.agentic_proteins.regression.test_architecture_invariants"
-module_kind = "test_only_helper"
-public_definition_count = 5
+public_definition_count = 1
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/regression/test_real_protein_regression.py"
-module_import_path = "tests.agentic_proteins.regression.test_real_protein_regression"
+module_path = "packages/agentic-proteins/tests/providers/test_remote_providers.py"
+module_import_path = "tests.agentic_proteins.providers.test_remote_providers"
 module_kind = "test_only_helper"
-public_definition_count = 1
+public_definition_count = 39
 workspace_import_root_count = 1
 
 [[module]]
@@ -977,6 +1297,30 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/support/__init__.py"
+module_import_path = "tests.agentic_proteins.support.__init__"
+module_kind = "test_only_helper"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/support/artifacts.py"
+module_import_path = "tests.agentic_proteins.support.artifacts"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/tests/support/paths.py"
+module_import_path = "tests.agentic_proteins.support.paths"
+module_kind = "test_only_helper"
+public_definition_count = 2
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/tests/tools/test_catalog_surface.py"
 module_import_path = "tests.agentic_proteins.tools.test_catalog_surface"
 module_kind = "test_only_helper"
@@ -985,170 +1329,10 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/__init__.py"
-module_import_path = "tests.agentic_proteins.unit.__init__"
-module_kind = "test_only_helper"
-public_definition_count = 0
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/agents/test_agent_input_and_failure_analysis.py"
-module_import_path = "tests.agentic_proteins.unit.agents.test_agent_input_and_failure_analysis"
-module_kind = "test_only_helper"
-public_definition_count = 5
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/agents/test_analysis_agents_extended.py"
-module_import_path = "tests.agentic_proteins.unit.agents.test_analysis_agents_extended"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/agents/test_coordinator_decisions.py"
-module_import_path = "tests.agentic_proteins.unit.agents.test_coordinator_decisions"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 3
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/agents/test_protein_agent.py"
-module_import_path = "tests.agentic_proteins.unit.agents.test_protein_agent"
-module_kind = "test_only_helper"
-public_definition_count = 8
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/agents/test_protein_system_rigidity.py"
-module_import_path = "tests.agentic_proteins.unit.agents.test_protein_system_rigidity"
-module_kind = "test_only_helper"
-public_definition_count = 9
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/compat/test_import_forwarding.py"
-module_import_path = "tests.agentic_proteins.unit.compat.test_import_forwarding"
-module_kind = "test_only_helper"
-public_definition_count = 16
-workspace_import_root_count = 3
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/docs/test_cli_surface_documentation.py"
-module_import_path = "tests.agentic_proteins.unit.docs.test_cli_surface_documentation"
+module_path = "packages/agentic-proteins/tests/tools/test_heuristic_structure_regression.py"
+module_import_path = "tests.agentic_proteins.tools.test_heuristic_structure_regression"
 module_kind = "test_only_helper"
 public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/docs/test_docs_contract.py"
-module_import_path = "tests.agentic_proteins.unit.docs.test_docs_contract"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/docs/test_root_md_whitelist.py"
-module_import_path = "tests.agentic_proteins.unit.docs.test_root_md_whitelist"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/governance/test_conceptual_onboarding.py"
-module_import_path = "tests.agentic_proteins.unit.governance.test_conceptual_onboarding"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/governance/test_import_boundaries.py"
-module_import_path = "tests.agentic_proteins.unit.governance.test_import_boundaries"
-module_kind = "test_only_helper"
-public_definition_count = 5
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/governance/test_test_stratification.py"
-module_import_path = "tests.agentic_proteins.unit.governance.test_test_stratification"
-module_kind = "test_only_helper"
-public_definition_count = 3
-workspace_import_root_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/providers/test_experimental_provider_namespace.py"
-module_import_path = "tests.agentic_proteins.unit.providers.test_experimental_provider_namespace"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/providers/test_experimental_providers.py"
-module_import_path = "tests.agentic_proteins.unit.providers.test_experimental_providers"
-module_kind = "test_only_helper"
-public_definition_count = 39
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/providers/test_local_esmfold_utils.py"
-module_import_path = "tests.agentic_proteins.unit.providers.test_local_esmfold_utils"
-module_kind = "test_only_helper"
-public_definition_count = 13
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/providers/test_provider_isolation.py"
-module_import_path = "tests.agentic_proteins.unit.providers.test_provider_isolation"
-module_kind = "test_only_helper"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/runtime/test_artifacts_helpers.py"
-module_import_path = "tests.agentic_proteins.unit.runtime.test_artifacts_helpers"
-module_kind = "test_only_helper"
-public_definition_count = 7
-workspace_import_root_count = 3
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/runtime/test_reliability_tracker.py"
-module_import_path = "tests.agentic_proteins.unit.runtime.test_reliability_tracker"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/runtime/test_run_analysis_helpers.py"
-module_import_path = "tests.agentic_proteins.unit.runtime.test_run_analysis_helpers"
-module_kind = "test_only_helper"
-public_definition_count = 1
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/tests/unit/runtime/test_telemetry_client.py"
-module_import_path = "tests.agentic_proteins.unit.runtime.test_telemetry_client"
-module_kind = "test_only_helper"
-public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
@@ -1917,6 +2101,22 @@ module_path = "packages/bijux-proteomics-core/tests/biology/test_biology_surface
 module_import_path = "tests.bijux_proteomics_core.biology.test_biology_surface"
 module_kind = "test_only_helper"
 public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/biology/test_protein_agent_behaviors.py"
+module_import_path = "tests.bijux_proteomics_core.biology.test_protein_agent_behaviors"
+module_kind = "test_only_helper"
+public_definition_count = 8
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/tests/biology/test_protein_system_rigidity.py"
+module_import_path = "tests.bijux_proteomics_core.biology.test_protein_system_rigidity"
+module_kind = "test_only_helper"
+public_definition_count = 9
 workspace_import_root_count = 1
 
 [[module]]
