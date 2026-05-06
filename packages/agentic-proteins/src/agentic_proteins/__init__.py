@@ -1,22 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Agentic Proteins package."""
+"""Compatibility shell for historical agentic runtime entrypoints."""
 
 from __future__ import annotations
 
 from importlib import metadata
 
-from bijux_proteomics.structure_report import Metrics, Report
-from bijux_proteomics_intelligence.interpretation.structures import (
-    low_confidence_segments,
-)
-
-__all__ = [
-    "Report",
-    "Metrics",
-    "low_confidence_segments",
-]
+__all__ = ["__version__"]
 
 
 try:

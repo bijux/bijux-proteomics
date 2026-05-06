@@ -1,3 +1,5 @@
-"""Compatibility forwarding module for canonical runtime API ownership."""
+"""Compatibility transport entrypoints."""
 
-from bijux_proteomics_runtime.api import *  # noqa: F401,F403
+from agentic_proteins.interfaces.http.app import AppConfig, create_app
+
+__all__ = ["AppConfig", "create_app"]
