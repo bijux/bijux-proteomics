@@ -12,8 +12,8 @@ import pytest
 from requests.exceptions import RequestException
 
 from agentic_proteins.providers.errors import PredictionError
-from agentic_proteins.providers.experimental import _async_utils, colabfold
-from agentic_proteins.providers.experimental.openprotein import APIOpenProteinProvider
+from agentic_proteins.providers.remote import _async_utils, colabfold
+from agentic_proteins.providers.remote.openprotein import APIOpenProteinProvider
 
 ASYNC_UTILS = cast(Any, _async_utils)
 COLABFOLD = cast(Any, colabfold)
@@ -235,7 +235,7 @@ def test_colabfold_rate_limit_retries(monkeypatch: pytest.MonkeyPatch) -> None:
         colabfold, "sleep_with_retry_after", lambda *args, **kwargs: (1.0, 0.0)
     )
     provider = colabfold.APIColabFoldProvider(api_url="http://example")
-    with pytest.raises(PredictionError, match="ColabFold post failed after retries"):
+    with pytest.raises(PredictionError, match="No job_id in ColabFold response"):
         provider.predict("ACD", timeout=5.0)
 
 

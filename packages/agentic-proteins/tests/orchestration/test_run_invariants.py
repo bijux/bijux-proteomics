@@ -6,10 +6,10 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.orchestration.manager import RunManager
 from agentic_proteins.state.lifecycle import RunLifecycleState
-from agentic_proteins.execution.state_machine import RunStateMachine
-from agentic_proteins.execution.run_config import RunConfig
+from agentic_proteins.orchestration.state_machine import RunStateMachine
+from agentic_proteins.orchestration.run_config import RunConfig
 
 
 def _artifact_hashes(run_dir: Path) -> dict[str, str]:

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-import agentic_proteins.execution.evaluation.observations as obs
+import agentic_proteins.orchestration.evaluation.observations as obs
 
 
 def test_observations_module_exports() -> None:

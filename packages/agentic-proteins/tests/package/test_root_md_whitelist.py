@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from tests.helpers.paths import repo_root
+from tests.support.paths import repo_root
 
 
 def test_root_md_whitelist() -> None:

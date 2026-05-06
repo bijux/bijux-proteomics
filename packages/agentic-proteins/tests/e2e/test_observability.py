@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.orchestration.manager import RunManager
 
 
 def test_observability_artifacts_exist(tmp_path: Path) -> None:

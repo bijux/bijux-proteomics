@@ -7,8 +7,8 @@ import json
 from pathlib import Path
 from time import perf_counter
 
-from agentic_proteins.execution.manager import RunManager
-from agentic_proteins.execution.run_config import RunConfig
+from agentic_proteins.orchestration.manager import RunManager
+from agentic_proteins.orchestration.run_config import RunConfig
 
 
 def test_batch_execution_regression(tmp_path: Path) -> None:

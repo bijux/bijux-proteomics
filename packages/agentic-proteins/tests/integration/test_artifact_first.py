@@ -6,10 +6,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.execution.manager import RunManager
-from agentic_proteins.execution.artifacts import load_artifact
+from agentic_proteins.orchestration.manager import RunManager
+from agentic_proteins.orchestration.artifacts import load_artifact
 from agentic_proteins.state.workspace import RunWorkspace
-from tests.helpers.artifacts import assert_valid_run_artifacts
+from tests.support.artifacts import assert_valid_run_artifacts
 
 
 def test_state_snapshot_roundtrip_from_artifacts(tmp_path: Path) -> None:

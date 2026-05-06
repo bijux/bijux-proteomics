@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from agentic_proteins.execution.graphs import (
+from agentic_proteins.orchestration.graphs import (
     validate_execution_graph,
     validate_state_snapshot,
 )

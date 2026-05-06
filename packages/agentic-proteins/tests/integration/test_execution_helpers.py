@@ -8,7 +8,7 @@ import pytest
 from agentic_proteins.state.context import create_run_context
 from agentic_proteins.state.lifecycle import RunLifecycleState
 from agentic_proteins.state.output import VersionInfo
-from agentic_proteins.execution.manager import (
+from agentic_proteins.orchestration.manager import (
     _build_run_summary,
     _ensure_telemetry_costs,
     _select_structure_tool,

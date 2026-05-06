@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agentic_proteins.agents.execution.coordinator import CoordinatorAgent
+from agentic_proteins.agents.coordination.coordinator import CoordinatorAgent
 from agentic_proteins.agents.schemas import (
     CoordinatorAgentInput,
     CoordinatorDecisionType,

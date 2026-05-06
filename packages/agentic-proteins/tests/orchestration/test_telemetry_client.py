@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from agentic_proteins.execution.telemetry import TelemetryClient
+from agentic_proteins.orchestration.telemetry import TelemetryClient
 
 
 def test_telemetry_client_records_and_flushes(tmp_path: Path) -> None:

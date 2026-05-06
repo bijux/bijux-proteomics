@@ -10,7 +10,7 @@ from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from bijux_proteomics_runtime.support.primitives.tooling import ToolError
 from bijux_proteomics_intelligence.candidates.schema import Candidate
 from agentic_proteins.state.context import create_run_context
-import agentic_proteins.execution.artifacts as artifacts_module
+import agentic_proteins.orchestration.artifacts as artifacts_module
 from agentic_proteins.state.workspace import RunWorkspace
 
 

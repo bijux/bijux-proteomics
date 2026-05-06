@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.helpers.paths import repo_root
+from tests.support.paths import repo_root
 
 
 @pytest.fixture(scope="session")
@@ -18,9 +18,16 @@ def ROOT() -> Path:
 
 
 @pytest.fixture(scope="session")
+def PACKAGE_ROOT(ROOT: Path) -> Path:
+    """Return the agentic-proteins package root."""
+
+    return ROOT / "packages" / "agentic-proteins"
+
+
+@pytest.fixture(scope="session")
 def ARTIFACTS_DIR(ROOT: Path) -> Path:
     """Return the base artifacts directory for real-local tests."""
-    return ROOT / "artifacts" / "real_local_tests"
+    return ROOT / "artifacts" / "local_model_tests"
 
 
 @pytest.fixture()

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from tests.helpers.paths import repo_root
+from tests.support.paths import repo_root
 
 def test_cli_surface_documented() -> None:
     doc_path = (

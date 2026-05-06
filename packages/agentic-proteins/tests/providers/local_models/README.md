@@ -14,7 +14,7 @@ Requirements:
 
 How to run:  
 ```
-pytest packages/agentic-proteins/tests/real_local -m real -s
+pytest packages/agentic-proteins/tests/providers/local_models -m real -s
 ```
 
 Notes:  

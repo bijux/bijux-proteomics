@@ -6,12 +6,13 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from tests.helpers.paths import package_tests_root, repo_root
+from tests.support.paths import package_tests_root, repo_root
 
 LAYER_ORDER = {
     "cli": 7,
     "interfaces": 7,
     "httpapi": 7,
+    "orchestration": 5,
     "execution": 5,
     "agents": 4,
     "planning": 3,
@@ -27,6 +28,7 @@ LAYER_ORDER = {
 ALLOWED_TOP_LEVEL_ENTRIES = {
     "__init__.py",
     "agents",
+    "orchestration",
     "execution",
     "interfaces",
     "providers",
@@ -115,6 +117,7 @@ def test_high_level_tests_use_public_entrypoints() -> None:
     root = package_tests_root()
     allowed_prefixes = (
         "agentic_proteins.interfaces",
+        "agentic_proteins.orchestration",
         "agentic_proteins.execution",
         "agentic_proteins.state",
         "agentic_proteins.tools",

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.orchestration.manager import RunManager
 
 
 def test_stress_batch_runs_with_failure(tmp_path: Path) -> None:
