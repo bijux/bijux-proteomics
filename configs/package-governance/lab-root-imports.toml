@@ -1,5 +1,5 @@
 # Generated lab package-root import report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.root_imports
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.root_imports
 
 [metrics]
 scanned_module_count = 33

@@ -1,5 +1,5 @@
 # Generated lab packet-only and reshaping-only module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.packet_only_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.packet_only_modules
 
 [metrics]
 packet_only_module_count = 1

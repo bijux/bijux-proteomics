@@ -1,5 +1,5 @@
 # Generated lab cross-package dependency report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.cross_package_dependencies
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.cross_package_dependencies
 
 [guard]
 max_core_edges = 13

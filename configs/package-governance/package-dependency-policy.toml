@@ -1,5 +1,5 @@
 # Generated package dependency policy.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.dependencies.package_dependency_policy
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_dependency_policy
 
 [[package]]
 distribution_name = "agentic-proteins"

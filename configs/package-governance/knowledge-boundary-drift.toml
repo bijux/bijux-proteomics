@@ -1,5 +1,5 @@
 # Generated knowledge boundary drift report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge.boundary_drift
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.boundary_drift
 
 [metrics]
 forbidden_module_paths = []

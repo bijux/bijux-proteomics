@@ -1,5 +1,5 @@
 # Generated knowledge orphan reference report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge.reference_quality
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.reference_quality
 
 [[surface]]
 name = "citations"

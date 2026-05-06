@@ -1,5 +1,5 @@
 # Generated runtime thin-module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime.thin_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.thin_modules
 
 [metrics]
 thin_module_count = 26

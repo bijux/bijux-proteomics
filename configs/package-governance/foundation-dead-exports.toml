@@ -1,5 +1,5 @@
 # Generated foundation dead-export report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.surface_usage
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.surface_usage
 
 [[surface]]
 module_name = "bijux_proteomics_foundation"

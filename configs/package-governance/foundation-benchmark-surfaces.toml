@@ -1,5 +1,5 @@
 # Generated foundation benchmark surface inventory.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.benchmark_surfaces
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.benchmark_surfaces
 
 [[benchmark_surface]]
 benchmark_id = "foundation-canonicalization-throughput"

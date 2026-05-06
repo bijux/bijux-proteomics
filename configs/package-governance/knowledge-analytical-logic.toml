@@ -1,5 +1,5 @@
 # Generated knowledge analytical logic hotspot report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge.analytical_logic
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.analytical_logic
 
 [[module]]
 path = "memory/models/claims.py"

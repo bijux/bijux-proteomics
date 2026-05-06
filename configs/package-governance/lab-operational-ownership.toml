@@ -1,5 +1,5 @@
 # Generated lab operational ownership report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.operational_ownership
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.operational_ownership
 
 [metrics]
 source_owner_families = ["benchmarks", "design", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]

@@ -1,5 +1,5 @@
 # Generated knowledge breadth-versus-curation-depth report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge.breadth
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.breadth
 
 [metrics]
 root_public_symbol_count = 5

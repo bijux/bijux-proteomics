@@ -10,7 +10,7 @@ benchmark_id = "dev-openapi-drift-latency"
 package_name = "bijux-proteomics-dev"
 metric_name = "wall_time_seconds"
 unit = "seconds"
-owner_focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/openapi_drift.py"
+owner_focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/openapi_drift.py"
 
 [[benchmark_artifact]]
 benchmark_id = "foundation-canonicalization-throughput"

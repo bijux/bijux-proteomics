@@ -1,5 +1,5 @@
 # Generated foundation size-versus-reuse report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.size_reuse
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.size_reuse
 
 [metrics]
 root_public_symbol_count = 15

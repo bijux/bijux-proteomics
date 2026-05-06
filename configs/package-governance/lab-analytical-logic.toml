@@ -1,5 +1,5 @@
 # Generated lab analytical hotspot report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.lab.analytical_logic
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.analytical_logic
 
 [[module]]
 path = "benchmarks/claims.py"

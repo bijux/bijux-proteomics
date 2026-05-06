@@ -1,5 +1,5 @@
 # Generated runtime import graph.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime.import_graph
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.import_graph
 
 [[surface]]
 name = "api"

@@ -1,5 +1,5 @@
 # Generated runtime topology budget.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime.topology
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.topology
 
 [budget]
 max_first_level_subtrees = 8

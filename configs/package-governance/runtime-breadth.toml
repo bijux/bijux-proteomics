@@ -1,5 +1,5 @@
 # Generated runtime breadth-versus-owned-logic report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime.breadth
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.breadth
 
 [metrics]
 public_entrypoint_count = 5

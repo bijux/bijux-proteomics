@@ -1,5 +1,5 @@
 # Generated foundation publishability report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.publishability
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.publishability
 
 [metrics]
 supported_attributes = ["DocumentSchema", "JsonModel", "hash_payload", "to_canonical_json"]

@@ -1,5 +1,5 @@
 # Generated knowledge under-curated workflow report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge.reference_quality
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.reference_quality
 
 [[workflow]]
 family = "dda"

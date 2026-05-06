@@ -1,5 +1,5 @@
 # Generated foundation root consumer matrix.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.foundation.root_consumers
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.root_consumers
 
 [[symbol]]
 name = "AssayId"
@@ -29,7 +29,7 @@ consumer_modules = ["packages/bijux-proteomics-knowledge/src/bijux_proteomics_kn
 name = "DocumentSchema"
 consumer_count = 21
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/program_spec.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py", "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py", "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/policies.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/schema.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design/experiments.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design/protocols.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/artifacts.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/exports.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/serialization.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/plans.py"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/domain/program_spec.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py", "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py", "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/__init__.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py", "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py", "packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/policies.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/schema.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design/experiments.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design/protocols.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/artifacts.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/exports.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/handoffs/serialization.py", "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/plans.py"]
 
 [[symbol]]
 name = "EvidenceId"
@@ -41,7 +41,7 @@ consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/domain/
 name = "fingerprint_model"
 consumer_count = 3
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/normalization/ingestion.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py", "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/normalization/ingestion.py"]
 
 [[symbol]]
 name = "GateId"
@@ -53,7 +53,7 @@ consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/domain/
 name = "hash_model"
 consumer_count = 2
 consumer_distributions = ["bijux-proteomics-core", "bijux-proteomics-dev"]
-consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/serialization_compatibility.py"]
+consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/study/qc.py", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py"]
 
 [[symbol]]
 name = "hash_payload"
@@ -89,4 +89,4 @@ consumer_modules = ["packages/bijux-proteomics-core/src/bijux_proteomics/domain/
 name = "to_canonical_json"
 consumer_count = 2
 consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-runtime"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/serialization_compatibility.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/fingerprints.py"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/serialization_compatibility.py", "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/support/primitives/fingerprints.py"]

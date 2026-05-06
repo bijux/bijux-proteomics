@@ -6,7 +6,7 @@ rationale = "legacy compatibility runtime parity is the main place where benchma
 
 [[owner]]
 package_name = "bijux-proteomics-dev"
-focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/contracts/openapi_drift.py"
+focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/openapi_drift.py"
 declaration_path = "docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/quality-gates.md"
 rationale = "maintainer automation performance matters most when large repository checks fan out across many files"
 
