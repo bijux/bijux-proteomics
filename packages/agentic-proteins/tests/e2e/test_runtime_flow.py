@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentic_proteins.runtime import RunManager
+from agentic_proteins.execution.manager import RunManager
 from tests.helpers.paths import package_tests_root
 
 

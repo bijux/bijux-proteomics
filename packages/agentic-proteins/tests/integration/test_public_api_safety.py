@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentic_proteins.runtime import RunManager
-from agentic_proteins.runtime.infra import RunConfig
+from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.execution.run_config import RunConfig
 
 
 def test_public_api_dry_run(tmp_path: Path) -> None:

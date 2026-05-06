@@ -6,8 +6,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from agentic_proteins.core.failures import FailureType
-from agentic_proteins.runtime import RunManager
-from agentic_proteins.runtime.infra import RunConfig
+from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.execution.run_config import RunConfig
 
 
 def test_strict_mode_blocks_defaults(tmp_path: Path) -> None:

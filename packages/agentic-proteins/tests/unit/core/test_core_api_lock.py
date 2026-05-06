@@ -6,11 +6,11 @@ from __future__ import annotations
 import importlib
 
 import agentic_proteins.core.api_lock as api_lock
-import agentic_proteins.runtime.control.execution as runtime_execution
+import agentic_proteins.execution.manager as execution_manager
 
 
 def test_core_api_lock_points_to_real_symbols() -> None:
-    assert hasattr(runtime_execution, "RunManager")
+    assert hasattr(execution_manager, "RunManager")
     for dotted in api_lock.CORE_API_FROZEN:
         module_path, name = dotted.rsplit(".", 1)
         module = importlib.import_module(module_path)

@@ -61,19 +61,19 @@ from agentic_proteins.agents.catalog import AgentCatalog as CompatAgentCatalog
 from agentic_proteins.agents.catalog import AgentRegistry as CompatAgentRegistry
 from agentic_proteins.tools.catalog import ToolCatalog as CompatToolCatalog
 from agentic_proteins.tools.catalog import ToolRegistry as CompatToolRegistry
-from agentic_proteins.runtime.control.artifacts import (
+from agentic_proteins.execution.artifacts import (
     _sign_payload as compat_sign_payload,
 )
-from agentic_proteins.runtime.control.execution import (
+from agentic_proteins.execution.manager import (
     _build_run_summary as compat_build_run_summary,
 )
-from agentic_proteins.runtime.control.execution import (
+from agentic_proteins.execution.manager import (
     _ensure_telemetry_costs as compat_ensure_telemetry_costs,
 )
-from agentic_proteins.runtime.control.execution import (
+from agentic_proteins.execution.manager import (
     _select_structure_tool as compat_select_structure_tool,
 )
-from agentic_proteins.runtime.control.execution import (
+from agentic_proteins.execution.manager import (
     _version_info as compat_version_info,
 )
 from agentic_proteins.providers.capabilities import KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS

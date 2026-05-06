@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.runtime.infra.analysis import RunAnalysis
+from agentic_proteins.execution.analysis import RunAnalysis
 
 
 def test_run_analysis_records_and_writes(tmp_path: Path) -> None:

@@ -6,9 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.runtime import RunManager
-from agentic_proteins.runtime.control.artifacts import load_artifact
-from agentic_proteins.runtime.workspace import RunWorkspace
+from agentic_proteins.execution.manager import RunManager
+from agentic_proteins.execution.artifacts import load_artifact
+from agentic_proteins.state.workspace import RunWorkspace
 from tests.helpers.artifacts import assert_valid_run_artifacts
 
 

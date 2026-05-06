@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from agentic_proteins.runtime.infra.reliability import ToolReliabilityTracker
+from agentic_proteins.execution.tool_reliability import ToolReliabilityTracker
 
 
 def test_reliability_tracker_summarizes() -> None:

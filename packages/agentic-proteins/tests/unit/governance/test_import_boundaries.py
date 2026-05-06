@@ -12,7 +12,6 @@ LAYER_ORDER = {
     "cli": 7,
     "interfaces": 7,
     "httpapi": 7,
-    "runtime": 6,
     "execution": 5,
     "agents": 4,
     "planning": 3,
@@ -76,7 +75,8 @@ def test_high_level_tests_use_public_entrypoints() -> None:
     root = package_tests_root()
     allowed_prefixes = (
         "agentic_proteins.interfaces",
-        "agentic_proteins.runtime",
+        "agentic_proteins.execution",
+        "agentic_proteins.state",
         "agentic_proteins.tools",
         "agentic_proteins.core",
     )

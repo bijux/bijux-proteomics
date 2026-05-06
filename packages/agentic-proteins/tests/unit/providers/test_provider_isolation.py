@@ -23,9 +23,9 @@ def _provider_sources() -> list[str]:
     return sources
 
 
-def test_providers_do_not_import_runtime_control() -> None:
+def test_providers_do_not_import_execution_manager() -> None:
     for source in _provider_sources():
-        assert "agentic_proteins.runtime.control" not in source
+        assert "agentic_proteins.execution.manager" not in source
 
 
 def test_providers_do_not_write_outside_workspace() -> None:
