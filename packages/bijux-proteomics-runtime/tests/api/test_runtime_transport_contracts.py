@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.runtime.contracts import (
+from bijux_proteomics_runtime.support.artifact_formats import (
     ArtifactFormat,
     SchemaFormatContract,
     build_schema_format_contract,

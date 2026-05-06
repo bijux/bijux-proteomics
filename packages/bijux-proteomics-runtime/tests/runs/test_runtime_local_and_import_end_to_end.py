@@ -13,7 +13,7 @@ from bijux_proteomics_runtime.runs.import_lineage import (
 from bijux_proteomics_runtime.runs.integrity import load_artifact_integrity_report
 from bijux_proteomics_runtime.runs.ledger import load_artifact_ledger
 from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from bijux_proteomics_runtime.workflows.paths import (
     run_reviewable_import_path,
     run_reviewable_sequence_path,

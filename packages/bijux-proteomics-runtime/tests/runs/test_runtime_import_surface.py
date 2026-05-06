@@ -60,7 +60,7 @@ def test_runtime_import_control_exports_loaders(tmp_path: Path) -> None:
         run_id="runtime-import-2",
     )
 
-    from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+    from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
     workspace = RunWorkspace.for_run(tmp_path, "runtime-import-2")
     assert isinstance(load_import_trace(workspace), RuntimeImportTrace)

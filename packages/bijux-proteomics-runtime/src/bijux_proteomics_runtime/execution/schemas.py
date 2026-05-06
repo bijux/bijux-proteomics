@@ -7,13 +7,13 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_runtime.core.execution import (
+from bijux_proteomics_runtime.support.primitives.execution import (
     ExecutionContext,
     ExecutionGraph,
     ExecutionTask,
     RetryPolicy,
 )
-from bijux_proteomics_runtime.core.tooling import ToolResult
+from bijux_proteomics_runtime.support.primitives.tooling import ToolResult
 
 
 class ExecutionTrace(BaseModel):

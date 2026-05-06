@@ -9,29 +9,29 @@ from datetime import datetime
 import json
 
 from bijux_proteomics_intelligence.candidates.schema import Candidate
-from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
-from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
-from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent
-from bijux_proteomics_runtime.agents.schemas import (
+from bijux_proteomics_runtime.execution.agents.coordination.coordinator import CoordinatorAgent
+from bijux_proteomics_runtime.execution.agents.planning.compiler import compile_plan_to_execution
+from bijux_proteomics_runtime.execution.agents.planning.planner import PlannerAgent
+from bijux_proteomics_runtime.execution.agents.schemas import (
     CoordinatorAgentInput,
     CriticAgentInput,
     OutputReference,
     PlannerAgentInput,
     QualityControlAgentInput,
 )
-from bijux_proteomics_runtime.agents.verification.critic import CriticAgent
-from bijux_proteomics_runtime.agents.verification.quality_control import (
+from bijux_proteomics_runtime.execution.agents.verification.critic import CriticAgent
+from bijux_proteomics_runtime.execution.agents.verification.quality_control import (
     QualityControlAgent,
 )
-from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.core.execution import (
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
+from bijux_proteomics_runtime.support.primitives.execution import (
     ExecutionContext,
     LoopLimits,
     LoopState,
     ResourceLimits,
 )
-from bijux_proteomics_runtime.core.hashing import sha256_hex
-from bijux_proteomics_runtime.core.observations import EvaluationInput, PlanMetadata
+from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
+from bijux_proteomics_runtime.support.primitives.observations import EvaluationInput, PlanMetadata
 from bijux_proteomics_runtime.execution.compiler.boundary import ExecutionBoundary
 from bijux_proteomics_runtime.execution.evaluation.schemas import (
     AgentScorecard,
@@ -40,11 +40,11 @@ from bijux_proteomics_runtime.execution.evaluation.schemas import (
     EvaluationResult,
     ObservedProperty,
 )
-from bijux_proteomics_runtime.execution.runtime.executor import (
+from bijux_proteomics_runtime.execution.engine.executor import (
     LocalExecutor,
     materialize_observation,
 )
-from bijux_proteomics_runtime.agents.catalog import AgentCatalog
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.execution.tools.heuristic import (
     HeuristicStructureTool,
 )

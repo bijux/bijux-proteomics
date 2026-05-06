@@ -27,7 +27,7 @@ from bijux_proteomics_runtime.runs.replay import (
     load_local_run_bundle,
 )
 from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 from ..support.fixture_data import load_fixture
 

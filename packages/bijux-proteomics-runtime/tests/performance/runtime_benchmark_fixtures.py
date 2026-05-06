@@ -20,7 +20,7 @@ from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
 from bijux_proteomics_runtime.runs.replay import build_replay_contract
 from bijux_proteomics_runtime.runs.replay import write_local_run_bundle
 from bijux_proteomics_runtime.runs.replay import write_replay_contract
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 from bijux_proteomics_runtime.workflows.plans import (
     WorkflowArchiveMedium,
     build_proteomics_workflow_runtime_bundle,

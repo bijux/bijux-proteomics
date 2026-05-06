@@ -12,7 +12,7 @@ from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
 from bijux_proteomics_runtime.runs.integrity import verify_runtime_artifact_integrity
 from bijux_proteomics_runtime.runs.recovery import build_runtime_failure_recovery_audit
 from bijux_proteomics_runtime.runs.replay import build_replay_contract
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 def _seed_runtime_outputs(

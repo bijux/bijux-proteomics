@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.core.stability import sealed
+from bijux_proteomics_runtime.support.primitives.stability import sealed
 
 sealed()
 

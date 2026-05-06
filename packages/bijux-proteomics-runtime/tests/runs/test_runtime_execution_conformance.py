@@ -14,7 +14,7 @@ from bijux_proteomics_runtime.runs.launch_bundles import load_scheduler_job_bund
 from bijux_proteomics_runtime.runs.replay import LocalRunBundle
 from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
 from bijux_proteomics_runtime.runs import RunConfig
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]

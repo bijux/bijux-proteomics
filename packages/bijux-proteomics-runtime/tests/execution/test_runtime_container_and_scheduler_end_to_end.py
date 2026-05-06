@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics_runtime.providers.support import (
+from bijux_proteomics_runtime.providers.environment import (
     SlurmJobScriptInput,
     SlurmLifecycleState,
     export_slurm_job_script,
@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.runs.launch_bundles import (
 from bijux_proteomics_runtime.runs.ledger import load_artifact_ledger
 from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.run_config import RunConfig
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 from ..support.fixture_data import load_fixture
 

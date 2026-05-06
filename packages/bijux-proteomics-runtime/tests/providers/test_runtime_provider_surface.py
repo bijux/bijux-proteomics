@@ -4,16 +4,14 @@ from typing import Any, cast
 
 import pytest
 
-from bijux_proteomics_runtime.providers import factory as factory_module
-from bijux_proteomics_runtime.providers.base import _time_left
+from bijux_proteomics_runtime.providers.catalog import provider_requirements
+from bijux_proteomics_runtime.providers import selection as factory_module
+from bijux_proteomics_runtime.providers.contracts import _time_left
 from bijux_proteomics_runtime.providers.errors import PredictionError
-from bijux_proteomics_runtime.providers.experimental.colabfold import (
+from bijux_proteomics_runtime.providers.remote.colabfold import (
     APIColabFoldProvider,
 )
-from bijux_proteomics_runtime.providers.factory import (
-    _require_module,
-    provider_requirements,
-)
+from bijux_proteomics_runtime.providers.selection import _require_module
 
 
 def test_provider_factory_metadata_contract() -> None:

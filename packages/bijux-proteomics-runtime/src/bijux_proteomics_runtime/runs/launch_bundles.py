@@ -18,7 +18,7 @@ from bijux_proteomics_runtime.runs.integrity import (
     require_reusable_artifact_bundle,
 )
 from bijux_proteomics_runtime.runs.replay import ReplayContract
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 class ArtifactExpectation(JsonModel):

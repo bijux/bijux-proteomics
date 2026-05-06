@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from bijux_proteomics_intelligence.candidates.quality import QCStatus
 
-from bijux_proteomics_runtime.agents.schemas import CoordinatorDecisionType
+from bijux_proteomics_runtime.execution.agents.schemas import CoordinatorDecisionType
 
 
 class RunStatus(StrEnum):

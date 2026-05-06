@@ -37,7 +37,7 @@ def test_runtime_partial_human_review_writes_resume_checkpoint(
     manager = RunManager(tmp_path)
     result = manager.run("MPEPTIDE", run_id="runtime-checkpoint-1")
 
-    from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+    from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
     workspace = RunWorkspace.for_run(tmp_path, "runtime-checkpoint-1")
     checkpoint = load_resume_checkpoint(workspace)
@@ -72,7 +72,7 @@ def test_runtime_integrity_report_detects_corrupted_local_bundle(
     manager = RunManager(tmp_path)
     manager.run("MPEPTIDE", run_id="runtime-integrity-1")
 
-    from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+    from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
     workspace = RunWorkspace.for_run(tmp_path, "runtime-integrity-1")
     workspace.local_run_bundle_path.write_text('{"corrupted": true}', encoding="utf-8")

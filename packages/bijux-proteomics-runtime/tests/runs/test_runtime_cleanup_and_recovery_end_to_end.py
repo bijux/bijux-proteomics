@@ -25,7 +25,7 @@ from bijux_proteomics_runtime.runs.replay import (
     write_replay_contract,
 )
 from bijux_proteomics_runtime.runs.checkpoints import build_resume_checkpoint
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 from ..support.fixture_data import load_fixture
 

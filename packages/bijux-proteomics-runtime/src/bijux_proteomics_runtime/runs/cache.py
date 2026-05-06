@@ -10,7 +10,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 class RuntimeCacheClaim(JsonModel):

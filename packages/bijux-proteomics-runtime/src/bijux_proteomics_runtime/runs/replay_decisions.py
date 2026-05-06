@@ -13,7 +13,7 @@ from bijux_proteomics_runtime.runs.reruns import (
     build_runtime_partial_rerun_plan,
 )
 from bijux_proteomics_runtime.runs.replay import ReplayContract
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 class ReplayDecisionFinding(JsonModel):

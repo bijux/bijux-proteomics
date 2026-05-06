@@ -5,4 +5,8 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_runtime.support.primitives.stability import sealed
+
+sealed()
+
 __all__: list[str] = []

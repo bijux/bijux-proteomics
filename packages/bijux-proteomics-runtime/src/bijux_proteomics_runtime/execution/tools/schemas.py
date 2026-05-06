@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.core.tooling import (
+from bijux_proteomics_runtime.support.primitives.tooling import (
     InvocationInput,
     OutputExpectation,
     SchemaDefinition,

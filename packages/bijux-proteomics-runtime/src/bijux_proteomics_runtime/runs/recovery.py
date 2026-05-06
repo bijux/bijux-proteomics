@@ -12,7 +12,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.core.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from bijux_proteomics_runtime.runs.contracts import RuntimeArtifactRetentionClass
 from bijux_proteomics_runtime.runs.failure_reports import (
     RuntimeFailureCategory,
@@ -23,7 +23,7 @@ from bijux_proteomics_runtime.runs.integrity import (
     build_artifact_integrity_report,
 )
 from bijux_proteomics_runtime.runs.ledger import load_artifact_ledger
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 class RuntimeRecoveryAction(StrEnum):

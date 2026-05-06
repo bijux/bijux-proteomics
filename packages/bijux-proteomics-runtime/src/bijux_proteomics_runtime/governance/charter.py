@@ -115,8 +115,9 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         capability=RuntimeCharterCapability.PROVIDER_BINDING,
         owned_surface="Provider selection, dependency gates, execution-mode checks, and capability metadata for runtime-owned execution backends.",
         required_modules=(
-            "providers/factory.py",
-            "providers/base.py",
+            "providers/catalog.py",
+            "providers/selection.py",
+            "providers/contracts.py",
             "providers/capabilities.py",
         ),
         release_blocker="Runtime cannot ship if provider dependency and capability rules fragment across compat or downstream packages.",
@@ -126,8 +127,8 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
         owned_surface="Execution coordination that turns runtime requests into tool, provider, and agent work over proteomics workflows.",
         required_modules=(
             "runs/manager.py",
-            "agents/execution/coordinator.py",
-            "execution/runtime/executor.py",
+            "execution/agents/coordination/coordinator.py",
+            "execution/engine/executor.py",
         ),
         release_blocker="Runtime cannot ship if workflow execution collapses into wrapper-only glue without runtime-owned coordination logic.",
     ),
@@ -139,7 +140,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
             "runs/reruns.py",
             "runs/integrity.py",
             "runs/recovery.py",
-            "runtime/workspace.py",
+            "support/workspace.py",
         ),
         release_blocker="Runtime cannot ship if reruns, replay, or recovery depend on ad hoc operator behavior instead of typed runtime control.",
     ),
@@ -204,7 +205,7 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
         return _execution_value_entry(
             module_path,
             (RuntimeCharterCapability.PROVIDER_BINDING,),
-            "Provider construction, dependency checks, and capability metadata are canonical runtime ownership.",
+            "Provider cataloging, construction, dependency checks, and capability metadata are canonical runtime ownership.",
         )
 
     if module_path == "runs/operations.py":
@@ -254,7 +255,7 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "The machine-readable charter keeps runtime ownership explicit, auditable, and release-blocking.",
         )
 
-    if module_path.startswith(("agents/", "execution/")):
+    if module_path.startswith(("execution/agents/", "execution/")):
         return _execution_value_entry(
             module_path,
             (RuntimeCharterCapability.WORKFLOW_EXECUTION,),
@@ -272,8 +273,8 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
         )
 
     if module_path in {
-        "runtime/contracts.py",
-        "runtime/workspace.py",
+        "support/artifact_formats.py",
+        "support/workspace.py",
     }:
         return _execution_value_entry(
             module_path,
@@ -284,14 +285,14 @@ def _classify_runtime_module(module_path: str) -> RuntimeModuleAuditEntry:
             "Typed run context, workspace, and contract code keep runtime execution reproducible, inspectable, and exportable.",
         )
 
-    if module_path.startswith("core/"):
+    if module_path.startswith("support/primitives/"):
         return _execution_value_entry(
             module_path,
             (
                 RuntimeCharterCapability.WORKFLOW_EXECUTION,
                 RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
             ),
-            "Runtime core contracts define stable execution semantics, status surfaces, and review-facing invariants for the package.",
+            "Runtime execution primitives define stable semantics, status surfaces, and review-facing invariants for the package.",
         )
 
     raise ValueError(f"unclassified runtime module path: {module_path}")

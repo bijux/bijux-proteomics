@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.core.tooling import ToolContract
+from bijux_proteomics_runtime.support.primitives.tooling import ToolContract
 
 
 class ToolCatalog:

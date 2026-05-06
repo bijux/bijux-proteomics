@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bijux_proteomics_runtime.agents.contracts import (
+from bijux_proteomics_runtime.execution.agents.contracts import (
     _minimal_payload,
     _placeholder_for_type,
     validate_agent,

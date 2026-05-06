@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.runs.replay import (
     evaluate_replay_eligibility,
     write_local_run_bundle,
 )
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 def _contract(tmp_path: Path, *, run_id: str, provider_name: str = "heuristic_proxy"):

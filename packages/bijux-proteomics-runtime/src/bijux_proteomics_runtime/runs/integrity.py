@@ -17,7 +17,7 @@ from bijux_proteomics_runtime.runs.ledger import (
     RuntimeArtifactLedger,
     load_artifact_ledger,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 class LargeArtifactGuardDecision(JsonModel):

@@ -5,7 +5,7 @@ import importlib.metadata
 import pytest
 
 from bijux_proteomics_foundation import hash_text
-from bijux_proteomics_runtime.core.hashing import sha256_hex
+from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
 from bijux_proteomics_runtime.runs.artifacts import _sign_payload
 from bijux_proteomics_runtime.runs.manager import (
     _build_run_summary,

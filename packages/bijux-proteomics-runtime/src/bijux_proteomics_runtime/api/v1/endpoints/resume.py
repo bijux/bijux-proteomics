@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ResumeRequest,
     RunResponse,
 )
-from bijux_proteomics_runtime.core.status import WorkflowState
+from bijux_proteomics_runtime.support.primitives.status import WorkflowState
 from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
 )

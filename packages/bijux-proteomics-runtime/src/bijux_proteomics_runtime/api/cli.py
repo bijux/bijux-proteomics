@@ -50,7 +50,7 @@ from bijux_proteomics_runtime.runs.operations import (
     run_sequence_operation,
 )
 from bijux_proteomics_runtime.runs.run_config import RunConfig
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from bijux_proteomics_runtime.support.identity import runtime_banner
 
 __all__ = [

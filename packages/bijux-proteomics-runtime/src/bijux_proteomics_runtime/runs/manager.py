@@ -24,16 +24,16 @@ from bijux_proteomics_intelligence.candidates import (
 from bijux_proteomics_intelligence.candidates.quality import QCStatus
 from bijux_proteomics_intelligence.candidates.schema import Candidate
 
-from bijux_proteomics_runtime.agents.analysis.failure_analysis import (
+from bijux_proteomics_runtime.execution.agents.analysis.failure_analysis import (
     FailureAnalysisAgent,
 )
-from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
-from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
-from bijux_proteomics_runtime.agents.planning.generation import generate_plan
-from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent
-from bijux_proteomics_runtime.agents.planning.validation import PlanningValidator
-from bijux_proteomics_runtime.agents.reporting.reporting import ReportingAgent
-from bijux_proteomics_runtime.agents.schemas import (
+from bijux_proteomics_runtime.execution.agents.coordination.coordinator import CoordinatorAgent
+from bijux_proteomics_runtime.execution.agents.planning.compiler import compile_plan_to_execution
+from bijux_proteomics_runtime.execution.agents.planning.generation import generate_plan
+from bijux_proteomics_runtime.execution.agents.planning.planner import PlannerAgent
+from bijux_proteomics_runtime.execution.agents.planning.validation import PlanningValidator
+from bijux_proteomics_runtime.execution.agents.reporting.reporting import ReportingAgent
+from bijux_proteomics_runtime.execution.agents.schemas import (
     CoordinatorAgentInput,
     CoordinatorDecisionType,
     CriticAgentInput,
@@ -42,41 +42,41 @@ from bijux_proteomics_runtime.agents.schemas import (
     ReportingAgentInput,
     RequestParameter,
 )
-from bijux_proteomics_runtime.agents.verification.critic import CriticAgent
-from bijux_proteomics_runtime.agents.verification.input_validation import (
+from bijux_proteomics_runtime.execution.agents.verification.critic import CriticAgent
+from bijux_proteomics_runtime.execution.agents.verification.input_validation import (
     InputValidationAgent,
 )
-from bijux_proteomics_runtime.agents.verification.quality_control import (
+from bijux_proteomics_runtime.execution.agents.verification.quality_control import (
     QualityControlAgent,
 )
-from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.core.execution import (
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
+from bijux_proteomics_runtime.support.primitives.execution import (
     ExecutionContext,
     LoopLimits,
     LoopState,
     ResourceLimits,
 )
-from bijux_proteomics_runtime.core.failures import FailureType, suggest_next_action
-from bijux_proteomics_runtime.core.observations import EvaluationInput, PlanMetadata
-from bijux_proteomics_runtime.core.status import (
+from bijux_proteomics_runtime.support.primitives.failures import FailureType, suggest_next_action
+from bijux_proteomics_runtime.support.primitives.observations import EvaluationInput, PlanMetadata
+from bijux_proteomics_runtime.support.primitives.status import (
     ExecutionStatus,
     Outcome,
     ToolStatus,
     WorkflowState,
 )
-from bijux_proteomics_runtime.core.tooling import (
+from bijux_proteomics_runtime.support.primitives.tooling import (
     InvocationInput,
     ToolError,
     ToolInvocationSpec,
     ToolResult,
 )
 from bijux_proteomics_runtime.execution.compiler.boundary import ToolBoundary
-from bijux_proteomics_runtime.execution.runtime.executor import (
+from bijux_proteomics_runtime.execution.engine.executor import (
     LocalExecutor,
     materialize_observation,
 )
 from bijux_proteomics_runtime.execution.validation import validate_outputs
-from bijux_proteomics_runtime.agents.catalog import AgentCatalog
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.runs.context import RunContext, create_run_context
 from bijux_proteomics_runtime.runs.contracts import (
     RunContextContract,
@@ -155,7 +155,7 @@ from bijux_proteomics_runtime.runs.replay import (
 )
 from bijux_proteomics_runtime.runs.state_machine import RunStateMachine
 from bijux_proteomics_runtime.runs.run_config import RunConfig
-from bijux_proteomics_runtime.runtime.workspace import (
+from bijux_proteomics_runtime.support.workspace import (
     write_json_atomic,
     write_text_atomic,
 )

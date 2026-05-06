@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bijux_proteomics_runtime.agents.catalog import AgentCatalog
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.runs.failure_reports import RuntimeFailureCategory
 from bijux_proteomics_runtime.runs.failure_reports import RuntimeFailureReport
 from bijux_proteomics_runtime.runs.failure_reports import build_runtime_failure_report

@@ -10,8 +10,8 @@ from typing import Any, Literal
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 
-from bijux_proteomics_runtime.core.failures import FailureType
-from bijux_proteomics_runtime.core.status import (
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.status import (
     ExecutionStatus,
     Outcome,
     ToolStatus,

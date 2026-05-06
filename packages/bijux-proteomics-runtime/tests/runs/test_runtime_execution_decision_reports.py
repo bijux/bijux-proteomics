@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.runs.failure_reports import (
 from bijux_proteomics_runtime.runs.preflight import (
     build_runtime_preflight_report,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 def test_runtime_refusal_decision_report_explains_failed_preflight_checks(

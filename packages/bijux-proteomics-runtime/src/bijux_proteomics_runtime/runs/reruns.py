@@ -15,7 +15,7 @@ from bijux_proteomics_runtime.runs.replay import (
     ReplayEligibility,
     evaluate_replay_eligibility,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 class RuntimeDependencyNode(JsonModel):

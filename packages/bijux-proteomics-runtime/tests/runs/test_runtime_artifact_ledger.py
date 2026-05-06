@@ -10,7 +10,7 @@ from bijux_proteomics_runtime.runs.ledger import (
     load_artifact_ledger,
     refresh_runtime_artifact_ledger,
 )
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 def test_runtime_artifact_ledger_records_top_level_outputs_and_items(

@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.core.tooling import SchemaDefinition, ToolContract
+from bijux_proteomics_runtime.support.primitives.tooling import SchemaDefinition, ToolContract
 from bijux_proteomics_runtime.execution.tools.catalog import ToolCatalog
 
 __all__ = [

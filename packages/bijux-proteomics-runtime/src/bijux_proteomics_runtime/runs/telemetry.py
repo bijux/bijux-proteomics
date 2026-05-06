@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 import time
 
-from bijux_proteomics_runtime.runtime.workspace import write_json_atomic
+from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
 @dataclass

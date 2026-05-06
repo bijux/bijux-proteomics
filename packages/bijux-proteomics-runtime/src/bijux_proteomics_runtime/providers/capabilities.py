@@ -7,12 +7,12 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 
-from bijux_proteomics_runtime.providers.base import ProviderCapabilities
-from bijux_proteomics_runtime.providers.factory import (
+from bijux_proteomics_runtime.providers.catalog import (
     PROVIDER_CAPABILITIES,
-    cuda_available,
     provider_requirements,
 )
+from bijux_proteomics_runtime.providers.contracts import ProviderCapabilities
+from bijux_proteomics_runtime.providers.selection import cuda_available
 
 KNOWN_PROVIDERS = frozenset(
     {

@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.runs.replay_decisions import (
     write_runtime_replay_decision_report,
 )
 from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 def _contract(

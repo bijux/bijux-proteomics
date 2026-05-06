@@ -7,7 +7,7 @@ from bijux_proteomics_runtime.workflows.paths import RuntimeReviewableOutputPath
 from bijux_proteomics_runtime.workflows.paths import build_runtime_smoke_workflows
 from bijux_proteomics_runtime.workflows.paths import run_reviewable_import_path
 from bijux_proteomics_runtime.workflows.paths import run_reviewable_sequence_path
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]

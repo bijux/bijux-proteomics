@@ -12,8 +12,8 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.providers.factory import provider_requirements
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.providers.catalog import provider_requirements
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 class PreflightCheckState(StrEnum):

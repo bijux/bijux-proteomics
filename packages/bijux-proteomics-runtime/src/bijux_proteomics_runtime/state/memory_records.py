@@ -11,8 +11,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.core.tooling import ToolResult
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
+from bijux_proteomics_runtime.support.primitives.tooling import ToolResult
 
 
 class MemoryScope(Enum):

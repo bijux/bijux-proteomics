@@ -23,7 +23,7 @@ from bijux_proteomics_runtime.runs.logging import (
 )
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.runs.telemetry import TelemetryClient
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
 @dataclass(frozen=True)

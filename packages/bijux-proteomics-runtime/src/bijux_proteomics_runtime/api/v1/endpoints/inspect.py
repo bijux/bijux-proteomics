@@ -25,7 +25,7 @@ from bijux_proteomics_runtime.runs.operations import (
     inspect_candidate_operation,
     load_run_summary_operation,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 router = APIRouter()
 

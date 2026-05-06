@@ -15,7 +15,7 @@ from bijux_proteomics_runtime.runs.contracts import (
     RuntimeArtifactPolicy,
     RuntimeArtifactRetentionClass,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace, write_json_atomic
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 
 class ArtifactLedgerEntry(JsonModel):

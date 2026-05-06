@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics_runtime.providers import factory
+from bijux_proteomics_runtime.providers import selection as factory
 from bijux_proteomics_runtime.providers import capabilities
 from bijux_proteomics_runtime.providers.capabilities import validate_runtime_capabilities
 
