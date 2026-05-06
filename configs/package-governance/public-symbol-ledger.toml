@@ -2,38 +2,18 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.public_symbol_ledger
 
 [guard]
-min_public_symbol_count = 43
-min_symbols_with_owner_tests = 43
+min_public_symbol_count = 41
+min_symbols_with_owner_tests = 41
 
 [[symbol]]
 distribution_name = "agentic-proteins"
 import_root = "agentic_proteins"
-name = "Metrics"
-symbol_kind = "class"
-owner_distribution_name = "bijux-proteomics-core"
-owner_module_name = "bijux_proteomics.structure_report"
-owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/structure_report/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-core/tests/review/test_structure_report_surface.py"]
-
-[[symbol]]
-distribution_name = "agentic-proteins"
-import_root = "agentic_proteins"
-name = "Report"
-symbol_kind = "class"
-owner_distribution_name = "bijux-proteomics-core"
-owner_module_name = "bijux_proteomics.structure_report"
-owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/structure_report/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-core/tests/cli/test_cli_surface.py", "packages/bijux-proteomics-core/tests/interfaces/test_ptm_report_route_surface.py", "packages/bijux-proteomics-core/tests/interfaces/test_quant_report_route_surface.py", "packages/bijux-proteomics-core/tests/quantification/test_quantification_surface.py", "packages/bijux-proteomics-core/tests/review/test_structure_report_surface.py", "packages/bijux-proteomics-core/tests/workflow/test_runtime_surface.py"]
-
-[[symbol]]
-distribution_name = "agentic-proteins"
-import_root = "agentic_proteins"
-name = "low_confidence_segments"
-symbol_kind = "callable"
-owner_distribution_name = "bijux-proteomics-intelligence"
-owner_module_name = "bijux_proteomics_intelligence.interpretation.structures"
-owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/structures.py"
-owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/interpretation/test_structures_surface.py"]
+name = "__version__"
+symbol_kind = "data"
+owner_distribution_name = "agentic-proteins"
+owner_module_name = "agentic_proteins"
+owner_module_path = "packages/agentic-proteins/src/agentic_proteins/__init__.py"
+owner_test_paths = ["packages/agentic-proteins/tests/unit/governance/test_import_boundaries.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-core"

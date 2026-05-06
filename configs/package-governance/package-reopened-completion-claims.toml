@@ -6,7 +6,7 @@ max_total_reopened_completion_claim_count = 8
 
 [[package]]
 distribution_name = "agentic-proteins"
-reopened_reasons = ["docs and tree still contradict each other", "root public breadth still exceeds owner logic depth", "README maturity language still outruns owned logic and proof"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth", "README maturity language still outruns owned logic and proof"]
 reopened_completion_claim = true
 
 [[package]]

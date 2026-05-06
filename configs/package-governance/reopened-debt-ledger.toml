@@ -6,16 +6,8 @@ debt_id = "agentic-proteins:reopened-completion-claim"
 distribution_name = "agentic-proteins"
 debt_family = "reopened-completion-claim"
 severity = "high"
-summary = "docs and tree still contradict each other"
+summary = "root public breadth still exceeds owner logic depth"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "agentic-proteins:test-tree-gaps"
-distribution_name = "agentic-proteins"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "15 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-core:mixed-responsibility-modules"

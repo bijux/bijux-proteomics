@@ -3,14 +3,14 @@
 
 [[package]]
 distribution_name = "agentic-proteins"
-strongest_value = "agentic-proteins owns its documented package surface."
-weakest_value = "docs and tree still contradict each other"
-broadest_debt = "docs and tree still contradict each other"
-strengths = ["owner domains: 16", "dependency dossier: 3 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/agentic-proteins.toml"]
+strongest_value = "`execution/`, `providers/`, `state/`, and `tools/`"
+weakest_value = "root public breadth still exceeds owner logic depth"
+broadest_debt = "root public breadth still exceeds owner logic depth"
+strengths = ["owner domains: 6", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/agentic-proteins.toml"]
 limits = ["core program and review-gate domain contracts", "candidate-ranking and scenario decision policy logic", "evidence trust and contradiction-resolution semantics", "lab planning and execution-outcome scheduling behavior"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["agentic-proteins:reopened-completion-claim", "agentic-proteins:test-tree-gaps"]
-exact_not_ready_reasons = ["docs and tree still contradict each other", "15 source owner families still lack matching test families"]
+unresolved_debt_ids = ["agentic-proteins:reopened-completion-claim"]
+exact_not_ready_reasons = ["root public breadth still exceeds owner logic depth"]
 publishable = false
 
 [[package]]
@@ -66,7 +66,7 @@ distribution_name = "bijux-proteomics-intelligence"
 strongest_value = "bijux-proteomics-intelligence owns its documented package surface."
 weakest_value = "4 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "4 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 7", "dependency dossier: 3 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
+strengths = ["owner domains: 7", "dependency dossier: 3 outbound edges and 4 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
 limits = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=18 negative=6 ambiguity=1 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-intelligence:mixed-responsibility-modules", "bijux-proteomics-intelligence:reopened-completion-claim", "bijux-proteomics-intelligence:test-tree-gaps"]

@@ -3,18 +3,18 @@
 
 [guard]
 max_total_top_level_root_file_count = 0
-max_total_undocumented_owner_family_count = 56
+max_total_undocumented_owner_family_count = 44
 max_total_stale_documented_path_count = 0
 max_total_historical_shape_count = 0
 
 [[package]]
 distribution_name = "agentic-proteins"
 top_level_root_file_count = 0
-documented_owner_families = ["api", "core", "interfaces", "runtime"]
-undocumented_owner_families = ["agents", "biology", "design_loop", "domain", "execution", "memory", "providers", "registry", "report", "state", "tools", "validation"]
+documented_owner_families = ["agents", "execution", "interfaces", "providers", "state", "tools"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]

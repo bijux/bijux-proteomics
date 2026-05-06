@@ -2,16 +2,16 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 55
-max_total_missing_test_family_count = 23
+min_total_mirrored_owner_family_count = 60
+max_total_missing_test_family_count = 8
 max_total_flat_test_module_count = 25
 
 [[package]]
 distribution_name = "agentic-proteins"
-source_owner_families = ["agents", "api", "biology", "core", "design_loop", "domain", "execution", "interfaces", "memory", "providers", "registry", "report", "runtime", "state", "tools", "validation"]
-test_families = ["api", "benchmarks", "e2e", "helpers", "integration", "real_local", "regression", "unit"]
-mirrored_owner_families = ["api"]
-missing_test_families = ["agents", "biology", "core", "design_loop", "domain", "execution", "interfaces", "memory", "providers", "registry", "report", "runtime", "state", "tools", "validation"]
+source_owner_families = ["agents", "execution", "interfaces", "providers", "state", "tools"]
+test_families = ["agents", "benchmarks", "e2e", "execution", "helpers", "integration", "interfaces", "providers", "real_local", "regression", "state", "tools", "unit"]
+mirrored_owner_families = ["agents", "execution", "interfaces", "providers", "state", "tools"]
+missing_test_families = []
 extra_test_families = ["benchmarks", "e2e", "helpers", "integration", "real_local", "regression", "unit"]
 flat_test_module_count = 0
 

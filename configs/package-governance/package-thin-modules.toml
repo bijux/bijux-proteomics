@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 143
+max_total_thin_module_count = 102
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -29,6 +29,20 @@ public_class_count = 0
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/agents/base/base.py"
 nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/catalog.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/agents/contracts.py"
+nonempty_line_count = 20
 public_function_count = 0
 public_class_count = 0
 
@@ -111,329 +125,14 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/app.py"
-nonempty_line_count = 2
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/analysis.py"
+nonempty_line_count = 6
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/deps.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/errors.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/middleware.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/compare.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/inspect.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/resume.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/endpoints/run.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/router.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/api/v1/schema.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/biology/pathway.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/biology/protein_agent.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/biology/regulator.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/biology/signals.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/biology/validation.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/api_lock.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/contracts.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/costs.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/decisions.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/determinism.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/execution.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/failures.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/fingerprints.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/hashing.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/identifiers.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/observations.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/stability.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/status.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/surface_area.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/core/tooling.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/convergence.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/loop.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/design_loop/stagnation.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/filters.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/model.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/schema.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/selection.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/store.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/transform.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/candidates/updates.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/confidence/segments.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/compute.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/quality.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/metrics/validation.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/sequence/summary.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/sequence/validation.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/domain/structure/structure.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/artifacts.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
@@ -468,6 +167,34 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/graphs.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/logging.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/manager.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/run_config.py"
+nonempty_line_count = 3
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/execution/runtime/executor.py"
 nonempty_line_count = 2
 public_function_count = 0
@@ -489,6 +216,27 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/state_machine.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/telemetry.py"
+nonempty_line_count = 6
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/execution/tool_reliability.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/execution/validation.py"
 nonempty_line_count = 2
 public_function_count = 0
@@ -503,15 +251,78 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/memory/schemas.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/app.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/memory/store.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/deps.py"
 nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/errors.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/middleware.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/endpoints/compare.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/endpoints/inspect.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/endpoints/resume.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/endpoints/run.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/router.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/http/v1/schema.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/interfaces/structure_reports.py"
+nonempty_line_count = 16
 public_function_count = 0
 public_class_count = 0
 
@@ -519,6 +330,13 @@ public_class_count = 0
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/providers/base.py"
 nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/capabilities.py"
+nonempty_line_count = 15
 public_function_count = 0
 public_class_count = 0
 
@@ -552,13 +370,6 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/providers/factory.py"
-nonempty_line_count = 23
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/providers/heuristic.py"
 nonempty_line_count = 2
 public_function_count = 0
@@ -580,133 +391,35 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/registry/agents.py"
-nonempty_line_count = 3
+module_path = "packages/agentic-proteins/src/agentic_proteins/providers/selection.py"
+nonempty_line_count = 11
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/registry/tools.py"
-nonempty_line_count = 3
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/report/compute.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/context.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/report/model.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/lifecycle.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/report/render.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/output.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/context.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/lifecycle.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/output.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/context/request.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/artifacts.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/execution.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/control/state_machine.py"
-nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/analysis.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/capabilities.py"
-nonempty_line_count = 17
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/config.py"
-nonempty_line_count = 3
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/observability.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/reliability.py"
-nonempty_line_count = 5
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/infra/telemetry.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/runtime/workspace.py"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/request.py"
 nonempty_line_count = 2
 public_function_count = 0
 public_class_count = 0
@@ -727,8 +440,29 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/state/workspace.py"
+nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/tools/base.py"
 nonempty_line_count = 2
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/tools/catalog.py"
+nonempty_line_count = 4
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/tools/contracts.py"
+nonempty_line_count = 6
 public_function_count = 0
 public_class_count = 0
 
@@ -743,27 +477,6 @@ public_class_count = 0
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/tools/schemas.py"
 nonempty_line_count = 2
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/validation/agents.py"
-nonempty_line_count = 19
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/validation/state.py"
-nonempty_line_count = 6
-public_function_count = 0
-public_class_count = 0
-
-[[module]]
-distribution_name = "agentic-proteins"
-module_path = "packages/agentic-proteins/src/agentic_proteins/validation/tools.py"
-nonempty_line_count = 6
 public_function_count = 0
 public_class_count = 0
 

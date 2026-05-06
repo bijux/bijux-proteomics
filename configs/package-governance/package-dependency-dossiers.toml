@@ -5,7 +5,7 @@
 distribution_name = "agentic-proteins"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
 allowed_inbound_edges = []
-actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
 actual_inbound_edges = []
 unexpected_outbound_edges = []
 rationale = "agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners."
@@ -51,7 +51,7 @@ distribution_name = "bijux-proteomics-intelligence"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
 allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
-actual_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 unexpected_outbound_edges = []
 rationale = "intelligence consumes core scientific semantics, foundation contracts, and knowledge evidence/reference owners."
 

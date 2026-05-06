@@ -1,7 +1,7 @@
 # Generated package-root budget report.
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_budgets
 
-total_init_line_count = 155
+total_init_line_count = 146
 over_budget_packages = []
 
 [evidence]
@@ -9,8 +9,8 @@ package_root_line_counts_path = "configs/package-governance/package-root-line-co
 
 [[package]]
 distribution_name = "agentic-proteins"
-init_line_count = 25
-public_symbol_count = 3
+init_line_count = 16
+public_symbol_count = 1
 budgeted = false
 within_budget = true
 

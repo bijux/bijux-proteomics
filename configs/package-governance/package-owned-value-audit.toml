@@ -7,11 +7,11 @@ min_total_owner_depth_count = 393
 
 [[package]]
 distribution_name = "agentic-proteins"
-owned_value_bullets = ["compatibility routing and legacy entrypoint continuity", "forwarding-only import surfaces for canonical runtime and lower packages", "migration-safe preservation of historical CLI and package roots"]
-owned_value_summary = "compatibility routing and legacy entrypoint continuity; forwarding-only import surfaces for canonical runtime and lower packages; migration-safe preservation of historical CLI and package roots"
+owned_value_bullets = ["compatibility routing and legacy entrypoint continuity", "forwarding-only import surfaces grouped under `interfaces/`, `agents/`,", "migration-safe preservation of historical CLI and package roots"]
+owned_value_summary = "compatibility routing and legacy entrypoint continuity; forwarding-only import surfaces grouped under `interfaces/`, `agents/`,; migration-safe preservation of historical CLI and package roots"
 owner_depth_count = 0
-public_breadth_count = 3
-readme_sentence_count = 121
+public_breadth_count = 1
+readme_sentence_count = 125
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"

@@ -3,17 +3,17 @@
 
 [guard]
 min_architectural_ready_package_count = 0
-max_total_unresolved_debt_count = 22
+max_total_unresolved_debt_count = 21
 
 [[package]]
 distribution_name = "agentic-proteins"
 owner_logic_module_count = 0
-public_breadth_count = 3
-wrapper_module_count = 146
-missing_test_family_count = 15
+public_breadth_count = 1
+wrapper_module_count = 88
+missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 1
-unresolved_debt_count = 2
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
