@@ -138,6 +138,15 @@ What is still missing or deliberately incomplete:
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
 
+## Local Artifact Contract
+
+- transient local outputs belong under `artifacts/`, not as durable root-level
+  cache directories
+- the shared root environment lives at `artifacts/root/check-venv/`
+- the MkDocs site builds to `artifacts/root/docs/site/`
+- the root convenience paths `.venv`, `.tox`, `.hypothesis`, and `.benchmarks`
+  are repository-owned symlinks into `artifacts/root/`
+
 ## Release Model
 
 - publishing is tag-driven: pushing `vX.Y.Z` triggers the release workflow split
