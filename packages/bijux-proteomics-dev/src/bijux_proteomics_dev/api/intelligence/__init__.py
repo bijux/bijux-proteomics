@@ -1,0 +1,1 @@
+"""Intelligence package governance reports."""
