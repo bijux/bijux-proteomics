@@ -6,19 +6,19 @@ max_init_lines = 19
 
 [[symbol]]
 name = "EvidenceBundle"
-owner_module = "bijux_proteomics_knowledge.memory.evidence"
+owner_module = "bijux_proteomics_knowledge.memory.models.evidence"
 classification = "shared_memory_anchor"
 rationale = "Evidence bundles are the smallest shared knowledge artifact that multiple packages exchange."
 
 [[symbol]]
 name = "EvidenceClaim"
-owner_module = "bijux_proteomics_knowledge.memory.claims"
+owner_module = "bijux_proteomics_knowledge.memory.models.claims"
 classification = "shared_memory_anchor"
 rationale = "Evidence claims are the canonical reviewable claim model for downstream decision layers."
 
 [[symbol]]
 name = "EvidenceRecord"
-owner_module = "bijux_proteomics_knowledge.memory.evidence"
+owner_module = "bijux_proteomics_knowledge.memory.models.evidence"
 classification = "shared_memory_anchor"
 rationale = "Evidence records are the reusable atomic memory payload across package boundaries."
 

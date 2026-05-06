@@ -2,19 +2,19 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.knowledge_analytical_logic
 
 [[module]]
-path = "memory/claims.py"
+path = "memory/models/claims.py"
 matched_identifiers = ["completeness_score", "minimum_trust_score", "recommendations", "score", "trust_score"]
 
 [[module]]
-path = "memory/evidence.py"
+path = "memory/models/evidence.py"
 matched_identifiers = ["EvidenceRefreshPriority", "EvidenceRelevanceScore", "EvidenceTrustScoreInput", "TrustScoreProvenance", "TrustScoreRule", "base_score", "completeness_score", "convergence_score", "coverage_score", "decisive_score", "final_score", "integrated_trust_score", "modality_score", "priority", "quality_score", "quantity_score", "recommendations", "record_scores", "relevance_score", "risk_score", "score", "score_evidence_record", "support_score", "triangulation_score", "trust_score", "weighted_score"]
 
 [[module]]
-path = "memory/resolution.py"
+path = "memory/reconciliation/resolution.py"
 matched_identifiers = ["_resolution_score", "priority"]
 
 [[module]]
-path = "references/rules.py"
+path = "references/grounding/rules.py"
 matched_identifiers = ["RankingRuleGroundingLedger", "build_ranking_rule_grounding_ledger"]
 
 [[module]]

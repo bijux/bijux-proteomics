@@ -6,60 +6,60 @@ max_init_lines = 36
 
 [[symbol]]
 name = "BenchmarkManifest"
-owner_module = "bijux_proteomics_knowledge.references.benchmarks"
+owner_module = "bijux_proteomics_knowledge.references.workflows.benchmarks"
 classification = "grounded_registry"
 rationale = "Benchmark manifests are the shared reference contract for workflow-backed scientific claims."
 
 [[symbol]]
 name = "KnowledgeOntologyDomain"
-owner_module = "bijux_proteomics_knowledge.references.ontologies"
+owner_module = "bijux_proteomics_knowledge.references.grounding.ontologies"
 classification = "grounded_registry"
 rationale = "Ontology-domain taxonomy stays public so downstream packages can request durable term normalization."
 
 [[symbol]]
 name = "KnowledgeOntologyMapping"
-owner_module = "bijux_proteomics_knowledge.references.ontologies"
+owner_module = "bijux_proteomics_knowledge.references.grounding.ontologies"
 classification = "grounded_registry"
 rationale = "Ontology mappings are the shared normalized reference payload for controlled vocabulary lookups."
 
 [[symbol]]
 name = "KnowledgeWorkflowFamily"
-owner_module = "bijux_proteomics_knowledge.references.benchmarks"
+owner_module = "bijux_proteomics_knowledge.references.workflows.benchmarks"
 classification = "grounded_registry"
 rationale = "Workflow-family taxonomy is the stable key that ties briefings, manifests, and release checks together."
 
 [[symbol]]
 name = "ScientificContextEntry"
-owner_module = "bijux_proteomics_knowledge.references.contexts"
+owner_module = "bijux_proteomics_knowledge.references.grounding.contexts"
 classification = "grounded_registry"
 rationale = "Scientific context entries are a direct downstream reference surface for caveats and scope."
 
 [[symbol]]
 name = "ScientificRuleReference"
-owner_module = "bijux_proteomics_knowledge.references.rules"
+owner_module = "bijux_proteomics_knowledge.references.grounding.rules"
 classification = "grounded_registry"
 rationale = "Scientific rule references keep interpretation boundaries explicit and grounded."
 
 [[symbol]]
 name = "WorkflowReferenceBriefing"
-owner_module = "bijux_proteomics_knowledge.references.briefings"
+owner_module = "bijux_proteomics_knowledge.references.workflows.briefings"
 classification = "briefing_handoff"
 rationale = "Workflow briefings are the public reviewer-facing reference packet built from the curated registries."
 
 [[symbol]]
 name = "build_workflow_reference_briefing"
-owner_module = "bijux_proteomics_knowledge.references.briefings"
+owner_module = "bijux_proteomics_knowledge.references.workflows.briefings"
 classification = "briefing_handoff"
 rationale = "Briefing construction stays public so downstream consumers can ask for grounded workflow context on demand."
 
 [[symbol]]
 name = "get_benchmark_manifest"
-owner_module = "bijux_proteomics_knowledge.references.workflow_queries"
+owner_module = "bijux_proteomics_knowledge.references.workflows.lookups"
 classification = "curated_lookup"
 rationale = "Benchmark manifest lookup is the narrowest shared query surface used across packages."
 
 [[symbol]]
 name = "resolve_ontology_mapping"
-owner_module = "bijux_proteomics_knowledge.references.ontologies"
+owner_module = "bijux_proteomics_knowledge.references.grounding.ontologies"
 classification = "curated_lookup"
 rationale = "Ontology resolution is the narrowest shared normalization surface used across packages."

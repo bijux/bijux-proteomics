@@ -24,7 +24,7 @@ def test_package_module_ledger_classifies_owner_wrapper_and_test_modules() -> No
         "packages/bijux-proteomics-core/src/bijux_proteomics/liabilities.py"
     ].module_kind == "compatibility_surface"
     assert by_path[
-        "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py"
+        "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
     ].module_kind == "owner_logic"
     assert by_path[
         "packages/bijux-proteomics-knowledge/tests/conftest.py"

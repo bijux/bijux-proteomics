@@ -31,10 +31,10 @@ ANALYTICAL_IDENTIFIER_TERMS = (
     "score",
 )
 ALLOWED_ANALYTICAL_MODULES = (
-    "memory/claims.py",
-    "memory/evidence.py",
-    "memory/resolution.py",
-    "references/rules.py",
+    "memory/models/claims.py",
+    "memory/models/evidence.py",
+    "memory/reconciliation/resolution.py",
+    "references/grounding/rules.py",
     "reviews/explanations.py",
     "reviews/packets.py",
     "reviews/trends.py",

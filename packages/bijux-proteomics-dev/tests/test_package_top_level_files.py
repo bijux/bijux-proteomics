@@ -18,7 +18,7 @@ def test_package_top_level_file_report_tracks_current_root_file_rationale() -> N
 
     assert PACKAGE_TOP_LEVEL_FILES_PATH.exists()
     assert len(report.entries) == 8
-    assert report.guard.max_total_top_level_file_count == 19
+    assert report.guard.max_total_top_level_file_count == 18
     assert entries["bijux-proteomics-foundation"].top_level_files == ("__init__.py",)
     assert entries["bijux-proteomics-lab"].top_level_files == ("__init__.py",)
     assert entries["bijux-proteomics-runtime"].top_level_files == ("__init__.py",)

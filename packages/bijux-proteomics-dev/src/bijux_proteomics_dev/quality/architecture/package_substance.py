@@ -14,7 +14,7 @@ from bijux_proteomics_intelligence.governance.charter import (
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceModuleClassification,
 )
-from bijux_proteomics_knowledge.charter import (
+from bijux_proteomics_knowledge.governance.charter import (
     DEFAULT_KNOWLEDGE_MODULE_AUDIT,
     KnowledgeModuleClassification,
 )
@@ -151,7 +151,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
         maximum_thin_module_count=3,
         evidence_locator=(
             "packages/bijux-proteomics-knowledge/src/"
-            "bijux_proteomics_knowledge/charter.py"
+            "bijux_proteomics_knowledge/governance/charter.py"
         ),
     ),
     "bijux-proteomics-lab": _PackageSubstanceExpectation(

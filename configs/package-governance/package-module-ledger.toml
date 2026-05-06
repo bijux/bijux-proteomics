@@ -4,7 +4,7 @@
 [guard]
 min_owner_logic_module_count = 391
 max_compatibility_surface_count = 4
-max_import_glue_module_count = 223
+max_import_glue_module_count = 231
 max_dead_weight_module_count = 3
 
 [[module]]
@@ -7521,14 +7521,6 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/charter.py"
-module_import_path = "bijux_proteomics_knowledge.charter"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/__init__.py"
 module_import_path = "bijux_proteomics_knowledge.contracts"
 module_kind = "import_glue"
@@ -7545,6 +7537,22 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.governance"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py"
+module_import_path = "bijux_proteomics_knowledge.governance.charter"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/__init__.py"
 module_import_path = "bijux_proteomics_knowledge.memory"
 module_kind = "import_glue"
@@ -7553,40 +7561,72 @@ workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py"
-module_import_path = "bijux_proteomics_knowledge.memory.claims"
-module_kind = "owner_logic"
-public_definition_count = 37
-workspace_import_root_count = 2
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/integrity/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.memory.integrity"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py"
-module_import_path = "bijux_proteomics_knowledge.memory.evidence"
-module_kind = "owner_logic"
-public_definition_count = 76
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/graph.py"
-module_import_path = "bijux_proteomics_knowledge.memory.graph"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/integrity/graph.py"
+module_import_path = "bijux_proteomics_knowledge.memory.integrity.graph"
 module_kind = "owner_logic"
 public_definition_count = 12
 workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/ingestion.py"
-module_import_path = "bijux_proteomics_knowledge.memory.ingestion"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.memory.models"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
+module_import_path = "bijux_proteomics_knowledge.memory.models.claims"
+module_kind = "owner_logic"
+public_definition_count = 37
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
+module_import_path = "bijux_proteomics_knowledge.memory.models.evidence"
+module_kind = "owner_logic"
+public_definition_count = 76
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/normalization/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.memory.normalization"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/normalization/ingestion.py"
+module_import_path = "bijux_proteomics_knowledge.memory.normalization.ingestion"
 module_kind = "owner_logic"
 public_definition_count = 7
 workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/resolution.py"
-module_import_path = "bijux_proteomics_knowledge.memory.resolution"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/reconciliation/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.memory.reconciliation"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py"
+module_import_path = "bijux_proteomics_knowledge.memory.reconciliation.resolution"
 module_kind = "owner_logic"
 public_definition_count = 24
 workspace_import_root_count = 2
@@ -7601,91 +7641,115 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/benchmarks.py"
-module_import_path = "bijux_proteomics_knowledge.references.benchmarks"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/citations.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.citations"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/briefings.py"
-module_import_path = "bijux_proteomics_knowledge.references.briefings"
-module_kind = "owner_logic"
-public_definition_count = 3
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/citations.py"
-module_import_path = "bijux_proteomics_knowledge.references.citations"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/contexts.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.contexts"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/contexts.py"
-module_import_path = "bijux_proteomics_knowledge.references.contexts"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/corpora.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.corpora"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/corpora.py"
-module_import_path = "bijux_proteomics_knowledge.references.corpora"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/literature.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.literature"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/literature.py"
-module_import_path = "bijux_proteomics_knowledge.references.literature"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/narratives.py"
-module_import_path = "bijux_proteomics_knowledge.references.narratives"
-module_kind = "owner_logic"
-public_definition_count = 2
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/ontologies.py"
-module_import_path = "bijux_proteomics_knowledge.references.ontologies"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/ontologies.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.ontologies"
 module_kind = "owner_logic"
 public_definition_count = 3
 workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/problems.py"
-module_import_path = "bijux_proteomics_knowledge.references.problems"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/problems.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.problems"
 module_kind = "owner_logic"
 public_definition_count = 2
 workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/rules.py"
-module_import_path = "bijux_proteomics_knowledge.references.rules"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/grounding/rules.py"
+module_import_path = "bijux_proteomics_knowledge.references.grounding.rules"
 module_kind = "owner_logic"
 public_definition_count = 6
 workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflow_queries.py"
-module_import_path = "bijux_proteomics_knowledge.references.workflow_queries"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/public.py"
+module_import_path = "bijux_proteomics_knowledge.references.public"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/__init__.py"
+module_import_path = "bijux_proteomics_knowledge.references.workflows"
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/benchmarks.py"
+module_import_path = "bijux_proteomics_knowledge.references.workflows.benchmarks"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/briefings.py"
+module_import_path = "bijux_proteomics_knowledge.references.workflows.briefings"
+module_kind = "owner_logic"
+public_definition_count = 3
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/lookups.py"
+module_import_path = "bijux_proteomics_knowledge.references.workflows.lookups"
 module_kind = "owner_logic"
 public_definition_count = 4
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/narratives.py"
+module_import_path = "bijux_proteomics_knowledge.references.workflows.narratives"
+module_kind = "owner_logic"
+public_definition_count = 2
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
@@ -7737,6 +7801,22 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/tests/governance/test_charter.py"
+module_import_path = "tests.bijux_proteomics_knowledge.governance.test_charter"
+module_kind = "test_only_helper"
+public_definition_count = 4
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/tests/memory/conftest.py"
+module_import_path = "tests.bijux_proteomics_knowledge.memory.conftest"
+module_kind = "test_only_helper"
+public_definition_count = 1
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/tests/memory/test_claims.py"
 module_import_path = "tests.bijux_proteomics_knowledge.memory.test_claims"
 module_kind = "test_only_helper"
@@ -7774,14 +7854,6 @@ module_import_path = "tests.bijux_proteomics_knowledge.package.test_foundation_p
 module_kind = "test_only_helper"
 public_definition_count = 1
 workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/tests/package/test_package_charter.py"
-module_import_path = "tests.bijux_proteomics_knowledge.package.test_package_charter"
-module_kind = "test_only_helper"
-public_definition_count = 4
-workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
@@ -7925,6 +7997,14 @@ module_path = "packages/bijux-proteomics-knowledge/tests/references/test_referen
 module_import_path = "tests.bijux_proteomics_knowledge.references.test_references_rules"
 module_kind = "test_only_helper"
 public_definition_count = 3
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/tests/reviews/conftest.py"
+module_import_path = "tests.bijux_proteomics_knowledge.reviews.conftest"
+module_kind = "test_only_helper"
+public_definition_count = 4
 workspace_import_root_count = 1
 
 [[module]]

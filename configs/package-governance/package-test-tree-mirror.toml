@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 48
+min_total_mirrored_owner_family_count = 49
 max_total_missing_test_family_count = 28
 max_total_flat_test_module_count = 158
 
@@ -62,9 +62,9 @@ flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-source_owner_families = ["contracts", "memory", "references", "reviews"]
-test_families = ["contracts", "memory", "package", "references", "reviews"]
-mirrored_owner_families = ["contracts", "memory", "references", "reviews"]
+source_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+test_families = ["contracts", "governance", "memory", "package", "references", "reviews"]
+mirrored_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
 missing_test_families = []
 extra_test_families = ["package"]
 flat_test_module_count = 0

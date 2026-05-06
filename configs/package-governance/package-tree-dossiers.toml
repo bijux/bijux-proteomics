@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 76
+min_total_owner_domain_count = 77
 max_total_compatibility_surface_count = 4
 min_total_excluded_responsibility_count = 29
 
@@ -57,8 +57,8 @@ excluded_responsibilities = ["canonical scientific entity definitions or parsing
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 import_root = "bijux_proteomics_knowledge"
-owner_domains = ["contracts", "memory", "references", "reviews"]
-public_modules = ["charter"]
+owner_domains = ["contracts", "governance", "memory", "references", "reviews"]
+public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
 

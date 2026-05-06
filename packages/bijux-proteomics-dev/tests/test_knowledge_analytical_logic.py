@@ -27,7 +27,7 @@ def test_knowledge_analytical_logic_stays_in_governed_hotspots() -> None:
     assert any(
         identifier == "score_evidence_record"
         for module in report
-        if module.module_path == "memory/evidence.py"
+        if module.module_path == "memory/models/evidence.py"
         for identifier in module.matched_identifiers
     )
 

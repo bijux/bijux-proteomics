@@ -6,8 +6,8 @@ from pathlib import Path
 import tomllib
 from typing import Any
 
-from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
-from bijux_proteomics_knowledge.references.workflow_queries import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_manifest,
 )
 from bijux_proteomics_dev.quality.package_graph import load_workspace_packages

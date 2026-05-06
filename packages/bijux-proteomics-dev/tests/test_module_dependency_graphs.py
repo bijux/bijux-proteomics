@@ -37,4 +37,4 @@ def test_module_dependency_graph_tracks_live_internal_and_workspace_edges() -> N
         target.startswith("bijux_proteomics")
         for target in runtime_by_module["bijux_proteomics_runtime.runs.manager"].outgoing_workspace_modules
     )
-    assert "bijux_proteomics_knowledge.references.benchmarks" in knowledge_by_module
+    assert "bijux_proteomics_knowledge.references.workflows.benchmarks" in knowledge_by_module
