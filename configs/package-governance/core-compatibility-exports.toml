@@ -2,35 +2,5 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.core_compatibility_exports
 
 [guard]
-max_compatibility_exports = 3
+max_compatibility_exports = 0
 require_root_level_only = true
-
-[[wrapper]]
-module_path = "liabilities.py"
-target_module_name = "bijux_proteomics.domain.liabilities"
-target_module_path = "domain/liabilities.py"
-source_consumer_count = 0
-source_consumer_distributions = []
-source_consumer_modules = []
-test_consumer_count = 1
-test_consumer_modules = ["packages/bijux-proteomics-core/tests/domain/test_domain_modules.py"]
-
-[[wrapper]]
-module_path = "search_adapters.py"
-target_module_name = "bijux_proteomics.identification.search_adapters"
-target_module_path = "identification/search_adapters.py"
-source_consumer_count = 1
-source_consumer_distributions = ["bijux-proteomics-runtime"]
-source_consumer_modules = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/workflow_plans.py"]
-test_consumer_count = 11
-test_consumer_modules = ["packages/bijux-proteomics-core/tests/identification/test_external_engine_disagreement_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_comet_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_conformance_matrix_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_diann_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_maxquant_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_msfragger_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_parameter_parsing_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_sage_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_adapter_spectronaut_surface.py", "packages/bijux-proteomics-core/tests/identification/test_search_merge_compatibility_surface.py", "packages/bijux-proteomics-runtime/tests/test_workflow_plans_surface.py"]
-
-[[wrapper]]
-module_path = "workflow_blueprint.py"
-target_module_name = "bijux_proteomics.workflow.blueprint"
-target_module_path = "workflow/blueprint.py"
-source_consumer_count = 0
-source_consumer_distributions = []
-source_consumer_modules = []
-test_consumer_count = 0
-test_consumer_modules = []

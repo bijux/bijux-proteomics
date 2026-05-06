@@ -741,7 +741,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.plans"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.qc", "bijux_proteomics.search_adapters", "bijux_proteomics_foundation"]
+outgoing_workspace_modules = ["bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.study.qc", "bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.public"

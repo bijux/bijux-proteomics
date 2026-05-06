@@ -21,8 +21,8 @@ def test_package_module_ledger_classifies_owner_wrapper_and_test_modules() -> No
         "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/__init__.py"
     ].module_kind == "root_export_surface"
     assert by_path[
-        "packages/bijux-proteomics-core/src/bijux_proteomics/liabilities.py"
-    ].module_kind == "compatibility_surface"
+        "packages/bijux-proteomics-core/src/bijux_proteomics/governance/charter.py"
+    ].module_kind == "owner_logic"
     assert by_path[
         "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
     ].module_kind == "owner_logic"

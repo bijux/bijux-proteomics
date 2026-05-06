@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 77
-max_total_compatibility_surface_count = 4
+min_total_owner_domain_count = 78
+max_total_compatibility_surface_count = 0
 min_total_excluded_responsibility_count = 29
 
 [[package]]
@@ -33,9 +33,9 @@ excluded_responsibilities = ["program lifecycle and gate logic", "candidate rank
 [[package]]
 distribution_name = "bijux-proteomics-core"
 import_root = "bijux_proteomics"
-owner_domains = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study", "workflow"]
-public_modules = ["charter", "cli", "exceptions", "liabilities", "protein_family_evidence_graph", "proteoform_identity", "qc", "search_adapters", "workflow_blueprint"]
-compatibility_surfaces = ["cli", "liabilities", "search_adapters", "workflow_blueprint"]
+owner_domains = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "governance", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study", "workflow"]
+public_modules = []
+compatibility_surfaces = []
 excluded_responsibilities = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
 
 [[package]]

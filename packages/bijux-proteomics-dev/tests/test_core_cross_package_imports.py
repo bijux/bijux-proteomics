@@ -30,7 +30,7 @@ def test_core_cross_package_import_report_tracks_live_edges() -> None:
 
     assert CORE_CROSS_PACKAGE_IMPORTS_PATH.exists()
     assert "execution/runtime_adapter.py" in importers
-    assert "interfaces/cli/app.py" in importers
+    assert "workflow/runtime_bundles.py" in importers
     assert "ptm/review.py" in importers
     assert owner_counts["bijux-proteomics-runtime"] == report.guard.max_runtime_edges
     assert (

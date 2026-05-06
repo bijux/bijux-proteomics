@@ -16,7 +16,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_dev.api.core_compatibility_exports"
 outgoing_internal_modules = ["bijux_proteomics_dev.api.foundation_root_consumers"]
-outgoing_workspace_modules = ["bijux_proteomics.charter"]
+outgoing_workspace_modules = ["bijux_proteomics.governance.charter"]
 
 [[module]]
 module_name = "bijux_proteomics_dev.api.core_cross_package_imports"

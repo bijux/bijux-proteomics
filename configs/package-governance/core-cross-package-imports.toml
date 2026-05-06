@@ -38,12 +38,6 @@ imported_module_name = "bijux_proteomics_intelligence.reviews.pathways"
 imported_symbols = ["*"]
 
 [[import]]
-importer_module_path = "interfaces/cli/app.py"
-owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.workflows.plans"
-imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
-
-[[import]]
 importer_module_path = "lab/operations.py"
 owner_distribution = "bijux-proteomics-lab"
 imported_module_name = "bijux_proteomics_lab.reconciliation"
@@ -60,3 +54,9 @@ importer_module_path = "ptm/review.py"
 owner_distribution = "bijux-proteomics-lab"
 imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
 imported_symbols = ["build_ptm_lab_validation_packet"]
+
+[[import]]
+importer_module_path = "workflow/runtime_bundles.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.workflows.plans"
+imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
