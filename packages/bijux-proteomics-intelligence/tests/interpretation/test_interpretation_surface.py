@@ -147,6 +147,11 @@ def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surfac
         "contaminant findings explain technical risk and sample quality, not biological mechanism",
         "treat acquisition-artifact language as operator guidance until orthogonal biological evidence agrees",
     )
+    assert any(
+        action.action_code == "recalibrate-mass-accuracy"
+        and action.required_before_progression
+        for action in artifacts.operator_actions
+    )
 
 
 def test_differential_interpretation_and_theme_extraction_surface_signal() -> None:

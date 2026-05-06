@@ -31,6 +31,17 @@ class ContaminantArtifactFinding(JsonModel):
     suggested_action: str = Field(..., min_length=1)
 
 
+class QcOperatorAction(JsonModel):
+    """Concrete operator action linked to one or more QC-derived findings."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    action_code: str = Field(..., min_length=1)
+    summary: str = Field(..., min_length=1)
+    trigger_finding_codes: tuple[str, ...] = Field(default_factory=tuple)
+    required_before_progression: bool = Field(default=True)
+
+
 class ContaminantArtifactIntelligence(JsonModel):
     """Interpretation of likely contamination or acquisition artifacts."""
 
@@ -42,7 +53,65 @@ class ContaminantArtifactIntelligence(JsonModel):
         InterpretationClaimScope.ADVISORY_ONLY
     )
     overclaim_guardrails: tuple[str, ...] = Field(default_factory=tuple)
+    operator_actions: tuple[QcOperatorAction, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
+
+
+def _build_qc_operator_actions(
+    findings: tuple[ContaminantArtifactFinding, ...],
+) -> tuple[QcOperatorAction, ...]:
+    actions: list[QcOperatorAction] = []
+    finding_codes = {finding.code for finding in findings}
+    if "contaminant-burden" in finding_codes:
+        actions.append(
+            QcOperatorAction(
+                action_code="inspect-cleanup-and-carryover-controls",
+                summary=(
+                    "inspect cleanup workflow, wash steps, and carryover controls before trusting downstream biology"
+                ),
+                trigger_finding_codes=("contaminant-burden",),
+            )
+        )
+    if "digestion-specificity-loss" in finding_codes:
+        actions.append(
+            QcOperatorAction(
+                action_code="review-digestion-conditions",
+                summary=(
+                    "review digestion chemistry and protease setup before treating peptide-level evidence as stable"
+                ),
+                trigger_finding_codes=("digestion-specificity-loss",),
+            )
+        )
+    if "mass-calibration-drift" in finding_codes:
+        actions.append(
+            QcOperatorAction(
+                action_code="recalibrate-mass-accuracy",
+                summary=(
+                    "recalibrate instrument mass accuracy and verify precursor matching before progression"
+                ),
+                trigger_finding_codes=("mass-calibration-drift",),
+            )
+        )
+    if "low-identification-rate" in finding_codes:
+        actions.append(
+            QcOperatorAction(
+                action_code="audit-search-and-acquisition-match",
+                summary=(
+                    "audit database choice, search settings, and acquisition quality before relying on identification outcomes"
+                ),
+                trigger_finding_codes=("low-identification-rate",),
+            )
+        )
+    if not actions:
+        actions.append(
+            QcOperatorAction(
+                action_code="continue-biological-interpretation",
+                summary="qc surface does not currently demand corrective operator intervention",
+                trigger_finding_codes=("no-major-artifact",),
+                required_before_progression=False,
+            )
+        )
+    return tuple(actions)
 
 
 def interpret_contaminant_artifacts(
@@ -116,13 +185,15 @@ def interpret_contaminant_artifacts(
                 suggested_action="continue with biological interpretation",
             )
         )
+    finalized_findings = tuple(findings)
     return ContaminantArtifactIntelligence(
         run_id=run_report.run_id,
-        findings=tuple(findings),
+        findings=finalized_findings,
         overclaim_guardrails=(
             "contaminant findings explain technical risk and sample quality, not biological mechanism",
             "treat acquisition-artifact language as operator guidance until orthogonal biological evidence agrees",
         ),
+        operator_actions=_build_qc_operator_actions(finalized_findings),
         interpretation_summary=findings[0].summary,
     )
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 from bijux_proteomics_intelligence.interpretation.contaminants import (
     ContaminantArtifactFinding,
     ContaminantArtifactIntelligence,
+    QcOperatorAction,
     extract_contaminant_theme,
     interpret_contaminant_artifacts,
 )
@@ -95,6 +96,7 @@ __all__ = [
     "PtmInterpretationReport",
     "PtmInterpretationSite",
     "QuantQcEvidenceIntegrationReport",
+    "QcOperatorAction",
     "RankedEnrichmentEntry",
     "RankedEnrichmentReport",
     "RankedEntityScore",
