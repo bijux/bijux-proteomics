@@ -548,42 +548,6 @@ class ClosedLoopPlan(JsonModel):
     )
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class LabExecutionRequest(JsonModel):
     """Explicit handoff request from computational review into lab execution."""
 
@@ -614,28 +578,6 @@ class LabExecutionRequest(JsonModel):
     ready_for_lab_review: bool = Field(
         ..., description="Whether the request is coherent for lab review."
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class DependencyCycleReport(JsonModel):
@@ -683,10 +625,6 @@ class DependencyCriticalPath(JsonModel):
     path_length: int = Field(
         default=0, ge=0, description="Number of assays in the critical path."
     )
-
-
-
-
 
 
 class PlanValidationIssue(JsonModel):
@@ -1364,56 +1302,6 @@ def build_review_risk_profile(
         triangulation_score=round(triangulation_score, 4),
         risk_level=level,
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def validate_experiment_plan(plan: ExperimentPlan) -> list[PlanValidationIssue]:

@@ -45,7 +45,9 @@ def test_evaluate_lab_artifact_with_registry_flags_unknown_kind() -> None:
     assert "no schema contract registered" in report.notes[0]
 
 
-def test_build_lab_artifact_upgrade_advisory_recommends_upgrade_for_old_schema() -> None:
+def test_build_lab_artifact_upgrade_advisory_recommends_upgrade_for_old_schema() -> (
+    None
+):
     advisory = build_lab_artifact_upgrade_advisory(
         DocumentSchema(schema_version="0.9.0", created_by="bijux-proteomics-lab")
     )

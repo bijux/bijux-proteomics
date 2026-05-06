@@ -35,7 +35,11 @@ from bijux_proteomics_lab.planning.assays import (
     build_review_packet,
 )
 from bijux_proteomics_lab.planning.priorities import prioritize_next_assays
-from bijux_proteomics_lab.planning.scheduling import LabCapacity, compare_schedule_scenarios
+from bijux_proteomics_lab.planning.scheduling import (
+    LabCapacity,
+    compare_schedule_scenarios,
+)
+
 
 class HypothesisFalsificationPlan(JsonModel):
     """Plan ranking assays by hypothesis-falsification value."""
@@ -51,6 +55,7 @@ class HypothesisFalsificationPlan(JsonModel):
     rationale: list[str] = Field(
         default_factory=list, description="Rationale notes for assay ranking."
     )
+
 
 class AssayPortfolioBalanceReport(JsonModel):
     """Coverage and concentration report across assay families."""
@@ -74,6 +79,7 @@ class AssayPortfolioBalanceReport(JsonModel):
         default_factory=list, description="Portfolio balance commentary."
     )
 
+
 class GateCoverageGapReport(JsonModel):
     """Report of review-gate coverage and uncovered gates."""
 
@@ -90,6 +96,7 @@ class GateCoverageGapReport(JsonModel):
         default_factory=list, description="Coverage interpretation notes."
     )
 
+
 class AssayContradictionPressure(JsonModel):
     """Contradiction pressure score for each assay in a plan."""
 
@@ -102,6 +109,7 @@ class AssayContradictionPressure(JsonModel):
     rationale: list[str] = Field(
         default_factory=list, description="Pressure rationale notes."
     )
+
 
 class OrthogonalConfirmationPlan(JsonModel):
     """Recommendation for orthogonal confirmation assays."""
@@ -119,6 +127,7 @@ class OrthogonalConfirmationPlan(JsonModel):
         description="Assays suggested for orthogonal confirmation.",
     )
 
+
 class ConflictResolutionPlan(JsonModel):
     """Assay recommendation plan for resolving evidence conflicts."""
 
@@ -132,6 +141,7 @@ class ConflictResolutionPlan(JsonModel):
     notes: list[str] = Field(
         default_factory=list, description="Human-readable plan notes."
     )
+
 
 class UncertaintyReductionPlan(JsonModel):
     """Assay plan focused on reducing decision uncertainty."""
@@ -155,6 +165,7 @@ class UncertaintyReductionPlan(JsonModel):
         default_factory=list, description="Plan notes for reviewers."
     )
 
+
 class NextBestExperiment(JsonModel):
     """Single next-best experiment recommendation."""
 
@@ -171,6 +182,7 @@ class NextBestExperiment(JsonModel):
     rationale: list[str] = Field(
         default_factory=list, description="Short rationale for recommendation."
     )
+
 
 class OrthogonalPolicy(JsonModel):
     """Policy configuration for orthogonal confirmation planning."""
@@ -196,6 +208,7 @@ class OrthogonalPolicy(JsonModel):
         description="Modalities expected before skipping orthogonal confirmation.",
     )
 
+
 class ConflictAssayPolicy(JsonModel):
     """Policy for selecting assays to resolve conflicting evidence."""
 
@@ -213,6 +226,7 @@ class ConflictAssayPolicy(JsonModel):
     contradiction_weight: float = Field(
         default=0.3, ge=0.0, le=1.0, description="Weight for contradiction burden."
     )
+
 
 def assess_gate_coverage_gaps(plan: ExperimentPlan) -> GateCoverageGapReport:
     """Assess whether review queue gates are covered by planned batches."""
@@ -232,6 +246,7 @@ def assess_gate_coverage_gaps(plan: ExperimentPlan) -> GateCoverageGapReport:
         uncovered_gates=uncovered,
         notes=notes,
     )
+
 
 def map_assay_contradiction_pressure(
     *,
@@ -260,6 +275,7 @@ def map_assay_contradiction_pressure(
             )
         )
     return sorted(rows, key=lambda item: item.pressure_score, reverse=True)
+
 
 def recommend_orthogonal_confirmation(
     program: ProgramSpec,
@@ -296,6 +312,7 @@ def recommend_orthogonal_confirmation(
         suggested_assay_ids=suggested if required else [],
     )
 
+
 def plan_conflict_resolution_assays(
     program: ProgramSpec,
     bundle: EvidenceBundle,
@@ -328,6 +345,7 @@ def plan_conflict_resolution_assays(
         ],
     )
 
+
 def plan_uncertainty_reduction_assays(
     program: ProgramSpec,
     bundle: EvidenceBundle,
@@ -353,6 +371,7 @@ def plan_uncertainty_reduction_assays(
         residual_uncertainty=residual_uncertainty,
         notes=notes,
     )
+
 
 def recommend_next_best_experiment(
     program: ProgramSpec,
@@ -388,6 +407,7 @@ def recommend_next_best_experiment(
         expected_information_gain=top.score,
         rationale=rationale or ["highest ranked by information-gain scoring"],
     )
+
 
 def recommend_next_cycle_from_outcome(
     program: ProgramSpec,
@@ -459,6 +479,7 @@ def recommend_next_cycle_from_outcome(
         }
     )
 
+
 def plan_hypothesis_falsification_assays(
     *,
     hypothesis: str,
@@ -503,6 +524,7 @@ def plan_hypothesis_falsification_assays(
         ],
     )
 
+
 def summarize_assay_portfolio_balance(
     plan: ExperimentPlan,
 ) -> AssayPortfolioBalanceReport:
@@ -537,6 +559,7 @@ def summarize_assay_portfolio_balance(
         orthogonal_coverage_ready=orthogonal_coverage_ready,
         notes=notes,
     )
+
 
 def recommend_next_cycle(
     program: ProgramSpec,

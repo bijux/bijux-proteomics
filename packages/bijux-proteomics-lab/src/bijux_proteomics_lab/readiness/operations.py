@@ -216,8 +216,7 @@ def build_operational_readiness_report(
     blocking_provenance_gaps = {
         signal.artifact_id
         for signal in provenance_readiness
-        if not signal.lineage_complete
-        and signal.severity is ReadinessSeverity.BLOCKING
+        if not signal.lineage_complete and signal.severity is ReadinessSeverity.BLOCKING
     }
     weak_evidence_ids = sorted(
         signal.evidence_id
@@ -231,12 +230,16 @@ def build_operational_readiness_report(
     risk_notes.extend(material_report.notes)
     if missing_control_ids:
         missing_controls = ", ".join(missing_control_ids)
-        risk_notes.append(f"required controls are missing for execution: {missing_controls}")
+        risk_notes.append(
+            f"required controls are missing for execution: {missing_controls}"
+        )
     for signal in provenance_readiness:
         if signal.lineage_complete:
             continue
         missing_fields = (
-            ", ".join(signal.missing_fields) if signal.missing_fields else "unknown fields"
+            ", ".join(signal.missing_fields)
+            if signal.missing_fields
+            else "unknown fields"
         )
         risk_notes.append(
             f"provenance is incomplete for {signal.artifact_id}: {missing_fields}"
@@ -244,8 +247,13 @@ def build_operational_readiness_report(
     for signal in evidence_readiness:
         if signal.supports_execution and signal.confidence >= 0.6:
             continue
-        issue_summary = signal.issue_summary or "evidence support is too weak for irreversible spend"
-        risk_notes.append(f"{signal.evidence_id} remains weak for execution: {issue_summary}")
+        issue_summary = (
+            signal.issue_summary
+            or "evidence support is too weak for irreversible spend"
+        )
+        risk_notes.append(
+            f"{signal.evidence_id} remains weak for execution: {issue_summary}"
+        )
     if understaffed_roles:
         risk_notes.append(
             "understaffed roles block execution: " + ", ".join(understaffed_roles)

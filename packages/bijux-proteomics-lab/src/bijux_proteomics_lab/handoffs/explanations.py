@@ -253,7 +253,8 @@ def refuse_irresponsible_assay_handoff(
                 ),
                 *(
                     ["batch stays unavailable for execution scheduling"]
-                    if executable_plan.blocked_by or not executable_plan.ready_for_execution
+                    if executable_plan.blocked_by
+                    or not executable_plan.ready_for_execution
                     else []
                 ),
             }

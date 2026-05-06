@@ -101,13 +101,11 @@ def _planning_fixture(name: str) -> dict[str, object]:
         dict[str, object],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "planning"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "planning" / name
             ).read_text(encoding="utf-8")
         ),
     )
+
 
 def test_plan_hypothesis_falsification_assays_prioritizes_counter_assays() -> None:
     plan = plan_hypothesis_falsification_assays(
@@ -128,6 +126,7 @@ def test_plan_hypothesis_falsification_assays_prioritizes_counter_assays() -> No
     )
 
     assert plan.prioritized_assay_ids[0] == "a1"
+
 
 def test_summarize_assay_portfolio_balance_flags_concentration() -> None:
     plan = ExperimentPlan(
@@ -160,6 +159,7 @@ def test_summarize_assay_portfolio_balance_flags_concentration() -> None:
     assert report.concentration_ratio >= 0.7
     assert report.orthogonal_coverage_ready is False
 
+
 def test_plan_material_reservations_marks_infeasible_allocations() -> None:
     plan = ExperimentPlan(
         program_id="prog-mat",
@@ -189,6 +189,7 @@ def test_plan_material_reservations_marks_infeasible_allocations() -> None:
     assert reservations[0].feasible is False
     assert reservations[0].reserved_units == 4.0
 
+
 def test_derive_lab_execution_directive_holds_on_technical_failure() -> None:
     directive = derive_lab_execution_directive(
         ExperimentOutcome(
@@ -208,6 +209,7 @@ def test_derive_lab_execution_directive_holds_on_technical_failure() -> None:
     assert directive.decision is ProgressDecision.HOLD
     assert any("technical" in action for action in directive.immediate_actions)
 
+
 def test_assess_gate_coverage_gaps_reports_uncovered_queue_gates() -> None:
     plan = ExperimentPlan(
         program_id="prog-gate-gap",
@@ -226,6 +228,7 @@ def test_assess_gate_coverage_gaps_reports_uncovered_queue_gates() -> None:
     report = assess_gate_coverage_gaps(plan)
 
     assert report.uncovered_gates == ["gate-b"]
+
 
 def test_map_assay_contradiction_pressure_orders_highest_pressure_first() -> None:
     rows = map_assay_contradiction_pressure(
@@ -247,6 +250,7 @@ def test_map_assay_contradiction_pressure_orders_highest_pressure_first() -> Non
     assert rows[0].assay_id == "a1"
     assert rows[0].pressure_score >= rows[1].pressure_score
 
+
 def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> None:
     profile = build_review_risk_profile(
         trust_score=0.45,
@@ -255,6 +259,7 @@ def test_build_review_risk_profile_classifies_high_risk_conflict_states() -> Non
     )
 
     assert profile.risk_level == "high"
+
 
 def test_build_review_packet_blocks_qc_warning_even_if_passed() -> None:
     program = create_program_spec(
@@ -285,6 +290,7 @@ def test_build_review_packet_blocks_qc_warning_even_if_passed() -> None:
 
     assert packet.ready_for_synthesis is False
     assert any("assay-qc" in finding for finding in packet.blocking_findings)
+
 
 def test_recommend_next_cycle_requests_redesign_after_failed_assay() -> None:
     program = create_program_spec(
@@ -356,6 +362,7 @@ def test_recommend_next_cycle_requests_redesign_after_failed_assay() -> None:
     assert plan.decision is ProgressDecision.REDESIGN
     assert plan.assay_backlog == ["primary-binding"]
 
+
 def test_recommend_next_cycle_redesigns_when_evidence_trust_is_too_low() -> None:
     program = create_program_spec(
         program_id="prog-2",
@@ -387,6 +394,7 @@ def test_recommend_next_cycle_redesigns_when_evidence_trust_is_too_low() -> None
 
     assert plan.decision is ProgressDecision.REDESIGN
     assert plan.evidence_trust_score < 0.5
+
 
 def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
     program = create_program_spec(
@@ -429,6 +437,7 @@ def test_recommend_orthogonal_confirmation_when_convergence_is_low() -> None:
 
     assert plan.required is True
     assert plan.suggested_assay_ids == ["assay-a"]
+
 
 def test_recommend_orthogonal_confirmation_honors_required_modalities_policy() -> None:
     program = create_program_spec(
@@ -491,6 +500,7 @@ def test_recommend_orthogonal_confirmation_honors_required_modalities_policy() -
 
     assert plan.required is True
 
+
 def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist() -> (
     None
 ):
@@ -544,6 +554,7 @@ def test_plan_conflict_resolution_assays_suggests_followup_when_conflicts_exist(
 
     assert plan.conflict_count > 0
     assert plan.suggested_assay_ids == ["assay-conflict"]
+
 
 def test_plan_conflict_resolution_assays_honors_policy_suggestion_limit() -> None:
     program = create_program_spec(
@@ -608,6 +619,7 @@ def test_plan_conflict_resolution_assays_honors_policy_suggestion_limit() -> Non
 
     assert len(plan.suggested_assay_ids) == 1
 
+
 def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
     program = create_program_spec(
         program_id="prog-ur",
@@ -635,6 +647,7 @@ def test_plan_uncertainty_reduction_assays_returns_ranked_backlog() -> None:
 
     assert "assay-ur-1" in plan.prioritized_assay_ids
     assert 0.0 <= plan.residual_uncertainty <= 1.0
+
 
 def test_recommend_next_best_experiment_respects_dependencies() -> None:
     program = create_program_spec(
@@ -678,6 +691,7 @@ def test_recommend_next_best_experiment_respects_dependencies() -> None:
     assert recommendation.assay_id == "assay-main"
     assert recommendation.prerequisite_assay_ids == ["assay-prereq"]
 
+
 def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None:
     program = create_program_spec(
         program_id="prog-outcome-hold",
@@ -710,6 +724,7 @@ def test_recommend_next_cycle_from_outcome_holds_on_technical_failures() -> None
     assert plan.decision is ProgressDecision.HOLD
     assert plan.assay_backlog == ["binding-assay"]
     assert plan.technical_failure_count == 1
+
 
 def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() -> None:
     program = create_program_spec(
@@ -744,6 +759,7 @@ def test_recommend_next_cycle_from_outcome_redesigns_on_biological_failures() ->
 
     assert plan.decision is ProgressDecision.REDESIGN
     assert plan.promotion_ready_count == 0
+
 
 def test_assess_material_constraints_flags_missing_sample_inventory() -> None:
     plan = ExperimentPlan(

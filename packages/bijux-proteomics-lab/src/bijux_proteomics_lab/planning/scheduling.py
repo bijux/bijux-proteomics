@@ -20,6 +20,7 @@ from bijux_proteomics_lab.planning.assays import (
     dependency_order,
 )
 
+
 class LabCapacity(JsonModel):
     """Available execution capacity for one planning cycle."""
 
@@ -33,6 +34,7 @@ class LabCapacity(JsonModel):
         description="Maximum assays that fit in one batch slot.",
     )
 
+
 class InstrumentAvailability(JsonModel):
     """Available time budget for one instrument or execution platform."""
 
@@ -41,6 +43,7 @@ class InstrumentAvailability(JsonModel):
     instrument_id: str = Field(..., min_length=1)
     available_days: float = Field(..., ge=0.0)
     supported_sample_kinds: list[str] = Field(default_factory=list)
+
 
 class ExecutionCapacityAdvisory(JsonModel):
     """Combined advisory for budget, cycle capacity, and instrument availability."""
@@ -56,6 +59,7 @@ class ExecutionCapacityAdvisory(JsonModel):
     practicality_score: float = Field(default=0.0, ge=0.0, le=1.0)
     notes: list[str] = Field(default_factory=list)
 
+
 class FamilyCapacity(JsonModel):
     """Capacity limits for one assay family in a cycle."""
 
@@ -63,6 +67,7 @@ class FamilyCapacity(JsonModel):
 
     family: AssayFamily = Field(..., description="Assay family.")
     max_assays: int = Field(..., ge=0, description="Maximum assays from this family.")
+
 
 class ScheduledBatch(JsonModel):
     """Batch assigned to a concrete lab cycle."""
@@ -76,6 +81,7 @@ class ScheduledBatch(JsonModel):
         default_factory=list,
         description="Assays deferred because of capacity limits.",
     )
+
 
 class ScheduledPlan(JsonModel):
     """Experiment plan after capacity-aware scheduling."""
@@ -92,6 +98,7 @@ class ScheduledPlan(JsonModel):
         description="Batches deferred to a later cycle.",
     )
 
+
 class ScheduleScenarioSummary(JsonModel):
     """Scenario summary for capacity scheduling sensitivity."""
 
@@ -105,6 +112,7 @@ class ScheduleScenarioSummary(JsonModel):
         ..., ge=0, description="Number of deferred assays."
     )
 
+
 class ScheduleScenarioComparison(JsonModel):
     """Comparison report across multiple scheduling scenarios."""
 
@@ -117,6 +125,7 @@ class ScheduleScenarioComparison(JsonModel):
     recommended_scenario_id: str | None = Field(
         default=None, description="Scenario with lowest deferred assay load."
     )
+
 
 class SchedulePressureReport(JsonModel):
     """Capacity pressure summary for a scheduled plan."""
@@ -137,6 +146,7 @@ class SchedulePressureReport(JsonModel):
         default=0, ge=0, description="Deferred assays due to capacity limits."
     )
 
+
 class MaterialFeasibilityPriority(JsonModel):
     """Batch prioritization signal based on material feasibility."""
 
@@ -152,6 +162,7 @@ class MaterialFeasibilityPriority(JsonModel):
     priority_score: float = Field(
         ..., ge=0.0, le=1.0, description="Material-feasibility priority score."
     )
+
 
 def schedule_experiment_plan(
     plan: ExperimentPlan,
@@ -179,6 +190,7 @@ def schedule_experiment_plan(
         scheduled_batches=scheduled_batches,
         unscheduled_batches=unscheduled_batches,
     )
+
 
 def build_execution_capacity_advisory(
     plan: ExperimentPlan,
@@ -267,6 +279,7 @@ def build_execution_capacity_advisory(
         notes=notes,
     )
 
+
 def schedule_with_family_capacity(
     plan: ExperimentPlan,
     capacity: LabCapacity,
@@ -304,6 +317,7 @@ def schedule_with_family_capacity(
         unscheduled_batches=unscheduled_batches,
     )
 
+
 def compare_schedule_scenarios(
     plan: ExperimentPlan,
     scenarios: list[LabCapacity],
@@ -333,6 +347,7 @@ def compare_schedule_scenarios(
         recommended_scenario_id=recommended,
     )
 
+
 def summarize_schedule_pressure(
     scheduled: ScheduledPlan,
     capacity: LabCapacity,
@@ -351,6 +366,7 @@ def summarize_schedule_pressure(
         assay_slot_utilization=max(0.0, min(utilization, 1.0)),
         deferred_assay_count=deferred,
     )
+
 
 def prioritize_batches_by_material_feasibility(
     plan: ExperimentPlan,

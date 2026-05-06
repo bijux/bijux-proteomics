@@ -6,4 +6,3 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab.lifecycle.progression import *  # noqa: F401,F403
-

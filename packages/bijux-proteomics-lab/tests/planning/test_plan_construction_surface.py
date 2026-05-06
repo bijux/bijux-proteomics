@@ -101,13 +101,11 @@ def _planning_fixture(name: str) -> dict[str, object]:
         dict[str, object],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "planning"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "planning" / name
             ).read_text(encoding="utf-8")
         ),
     )
+
 
 def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
     program = create_program_spec(
@@ -181,6 +179,7 @@ def test_plan_experiment_batches_prioritizes_blocking_assays() -> None:
     assert "structure" in plan.evidence_gaps
     assert AssayFamily.BIOPHYSICAL.value in plan.batches[0].batch_id
 
+
 def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
     program = create_program_spec(
         program_id="prog-1",
@@ -248,6 +247,7 @@ def test_build_review_packet_marks_failed_assays_as_blockers() -> None:
     ]
     assert packet.advancement_evidence.missing_evidence_kinds == []
 
+
 def test_build_lab_review_packet_bundle_carries_rationale_and_open_risks() -> None:
     program = create_program_spec(
         program_id="prog-review-bundle",
@@ -292,6 +292,7 @@ def test_build_lab_review_packet_bundle_carries_rationale_and_open_risks() -> No
     )
     assert packet_bundle.target_evidence_ids == ["lit-1"]
     assert "structure" in packet_bundle.unresolved_risks
+
 
 def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None:
     program = create_program_spec(
@@ -341,6 +342,7 @@ def test_build_advisory_assay_plan_stays_scientific_and_non_executable() -> None
         in plan.evidence_need_actions[0].wet_lab_actions
     )
 
+
 def test_build_executable_assay_plan_requires_operational_readiness() -> None:
     plan = ExperimentPlan(
         program_id="prog-exec",
@@ -376,6 +378,7 @@ def test_build_executable_assay_plan_requires_operational_readiness() -> None:
     assert "review gate pending: gate-a" in blocked.blocked_by
     assert "missing sample kind: protein" in blocked.blocked_by
     assert ready.instructions[0].instruction_id == "batch-exec:gate-binding"
+
 
 def test_build_lab_execution_request_preserves_review_evidence_and_instructions() -> (
     None
@@ -433,6 +436,7 @@ def test_build_lab_execution_request_preserves_review_evidence_and_instructions(
         "not enough decisive evidence for an irreversible decision"
     ]
     assert request.ready_for_lab_review is False
+
 
 def test_lab_surfaces_keep_advice_request_instruction_and_outcome_separate() -> None:
     program = create_program_spec(
@@ -540,6 +544,7 @@ def test_lab_surfaces_keep_advice_request_instruction_and_outcome_separate() -> 
     assert request.ready_for_lab_review is True
     assert outcome.assay_outcomes[0].assay_id == request.requested_assay_ids[0]
 
+
 def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
     executable_plan = ExecutableAssayPlan(
         program_id="prog-uncertainty",
@@ -557,6 +562,7 @@ def test_report_execution_plan_uncertainty_makes_blockers_explicit() -> None:
     assert "review gate pending: gate-a" in report.uncertainty_sources
     assert "open evidence gap: structure" in report.uncertainty_sources
     assert report.readiness_confidence < 1.0
+
 
 def test_build_workflow_batch_outline_separates_gate_and_support_assays() -> None:
     program = create_program_spec(
@@ -619,6 +625,7 @@ def test_build_workflow_batch_outline_separates_gate_and_support_assays() -> Non
     assert outline.review_gate_ids == ["review-pre-synthesis"]
     assert "structure" in outline.missing_evidence_needs
 
+
 def test_validate_experiment_plan_reports_duplicate_and_empty_batches() -> None:
     issues = validate_experiment_plan(
         ExperimentPlan(
@@ -637,6 +644,7 @@ def test_validate_experiment_plan_reports_duplicate_and_empty_batches() -> None:
     assert any(issue.code == "duplicate-batch-id" for issue in issues)
     assert any(issue.code == "empty-assay-batch" for issue in issues)
 
+
 def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:
     report = assess_dependency_integrity(
         ["a1", "a2"],
@@ -653,6 +661,7 @@ def test_assess_dependency_integrity_reports_unknown_and_self_edges() -> None:
     assert report.self_dependency_assay_ids == ["a1"]
     assert report.cycle_report.has_cycle is False
 
+
 def test_detect_dependency_cycle_reports_cycle_nodes() -> None:
     cycle_report = detect_dependency_cycle(
         ["a1", "a2", "a3"],
@@ -666,6 +675,7 @@ def test_detect_dependency_cycle_reports_cycle_nodes() -> None:
     assert cycle_report.has_cycle is True
     assert cycle_report.cycle_assay_ids == ["a1", "a2", "a3"]
 
+
 def test_dependency_order_ignores_invalid_edges_and_keeps_valid_prerequisites() -> None:
     ordered = dependency_order(
         ["a1", "a2", "a3"],
@@ -677,6 +687,7 @@ def test_dependency_order_ignores_invalid_edges_and_keeps_valid_prerequisites() 
     )
 
     assert ordered.index("a1") < ordered.index("a2")
+
 
 def test_dependency_critical_path_returns_longest_prerequisite_chain() -> None:
     critical = dependency_critical_path(
@@ -691,6 +702,7 @@ def test_dependency_critical_path_returns_longest_prerequisite_chain() -> None:
     assert critical.path_length == 3
     assert critical.ordered_assay_ids == ["a1", "a2", "a3"]
 
+
 def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) -> None:
     plan = ExperimentPlan(program_id="prog-2")
     plan.document_schema.trace_id = "trace-lab-1"
@@ -700,6 +712,7 @@ def test_experiment_plan_round_trips_with_serialization_helpers(tmp_path: Path) 
     restored = ExperimentPlan.load_json(path)
 
     assert restored.to_dict()["document_schema"]["trace_id"] == "trace-lab-1"
+
 
 def test_assay_family_priority_uses_scientific_execution_order() -> None:
     assert assay_family_priority(AssayFamily.BIOPHYSICAL) < assay_family_priority(

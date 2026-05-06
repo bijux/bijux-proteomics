@@ -439,7 +439,9 @@ def advance_assay_lifecycle(
             required_next_actions=[
                 "execute the targeted follow-up work and review outcomes"
             ],
-            audit_trail=tuple(audit_trail + ["terminal targeted follow-up stage reached"]),
+            audit_trail=tuple(
+                audit_trail + ["terminal targeted follow-up stage reached"]
+            ),
         )
 
     blockers = list(state.blocking_findings) + blocking_findings

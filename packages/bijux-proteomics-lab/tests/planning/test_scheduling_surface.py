@@ -101,13 +101,11 @@ def _planning_fixture(name: str) -> dict[str, object]:
         dict[str, object],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "planning"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "planning" / name
             ).read_text(encoding="utf-8")
         ),
     )
+
 
 def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressure() -> (
     None
@@ -154,6 +152,7 @@ def test_build_execution_capacity_advisory_combines_budget_and_instrument_pressu
     assert advisory.budget_remaining == 0.35
     assert advisory.practicality_score == 0.42
 
+
 def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     plan = ExperimentPlan(
         program_id="prog-1",
@@ -183,6 +182,7 @@ def test_schedule_experiment_plan_respects_batch_and_assay_capacity() -> None:
     assert scheduled.scheduled_batches[0].deferred_assay_ids == ["a3"]
     assert scheduled.unscheduled_batches == ["batch-2"]
 
+
 def test_summarize_schedule_pressure_reports_utilization_and_deferred_assays() -> None:
     plan = ExperimentPlan(
         program_id="prog-pressure",
@@ -204,6 +204,7 @@ def test_summarize_schedule_pressure_reports_utilization_and_deferred_assays() -
     assert report.cycle_id == "cycle-pressure"
     assert report.assay_slot_utilization == 1.0
     assert report.deferred_assay_count == 1
+
 
 def test_prioritize_batches_by_material_feasibility_promotes_ready_batches() -> None:
     plan = ExperimentPlan(
@@ -250,6 +251,7 @@ def test_prioritize_batches_by_material_feasibility_promotes_ready_batches() -> 
     assert ranked[0].batch_id == "batch-ready"
     assert ranked[1].material_ready is False
 
+
 def test_compare_schedule_scenarios_recommends_lowest_deferred_assay_load() -> None:
     plan = ExperimentPlan(
         program_id="prog-sim",
@@ -271,6 +273,7 @@ def test_compare_schedule_scenarios_recommends_lowest_deferred_assay_load() -> N
     )
 
     assert comparison.recommended_scenario_id == "relaxed"
+
 
 def test_schedule_with_family_capacity_respects_family_limits() -> None:
     plan = ExperimentPlan(
@@ -298,6 +301,7 @@ def test_schedule_with_family_capacity_respects_family_limits() -> None:
 
     assert scheduled.scheduled_batches[0].assay_ids == ["a1"]
     assert "a2" in scheduled.scheduled_batches[0].deferred_assay_ids
+
 
 def test_schedule_with_family_capacity_uses_per_assay_mapping() -> None:
     plan = ExperimentPlan(

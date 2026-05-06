@@ -32,13 +32,11 @@ def _readiness_fixture(name: str) -> dict[str, object]:
         dict[str, object],
         json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "fixtures"
-                / "readiness"
-                / name
+                Path(__file__).resolve().parents[1] / "fixtures" / "readiness" / name
             ).read_text(encoding="utf-8")
         ),
     )
+
 
 def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() -> None:
     fixture = _readiness_fixture("insufficient_material_follow_up.json")
@@ -50,7 +48,9 @@ def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() ->
         capacity,
         [
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         [
             CandidatePrioritySignal.model_validate(item)
@@ -72,7 +72,9 @@ def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() ->
         capacity=capacity,
         instrument_availability=[
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         reagent_inventory=[
             ReagentAvailability.model_validate(item)
@@ -91,9 +93,7 @@ def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() ->
         ],
         provenance_readiness=[
             ProvenanceReadinessSignal.model_validate(item)
-            for item in cast(
-                list[dict[str, object]], fixture["provenance_readiness"]
-            )
+            for item in cast(list[dict[str, object]], fixture["provenance_readiness"])
         ],
         evidence_readiness=[
             EvidenceReadinessSignal.model_validate(item)
@@ -114,6 +114,7 @@ def test_insufficient_material_fixture_blocks_readiness_and_follow_up_spend() ->
         for note in readiness_report.risk_notes
     )
 
+
 def test_contradictory_readiness_fixture_keeps_analytical_enthusiasm_non_executable() -> (
     None
 ):
@@ -126,7 +127,9 @@ def test_contradictory_readiness_fixture_keeps_analytical_enthusiasm_non_executa
         capacity,
         [
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         [
             CandidatePrioritySignal.model_validate(item)
@@ -148,7 +151,9 @@ def test_contradictory_readiness_fixture_keeps_analytical_enthusiasm_non_executa
         capacity=capacity,
         instrument_availability=[
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         reagent_inventory=[
             ReagentAvailability.model_validate(item)
@@ -167,9 +172,7 @@ def test_contradictory_readiness_fixture_keeps_analytical_enthusiasm_non_executa
         ],
         provenance_readiness=[
             ProvenanceReadinessSignal.model_validate(item)
-            for item in cast(
-                list[dict[str, object]], fixture["provenance_readiness"]
-            )
+            for item in cast(list[dict[str, object]], fixture["provenance_readiness"])
         ],
         evidence_readiness=[
             EvidenceReadinessSignal.model_validate(item)
@@ -184,5 +187,6 @@ def test_contradictory_readiness_fixture_keeps_analytical_enthusiasm_non_executa
     assert readiness_report.provenance_gap_ids == ["targeted-bundle-enthusiastic"]
     assert readiness_report.weak_evidence_ids == ["ev-enthusiastic-but-thin"]
     assert any(
-        "too thin" in note or "incomplete" in note for note in readiness_report.risk_notes
+        "too thin" in note or "incomplete" in note
+        for note in readiness_report.risk_notes
     )

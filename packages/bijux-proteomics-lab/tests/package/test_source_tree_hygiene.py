@@ -40,7 +40,9 @@ def test_lab_source_tree_excludes_bytecode_artifacts() -> None:
 
 def test_lab_tests_tree_uses_operational_family_boundaries() -> None:
     family_directories = {
-        path.name for path in LAB_TEST_ROOT.iterdir() if path.is_dir() and path.name != "fixtures"
+        path.name
+        for path in LAB_TEST_ROOT.iterdir()
+        if path.is_dir() and path.name != "fixtures"
     }
     flat_test_modules = sorted(
         path.relative_to(LAB_TEST_ROOT).as_posix()

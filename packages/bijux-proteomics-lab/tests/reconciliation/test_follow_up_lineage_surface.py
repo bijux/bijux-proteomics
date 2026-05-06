@@ -40,6 +40,7 @@ def _reconciliation_fixture(name: str) -> dict[str, object]:
         ),
     )
 
+
 def test_degraded_provenance_fixture_keeps_follow_up_non_executable_until_lineage_is_restored() -> (
     None
 ):
@@ -52,7 +53,9 @@ def test_degraded_provenance_fixture_keeps_follow_up_non_executable_until_lineag
         capacity,
         [
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         [
             CandidatePrioritySignal.model_validate(item)
@@ -74,7 +77,9 @@ def test_degraded_provenance_fixture_keeps_follow_up_non_executable_until_lineag
         capacity=capacity,
         instrument_availability=[
             InstrumentAvailability.model_validate(item)
-            for item in cast(list[dict[str, object]], fixture["instrument_availability"])
+            for item in cast(
+                list[dict[str, object]], fixture["instrument_availability"]
+            )
         ],
         reagent_inventory=[
             ReagentAvailability.model_validate(item)
@@ -93,9 +98,7 @@ def test_degraded_provenance_fixture_keeps_follow_up_non_executable_until_lineag
         ],
         provenance_readiness=[
             ProvenanceReadinessSignal.model_validate(item)
-            for item in cast(
-                list[dict[str, object]], fixture["provenance_readiness"]
-            )
+            for item in cast(list[dict[str, object]], fixture["provenance_readiness"])
         ],
         evidence_readiness=[
             EvidenceReadinessSignal.model_validate(item)
