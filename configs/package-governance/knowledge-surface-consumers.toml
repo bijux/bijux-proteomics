@@ -24,9 +24,9 @@ imported_symbols = ["BenchmarkManifest", "DEFAULT_BENCHMARK_MANIFESTS", "Knowled
 
 [[surface]]
 name = "bijux_proteomics_knowledge.references.workflows.briefings"
-consumer_count = 1
-consumer_distributions = ["bijux-proteomics-dev"]
-consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/knowledge/reference_quality.py"]
+consumer_count = 2
+consumer_distributions = ["bijux-proteomics-dev", "bijux-proteomics-intelligence"]
+consumer_modules = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/knowledge/reference_quality.py", "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/packets.py"]
 imported_symbols = ["build_workflow_reference_briefing", "list_workflow_reference_briefings"]
 
 [[surface]]

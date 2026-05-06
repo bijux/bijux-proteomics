@@ -12,7 +12,9 @@ def test_package_reopened_completion_claim_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_package_reopened_completion_claim_report_tracks_structural_reopenings() -> None:
+def test_package_reopened_completion_claim_report_tracks_structural_reopenings() -> (
+    None
+):
     report = build_package_reopened_completion_claim_report()
     by_package = {entry.distribution_name: entry for entry in report.entries}
 

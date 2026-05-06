@@ -93,7 +93,9 @@ def validate_package_broad_root_imports(
     package_limits: dict[str, int] = {}
     for entry in report.entries:
         package_counts[entry.distribution_name] = entry.package_broad_root_import_count
-        package_limits[entry.distribution_name] = entry.max_package_broad_root_import_count
+        package_limits[entry.distribution_name] = (
+            entry.max_package_broad_root_import_count
+        )
     for package_name, count in sorted(package_counts.items()):
         if count > package_limits[package_name]:
             failures.append(

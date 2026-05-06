@@ -9,7 +9,9 @@ from bijux_proteomics_dev.governance.dependencies.package_dependency_graph impor
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     build_package_dependency_policy_report,
 )
-from bijux_proteomics_dev.governance.support.workspace_inventory import workspace_package_names
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_package_names,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -77,7 +79,10 @@ def build_package_dependency_dossier_report() -> PackageDependencyDossierReport:
             actual_outbound_edges=tuple(sorted(actual_outbound[package_name])),
             actual_inbound_edges=tuple(sorted(actual_inbound[package_name])),
             unexpected_outbound_edges=tuple(
-                sorted(actual_outbound[package_name] - set(by_package[package_name].allowed_outbound_edges))
+                sorted(
+                    actual_outbound[package_name]
+                    - set(by_package[package_name].allowed_outbound_edges)
+                )
             ),
             rationale=by_package[package_name].rationale,
         )

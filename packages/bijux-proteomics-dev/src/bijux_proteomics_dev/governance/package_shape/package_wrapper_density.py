@@ -97,14 +97,20 @@ def validate_package_wrapper_density(
 
     report = report or build_package_wrapper_density_report()
     failures: list[str] = []
-    total_wrapper_module_count = sum(entry.wrapper_module_count for entry in report.entries)
+    total_wrapper_module_count = sum(
+        entry.wrapper_module_count for entry in report.entries
+    )
     average_wrapper_density = round(
         sum(entry.wrapper_density for entry in report.entries) / len(report.entries), 4
     )
     if total_wrapper_module_count > report.guard.max_total_wrapper_module_count:
-        failures.append("package wrapper-module count grew beyond the governed baseline")
+        failures.append(
+            "package wrapper-module count grew beyond the governed baseline"
+        )
     if average_wrapper_density > report.guard.max_average_wrapper_density:
-        failures.append("package average wrapper density grew beyond the governed baseline")
+        failures.append(
+            "package average wrapper density grew beyond the governed baseline"
+        )
     for entry in report.entries:
         if entry.wrapper_module_count > entry.max_wrapper_module_count:
             failures.append(

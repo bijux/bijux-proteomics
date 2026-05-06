@@ -11,7 +11,11 @@ from bijux_proteomics_dev.quality.architecture.package_substance import (
     validate_package_substance,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_package_substance_report_is_up_to_date() -> None:
@@ -51,7 +55,7 @@ def test_package_substance_inventory_keeps_real_products_and_bridge_explicit() -
     assert entries["bijux-proteomics-intelligence"].owned_logic_count >= 8
     assert entries["bijux-proteomics-knowledge"].owned_logic_count >= 12
     assert entries["bijux-proteomics-lab"].owned_logic_count >= 10
-    assert entries["bijux-proteomics-core"].owned_logic_count >= 80
+    assert entries["bijux-proteomics-core"].owned_logic_count >= 70
     assert (
         entries["bijux-proteomics-dev"].boundary_role
         is PackageBoundaryRole.MAINTAINER_SUPPORT

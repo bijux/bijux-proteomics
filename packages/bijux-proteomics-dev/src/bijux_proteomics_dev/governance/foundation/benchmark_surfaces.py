@@ -47,9 +47,7 @@ _FOUNDATION_BENCHMARK_TEST_PATH = (
 
 
 def _foundation_owner() -> BenchmarkOwnerEntry:
-    owners = {
-        entry.package_name: entry for entry in load_benchmark_owners(REPO_ROOT)
-    }
+    owners = {entry.package_name: entry for entry in load_benchmark_owners(REPO_ROOT)}
     return owners["bijux-proteomics-foundation"]
 
 
@@ -65,7 +63,10 @@ def build_foundation_benchmark_surfaces() -> tuple[FoundationBenchmarkSurface, .
     """Build the governed benchmark surfaces for foundation hot paths."""
 
     owner = _foundation_owner()
-    by_id = {definition.benchmark_id: definition for definition in _foundation_benchmark_artifacts()}
+    by_id = {
+        definition.benchmark_id: definition
+        for definition in _foundation_benchmark_artifacts()
+    }
     payload_shape = {
         "payload_record_count": 160,
         "nested_measurement_fields": 6,
@@ -96,7 +97,9 @@ def validate_foundation_benchmark_surfaces() -> tuple[str, ...]:
 
     owner = _foundation_owner()
     surfaces = build_foundation_benchmark_surfaces()
-    artifact_ids = {definition.benchmark_id for definition in _foundation_benchmark_artifacts()}
+    artifact_ids = {
+        definition.benchmark_id for definition in _foundation_benchmark_artifacts()
+    }
     failures: list[str] = []
 
     expected_ids = {
@@ -118,7 +121,9 @@ def validate_foundation_benchmark_surfaces() -> tuple[str, ...]:
                 f"{surface.benchmark_id} does not point at the declared foundation benchmark owner path"
             )
         if not (REPO_ROOT / surface.test_path).exists():
-            failures.append(f"{surface.benchmark_id} references missing benchmark test {surface.test_path}")
+            failures.append(
+                f"{surface.benchmark_id} references missing benchmark test {surface.test_path}"
+            )
         if surface.payload_record_count < 100:
             failures.append(
                 f"{surface.benchmark_id} no longer exercises a medium benchmark payload"
@@ -171,7 +176,9 @@ def run(check: bool = False) -> int:
             return 0
         print("foundation benchmark surfaces are stale; regenerate them")
         return 1
-    FOUNDATION_BENCHMARK_SURFACES_PATH.write_text(_toml_text(surfaces), encoding="utf-8")
+    FOUNDATION_BENCHMARK_SURFACES_PATH.write_text(
+        _toml_text(surfaces), encoding="utf-8"
+    )
     print(f"generated foundation benchmark surfaces for {len(surfaces)} cases")
     return 0
 

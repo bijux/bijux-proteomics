@@ -7,7 +7,11 @@ from pathlib import Path
 
 
 def _repo_root() -> Path:
-    return next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+    return next(
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+    )
 
 
 def test_release_docs_match_split_release_workflow_contract() -> None:

@@ -9,7 +9,11 @@ from bijux_proteomics_dev.quality.dependencies.dependency_boundaries import (
 )
 from bijux_proteomics_dev.quality.graphs.package_graph import WorkspacePackage
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def _package(*, name: str, external_dependencies: tuple[str, ...]) -> WorkspacePackage:

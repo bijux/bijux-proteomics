@@ -77,7 +77,8 @@ def build_package_docs_claim_proof_report() -> PackageDocsClaimProofReport:
     entries: list[PackageDocsClaimProofEntry] = []
     for package_name in workspace_package_names():
         docs_text = "\n".join(
-            path.read_text(encoding="utf-8").lower() for path in package_docs(package_name)
+            path.read_text(encoding="utf-8").lower()
+            for path in package_docs(package_name)
         )
         benchmark_claim_count = docs_text.count("benchmark")
         benchmark_proof_artifact_count = _proof_artifact_count(
@@ -153,20 +154,34 @@ def validate_package_docs_claim_proof(
     total_integrity_proof_artifact_count = sum(
         entry.integrity_proof_artifact_count for entry in report.entries
     )
-    if total_unproven_claim_kind_count > report.guard.max_total_unproven_claim_kind_count:
-        failures.append("doc claim-versus-proof gaps grew beyond the governed evidence baseline")
+    if (
+        total_unproven_claim_kind_count
+        > report.guard.max_total_unproven_claim_kind_count
+    ):
+        failures.append(
+            "doc claim-versus-proof gaps grew beyond the governed evidence baseline"
+        )
     if (
         total_benchmark_proof_artifact_count
         < report.guard.min_total_benchmark_proof_artifact_count
     ):
-        failures.append("benchmark proof artifacts dropped below the governed docs evidence baseline")
-    if total_replay_proof_artifact_count < report.guard.min_total_replay_proof_artifact_count:
-        failures.append("replay proof artifacts dropped below the governed docs evidence baseline")
+        failures.append(
+            "benchmark proof artifacts dropped below the governed docs evidence baseline"
+        )
+    if (
+        total_replay_proof_artifact_count
+        < report.guard.min_total_replay_proof_artifact_count
+    ):
+        failures.append(
+            "replay proof artifacts dropped below the governed docs evidence baseline"
+        )
     if (
         total_integrity_proof_artifact_count
         < report.guard.min_total_integrity_proof_artifact_count
     ):
-        failures.append("integrity proof artifacts dropped below the governed docs evidence baseline")
+        failures.append(
+            "integrity proof artifacts dropped below the governed docs evidence baseline"
+        )
     return tuple(failures)
 
 

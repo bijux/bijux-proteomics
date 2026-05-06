@@ -41,9 +41,7 @@ REQUIRED_SOURCE_OWNER_FAMILIES = tuple(
         )
     )
 )
-REQUIRED_TEST_FAMILIES = tuple(
-    sorted(REQUIRED_SOURCE_OWNER_FAMILIES + ("package",))
-)
+REQUIRED_TEST_FAMILIES = tuple(sorted(REQUIRED_SOURCE_OWNER_FAMILIES + ("package",)))
 IGNORED_SOURCE_FAMILIES = {"__pycache__", "governance"}
 IGNORED_TEST_FAMILIES = {"__pycache__", "fixtures"}
 
@@ -119,15 +117,23 @@ def build_lab_operational_ownership_report() -> LabOperationalOwnershipReport:
 
     unresolved_reasons: list[str] = []
     if source_owner_families != REQUIRED_SOURCE_OWNER_FAMILIES:
-        unresolved_reasons.append("source owner families drifted from the governed operational map")
+        unresolved_reasons.append(
+            "source owner families drifted from the governed operational map"
+        )
     if test_families != REQUIRED_TEST_FAMILIES:
-        unresolved_reasons.append("test families drifted from the governed operational mirror")
+        unresolved_reasons.append(
+            "test families drifted from the governed operational mirror"
+        )
     if flat_test_module_count != 0:
         unresolved_reasons.append("flat root test modules remain under tests/")
     if mirrored_owner_family_count != len(REQUIRED_SOURCE_OWNER_FAMILIES):
-        unresolved_reasons.append("not every operational source family is mirrored in tests/")
+        unresolved_reasons.append(
+            "not every operational source family is mirrored in tests/"
+        )
     if operational_value_module_count <= thin_abstraction_module_count:
-        unresolved_reasons.append("operational value modules no longer dominate compatibility facades")
+        unresolved_reasons.append(
+            "operational value modules no longer dominate compatibility facades"
+        )
 
     metrics = LabOperationalOwnershipMetrics(
         source_owner_families=source_owner_families,
@@ -162,7 +168,9 @@ def validate_lab_operational_ownership(
         report.metrics.operational_value_module_count
         < report.guard.min_operational_value_module_count
     ):
-        failures.append("lab operational value module count shrank below the governed baseline")
+        failures.append(
+            "lab operational value module count shrank below the governed baseline"
+        )
     if (
         report.metrics.thin_abstraction_module_count
         > report.guard.max_thin_abstraction_module_count
@@ -174,7 +182,9 @@ def validate_lab_operational_ownership(
 def _toml_text(report: LabOperationalOwnershipReport) -> str:
     metrics = report.metrics
     guard = report.guard
-    source_owner_families = ", ".join(f'"{value}"' for value in metrics.source_owner_families)
+    source_owner_families = ", ".join(
+        f'"{value}"' for value in metrics.source_owner_families
+    )
     test_families = ", ".join(f'"{value}"' for value in metrics.test_families)
     unresolved_reasons = ", ".join(f'"{value}"' for value in metrics.unresolved_reasons)
     return "\n".join(

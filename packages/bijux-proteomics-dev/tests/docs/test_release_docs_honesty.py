@@ -6,7 +6,11 @@ from pathlib import Path
 
 
 def _repo_root() -> Path:
-    return next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+    return next(
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+    )
 
 
 def _release_docs() -> list[Path]:

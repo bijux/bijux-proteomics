@@ -8,16 +8,24 @@ import tomllib
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
 )
-from bijux_proteomics_knowledge.references.grounding.citations import DEFAULT_CITATION_REGISTRY
+from bijux_proteomics_knowledge.references.grounding.citations import (
+    DEFAULT_CITATION_REGISTRY,
+)
 from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
 )
-from bijux_proteomics_knowledge.references.grounding.corpora import DEFAULT_CORPUS_MANIFESTS
-from bijux_proteomics_knowledge.references.grounding.literature import DEFAULT_LITERATURE_GROUPS
+from bijux_proteomics_knowledge.references.grounding.corpora import (
+    DEFAULT_CORPUS_MANIFESTS,
+)
+from bijux_proteomics_knowledge.references.grounding.literature import (
+    DEFAULT_LITERATURE_GROUPS,
+)
 from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
 )
-from bijux_proteomics_knowledge.references.grounding.ontologies import DEFAULT_ONTOLOGY_MAPPINGS
+from bijux_proteomics_knowledge.references.grounding.ontologies import (
+    DEFAULT_ONTOLOGY_MAPPINGS,
+)
 from bijux_proteomics_knowledge.references.grounding.problems import (
     DEFAULT_KNOWN_PROBLEM_REGISTRY,
 )
@@ -45,10 +53,7 @@ KNOWLEDGE_ROOT_API_POLICY = (
     REPO_ROOT / "configs" / "package-governance" / "knowledge-root-api.toml"
 )
 KNOWLEDGE_REFERENCES_ROOT_API_POLICY = (
-    REPO_ROOT
-    / "configs"
-    / "package-governance"
-    / "knowledge-references-root-api.toml"
+    REPO_ROOT / "configs" / "package-governance" / "knowledge-references-root-api.toml"
 )
 
 
@@ -222,10 +227,7 @@ def _toml_text(report: KnowledgeBreadthReport) -> str:
                 "baseline_total_public_surface_count = "
                 f"{guard.baseline_total_public_surface_count}"
             ),
-            (
-                "baseline_query_helper_count = "
-                f"{guard.baseline_query_helper_count}"
-            ),
+            (f"baseline_query_helper_count = {guard.baseline_query_helper_count}"),
             (
                 "baseline_curated_registry_entry_count = "
                 f"{guard.baseline_curated_registry_entry_count}"

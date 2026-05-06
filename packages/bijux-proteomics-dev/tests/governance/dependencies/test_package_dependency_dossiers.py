@@ -22,7 +22,10 @@ def test_package_dependency_dossiers_capture_allowed_and_actual_edges() -> None:
         "bijux-proteomics-foundation",
         "bijux-proteomics-intelligence",
     )
-    assert "bijux-proteomics-runtime" in by_package["bijux-proteomics-core"].actual_outbound_edges
+    assert (
+        "bijux-proteomics-runtime"
+        in by_package["bijux-proteomics-core"].actual_outbound_edges
+    )
     assert by_package["bijux-proteomics-foundation"].actual_inbound_edges
     assert by_package["bijux-proteomics-foundation"].unexpected_outbound_edges == ()
 

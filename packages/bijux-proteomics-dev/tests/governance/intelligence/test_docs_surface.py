@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 INTELLIGENCE_ROOT = REPO_ROOT / "packages" / "bijux-proteomics-intelligence"
 
 
@@ -13,9 +17,7 @@ def _intelligence_docs() -> tuple[str, str, str, str, str]:
         (INTELLIGENCE_ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8"),
         (INTELLIGENCE_ROOT / "docs" / "BOUNDARIES.md").read_text(encoding="utf-8"),
         (INTELLIGENCE_ROOT / "docs" / "CONTRACTS.md").read_text(encoding="utf-8"),
-        (INTELLIGENCE_ROOT / "docs" / "INTERPRETATION.md").read_text(
-            encoding="utf-8"
-        ),
+        (INTELLIGENCE_ROOT / "docs" / "INTERPRETATION.md").read_text(encoding="utf-8"),
     )
 
 
@@ -52,7 +54,10 @@ def test_intelligence_docs_teach_curated_namespaces_instead_of_symbol_menu_impor
         "from bijux_proteomics_intelligence.interpretation.runs import ("
         in interpretation
     )
-    assert "from bijux_proteomics_intelligence import prioritize_candidates" not in combined
+    assert (
+        "from bijux_proteomics_intelligence import prioritize_candidates"
+        not in combined
+    )
     assert (
         "from bijux_proteomics_intelligence import build_run_interpretation_summary"
         not in combined

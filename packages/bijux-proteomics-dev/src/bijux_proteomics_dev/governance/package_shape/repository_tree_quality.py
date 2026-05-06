@@ -147,7 +147,11 @@ def _broad_root_import_count(src_root: Path, import_root: str) -> int:
 
 def _owner_families(src_root: Path) -> tuple[str, ...]:
     return tuple(
-        sorted(path.name for path in src_root.iterdir() if path.is_dir() and path.name != "__pycache__")
+        sorted(
+            path.name
+            for path in src_root.iterdir()
+            if path.is_dir() and path.name != "__pycache__"
+        )
     )
 
 
@@ -179,7 +183,9 @@ def _package_metrics(package_name: str) -> RepositoryTreeQualityPackageMetrics:
     )
     root_python_module_count = len(root_modules)
     public_symbol_count = _public_symbol_count(src_root)
-    compatibility_wrapper_count = sum(1 for path in root_modules if _is_compatibility_wrapper(path))
+    compatibility_wrapper_count = sum(
+        1 for path in root_modules if _is_compatibility_wrapper(path)
+    )
     broad_root_import_count = _broad_root_import_count(src_root, import_root)
 
     flatness_score = _score_from_upper_bound(root_python_module_count, penalty=10)
@@ -196,7 +202,9 @@ def _package_metrics(package_name: str) -> RepositoryTreeQualityPackageMetrics:
         ),
         2,
     )
-    broad_root_import_score = _score_from_upper_bound(broad_root_import_count, penalty=20)
+    broad_root_import_score = _score_from_upper_bound(
+        broad_root_import_count, penalty=20
+    )
     test_tree_mirroring_score = round(
         100.0
         if not source_owner_families
@@ -237,9 +245,12 @@ def _package_metrics(package_name: str) -> RepositoryTreeQualityPackageMetrics:
 def build_repository_tree_quality_report() -> RepositoryTreeQualityReport:
     """Build the checked tree-quality report across repository packages."""
 
-    packages = tuple(_package_metrics(package_name) for package_name in _package_names())
+    packages = tuple(
+        _package_metrics(package_name) for package_name in _package_names()
+    )
     average_test_tree_mirroring_score = round(
-        sum(package.test_tree_mirroring_score for package in packages) / len(packages), 2
+        sum(package.test_tree_mirroring_score for package in packages) / len(packages),
+        2,
     )
     return RepositoryTreeQualityReport(
         packages=packages,
@@ -281,16 +292,24 @@ def validate_repository_tree_quality(
 
     failures: list[str] = []
     if total_root_python_module_count > report.guard.max_total_root_python_module_count:
-        failures.append("repository tree quality root-level python module count grew beyond the governed baseline")
+        failures.append(
+            "repository tree quality root-level python module count grew beyond the governed baseline"
+        )
     if total_wrapper_module_count > report.guard.max_total_wrapper_module_count:
-        failures.append("repository tree quality compatibility-wrapper count grew beyond the governed baseline")
+        failures.append(
+            "repository tree quality compatibility-wrapper count grew beyond the governed baseline"
+        )
     if total_broad_root_import_count > report.guard.max_total_broad_root_import_count:
-        failures.append("repository tree quality broad-root import count grew beyond the governed baseline")
+        failures.append(
+            "repository tree quality broad-root import count grew beyond the governed baseline"
+        )
     if (
         average_test_tree_mirroring_score
         < report.guard.min_average_test_tree_mirroring_score
     ):
-        failures.append("repository tree quality test-tree mirroring fell below the governed baseline")
+        failures.append(
+            "repository tree quality test-tree mirroring fell below the governed baseline"
+        )
     return tuple(failures)
 
 

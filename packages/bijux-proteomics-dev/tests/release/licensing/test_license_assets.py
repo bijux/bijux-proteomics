@@ -5,7 +5,17 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(next(parent for parent in Path(__file__).resolve().parents if parent.name == "bijux-proteomics-dev") / "src"))
+sys.path.insert(
+    0,
+    str(
+        next(
+            parent
+            for parent in Path(__file__).resolve().parents
+            if parent.name == "bijux-proteomics-dev"
+        )
+        / "src"
+    ),
+)
 
 from bijux_proteomics_dev.release.licensing.license_assets import (
     ROOT_LEGAL_ARTIFACTS,

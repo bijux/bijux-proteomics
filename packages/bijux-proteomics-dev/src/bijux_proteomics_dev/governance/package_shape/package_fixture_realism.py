@@ -135,14 +135,20 @@ def validate_package_fixture_realism(
     )
     failures: list[str] = []
     if total_toy_named_fixture_count > report.guard.max_total_toy_named_fixture_count:
-        failures.append("toy-named fixtures grew beyond the governed serious-fixture baseline")
+        failures.append(
+            "toy-named fixtures grew beyond the governed serious-fixture baseline"
+        )
     if total_realistic_fixture_count < report.guard.min_total_realistic_fixture_count:
-        failures.append("realistic fixture coverage dropped below the governed serious-fixture baseline")
+        failures.append(
+            "realistic fixture coverage dropped below the governed serious-fixture baseline"
+        )
     if (
         serious_package_with_realistic_fixtures_count
         < report.guard.min_serious_package_with_realistic_fixtures_count
     ):
-        failures.append("serious fixture realism dropped below the governed package coverage baseline")
+        failures.append(
+            "serious fixture realism dropped below the governed package coverage baseline"
+        )
     return tuple(failures)
 
 

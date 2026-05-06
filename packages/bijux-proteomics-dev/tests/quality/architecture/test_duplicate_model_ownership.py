@@ -10,7 +10,11 @@ from bijux_proteomics_dev.quality.architecture.duplicate_model_ownership import 
     validate_duplicate_model_ownership,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_duplicate_model_ownership_report_is_up_to_date() -> None:

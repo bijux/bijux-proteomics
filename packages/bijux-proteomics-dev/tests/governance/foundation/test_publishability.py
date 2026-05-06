@@ -11,7 +11,11 @@ from bijux_proteomics_dev.governance.foundation.publishability import (
 )
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 PRODUCT_IMPORT_ROOTS = {
     "bijux-proteomics-core": "bijux_proteomics",
     "bijux-proteomics-runtime": "bijux_proteomics_runtime",
@@ -69,8 +73,7 @@ def test_foundation_publishable_docs_reference_current_contract_entrypoints() ->
     readme = FOUNDATION_README.read_text()
     contracts = FOUNDATION_CONTRACTS.read_text()
     docs = "\n".join(
-        path.read_text()
-        for path in sorted(FOUNDATION_DOCS_ROOT.rglob("*.md"))
+        path.read_text() for path in sorted(FOUNDATION_DOCS_ROOT.rglob("*.md"))
     )
     combined = f"{readme}\n{contracts}\n{docs}"
 

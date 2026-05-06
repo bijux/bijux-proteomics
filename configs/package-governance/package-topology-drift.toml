@@ -3,7 +3,7 @@
 
 [guard]
 max_total_top_level_root_file_count = 0
-max_total_undocumented_owner_family_count = 46
+max_total_undocumented_owner_family_count = 31
 max_total_stale_documented_path_count = 1
 max_total_historical_shape_count = 0
 
@@ -40,8 +40,8 @@ historical_shape_dominates_design = false
 [[package]]
 distribution_name = "bijux-proteomics-core"
 top_level_root_file_count = 0
-documented_owner_families = ["domain", "execution", "interfaces", "io", "workflow"]
-undocumented_owner_families = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "governance", "identification", "intelligence", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study"]
+documented_owner_families = ["benchmarks", "chemistry", "dia", "domain", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+undocumented_owner_families = ["biology", "governance"]
 stale_documented_paths = []
 historical_topology_mentions = []
 docs_tree_contradiction = true

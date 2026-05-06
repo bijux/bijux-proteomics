@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.architecture.integration_patterns import (
     validate_integration_patterns,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_workspace_integration_patterns_match_current_package_boundaries() -> None:

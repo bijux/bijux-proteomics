@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 RUNTIME_ROOT = REPO_ROOT / "packages" / "bijux-proteomics-runtime"
 
 
@@ -46,7 +50,10 @@ def test_runtime_docs_list_supported_execution_surfaces_limits_and_non_goals() -
     assert 'execution_mode="gpu"' in combined
     assert "does not provision GPUs" in readme
     assert "does not own container image build policy" in boundaries
-    assert "does not convert imported evidence into runtime-owned scientific truth" in contracts
+    assert (
+        "does not convert imported evidence into runtime-owned scientific truth"
+        in contracts
+    )
 
 
 def test_runtime_docs_reject_removed_topology_names_and_stale_route_wrappers() -> None:
@@ -63,13 +70,19 @@ def test_runtime_docs_reject_removed_topology_names_and_stale_route_wrappers() -
     assert "`runtime/control/` owns orchestration" not in text
 
 
-def test_runtime_docs_do_not_teach_broad_root_convenience_to_internal_consumers() -> None:
+def test_runtime_docs_do_not_teach_broad_root_convenience_to_internal_consumers() -> (
+    None
+):
     text = "\n".join(_runtime_docs())
 
-    assert "Python integrations should start from the canonical runtime package" not in text
-    assert "canonical runtime roots" not in text
-    assert "from bijux_proteomics_runtime import AppConfig, RunManager, create_app" not in text
     assert (
-        "from bijux_proteomics_runtime.api.app import AppConfig, create_app" in text
+        "Python integrations should start from the canonical runtime package"
+        not in text
     )
+    assert "canonical runtime roots" not in text
+    assert (
+        "from bijux_proteomics_runtime import AppConfig, RunManager, create_app"
+        not in text
+    )
+    assert "from bijux_proteomics_runtime.api.app import AppConfig, create_app" in text
     assert "from bijux_proteomics_runtime.runs.manager import RunManager" in text

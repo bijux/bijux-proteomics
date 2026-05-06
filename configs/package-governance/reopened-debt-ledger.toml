@@ -38,7 +38,7 @@ debt_id = "bijux-proteomics-core:test-tree-gaps"
 distribution_name = "bijux-proteomics-core"
 debt_family = "test-tree-gaps"
 severity = "medium"
-summary = "3 source owner families still lack matching test families"
+summary = "1 source owner families still lack matching test families"
 evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
@@ -78,7 +78,7 @@ debt_id = "bijux-proteomics-intelligence:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-intelligence"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
-summary = "4 oversized mixed-responsibility modules still need owner splits"
+summary = "5 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]

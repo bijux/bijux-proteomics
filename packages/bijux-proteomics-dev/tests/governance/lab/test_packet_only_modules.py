@@ -15,14 +15,21 @@ def test_lab_module_shape_report_is_up_to_date() -> None:
 def test_lab_module_shape_report_tracks_reshaping_only_facades() -> None:
     report = build_lab_module_shape_report()
     entries = report.metrics.entries
-    reshaping_only = {entry.module_path for entry in entries if entry.shape == "reshaping_only"}
-    packet_only = {entry.module_path for entry in entries if entry.shape == "packet_only"}
+    reshaping_only = {
+        entry.module_path for entry in entries if entry.shape == "reshaping_only"
+    }
+    packet_only = {
+        entry.module_path for entry in entries if entry.shape == "packet_only"
+    }
 
     assert LAB_PACKET_ONLY_MODULES_PATH.exists()
     assert report.metrics.packet_only_module_count == 1
     assert report.guard.max_packet_only_module_count == 1
     assert report.metrics.reshaping_only_module_count == 10
-    assert report.metrics.reshaping_only_module_count == report.guard.max_reshaping_only_module_count
+    assert (
+        report.metrics.reshaping_only_module_count
+        == report.guard.max_reshaping_only_module_count
+    )
     assert packet_only == {"governance/charter.py"}
     assert reshaping_only == {
         "__init__.py",

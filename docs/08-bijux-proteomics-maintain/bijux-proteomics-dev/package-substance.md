@@ -20,14 +20,14 @@ This report makes package-boundary substance explicit. The five real product pac
 
 ## Current Package Counts
 
-- `agentic-proteins`: role=compatibility_bridge, owned_logic=0, wrappers=147, thin=0, ready=yes
-- `bijux-proteomics-core`: role=canonical_product, owned_logic=89, wrappers=0, thin=25, ready=yes
-- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=53, wrappers=0, thin=8, ready=yes
-- `bijux-proteomics-foundation`: role=shared_kernel, owned_logic=21, wrappers=7, thin=1, ready=yes
-- `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=11, wrappers=0, thin=1, ready=yes
-- `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=20, wrappers=0, thin=2, ready=yes
-- `bijux-proteomics-lab`: role=canonical_product, owned_logic=15, wrappers=0, thin=1, ready=yes
-- `bijux-proteomics-runtime`: role=canonical_product, owned_logic=111, wrappers=0, thin=27, ready=yes
+- `agentic-proteins`: role=compatibility_bridge, owned_logic=0, wrappers=111, thin=0, ready=yes
+- `bijux-proteomics-core`: role=canonical_product, owned_logic=70, wrappers=0, thin=21, ready=yes
+- `bijux-proteomics-dev`: role=maintainer_support, owned_logic=111, wrappers=0, thin=27, ready=no
+- `bijux-proteomics-foundation`: role=shared_kernel, owned_logic=23, wrappers=0, thin=1, ready=yes
+- `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=25, wrappers=0, thin=1, ready=yes
+- `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=21, wrappers=0, thin=13, ready=yes
+- `bijux-proteomics-lab`: role=canonical_product, owned_logic=23, wrappers=0, thin=10, ready=yes
+- `bijux-proteomics-runtime`: role=canonical_product, owned_logic=125, wrappers=0, thin=26, ready=yes
 
 ## Release Rule
 
@@ -41,4 +41,4 @@ This report makes package-boundary substance explicit. The five real product pac
 
 - `docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-substance.csv`
 - `docs/08-bijux-proteomics-maintain/bijux-proteomics-dev/package-substance.md`
-- `packages/bijux-proteomics-dev/tests/test_package_substance.py`
+- `packages/bijux-proteomics-dev/tests/quality/architecture/test_package_substance.py`

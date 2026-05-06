@@ -121,7 +121,9 @@ def build_package_tree_dossier_report() -> PackageTreeDossierReport:
     return PackageTreeDossierReport(
         entries=entries,
         guard=PackageTreeDossierGuard(
-            min_total_owner_domain_count=sum(len(entry.owner_domains) for entry in entries),
+            min_total_owner_domain_count=sum(
+                len(entry.owner_domains) for entry in entries
+            ),
             max_total_compatibility_surface_count=sum(
                 len(entry.compatibility_surfaces) for entry in entries
             ),
@@ -147,11 +149,20 @@ def validate_package_tree_dossier(
         len(entry.excluded_responsibilities) for entry in report.entries
     )
     if owner_domain_count < report.guard.min_total_owner_domain_count:
-        failures.append("package owner-domain coverage dropped below the governed dossier baseline")
+        failures.append(
+            "package owner-domain coverage dropped below the governed dossier baseline"
+        )
     if compatibility_surface_count > report.guard.max_total_compatibility_surface_count:
-        failures.append("package compatibility-surface count grew beyond the governed dossier baseline")
-    if excluded_responsibility_count < report.guard.min_total_excluded_responsibility_count:
-        failures.append("package excluded-responsibility coverage dropped below the governed dossier baseline")
+        failures.append(
+            "package compatibility-surface count grew beyond the governed dossier baseline"
+        )
+    if (
+        excluded_responsibility_count
+        < report.guard.min_total_excluded_responsibility_count
+    ):
+        failures.append(
+            "package excluded-responsibility coverage dropped below the governed dossier baseline"
+        )
     return tuple(failures)
 
 

@@ -42,11 +42,11 @@ distribution_name = "bijux-proteomics-core"
 strongest_value = "bijux-proteomics-core owns its documented package surface."
 weakest_value = "17 oversized mixed-responsibility modules still need owner splits"
 broadest_debt = "17 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 22", "dependency dossier: 4 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
+strengths = ["owner domains: 15", "dependency dossier: 3 outbound edges and 5 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
 limits = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
-proofs = ["docs proof artifacts: 13", "scenario fixtures: medium=17 negative=9 ambiguity=2 contradiction=2", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 32", "scenario fixtures: medium=17 negative=9 ambiguity=2 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-core:mixed-responsibility-modules", "bijux-proteomics-core:reopened-completion-claim", "bijux-proteomics-core:test-tree-gaps"]
-exact_not_ready_reasons = ["17 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "3 source owner families still lack matching test families"]
+exact_not_ready_reasons = ["17 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
@@ -56,7 +56,7 @@ weakest_value = "3 oversized mixed-responsibility modules still need owner split
 broadest_debt = "3 oversized mixed-responsibility modules still need owner splits"
 strengths = ["owner domains: 8", "dependency dossier: 3 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-runtime.toml"]
 limits = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]
-proofs = ["docs proof artifacts: 7", "scenario fixtures: medium=8 negative=2 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 8", "scenario fixtures: medium=9 negative=2 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-runtime:mixed-responsibility-modules", "bijux-proteomics-runtime:reopened-completion-claim", "bijux-proteomics-runtime:test-tree-gaps"]
 exact_not_ready_reasons = ["3 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "2 source owner families still lack matching test families"]
 publishable = false
@@ -64,13 +64,13 @@ publishable = false
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 strongest_value = "bijux-proteomics-intelligence owns its documented package surface."
-weakest_value = "4 oversized mixed-responsibility modules still need owner splits"
-broadest_debt = "4 oversized mixed-responsibility modules still need owner splits"
-strengths = ["owner domains: 7", "dependency dossier: 3 outbound edges and 4 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
+weakest_value = "5 oversized mixed-responsibility modules still need owner splits"
+broadest_debt = "5 oversized mixed-responsibility modules still need owner splits"
+strengths = ["owner domains: 7", "dependency dossier: 3 outbound edges and 3 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-intelligence.toml"]
 limits = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=18 negative=6 ambiguity=1 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-intelligence:mixed-responsibility-modules", "bijux-proteomics-intelligence:reopened-completion-claim", "bijux-proteomics-intelligence:test-tree-gaps"]
-exact_not_ready_reasons = ["4 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
+exact_not_ready_reasons = ["5 oversized mixed-responsibility modules still need owner splits", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]

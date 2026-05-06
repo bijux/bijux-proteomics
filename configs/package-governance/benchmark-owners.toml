@@ -1,6 +1,6 @@
 [[owner]]
 package_name = "agentic-proteins"
-focus_path = "packages/agentic-proteins/tests/regression/benchmarks/cases.json"
+focus_path = "packages/agentic-proteins/tests/orchestration/test_batch_execution_benchmark.py"
 declaration_path = "docs/02-agentic-proteins/operations/performance-and-scaling.md"
 rationale = "legacy compatibility runtime parity is the main place where benchmark drift should be localized"
 

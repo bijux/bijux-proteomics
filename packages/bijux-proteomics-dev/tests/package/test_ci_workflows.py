@@ -6,7 +6,11 @@ from typing import Any
 
 import yaml
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 WORKFLOWS_DIR = REPO_ROOT / ".github" / "workflows"
 WORKFLOW_URL_RE = re.compile(
     r"https://github\.com/(?P<repo>[^/\s]+/[^/\s]+)/actions/workflows/"

@@ -26,7 +26,9 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
     assert [entry.module_name for entry in entries] == [
         surface.module_name for surface in public_foundation_surfaces()
     ]
-    assert set(entry_by_module["bijux_proteomics_foundation"].consumer_distributions) == {
+    assert set(
+        entry_by_module["bijux_proteomics_foundation"].consumer_distributions
+    ) == {
         "bijux-proteomics-core",
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
@@ -67,7 +69,9 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
         "bijux-proteomics-runtime",
     }
     assert set(
-        entry_by_module["bijux_proteomics_foundation.support.states"].consumer_distributions
+        entry_by_module[
+            "bijux_proteomics_foundation.support.states"
+        ].consumer_distributions
     ) == {
         "bijux-proteomics-intelligence",
     }

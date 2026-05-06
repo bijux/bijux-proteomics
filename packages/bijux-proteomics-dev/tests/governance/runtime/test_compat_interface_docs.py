@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 COMPAT_INTERFACES_DIR = REPO_ROOT / "docs" / "02-agentic-proteins" / "interfaces"
 
 

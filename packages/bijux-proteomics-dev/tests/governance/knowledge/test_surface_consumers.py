@@ -21,37 +21,51 @@ def test_knowledge_surface_consumer_matrix_records_current_owner_usage() -> None
         surface.module_name for surface in knowledge_surfaces()
     ]
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.memory.models.evidence"].consumer_distributions
+        entry_by_module[
+            "bijux_proteomics_knowledge.memory.models.evidence"
+        ].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",
     }
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.references.workflows.benchmarks"].consumer_distributions
+        entry_by_module[
+            "bijux_proteomics_knowledge.references.workflows.benchmarks"
+        ].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",
     }
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.references.workflows.lookups"].consumer_distributions
+        entry_by_module[
+            "bijux_proteomics_knowledge.references.workflows.lookups"
+        ].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
     }
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.references.workflows.lookups"].imported_symbols
+        entry_by_module[
+            "bijux_proteomics_knowledge.references.workflows.lookups"
+        ].imported_symbols
     ) >= {
         "get_benchmark_manifest",
     }
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.references.grounding.rules"].consumer_distributions
+        entry_by_module[
+            "bijux_proteomics_knowledge.references.grounding.rules"
+        ].consumer_distributions
     ) == {
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
     }
-    assert "bijux_proteomics_knowledge.references.registry_queries" not in entry_by_module
+    assert (
+        "bijux_proteomics_knowledge.references.registry_queries" not in entry_by_module
+    )
     assert set(
-        entry_by_module["bijux_proteomics_knowledge.references.workflows.briefings"].consumer_distributions
-    ) == {"bijux-proteomics-dev"}
+        entry_by_module[
+            "bijux_proteomics_knowledge.references.workflows.briefings"
+        ].consumer_distributions
+    ) == {"bijux-proteomics-dev", "bijux-proteomics-intelligence"}

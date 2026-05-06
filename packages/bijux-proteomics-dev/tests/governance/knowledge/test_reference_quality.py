@@ -15,7 +15,9 @@ def test_knowledge_reference_quality_reports_are_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_knowledge_provenance_completeness_is_full_for_current_reference_surfaces() -> None:
+def test_knowledge_provenance_completeness_is_full_for_current_reference_surfaces() -> (
+    None
+):
     entries = build_knowledge_provenance_completeness_report()
 
     assert KNOWLEDGE_PROVENANCE_COMPLETENESS_PATH.exists()

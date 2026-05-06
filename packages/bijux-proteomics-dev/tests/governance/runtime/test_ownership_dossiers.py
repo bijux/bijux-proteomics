@@ -3,7 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 RUNTIME_ROOT = REPO_ROOT / "packages" / "bijux-proteomics-runtime"
 RUNTIME_DOCS_ROOT = RUNTIME_ROOT / "docs"
 
@@ -27,7 +31,9 @@ def _assert_doc_references_live_paths(
     assert not missing_paths, f"{doc_name} points at missing paths: {missing_paths}"
 
 
-def test_runtime_public_surfaces_dossier_covers_live_owner_code_tests_and_fixtures() -> None:
+def test_runtime_public_surfaces_dossier_covers_live_owner_code_tests_and_fixtures() -> (
+    None
+):
     _assert_doc_references_live_paths(
         "PUBLIC-SURFACES.md",
         required_references=(
@@ -48,7 +54,9 @@ def test_runtime_public_surfaces_dossier_covers_live_owner_code_tests_and_fixtur
     )
 
 
-def test_runtime_route_ownership_dossier_covers_live_route_owners_tests_and_fixtures() -> None:
+def test_runtime_route_ownership_dossier_covers_live_route_owners_tests_and_fixtures() -> (
+    None
+):
     _assert_doc_references_live_paths(
         "ROUTE-OWNERSHIP.md",
         required_references=(
@@ -75,7 +83,9 @@ def test_runtime_route_ownership_dossier_covers_live_route_owners_tests_and_fixt
     )
 
 
-def test_runtime_provider_ownership_dossier_covers_live_provider_owners_tests_and_fixtures() -> None:
+def test_runtime_provider_ownership_dossier_covers_live_provider_owners_tests_and_fixtures() -> (
+    None
+):
     _assert_doc_references_live_paths(
         "PROVIDER-OWNERSHIP.md",
         required_references=(
@@ -102,7 +112,9 @@ def test_runtime_provider_ownership_dossier_covers_live_provider_owners_tests_an
     )
 
 
-def test_runtime_artifact_lineage_dossier_covers_live_owner_code_tests_and_fixtures() -> None:
+def test_runtime_artifact_lineage_dossier_covers_live_owner_code_tests_and_fixtures() -> (
+    None
+):
     _assert_doc_references_live_paths(
         "ARTIFACT-LINEAGE.md",
         required_references=(

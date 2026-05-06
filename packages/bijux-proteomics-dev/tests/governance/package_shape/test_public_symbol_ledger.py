@@ -18,9 +18,7 @@ def test_public_symbol_ledger_maps_exports_to_owner_modules_and_tests() -> None:
         (entry.distribution_name, entry.symbol_name): entry for entry in report.entries
     }
 
-    foundation_symbol = by_symbol[
-        ("bijux-proteomics-foundation", "DocumentSchema")
-    ]
+    foundation_symbol = by_symbol[("bijux-proteomics-foundation", "DocumentSchema")]
     runtime_symbol = by_symbol[("bijux-proteomics-runtime", "RunManager")]
     intelligence_symbol = by_symbol[("bijux-proteomics-intelligence", "candidates")]
 
@@ -31,7 +29,10 @@ def test_public_symbol_ledger_maps_exports_to_owner_modules_and_tests() -> None:
     assert foundation_symbol.owner_test_paths
     assert runtime_symbol.owner_module_path.endswith(".py")
     assert runtime_symbol.owner_test_paths
-    assert intelligence_symbol.owner_module_name == "bijux_proteomics_intelligence.candidates"
+    assert (
+        intelligence_symbol.owner_module_name
+        == "bijux_proteomics_intelligence.candidates"
+    )
 
 
 def test_public_symbol_ledger_requires_named_owner_modules_and_tests() -> None:

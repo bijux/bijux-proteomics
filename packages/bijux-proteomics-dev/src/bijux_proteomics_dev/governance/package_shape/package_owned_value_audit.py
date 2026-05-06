@@ -9,8 +9,12 @@ from bijux_proteomics_dev.docs.governance.package_document_contracts import (
     section_lines,
     readme_path,
 )
-from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import build_package_surface_pressure_report
-from bijux_proteomics_dev.governance.support.workspace_inventory import workspace_package_names
+from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import (
+    build_package_surface_pressure_report,
+)
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_package_names,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -83,21 +87,30 @@ def build_package_owned_value_audit_report() -> PackageOwnedValueAuditReport:
     """Build the checked owned-value audit across packages."""
 
     surface_pressure = {
-        entry.distribution_name: entry for entry in build_package_surface_pressure_report().entries
+        entry.distribution_name: entry
+        for entry in build_package_surface_pressure_report().entries
     }
     entries: list[PackageOwnedValueAuditEntry] = []
     for package_name in workspace_package_names():
         bullets = _owned_value_bullets(package_name)
         readme_sentence_count = sum(
-            1 for line in readme_path(package_name).read_text(encoding="utf-8").splitlines() if line.strip()
+            1
+            for line in readme_path(package_name)
+            .read_text(encoding="utf-8")
+            .splitlines()
+            if line.strip()
         )
         entries.append(
             PackageOwnedValueAuditEntry(
                 distribution_name=package_name,
                 owned_value_bullets=bullets,
                 owned_value_summary=_owned_value_summary(package_name),
-                owner_depth_count=surface_pressure[package_name].owner_logic_module_count,
-                public_breadth_count=surface_pressure[package_name].public_breadth_count,
+                owner_depth_count=surface_pressure[
+                    package_name
+                ].owner_logic_module_count,
+                public_breadth_count=surface_pressure[
+                    package_name
+                ].public_breadth_count,
                 readme_sentence_count=readme_sentence_count,
             )
         )
@@ -107,7 +120,9 @@ def build_package_owned_value_audit_report() -> PackageOwnedValueAuditReport:
             min_total_owned_value_bullet_count=sum(
                 len(entry.owned_value_bullets) for entry in entries
             ),
-            min_total_owner_depth_count=sum(entry.owner_depth_count for entry in entries),
+            min_total_owner_depth_count=sum(
+                entry.owner_depth_count for entry in entries
+            ),
         ),
     )
 
@@ -119,20 +134,30 @@ def validate_package_owned_value_audit(
 
     report = report or build_package_owned_value_audit_report()
     failures: list[str] = []
-    total_owned_value_bullet_count = sum(len(entry.owned_value_bullets) for entry in report.entries)
+    total_owned_value_bullet_count = sum(
+        len(entry.owned_value_bullets) for entry in report.entries
+    )
     total_owner_depth_count = sum(entry.owner_depth_count for entry in report.entries)
     if total_owned_value_bullet_count < report.guard.min_total_owned_value_bullet_count:
-        failures.append("owned-value audit coverage dropped below the governed baseline")
+        failures.append(
+            "owned-value audit coverage dropped below the governed baseline"
+        )
     if total_owner_depth_count < report.guard.min_total_owner_depth_count:
-        failures.append("owner-depth coverage dropped below the governed owned-value baseline")
+        failures.append(
+            "owner-depth coverage dropped below the governed owned-value baseline"
+        )
     for entry in report.entries:
         if not entry.owned_value_bullets:
-            failures.append(f"{entry.distribution_name} is missing a current owned-value audit")
+            failures.append(
+                f"{entry.distribution_name} is missing a current owned-value audit"
+            )
     return tuple(failures)
 
 
 def _render_tuple(values: tuple[str, ...]) -> str:
-    return ", ".join(f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values)
+    return ", ".join(
+        f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values
+    )
 
 
 def _escape(value: str) -> str:
@@ -168,7 +193,9 @@ def _toml_text(report: PackageOwnedValueAuditReport) -> str:
 def _is_up_to_date(report: PackageOwnedValueAuditReport) -> bool:
     if not PACKAGE_OWNED_VALUE_AUDIT_PATH.exists():
         return False
-    return PACKAGE_OWNED_VALUE_AUDIT_PATH.read_text(encoding="utf-8") == _toml_text(report)
+    return PACKAGE_OWNED_VALUE_AUDIT_PATH.read_text(encoding="utf-8") == _toml_text(
+        report
+    )
 
 
 def run(check: bool = False) -> int:
@@ -190,7 +217,11 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package owned-value audit.")
-    parser.add_argument("--check", action="store_true", help="Fail if the owned-value audit is stale.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package owned-value audit."
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Fail if the owned-value audit is stale."
+    )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

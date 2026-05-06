@@ -11,7 +11,11 @@ from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory i
     validate_agentic_compatibility_inventory,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_agentic_compatibility_inventory_is_up_to_date() -> None:
@@ -47,10 +51,7 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
         by_path["interfaces/structure_reports.py"].owner_package
         == "bijux-proteomics-core"
     )
-    assert (
-        by_path["state/context.py"].owner_package
-        == "bijux-proteomics-runtime"
-    )
+    assert by_path["state/context.py"].owner_package == "bijux-proteomics-runtime"
     assert (
         by_path["agents/coordination/coordinator.py"].owner_package
         == "bijux-proteomics-runtime"

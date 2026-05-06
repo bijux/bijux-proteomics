@@ -52,7 +52,7 @@ module_path = "interpretation/contaminants.py"
 band = "interpretation"
 touched_band_count = 1
 cross_band_import_count = 0
-internal_import_count = 0
+internal_import_count = 1
 touched_bands = ["interpretation"]
 hotspot = false
 

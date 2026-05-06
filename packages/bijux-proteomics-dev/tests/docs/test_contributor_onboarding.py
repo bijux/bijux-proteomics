@@ -8,7 +8,11 @@ from bijux_proteomics_dev.docs.contributor_onboarding import (
     run,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_contributor_onboarding_generator_is_up_to_date() -> None:

@@ -4,7 +4,9 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.docs.governance.package_document_contracts import module_topology_tokens
+from bijux_proteomics_dev.docs.governance.package_document_contracts import (
+    module_topology_tokens,
+)
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     root_python_modules,
@@ -89,7 +91,9 @@ def _path_exists_in_src(package_name: str, token: str) -> bool:
     return False
 
 
-def _historical_topology_mentions(package_name: str, stale_documented_paths: tuple[str, ...]) -> tuple[str, ...]:
+def _historical_topology_mentions(
+    package_name: str, stale_documented_paths: tuple[str, ...]
+) -> tuple[str, ...]:
     root_files = {path.name for path in root_python_modules(package_name)}
     mentions: set[str] = set()
     for token in stale_documented_paths:
@@ -118,10 +122,13 @@ def build_package_topology_drift_report() -> PackageTopologyDriftReport:
         )
         historical_mentions = _historical_topology_mentions(package_name, stale_paths)
         top_level_root_file_count = sum(
-            path.name not in {"__init__.py", "charter.py"} for path in root_python_modules(package_name)
+            path.name not in {"__init__.py", "charter.py"}
+            for path in root_python_modules(package_name)
         )
         docs_tree_contradiction = bool(undocumented or stale_paths)
-        historical_shape_dominates_design = len(historical_mentions) >= max(len(documented), 1)
+        historical_shape_dominates_design = len(historical_mentions) >= max(
+            len(documented), 1
+        )
         entries.append(
             PackageTopologyDriftEntry(
                 distribution_name=package_name,
@@ -160,7 +167,9 @@ def validate_package_topology_drift(
 
     report = report or build_package_topology_drift_report()
     failures: list[str] = []
-    total_top_level_root_file_count = sum(entry.top_level_root_file_count for entry in report.entries)
+    total_top_level_root_file_count = sum(
+        entry.top_level_root_file_count for entry in report.entries
+    )
     total_undocumented_owner_family_count = sum(
         len(entry.undocumented_owner_families) for entry in report.entries
     )
@@ -170,14 +179,31 @@ def validate_package_topology_drift(
     total_historical_shape_count = sum(
         entry.historical_shape_dominates_design for entry in report.entries
     )
-    if total_top_level_root_file_count > report.guard.max_total_top_level_root_file_count:
-        failures.append("top-level root file pressure grew beyond the governed topology baseline")
-    if total_undocumented_owner_family_count > report.guard.max_total_undocumented_owner_family_count:
-        failures.append("first-level owner families without written topology rationale grew beyond the governed baseline")
-    if total_stale_documented_path_count > report.guard.max_total_stale_documented_path_count:
-        failures.append("docs-versus-tree contradiction count grew beyond the governed topology baseline")
+    if (
+        total_top_level_root_file_count
+        > report.guard.max_total_top_level_root_file_count
+    ):
+        failures.append(
+            "top-level root file pressure grew beyond the governed topology baseline"
+        )
+    if (
+        total_undocumented_owner_family_count
+        > report.guard.max_total_undocumented_owner_family_count
+    ):
+        failures.append(
+            "first-level owner families without written topology rationale grew beyond the governed baseline"
+        )
+    if (
+        total_stale_documented_path_count
+        > report.guard.max_total_stale_documented_path_count
+    ):
+        failures.append(
+            "docs-versus-tree contradiction count grew beyond the governed topology baseline"
+        )
     if total_historical_shape_count > report.guard.max_total_historical_shape_count:
-        failures.append("historical topology pressure grew beyond the governed baseline")
+        failures.append(
+            "historical topology pressure grew beyond the governed baseline"
+        )
     return tuple(failures)
 
 
@@ -244,7 +270,13 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package topology drift report.")
-    parser.add_argument("--check", action="store_true", help="Fail if the topology drift report is stale.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package topology drift report."
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail if the topology drift report is stale.",
+    )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

@@ -43,7 +43,9 @@ class ReopenedDebtLedgerReport:
 
 def _load_report(name: str) -> dict[str, object]:
     return tomllib.loads(
-        (REPO_ROOT / "configs" / "package-governance" / name).read_text(encoding="utf-8")
+        (REPO_ROOT / "configs" / "package-governance" / name).read_text(
+            encoding="utf-8"
+        )
     )
 
 
@@ -65,8 +67,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
                 debt_family="docs-claim-gap",
                 severity="high",
                 summary=(
-                    "public docs still outrun proof for "
-                    + ", ".join(claim_kinds)
+                    "public docs still outrun proof for " + ", ".join(claim_kinds)
                 ),
                 evidence_report="configs/package-governance/package-docs-claim-proof.toml",
             )
@@ -118,7 +119,9 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
     oversized_counts: dict[str, int] = {}
     for module in oversized_modules["module"]:
         distribution_name = str(module["distribution_name"])
-        oversized_counts[distribution_name] = oversized_counts.get(distribution_name, 0) + 1
+        oversized_counts[distribution_name] = (
+            oversized_counts.get(distribution_name, 0) + 1
+        )
     for distribution_name, module_count in sorted(oversized_counts.items()):
         entries.append(
             ReopenedDebtEntry(

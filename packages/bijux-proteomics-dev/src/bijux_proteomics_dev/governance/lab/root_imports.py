@@ -102,7 +102,9 @@ def build_lab_root_import_report() -> LabRootImportReport:
     """Build the checked report of package-root imports inside lab owners."""
 
     source_modules = tuple(
-        path for path in sorted(LAB_SRC_ROOT.rglob("*.py")) if "__pycache__" not in path.parts
+        path
+        for path in sorted(LAB_SRC_ROOT.rglob("*.py"))
+        if "__pycache__" not in path.parts
     )
     violations = tuple(
         violation for path in source_modules for violation in _violations_for(path)

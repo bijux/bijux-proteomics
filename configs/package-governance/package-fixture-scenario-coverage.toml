@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_scenario_coverage
 
 [guard]
-min_total_medium_realistic_fixture_count = 54
+min_total_medium_realistic_fixture_count = 55
 min_total_negative_fixture_count = 20
 min_total_ambiguity_fixture_count = 4
 min_total_contradiction_fixture_count = 4
@@ -57,8 +57,8 @@ benchmark_fixture_count = 3
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 serious_product_area = true
-fixture_file_count = 15
-medium_realistic_fixture_count_ge_1024 = 8
+fixture_file_count = 36
+medium_realistic_fixture_count_ge_1024 = 9
 negative_fixture_count = 2
 ambiguity_fixture_count = 0
 contradiction_fixture_count = 0

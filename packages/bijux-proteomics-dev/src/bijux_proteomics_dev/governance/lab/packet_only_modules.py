@@ -76,14 +76,20 @@ def _base_name(node: ast.expr) -> str | None:
     return None
 
 
-def _shape_entry(module_path: str, classification: LabModuleClassification) -> LabModuleShapeEntry | None:
+def _shape_entry(
+    module_path: str, classification: LabModuleClassification
+) -> LabModuleShapeEntry | None:
     path = LAB_SRC_ROOT / module_path
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     public_classes = [
-        node for node in tree.body if isinstance(node, ast.ClassDef) and not node.name.startswith("_")
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and not node.name.startswith("_")
     ]
     public_functions = [
-        node for node in tree.body if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
     ]
     public_class_count = len(public_classes)
     public_function_count = len(public_functions)
@@ -130,7 +136,9 @@ def build_lab_module_shape_report() -> LabModuleShapeReport:
             key=lambda entry: (entry.shape, entry.module_path),
         )
     )
-    packet_only_module_count = sum(1 for entry in entries if entry.shape == "packet_only")
+    packet_only_module_count = sum(
+        1 for entry in entries if entry.shape == "packet_only"
+    )
     reshaping_only_module_count = sum(
         1 for entry in entries if entry.shape == "reshaping_only"
     )
@@ -217,11 +225,11 @@ def run(check: bool = False) -> int:
         return 1
     if check:
         if _is_up_to_date(report):
-            print(
-                "lab packet-only and reshaping-only module report is up to date"
-            )
+            print("lab packet-only and reshaping-only module report is up to date")
             return 0
-        print("lab packet-only and reshaping-only module report is stale; regenerate it")
+        print(
+            "lab packet-only and reshaping-only module report is stale; regenerate it"
+        )
         return 1
     LAB_PACKET_ONLY_MODULES_PATH.write_text(_toml_text(report), encoding="utf-8")
     print("generated lab packet-only and reshaping-only module report")

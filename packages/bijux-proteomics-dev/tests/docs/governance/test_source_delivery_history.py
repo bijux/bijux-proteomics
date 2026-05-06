@@ -12,7 +12,9 @@ def test_source_delivery_history_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_source_delivery_history_report_keeps_delivery_sequence_out_of_source_text() -> None:
+def test_source_delivery_history_report_keeps_delivery_sequence_out_of_source_text() -> (
+    None
+):
     report = build_source_delivery_history_report()
 
     assert SOURCE_DELIVERY_HISTORY_PATH.exists()

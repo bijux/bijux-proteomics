@@ -12,7 +12,9 @@ def test_package_oversized_mixed_module_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_package_oversized_mixed_module_report_tracks_split_follow_up_pressure() -> None:
+def test_package_oversized_mixed_module_report_tracks_split_follow_up_pressure() -> (
+    None
+):
     report = build_package_oversized_mixed_module_report()
     module_paths = {entry.module_path for entry in report.entries}
 

@@ -145,7 +145,8 @@ def build_package_fixture_scenario_coverage_report() -> (
         entries=tuple(entries),
         guard=PackageFixtureScenarioCoverageGuard(
             min_total_medium_realistic_fixture_count=sum(
-                entry.medium_realistic_fixture_count_ge_1024 for entry in serious_entries
+                entry.medium_realistic_fixture_count_ge_1024
+                for entry in serious_entries
             ),
             min_total_negative_fixture_count=sum(
                 entry.negative_fixture_count for entry in serious_entries
@@ -185,15 +186,21 @@ def validate_package_fixture_scenario_coverage(
     medium_realistic_fixture_count = sum(
         entry.medium_realistic_fixture_count_ge_1024 for entry in serious_entries
     )
-    negative_fixture_count = sum(entry.negative_fixture_count for entry in serious_entries)
-    ambiguity_fixture_count = sum(entry.ambiguity_fixture_count for entry in serious_entries)
+    negative_fixture_count = sum(
+        entry.negative_fixture_count for entry in serious_entries
+    )
+    ambiguity_fixture_count = sum(
+        entry.ambiguity_fixture_count for entry in serious_entries
+    )
     contradiction_fixture_count = sum(
         entry.contradiction_fixture_count for entry in serious_entries
     )
     degraded_provenance_fixture_count = sum(
         entry.degraded_provenance_fixture_count for entry in serious_entries
     )
-    benchmark_fixture_count = sum(entry.benchmark_fixture_count for entry in serious_entries)
+    benchmark_fixture_count = sum(
+        entry.benchmark_fixture_count for entry in serious_entries
+    )
     serious_package_with_medium_fixture_count = sum(
         entry.medium_realistic_fixture_count_ge_1024 > 0 for entry in serious_entries
     )
@@ -201,25 +208,39 @@ def validate_package_fixture_scenario_coverage(
         medium_realistic_fixture_count
         < report.guard.min_total_medium_realistic_fixture_count
     ):
-        failures.append("medium realistic fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "medium realistic fixture coverage dropped below the governed serious-package baseline"
+        )
     if negative_fixture_count < report.guard.min_total_negative_fixture_count:
-        failures.append("negative fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "negative fixture coverage dropped below the governed serious-package baseline"
+        )
     if ambiguity_fixture_count < report.guard.min_total_ambiguity_fixture_count:
-        failures.append("ambiguity fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "ambiguity fixture coverage dropped below the governed serious-package baseline"
+        )
     if contradiction_fixture_count < report.guard.min_total_contradiction_fixture_count:
-        failures.append("contradiction fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "contradiction fixture coverage dropped below the governed serious-package baseline"
+        )
     if (
         degraded_provenance_fixture_count
         < report.guard.min_total_degraded_provenance_fixture_count
     ):
-        failures.append("degraded provenance fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "degraded provenance fixture coverage dropped below the governed serious-package baseline"
+        )
     if benchmark_fixture_count < report.guard.min_total_benchmark_fixture_count:
-        failures.append("benchmark fixture coverage dropped below the governed serious-package baseline")
+        failures.append(
+            "benchmark fixture coverage dropped below the governed serious-package baseline"
+        )
     if (
         serious_package_with_medium_fixture_count
         < report.guard.min_serious_package_with_medium_fixture_count
     ):
-        failures.append("serious-package medium fixture coverage dropped below the governed baseline")
+        failures.append(
+            "serious-package medium fixture coverage dropped below the governed baseline"
+        )
     return tuple(failures)
 
 

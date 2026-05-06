@@ -174,10 +174,7 @@ def _toml_text(report: KnowledgePublishabilityReport) -> str:
                 "provenance_complete_surface_count = "
                 f"{report.provenance_complete_surface_count}"
             ),
-            (
-                "under_curated_workflow_count = "
-                f"{report.under_curated_workflow_count}"
-            ),
+            (f"under_curated_workflow_count = {report.under_curated_workflow_count}"),
             f"orphan_reference_count = {report.orphan_reference_count}",
             f"breadth_ready = {str(report.breadth_ready).lower()}",
             f"publishable = {str(report.publishable).lower()}",

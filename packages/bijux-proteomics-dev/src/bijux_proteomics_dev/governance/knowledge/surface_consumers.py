@@ -48,16 +48,28 @@ def knowledge_surfaces() -> tuple[PublicKnowledgeSurface, ...]:
     return (
         PublicKnowledgeSurface("bijux_proteomics_knowledge"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.references.workflows.benchmarks"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.references.workflows.briefings"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.references.grounding.ontologies"),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.references.workflows.benchmarks"
+        ),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.references.workflows.briefings"
+        ),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.references.grounding.ontologies"
+        ),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.references.grounding.rules"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.references.workflows.lookups"),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.references.workflows.lookups"
+        ),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.models.claims"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.models.evidence"),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.integrity.graph"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.normalization.ingestion"),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.memory.reconciliation.resolution"),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.memory.normalization.ingestion"
+        ),
+        PublicKnowledgeSurface(
+            "bijux_proteomics_knowledge.memory.reconciliation.resolution"
+        ),
         PublicKnowledgeSurface("bijux_proteomics_knowledge.reviews.packets"),
     )
 
@@ -71,7 +83,9 @@ def _downstream_source_packages() -> tuple[DownstreamPackage, ...]:
 
 
 def _src_root(package: DownstreamPackage) -> Path:
-    return REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    return (
+        REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    )
 
 
 def build_knowledge_surface_consumers() -> tuple[KnowledgeSurfaceConsumerEntry, ...]:
@@ -79,11 +93,15 @@ def build_knowledge_surface_consumers() -> tuple[KnowledgeSurfaceConsumerEntry, 
 
     surfaces = knowledge_surfaces()
     modules = {surface.module_name for surface in surfaces}
-    consumers_by_surface: dict[str, set[str]] = {module_name: set() for module_name in modules}
+    consumers_by_surface: dict[str, set[str]] = {
+        module_name: set() for module_name in modules
+    }
     distributions_by_surface: dict[str, set[str]] = {
         module_name: set() for module_name in modules
     }
-    symbols_by_surface: dict[str, set[str]] = {module_name: set() for module_name in modules}
+    symbols_by_surface: dict[str, set[str]] = {
+        module_name: set() for module_name in modules
+    }
 
     for package in _downstream_source_packages():
         src_root = _src_root(package)
@@ -97,7 +115,9 @@ def build_knowledge_surface_consumers() -> tuple[KnowledgeSurfaceConsumerEntry, 
                     for alias in node.names:
                         if alias.name not in modules:
                             continue
-                        distributions_by_surface[alias.name].add(package.distribution_name)
+                        distributions_by_surface[alias.name].add(
+                            package.distribution_name
+                        )
                         consumers_by_surface[alias.name].add(relative_path)
                 if not isinstance(node, ast.ImportFrom) or node.module is None:
                     continue
@@ -128,7 +148,9 @@ def _toml_text(entries: tuple[KnowledgeSurfaceConsumerEntry, ...]) -> str:
         "",
     ]
     for entry in entries:
-        distributions = ", ".join(f'"{value}"' for value in entry.consumer_distributions)
+        distributions = ", ".join(
+            f'"{value}"' for value in entry.consumer_distributions
+        )
         modules = ", ".join(f'"{value}"' for value in entry.consumer_modules)
         symbols = ", ".join(f'"{value}"' for value in entry.imported_symbols)
         lines.extend(

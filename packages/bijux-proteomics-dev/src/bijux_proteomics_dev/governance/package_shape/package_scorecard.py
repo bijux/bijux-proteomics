@@ -17,7 +17,9 @@ __all__ = [
 ]
 
 
-PACKAGE_SCORECARD_PATH = REPO_ROOT / "configs" / "package-governance" / "package-scorecard.toml"
+PACKAGE_SCORECARD_PATH = (
+    REPO_ROOT / "configs" / "package-governance" / "package-scorecard.toml"
+)
 
 
 @dataclass(frozen=True)
@@ -135,12 +137,21 @@ def validate_package_scorecard(
     architectural_ready_package_count = sum(
         entry.architectural_ready for entry in report.entries
     )
-    total_unresolved_debt_count = sum(entry.unresolved_debt_count for entry in report.entries)
+    total_unresolved_debt_count = sum(
+        entry.unresolved_debt_count for entry in report.entries
+    )
     failures: list[str] = []
-    if architectural_ready_package_count < report.guard.min_architectural_ready_package_count:
-        failures.append("architectural-ready package count dropped below the governed baseline")
+    if (
+        architectural_ready_package_count
+        < report.guard.min_architectural_ready_package_count
+    ):
+        failures.append(
+            "architectural-ready package count dropped below the governed baseline"
+        )
     if total_unresolved_debt_count > report.guard.max_total_unresolved_debt_count:
-        failures.append("unresolved structural debt grew beyond the governed scorecard baseline")
+        failures.append(
+            "unresolved structural debt grew beyond the governed scorecard baseline"
+        )
     return tuple(failures)
 
 
@@ -199,7 +210,9 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package scorecard.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package scorecard."
+    )
     parser.add_argument(
         "--check",
         action="store_true",

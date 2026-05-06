@@ -181,7 +181,9 @@ def build_package_module_ledger_report() -> PackageModuleLedgerReport:
 
     return PackageModuleLedgerReport(
         entries=tuple(
-            sorted(entries, key=lambda entry: (entry.distribution_name, entry.module_path))
+            sorted(
+                entries, key=lambda entry: (entry.distribution_name, entry.module_path)
+            )
         ),
         guard=PackageModuleLedgerGuard(
             min_owner_logic_module_count=owner_logic_module_count,

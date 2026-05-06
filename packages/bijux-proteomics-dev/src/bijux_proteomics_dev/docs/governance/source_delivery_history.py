@@ -72,7 +72,9 @@ def _matches_delivery_history(text: str) -> str | None:
     return None
 
 
-def _docstring_entries(package_name: str, path: Path) -> list[SourceDeliveryHistoryEntry]:
+def _docstring_entries(
+    package_name: str, path: Path
+) -> list[SourceDeliveryHistoryEntry]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     entries: list[SourceDeliveryHistoryEntry] = []
     nodes: list[tuple[ast.AST, str]] = [(tree, "module")]

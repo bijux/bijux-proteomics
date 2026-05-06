@@ -20,7 +20,10 @@ def test_package_owned_value_audit_tracks_current_documented_value() -> None:
     assert len(report.entries) == 8
     assert by_package["bijux-proteomics-foundation"].owned_value_bullets
     assert by_package["bijux-proteomics-core"].owner_depth_count >= 10
-    assert "candidate ranking" in by_package["bijux-proteomics-intelligence"].owned_value_summary
+    assert (
+        "candidate ranking"
+        in by_package["bijux-proteomics-intelligence"].owned_value_summary
+    )
 
 
 def test_package_owned_value_audit_release_guard_has_no_failures() -> None:

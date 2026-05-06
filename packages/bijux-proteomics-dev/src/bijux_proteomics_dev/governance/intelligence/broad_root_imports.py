@@ -112,9 +112,7 @@ def build_intelligence_broad_root_import_report() -> IntelligenceBroadRootImport
         if "__pycache__" not in path.parts
     )
     violations = tuple(
-        violation
-        for path in source_modules
-        for violation in _violations_for(path)
+        violation for path in source_modules for violation in _violations_for(path)
     )
     metrics = IntelligenceBroadRootImportMetrics(
         scanned_module_count=len(source_modules),

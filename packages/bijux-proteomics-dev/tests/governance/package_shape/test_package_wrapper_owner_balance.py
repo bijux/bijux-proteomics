@@ -12,7 +12,9 @@ def test_package_wrapper_owner_balance_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_package_wrapper_owner_balance_report_tracks_wrapper_pressure_against_owner_depth() -> None:
+def test_package_wrapper_owner_balance_report_tracks_wrapper_pressure_against_owner_depth() -> (
+    None
+):
     report = build_package_wrapper_owner_balance_report()
     by_package = {entry.distribution_name: entry for entry in report.entries}
 

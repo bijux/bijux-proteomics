@@ -90,7 +90,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.interpretation.contaminants"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_intelligence.interpretation.pathways"]
 outgoing_workspace_modules = ["bijux_proteomics.quantification", "bijux_proteomics.study.qc", "bijux_proteomics_foundation"]
 
 [[module]]
@@ -216,7 +216,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.packets"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.candidates.lifecycle", "bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.judgment.recommendations", "bijux_proteomics_intelligence.judgment.scenarios", "bijux_proteomics_intelligence.posture.evidence"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.pathways"

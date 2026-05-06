@@ -37,16 +37,14 @@ def test_lab_cross_package_dependency_report_tracks_live_edges() -> None:
     assert "benchmarks/claims.py" in importers
     assert owner_counts["bijux-proteomics-core"] == report.guard.max_core_edges
     assert (
-        owner_counts["bijux-proteomics-foundation"]
-        == report.guard.max_foundation_edges
+        owner_counts["bijux-proteomics-foundation"] == report.guard.max_foundation_edges
     )
     assert (
         owner_counts["bijux-proteomics-intelligence"]
         == report.guard.max_intelligence_edges
     )
     assert (
-        owner_counts["bijux-proteomics-knowledge"]
-        == report.guard.max_knowledge_edges
+        owner_counts["bijux-proteomics-knowledge"] == report.guard.max_knowledge_edges
     )
     assert owner_counts["bijux-proteomics-runtime"] == report.guard.max_runtime_edges
 

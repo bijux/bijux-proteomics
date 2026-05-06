@@ -66,12 +66,8 @@ def build_package_dependency_graph_report() -> PackageDependencyGraphReport:
             source_distribution=source_distribution,
             target_distribution=target_distribution,
             source_module_count=len({source_module for source_module, _ in uses}),
-            source_modules=tuple(
-                sorted({source_module for source_module, _ in uses})
-            ),
-            target_modules=tuple(
-                sorted({target_module for _, target_module in uses})
-            ),
+            source_modules=tuple(sorted({source_module for source_module, _ in uses})),
+            target_modules=tuple(sorted({target_module for _, target_module in uses})),
         )
         for (source_distribution, target_distribution), uses in sorted(by_edge.items())
     )
@@ -94,11 +90,17 @@ def validate_package_dependency_graph(
     report = report or build_package_dependency_graph_report()
     failures: list[str] = []
     total_edges = len(report.entries)
-    total_source_module_uses = sum(entry.source_module_count for entry in report.entries)
+    total_source_module_uses = sum(
+        entry.source_module_count for entry in report.entries
+    )
     if total_edges > report.guard.max_total_edges:
-        failures.append("package dependency edge count grew beyond the governed baseline")
+        failures.append(
+            "package dependency edge count grew beyond the governed baseline"
+        )
     if total_source_module_uses > report.guard.max_total_source_module_uses:
-        failures.append("package dependency source-module usage grew beyond the governed baseline")
+        failures.append(
+            "package dependency source-module usage grew beyond the governed baseline"
+        )
     return tuple(failures)
 
 

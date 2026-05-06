@@ -6,7 +6,11 @@ from pytest import MonkeyPatch
 
 from bijux_proteomics_dev.release.governance import runtime_compatibility_validation
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_release_matrix_loader_reads_json_list() -> None:

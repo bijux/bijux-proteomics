@@ -63,9 +63,9 @@ def build_package_root_line_count_report() -> PackageRootLineCountReport:
             distribution_name=package_name,
             import_root=import_root(package_name),
             init_line_count=len(
-                (src_root(package_name) / "__init__.py").read_text(
-                    encoding="utf-8"
-                ).splitlines()
+                (src_root(package_name) / "__init__.py")
+                .read_text(encoding="utf-8")
+                .splitlines()
             ),
             top_level_python_module_count=len(root_python_modules(package_name)),
             public_symbol_count=public_symbol_count_from_init(package_name),

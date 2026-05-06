@@ -50,7 +50,7 @@ def default_fast_gate_targets() -> tuple[FastGateTarget, ...]:
         ),
         FastGateTarget(
             surface="runtime-artifact",
-            test_path="packages/bijux-proteomics-core/tests/workflow/test_production_run_surface.py",
+            test_path="packages/bijux-proteomics-runtime/tests/workflows/test_workflow_runs_surface.py",
             rationale="prove runtime artifact bundle basics remain intact",
         ),
         FastGateTarget(

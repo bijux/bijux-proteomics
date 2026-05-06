@@ -12,16 +12,30 @@ from bijux_proteomics_knowledge.references.workflows.briefings import (
     build_workflow_reference_briefing,
     list_workflow_reference_briefings,
 )
-from bijux_proteomics_knowledge.references.grounding.citations import DEFAULT_CITATION_REGISTRY
+from bijux_proteomics_knowledge.references.grounding.citations import (
+    DEFAULT_CITATION_REGISTRY,
+)
 from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
 )
-from bijux_proteomics_knowledge.references.grounding.corpora import DEFAULT_CORPUS_MANIFESTS
-from bijux_proteomics_knowledge.references.grounding.literature import DEFAULT_LITERATURE_GROUPS
-from bijux_proteomics_knowledge.references.workflows.narratives import DEFAULT_WORKFLOW_NARRATIVES
-from bijux_proteomics_knowledge.references.grounding.ontologies import DEFAULT_ONTOLOGY_MAPPINGS
-from bijux_proteomics_knowledge.references.grounding.problems import DEFAULT_KNOWN_PROBLEM_REGISTRY
-from bijux_proteomics_knowledge.references.grounding.rules import DEFAULT_SCIENTIFIC_RULE_REFERENCES
+from bijux_proteomics_knowledge.references.grounding.corpora import (
+    DEFAULT_CORPUS_MANIFESTS,
+)
+from bijux_proteomics_knowledge.references.grounding.literature import (
+    DEFAULT_LITERATURE_GROUPS,
+)
+from bijux_proteomics_knowledge.references.workflows.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+)
+from bijux_proteomics_knowledge.references.grounding.ontologies import (
+    DEFAULT_ONTOLOGY_MAPPINGS,
+)
+from bijux_proteomics_knowledge.references.grounding.problems import (
+    DEFAULT_KNOWN_PROBLEM_REGISTRY,
+)
+from bijux_proteomics_knowledge.references.grounding.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+)
 
 __all__ = [
     "KNOWLEDGE_ORPHAN_REFERENCES_PATH",
@@ -73,10 +87,16 @@ class KnowledgeOrphanReferenceEntry:
 
 
 KNOWLEDGE_PROVENANCE_COMPLETENESS_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "knowledge-provenance-completeness.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "knowledge-provenance-completeness.toml"
 )
 KNOWLEDGE_UNDER_CURATED_WORKFLOWS_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "knowledge-under-curated-workflows.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "knowledge-under-curated-workflows.toml"
 )
 KNOWLEDGE_ORPHAN_REFERENCES_PATH = (
     REPO_ROOT / "configs" / "package-governance" / "knowledge-orphan-references.toml"
@@ -111,7 +131,9 @@ def _present(value: object) -> bool:
     return True
 
 
-def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanceSurfaceEntry, ...]:
+def build_knowledge_provenance_completeness_report() -> tuple[
+    KnowledgeProvenanceSurfaceEntry, ...
+]:
     """Measure provenance completeness across curated knowledge reference surfaces."""
 
     surfaces: tuple[tuple[str, tuple[object, ...], tuple[str, ...]], ...] = (
@@ -249,9 +271,9 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
                 if not _present(getattr(entry, field_name))
             ]
             if surface_name == "corpora":
-                has_location = _present(getattr(entry, "repo_relative_path")) or _present(
-                    getattr(entry, "reference_locator")
-                )
+                has_location = _present(
+                    getattr(entry, "repo_relative_path")
+                ) or _present(getattr(entry, "reference_locator"))
                 if not has_location:
                     missing_fields.append("repo_relative_path|reference_locator")
             if surface_name == "citations":
@@ -274,7 +296,9 @@ def build_knowledge_provenance_completeness_report() -> tuple[KnowledgeProvenanc
     return tuple(entries)
 
 
-def build_knowledge_under_curated_workflow_report() -> tuple[KnowledgeUnderCuratedWorkflowEntry, ...]:
+def build_knowledge_under_curated_workflow_report() -> tuple[
+    KnowledgeUnderCuratedWorkflowEntry, ...
+]:
     """Measure which workflow families still have shallower surrounding curation."""
 
     entries: list[KnowledgeUnderCuratedWorkflowEntry] = []
@@ -315,7 +339,9 @@ def build_knowledge_under_curated_workflow_report() -> tuple[KnowledgeUnderCurat
     return tuple(entries)
 
 
-def build_knowledge_orphan_reference_report() -> tuple[KnowledgeOrphanReferenceEntry, ...]:
+def build_knowledge_orphan_reference_report() -> tuple[
+    KnowledgeOrphanReferenceEntry, ...
+]:
     """Report curated references that no other knowledge surface currently uses."""
 
     citation_refs: set[str] = set()
@@ -464,7 +490,9 @@ def _provenance_toml_text(entries: tuple[KnowledgeProvenanceSurfaceEntry, ...]) 
     return "\n".join(lines)
 
 
-def _under_curated_toml_text(entries: tuple[KnowledgeUnderCuratedWorkflowEntry, ...]) -> str:
+def _under_curated_toml_text(
+    entries: tuple[KnowledgeUnderCuratedWorkflowEntry, ...],
+) -> str:
     lines = [
         "# Generated knowledge under-curated workflow report.",
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.reference_quality",

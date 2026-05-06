@@ -5,7 +5,7 @@
 max_total_root_python_module_count = 0
 max_total_wrapper_module_count = 0
 max_total_broad_root_import_count = 0
-min_average_test_tree_mirroring_score = 88.12
+min_average_test_tree_mirroring_score = 89.0
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -65,15 +65,15 @@ root_python_module_count = 0
 public_symbol_count = 5
 compatibility_wrapper_count = 0
 broad_root_import_count = 0
-source_owner_family_count = 22
-test_family_count = 22
-mirrored_owner_family_count = 19
+source_owner_family_count = 15
+test_family_count = 17
+mirrored_owner_family_count = 14
 flatness_score = 100.0
 root_bloat_score = 92.0
 wrapper_density_score = 100.0
 broad_root_import_score = 100.0
-test_tree_mirroring_score = 86.36
-overall_tree_quality_score = 95.67
+test_tree_mirroring_score = 93.33
+overall_tree_quality_score = 97.07
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"

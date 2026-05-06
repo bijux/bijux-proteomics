@@ -6,7 +6,9 @@ from dataclasses import dataclass
 from bijux_proteomics_dev.governance.dependencies.package_dependency_graph import (
     build_package_dependency_graph_report,
 )
-from bijux_proteomics_dev.governance.support.workspace_inventory import workspace_package_names
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_package_names,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -125,7 +127,9 @@ def build_package_dependency_policy_report() -> PackageDependencyPolicyReport:
     """Build the explicit workspace dependency policy report."""
 
     return PackageDependencyPolicyReport(
-        entries=tuple(_policy_entry(package_name) for package_name in workspace_package_names())
+        entries=tuple(
+            _policy_entry(package_name) for package_name in workspace_package_names()
+        )
     )
 
 

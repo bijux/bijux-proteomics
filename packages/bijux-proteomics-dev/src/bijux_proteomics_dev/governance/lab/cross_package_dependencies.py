@@ -52,10 +52,7 @@ LAB_SRC_ROOT = (
     REPO_ROOT / "packages" / "bijux-proteomics-lab" / "src" / "bijux_proteomics_lab"
 )
 LAB_CROSS_PACKAGE_DEPENDENCIES_PATH = (
-    REPO_ROOT
-    / "configs"
-    / "package-governance"
-    / "lab-cross-package-dependencies.toml"
+    REPO_ROOT / "configs" / "package-governance" / "lab-cross-package-dependencies.toml"
 )
 OWNER_BY_PREFIX = {
     "bijux_proteomics": "bijux-proteomics-core",
@@ -107,7 +104,9 @@ def build_lab_cross_package_dependency_report() -> LabCrossPackageDependencyRepo
                         importer_module_path=importer_module_path,
                         owner_distribution=distribution,
                         imported_module_name=node.module,
-                        imported_symbols=tuple(sorted(alias.name for alias in node.names)),
+                        imported_symbols=tuple(
+                            sorted(alias.name for alias in node.names)
+                        ),
                     )
                 )
 
@@ -157,7 +156,9 @@ def validate_lab_cross_package_dependencies() -> tuple[str, ...]:
     if _count("bijux-proteomics-runtime") > report.guard.max_runtime_edges:
         failures.append("lab runtime dependency edges grew beyond the guarded baseline")
     if len(report.entries) > report.guard.max_total_edges:
-        failures.append("lab cross-package dependency count grew beyond the guarded baseline")
+        failures.append(
+            "lab cross-package dependency count grew beyond the guarded baseline"
+        )
     return tuple(failures)
 
 
@@ -193,9 +194,9 @@ def _toml_text(report: LabCrossPackageDependencyReport) -> str:
 def _is_up_to_date(report: LabCrossPackageDependencyReport) -> bool:
     if not LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.exists():
         return False
-    return LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.read_text(encoding="utf-8") == _toml_text(
-        report
-    )
+    return LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.read_text(
+        encoding="utf-8"
+    ) == _toml_text(report)
 
 
 def run(check: bool = False) -> int:
@@ -211,9 +212,7 @@ def run(check: bool = False) -> int:
             return 0
         print("lab cross-package dependency report is stale; regenerate it")
         return 1
-    LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.write_text(
-        _toml_text(report), encoding="utf-8"
-    )
+    LAB_CROSS_PACKAGE_DEPENDENCIES_PATH.write_text(_toml_text(report), encoding="utf-8")
     print("generated lab cross-package dependency report")
     return 0
 

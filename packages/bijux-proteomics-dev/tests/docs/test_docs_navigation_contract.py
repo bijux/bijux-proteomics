@@ -9,7 +9,11 @@ import tempfile
 
 import pytest
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 MERMAID_RESERVED_IDS = {
     "class",
     "classdef",
@@ -268,6 +272,7 @@ def test_repository_foundation_leaf_pages_keep_section_sidebar(
         "Change Principles",
         "Decision Rules",
         "Scientific Workflow Roadmap",
+        "Duplicate Model Ownership",
     ]
 
 
@@ -376,6 +381,7 @@ def test_maintenance_dev_leaf_pages_keep_section_sidebar(
         "Security Gates",
         "Schema Governance",
         "Release Support",
+        "Package Substance",
         "Documentation Integrity",
         "Badge Catalog",
         "Operating Guidelines",

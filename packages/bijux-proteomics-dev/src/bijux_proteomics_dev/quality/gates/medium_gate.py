@@ -46,7 +46,7 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
     return (
         MediumGateTarget(
             surface="workflow-reproducibility",
-            test_path="packages/bijux-proteomics-core/tests/workflow/test_runtime_surface.py",
+            test_path="packages/bijux-proteomics-runtime/tests/workflows/test_workflow_runs_surface.py",
             rationale="prove runtime export, archive, and rerun contracts stay reproducible",
         ),
         MediumGateTarget(
@@ -56,7 +56,7 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
         ),
         MediumGateTarget(
             surface="runtime-service",
-            test_path="packages/bijux-proteomics-runtime/tests/governance/test_document_contract_surfaces.py",
+            test_path="packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py",
             rationale="prove runtime contract publication and service surfaces stay aligned",
         ),
         MediumGateTarget(

@@ -24,7 +24,11 @@ def test_medium_gate_targets_cover_expected_surfaces() -> None:
 
 
 def test_medium_gate_targets_exist_and_validate_repo_prerequisites() -> None:
-    repo_root = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+    repo_root = next(
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+    )
 
     assert validate_medium_gate(repo_root) == []
     assert all(

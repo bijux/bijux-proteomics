@@ -6,7 +6,9 @@ import json
 import os
 from pathlib import Path
 
-from bijux_proteomics_dev.governance.contracts.freeze_contracts import run as run_api_freeze
+from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
+    run as run_api_freeze,
+)
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     run as run_runtime_boundaries,
 )

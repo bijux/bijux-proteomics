@@ -94,7 +94,9 @@ def build_foundation_publishability_report() -> FoundationPublishabilityReport:
     for attribute in supported_attributes:
         entry = root_entries.get(attribute)
         if entry is None:
-            reuse_gaps.append(f"{attribute}: missing from foundation root consumer report")
+            reuse_gaps.append(
+                f"{attribute}: missing from foundation root consumer report"
+            )
             continue
         distribution_count = len(entry.consumer_distributions)
         if distribution_count >= 2:
@@ -136,11 +138,20 @@ def validate_foundation_publishability(
     failures: list[str] = []
 
     if report.supported_attribute_count > report.guard.max_supported_attribute_count:
-        failures.append("foundation supported attribute count grew beyond the guarded publishability surface")
+        failures.append(
+            "foundation supported attribute count grew beyond the guarded publishability surface"
+        )
     if report.root_public_symbol_count > report.guard.max_root_public_symbol_count:
-        failures.append("foundation root public symbol count grew beyond the guarded publishability budget")
-    if report.downstream_distribution_count < report.guard.min_downstream_distribution_count:
-        failures.append("foundation reuse fell below the guarded downstream distribution count")
+        failures.append(
+            "foundation root public symbol count grew beyond the guarded publishability budget"
+        )
+    if (
+        report.downstream_distribution_count
+        < report.guard.min_downstream_distribution_count
+    ):
+        failures.append(
+            "foundation reuse fell below the guarded downstream distribution count"
+        )
     if (
         report.supported_multi_distribution_count
         < report.guard.min_supported_multi_distribution_count
@@ -178,7 +189,9 @@ def validate_foundation_publishability(
 
 
 def _toml_text(report: FoundationPublishabilityReport) -> str:
-    supported_attributes = ", ".join(f'"{value}"' for value in report.supported_attributes)
+    supported_attributes = ", ".join(
+        f'"{value}"' for value in report.supported_attributes
+    )
     reuse_gaps = ", ".join(f'"{value}"' for value in report.unsupported_reuse_gaps)
     guard = report.guard
     return "\n".join(

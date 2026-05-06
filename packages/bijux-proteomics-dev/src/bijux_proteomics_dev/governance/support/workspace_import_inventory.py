@@ -36,7 +36,10 @@ class WorkspaceModuleDependencyEdge:
 def workspace_import_roots() -> dict[str, str]:
     """Map import roots to workspace distribution names."""
 
-    return {import_root(package_name): package_name for package_name in workspace_package_names()}
+    return {
+        import_root(package_name): package_name
+        for package_name in workspace_package_names()
+    }
 
 
 def module_identifier(package_name: str, path: Path) -> str:
@@ -77,7 +80,9 @@ def _resolve_relative_module(
     return ".".join(target_parts) if target_parts else None
 
 
-def module_dependency_edges(package_name: str) -> tuple[WorkspaceModuleDependencyEdge, ...]:
+def module_dependency_edges(
+    package_name: str,
+) -> tuple[WorkspaceModuleDependencyEdge, ...]:
     """Return resolved workspace module dependency edges for one package."""
 
     roots = workspace_import_roots()
@@ -149,9 +154,7 @@ def cross_package_dependency_edges() -> tuple[WorkspaceModuleDependencyEdge, ...
     edges: list[WorkspaceModuleDependencyEdge] = []
     for package_name in workspace_package_names():
         edges.extend(
-            edge
-            for edge in module_dependency_edges(package_name)
-            if not edge.internal
+            edge for edge in module_dependency_edges(package_name) if not edge.internal
         )
     return tuple(
         sorted(

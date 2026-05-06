@@ -79,7 +79,10 @@ FOUNDATION_DEAD_EXPORTS_PATH = (
     REPO_ROOT / "configs" / "package-governance" / "foundation-dead-exports.toml"
 )
 FOUNDATION_COMPATIBILITY_ALIASES_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "foundation-compatibility-aliases.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "foundation-compatibility-aliases.toml"
 )
 
 
@@ -88,7 +91,9 @@ def public_foundation_surfaces() -> tuple[PublicFoundationSurface, ...]:
 
     return (
         PublicFoundationSurface(module_name="bijux_proteomics_foundation"),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.compatibility"),
+        PublicFoundationSurface(
+            module_name="bijux_proteomics_foundation.compatibility"
+        ),
         PublicFoundationSurface(
             module_name="bijux_proteomics_foundation.identity.identifiers"
         ),
@@ -116,12 +121,16 @@ def public_foundation_surfaces() -> tuple[PublicFoundationSurface, ...]:
         PublicFoundationSurface(
             module_name="bijux_proteomics_foundation.serialization.json_contracts"
         ),
-        PublicFoundationSurface(module_name="bijux_proteomics_foundation.support.states"),
+        PublicFoundationSurface(
+            module_name="bijux_proteomics_foundation.support.states"
+        ),
     )
 
 
 def _src_root(package: DownstreamPackage) -> Path:
-    return REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    return (
+        REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    )
 
 
 def _exported_symbols(module_name: str) -> tuple[str, ...]:
@@ -134,11 +143,15 @@ def build_foundation_surface_consumers() -> tuple[FoundationSurfaceConsumerEntry
 
     surfaces = public_foundation_surfaces()
     modules = {surface.module_name for surface in surfaces}
-    consumers_by_surface: dict[str, set[str]] = {module_name: set() for module_name in modules}
+    consumers_by_surface: dict[str, set[str]] = {
+        module_name: set() for module_name in modules
+    }
     distributions_by_surface: dict[str, set[str]] = {
         module_name: set() for module_name in modules
     }
-    symbols_by_surface: dict[str, set[str]] = {module_name: set() for module_name in modules}
+    symbols_by_surface: dict[str, set[str]] = {
+        module_name: set() for module_name in modules
+    }
 
     for package in downstream_packages():
         src_root = _src_root(package)
@@ -152,7 +165,9 @@ def build_foundation_surface_consumers() -> tuple[FoundationSurfaceConsumerEntry
                     for alias in node.names:
                         if alias.name not in modules:
                             continue
-                        distributions_by_surface[alias.name].add(package.distribution_name)
+                        distributions_by_surface[alias.name].add(
+                            package.distribution_name
+                        )
                         consumers_by_surface[alias.name].add(relative_path)
                 if not isinstance(node, ast.ImportFrom) or node.module is None:
                     continue
@@ -186,7 +201,9 @@ def build_foundation_dead_exports() -> tuple[FoundationDeadExportEntry, ...]:
             module_name=entry.module_name,
             exported_symbols=entry.exported_symbols,
             live_symbols=tuple(
-                symbol for symbol in entry.exported_symbols if symbol in entry.imported_symbols
+                symbol
+                for symbol in entry.exported_symbols
+                if symbol in entry.imported_symbols
             ),
             dead_symbols=tuple(
                 symbol
@@ -199,7 +216,9 @@ def build_foundation_dead_exports() -> tuple[FoundationDeadExportEntry, ...]:
     )
 
 
-def build_foundation_compatibility_aliases() -> tuple[FoundationCompatibilityAliasEntry, ...]:
+def build_foundation_compatibility_aliases() -> tuple[
+    FoundationCompatibilityAliasEntry, ...
+]:
     """Report which compatibility wrappers still need alias coverage."""
 
     dead_export_by_module = {
@@ -212,14 +231,18 @@ def build_foundation_compatibility_aliases() -> tuple[FoundationCompatibilityAli
         FoundationCompatibilityAliasEntry(
             module_name=surface.module_name,
             canonical_module_name=surface.canonical_module_name or "",
-            exported_symbols=dead_export_by_module[surface.module_name].exported_symbols,
+            exported_symbols=dead_export_by_module[
+                surface.module_name
+            ].exported_symbols,
             live_symbols=dead_export_by_module[surface.module_name].live_symbols,
             dead_symbols=dead_export_by_module[surface.module_name].dead_symbols,
             consumer_distributions=consumer_by_module[
                 surface.module_name
             ].consumer_distributions,
             consumer_modules=consumer_by_module[surface.module_name].consumer_modules,
-            requires_alias_test=bool(dead_export_by_module[surface.module_name].consumer_count),
+            requires_alias_test=bool(
+                dead_export_by_module[surface.module_name].consumer_count
+            ),
         )
         for surface in public_foundation_surfaces()
         if surface.compatibility_wrapper
@@ -236,7 +259,9 @@ def _surface_consumer_toml_text(
     ]
     for entry in entries:
         exported = ", ".join(f'"{value}"' for value in entry.exported_symbols)
-        distributions = ", ".join(f'"{value}"' for value in entry.consumer_distributions)
+        distributions = ", ".join(
+            f'"{value}"' for value in entry.consumer_distributions
+        )
         modules = ", ".join(f'"{value}"' for value in entry.consumer_modules)
         symbols = ", ".join(f'"{value}"' for value in entry.imported_symbols)
         lines.extend(
@@ -290,7 +315,9 @@ def _compatibility_alias_toml_text(
         exported = ", ".join(f'"{value}"' for value in entry.exported_symbols)
         live = ", ".join(f'"{value}"' for value in entry.live_symbols)
         dead = ", ".join(f'"{value}"' for value in entry.dead_symbols)
-        distributions = ", ".join(f'"{value}"' for value in entry.consumer_distributions)
+        distributions = ", ".join(
+            f'"{value}"' for value in entry.consumer_distributions
+        )
         modules = ", ".join(f'"{value}"' for value in entry.consumer_modules)
         lines.extend(
             [
@@ -344,8 +371,7 @@ def run(check: bool = False) -> int:
         ]
         if stale:
             print(
-                "foundation surface governance reports are stale: "
-                + ", ".join(stale)
+                "foundation surface governance reports are stale: " + ", ".join(stale)
             )
             return 1
         print(

@@ -137,9 +137,7 @@ def _toml_text(report: tuple[LabAnalyticalLogicModule, ...]) -> str:
 def _is_up_to_date(report: tuple[LabAnalyticalLogicModule, ...]) -> bool:
     if not LAB_ANALYTICAL_LOGIC_PATH.exists():
         return False
-    return LAB_ANALYTICAL_LOGIC_PATH.read_text(encoding="utf-8") == _toml_text(
-        report
-    )
+    return LAB_ANALYTICAL_LOGIC_PATH.read_text(encoding="utf-8") == _toml_text(report)
 
 
 def run(check: bool = False) -> int:

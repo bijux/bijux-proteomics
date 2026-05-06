@@ -22,7 +22,7 @@ def test_package_docs_claim_proof_report_tracks_current_evidence_gaps() -> None:
     assert entries["bijux-proteomics-dev"].unproven_claim_kinds == ("integrity",)
     assert entries["bijux-proteomics-knowledge"].unproven_claim_kinds == ("replay",)
     assert entries["bijux-proteomics-lab"].unproven_claim_kinds == ("integrity",)
-    assert report.guard.min_total_benchmark_proof_artifact_count == 21
+    assert report.guard.min_total_benchmark_proof_artifact_count == 41
 
 
 def test_package_docs_claim_proof_release_guard_has_no_failures() -> None:

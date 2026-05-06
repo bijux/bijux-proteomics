@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.architecture.circular_dependencies import (
     validate_workspace_dependency_cycles,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def _write_package(

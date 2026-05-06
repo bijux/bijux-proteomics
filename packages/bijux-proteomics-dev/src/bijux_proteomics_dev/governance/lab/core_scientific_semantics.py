@@ -21,10 +21,7 @@ LAB_SRC_ROOT = (
     REPO_ROOT / "packages" / "bijux-proteomics-lab" / "src" / "bijux_proteomics_lab"
 )
 LAB_CORE_SCIENTIFIC_SEMANTICS_PATH = (
-    REPO_ROOT
-    / "configs"
-    / "package-governance"
-    / "lab-core-scientific-semantics.toml"
+    REPO_ROOT / "configs" / "package-governance" / "lab-core-scientific-semantics.toml"
 )
 SCIENTIFIC_IMPORT_PREFIXES = (
     "bijux_proteomics.dia",
@@ -80,7 +77,10 @@ def build_lab_core_scientific_semantics_report() -> tuple[LabCoreScientificImpor
                         )
                     )
     return tuple(
-        sorted(entries, key=lambda entry: (entry.importer_module_path, entry.imported_module_name))
+        sorted(
+            entries,
+            key=lambda entry: (entry.importer_module_path, entry.imported_module_name),
+        )
     )
 
 
@@ -152,9 +152,7 @@ def run(check: bool = False) -> int:
             return 0
         print("lab core scientific semantics report is stale; regenerate it")
         return 1
-    LAB_CORE_SCIENTIFIC_SEMANTICS_PATH.write_text(
-        _toml_text(report), encoding="utf-8"
-    )
+    LAB_CORE_SCIENTIFIC_SEMANTICS_PATH.write_text(_toml_text(report), encoding="utf-8")
     print("generated lab core scientific semantics report")
     return 0
 

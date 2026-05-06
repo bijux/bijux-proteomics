@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory i
 )
 from bijux_proteomics_dev.quality.architecture.runtime_boundaries import load_policy
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_agentic_compatibility_layer_is_wrapper_only_or_dead() -> None:
@@ -47,7 +51,10 @@ def test_nested_compat_init_modules_stay_within_runtime_bridge_exports() -> None
     policy = load_policy(REPO_ROOT)
     nested_init_paths = [
         policy.compat_forwarding.package_root / "agents" / "__init__.py",
-        policy.compat_forwarding.package_root / "agents" / "coordination" / "__init__.py",
+        policy.compat_forwarding.package_root
+        / "agents"
+        / "coordination"
+        / "__init__.py",
         policy.compat_forwarding.package_root / "execution" / "__init__.py",
         policy.compat_forwarding.package_root / "interfaces" / "http" / "__init__.py",
         policy.compat_forwarding.package_root / "orchestration" / "__init__.py",

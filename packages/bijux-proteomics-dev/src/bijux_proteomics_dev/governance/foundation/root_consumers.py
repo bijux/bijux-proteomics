@@ -53,7 +53,9 @@ def downstream_packages() -> tuple[DownstreamPackage, ...]:
         DownstreamPackage("agentic-proteins", "agentic_proteins"),
         DownstreamPackage("bijux-proteomics-core", "bijux_proteomics"),
         DownstreamPackage("bijux-proteomics-dev", "bijux_proteomics_dev"),
-        DownstreamPackage("bijux-proteomics-intelligence", "bijux_proteomics_intelligence"),
+        DownstreamPackage(
+            "bijux-proteomics-intelligence", "bijux_proteomics_intelligence"
+        ),
         DownstreamPackage("bijux-proteomics-knowledge", "bijux_proteomics_knowledge"),
         DownstreamPackage("bijux-proteomics-lab", "bijux_proteomics_lab"),
         DownstreamPackage("bijux-proteomics-runtime", "bijux_proteomics_runtime"),
@@ -66,14 +68,18 @@ def _foundation_root_exports() -> tuple[str, ...]:
 
 
 def _src_root(package: DownstreamPackage) -> Path:
-    return REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    return (
+        REPO_ROOT / "packages" / package.distribution_name / "src" / package.import_root
+    )
 
 
 def build_foundation_root_consumers() -> tuple[FoundationRootConsumerEntry, ...]:
     """Build the machine-readable consumer matrix for foundation root exports."""
 
     exports = _foundation_root_exports()
-    consumers_by_symbol: dict[str, set[str]] = {symbol_name: set() for symbol_name in exports}
+    consumers_by_symbol: dict[str, set[str]] = {
+        symbol_name: set() for symbol_name in exports
+    }
     distributions_by_symbol: dict[str, set[str]] = {
         symbol_name: set() for symbol_name in exports
     }
@@ -128,7 +134,9 @@ def _toml_text(entries: tuple[FoundationRootConsumerEntry, ...]) -> str:
         "",
     ]
     for entry in entries:
-        distributions = ", ".join(f'"{value}"' for value in entry.consumer_distributions)
+        distributions = ", ".join(
+            f'"{value}"' for value in entry.consumer_distributions
+        )
         modules = ", ".join(f'"{value}"' for value in entry.consumer_modules)
         lines.extend(
             [

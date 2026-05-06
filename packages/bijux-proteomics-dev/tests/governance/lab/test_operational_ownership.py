@@ -23,7 +23,9 @@ def test_lab_operational_ownership_requires_deep_owner_and_test_families() -> No
     assert metrics.test_families == REQUIRED_TEST_FAMILIES
     assert metrics.flat_test_module_count == 0
     assert metrics.mirrored_owner_family_count == len(REQUIRED_SOURCE_OWNER_FAMILIES)
-    assert metrics.operational_value_module_count > metrics.thin_abstraction_module_count
+    assert (
+        metrics.operational_value_module_count > metrics.thin_abstraction_module_count
+    )
     assert report.ownership_ready is True
 
 

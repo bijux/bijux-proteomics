@@ -7,7 +7,11 @@ from bijux_proteomics_dev.release.governance.ssot_readiness import (
     validate_ssot_readiness,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_ssot_readiness_report_covers_every_ownership_check() -> None:

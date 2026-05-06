@@ -5,7 +5,9 @@ from dataclasses import dataclass
 import tomllib
 
 from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
-from bijux_proteomics_dev.governance.lab.analytical_logic import validate_lab_analytical_logic
+from bijux_proteomics_dev.governance.lab.analytical_logic import (
+    validate_lab_analytical_logic,
+)
 from bijux_proteomics_dev.governance.lab.core_scientific_semantics import (
     LAB_CORE_SCIENTIFIC_SEMANTICS_PATH,
     validate_lab_core_scientific_semantics,
@@ -118,7 +120,9 @@ def build_lab_publishability_report() -> LabPublishabilityReport:
     )
     feasibility_ready = "queue pressure" in docs_text and "material limits" in docs_text
     traceability_ready = (
-        "traceability" in docs_text and "requested work" in docs_text and "observed work" in docs_text
+        "traceability" in docs_text
+        and "requested work" in docs_text
+        and "observed work" in docs_text
     )
     boundary_ready = not any(
         (
@@ -161,28 +165,44 @@ def validate_lab_publishability(
     report = report or build_lab_publishability_report()
     failures: list[str] = []
     if report.root_entrypoint_count > report.guard.max_root_entrypoint_count:
-        failures.append("lab publishability disallows widening the curated root entrypoint set")
+        failures.append(
+            "lab publishability disallows widening the curated root entrypoint set"
+        )
     if report.source_owner_family_count < report.guard.min_source_owner_family_count:
-        failures.append("lab publishability requires the full governed owner family map")
+        failures.append(
+            "lab publishability requires the full governed owner family map"
+        )
     if report.test_family_count < report.guard.min_test_family_count:
         failures.append("lab publishability requires the full governed test family map")
     if (
         report.mirrored_owner_family_count
         < report.guard.min_mirrored_owner_family_count
     ):
-        failures.append("lab publishability requires every operational owner family to be mirrored in tests")
+        failures.append(
+            "lab publishability requires every operational owner family to be mirrored in tests"
+        )
     if report.flat_test_module_count > report.guard.max_flat_test_module_count:
         failures.append("lab publishability requires zero flat root test modules")
     if not report.honesty_ready:
-        failures.append("lab publishability requires docs that keep handoff honesty and refusal behavior explicit")
+        failures.append(
+            "lab publishability requires docs that keep handoff honesty and refusal behavior explicit"
+        )
     if not report.feasibility_ready:
-        failures.append("lab publishability requires docs that keep queue pressure and material limits explicit")
+        failures.append(
+            "lab publishability requires docs that keep queue pressure and material limits explicit"
+        )
     if not report.traceability_ready:
-        failures.append("lab publishability requires docs that keep requested-versus-observed traceability explicit")
+        failures.append(
+            "lab publishability requires docs that keep requested-versus-observed traceability explicit"
+        )
     if not report.ownership_ready:
-        failures.append("lab publishability requires a clean operational ownership report")
+        failures.append(
+            "lab publishability requires a clean operational ownership report"
+        )
     if not report.boundary_ready:
-        failures.append("lab publishability requires clean analytical, scientific, runtime, root-import, dependency, and shape guards")
+        failures.append(
+            "lab publishability requires clean analytical, scientific, runtime, root-import, dependency, and shape guards"
+        )
     for failure in validate_lab_operational_ownership():
         failures.append(f"ownership: {failure}")
     return tuple(failures)

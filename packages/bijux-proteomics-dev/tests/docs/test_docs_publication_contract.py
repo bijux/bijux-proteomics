@@ -4,7 +4,11 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 BIJUX_PROTEOMICS_DOCS_URL = "https://bijux.io/bijux-proteomics/"
 
 

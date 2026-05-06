@@ -68,7 +68,11 @@ def root_python_modules(package_name: str) -> tuple[Path, ...]:
 def source_owner_families(package_name: str) -> tuple[str, ...]:
     root = src_root(package_name)
     return tuple(
-        sorted(path.name for path in root.iterdir() if path.is_dir() and path.name != "__pycache__")
+        sorted(
+            path.name
+            for path in root.iterdir()
+            if path.is_dir() and path.name != "__pycache__"
+        )
     )
 
 
@@ -118,7 +122,9 @@ def package_docs(package_name: str) -> tuple[Path, ...]:
 
 
 def nonempty_line_count(path: Path) -> int:
-    return sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+    return sum(
+        1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+    )
 
 
 def public_symbol_count_from_init(package_name: str) -> int:
@@ -157,7 +163,9 @@ def workspace_import_roots_used(path: Path) -> tuple[str, ...]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 for root_name in WORKSPACE_IMPORT_ROOTS:
-                    if alias.name == root_name or alias.name.startswith(f"{root_name}."):
+                    if alias.name == root_name or alias.name.startswith(
+                        f"{root_name}."
+                    ):
                         used.add(root_name)
         elif isinstance(node, ast.ImportFrom) and node.module is not None:
             for root_name in WORKSPACE_IMPORT_ROOTS:
@@ -166,7 +174,9 @@ def workspace_import_roots_used(path: Path) -> tuple[str, ...]:
     return tuple(sorted(used))
 
 
-def package_root_import_occurrences(package_name: str) -> tuple[tuple[str, str, int], ...]:
+def package_root_import_occurrences(
+    package_name: str,
+) -> tuple[tuple[str, str, int], ...]:
     root_name = import_root(package_name)
     occurrences: list[tuple[str, str, int]] = []
     for path in source_modules(package_name):

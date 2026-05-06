@@ -117,9 +117,7 @@ def build_intelligence_owner_import_boundary_report() -> (
         if "__pycache__" not in path.parts
     )
     violations = tuple(
-        violation
-        for path in source_modules
-        for violation in _violations_for(path)
+        violation for path in source_modules for violation in _violations_for(path)
     )
     metrics = IntelligenceOwnerImportBoundaryMetrics(
         scanned_module_count=len(source_modules),

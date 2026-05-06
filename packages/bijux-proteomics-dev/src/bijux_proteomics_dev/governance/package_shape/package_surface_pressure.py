@@ -4,8 +4,12 @@ import argparse
 from dataclasses import dataclass
 import tomllib
 
-from bijux_proteomics_dev.governance.package_shape.package_module_ledger import build_package_module_ledger_report
-from bijux_proteomics_dev.governance.package_shape.public_symbol_ledger import build_public_symbol_ledger_report
+from bijux_proteomics_dev.governance.package_shape.package_module_ledger import (
+    build_package_module_ledger_report,
+)
+from bijux_proteomics_dev.governance.package_shape.public_symbol_ledger import (
+    build_public_symbol_ledger_report,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -61,10 +65,7 @@ class PackageSurfacePressureReport:
 def _load_tree_dossiers() -> dict[str, dict[str, object]]:
     with PACKAGE_TREE_DOSSIERS_PATH.open("rb") as handle:
         data = tomllib.load(handle)
-    return {
-        entry["distribution_name"]: entry
-        for entry in data["package"]
-    }
+    return {entry["distribution_name"]: entry for entry in data["package"]}
 
 
 def build_package_surface_pressure_report() -> PackageSurfacePressureReport:
@@ -142,15 +143,23 @@ def validate_package_surface_pressure(
     total_root_export_symbol_count = sum(
         entry.root_export_symbol_count for entry in report.entries
     )
-    total_public_breadth_count = sum(entry.public_breadth_count for entry in report.entries)
-    overexposed_package_count = sum(entry.breadth_outpaces_owner_logic for entry in report.entries)
+    total_public_breadth_count = sum(
+        entry.public_breadth_count for entry in report.entries
+    )
+    overexposed_package_count = sum(
+        entry.breadth_outpaces_owner_logic for entry in report.entries
+    )
     failures: list[str] = []
     if total_root_export_symbol_count > report.guard.max_total_root_export_symbol_count:
-        failures.append("root export symbol count grew beyond the governed owner-depth baseline")
+        failures.append(
+            "root export symbol count grew beyond the governed owner-depth baseline"
+        )
     if total_public_breadth_count > report.guard.max_total_public_breadth_count:
         failures.append("public breadth grew beyond the governed owner-depth baseline")
     if overexposed_package_count > report.guard.max_overexposed_package_count:
-        failures.append("more packages expose broader root surfaces than owner logic depth")
+        failures.append(
+            "more packages expose broader root surfaces than owner logic depth"
+        )
     return tuple(failures)
 
 
@@ -186,7 +195,9 @@ def _toml_text(report: PackageSurfacePressureReport) -> str:
 def _is_up_to_date(report: PackageSurfacePressureReport) -> bool:
     if not PACKAGE_SURFACE_PRESSURE_PATH.exists():
         return False
-    return PACKAGE_SURFACE_PRESSURE_PATH.read_text(encoding="utf-8") == _toml_text(report)
+    return PACKAGE_SURFACE_PRESSURE_PATH.read_text(encoding="utf-8") == _toml_text(
+        report
+    )
 
 
 def run(check: bool = False) -> int:

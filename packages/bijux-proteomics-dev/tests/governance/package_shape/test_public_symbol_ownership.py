@@ -9,7 +9,11 @@ from bijux_proteomics_dev.governance.package_shape.public_symbol_ownership impor
     validate_public_symbol_ownership,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_public_symbol_ownership_map_is_up_to_date() -> None:

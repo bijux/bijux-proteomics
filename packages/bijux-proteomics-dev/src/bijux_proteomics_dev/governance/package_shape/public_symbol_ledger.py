@@ -112,7 +112,9 @@ def _root_export_sources(package_name: str) -> dict[str, str]:
     return mapping
 
 
-def _owner_module_name(import_root_name: str, symbol_name: str, symbol: object, source_map: dict[str, str]) -> str:
+def _owner_module_name(
+    import_root_name: str, symbol_name: str, symbol: object, source_map: dict[str, str]
+) -> str:
     if symbol_name in source_map:
         return source_map[symbol_name]
     if inspect.ismodule(symbol):
@@ -123,7 +125,9 @@ def _owner_module_name(import_root_name: str, symbol_name: str, symbol: object, 
 def _owner_distribution_name(owner_module_name: str, fallback_package_name: str) -> str:
     for package_name in workspace_package_names():
         root_name = import_root(package_name)
-        if owner_module_name == root_name or owner_module_name.startswith(f"{root_name}."):
+        if owner_module_name == root_name or owner_module_name.startswith(
+            f"{root_name}."
+        ):
             return package_name
     return fallback_package_name
 
@@ -206,8 +210,12 @@ def build_public_symbol_ledger_report() -> PublicSymbolLedgerReport:
         source_map = _root_export_sources(package_name)
         for symbol_name in getattr(module, "__all__", ()):
             value = getattr(module, symbol_name)
-            owner_module_name = _owner_module_name(root_name, symbol_name, value, source_map)
-            owner_distribution_name = _owner_distribution_name(owner_module_name, package_name)
+            owner_module_name = _owner_module_name(
+                root_name, symbol_name, value, source_map
+            )
+            owner_distribution_name = _owner_distribution_name(
+                owner_module_name, package_name
+            )
             owner_module_path = _owner_module_path(package_name, owner_module_name)
             owner_test_paths = _candidate_owner_test_paths(
                 owner_package_name=owner_distribution_name,
@@ -231,7 +239,11 @@ def build_public_symbol_ledger_report() -> PublicSymbolLedgerReport:
             )
     entries = sorted(
         entries,
-        key=lambda entry: (entry.distribution_name, entry.symbol_name, entry.owner_module_name),
+        key=lambda entry: (
+            entry.distribution_name,
+            entry.symbol_name,
+            entry.owner_module_name,
+        ),
     )
     return PublicSymbolLedgerReport(
         entries=tuple(entries),
@@ -250,11 +262,15 @@ def validate_public_symbol_ledger(
     report = report or build_public_symbol_ledger_report()
     failures: list[str] = []
     symbol_count = len(report.entries)
-    symbols_with_owner_tests = sum(bool(entry.owner_test_paths) for entry in report.entries)
+    symbols_with_owner_tests = sum(
+        bool(entry.owner_test_paths) for entry in report.entries
+    )
     if symbol_count < report.guard.min_public_symbol_count:
         failures.append("public symbol count dropped below the governed baseline")
     if symbols_with_owner_tests < report.guard.min_symbols_with_owner_tests:
-        failures.append("public symbols with owner tests dropped below the governed baseline")
+        failures.append(
+            "public symbols with owner tests dropped below the governed baseline"
+        )
     for entry in report.entries:
         if not entry.owner_module_name:
             failures.append(

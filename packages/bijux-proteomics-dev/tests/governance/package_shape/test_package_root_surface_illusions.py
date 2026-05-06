@@ -18,7 +18,10 @@ def test_package_root_surface_illusion_report_tracks_root_export_masking() -> No
 
     assert PACKAGE_ROOT_SURFACE_ILLUSIONS_PATH.exists()
     assert by_package["bijux-proteomics-foundation"].illusion_reasons == ()
-    assert by_package["bijux-proteomics-foundation"].root_surface_hides_owner_depth is False
+    assert (
+        by_package["bijux-proteomics-foundation"].root_surface_hides_owner_depth
+        is False
+    )
     assert by_package["bijux-proteomics-core"].compatibility_surfaces == ()
     assert any(entry.root_surface_hides_owner_depth for entry in report.entries)
 

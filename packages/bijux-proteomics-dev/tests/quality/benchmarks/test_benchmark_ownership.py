@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.benchmarks.benchmark_ownership import (
     validate_benchmark_owners,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_benchmark_owner_manifest_covers_each_workspace_package() -> None:

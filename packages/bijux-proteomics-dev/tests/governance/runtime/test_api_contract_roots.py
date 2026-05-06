@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 RUNTIME_API_ROOT = REPO_ROOT / "apis" / "bijux-proteomics-runtime" / "v1"
 COMPAT_API_ROOT = REPO_ROOT / "apis" / "agentic-proteins" / "v1"
 REQUIRED_FILES = ("schema.yaml", "pinned_openapi.json", "schema.hash")

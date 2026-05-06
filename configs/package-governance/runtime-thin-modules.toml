@@ -134,7 +134,7 @@ namespace_initializer = true
 
 [[thin_module]]
 module_path = "support/primitives/__init__.py"
-line_count = 33
+line_count = 42
 namespace_initializer = true
 
 [[thin_module]]

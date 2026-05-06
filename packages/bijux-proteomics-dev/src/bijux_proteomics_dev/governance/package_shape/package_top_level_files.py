@@ -54,7 +54,9 @@ def build_package_top_level_file_report() -> PackageTopLevelFileReport:
     entries = tuple(
         PackageTopLevelFileEntry(
             distribution_name=package_name,
-            top_level_files=tuple(sorted(path.name for path in root_python_modules(package_name))),
+            top_level_files=tuple(
+                sorted(path.name for path in root_python_modules(package_name))
+            ),
         )
         for package_name in workspace_package_names()
     )
@@ -74,7 +76,9 @@ def validate_package_top_level_files(
     """Fail release when top-level file growth outruns current package rationale."""
 
     report = report or build_package_top_level_file_report()
-    total_top_level_file_count = sum(len(entry.top_level_files) for entry in report.entries)
+    total_top_level_file_count = sum(
+        len(entry.top_level_files) for entry in report.entries
+    )
     if total_top_level_file_count <= report.guard.max_total_top_level_file_count:
         return ()
     return (

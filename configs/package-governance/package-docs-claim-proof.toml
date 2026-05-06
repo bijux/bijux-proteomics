@@ -3,7 +3,7 @@
 
 [guard]
 max_total_unproven_claim_kind_count = 3
-min_total_benchmark_proof_artifact_count = 21
+min_total_benchmark_proof_artifact_count = 41
 min_total_replay_proof_artifact_count = 6
 min_total_integrity_proof_artifact_count = 3
 
@@ -39,10 +39,10 @@ unproven_claim_kinds = []
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-benchmark_claim_count = 7
-benchmark_proof_artifact_count = 10
-replay_claim_count = 5
-replay_proof_artifact_count = 3
+benchmark_claim_count = 9
+benchmark_proof_artifact_count = 30
+replay_claim_count = 4
+replay_proof_artifact_count = 2
 integrity_claim_count = 0
 integrity_proof_artifact_count = 0
 unproven_claim_kinds = []
@@ -52,7 +52,7 @@ distribution_name = "bijux-proteomics-runtime"
 benchmark_claim_count = 0
 benchmark_proof_artifact_count = 2
 replay_claim_count = 47
-replay_proof_artifact_count = 3
+replay_proof_artifact_count = 4
 integrity_claim_count = 7
 integrity_proof_artifact_count = 2
 unproven_claim_kinds = []

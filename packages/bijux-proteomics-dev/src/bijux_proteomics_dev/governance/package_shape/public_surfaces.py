@@ -28,7 +28,7 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
         PackagePublicSurfaceContract(
             distribution_name="agentic-proteins",
             import_root="agentic_proteins",
-            supported_attributes=("Report", "Metrics", "low_confidence_segments"),
+            supported_attributes=("__version__",),
         ),
         PackagePublicSurfaceContract(
             distribution_name="bijux-proteomics-core",
@@ -55,10 +55,13 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
             distribution_name="bijux-proteomics-intelligence",
             import_root="bijux_proteomics_intelligence",
             supported_attributes=(
-                "build_design_brief",
-                "prioritize_candidates",
-                "CandidateRanking",
-                "build_ranking_diagnostics",
+                "candidates",
+                "governance",
+                "interpretation",
+                "judgment",
+                "learning",
+                "posture",
+                "reviews",
             ),
         ),
         PackagePublicSurfaceContract(
@@ -66,9 +69,10 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
             import_root="bijux_proteomics_knowledge",
             supported_attributes=(
                 "EvidenceBundle",
-                "build_claim",
-                "build_knowledge_review_packet",
-                "resolve_conflicts",
+                "EvidenceClaim",
+                "EvidenceRecord",
+                "KnowledgeReviewPacket",
+                "evaluate_schema_compatibility",
             ),
         ),
         PackagePublicSurfaceContract(

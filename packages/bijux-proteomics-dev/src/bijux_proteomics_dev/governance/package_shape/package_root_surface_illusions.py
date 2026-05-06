@@ -4,7 +4,9 @@ import argparse
 from dataclasses import dataclass
 import tomllib
 
-from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import build_package_surface_pressure_report
+from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import (
+    build_package_surface_pressure_report,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -52,7 +54,9 @@ class PackageRootSurfaceIllusionReport:
 
 
 def _load_tree_dossiers() -> dict[str, dict[str, object]]:
-    with (REPO_ROOT / "configs" / "package-governance" / "package-tree-dossiers.toml").open("rb") as handle:
+    with (
+        REPO_ROOT / "configs" / "package-governance" / "package-tree-dossiers.toml"
+    ).open("rb") as handle:
         data = tomllib.load(handle)
     return {entry["distribution_name"]: entry for entry in data["package"]}
 
@@ -62,13 +66,16 @@ def build_package_root_surface_illusion_report() -> PackageRootSurfaceIllusionRe
 
     tree_dossiers = _load_tree_dossiers()
     surface_pressure = {
-        entry.distribution_name: entry for entry in build_package_surface_pressure_report().entries
+        entry.distribution_name: entry
+        for entry in build_package_surface_pressure_report().entries
     }
     entries: list[PackageRootSurfaceIllusionEntry] = []
     for package_name in sorted(tree_dossiers):
         tree_entry = tree_dossiers[package_name]
         pressure_entry = surface_pressure[package_name]
-        compatibility_surfaces = tuple(str(value) for value in tree_entry["compatibility_surfaces"])
+        compatibility_surfaces = tuple(
+            str(value) for value in tree_entry["compatibility_surfaces"]
+        )
         reasons: list[str] = []
         if compatibility_surfaces:
             reasons.append(
@@ -76,8 +83,12 @@ def build_package_root_surface_illusion_report() -> PackageRootSurfaceIllusionRe
             )
         if pressure_entry.breadth_outpaces_owner_logic:
             reasons.append("root public breadth still exceeds owner logic depth")
-        if pressure_entry.public_module_count >= max(len(tree_entry["owner_domains"]), 1):
-            reasons.append("root public module count still rivals the package owner-family count")
+        if pressure_entry.public_module_count >= max(
+            len(tree_entry["owner_domains"]), 1
+        ):
+            reasons.append(
+                "root public module count still rivals the package owner-family count"
+            )
         entries.append(
             PackageRootSurfaceIllusionEntry(
                 distribution_name=package_name,
@@ -108,13 +119,20 @@ def validate_package_root_surface_illusions(
     total_root_surface_illusion_count = sum(
         entry.root_surface_hides_owner_depth for entry in report.entries
     )
-    if total_root_surface_illusion_count <= report.guard.max_total_root_surface_illusion_count:
+    if (
+        total_root_surface_illusion_count
+        <= report.guard.max_total_root_surface_illusion_count
+    ):
         return ()
-    return ("root-surface illusion count grew beyond the governed owner-depth baseline",)
+    return (
+        "root-surface illusion count grew beyond the governed owner-depth baseline",
+    )
 
 
 def _render_tuple(values: tuple[str, ...]) -> str:
-    return ", ".join(f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values)
+    return ", ".join(
+        f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values
+    )
 
 
 def _toml_text(report: PackageRootSurfaceIllusionReport) -> str:
@@ -147,7 +165,9 @@ def _toml_text(report: PackageRootSurfaceIllusionReport) -> str:
 def _is_up_to_date(report: PackageRootSurfaceIllusionReport) -> bool:
     if not PACKAGE_ROOT_SURFACE_ILLUSIONS_PATH.exists():
         return False
-    return PACKAGE_ROOT_SURFACE_ILLUSIONS_PATH.read_text(encoding="utf-8") == _toml_text(report)
+    return PACKAGE_ROOT_SURFACE_ILLUSIONS_PATH.read_text(
+        encoding="utf-8"
+    ) == _toml_text(report)
 
 
 def run(check: bool = False) -> int:
@@ -169,7 +189,11 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package root-surface illusion report.")
-    parser.add_argument("--check", action="store_true", help="Fail if the report is stale.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package root-surface illusion report."
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Fail if the report is stale."
+    )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

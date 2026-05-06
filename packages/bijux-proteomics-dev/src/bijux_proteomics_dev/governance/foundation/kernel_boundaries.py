@@ -87,7 +87,10 @@ def _path_signature(path: Path, *, root: Path) -> str:
 
 
 def _product_fixture_check() -> FoundationKernelBoundaryCheck:
-    scanned_paths = (*_python_files(FOUNDATION_SRC_ROOT), *_python_files(FOUNDATION_TEST_ROOT))
+    scanned_paths = (
+        *_python_files(FOUNDATION_SRC_ROOT),
+        *_python_files(FOUNDATION_TEST_ROOT),
+    )
     checked_symbol_count = 0
     violations: list[str] = []
 
@@ -160,9 +163,7 @@ def validate_foundation_kernel_boundaries() -> tuple[str, ...]:
     for check in build_foundation_kernel_boundaries():
         if check.ready:
             continue
-        failures.append(
-            f"{check.policy_id} failed: {', '.join(check.violations)}"
-        )
+        failures.append(f"{check.policy_id} failed: {', '.join(check.violations)}")
     return tuple(failures)
 
 

@@ -5,7 +5,10 @@ from dataclasses import dataclass
 from pathlib import Path
 import tomllib
 
-from bijux_proteomics_dev.governance.support.workspace_inventory import package_root, workspace_package_names
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    package_root,
+    workspace_package_names,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -48,7 +51,9 @@ class PackageReleaseDossierReport:
 
 def _load_report(name: str) -> dict[str, object]:
     return tomllib.loads(
-        (REPO_ROOT / "configs" / "package-governance" / name).read_text(encoding="utf-8")
+        (REPO_ROOT / "configs" / "package-governance" / name).read_text(
+            encoding="utf-8"
+        )
     )
 
 
@@ -76,7 +81,9 @@ def _section_lines(path: Path, heading: str) -> tuple[str, ...]:
 
 def _owner_summary(package_name: str) -> str:
     lines = _section_lines(_boundary_doc_path(package_name), "## This package owns")
-    prose = " ".join(line.strip() for line in lines if line.strip() and not line.startswith("- "))
+    prose = " ".join(
+        line.strip() for line in lines if line.strip() and not line.startswith("- ")
+    )
     return prose or f"{package_name} owns its documented package surface."
 
 
@@ -108,7 +115,9 @@ def build_package_release_dossier_report() -> PackageReleaseDossierReport:
     debt_by_package: dict[str, list[dict[str, str]]] = {}
     for entry in reopened_debt_entries:
         debt_by_package.setdefault(str(entry["distribution_name"]), []).append(entry)
-    module_graph_dir = REPO_ROOT / "configs" / "package-governance" / "module-dependency-graphs"
+    module_graph_dir = (
+        REPO_ROOT / "configs" / "package-governance" / "module-dependency-graphs"
+    )
 
     entries: list[PackageReleaseDossierEntry] = []
     for package_name in workspace_package_names():
@@ -170,7 +179,9 @@ def validate_package_release_dossiers(
     failures: list[str] = []
     for entry in report.entries:
         if not entry.strongest_value:
-            failures.append(f"{entry.distribution_name} is missing a strongest value summary")
+            failures.append(
+                f"{entry.distribution_name} is missing a strongest value summary"
+            )
         if not entry.proofs:
             failures.append(f"{entry.distribution_name} is missing proof points")
         if entry.unresolved_debt_ids and entry.publishable:
@@ -185,7 +196,9 @@ def validate_package_release_dossiers(
 
 
 def _render_tuple(values: tuple[str, ...]) -> str:
-    return ", ".join(f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values)
+    return ", ".join(
+        f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values
+    )
 
 
 def _escape(value: str) -> str:

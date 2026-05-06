@@ -46,7 +46,9 @@ class CoreCrossPackageImportReport:
     guard: CoreCrossPackageImportGuard
 
 
-CORE_SRC_ROOT = REPO_ROOT / "packages" / "bijux-proteomics-core" / "src" / "bijux_proteomics"
+CORE_SRC_ROOT = (
+    REPO_ROOT / "packages" / "bijux-proteomics-core" / "src" / "bijux_proteomics"
+)
 CORE_CROSS_PACKAGE_IMPORTS_PATH = (
     REPO_ROOT / "configs" / "package-governance" / "core-cross-package-imports.toml"
 )
@@ -95,7 +97,9 @@ def build_core_cross_package_import_report() -> CoreCrossPackageImportReport:
                         importer_module_path=importer_module_path,
                         owner_distribution=distribution,
                         imported_module_name=node.module,
-                        imported_symbols=tuple(sorted(alias.name for alias in node.names)),
+                        imported_symbols=tuple(
+                            sorted(alias.name for alias in node.names)
+                        ),
                     )
                 )
 
@@ -127,7 +131,9 @@ def validate_core_cross_package_imports() -> tuple[str, ...]:
 
     report = build_core_cross_package_import_report()
     runtime_edges = sum(
-        1 for entry in report.entries if entry.owner_distribution == "bijux-proteomics-runtime"
+        1
+        for entry in report.entries
+        if entry.owner_distribution == "bijux-proteomics-runtime"
     )
     intelligence_edges = sum(
         1
@@ -135,17 +141,23 @@ def validate_core_cross_package_imports() -> tuple[str, ...]:
         if entry.owner_distribution == "bijux-proteomics-intelligence"
     )
     lab_edges = sum(
-        1 for entry in report.entries if entry.owner_distribution == "bijux-proteomics-lab"
+        1
+        for entry in report.entries
+        if entry.owner_distribution == "bijux-proteomics-lab"
     )
     failures: list[str] = []
     if runtime_edges > report.guard.max_runtime_edges:
         failures.append("core runtime import edges grew beyond the guarded baseline")
     if intelligence_edges > report.guard.max_intelligence_edges:
-        failures.append("core intelligence import edges grew beyond the guarded baseline")
+        failures.append(
+            "core intelligence import edges grew beyond the guarded baseline"
+        )
     if lab_edges > report.guard.max_lab_edges:
         failures.append("core lab import edges grew beyond the guarded baseline")
     if len(report.entries) > report.guard.max_total_edges:
-        failures.append("core cross-package import count grew beyond the guarded baseline")
+        failures.append(
+            "core cross-package import count grew beyond the guarded baseline"
+        )
     return tuple(failures)
 
 

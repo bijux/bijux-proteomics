@@ -78,9 +78,7 @@ def build_foundation_size_reuse_report() -> FoundationSizeReuseReport:
     compatibility_alias_entries = build_foundation_compatibility_aliases()
 
     root_consumer_modules = {
-        module_name
-        for entry in root_entries
-        for module_name in entry.consumer_modules
+        module_name for entry in root_entries for module_name in entry.consumer_modules
     }
     root_consumer_distributions = {
         distribution_name
@@ -88,7 +86,9 @@ def build_foundation_size_reuse_report() -> FoundationSizeReuseReport:
         for distribution_name in entry.consumer_distributions
     }
     direct_surface_entries = tuple(
-        entry for entry in surface_entries if entry.module_name != "bijux_proteomics_foundation"
+        entry
+        for entry in surface_entries
+        if entry.module_name != "bijux_proteomics_foundation"
     )
     direct_surface_consumer_modules = {
         module_name
@@ -155,7 +155,10 @@ def validate_foundation_size_reuse() -> tuple[str, ...]:
             "foundation root reuse fell below the guarded consumer-modules-per-symbol ratio"
         )
     if metrics.root_public_symbol_count > guard.baseline_root_public_symbol_count:
-        if metrics.root_consumer_module_count <= guard.baseline_root_consumer_module_count:
+        if (
+            metrics.root_consumer_module_count
+            <= guard.baseline_root_consumer_module_count
+        ):
             failures.append(
                 "foundation root breadth grew without increasing downstream consumer modules"
             )

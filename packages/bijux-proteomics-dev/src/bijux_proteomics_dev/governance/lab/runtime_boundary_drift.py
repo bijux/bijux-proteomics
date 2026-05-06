@@ -80,7 +80,10 @@ def build_lab_runtime_boundary_drift_report() -> LabRuntimeBoundaryDriftReport:
 
     for path in _source_modules():
         relative = path.relative_to(LAB_SRC_ROOT).as_posix()
-        if any(part in FORBIDDEN_PATH_PARTS for part in path.relative_to(LAB_SRC_ROOT).parts):
+        if any(
+            part in FORBIDDEN_PATH_PARTS
+            for part in path.relative_to(LAB_SRC_ROOT).parts
+        ):
             forbidden_module_paths.append(relative)
 
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))

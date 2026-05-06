@@ -6,7 +6,11 @@ import tomllib
 import bijux_proteomics_foundation
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 FOUNDATION_ROOT = (
     REPO_ROOT
     / "packages"

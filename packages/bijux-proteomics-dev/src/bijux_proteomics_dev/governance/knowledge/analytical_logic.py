@@ -70,7 +70,9 @@ def _matched_identifiers(path_text: str) -> tuple[str, ...]:
     )
 
 
-def build_knowledge_analytical_logic_report() -> tuple[KnowledgeAnalyticalLogicModule, ...]:
+def build_knowledge_analytical_logic_report() -> tuple[
+    KnowledgeAnalyticalLogicModule, ...
+]:
     """Build the checked report of analytical logic hotspots in knowledge."""
 
     modules: list[KnowledgeAnalyticalLogicModule] = []

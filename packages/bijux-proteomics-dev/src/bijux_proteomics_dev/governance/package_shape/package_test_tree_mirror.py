@@ -107,13 +107,21 @@ def validate_package_test_tree_mirror(
     missing_test_family_count = sum(
         len(entry.missing_test_families) for entry in report.entries
     )
-    flat_test_module_count = sum(entry.flat_test_module_count for entry in report.entries)
+    flat_test_module_count = sum(
+        entry.flat_test_module_count for entry in report.entries
+    )
     if mirrored_owner_family_count < report.guard.min_total_mirrored_owner_family_count:
-        failures.append("test-tree mirroring dropped below the governed source alignment baseline")
+        failures.append(
+            "test-tree mirroring dropped below the governed source alignment baseline"
+        )
     if missing_test_family_count > report.guard.max_total_missing_test_family_count:
-        failures.append("test-tree missing-family count grew beyond the governed source alignment baseline")
+        failures.append(
+            "test-tree missing-family count grew beyond the governed source alignment baseline"
+        )
     if flat_test_module_count > report.guard.max_total_flat_test_module_count:
-        failures.append("flat root test-module count grew beyond the governed source alignment baseline")
+        failures.append(
+            "flat root test-module count grew beyond the governed source alignment baseline"
+        )
     return tuple(failures)
 
 

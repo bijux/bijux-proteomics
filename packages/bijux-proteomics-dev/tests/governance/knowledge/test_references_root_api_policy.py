@@ -7,7 +7,11 @@ import tomllib
 import bijux_proteomics_knowledge.references as knowledge_references
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 KNOWLEDGE_REFERENCES_ROOT = (
     REPO_ROOT
     / "packages"
@@ -18,10 +22,7 @@ KNOWLEDGE_REFERENCES_ROOT = (
     / "__init__.py"
 )
 KNOWLEDGE_REFERENCES_ROOT_API_POLICY = (
-    REPO_ROOT
-    / "configs"
-    / "package-governance"
-    / "knowledge-references-root-api.toml"
+    REPO_ROOT / "configs" / "package-governance" / "knowledge-references-root-api.toml"
 )
 PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-dev/tests/governance/knowledge/test_references_root_api_policy.py",

@@ -7,7 +7,11 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 PACKAGE_ARTIFACT_LINKS = {
     "artifacts": "",
     ".venv": "venv",

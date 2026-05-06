@@ -32,7 +32,7 @@ rationale = "foundation remains the primitive base and does not import product p
 distribution_name = "bijux-proteomics-core"
 allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-actual_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 actual_inbound_edges = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 unexpected_outbound_edges = []
 rationale = "core currently exposes narrow scientific seams into runtime, intelligence, and lab while remaining grounded on foundation primitives."
@@ -51,7 +51,7 @@ distribution_name = "bijux-proteomics-intelligence"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
 allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
-actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_inbound_edges = ["bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 unexpected_outbound_edges = []
 rationale = "intelligence consumes core scientific semantics, foundation contracts, and knowledge evidence/reference owners."
 

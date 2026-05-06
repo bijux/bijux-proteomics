@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.architecture.runtime_boundaries import (
     load_policy,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_runtime_boundary_policy_loads_expected_import_roots() -> None:
@@ -18,14 +22,11 @@ def test_runtime_boundary_policy_loads_expected_import_roots() -> None:
     }
     assert "packages/bijux-proteomics-core/src" in roots
     assert "packages/bijux-proteomics-runtime/src" not in roots
-    assert (
-        policy.runtime_imports.allowed_imports_by_consumer[
-            "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py"
-        ]
-        == (
-            "bijux_proteomics_runtime.runs.manager",
-            "bijux_proteomics_runtime.runs.run_config",
-        )
+    assert policy.runtime_imports.allowed_imports_by_consumer[
+        "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/execution/runtime_adapter.py"
+    ] == (
+        "bijux_proteomics_runtime.runs.manager",
+        "bijux_proteomics_runtime.runs.run_config",
     )
 
 

@@ -3,9 +3,15 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
-from bijux_proteomics_dev.governance.package_shape.package_owned_value_audit import build_package_owned_value_audit_report
-from bijux_proteomics_dev.governance.package_shape.package_release_dossiers import build_package_release_dossier_report
-from bijux_proteomics_dev.governance.package_shape.package_scorecard import build_package_scorecard_report
+from bijux_proteomics_dev.governance.package_shape.package_owned_value_audit import (
+    build_package_owned_value_audit_report,
+)
+from bijux_proteomics_dev.governance.package_shape.package_release_dossiers import (
+    build_package_release_dossier_report,
+)
+from bijux_proteomics_dev.governance.package_shape.package_scorecard import (
+    build_package_scorecard_report,
+)
 from bijux_proteomics_dev.docs.governance.package_document_contracts import readme_path
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
@@ -64,26 +70,27 @@ def build_package_readme_maturity_report() -> PackageReadmeMaturityReport:
     """Build the checked README maturity report."""
 
     owned_value = {
-        entry.distribution_name: entry for entry in build_package_owned_value_audit_report().entries
+        entry.distribution_name: entry
+        for entry in build_package_owned_value_audit_report().entries
     }
     scorecard = {
-        entry.distribution_name: entry for entry in build_package_scorecard_report().entries
+        entry.distribution_name: entry
+        for entry in build_package_scorecard_report().entries
     }
     release_dossiers = {
-        entry.distribution_name: entry for entry in build_package_release_dossier_report().entries
+        entry.distribution_name: entry
+        for entry in build_package_release_dossier_report().entries
     }
     entries: list[PackageReadmeMaturityEntry] = []
     for package_name, owned_entry in sorted(owned_value.items()):
         readme_text = readme_path(package_name).read_text(encoding="utf-8").lower()
-        maturity_claim_count = sum(readme_text.count(token) for token in MATURITY_TOKENS)
+        maturity_claim_count = sum(
+            readme_text.count(token) for token in MATURITY_TOKENS
+        )
         scorecard_entry = scorecard[package_name]
         unresolved_debt_count = len(release_dossiers[package_name].unresolved_debt_ids)
-        maturity_outpaces_owner_logic = (
-            maturity_claim_count > 0
-            and (
-                unresolved_debt_count > 0
-                or not scorecard_entry.architectural_ready
-            )
+        maturity_outpaces_owner_logic = maturity_claim_count > 0 and (
+            unresolved_debt_count > 0 or not scorecard_entry.architectural_ready
         )
         entries.append(
             PackageReadmeMaturityEntry(
@@ -111,8 +118,13 @@ def validate_package_readme_maturity(
     """Fail release when README maturity overclaim grows."""
 
     report = report or build_package_readme_maturity_report()
-    total_overclaim_count = sum(entry.maturity_outpaces_owner_logic for entry in report.entries)
-    if total_overclaim_count <= report.guard.max_total_maturity_outpaces_owner_logic_count:
+    total_overclaim_count = sum(
+        entry.maturity_outpaces_owner_logic for entry in report.entries
+    )
+    if (
+        total_overclaim_count
+        <= report.guard.max_total_maturity_outpaces_owner_logic_count
+    ):
         return ()
     return ("README maturity overclaim grew beyond the governed owner-logic baseline",)
 
@@ -147,7 +159,9 @@ def _toml_text(report: PackageReadmeMaturityReport) -> str:
 def _is_up_to_date(report: PackageReadmeMaturityReport) -> bool:
     if not PACKAGE_README_MATURITY_PATH.exists():
         return False
-    return PACKAGE_README_MATURITY_PATH.read_text(encoding="utf-8") == _toml_text(report)
+    return PACKAGE_README_MATURITY_PATH.read_text(encoding="utf-8") == _toml_text(
+        report
+    )
 
 
 def run(check: bool = False) -> int:
@@ -169,7 +183,13 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package README maturity report.")
-    parser.add_argument("--check", action="store_true", help="Fail if the README maturity report is stale.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package README maturity report."
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Fail if the README maturity report is stale.",
+    )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

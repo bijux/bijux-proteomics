@@ -67,6 +67,7 @@ nav:
           - Change Principles: 01-bijux-proteomics/foundation/change-principles.md
           - Decision Rules: 01-bijux-proteomics/foundation/decision-rules.md
           - Scientific Workflow Roadmap: 01-bijux-proteomics/foundation/scientific-workflow-roadmap.md
+          - Duplicate Model Ownership: 01-bijux-proteomics/foundation/duplicate-model-ownership.md
       - Operations:
           - Operations: 01-bijux-proteomics/operations/index.md
           - Local Development: 01-bijux-proteomics/operations/local-development.md
@@ -440,6 +441,7 @@ nav:
           - Security Gates: 08-bijux-proteomics-maintain/bijux-proteomics-dev/security-gates.md
           - Schema Governance: 08-bijux-proteomics-maintain/bijux-proteomics-dev/schema-governance.md
           - Release Support: 08-bijux-proteomics-maintain/bijux-proteomics-dev/release-support.md
+          - Package Substance: 08-bijux-proteomics-maintain/bijux-proteomics-dev/package-substance.md
           - Documentation Integrity: 08-bijux-proteomics-maintain/bijux-proteomics-dev/documentation-integrity.md
           - Badge Catalog: badges.md
           - Operating Guidelines: 08-bijux-proteomics-maintain/bijux-proteomics-dev/operating-guidelines.md

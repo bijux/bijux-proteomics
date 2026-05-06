@@ -3,7 +3,9 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
-from bijux_proteomics_dev.governance.package_shape.package_module_ledger import build_package_module_ledger_report
+from bijux_proteomics_dev.governance.package_shape.package_module_ledger import (
+    build_package_module_ledger_report,
+)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -74,7 +76,8 @@ def build_package_wrapper_owner_balance_report() -> PackageWrapperOwnerBalanceRe
                 owner_logic_module_count=owner_logic_module_count,
                 wrapper_module_count=wrapper_module_count,
                 wrapper_to_owner_ratio=wrapper_to_owner_ratio,
-                wrapper_outpaces_owner_logic=wrapper_module_count > owner_logic_module_count,
+                wrapper_outpaces_owner_logic=wrapper_module_count
+                > owner_logic_module_count,
             )
         )
     return PackageWrapperOwnerBalanceReport(
@@ -101,14 +104,22 @@ def validate_package_wrapper_owner_balance(
         entry.wrapper_outpaces_owner_logic for entry in report.entries
     )
     average_wrapper_to_owner_ratio = round(
-        sum(entry.wrapper_to_owner_ratio for entry in report.entries) / len(report.entries),
+        sum(entry.wrapper_to_owner_ratio for entry in report.entries)
+        / len(report.entries),
         4,
     )
     failures: list[str] = []
-    if total_wrapper_outpaces_owner_count > report.guard.max_total_wrapper_outpaces_owner_count:
-        failures.append("wrapper-heavy packages grew beyond the governed owner-balance baseline")
+    if (
+        total_wrapper_outpaces_owner_count
+        > report.guard.max_total_wrapper_outpaces_owner_count
+    ):
+        failures.append(
+            "wrapper-heavy packages grew beyond the governed owner-balance baseline"
+        )
     if average_wrapper_to_owner_ratio > report.guard.max_average_wrapper_to_owner_ratio:
-        failures.append("wrapper-to-owner ratio grew beyond the governed owner-balance baseline")
+        failures.append(
+            "wrapper-to-owner ratio grew beyond the governed owner-balance baseline"
+        )
     return tuple(failures)
 
 
@@ -140,7 +151,9 @@ def _toml_text(report: PackageWrapperOwnerBalanceReport) -> str:
 def _is_up_to_date(report: PackageWrapperOwnerBalanceReport) -> bool:
     if not PACKAGE_WRAPPER_OWNER_BALANCE_PATH.exists():
         return False
-    return PACKAGE_WRAPPER_OWNER_BALANCE_PATH.read_text(encoding="utf-8") == _toml_text(report)
+    return PACKAGE_WRAPPER_OWNER_BALANCE_PATH.read_text(encoding="utf-8") == _toml_text(
+        report
+    )
 
 
 def run(check: bool = False) -> int:
@@ -162,7 +175,11 @@ def run(check: bool = False) -> int:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate or validate the package wrapper-owner balance report.")
-    parser.add_argument("--check", action="store_true", help="Fail if the report is stale.")
+    parser = argparse.ArgumentParser(
+        description="Generate or validate the package wrapper-owner balance report."
+    )
+    parser.add_argument(
+        "--check", action="store_true", help="Fail if the report is stale."
+    )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

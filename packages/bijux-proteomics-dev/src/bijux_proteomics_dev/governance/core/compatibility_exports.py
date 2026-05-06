@@ -10,7 +10,10 @@ from bijux_proteomics.governance.charter import (
     DEFAULT_CORE_MODULE_AUDIT,
     CoreModuleClassification,
 )
-from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT, downstream_packages
+from bijux_proteomics_dev.governance.foundation.root_consumers import (
+    REPO_ROOT,
+    downstream_packages,
+)
 
 __all__ = [
     "CORE_COMPATIBILITY_EXPORTS_PATH",
@@ -51,7 +54,9 @@ class CoreCompatibilityExportReport:
     guard: CoreCompatibilityExportGuard
 
 
-CORE_SRC_ROOT = REPO_ROOT / "packages" / "bijux-proteomics-core" / "src" / "bijux_proteomics"
+CORE_SRC_ROOT = (
+    REPO_ROOT / "packages" / "bijux-proteomics-core" / "src" / "bijux_proteomics"
+)
 COMPATIBILITY_IMPORT_RE = re.compile(
     r"^from\s+(bijux_proteomics(?:\.[a-z0-9_]+)+)\s+import\s+\*(?:\s+#.*)?$",
     flags=re.MULTILINE,
@@ -165,11 +170,15 @@ def validate_core_compatibility_exports() -> tuple[str, ...]:
     report = build_core_compatibility_export_report()
     failures: list[str] = []
     if len(report.entries) > report.guard.max_compatibility_exports:
-        failures.append("core compatibility export count grew beyond the guarded budget")
+        failures.append(
+            "core compatibility export count grew beyond the guarded budget"
+        )
     if report.guard.require_root_level_only and any(
         "/" in entry.module_path for entry in report.entries
     ):
-        failures.append("core compatibility exports escaped the root-level wrapper budget")
+        failures.append(
+            "core compatibility exports escaped the root-level wrapper budget"
+        )
     return tuple(failures)
 
 
@@ -187,7 +196,9 @@ def _toml_text(report: CoreCompatibilityExportReport) -> str:
         source_distributions = ", ".join(
             f'"{value}"' for value in entry.source_consumer_distributions
         )
-        source_modules = ", ".join(f'"{value}"' for value in entry.source_consumer_modules)
+        source_modules = ", ".join(
+            f'"{value}"' for value in entry.source_consumer_modules
+        )
         test_modules = ", ".join(f'"{value}"' for value in entry.test_consumer_modules)
         lines.extend(
             [
@@ -230,7 +241,9 @@ def run(check: bool = False) -> int:
         print("core compatibility export report is stale; regenerate it")
         return 1
     CORE_COMPATIBILITY_EXPORTS_PATH.write_text(_toml_text(report), encoding="utf-8")
-    print(f"generated core compatibility export report for {len(report.entries)} wrappers")
+    print(
+        f"generated core compatibility export report for {len(report.entries)} wrappers"
+    )
     return 0
 
 

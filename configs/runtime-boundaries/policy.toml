@@ -9,14 +9,14 @@ lower_layer_roots = [
 ]
 
 [[imports.allow]]
-consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py"
+consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/execution/runtime_adapter.py"
 modules = [
   "bijux_proteomics_runtime.runs.manager",
   "bijux_proteomics_runtime.runs.run_config",
 ]
 
 [[imports.allow]]
-consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py"
+consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/runtime_plans.py"
 modules = [
   "bijux_proteomics_runtime.workflows.plans",
 ]

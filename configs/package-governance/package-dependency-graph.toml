@@ -2,15 +2,15 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_dependency_graph
 
 [guard]
-max_total_edges = 23
-max_total_source_module_uses = 332
+max_total_edges = 22
+max_total_source_module_uses = 329
 
 [[edge]]
 source_distribution = "agentic-proteins"
 target_distribution = "bijux-proteomics-core"
 source_module_count = 1
 source_modules = ["agentic_proteins.interfaces.structure_reports"]
-target_modules = ["bijux_proteomics.structure_report", "bijux_proteomics.structure_report.render"]
+target_modules = ["bijux_proteomics.review.structure_reports", "bijux_proteomics.review.structure_reports.render"]
 
 [[edge]]
 source_distribution = "agentic-proteins"
@@ -23,28 +23,21 @@ target_modules = ["bijux_proteomics_runtime.api.app", "bijux_proteomics_runtime.
 source_distribution = "bijux-proteomics-core"
 target_distribution = "bijux-proteomics-foundation"
 source_module_count = 48
-source_modules = ["bijux_proteomics.adoption", "bijux_proteomics.benchmarks", "bijux_proteomics.chemistry", "bijux_proteomics.chemistry.isotope_adduct_annotation", "bijux_proteomics.chemistry.modified_peptide_conflicts", "bijux_proteomics.chemistry.open_search_unknown_mod", "bijux_proteomics.chemistry.stable_isotope_labeling", "bijux_proteomics.chemistry.theoretical_fragment_reference", "bijux_proteomics.collaboration", "bijux_proteomics.corpus", "bijux_proteomics.dia", "bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.targets", "bijux_proteomics.domain.validation", "bijux_proteomics.execution.backend", "bijux_proteomics.governance.charter", "bijux_proteomics.identification", "bijux_proteomics.identification.confidence", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.interfaces.examples", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.spectra", "bijux_proteomics.lab.operations", "bijux_proteomics.lab.planning", "bijux_proteomics.ptm", "bijux_proteomics.ptm.proteoforms", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.review", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.enzyme_rule_provenance", "bijux_proteomics.sequences.peptide_uniqueness_audit", "bijux_proteomics.sequences.protease_digest_comparison", "bijux_proteomics.study", "bijux_proteomics.study.qc", "bijux_proteomics.workflow.blueprint"]
+source_modules = ["bijux_proteomics.benchmarks.adoption", "bijux_proteomics.benchmarks.corpora", "bijux_proteomics.benchmarks.performance", "bijux_proteomics.chemistry.contracts", "bijux_proteomics.chemistry.isotope_adduct_annotation", "bijux_proteomics.chemistry.modified_peptide_conflicts", "bijux_proteomics.chemistry.open_search_unknown_mod", "bijux_proteomics.chemistry.stable_isotope_labeling", "bijux_proteomics.chemistry.theoretical_fragment_reference", "bijux_proteomics.dia.contracts", "bijux_proteomics.domain.assays", "bijux_proteomics.domain.constraints", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.liabilities", "bijux_proteomics.domain.lifecycle", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.repositories", "bijux_proteomics.domain.reviews", "bijux_proteomics.domain.targets", "bijux_proteomics.domain.validation", "bijux_proteomics.governance.charter", "bijux_proteomics.identification.confidence", "bijux_proteomics.identification.contracts", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.interfaces.examples", "bijux_proteomics.interfaces.execution.backend", "bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm.contracts", "bijux_proteomics.ptm.proteoforms", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification.contracts", "bijux_proteomics.quantification.review", "bijux_proteomics.review.collaboration", "bijux_proteomics.review.contracts", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics.sequences.enzyme_rule_provenance", "bijux_proteomics.sequences.peptide_uniqueness_audit", "bijux_proteomics.sequences.protease_digest_comparison", "bijux_proteomics.study.contracts", "bijux_proteomics.study.laboratory_operations", "bijux_proteomics.study.laboratory_plans", "bijux_proteomics.study.qc", "bijux_proteomics.workflow.blueprint"]
 target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_foundation.outcomes.exceptions"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-core"
-target_distribution = "bijux-proteomics-intelligence"
-source_module_count = 1
-source_modules = ["bijux_proteomics.intelligence"]
-target_modules = ["bijux_proteomics_intelligence.reviews.boards", "bijux_proteomics_intelligence.reviews.candidates", "bijux_proteomics_intelligence.reviews.pathways"]
-
-[[edge]]
-source_distribution = "bijux-proteomics-core"
 target_distribution = "bijux-proteomics-lab"
-source_module_count = 3
-source_modules = ["bijux_proteomics.lab.operations", "bijux_proteomics.lab.planning", "bijux_proteomics.ptm.review"]
-target_modules = ["bijux_proteomics_lab.handoffs.ptm", "bijux_proteomics_lab.planning", "bijux_proteomics_lab.reconciliation"]
+source_module_count = 1
+source_modules = ["bijux_proteomics.ptm.review"]
+target_modules = ["bijux_proteomics_lab.handoffs.ptm"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-core"
 target_distribution = "bijux-proteomics-runtime"
 source_module_count = 2
-source_modules = ["bijux_proteomics.execution.runtime_adapter", "bijux_proteomics.workflow.runtime_bundles"]
+source_modules = ["bijux_proteomics.interfaces.execution.runtime_adapter", "bijux_proteomics.interfaces.runtime_plans"]
 target_modules = ["bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.workflows.plans"]
 
 [[edge]]
@@ -94,7 +87,7 @@ source_distribution = "bijux-proteomics-intelligence"
 target_distribution = "bijux-proteomics-core"
 source_module_count = 11
 source_modules = ["bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.interpretation.contaminants", "bijux_proteomics_intelligence.interpretation.contrasts", "bijux_proteomics_intelligence.interpretation.pathways", "bijux_proteomics_intelligence.interpretation.ptm", "bijux_proteomics_intelligence.interpretation.quantitative", "bijux_proteomics_intelligence.interpretation.runs", "bijux_proteomics_intelligence.interpretation.structures", "bijux_proteomics_intelligence.judgment.paths", "bijux_proteomics_intelligence.judgment.scenarios", "bijux_proteomics_intelligence.reviews.benchmarks"]
-target_modules = ["bijux_proteomics.collaboration", "bijux_proteomics.dia", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences", "bijux_proteomics.structure_report", "bijux_proteomics.study.qc"]
+target_modules = ["bijux_proteomics.dia", "bijux_proteomics.domain.criteria", "bijux_proteomics.domain.program_spec", "bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.review.collaboration", "bijux_proteomics.review.structure_reports", "bijux_proteomics.sequences", "bijux_proteomics.study.qc"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-intelligence"
@@ -108,7 +101,7 @@ source_distribution = "bijux-proteomics-intelligence"
 target_distribution = "bijux-proteomics-knowledge"
 source_module_count = 7
 source_modules = ["bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.judgment.paths", "bijux_proteomics_intelligence.judgment.recommendations", "bijux_proteomics_intelligence.judgment.scenarios", "bijux_proteomics_intelligence.posture.evidence", "bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_intelligence.reviews.packets"]
-target_modules = ["bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.lookups"]
+target_modules = ["bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.grounding.rules", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings", "bijux_proteomics_knowledge.references.workflows.lookups"]
 
 [[edge]]
 source_distribution = "bijux-proteomics-knowledge"

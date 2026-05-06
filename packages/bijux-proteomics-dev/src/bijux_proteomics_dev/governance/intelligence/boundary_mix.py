@@ -105,9 +105,13 @@ def _internal_imports(path: Path) -> tuple[str, ...]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name.startswith("bijux_proteomics_intelligence."):
-                    imports.add(alias.name.removeprefix("bijux_proteomics_intelligence."))
-        if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith(
-            "bijux_proteomics_intelligence."
+                    imports.add(
+                        alias.name.removeprefix("bijux_proteomics_intelligence.")
+                    )
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module
+            and node.module.startswith("bijux_proteomics_intelligence.")
         ):
             imports.add(node.module.removeprefix("bijux_proteomics_intelligence."))
     return tuple(sorted(imports))
@@ -173,12 +177,16 @@ def validate_intelligence_boundary_mix() -> tuple[str, ...]:
     metrics = report.metrics
     guard = report.guard
     failures: list[str] = []
-    current_hotspots = tuple(entry.module_path for entry in metrics.entries if entry.hotspot)
+    current_hotspots = tuple(
+        entry.module_path for entry in metrics.entries if entry.hotspot
+    )
 
     if metrics.hotspot_count > guard.baseline_hotspot_count:
         failures.append("intelligence cross-band hotspots increased")
     if metrics.max_touched_band_count > guard.baseline_max_touched_band_count:
-        failures.append("intelligence modules now touch more analytical bands than governed")
+        failures.append(
+            "intelligence modules now touch more analytical bands than governed"
+        )
     if current_hotspots != guard.baseline_hotspot_modules:
         failures.append("intelligence hotspot modules drifted from the governed set")
     return tuple(failures)
@@ -200,7 +208,9 @@ def _toml_text(report: IntelligenceBoundaryMixReport) -> str:
         f"baseline_hotspot_count = {guard.baseline_hotspot_count}",
         f"baseline_max_touched_band_count = {guard.baseline_max_touched_band_count}",
         "baseline_hotspot_modules = ["
-        + ", ".join(f'"{module_path}"' for module_path in guard.baseline_hotspot_modules)
+        + ", ".join(
+            f'"{module_path}"' for module_path in guard.baseline_hotspot_modules
+        )
         + "]",
         "",
     ]

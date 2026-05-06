@@ -16,7 +16,7 @@ maturity_outpaces_owner_logic = true
 distribution_name = "bijux-proteomics-core"
 maturity_claim_count = 8
 owned_value_bullet_count = 6
-proof_depth_count = 13
+proof_depth_count = 32
 unresolved_debt_count = 3
 maturity_outpaces_owner_logic = true
 
@@ -64,6 +64,6 @@ maturity_outpaces_owner_logic = true
 distribution_name = "bijux-proteomics-runtime"
 maturity_claim_count = 9
 owned_value_bullet_count = 6
-proof_depth_count = 7
+proof_depth_count = 8
 unresolved_debt_count = 3
 maturity_outpaces_owner_logic = true

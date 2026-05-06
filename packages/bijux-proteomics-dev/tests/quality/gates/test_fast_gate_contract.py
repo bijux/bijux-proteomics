@@ -26,7 +26,11 @@ def test_fast_gate_targets_cover_expected_surfaces() -> None:
 
 
 def test_fast_gate_targets_exist_and_render_pytest_args() -> None:
-    repo_root = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+    repo_root = next(
+        parent
+        for parent in Path(__file__).resolve().parents
+        if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+    )
 
     assert validate_fast_gate_targets(repo_root) == []
     assert all(Path(path).exists() for path in render_fast_gate_pytest_args(repo_root))

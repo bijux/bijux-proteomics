@@ -59,17 +59,18 @@ def build_package_root_budget_report() -> PackageRootBudgetReport:
     for package_name in workspace_package_names():
         budget = root_api_policy_budget(package_name)
         init_line_count = len(
-            (src_root(package_name) / "__init__.py").read_text(encoding="utf-8").splitlines()
+            (src_root(package_name) / "__init__.py")
+            .read_text(encoding="utf-8")
+            .splitlines()
         )
         public_symbol_count = public_symbol_count_from_init(package_name)
         max_init_lines = budget["max_init_lines"] if budget is not None else None
-        max_public_symbols = budget["max_public_symbols"] if budget is not None else None
-        within_budget = (
-            budget is None
-            or (
-                init_line_count <= max_init_lines
-                and public_symbol_count <= max_public_symbols
-            )
+        max_public_symbols = (
+            budget["max_public_symbols"] if budget is not None else None
+        )
+        within_budget = budget is None or (
+            init_line_count <= max_init_lines
+            and public_symbol_count <= max_public_symbols
         )
         entries.append(
             PackageRootBudgetEntry(
@@ -109,7 +110,9 @@ def validate_package_root_budgets(
 
 
 def _toml_text(report: PackageRootBudgetReport) -> str:
-    over_budget_packages = ", ".join(f'"{value}"' for value in report.over_budget_packages)
+    over_budget_packages = ", ".join(
+        f'"{value}"' for value in report.over_budget_packages
+    )
     lines = [
         "# Generated package-root budget report.",
         "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_budgets",
@@ -147,9 +150,7 @@ def _toml_text(report: PackageRootBudgetReport) -> str:
 def _is_up_to_date(report: PackageRootBudgetReport) -> bool:
     if not PACKAGE_ROOT_BUDGETS_PATH.exists():
         return False
-    return PACKAGE_ROOT_BUDGETS_PATH.read_text(encoding="utf-8") == _toml_text(
-        report
-    )
+    return PACKAGE_ROOT_BUDGETS_PATH.read_text(encoding="utf-8") == _toml_text(report)
 
 
 def run(check: bool = False) -> int:

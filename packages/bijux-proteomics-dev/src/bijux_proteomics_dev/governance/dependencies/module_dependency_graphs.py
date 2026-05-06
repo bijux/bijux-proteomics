@@ -59,7 +59,9 @@ def build_module_dependency_graph_report(
 
     for edge in module_dependency_edges(package_name):
         if edge.internal:
-            outgoing_internal.setdefault(edge.source_module, set()).add(edge.target_module)
+            outgoing_internal.setdefault(edge.source_module, set()).add(
+                edge.target_module
+            )
         else:
             outgoing_workspace.setdefault(edge.source_module, set()).add(
                 edge.target_module

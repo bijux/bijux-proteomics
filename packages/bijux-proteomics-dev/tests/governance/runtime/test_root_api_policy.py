@@ -7,7 +7,11 @@ import tomllib
 import bijux_proteomics_runtime
 
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 RUNTIME_ROOT = (
     REPO_ROOT
     / "packages"
@@ -36,7 +40,10 @@ def _imports_runtime_root(path: Path) -> bool:
             for alias in node.names:
                 if alias.name == "bijux_proteomics_runtime":
                     return True
-        if isinstance(node, ast.ImportFrom) and node.module == "bijux_proteomics_runtime":
+        if (
+            isinstance(node, ast.ImportFrom)
+            and node.module == "bijux_proteomics_runtime"
+        ):
             return True
     return False
 
@@ -45,7 +52,9 @@ def test_runtime_root_api_matches_curated_policy() -> None:
     policy = _policy()
     entries = policy["symbol"]
 
-    assert [entry["name"] for entry in entries] == list(bijux_proteomics_runtime.__all__)
+    assert [entry["name"] for entry in entries] == list(
+        bijux_proteomics_runtime.__all__
+    )
     assert all(entry["owner_module"] for entry in entries)
     assert all(entry["classification"] for entry in entries)
     assert all(entry["rationale"] for entry in entries)

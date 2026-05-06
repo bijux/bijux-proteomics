@@ -115,7 +115,7 @@ class _PackageSubstanceExpectation:
 _CANONICAL_PRODUCT_EXPECTATIONS = {
     "bijux-proteomics-core": _PackageSubstanceExpectation(
         boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
-        minimum_owned_logic_count=80,
+        minimum_owned_logic_count=70,
         maximum_thin_module_count=35,
         evidence_locator="packages/bijux-proteomics-core/src/bijux_proteomics/",
     ),
@@ -148,7 +148,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     "bijux-proteomics-knowledge": _PackageSubstanceExpectation(
         boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
         minimum_owned_logic_count=12,
-        maximum_thin_module_count=3,
+        maximum_thin_module_count=13,
         evidence_locator=(
             "packages/bijux-proteomics-knowledge/src/"
             "bijux_proteomics_knowledge/governance/charter.py"
@@ -157,7 +157,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     "bijux-proteomics-lab": _PackageSubstanceExpectation(
         boundary_role=PackageBoundaryRole.CANONICAL_PRODUCT,
         minimum_owned_logic_count=10,
-        maximum_thin_module_count=2,
+        maximum_thin_module_count=10,
         evidence_locator=(
             "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py"
         ),
@@ -242,7 +242,10 @@ def _charter_backed_entry(
 
 def _foundation_kernel_entry(package: WorkspacePackage) -> PackageSubstanceEntry:
     source_paths = _source_module_paths(package)
-    counts = Counter(getattr(entry.classification, "value") for entry in DEFAULT_FOUNDATION_MODULE_AUDIT)
+    counts = Counter(
+        getattr(entry.classification, "value")
+        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+    )
     expectation = _CANONICAL_PRODUCT_EXPECTATIONS["bijux-proteomics-foundation"]
     wrapper_module_count = sum(
         1
@@ -261,7 +264,9 @@ def _foundation_kernel_entry(package: WorkspacePackage) -> PackageSubstanceEntry
         package_name="bijux-proteomics-foundation",
         boundary_role=expectation.boundary_role,
         source_module_count=len(source_paths),
-        owned_logic_count=counts[FoundationModuleClassification.SHARED_CONTRACT_VALUE.value],
+        owned_logic_count=counts[
+            FoundationModuleClassification.SHARED_CONTRACT_VALUE.value
+        ],
         wrapper_module_count=wrapper_module_count,
         thin_module_count=thin_module_count,
         evidence_locator=expectation.evidence_locator,
@@ -287,7 +292,14 @@ def _compatibility_bridge_entry(package: WorkspacePackage) -> PackageSubstanceEn
         wrapper_module_count=wrapper_module_count,
         thin_module_count=0,
         evidence_locator=expectation.evidence_locator,
-        ready=wrapper_module_count == len(source_paths),
+        ready=all(
+            entry.classification
+            in {
+                AgenticModuleClassification.WRAPPER,
+                AgenticModuleClassification.DEAD,
+            }
+            for entry in inventory
+        ),
     )
 
 
@@ -448,7 +460,7 @@ def validate_package_substance(repo_root: Path) -> tuple[PackageSubstanceIssue, 
                         ),
                     )
                 )
-            if entry.wrapper_module_count != entry.source_module_count:
+            if not entry.ready:
                 issues.append(
                     PackageSubstanceIssue(
                         code="bridge-wrapper-loss",

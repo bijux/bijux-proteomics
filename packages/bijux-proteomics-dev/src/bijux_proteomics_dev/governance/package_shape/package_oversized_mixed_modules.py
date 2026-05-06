@@ -30,7 +30,10 @@ OVERSIZED_NONEMPTY_LINE_LIMIT = 600
 MIXED_IMPORT_ROOT_LIMIT = 3
 MIXED_PUBLIC_DEFINITION_LIMIT = 20
 PACKAGE_OVERSIZED_MIXED_MODULES_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "package-oversized-mixed-modules.toml"
+    REPO_ROOT
+    / "configs"
+    / "package-governance"
+    / "package-oversized-mixed-modules.toml"
 )
 
 
@@ -117,13 +120,17 @@ def validate_package_oversized_mixed_modules(
     report = report or build_package_oversized_mixed_module_report()
     failures: list[str] = []
     if len(report.entries) > report.guard.max_total_oversized_mixed_module_count:
-        failures.append("oversized mixed-module count grew beyond the governed split-follow-up baseline")
+        failures.append(
+            "oversized mixed-module count grew beyond the governed split-follow-up baseline"
+        )
     largest_nonempty_line_count = max(
         (entry.nonempty_line_count for entry in report.entries),
         default=0,
     )
     if largest_nonempty_line_count > report.guard.max_largest_nonempty_line_count:
-        failures.append("largest oversized mixed module grew beyond the governed split-follow-up baseline")
+        failures.append(
+            "largest oversized mixed module grew beyond the governed split-follow-up baseline"
+        )
     return tuple(failures)
 
 
@@ -157,9 +164,9 @@ def _toml_text(report: PackageOversizedMixedModuleReport) -> str:
 def _is_up_to_date(report: PackageOversizedMixedModuleReport) -> bool:
     if not PACKAGE_OVERSIZED_MIXED_MODULES_PATH.exists():
         return False
-    return PACKAGE_OVERSIZED_MIXED_MODULES_PATH.read_text(encoding="utf-8") == _toml_text(
-        report
-    )
+    return PACKAGE_OVERSIZED_MIXED_MODULES_PATH.read_text(
+        encoding="utf-8"
+    ) == _toml_text(report)
 
 
 def run(check: bool = False) -> int:
