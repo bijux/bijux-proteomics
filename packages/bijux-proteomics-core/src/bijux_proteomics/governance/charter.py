@@ -143,8 +143,8 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Study design, MS1 feature parsing, quantification rollup, normalization, and QC semantics for reproducible quantitative analysis.",
         required_modules=(
             "study/__init__.py",
+            "study/qc.py",
             "quantification/__init__.py",
-            "qc.py",
         ),
         release_blocker="Core cannot ship if quantitative outputs stop carrying design and QC meaning that downstream packages depend on.",
     ),
@@ -163,9 +163,9 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
         required_modules=(
             "review/__init__.py",
+            "review/protein_family_graphs.py",
             "collaboration/__init__.py",
             "structure_report/render.py",
-            "protein_family_evidence_graph.py",
         ),
         release_blocker="Core cannot ship if review-facing scientific artifacts become presentation-only shells without underlying evidence structure.",
     ),
@@ -185,10 +185,10 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Package-level CLI, example surfaces, and adoption contracts that explain and expose core ownership without becoming a shadow runtime.",
         required_modules=(
             "__init__.py",
-            "cli.py",
             "interfaces/examples.py",
+            "interfaces/cli/app.py",
+            "governance/charter.py",
             "adoption/__init__.py",
-            "charter.py",
         ),
         release_blocker="Core cannot ship if its public package surface describes the wrong owner story or hides the scientific boundary behind stale compatibility language.",
     ),
@@ -202,7 +202,7 @@ _COMPATIBILITY_IMPORT_RE = re.compile(
 
 
 def _core_source_root() -> Path:
-    return Path(__file__).resolve().parent
+    return Path(__file__).resolve().parents[1]
 
 
 def _resolve_module_path(module_name: str) -> str:
@@ -230,11 +230,13 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     if compatibility_target is not None:
         return _module_family(compatibility_target)
 
-    if module_path in {"__init__.py", "cli.py", "charter.py"} or module_path.startswith(
+    if module_path in {"__init__.py"} or module_path.startswith(
+        ("governance/",)
+    ) or module_path.startswith(
         ("interfaces/", "adoption/", "benchmarks/")
     ):
         return CoreScientificDomainFamily.PACKAGE_SURFACE
-    if module_path.startswith("domain/") or module_path == "exceptions.py":
+    if module_path.startswith("domain/"):
         return CoreScientificDomainFamily.PROGRAM_GOVERNANCE
     if module_path.startswith(("sequences/", "chemistry/")) or module_path in {
         "peptide_uniqueness_audit.py",
@@ -243,7 +245,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
     if module_path.startswith(("io/", "identification/")):
         return CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION
-    if module_path.startswith(("quantification/", "study/")) or module_path == "qc.py":
+    if module_path.startswith(("quantification/", "study/")):
         return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
     if module_path.startswith(("ptm/", "dia/")):
         return CoreScientificDomainFamily.PTM_AND_DIA
@@ -259,16 +261,13 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
             "intelligence/",
             "structure_report/",
         )
-    ) or module_path in {
-        "protein_family_evidence_graph.py",
-        "proteoform_identity.py",
-    }:
+    ):
         return CoreScientificDomainFamily.REVIEW_AND_HANDOFF
     raise ValueError(f"unclassified core module path: {module_path}")
 
 
 def _module_classification(module_path: str) -> CoreModuleClassification:
-    if module_path == "charter.py":
+    if module_path == "governance/charter.py":
         return CoreModuleClassification.BOUNDARY_GOVERNANCE
     if module_path == "__init__.py" or module_path.endswith("/__init__.py"):
         return CoreModuleClassification.THIN_ABSTRACTION

@@ -33,7 +33,7 @@ from bijux_proteomics.sequences.digestion import (
     get_protease_rule,
     peptide_export_fingerprint,
 )
-from bijux_proteomics.exceptions import (
+from bijux_proteomics.domain.errors import (
     ProteomicsOperatorError,
     ProteomicsOperatorErrorCode,
 )
@@ -90,7 +90,7 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     QcEvidenceInputFile,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
@@ -155,7 +155,7 @@ from bijux_proteomics.io.spectra import (
     export_spectrum_annotation_tsv,
     parse_mgf,
 )
-from bijux_proteomics_runtime.workflows.plans import (
+from bijux_proteomics.workflow.runtime_bundles import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,

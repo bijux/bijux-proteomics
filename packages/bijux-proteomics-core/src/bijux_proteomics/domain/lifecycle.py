@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
+from bijux_proteomics.domain.errors import InvalidLifecycleTransitionError
 from bijux_proteomics.domain.program_spec import ProgramStage
 from bijux_proteomics_foundation import JsonModel, ProgramId
 

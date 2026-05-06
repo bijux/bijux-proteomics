@@ -17,7 +17,7 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     InstrumentBatchQcReport,
     InstrumentBatchQcRunEntry,
     build_lcms_run_qc_report,

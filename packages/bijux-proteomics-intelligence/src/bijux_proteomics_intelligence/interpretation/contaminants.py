@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     LcmsRunQcReport,
     QcAssessmentSeverity,
     QcRunAssessmentReport,

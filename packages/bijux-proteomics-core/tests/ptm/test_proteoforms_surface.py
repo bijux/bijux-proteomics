@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.proteoform_identity import (
+from bijux_proteomics.ptm.proteoforms import (
     ProteoformEvidenceLevel,
     ProteoformPtmAssignment,
     build_proteoform_identity,

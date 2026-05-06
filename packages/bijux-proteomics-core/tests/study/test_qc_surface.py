@@ -14,7 +14,7 @@ from bijux_proteomics.io.formats import (
     parse_experimental_design_table,
 )
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     QcAssessmentSeverity,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
@@ -38,7 +38,7 @@ from bijux_proteomics.quantification import (
     normalize_label_free_table,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.qc import QcThresholdPolicy
+from bijux_proteomics.study.qc import QcThresholdPolicy
 
 PROTEIN_SEQUENCES = {
     "P11111": "KACDEFGKRAA",

@@ -10,7 +10,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics.exceptions import ProgramValidationError, ReviewGateBlockedError
+from bijux_proteomics.domain.errors import (
+    ProgramValidationError,
+    ReviewGateBlockedError,
+)
 from bijux_proteomics.execution.backend import ExecutionRequest
 from bijux_proteomics.execution.runtime_adapter import require_backend
 from bijux_proteomics.domain.programs import ProgramSpec, program_summary

@@ -16,8 +16,8 @@ from bijux_proteomics.io.formats import (
     detect_proteomics_format,
     parse_experimental_design_table,
 )
-from bijux_proteomics.qc import _stable_sha256 as _stable_model_sha256
-from bijux_proteomics.search_adapters import (
+from bijux_proteomics.study.qc import _stable_sha256 as _stable_model_sha256
+from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     get_search_adapter_manifest,
 )

@@ -11,7 +11,7 @@ import time
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.io.spectra import parse_mgf
-from bijux_proteomics.qc import (
+from bijux_proteomics.study.qc import (
     QcEvidenceInputFile,
     build_lcms_run_qc_report,
     build_performance_snapshot,

@@ -61,7 +61,10 @@ from bijux_proteomics.domain.criteria import (
 )
 from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.domain.reviews import ReviewGate
-from bijux_proteomics.exceptions import ProgramValidationError, ReviewGateBlockedError
+from bijux_proteomics.domain.errors import (
+    ProgramValidationError,
+    ReviewGateBlockedError,
+)
 from bijux_proteomics.execution.backend import ExecutionRequest
 from bijux_proteomics.execution.runner import ProgramExecutionRequest
 from bijux_proteomics.execution.runtime_adapter import MissingExecutionBackendError

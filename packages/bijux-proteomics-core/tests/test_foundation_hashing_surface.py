@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.qc import QcPublicationDecision, _stable_sha256
+from bijux_proteomics.study.qc import QcPublicationDecision, _stable_sha256
 from bijux_proteomics_foundation import hash_model
 
 

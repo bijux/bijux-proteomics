@@ -44,8 +44,8 @@ from bijux_proteomics.domain.targets import (
     summarize_tractability,
     target_summary,
 )
-from bijux_proteomics.exceptions import InvalidLifecycleTransitionError
-from bijux_proteomics.liabilities import LiabilityCategory, ProgramLiability
+from bijux_proteomics.domain.errors import InvalidLifecycleTransitionError
+from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
 from bijux_proteomics.sequences import ProteinSequence, sequence_length
 
 

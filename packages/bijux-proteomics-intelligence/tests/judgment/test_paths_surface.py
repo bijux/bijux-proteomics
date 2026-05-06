@@ -7,7 +7,10 @@ from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
 from bijux_proteomics.domain.program_spec import create_program_spec
-from bijux_proteomics.qc import InstrumentBatchQcReport, InstrumentBatchQcRunEntry
+from bijux_proteomics.study.qc import (
+    InstrumentBatchQcReport,
+    InstrumentBatchQcRunEntry,
+)
 from bijux_proteomics.quantification import (
     QuantEntityLevel,
     ReplicateCorrelationEntry,

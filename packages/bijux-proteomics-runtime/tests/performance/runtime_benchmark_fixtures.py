@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from bijux_proteomics.search_adapters import SearchAdapterKind
+from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.runs import (
     RuntimeArtifactRetentionClass,
     RunConfig,
