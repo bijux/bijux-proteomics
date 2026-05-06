@@ -1,7 +1,7 @@
 # bijux-proteomics
 
 <!-- bijux-proteomics-badges:generated:start -->
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
 [![Verify](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![Release PyPI](https://github.com/bijux/bijux-proteomics/workflows/release-pypi/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
