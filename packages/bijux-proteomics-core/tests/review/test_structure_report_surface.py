@@ -10,8 +10,8 @@ from typing import Any, cast
 import numpy as np
 import pytest
 
-import bijux_proteomics.structure_report as R
-import bijux_proteomics.structure_report.render as render
+import bijux_proteomics.review.structure_reports as R
+import bijux_proteomics.review.structure_reports.render as render
 
 # ---------- helpers ----------
 

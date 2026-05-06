@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.collaboration import (
+from bijux_proteomics.review.collaboration import (
     ExternalReviewerBundle,
     ExternalReviewerBundleInput,
     build_external_reviewer_bundle,

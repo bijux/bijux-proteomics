@@ -17,7 +17,7 @@ from bijux_proteomics.domain.structure.structure import (
     tertiary_summary_from_structure,
     tm_score,
 )
-from bijux_proteomics.structure_report import (
+from bijux_proteomics.review.structure_reports import (
     SS8,
     Metrics,
     Percentage,

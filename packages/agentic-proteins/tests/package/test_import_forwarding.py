@@ -90,13 +90,13 @@ from agentic_proteins.agents.contracts import (
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
 from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
-from bijux_proteomics.structure_report import Report as RuntimeReport
-from bijux_proteomics.structure_report.render import (
+from bijux_proteomics.review.structure_reports import Report as RuntimeReport
+from bijux_proteomics.review.structure_reports.render import (
     confidence_summary as runtime_confidence_summary,
 )
-from bijux_proteomics.structure_report.render import format_pct as runtime_format_pct
-from bijux_proteomics.structure_report.render import nl_summary as runtime_nl_summary
-from bijux_proteomics.structure_report.render import to_text as runtime_to_text
+from bijux_proteomics.review.structure_reports.render import format_pct as runtime_format_pct
+from bijux_proteomics.review.structure_reports.render import nl_summary as runtime_nl_summary
+from bijux_proteomics.review.structure_reports.render import to_text as runtime_to_text
 from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
 )
