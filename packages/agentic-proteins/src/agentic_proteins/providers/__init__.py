@@ -1,22 +1,26 @@
 """Compatibility provider entrypoints."""
 
-from agentic_proteins.providers.base import (
+from bijux_proteomics_runtime.providers.contracts import (
     BaseProvider,
     PredictionResult,
     ProviderCapabilities,
     ProviderMetadata,
     _time_left,
 )
-from agentic_proteins.providers.capabilities import (
-    KNOWN_PROVIDERS,
+from bijux_proteomics_runtime.providers.catalog import (
     PROVIDER_CAPABILITIES,
+    provider_metadata,
     provider_requirements,
+)
+from bijux_proteomics_runtime.providers.capabilities import (
+    KNOWN_PROVIDERS,
     validate_runtime_capabilities,
 )
-from agentic_proteins.providers.errors import PredictionError
-from agentic_proteins.providers.heuristic import HeuristicStructureProvider
-from bijux_proteomics_runtime.providers.catalog import provider_metadata
-from agentic_proteins.providers.selection import (
+from bijux_proteomics_runtime.providers.builtin.heuristic import (
+    HeuristicStructureProvider,
+)
+from bijux_proteomics_runtime.providers.errors import PredictionError
+from bijux_proteomics_runtime.providers.selection import (
     _require_module,
     create_provider,
     cuda_available,
