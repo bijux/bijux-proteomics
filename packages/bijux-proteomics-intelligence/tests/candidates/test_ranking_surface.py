@@ -60,7 +60,7 @@ from bijux_proteomics_intelligence.judgment.policies import (
     validate_factor_weights,
     validate_metric_catalog,
 )
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

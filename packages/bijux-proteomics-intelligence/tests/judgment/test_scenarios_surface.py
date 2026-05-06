@@ -55,7 +55,7 @@ from bijux_proteomics_intelligence.reviews.packets import (
     build_intelligence_review_packet,
     build_review_board_packet,
 )
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     DecisionReadiness,
     EvidenceCoverage,
     EvidenceBundle,
@@ -64,7 +64,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
 
 
 def _ready_state() -> DecisionReadiness:

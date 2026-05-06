@@ -16,7 +16,7 @@ from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     CandidateRanking,
 )
-from bijux_proteomics_knowledge.memory.evidence import DecisionReadiness
+from bijux_proteomics_knowledge.memory.models.evidence import DecisionReadiness
 
 
 class ScenarioAction(StrEnum):

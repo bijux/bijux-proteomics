@@ -9,7 +9,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics_foundation import AssayId, BatchId, JsonModel, ProgramId
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     assess_decision_readiness,
     compute_bundle_trust,

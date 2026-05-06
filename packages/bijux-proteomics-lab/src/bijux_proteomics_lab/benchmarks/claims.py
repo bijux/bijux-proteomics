@@ -18,7 +18,7 @@ from bijux_proteomics.io.ingestion import ChromatogramQcIngestionReport
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
 from bijux_proteomics_intelligence.judgment.paths import FollowUpCandidatePath
-from bijux_proteomics_knowledge.references.benchmarks import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )

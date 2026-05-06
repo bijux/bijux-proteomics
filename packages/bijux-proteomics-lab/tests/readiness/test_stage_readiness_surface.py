@@ -6,7 +6,7 @@ from __future__ import annotations
 from bijux_proteomics.domain.assays import AssayRequirement
 from bijux_proteomics.domain.program_spec import create_program_spec
 from bijux_proteomics.domain.reviews import ReviewGate
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

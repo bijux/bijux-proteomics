@@ -33,8 +33,8 @@ from bijux_proteomics_intelligence.posture.evidence import (
     EvidenceContradictionSummary,
     summarize_evidence_contradictions,
 )
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
 
 class IntelligenceReviewPacket(JsonModel):
     """Integrated intelligence packet for review-gate decision meetings."""

@@ -17,7 +17,7 @@ from bijux_proteomics_foundation.outcomes.refusals import (
 )
 from bijux_proteomics_foundation.outcomes.results import OperationResult
 from bijux_proteomics_foundation.support.states import SupportState
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     compute_bundle_trust,
     flag_conflicting_evidence,

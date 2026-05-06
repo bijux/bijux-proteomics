@@ -23,8 +23,8 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
 from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
 
 
 class DecisionEscalationFlags(JsonModel):
