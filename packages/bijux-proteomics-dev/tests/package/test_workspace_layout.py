@@ -24,6 +24,10 @@ ROOT_ARTIFACT_LINKS = {
     ".benchmarks": "artifacts/root/benchmarks",
     ".tox": "artifacts/root/tox",
 }
+ROOT_FORBIDDEN_CACHE_PATHS = (
+    ".pytest_cache",
+    ".ruff_cache",
+)
 
 
 def _workspace_metadata() -> dict[str, Any]:
@@ -82,6 +86,9 @@ def test_repository_root_uses_artifact_symlinks() -> None:
     stray_configs_artifacts = REPO_ROOT / "configs" / "artifacts"
     if stray_configs_artifacts.exists():
         failures.append("repository root: configs/artifacts must not exist")
+    for path_name in ROOT_FORBIDDEN_CACHE_PATHS:
+        if (REPO_ROOT / path_name).exists():
+            failures.append(f"repository root: {path_name} must not exist")
 
     assert not failures, "repository artifact symlink contract failed:\n" + "\n".join(
         failures

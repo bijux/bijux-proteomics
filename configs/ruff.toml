@@ -1,6 +1,7 @@
 target-version = "py311"
 line-length = 88
 respect-gitignore = true
+cache-dir = "artifacts/root/ruff-cache"
 src = [
   "packages/agentic-proteins/src",
   "packages/agentic-proteins/tests",
