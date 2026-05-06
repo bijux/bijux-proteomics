@@ -10,11 +10,15 @@ from agentic_proteins.interfaces.http import AppConfig as CompatAppConfig
 from agentic_proteins.interfaces.http import create_app as compat_create_app
 from agentic_proteins.interfaces.http.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
 from agentic_proteins.interfaces.structure_reports import Report as CompatReport
-from agentic_proteins.interfaces.structure_reports import nl_summary as compat_nl_summary
+from agentic_proteins.interfaces.structure_reports import (
+    nl_summary as compat_nl_summary,
+)
 from agentic_proteins.interfaces.structure_reports import (
     confidence_summary as compat_confidence_summary,
 )
-from agentic_proteins.interfaces.structure_reports import format_pct as compat_format_pct
+from agentic_proteins.interfaces.structure_reports import (
+    format_pct as compat_format_pct,
+)
 from agentic_proteins.interfaces.structure_reports import to_text as compat_to_text
 from agentic_proteins.execution.evaluation.observations import (
     EvaluationInput as CompatEvaluationInput,
@@ -56,7 +60,9 @@ from agentic_proteins.interfaces.cli import (
     cli as compat_cli,
 )
 from agentic_proteins.providers.base import _time_left as compat_time_left
-from agentic_proteins.providers.selection import _require_module as compat_require_module
+from agentic_proteins.providers.selection import (
+    _require_module as compat_require_module,
+)
 from agentic_proteins.agents.catalog import AgentCatalog as CompatAgentCatalog
 from agentic_proteins.agents.catalog import AgentRegistry as CompatAgentRegistry
 from agentic_proteins.tools.catalog import ToolCatalog as CompatToolCatalog
@@ -76,7 +82,9 @@ from agentic_proteins.execution.manager import (
 from agentic_proteins.execution.manager import (
     _version_info as compat_version_info,
 )
-from agentic_proteins.providers.capabilities import KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS
+from agentic_proteins.providers.capabilities import (
+    KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS,
+)
 from agentic_proteins.providers import capabilities as compat_capabilities
 from agentic_proteins.providers.capabilities import (
     validate_runtime_capabilities as compat_validate_runtime_capabilities,
@@ -94,8 +102,12 @@ from bijux_proteomics.review.structure_reports import Report as RuntimeReport
 from bijux_proteomics.review.structure_reports.render import (
     confidence_summary as runtime_confidence_summary,
 )
-from bijux_proteomics.review.structure_reports.render import format_pct as runtime_format_pct
-from bijux_proteomics.review.structure_reports.render import nl_summary as runtime_nl_summary
+from bijux_proteomics.review.structure_reports.render import (
+    format_pct as runtime_format_pct,
+)
+from bijux_proteomics.review.structure_reports.render import (
+    nl_summary as runtime_nl_summary,
+)
 from bijux_proteomics.review.structure_reports.render import to_text as runtime_to_text
 from bijux_proteomics_runtime.execution.evaluation.observations import (
     EvaluationInput as RuntimeEvaluationInput,
@@ -140,7 +152,9 @@ from bijux_proteomics_runtime.providers.contracts import _time_left as runtime_t
 from bijux_proteomics_runtime.providers.selection import (
     _require_module as runtime_require_module,
 )
-from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog as RuntimeAgentCatalog
+from bijux_proteomics_runtime.execution.agents.catalog import (
+    AgentCatalog as RuntimeAgentCatalog,
+)
 from bijux_proteomics_runtime.execution.tools.catalog import (
     ToolCatalog as RuntimeToolCatalog,
 )
@@ -282,6 +296,9 @@ def test_compat_runtime_capability_surface_forwards_to_runtime_symbols() -> None
         compat_capabilities.PROVIDER_CAPABILITIES
         is runtime_capabilities.PROVIDER_CAPABILITIES
     )
-    assert compat_capabilities.provider_requirements is runtime_capabilities.provider_requirements
+    assert (
+        compat_capabilities.provider_requirements
+        is runtime_capabilities.provider_requirements
+    )
     assert COMPAT_KNOWN_PROVIDERS is RUNTIME_KNOWN_PROVIDERS
     assert compat_validate_runtime_capabilities is runtime_validate_runtime_capabilities

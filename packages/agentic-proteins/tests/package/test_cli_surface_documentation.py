@@ -5,13 +5,10 @@ from __future__ import annotations
 
 from tests.support.paths import repo_root
 
+
 def test_cli_surface_documented() -> None:
     doc_path = (
-        repo_root()
-        / "docs"
-        / "02-agentic-proteins"
-        / "interfaces"
-        / "cli-surface.md"
+        repo_root() / "docs" / "02-agentic-proteins" / "interfaces" / "cli-surface.md"
     )
     text = doc_path.read_text(encoding="utf-8")
 

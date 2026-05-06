@@ -14,7 +14,9 @@ from bijux_proteomics_runtime.runs.context import (
     RunContext as RuntimeRunContext,
     create_run_context as runtime_create_run_context,
 )
-from bijux_proteomics_runtime.runs.lifecycle import RunLifecycleState as RuntimeRunLifecycleState
+from bijux_proteomics_runtime.runs.lifecycle import (
+    RunLifecycleState as RuntimeRunLifecycleState,
+)
 from bijux_proteomics_runtime.runs.output import (
     RunOutput as RuntimeRunOutput,
     RunStatus as RuntimeRunStatus,
@@ -26,7 +28,9 @@ from bijux_proteomics_runtime.state.snapshot import (
     snapshot_replan as runtime_snapshot_replan,
     snapshot_state as runtime_snapshot_state,
 )
-from bijux_proteomics_runtime.support.workspace import RunWorkspace as RuntimeRunWorkspace
+from bijux_proteomics_runtime.support.workspace import (
+    RunWorkspace as RuntimeRunWorkspace,
+)
 
 
 def test_state_surface_forwards_to_runtime_symbols() -> None:
