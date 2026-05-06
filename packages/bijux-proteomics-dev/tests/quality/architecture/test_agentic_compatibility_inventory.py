@@ -22,27 +22,34 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
     entries = build_agentic_compatibility_inventory(REPO_ROOT)
     by_path = {entry.module_path: entry for entry in entries}
 
-    assert len(entries) >= 100
+    assert len(entries) == 89
     assert "sandbox/__init__.py" not in by_path
     assert (
-        by_path["report/render.py"].classification
+        by_path["interfaces/http/app.py"].classification
         is AgenticModuleClassification.WRAPPER
     )
     assert (
-        by_path["runtime/infra/capabilities.py"].classification
-        is AgenticModuleClassification.WRAPPER
-    )
-    assert by_path["report/render.py"].owner_package == "bijux-proteomics-core"
-    assert (
-        by_path["domain/confidence/segments.py"].owner_package
-        == "bijux-proteomics-intelligence"
-    )
-    assert (
-        by_path["registry/__init__.py"].classification
+        by_path["execution/manager.py"].classification
         is AgenticModuleClassification.WRAPPER
     )
     assert (
-        by_path["validation/__init__.py"].classification
+        by_path["providers/capabilities.py"].classification
+        is AgenticModuleClassification.WRAPPER
+    )
+    assert (
+        by_path["interfaces/structure_reports.py"].owner_package
+        == "bijux-proteomics-core"
+    )
+    assert (
+        by_path["state/context.py"].owner_package
+        == "bijux-proteomics-runtime"
+    )
+    assert (
+        by_path["agents/catalog.py"].classification
+        is AgenticModuleClassification.WRAPPER
+    )
+    assert (
+        by_path["tools/contracts.py"].classification
         is AgenticModuleClassification.WRAPPER
     )
     assert AGENTIC_COMPATIBILITY_INVENTORY_CSV_PATH.exists()

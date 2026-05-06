@@ -7,6 +7,8 @@ agents/analysis/sequence_analysis.py,runtime_execution_ownership,bijux-proteomic
 agents/analysis/structure.py,runtime_execution_ownership,bijux-proteomics-runtime,Structure analysis agents now forward directly to canonical runtime analysis implementations.
 agents/base/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent base package exports now forward directly to canonical runtime agent base surfaces.
 agents/base/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent base classes now forward directly to canonical runtime agent base implementations.
+agents/catalog.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/contracts.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent execution package exports now forward directly to canonical runtime execution-agent surfaces.
 agents/execution/coordinator.py,runtime_execution_ownership,bijux-proteomics-runtime,Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations.
 agents/planning/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent planning package exports now forward directly to canonical runtime planning surfaces.
@@ -22,127 +24,67 @@ agents/verification/__init__.py,runtime_execution_ownership,bijux-proteomics-run
 agents/verification/critic.py,runtime_execution_ownership,bijux-proteomics-runtime,Verification critic agents now forward directly to canonical runtime verification implementations.
 agents/verification/input_validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Input validation agents now forward directly to canonical runtime verification implementations.
 agents/verification/quality_control.py,runtime_execution_ownership,bijux-proteomics-runtime,Quality-control agents now forward directly to canonical runtime verification implementations.
-api/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/app.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/deps.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/errors.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/middleware.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/endpoints/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/endpoints/compare.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/endpoints/inspect.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/endpoints/resume.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/endpoints/run.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/router.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-api/v1/schema.py,runtime_execution_ownership,bijux-proteomics-runtime,HTTP runtime interface and API wiring belong to canonical runtime ownership.
-biology/__init__.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-biology/pathway.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-biology/protein_agent.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-biology/regulator.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-biology/signals.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-biology/validation.py,domain_ownership,bijux-proteomics-core,Biology and regulator semantics express domain truth and must move to canonical lower-layer domain ownership.
-core/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime core package exports now forward directly to canonical runtime core surfaces.
-core/api_lock.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime api-freeze helpers now forward directly to canonical runtime core contracts.
-core/contracts.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime contract helpers now forward directly to canonical runtime core contracts.
-core/costs.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime cost helpers now forward directly to canonical runtime core accounting surfaces.
-core/decisions.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime decision helpers now forward directly to canonical runtime control contracts.
-core/determinism.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime replay determinism helpers now forward directly to canonical runtime replay contracts.
-core/execution.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime execution helpers now forward directly to canonical runtime execution contracts.
-core/failures.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime failure helpers now forward directly to canonical runtime failure contracts.
-core/fingerprints.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime replay fingerprints now forward directly to canonical runtime replay contracts.
-core/hashing.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime replay hashing now forwards directly to canonical runtime replay contracts.
-core/identifiers.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime identifier helpers now forward directly to canonical runtime identifier contracts.
-core/observations.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime observation helpers now forward directly to canonical runtime observation contracts.
-core/stability.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
-core/status.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
-core/surface_area.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
-core/tooling.py,runtime_support_internal_review,bijux-proteomics-runtime,Legacy runtime core helpers contain mixed concerns and require separation review before final ownership assignment.
-design_loop/__init__.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
-design_loop/convergence.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
-design_loop/loop.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
-design_loop/stagnation.py,domain_ownership,bijux-proteomics-intelligence,"Design-loop convergence and progression semantics are policy and evaluation domain behavior, not runtime control ownership."
-domain/__init__.py,domain_ownership,bijux-proteomics-intelligence,Domain package aggregation now forwards directly to canonical intelligence domain ownership.
-domain/candidates/__init__.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/filters.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/model.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/schema.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/selection.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/store.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/transform.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/candidates/updates.py,domain_ownership,bijux-proteomics-intelligence,"Candidate modeling, filtering, and selection are intelligence-layer ranking and recommendation semantics."
-domain/confidence/__init__.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation now forwards directly to canonical intelligence confidence semantics.
-domain/confidence/segments.py,domain_ownership,bijux-proteomics-intelligence,Confidence segmentation now forwards directly to canonical intelligence confidence semantics.
-domain/metrics/__init__.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
-domain/metrics/compute.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
-domain/metrics/quality.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
-domain/metrics/validation.py,domain_ownership,bijux-proteomics-intelligence,Evaluation and quality metric semantics belong to intelligence-layer scoring policy ownership.
-domain/sequence/__init__.py,domain_ownership,bijux-proteomics-core,Sequence domain constraints and summaries are core domain model ownership.
-domain/sequence/summary.py,domain_ownership,bijux-proteomics-core,Sequence domain constraints and summaries are core domain model ownership.
-domain/sequence/validation.py,domain_ownership,bijux-proteomics-core,Sequence domain constraints and summaries are core domain model ownership.
-domain/structure/__init__.py,domain_ownership,bijux-proteomics-core,Structure domain representations are canonical program-domain ownership concerns.
-domain/structure/structure.py,domain_ownership,bijux-proteomics-core,Structure domain representations are canonical program-domain ownership concerns.
-execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution package exports now forward directly to canonical runtime orchestration surfaces.
+execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/analysis.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/artifacts.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
 execution/compiler/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
 execution/compiler/boundary.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution boundary compilation belongs to runtime orchestration boundaries.
-execution/evaluation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation package exports now forward directly to canonical runtime evaluation surfaces.
-execution/evaluation/evaluation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation orchestration now forwards directly to canonical runtime evaluation logic.
-execution/evaluation/observations.py,runtime_execution_ownership,bijux-proteomics-runtime,Observation transport and evaluation trigger payloads now live on the canonical runtime execution surface.
-execution/evaluation/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution evaluation schemas are runtime-owned transport contracts on the canonical execution surface.
+execution/evaluation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/evaluation/evaluation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/evaluation/observations.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/evaluation/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/graphs.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/logging.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/manager.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/run_config.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
 execution/runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
 execution/runtime/executor.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
 execution/runtime/integration.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution runtime drivers are canonical runtime execution surfaces.
-execution/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution schema exports now forward directly to canonical runtime transport contracts.
-execution/validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution validation exports now forward directly to canonical runtime gatekeeping logic.
+execution/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/state_machine.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/telemetry.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/tool_reliability.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
+execution/validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces.
 interfaces/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 interfaces/cli.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
-memory/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime memory package exports now forward directly to canonical runtime memory surfaces.
-memory/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime memory schemas now forward directly to canonical runtime memory contracts.
-memory/store.py,runtime_execution_ownership,bijux-proteomics-runtime,Runtime memory storage now forwards directly to canonical runtime memory persistence.
+interfaces/http/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/app.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/deps.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/errors.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/middleware.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/endpoints/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/endpoints/compare.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/endpoints/inspect.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/endpoints/resume.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/endpoints/run.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/router.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/http/v1/schema.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+interfaces/structure_reports.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 providers/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
+providers/capabilities.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/errors.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/experimental/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/experimental/_async_utils.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/experimental/colabfold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/experimental/openprotein.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
-providers/factory.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/heuristic.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/esmfold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/rosettafold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
-registry/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Registry package exports now forward directly to canonical runtime registry surfaces.
-registry/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry exports now forward directly to canonical runtime registry contracts.
-registry/tools.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool registry exports now forward directly to canonical runtime registry contracts.
-report/__init__.py,domain_ownership,bijux-proteomics-core,Structure report package exports now forward directly to canonical core scientific report surfaces.
-report/compute.py,domain_ownership,bijux-proteomics-core,Structure report computation now forwards directly to canonical core scientific summary surfaces.
-report/model.py,domain_ownership,bijux-proteomics-core,Structure report data modeling now forwards directly to canonical core scientific report schemas.
-report/render.py,domain_ownership,bijux-proteomics-core,Structure report rendering now forwards directly to canonical core presentation surfaces.
-runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/context/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/context/context.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/context/lifecycle.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/context/output.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/context/request.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/control/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/control/artifacts.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/control/execution.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/control/state_machine.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/analysis.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/capabilities.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/config.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/observability.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/reliability.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/infra/telemetry.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
-runtime/workspace.py,runtime_execution_ownership,bijux-proteomics-runtime,"Runtime control, state coordination, and workspace execution orchestration belong to runtime."
+providers/selection.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 state/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
+state/context.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
+state/lifecycle.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
+state/output.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
+state/request.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/snapshot.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
+state/workspace.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 tools/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool package exports now forward directly to canonical runtime tool surfaces.
 tools/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool base contracts now forward directly to canonical runtime tool interfaces.
+tools/catalog.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
+tools/contracts.py,runtime_support_internal_review,bijux-proteomics-runtime,Tool adapters are runtime-support surfaces pending ownership decomposition and compatibility shaping.
 tools/heuristic.py,runtime_execution_ownership,bijux-proteomics-runtime,Heuristic tool execution now forwards directly to canonical runtime tool implementations.
 tools/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool result schemas now forward directly to canonical runtime tool contracts.
-validation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Validation package exports now forward directly to canonical runtime validation surfaces.
-validation/agents.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent registry validation is part of the canonical runtime execution contract.
-validation/state.py,runtime_execution_ownership,bijux-proteomics-runtime,State validation exports now forward directly to canonical runtime recovery contracts.
-validation/tools.py,runtime_execution_ownership,bijux-proteomics-runtime,Tool registry validation is part of the canonical runtime execution contract.

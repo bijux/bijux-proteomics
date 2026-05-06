@@ -49,6 +49,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution boundary compilation belongs to runtime orchestration boundaries."
 
 [[rule]]
+pattern = "execution/*.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces."
+
+[[rule]]
 pattern = "execution/__init__.py"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"

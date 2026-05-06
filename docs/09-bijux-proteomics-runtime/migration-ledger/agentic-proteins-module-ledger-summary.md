@@ -13,23 +13,22 @@ This summary gives the current migration posture in one page. The signal is wher
 
 ## Current Counts
 
-- total modules: 147
-- `runtime_execution_ownership`: 108
+- total modules: 89
+- `runtime_execution_ownership`: 84
 - `runtime_support_internal_review`: 5
-- `domain_ownership`: 34
+- `domain_ownership`: 0
 
-About 73 percent of the ledger is already classified as clear runtime execution ownership, about 3 percent still needs internal review, and about 23 percent is already marked for lower-layer ownership.
+About 94 percent of the ledger is already classified as clear runtime execution ownership, about 6 percent still needs internal review, and about 0 percent is already marked for lower-layer ownership.
 
 ## Target Owner Distribution
 
-- `bijux-proteomics-runtime`: 112
-- `bijux-proteomics-intelligence`: 19
-- `bijux-proteomics-core`: 15
+- `bijux-proteomics-runtime`: 88
 - `agentic-proteins-compat`: 1
 
 ## Review Hotspots
 
-- `core/**`: 4 review-required modules
+- `agents/**`: 2 review-required modules
+- `tools/**`: 2 review-required modules
 - `__init__.py/**`: 1 review-required modules
 
 ## What The Numbers Mean
