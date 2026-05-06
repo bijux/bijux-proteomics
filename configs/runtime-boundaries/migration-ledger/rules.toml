@@ -43,6 +43,12 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution runtime drivers are canonical runtime execution surfaces."
 
 [[rule]]
+pattern = "orchestration/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces."
+
+[[rule]]
 pattern = "execution/compiler/**"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"
@@ -173,6 +179,12 @@ pattern = "agents/execution/coordinator.py"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"
 reason = "Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations."
+
+[[rule]]
+pattern = "agents/coordination/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Coordination-agent bridge modules are the durable compat-owned route to canonical runtime agent coordination surfaces."
 
 [[rule]]
 pattern = "agents/planning/__init__.py"

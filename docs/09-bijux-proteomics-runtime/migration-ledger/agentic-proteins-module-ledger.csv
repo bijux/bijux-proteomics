@@ -9,6 +9,8 @@ agents/base/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Age
 agents/base/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent base classes now forward directly to canonical runtime agent base implementations.
 agents/catalog.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
 agents/contracts.py,runtime_support_internal_review,bijux-proteomics-runtime,Agent orchestration support appears runtime-adjacent and requires module-level semantic review before canonical placement.
+agents/coordination/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Coordination-agent bridge modules are the durable compat-owned route to canonical runtime agent coordination surfaces.
+agents/coordination/coordinator.py,runtime_execution_ownership,bijux-proteomics-runtime,Coordination-agent bridge modules are the durable compat-owned route to canonical runtime agent coordination surfaces.
 agents/execution/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent execution package exports now forward directly to canonical runtime execution-agent surfaces.
 agents/execution/coordinator.py,runtime_execution_ownership,bijux-proteomics-runtime,Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations.
 agents/planning/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Agent planning package exports now forward directly to canonical runtime planning surfaces.
@@ -61,6 +63,27 @@ interfaces/http/v1/endpoints/run.py,runtime_execution_ownership,bijux-proteomics
 interfaces/http/v1/router.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 interfaces/http/v1/schema.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
 interfaces/structure_reports.py,runtime_execution_ownership,bijux-proteomics-runtime,Operator-facing CLI/runtime interface entrypoints belong to canonical runtime ownership.
+orchestration/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/analysis.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/artifacts.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/compiler/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/compiler/boundary.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/evaluation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/evaluation/evaluation.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/evaluation/observations.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/evaluation/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/graphs.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/logging.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/manager.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/run_config.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/runtime/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/runtime/executor.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/runtime/integration.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/schemas.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/state_machine.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/telemetry.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/tool_reliability.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/validation.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 providers/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/base.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/capabilities.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
@@ -73,6 +96,10 @@ providers/heuristic.py,runtime_execution_ownership,bijux-proteomics-runtime,Prov
 providers/local/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/esmfold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/local/rosettafold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
+providers/remote/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
+providers/remote/_async_utils.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
+providers/remote/colabfold.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
+providers/remote/openprotein.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 providers/selection.py,runtime_execution_ownership,bijux-proteomics-runtime,Provider binding and execution adapters are runtime responsibilities.
 state/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.
 state/context.py,runtime_execution_ownership,bijux-proteomics-runtime,Execution snapshots and runtime state persistence are runtime-owned concerns.

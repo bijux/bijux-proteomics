@@ -19,7 +19,7 @@ def test_compatibility_migration_guide_covers_agentic_runtime_bridge() -> None:
     entries = build_compatibility_migration_guide(REPO_ROOT)
     by_legacy_module = {entry.legacy_module: entry for entry in entries}
 
-    assert len(entries) == 89
+    assert len(entries) == 116
     assert by_legacy_module["agentic_proteins.interfaces.http.app"].status == "wrapper"
     assert by_legacy_module["agentic_proteins.interfaces.http.app"].canonical_targets == (
         "bijux_proteomics_runtime.api.app",
@@ -32,6 +32,12 @@ def test_compatibility_migration_guide_covers_agentic_runtime_bridge() -> None:
     )
     assert by_legacy_module["agentic_proteins.agents.catalog"].canonical_targets == (
         "bijux_proteomics_runtime.execution.agents.catalog",
+    )
+    assert by_legacy_module["agentic_proteins.orchestration.manager"].canonical_targets == (
+        "bijux_proteomics_runtime.runs.manager",
+    )
+    assert by_legacy_module["agentic_proteins.providers.remote.openprotein"].canonical_targets == (
+        "bijux_proteomics_runtime.providers.remote.openprotein",
     )
     guide_text = GUIDE_PATH.read_text(encoding="utf-8")
     assert "agentic-proteins Canonical Migration Guide" in guide_text
