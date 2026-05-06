@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics.search_adapters import (
+from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchResultColumnMapping,
     assess_search_merge_compatibility,

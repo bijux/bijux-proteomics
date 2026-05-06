@@ -20,7 +20,7 @@ def test_export_slurm_job_script_includes_resources_env_and_artifact_path() -> N
             log_path="artifacts/slurm.log",
             environment_exports={"OMP_NUM_THREADS": "8"},
             artifact_dir="artifacts/run123",
-            command="python3 -m bijux_proteomics.cli run",
+            command="python3 -m bijux_proteomics.interfaces.cli run",
         )
     )
 

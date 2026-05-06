@@ -14,7 +14,7 @@ def test_build_container_build_definition_renders_dockerfile_text() -> None:
         base_image="ubuntu:24.04",
         packages=("python3", "curl"),
         copied_paths=("packages", "configs"),
-        entrypoint=("python3", "-m", "bijux_proteomics.cli"),
+        entrypoint=("python3", "-m", "bijux_proteomics.interfaces.cli"),
     )
 
     assert definition.image_tag == "bijux-proteomics:runtime"

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.search_adapters import (
+from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchToleranceUnit,
     parse_search_parameter_file,
