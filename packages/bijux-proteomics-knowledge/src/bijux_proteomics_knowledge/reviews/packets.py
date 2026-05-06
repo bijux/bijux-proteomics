@@ -28,6 +28,15 @@ from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
     cluster_conflicts,
     resolve_conflicts,
 )
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.reviews.provenance import (
+    CriticalClaimProvenanceLine,
+    ReferenceDisagreementReport,
+    build_critical_claim_provenance_lines,
+    build_reference_disagreement_report,
+)
 
 
 class KnowledgeReviewPacket(JsonModel):
@@ -77,6 +86,14 @@ class KnowledgeReviewPacket(JsonModel):
         ge=0.0,
         le=1.0,
         description="Composite index for decision intelligence readiness.",
+    )
+    critical_claim_provenance: tuple[CriticalClaimProvenanceLine, ...] = Field(
+        default_factory=tuple,
+        description="Recommendation-critical claims traced to benchmark, citation, corpus, and evidence links.",
+    )
+    reference_disagreement_report: ReferenceDisagreementReport | None = Field(
+        default=None,
+        description="Benchmark-versus-literature disagreement artifact for this workflow family.",
     )
 
 
@@ -146,6 +163,7 @@ def build_knowledge_review_packet(
     claims: list[EvidenceClaim],
     *,
     decision_tag: str,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
     required_modalities: list[str] | None = None,
     expected_species: str | None = None,
     expected_system: str | None = None,
@@ -203,6 +221,18 @@ def build_knowledge_review_packet(
         knowledge_gaps=gaps,
         conflict_clusters=clusters,
     )
+    critical_claim_provenance: tuple[CriticalClaimProvenanceLine, ...] = ()
+    reference_disagreement_report: ReferenceDisagreementReport | None = None
+    if workflow_family is not None:
+        critical_claim_provenance = build_critical_claim_provenance_lines(
+            bundle,
+            claims,
+            decision_tag=decision_tag,
+            workflow_family=workflow_family,
+        )
+        reference_disagreement_report = build_reference_disagreement_report(
+            workflow_family
+        )
     return KnowledgeReviewPacket(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
@@ -217,6 +247,8 @@ def build_knowledge_review_packet(
         scientific_conclusions=scientific_conclusions,
         operational_labels=operational_labels,
         decision_intelligence_index=intelligence_index,
+        critical_claim_provenance=critical_claim_provenance,
+        reference_disagreement_report=reference_disagreement_report,
     )
 
 

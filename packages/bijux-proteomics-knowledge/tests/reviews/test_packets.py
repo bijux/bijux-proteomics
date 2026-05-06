@@ -10,6 +10,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceRecord,
     EvidenceStrength,
 )
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 from bijux_proteomics_knowledge.reviews.packets import (
     DecisionGateProfile,
     OperationalDecisionLabel,
@@ -27,6 +30,7 @@ def test_build_knowledge_review_packet_returns_integrated_sections(
         supported_progression_bundle,
         supported_progression_claims,
         decision_tag="progression",
+        workflow_family=KnowledgeWorkflowFamily.DDA,
         required_modalities=[EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
     )
 
@@ -51,6 +55,13 @@ def test_build_knowledge_review_packet_returns_integrated_sections(
     assert isinstance(packet.operational_labels[0], OperationalDecisionLabel)
     assert packet.operational_labels[0].label == packet.gate_recommendation
     assert 0.0 <= packet.decision_intelligence_index <= 1.0
+    assert packet.critical_claim_provenance
+    assert (
+        packet.critical_claim_provenance[0].benchmark_id
+        == "benchmark:dda_search_reproducibility"
+    )
+    assert packet.reference_disagreement_report is not None
+    assert packet.reference_disagreement_report.entries
 
 
 def test_summarize_multi_decision_readiness_reports_portfolio_score() -> None:
@@ -123,6 +134,7 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
         bundle,
         claims,
         decision_tag="progression",
+        workflow_family=KnowledgeWorkflowFamily.LFQ,
         gate_profile=DecisionGateProfile(
             profile_id="strict-profile",
             minimum_trust_score=0.9,
@@ -133,4 +145,48 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
     assert (
         packet.gate_recommendation == "advance-with-targeted-gap-closure"
         or packet.gate_recommendation == "advance-with-evidence-hardening"
+    )
+
+
+def test_knowledge_review_packet_flags_missing_bundle_links_in_claim_provenance() -> (
+    None
+):
+    bundle = EvidenceBundle(
+        bundle_id="bundle-provenance-gap",
+        target_id="target-provenance-gap",
+        records=[
+            EvidenceRecord(
+                evidence_id="pg-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay",
+                source="lab",
+                claim="support",
+                decision_tags=["progression"],
+                confidence=0.86,
+                strength=EvidenceStrength.SUPPORTING,
+            )
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-provenance-gap",
+            target_id="target-provenance-gap",
+            statement="claim needs full lineage",
+            evidence_ids=["pg-1", "pg-missing"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["orthogonal assay"],
+        )
+    ]
+
+    packet = build_knowledge_review_packet(
+        bundle,
+        claims,
+        decision_tag="progression",
+        workflow_family=KnowledgeWorkflowFamily.TARGETED,
+    )
+
+    assert packet.critical_claim_provenance[0].missing_links
+    assert (
+        "outside the attached bundle"
+        in packet.critical_claim_provenance[0].missing_links[0]
     )
