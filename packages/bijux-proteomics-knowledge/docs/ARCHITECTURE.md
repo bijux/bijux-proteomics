@@ -21,16 +21,17 @@ re-curating locally.
 
 ## Module topology
 
-- `memory/evidence.py` owns evidence bundles, provenance scoring, freshness, and contradiction inputs
-- `memory/claims.py` owns claim state, lineage, and knowledge-gap modeling
-- `memory/resolution.py` owns explicit conflict-resolution policies and resolution history
-- `memory/graph.py` owns evidence-graph structure and validation
-- `memory/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
+- `memory/models/evidence.py` owns evidence bundles, provenance scoring, freshness, and contradiction inputs
+- `memory/models/claims.py` owns claim state, lineage, and knowledge-gap modeling
+- `memory/reconciliation/resolution.py` owns explicit conflict-resolution policies and resolution history
+- `memory/integrity/graph.py` owns evidence-graph structure and validation
+- `memory/normalization/ingestion.py` owns normalization of external evidence into knowledge-owned memory records
 - `contracts/schema.py` owns schema compatibility and document contract profiles
 - `reviews/packets.py` owns reviewer-facing packets and multi-decision readiness summaries derived from existing scientific memory
 - `reviews/explanations.py` owns decision-scoped graph explanations built from existing review packets
 - `reviews/trends.py` owns packet comparisons and trend summaries for reviewer-facing change over time
-- `references/` owns selective curated references, workflow briefings, and the narrow workflow lookup surface
+- `references/grounding/` owns selective citations, contexts, corpora, ontologies, problems, and rules
+- `references/workflows/` owns workflow briefings, benchmark manifests, workflow narratives, and the narrow workflow lookup surface
 
 ## Dependency direction
 

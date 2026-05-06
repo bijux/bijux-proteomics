@@ -64,10 +64,10 @@ pip install bijux-proteomics-knowledge
 ## Quick start
 
 ```python
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, evidence_gaps
-from bijux_proteomics_knowledge.memory.claims import build_claim
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle, evidence_gaps
+from bijux_proteomics_knowledge.memory.models.claims import build_claim
 from bijux_proteomics_knowledge.reviews.packets import build_knowledge_review_packet
-from bijux_proteomics_knowledge.references.briefings import (
+from bijux_proteomics_knowledge.references.workflows.briefings import (
     build_workflow_reference_briefing,
 )
 ```
@@ -76,7 +76,7 @@ from bijux_proteomics_knowledge.references.briefings import (
 
 - Distribution name: `bijux-proteomics-knowledge`
 - Import root: `bijux_proteomics_knowledge`
-- Stable entrypoints: `memory.evidence`, `memory.claims`, `memory.resolution`, `reviews.packets`, `contracts.schema`, and `references`
+- Stable entrypoints: `memory.models.evidence`, `memory.models.claims`, `memory.reconciliation.resolution`, `reviews.packets`, `contracts.schema`, and `references`
 
 ## Package boundaries
 
@@ -102,10 +102,14 @@ The package boundary is justified by five grounded capabilities:
 
 Everything else in the package exists to turn those capabilities into auditable
 scientific memory with provenance:
-- `memory/` owns evidence, claims, graph integrity, ingestion, and resolution history
+- `memory/models/` owns evidence and claim records
+- `memory/integrity/` owns graph integrity and decision tracing
+- `memory/normalization/` owns evidence ingestion into knowledge-owned memory
+- `memory/reconciliation/` owns contradiction resolution and resolution history
 - `contracts/` owns knowledge document and schema compatibility contracts
 - `reviews/` owns reviewer-facing packets built from existing memory
-- `references/` owns selective curation surfaces and the narrow workflow lookup surface
+- `references/grounding/` owns citations, contexts, corpora, ontologies, problems, and rules
+- `references/workflows/` owns benchmark manifests, workflow narratives, workflow briefings, and narrow workflow lookups
 
 ## Contract checkpoints
 
@@ -138,7 +142,7 @@ scientific memory with provenance:
 
 ## Verification route
 
-- check `tests/memory`, `tests/references`, `tests/reviews`, and `tests/package`
+- check `tests/contracts`, `tests/governance`, `tests/memory`, `tests/references`, `tests/reviews`, and `tests/package`
   before treating a knowledge change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or trust-semantics claims are part of the change
@@ -176,17 +180,17 @@ scientific memory with provenance:
 
 ## Source guide
 
-- [`src/bijux_proteomics_knowledge/memory/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/evidence.py) for evidence models, provenance scoring, contradiction detection, and memory quality audits
-- [`src/bijux_proteomics_knowledge/memory/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/claims.py) for claim modeling, lineage, and knowledge-gap audits
-- [`src/bijux_proteomics_knowledge/memory/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/resolution.py) for conflict-resolution policies over shared scientific memory
-- [`src/bijux_proteomics_knowledge/memory/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/graph.py) for evidence-graph validation rules and decision tracing
-- [`src/bijux_proteomics_knowledge/memory/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/ingestion.py) for normalization of external evidence into knowledge-owned memory records
+- [`src/bijux_proteomics_knowledge/memory/models/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py) for evidence models, provenance scoring, contradiction detection, and memory quality audits
+- [`src/bijux_proteomics_knowledge/memory/models/claims.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py) for claim modeling, lineage, and knowledge-gap audits
+- [`src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py) for conflict-resolution policies over shared scientific memory
+- [`src/bijux_proteomics_knowledge/memory/integrity/graph.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/integrity/graph.py) for evidence-graph validation rules and decision tracing
+- [`src/bijux_proteomics_knowledge/memory/normalization/ingestion.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/normalization/ingestion.py) for normalization of external evidence into knowledge-owned memory records
 - [`src/bijux_proteomics_knowledge/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/packets.py) for reviewer-facing packets and multi-decision readiness summaries derived from existing memory
 - [`src/bijux_proteomics_knowledge/reviews/explanations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/explanations.py) for candidate-level graph explanations built from existing review packets
 - [`src/bijux_proteomics_knowledge/reviews/trends.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/trends.py) for review packet comparisons and trend summaries that keep reviewer-facing change explicit
-- [`src/bijux_proteomics_knowledge/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/charter.py) for the machine-readable package charter and module audit
-- [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated citations, ontology mappings, benchmark manifests, corpus manifests, scientific rules, and the narrow workflow lookup surface
-- [`src/bijux_proteomics_knowledge/references/briefings.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/briefings.py) for workflow-level claim, limitation, context, literature, problem, and rule packets that preserve provenance for downstream consumers
+- [`src/bijux_proteomics_knowledge/governance/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py) for the machine-readable package charter and module audit
+- [`src/bijux_proteomics_knowledge/references/`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references) for curated references split into grounding and workflow families
+- [`src/bijux_proteomics_knowledge/references/workflows/briefings.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/briefings.py) for workflow-level claim, limitation, context, literature, problem, and rule packets that preserve provenance for downstream consumers
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge/tests) for executable behavior expectations organized by memory, references, reviews, and package contracts
 
 ## Documentation
