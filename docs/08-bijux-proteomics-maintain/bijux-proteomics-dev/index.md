@@ -62,7 +62,7 @@ This section should let a maintainer trace a repository rule back to the exact h
 ## First Proof Check
 
 - `src/bijux_proteomics_dev/docs/`
-- `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
+- `src/bijux_proteomics_dev/governance/`, `release/`, `security/`, and `quality/`
 - `packages/bijux-proteomics-dev/tests`
 
 ## Design Pressure

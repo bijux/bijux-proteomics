@@ -41,7 +41,7 @@ This ledger is the checked-in review record for moving legacy `agentic-proteins`
 ## Regeneration And Validation
 
 - `make quality-runtime-migration-ledger` validates freshness and coverage
-- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger` regenerates the checked-in outputs
+- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.release.governance.compatibility_ledger` regenerates the checked-in outputs
 
 ## Review Rules
 

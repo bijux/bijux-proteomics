@@ -39,7 +39,7 @@ This page should let a maintainer classify a helper before opening code. If ever
 ## First Proof Check
 
 - `src/bijux_proteomics_dev/docs/`
-- `src/bijux_proteomics_dev/api/`, `release/`, `security/`, and `quality/`
+- `src/bijux_proteomics_dev/governance/`, `release/`, `security/`, and `quality/`
 
 ## Design Pressure
 
