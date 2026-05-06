@@ -48,9 +48,7 @@ def build_runtime_replay_decision_report(
     plan: PartialRerunPlan,
 ) -> RuntimeReplayDecisionReport:
     """Explain one replay decision in stable operator-facing terms."""
-    boundary_node = (
-        plan.rerun_steps[0].node_id if plan.rerun_steps else "handoff"
-    )
+    boundary_node = plan.rerun_steps[0].node_id if plan.rerun_steps else "handoff"
     findings = tuple(
         ReplayDecisionFinding(
             reason_code=reason_code,
@@ -149,7 +147,9 @@ def _guidance_for_reason(reason_code: str, *, import_only: bool) -> str:
             else "rebuild the run from input capture forward"
         )
     if reason_code in {"parameters_changed", "tools_changed"}:
-        return "reuse only nodes before the execution boundary and rerun execution onward"
+        return (
+            "reuse only nodes before the execution boundary and rerun execution onward"
+        )
     if reason_code == "code_expectations_changed":
         return "rerun the execution path under the current runtime build"
     if reason_code == "artifact_policy_changed":

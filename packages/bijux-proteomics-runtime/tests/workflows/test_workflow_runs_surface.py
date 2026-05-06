@@ -10,7 +10,9 @@ from bijux_proteomics_runtime.workflows.runs import (
 )
 
 
-def test_run_sequence_to_digest_workflow_end_to_end_produces_deterministic_report() -> None:
+def test_run_sequence_to_digest_workflow_end_to_end_produces_deterministic_report() -> (
+    None
+):
     fasta = ">sp|P12345|PROT1 example\nMKWVTFISLLFLFSSAYSRGVFRR\n>sp|Q8ABC1|PROT2 example\nGASPVFTLDELRDEGKASSAK"
 
     report = run_sequence_to_digest_workflow_end_to_end(fasta)

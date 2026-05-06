@@ -17,9 +17,14 @@ from bijux_proteomics_runtime.support.primitives import (
     stable_json,
     suggest_next_action,
 )
-from bijux_proteomics_runtime.support.primitives.contracts import EXECUTION_REVIEW_CONTRACT
+from bijux_proteomics_runtime.support.primitives.contracts import (
+    EXECUTION_REVIEW_CONTRACT,
+)
 from bijux_proteomics_runtime.support.primitives.execution import ExecutionContext
-from bijux_proteomics_runtime.support.primitives.surface_area import CONFIG_KNOBS, PUBLIC_ENTRYPOINTS
+from bijux_proteomics_runtime.support.primitives.surface_area import (
+    CONFIG_KNOBS,
+    PUBLIC_ENTRYPOINTS,
+)
 from bijux_proteomics_runtime.support.primitives.tooling import ToolInvocationSpec
 
 
@@ -77,7 +82,9 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
 
 
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:
-    from bijux_proteomics_runtime.support.primitives.surface_area import EXTENSION_POINTS
+    from bijux_proteomics_runtime.support.primitives.surface_area import (
+        EXTENSION_POINTS,
+    )
 
     assert "bijux_proteomics_runtime.providers" in EXTENSION_POINTS
     assert "bijux_proteomics_runtime.providers.remote" in EXTENSION_POINTS

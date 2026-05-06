@@ -137,9 +137,10 @@ def test_runtime_replay_fixture_proves_reuse_refusal_and_partial_rerun(
     ]
 
     assert partial_plan.replay_eligibility.eligible is False
-    assert list(partial_plan.replay_eligibility.invalidation_reasons) == fixture[
-        "partial_rerun"
-    ]["expected_invalidation_reasons"]
+    assert (
+        list(partial_plan.replay_eligibility.invalidation_reasons)
+        == fixture["partial_rerun"]["expected_invalidation_reasons"]
+    )
     assert [step.node_id for step in partial_plan.reuse_steps] == fixture[
         "partial_rerun"
     ]["expected_reuse_steps"]
@@ -148,9 +149,10 @@ def test_runtime_replay_fixture_proves_reuse_refusal_and_partial_rerun(
     ]["expected_rerun_steps"]
 
     assert full_plan.replay_eligibility.eligible is False
-    assert list(full_plan.replay_eligibility.invalidation_reasons) == fixture[
-        "full_rerun"
-    ]["expected_invalidation_reasons"]
+    assert (
+        list(full_plan.replay_eligibility.invalidation_reasons)
+        == fixture["full_rerun"]["expected_invalidation_reasons"]
+    )
     assert [step.node_id for step in full_plan.reuse_steps] == fixture["full_rerun"][
         "expected_reuse_steps"
     ]

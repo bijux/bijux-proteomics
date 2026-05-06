@@ -7,7 +7,9 @@ import pytest
 
 from bijux_proteomics_runtime.providers import selection as factory
 from bijux_proteomics_runtime.providers import capabilities
-from bijux_proteomics_runtime.providers.capabilities import validate_runtime_capabilities
+from bijux_proteomics_runtime.providers.capabilities import (
+    validate_runtime_capabilities,
+)
 
 
 def test_capabilities_auto_requires_gpu_budget(

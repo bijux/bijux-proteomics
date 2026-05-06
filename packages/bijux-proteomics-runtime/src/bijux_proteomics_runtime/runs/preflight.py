@@ -125,9 +125,7 @@ def build_runtime_preflight_report(
                     if dataset_exists
                     else "source dataset is missing"
                 ),
-                detail_codes=()
-                if dataset_exists
-                else ("source_dataset_missing",),
+                detail_codes=() if dataset_exists else ("source_dataset_missing",),
             )
         )
         if dataset_exists:

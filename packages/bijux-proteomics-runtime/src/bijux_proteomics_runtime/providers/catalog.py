@@ -9,8 +9,13 @@ from importlib import util
 import os
 import shutil
 
-from bijux_proteomics_runtime.providers.builtin.heuristic import HeuristicStructureProvider
-from bijux_proteomics_runtime.providers.contracts import ProviderCapabilities, ProviderMetadata
+from bijux_proteomics_runtime.providers.builtin.heuristic import (
+    HeuristicStructureProvider,
+)
+from bijux_proteomics_runtime.providers.contracts import (
+    ProviderCapabilities,
+    ProviderMetadata,
+)
 
 PROVIDER_CAPABILITIES = {
     "heuristic_proxy": ProviderCapabilities(

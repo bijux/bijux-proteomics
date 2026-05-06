@@ -10,7 +10,10 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_runtime.support.primitives.failures import FailureType, suggest_next_action
+from bijux_proteomics_runtime.support.primitives.failures import (
+    FailureType,
+    suggest_next_action,
+)
 from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 

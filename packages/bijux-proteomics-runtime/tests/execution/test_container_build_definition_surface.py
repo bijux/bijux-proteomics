@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.providers.environment import build_container_build_definition
+from bijux_proteomics_runtime.providers.environment import (
+    build_container_build_definition,
+)
 
 
 def test_build_container_build_definition_renders_dockerfile_text() -> None:

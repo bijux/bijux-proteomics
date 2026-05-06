@@ -31,8 +31,7 @@ def test_runtime_stability_marks_runtime_owned_zones() -> None:
         == StabilityLevel.SEALED
     )
     assert (
-        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.runs"]
-        == StabilityLevel.SEALED
+        STABILITY_EXPECTATIONS["bijux_proteomics_runtime.runs"] == StabilityLevel.SEALED
     )
     assert (
         STABILITY_EXPECTATIONS["bijux_proteomics_runtime.state"]

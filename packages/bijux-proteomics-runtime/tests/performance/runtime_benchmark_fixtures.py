@@ -126,7 +126,9 @@ def seed_medium_artifact_runs(base_dir: Path, *, run_count: int = 18) -> None:
                     {
                         "sequence": f"PEPTIDE{artifact_index:02d}",
                         "charge": charge,
-                        "score": round(0.81 + artifact_index * 0.003 + charge * 0.01, 4),
+                        "score": round(
+                            0.81 + artifact_index * 0.003 + charge * 0.01, 4
+                        ),
                     }
                     for charge in range(2, 5)
                 ],
@@ -212,7 +214,9 @@ def medium_import_payload() -> dict[str, object]:
                 "sequence": f"PEPTIDE{index:03d}",
                 "charge": (index % 3) + 2,
                 "proteins": [f"P{index:05d}", f"Q{index:05d}"],
-                "intensities": [round(10_000 + index * 17 + offset * 3.5, 4) for offset in range(10)],
+                "intensities": [
+                    round(10_000 + index * 17 + offset * 3.5, 4) for offset in range(10)
+                ],
             }
             for index in range(180)
         ],

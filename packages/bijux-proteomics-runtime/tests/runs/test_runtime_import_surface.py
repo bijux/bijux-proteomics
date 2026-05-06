@@ -97,9 +97,17 @@ def test_runtime_import_fixture_keeps_degraded_provenance_explicit(
     import_trace = RuntimeImportTrace.load_json(workspace_root / "import_trace.json")
 
     assert result["status"] == "success"
-    assert imported_payload["payload"]["provenance_status"] == fixture["expected_provenance_status"]
-    assert imported_payload["payload"]["provenance_gaps"] == fixture["expected_provenance_gaps"]
-    assert import_trace.imported_artifacts[0].artifact_kind == "runtime-imported-evidence"
+    assert (
+        imported_payload["payload"]["provenance_status"]
+        == fixture["expected_provenance_status"]
+    )
+    assert (
+        imported_payload["payload"]["provenance_gaps"]
+        == fixture["expected_provenance_gaps"]
+    )
+    assert (
+        import_trace.imported_artifacts[0].artifact_kind == "runtime-imported-evidence"
+    )
     assert {artifact.artifact_kind for artifact in import_trace.derived_artifacts} >= {
         "runtime-evidence-bundle",
         "runtime-review-packet",

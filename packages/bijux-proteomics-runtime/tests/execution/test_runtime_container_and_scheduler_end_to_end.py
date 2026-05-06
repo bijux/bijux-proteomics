@@ -62,7 +62,9 @@ def test_runtime_container_path_publishes_launch_bundle_and_smoke_report(
 
     assert result["status"] == "success"
     assert bundle.image_digest == fixture["config"]["container_image_digest"]
-    assert bundle.environment_capture.execution_mode == fixture["config"]["execution_mode"]
+    assert (
+        bundle.environment_capture.execution_mode == fixture["config"]["execution_mode"]
+    )
     assert bundle.environment_capture.enabled_predictors == tuple(
         fixture["expected_enabled_predictors"]
     )
@@ -99,7 +101,9 @@ def test_runtime_scheduler_path_publishes_launch_bundle_and_lifecycle_report(
     )
 
     assert result["status"] == "success"
-    assert bundle.launch_metadata.scheduler_system == fixture["config"]["scheduler_system"]
+    assert (
+        bundle.launch_metadata.scheduler_system == fixture["config"]["scheduler_system"]
+    )
     assert bundle.launch_metadata.queue_name == fixture["config"]["scheduler_queue"]
     assert bundle.replay_boundary.requires_human_resume is True
     assert "#SBATCH --job-name=bijux-runtime-review" in script.script_text

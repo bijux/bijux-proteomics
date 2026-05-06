@@ -8,7 +8,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from bijux_proteomics_intelligence.candidates.quality import (
     MetricValue,
@@ -17,7 +17,10 @@ from bijux_proteomics_intelligence.candidates.quality import (
 )
 from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.execution.agents.planning.schemas import PlanDecision
-from bijux_proteomics_runtime.support.primitives.decisions import Decision, DecisionExplanation
+from bijux_proteomics_runtime.support.primitives.decisions import (
+    Decision,
+    DecisionExplanation,
+)
 from bijux_proteomics_runtime.support.primitives.observations import (
     EvaluationInput,
     Observation,
@@ -320,6 +323,28 @@ class CoordinatorAgentInput(BaseModel):
         default_factory=lambda: LoopState(),
         description="Loop state.",
     )
+
+    @field_validator("loop_state", mode="before")
+    @classmethod
+    def _coerce_loop_state(cls, value: Any) -> Any:
+        """Accept compatibility loop-state objects with the canonical fields."""
+
+        if isinstance(value, LoopState) or value is None:
+            return value
+        fields = (
+            "replans",
+            "executions",
+            "uncertainty",
+            "iteration_index",
+            "stopping_criteria",
+            "improvement_delta",
+        )
+        if all(hasattr(value, field_name) for field_name in fields):
+            return {
+                field_name: getattr(value, field_name)
+                for field_name in fields
+            }
+        return value
 
 
 class CoordinatorDecisionType(Enum):

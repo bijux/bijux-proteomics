@@ -33,7 +33,9 @@ def test_runtime_bundle_export_benchmark_serializes_medium_workflow_bundle(
 ) -> None:
     runtime_bundle = build_medium_workflow_runtime_bundle_fixture()
 
-    export_bundle = benchmark(lambda: build_workflow_runtime_export_bundle(runtime_bundle))
+    export_bundle = benchmark(
+        lambda: build_workflow_runtime_export_bundle(runtime_bundle)
+    )
 
     assert export_bundle.workflow_id == runtime_bundle.manifest.workflow_id
     assert export_bundle.export_bundle_sha256

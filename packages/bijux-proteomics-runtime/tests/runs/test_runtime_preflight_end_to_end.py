@@ -173,14 +173,9 @@ def test_runtime_run_preflight_blocks_wrong_tool_versions(
 
     result = manager.run("MPEPTIDE", run_id="preflight-version-mismatch-1")
     failure_report = RuntimeFailureReport.load_json(
-        tmp_path
-        / "artifacts"
-        / "preflight-version-mismatch-1"
-        / "failure_report.json"
+        tmp_path / "artifacts" / "preflight-version-mismatch-1" / "failure_report.json"
     )
 
     assert result["status"] == "failure"
     assert result["failure_type"] == "capability_missing"
-    assert failure_report.detail_codes == (
-        "spectronaut:expected=19.0:actual=v1",
-    )
+    assert failure_report.detail_codes == ("spectronaut:expected=19.0:actual=v1",)

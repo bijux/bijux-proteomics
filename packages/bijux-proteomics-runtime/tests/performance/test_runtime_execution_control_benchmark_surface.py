@@ -23,10 +23,7 @@ from .runtime_benchmark_fixtures import (
 def _load_execution_fixture(name: str) -> dict[str, object]:
     return json.loads(
         (
-            Path(__file__).resolve().parents[1]
-            / "fixtures"
-            / "execution"
-            / name
+            Path(__file__).resolve().parents[1] / "fixtures" / "execution" / name
         ).read_text(encoding="utf-8")
     )
 
