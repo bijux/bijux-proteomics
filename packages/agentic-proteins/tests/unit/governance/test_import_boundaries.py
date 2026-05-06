@@ -14,7 +14,6 @@ LAYER_ORDER = {
     "httpapi": 7,
     "runtime": 6,
     "execution": 5,
-    "design_loop": 5,
     "agents": 4,
     "planning": 3,
     "tools": 2,
