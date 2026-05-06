@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.workflows.reproducibility import evaluate_workflow_api_cli_parity
+from bijux_proteomics_runtime.workflows.reproducibility import (
+    evaluate_workflow_api_cli_parity,
+)
 
 
 def test_evaluate_workflow_api_cli_parity_accepts_equal_action_payloads() -> None:

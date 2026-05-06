@@ -25,7 +25,9 @@ def test_root_level_owner_wrapper_modules_are_removed() -> None:
 def test_remaining_non_root_wrapper_modules_remain_thin_forwarders() -> None:
     for relative_path in WRAPPER_MODULES:
         content = (REPO_ROOT / relative_path).read_text()
-        assert "import *" in content, f"{relative_path} must forward to a canonical owner"
+        assert "import *" in content, (
+            f"{relative_path} must forward to a canonical owner"
+        )
         assert "\nclass " not in content, f"{relative_path} must not carry local models"
         assert "\ndef " not in content, f"{relative_path} must not carry local behavior"
 

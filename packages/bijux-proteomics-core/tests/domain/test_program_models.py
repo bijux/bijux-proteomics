@@ -67,7 +67,9 @@ from bijux_proteomics.domain.errors import (
 )
 from bijux_proteomics.interfaces.execution.backend import ExecutionRequest
 from bijux_proteomics.interfaces.execution.runner import ProgramExecutionRequest
-from bijux_proteomics.interfaces.execution.runtime_adapter import MissingExecutionBackendError
+from bijux_proteomics.interfaces.execution.runtime_adapter import (
+    MissingExecutionBackendError,
+)
 
 
 def test_create_program_spec_enforces_sequence_contract() -> None:

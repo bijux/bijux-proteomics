@@ -22,7 +22,9 @@ from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_foundation.serialization.canonical_json import normalize_json_value
+from bijux_proteomics_foundation.serialization.canonical_json import (
+    normalize_json_value,
+)
 from bijux_proteomics_foundation.serialization.fingerprints import (
     FingerprintScope,
     build_artifact_bundle_fingerprint,

@@ -3,7 +3,6 @@
 
 """Curated public import surface for shared Bijux foundation primitives."""
 from __future__ import annotations
-
 from bijux_proteomics_foundation.serialization.document_schema import DocumentSchema
 from bijux_proteomics_foundation.identity.identifiers import (
     AssayId,
@@ -25,7 +24,6 @@ from bijux_proteomics_foundation.serialization.stable_hashes import (
     hash_payload,
     hash_text,
 )
-
 __all__ = [
     "AssayId",
     "BatchId",

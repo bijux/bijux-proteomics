@@ -309,7 +309,9 @@ def test_error_envelopes_preserve_nested_exception_context_predictably() -> None
     assert envelope.cause_chain == chain
 
 
-def test_error_envelope_round_trips_degraded_context_with_deeper_exception_chain() -> None:
+def test_error_envelope_round_trips_degraded_context_with_deeper_exception_chain() -> (
+    None
+):
     try:
         try:
             try:
