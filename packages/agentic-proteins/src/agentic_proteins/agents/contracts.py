@@ -1,4 +1,4 @@
-"""Compatibility forwarding module for canonical runtime validation ownership."""
+"""Compatibility agent-contract entrypoints."""
 
 from bijux_proteomics_runtime.execution.agents.contracts import (
     ALLOWED_TOOL_NAMESPACE,
@@ -7,7 +7,7 @@ from bijux_proteomics_runtime.execution.agents.contracts import (
     validate_agent,
     validate_agents_and_tools,
     validate_critic_input,
-    validate_agent_catalog as validate_registry_entries,
+    validate_agent_catalog,
 )
 
 __all__ = [
@@ -17,5 +17,7 @@ __all__ = [
     "validate_agent",
     "validate_agents_and_tools",
     "validate_critic_input",
-    "validate_registry_entries",
+    "validate_agent_catalog",
 ]
+
+validate_registry_entries = validate_agent_catalog

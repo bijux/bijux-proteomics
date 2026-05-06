@@ -56,9 +56,11 @@ from agentic_proteins.interfaces.cli import (
     cli as compat_cli,
 )
 from agentic_proteins.providers.base import _time_left as compat_time_left
-from agentic_proteins.providers.factory import _require_module as compat_require_module
-from agentic_proteins.registry import AgentRegistry as CompatAgentRegistry
-from agentic_proteins.registry import ToolRegistry as CompatToolRegistry
+from agentic_proteins.providers.selection import _require_module as compat_require_module
+from agentic_proteins.agents.catalog import AgentCatalog as CompatAgentCatalog
+from agentic_proteins.agents.catalog import AgentRegistry as CompatAgentRegistry
+from agentic_proteins.tools.catalog import ToolCatalog as CompatToolCatalog
+from agentic_proteins.tools.catalog import ToolRegistry as CompatToolRegistry
 from agentic_proteins.runtime.control.artifacts import (
     _sign_payload as compat_sign_payload,
 )
@@ -74,15 +76,15 @@ from agentic_proteins.runtime.control.execution import (
 from agentic_proteins.runtime.control.execution import (
     _version_info as compat_version_info,
 )
-from agentic_proteins.runtime.infra import KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS
-from agentic_proteins.runtime.infra import capabilities as compat_capabilities
-from agentic_proteins.runtime.infra import (
+from agentic_proteins.providers.capabilities import KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS
+from agentic_proteins.providers import capabilities as compat_capabilities
+from agentic_proteins.providers.capabilities import (
     validate_runtime_capabilities as compat_validate_runtime_capabilities,
 )
-from agentic_proteins.validation.agents import (
+from agentic_proteins.agents.contracts import (
     _minimal_payload as compat_minimal_payload,
 )
-from agentic_proteins.validation.agents import (
+from agentic_proteins.agents.contracts import (
     _placeholder_for_type as compat_placeholder_for_type,
 )
 from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
@@ -249,8 +251,10 @@ def test_compat_provider_dependency_helper_forwards_to_runtime_symbol() -> None:
     assert compat_require_module is runtime_require_module
 
 
-def test_compat_registry_surface_forwards_to_runtime_symbols() -> None:
+def test_compat_catalog_surface_forwards_to_runtime_symbols() -> None:
+    assert CompatAgentCatalog is RuntimeAgentCatalog
     assert CompatAgentRegistry is RuntimeAgentCatalog
+    assert CompatToolCatalog is RuntimeToolCatalog
     assert CompatToolRegistry is RuntimeToolCatalog
 
 
@@ -274,6 +278,10 @@ def test_compat_validation_payload_helpers_forward_to_runtime_symbols() -> None:
 
 
 def test_compat_runtime_capability_surface_forwards_to_runtime_symbols() -> None:
-    assert compat_capabilities is runtime_capabilities
+    assert (
+        compat_capabilities.PROVIDER_CAPABILITIES
+        is runtime_capabilities.PROVIDER_CAPABILITIES
+    )
+    assert compat_capabilities.provider_requirements is runtime_capabilities.provider_requirements
     assert COMPAT_KNOWN_PROVIDERS is RUNTIME_KNOWN_PROVIDERS
     assert compat_validate_runtime_capabilities is runtime_validate_runtime_capabilities

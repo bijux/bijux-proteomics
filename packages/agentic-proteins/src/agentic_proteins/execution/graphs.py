@@ -1,4 +1,4 @@
-"""Compatibility forwarding module for canonical runtime validation ownership."""
+"""Compatibility execution-graph validation entrypoints."""
 
 from bijux_proteomics_runtime.execution.graph_validation import (
     validate_execution_graph,

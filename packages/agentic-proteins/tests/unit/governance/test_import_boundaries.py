@@ -22,9 +22,7 @@ LAYER_ORDER = {
     "core": 1,
     "domain": 1,
     "memory": 1,
-    "registry": 1,
     "state": 1,
-    "validation": 1,
     "utils": 1,
 }
 
