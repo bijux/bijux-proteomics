@@ -13,9 +13,9 @@ State should become durable in `agentic-proteins` only when this package is the 
 
 ## Durable Surfaces
 
-- workspace and runtime context in `runtime/`
-- legacy state and memory records in `state/` and `memory/`
-- report artifacts and replay-related evidence in `report/`
+- workspace and run context in `state/`
+- legacy run outputs, snapshots, and request records in `state/`
+- execution artifacts that still matter only because migration remains open
 
 ## First Proof Check
 

@@ -19,9 +19,11 @@ entrypoints.
 
 ## Module topology
 
-- package root preserves legacy convenience exports
-- `interfaces/`, `api/`, `core/`, `runtime/`, and related trees act as forwarding surfaces
-- compat docs explain canonical owners and API-root mirroring
+- package root exposes version metadata only
+- `interfaces/`, `agents/`, `execution/`, `providers/`, `state/`, and `tools/`
+  are the only durable bridge families
+- compat docs explain canonical owners and the migration route away from each
+  surviving family
 
 ## Dependency direction
 
@@ -32,7 +34,7 @@ Canonical packages must not depend on `agentic_proteins`.
 ## Downstream expectations
 
 New integrations should start from canonical packages. This package exists to
-reduce migration risk, not to accumulate fresh runtime or domain logic.
+reduce migration risk, not to accumulate fresh runtime or scientific logic.
 
 ## Extension signals
 

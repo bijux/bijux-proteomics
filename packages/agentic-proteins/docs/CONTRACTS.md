@@ -10,7 +10,8 @@
 ## Stable contracts
 
 - forwarding keeps legacy imports available while canonical packages own behavior
-- CLI and API compatibility surfaces mirror canonical runtime contracts
+- CLI, HTTP, execution, provider, state, agent, and tool compatibility surfaces
+  mirror canonical contracts without reclaiming ownership
 - new workflow usage should start from `bijux-proteomics-runtime`, not this package
 - compat documentation names the canonical package that now owns each surface
 

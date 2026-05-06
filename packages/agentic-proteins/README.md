@@ -32,18 +32,20 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`agentic-proteins` is a strict compatibility package.
+`agentic-proteins` is a strict compatibility bridge.
 
 Canonical runtime ownership is `bijux-proteomics-runtime`.
 
-This package keeps legacy import and CLI entrypoints available while forwarding
-all implementation surfaces to canonical packages.
+This package owns one thing: legacy compatibility routing for historical CLI,
+HTTP, agent, execution, provider, state, and tool entrypoints while all real
+behavior stays in canonical packages.
 
 ## Compatibility contract
 
-- forwards runtime surfaces to `bijux-proteomics-runtime`
-- forwards domain surfaces to canonical lower-layer packages
-- contains no canonical runtime or domain implementation
+- forwards surviving bridge families to `bijux-proteomics-runtime`
+- forwards structure-report and lower scientific surfaces to canonical packages
+- keeps the import root intentionally thin: package root metadata plus
+  compatibility families only
 - exists to preserve migration safety for existing integrations
 
 ## Installation
@@ -89,6 +91,8 @@ from agentic_proteins.interfaces.cli import cli
 ## Package boundaries
 
 - this package owns compatibility routing only
+- this package keeps the durable bridge tree under `interfaces/`, `agents/`,
+  `execution/`, `providers/`, `state/`, and `tools/`
 - canonical runtime behavior belongs in `bijux-proteomics-runtime`
 - canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
 - new features should land in canonical packages before compat forwarding expands

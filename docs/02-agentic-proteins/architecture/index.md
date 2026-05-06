@@ -17,17 +17,16 @@ ownership already lives elsewhere.
 ```mermaid
 flowchart LR
     legacy["legacy callers<br/>imports, CLI, API"]
-    interfaces["compatibility entrypoints<br/>interfaces, api"]
-    bridge["legacy bridge logic<br/>core, execution, providers"]
-    runtime["runtime forwarding seam<br/>runtime, workspace, control"]
+    interfaces["compatibility entrypoints<br/>interfaces"]
+    bridge["bridge families<br/>agents, execution, providers, tools"]
+    state["bridge state seams<br/>state, artifacts, outputs"]
     canonical["canonical packages<br/>runtime and lower layers"]
-    artifacts["reports and state<br/>memory, state, report"]
 
     legacy --> interfaces
     interfaces --> bridge
-    bridge --> runtime
-    bridge --> artifacts
-    runtime --> canonical
+    bridge --> state
+    bridge --> canonical
+    state --> canonical
 ```
 
 ## What This Diagram Is Saying
@@ -52,8 +51,8 @@ flowchart LR
 ## Reading Lenses
 
 - [Module Map](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/module-map/)
-  for the named bridge families: interfaces, runtime seams, providers, memory,
-  state, and reporting
+  for the named bridge families: interfaces, agents, execution, providers,
+  state, and tools
 - [Dependency Direction](https://bijux.io/bijux-proteomics/02-agentic-proteins/architecture/dependency-direction/)
   for the rule that dependencies should keep pointing toward canonical packages,
   not away from them
@@ -65,12 +64,12 @@ flowchart LR
 
 ## Fast Proof Points
 
-- `src/agentic_proteins/interfaces/`, `api/`, and `runtime/` for the
-  public-to-runtime handoff
-- `src/agentic_proteins/core/`, `execution/`, and `validation/` for bridge-side
-  control logic that still has to exist
-- `src/agentic_proteins/providers/`, `memory/`, `state/`, and `report/` for
-  the adapter and artifact surfaces most exposed to legacy coupling
+- `src/agentic_proteins/interfaces/` for preserved CLI, HTTP, and
+  structure-report entrypoints
+- `src/agentic_proteins/agents/`, `execution/`, and `tools/` for the bridge
+  families most exposed to accidental shadow-ownership drift
+- `src/agentic_proteins/providers/` and `state/` for adapter selection and
+  compatibility state that still survive for migration review
 
 ## Boundary Test
 

@@ -9,7 +9,8 @@
 ## This package owns
 
 - compatibility routing and legacy entrypoint continuity
-- forwarding-only import surfaces for canonical runtime and lower packages
+- forwarding-only import surfaces grouped under `interfaces/`, `agents/`,
+  `execution/`, `providers/`, `state/`, and `tools/`
 - migration-safe preservation of historical CLI and package roots
 
 ## This package does not own

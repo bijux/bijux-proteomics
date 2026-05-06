@@ -37,8 +37,8 @@ retired and can see the proof close to the runtime surface it forwards into.
 ## First Proof Check
 
 - `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
-- `src/agentic_proteins/runtime/`
+- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
+- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
 
 ## Design Pressure
 

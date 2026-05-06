@@ -18,6 +18,12 @@ its key terms do not drift into neighboring package vocabulary.
 - `canonical runtime`
 - `compatibility bridge`
 
+## Package Vocabulary Anchors
+
+- distribution name: `agentic-proteins`
+- import root: `agentic_proteins`
+- repository package path: `packages/agentic-proteins`
+
 ## Language Test
 
 If a term makes it harder to say whether work belongs in `agentic-proteins` or in

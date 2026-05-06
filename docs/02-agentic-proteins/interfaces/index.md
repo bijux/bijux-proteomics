@@ -64,5 +64,5 @@ flowchart LR
 ## First Proof Check
 
 - `src/agentic_proteins/interfaces/cli.py`
-- `src/agentic_proteins/api/app.py`
+- `src/agentic_proteins/interfaces/http/app.py`
 - `packages/agentic-proteins/tests`
