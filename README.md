@@ -134,9 +134,34 @@ What is still missing or deliberately incomplete:
 
 - `make help` to list repository automation targets
 - `make api` to validate all OpenAPI contracts in `apis/*/v1`
+- `make api-freeze` to enforce frozen OpenAPI payloads and schema digests
+- `make openapi-drift` to catch breaking schema changes without version bumps
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
+- `make ensure-venv` to sync the shared root check environment
+- `make nlenv` to print the root environment activation command
+- `make manage_examples` to refresh governed repository example assets
+- `make manage_models` to refresh governed repository model metadata
+
+## Repository Extension Contract
+
+Proteomics owns a few root-level extensions that are real repository surfaces,
+not silent drift from the other `bijux-g3` repos.
+
+- root `interrogate` and `bandit` settings stay here because this repository
+  owns checked maintainer tooling, docs policy, API governance, and release
+  automation in `bijux-proteomics-dev`
+- root optional dependency groups `api`, `local-esmfold`,
+  `local-rosettafold`, and `nl` stay here because runtime and maintainer tools
+  need explicit provider, model, and language-stack extras that sibling repos
+  do not own
+- `api-freeze` and `openapi-drift` are repository-level API governance gates
+  because Proteomics checks in versioned OpenAPI contracts and refuses
+  unreviewed schema drift
+- `ensure-venv` and `nlenv` are root environment helpers for the shared check
+  environment, while `manage_examples` and `manage_models` are repository-owned
+  maintenance commands for governed examples and model metadata
 
 ## Local Artifact Contract
 

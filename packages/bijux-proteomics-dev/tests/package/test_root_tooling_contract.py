@@ -44,3 +44,21 @@ def test_root_pyproject_declares_documented_security_tooling() -> None:
         ".pytest_cache",
         ".ruff_cache",
     ]
+
+
+def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None:
+    dependency_groups = _root_pyproject()["dependency-groups"]
+    assert {"api", "local-esmfold", "local-rosettafold", "nl"}.issubset(
+        dependency_groups
+    )
+
+
+def test_root_make_declares_documented_repository_extensions() -> None:
+    root_make = (REPO_ROOT / "makes" / "root.mk").read_text(encoding="utf-8")
+
+    assert "ensure-venv:" in root_make
+    assert "nlenv:" in root_make
+    assert "manage_examples:" in root_make
+    assert "manage_models:" in root_make
+    assert "api-freeze:" in root_make
+    assert "openapi-drift:" in root_make
