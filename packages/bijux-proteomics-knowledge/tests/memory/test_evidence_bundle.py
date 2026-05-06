@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
 
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     BundleFreshnessReport,
     ContextScoringProfile,
     EvidenceBundle,
@@ -62,7 +62,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     validate_bundle_integrity,
     validate_quantitative_support_payload,
 )
-from bijux_proteomics_knowledge.memory.ingestion import (
+from bijux_proteomics_knowledge.memory.normalization.ingestion import (
     ManualEvidenceNote,
     attach_manual_notes,
 )

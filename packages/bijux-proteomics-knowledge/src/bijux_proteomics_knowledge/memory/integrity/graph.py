@@ -10,8 +10,8 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.memory.claims import EvidenceClaim
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
 
 
 class EvidenceNodeType(StrEnum):

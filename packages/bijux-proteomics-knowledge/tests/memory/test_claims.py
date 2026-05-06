@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.claims import (
+from bijux_proteomics_knowledge.memory.models.claims import (
     ClaimQuery,
     ClaimEvidenceState,
     ClaimPolarity,
@@ -30,7 +30,7 @@ from bijux_proteomics_knowledge.memory.claims import (
     validate_claims,
     weaken_claim,
 )
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,

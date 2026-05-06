@@ -11,8 +11,8 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import ClaimId, JsonModel
-from bijux_proteomics_knowledge.memory.claims import ClaimStatus, EvidenceClaim
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus, EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import (
     BundleTrustReport,
     EvidenceBundle,
     EvidenceRecord,

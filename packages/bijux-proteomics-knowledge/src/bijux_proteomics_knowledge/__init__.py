@@ -6,14 +6,8 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
-from bijux_proteomics_knowledge.memory.claims import EvidenceClaim
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle, EvidenceRecord
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle, EvidenceRecord
 from bijux_proteomics_knowledge.reviews.packets import KnowledgeReviewPacket
 
-__all__ = [
-    "EvidenceBundle",
-    "EvidenceClaim",
-    "EvidenceRecord",
-    "KnowledgeReviewPacket",
-    "evaluate_schema_compatibility",
-]
+__all__ = ["EvidenceBundle", "EvidenceClaim", "EvidenceRecord", "KnowledgeReviewPacket", "evaluate_schema_compatibility"]

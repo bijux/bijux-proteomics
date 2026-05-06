@@ -3,13 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.claims import ClaimStatus, build_claim
-from bijux_proteomics_knowledge.memory.evidence import (
-    EvidenceBundle,
-    EvidenceKind,
-    EvidenceRecord,
-    EvidenceStrength,
-)
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle, EvidenceKind
 from bijux_proteomics_knowledge.reviews.explanations import (
     CandidateDecisionDisposition,
     CandidateDecisionGraphExplanation,
@@ -17,50 +12,13 @@ from bijux_proteomics_knowledge.reviews.explanations import (
     explain_candidate_decision_with_graph,
 )
 
-
-def test_explain_candidate_decision_with_graph_surfaces_support_and_blockers() -> None:
-    bundle = EvidenceBundle(
-        bundle_id="bundle-graph-explain",
-        target_id="target-graph-explain",
-        records=[
-            EvidenceRecord(
-                evidence_id="ev-support",
-                kind=EvidenceKind.ASSAY,
-                title="supportive assay",
-                source="lab",
-                claim="candidate supports progression",
-                decision_tags=["progression"],
-                confidence=0.84,
-                strength=EvidenceStrength.DECISIVE,
-                endpoint="activity_ratio",
-            ),
-            EvidenceRecord(
-                evidence_id="ev-contradict",
-                kind=EvidenceKind.STRUCTURE,
-                title="structure caution",
-                source="model",
-                claim="candidate may miss progression",
-                decision_tags=["progression"],
-                confidence=0.66,
-                strength=EvidenceStrength.SUPPORTING,
-            ),
-        ],
-    )
-    claims = [
-        build_claim(
-            claim_id="claim-support",
-            target_id="target-graph-explain",
-            statement="candidate can progress",
-            evidence_ids=["ev-support"],
-            contradicting_evidence_ids=["ev-contradict"],
-            status=ClaimStatus.SUPPORTED,
-            resolution_assays=["orthogonal assay"],
-        )
-    ]
-
+def test_explain_candidate_decision_with_graph_surfaces_support_and_blockers(
+    contradictory_progression_bundle: EvidenceBundle,
+    contradictory_progression_claims: list[EvidenceClaim],
+) -> None:
     explanation = explain_candidate_decision_with_graph(
-        bundle,
-        claims,
+        contradictory_progression_bundle,
+        contradictory_progression_claims,
         query=CandidateDecisionGraphQuery(
             candidate_id="candidate-accepted",
             decision_tag="progression",

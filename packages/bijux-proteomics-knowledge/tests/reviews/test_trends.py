@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.claims import ClaimStatus, build_claim
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -20,46 +20,26 @@ from bijux_proteomics_knowledge.reviews.trends import (
 )
 
 
-def test_compare_review_packets_reports_delta() -> None:
-    bundle = EvidenceBundle(
-        bundle_id="bundle-delta",
-        target_id="target-delta",
-        records=[
-            EvidenceRecord(
-                evidence_id="d1",
-                kind=EvidenceKind.ASSAY,
-                title="assay",
-                source="lab",
-                claim="progression support",
-                decision_tags=["progression"],
-                confidence=0.8,
-                strength=EvidenceStrength.SUPPORTING,
-                endpoint="activity_ratio",
-            )
-        ],
+def test_compare_review_packets_reports_delta(
+    supported_progression_bundle: EvidenceBundle,
+    supported_progression_claims: list[EvidenceClaim],
+) -> None:
+    previous = build_knowledge_review_packet(
+        supported_progression_bundle,
+        supported_progression_claims,
+        decision_tag="progression",
     )
-    claims = [
-        build_claim(
-            claim_id="claim-delta-1",
-            target_id="target-delta",
-            statement="candidate can progress",
-            evidence_ids=["d1"],
-            status=ClaimStatus.SUPPORTED,
-            resolution_assays=["assay"],
-        )
-    ]
-    previous = build_knowledge_review_packet(bundle, claims, decision_tag="progression")
-    improved_bundle = bundle.model_copy(
+    improved_bundle = supported_progression_bundle.model_copy(
         update={
             "records": [
-                bundle.records[0].model_copy(
+                supported_progression_bundle.records[0].model_copy(
                     update={"confidence": 0.9, "strength": EvidenceStrength.DECISIVE}
                 )
             ]
         }
     )
     current = build_knowledge_review_packet(
-        improved_bundle, claims, decision_tag="progression"
+        improved_bundle, supported_progression_claims, decision_tag="progression"
     )
     delta = compare_review_packets(previous, current)
 

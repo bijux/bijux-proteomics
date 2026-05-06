@@ -60,27 +60,27 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         capability=KnowledgeCharterCapability.REFERENCES,
         owned_surface="Curated scientific references that keep proteomics claims reviewable.",
         required_modules=(
-            "references/citations.py",
-            "references/literature.py",
-            "references/problems.py",
-            "references/rules.py",
+            "references/grounding/citations.py",
+            "references/grounding/literature.py",
+            "references/grounding/problems.py",
+            "references/grounding/rules.py",
         ),
         release_blocker="Knowledge cannot ship if scientific claims rely on package-local lore instead of explicit references.",
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.ONTOLOGIES,
         owned_surface="Ontology mappings that normalize shared scientific language across workflows.",
-        required_modules=("references/ontologies.py",),
+        required_modules=("references/grounding/ontologies.py",),
         release_blocker="Knowledge cannot ship if controlled scientific terms resolve through ad hoc local aliases.",
     ),
     KnowledgeCharterEntry(
         capability=KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
         owned_surface="Benchmark manifests that tie workflow claims to reproducible medium-scale fixtures.",
         required_modules=(
-            "references/benchmarks.py",
-            "references/briefings.py",
-            "references/narratives.py",
-            "references/workflow_queries.py",
+            "references/workflows/benchmarks.py",
+            "references/workflows/briefings.py",
+            "references/workflows/narratives.py",
+            "references/workflows/lookups.py",
         ),
         release_blocker="Knowledge cannot ship if benchmark-backed workflow claims lose their manifest or citation grounding.",
     ),
@@ -88,8 +88,8 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         capability=KnowledgeCharterCapability.CURATED_CORPORA,
         owned_surface="Curated corpus manifests that separate bundled fixtures from external scientific sources.",
         required_modules=(
-            "references/corpora.py",
-            "references/benchmarks.py",
+            "references/grounding/corpora.py",
+            "references/workflows/benchmarks.py",
         ),
         release_blocker="Knowledge cannot ship if bundled fixtures and external references blur into one unverifiable bucket.",
     ),
@@ -97,8 +97,8 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         capability=KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         owned_surface="Scientific context entries and workflow briefings that preserve caveats, scope, and interpretation boundaries.",
         required_modules=(
-            "references/contexts.py",
-            "references/briefings.py",
+            "references/grounding/contexts.py",
+            "references/workflows/briefings.py",
             "reviews/packets.py",
             "reviews/explanations.py",
         ),
@@ -114,7 +114,12 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The package root is an export surface and deliberately forwards stable scientific memory entrypoints.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="charter.py",
+        module_path="governance/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The governance package root groups package-boundary audits without separate scientific-memory logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="governance/charter.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -139,7 +144,12 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="The memory package root groups durable owner modules without adding separate curation logic.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="memory/claims.py",
+        module_path="memory/models/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The memory models package root groups claim and evidence models without separate scientific-memory logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/models/claims.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -148,7 +158,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Claim semantics are the reviewable memory layer built on curated references and caveats.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="memory/evidence.py",
+        module_path="memory/models/evidence.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -158,13 +168,23 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Evidence memory keeps benchmark and context provenance attached to scientific records.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="memory/graph.py",
+        module_path="memory/integrity/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The memory integrity package root groups graph validation and trace semantics without separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/integrity/graph.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
         reason="Graph explanations turn curated evidence memory into reviewable decision traces.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="memory/ingestion.py",
+        module_path="memory/normalization/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The normalization package root groups external evidence normalization without separate scientific-memory logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="memory/normalization/ingestion.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -173,12 +193,27 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Ingestion normalizes external evidence into knowledge-owned memory records without runtime adapter ownership.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="memory/reconciliation/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The reconciliation package root groups conflict-resolution surfaces without separate scientific-memory logic.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="references/__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The references package root is an export surface over the grounded scientific registries.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/benchmarks.py",
+        module_path="references/public.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The references public surface curates a small stable export set over deeper grounding and workflow owners.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The workflow references package root groups benchmark, briefing, narrative, and lookup owners without separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/benchmarks.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
@@ -187,7 +222,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Benchmark manifests are a core scientific-memory ownership surface.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/briefings.py",
+        module_path="references/workflows/briefings.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -197,37 +232,17 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Workflow briefings package grounded references into downstream-consumable scientific memory.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/citations.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
-        reason="Primary citations are the anchor surface for grounded scientific claims.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="references/contexts.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(
-            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
-            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        ),
-        reason="Scientific context entries capture workflow caveats and interpretation scope.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="references/corpora.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(KnowledgeCharterCapability.CURATED_CORPORA,),
-        reason="Corpus manifests distinguish bundled fixtures from external scientific sources.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="references/literature.py",
+        module_path="references/workflows/lookups.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
             KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
         ),
-        reason="Literature groups tie benchmark and context claims back to curated papers and resources.",
+        reason="Workflow lookups provide read-only access to benchmark manifests and scoped workflow narratives.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/narratives.py",
+        module_path="references/workflows/narratives.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -237,7 +252,42 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Workflow narratives preserve claim and limitation framing with explicit references.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/ontologies.py",
+        module_path="references/grounding/__init__.py",
+        classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
+        reason="The grounding package root groups citations, contexts, corpora, ontologies, problems, and rules without separate curation logic.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/grounding/citations.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.REFERENCES,),
+        reason="Primary citations are the anchor surface for grounded scientific claims.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/grounding/contexts.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Scientific context entries capture workflow caveats and interpretation scope.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/grounding/corpora.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.CURATED_CORPORA,),
+        reason="Corpus manifests distinguish bundled fixtures from external scientific sources.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/grounding/literature.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+        ),
+        reason="Literature groups tie benchmark and context claims back to curated papers and resources.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/grounding/ontologies.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -246,7 +296,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Ontology mappings normalize curated scientific terms for the rest of the suite.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/problems.py",
+        module_path="references/grounding/problems.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -256,17 +306,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Known-problem registries keep workflow caveats grounded and auditable.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="references/workflow_queries.py",
-        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
-        anchor_capabilities=(
-            KnowledgeCharterCapability.REFERENCES,
-            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
-            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
-        ),
-        reason="Workflow queries provide read-only access to benchmark manifests and scoped workflow narratives.",
-    ),
-    KnowledgeModuleAuditEntry(
-        module_path="references/rules.py",
+        module_path="references/grounding/rules.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,
@@ -293,7 +333,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Review packet comparisons and trend summaries keep reviewer-facing knowledge changes explicit over time.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="memory/resolution.py",
+        module_path="memory/reconciliation/resolution.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.REFERENCES,

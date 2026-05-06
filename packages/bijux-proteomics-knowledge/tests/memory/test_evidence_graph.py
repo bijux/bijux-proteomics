@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.claims import ClaimStatus, EvidenceClaim
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus, EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -12,7 +12,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     EvidenceStrength,
     QuantitativeSupport,
 )
-from bijux_proteomics_knowledge.memory.graph import (
+from bijux_proteomics_knowledge.memory.integrity.graph import (
     LiabilityNodeInput,
     UnresolvedQuestion,
     build_evidence_graph,
@@ -20,7 +20,7 @@ from bijux_proteomics_knowledge.memory.graph import (
     trace_decision_paths,
     validate_evidence_graph,
 )
-from bijux_proteomics_knowledge.memory.ingestion import (
+from bijux_proteomics_knowledge.memory.normalization.ingestion import (
     NormalizedEvidenceInput,
     attach_evidence_inputs,
     ingest_inputs_with_report,

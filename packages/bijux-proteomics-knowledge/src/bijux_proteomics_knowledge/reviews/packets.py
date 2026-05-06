@@ -8,14 +8,14 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.memory.claims import (
+from bijux_proteomics_knowledge.memory.models.claims import (
     EvidenceClaim,
     HypothesisDossier,
     KnowledgeGap,
     build_hypothesis_dossier,
     identify_knowledge_gaps,
 )
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceConflict,
     EvidenceRelevanceScore,
@@ -23,7 +23,7 @@ from bijux_proteomics_knowledge.memory.evidence import (
     audit_knowledge_quality,
     rank_evidence_for_decision,
 )
-from bijux_proteomics_knowledge.memory.resolution import (
+from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
     ConflictCluster,
     cluster_conflicts,
     resolve_conflicts,

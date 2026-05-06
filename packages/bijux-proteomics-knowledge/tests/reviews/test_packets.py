@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.claims import ClaimStatus, build_claim
-from bijux_proteomics_knowledge.memory.evidence import (
+from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus, build_claim
+from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
     EvidenceRecord,
@@ -18,39 +18,13 @@ from bijux_proteomics_knowledge.reviews.packets import (
     summarize_multi_decision_readiness,
 )
 
-
-def test_build_knowledge_review_packet_returns_integrated_sections() -> None:
-    bundle = EvidenceBundle(
-        bundle_id="bundle-review",
-        target_id="target-review",
-        records=[
-            EvidenceRecord(
-                evidence_id="review-1",
-                kind=EvidenceKind.ASSAY,
-                title="assay support",
-                source="lab",
-                claim="Candidate meets progression gate.",
-                decision_tags=["progression"],
-                confidence=0.82,
-                strength=EvidenceStrength.SUPPORTING,
-                endpoint="activity_ratio",
-            )
-        ],
-    )
-    claims = [
-        build_claim(
-            claim_id="claim-review-1",
-            target_id="target-review",
-            statement="Candidate can progress.",
-            evidence_ids=["review-1"],
-            status=ClaimStatus.SUPPORTED,
-            resolution_assays=["orthogonal assay"],
-        )
-    ]
-
+def test_build_knowledge_review_packet_returns_integrated_sections(
+    supported_progression_bundle: EvidenceBundle,
+    supported_progression_claims: list[object],
+) -> None:
     packet = build_knowledge_review_packet(
-        bundle,
-        claims,
+        supported_progression_bundle,
+        supported_progression_claims,
         decision_tag="progression",
         required_modalities=[EvidenceKind.ASSAY.value, EvidenceKind.STRUCTURE.value],
     )
