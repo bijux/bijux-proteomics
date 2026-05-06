@@ -1,4 +1,4 @@
-"""Legacy execution alias for orchestration run management."""
+"""Compatibility run-manager entrypoints."""
 
 from bijux_proteomics_runtime.runs.manager import (
     PipelineArtifacts,

@@ -1,4 +1,4 @@
-"""Legacy execution alias for orchestration telemetry helpers."""
+"""Compatibility telemetry entrypoints."""
 
 from bijux_proteomics_runtime.runs.telemetry import (
     TelemetryClient,

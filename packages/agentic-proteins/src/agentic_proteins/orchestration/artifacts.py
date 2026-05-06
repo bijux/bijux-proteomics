@@ -1,4 +1,4 @@
-"""Legacy execution alias for orchestration artifact helpers."""
+"""Compatibility artifact entrypoints."""
 
 from bijux_proteomics_runtime.runs.artifacts import (
     ExecutionSnapshots,

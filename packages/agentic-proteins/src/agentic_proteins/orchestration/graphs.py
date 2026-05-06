@@ -1,4 +1,4 @@
-"""Legacy execution alias for orchestration graph validation helpers."""
+"""Compatibility execution-graph validation entrypoints."""
 
 from bijux_proteomics_runtime.execution.graph_validation import (
     validate_execution_graph,

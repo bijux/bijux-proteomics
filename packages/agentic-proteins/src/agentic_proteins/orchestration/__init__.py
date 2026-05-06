@@ -1,4 +1,4 @@
-"""Legacy execution alias for the orchestration bridge."""
+"""Durable orchestration bridge exports."""
 
 from __future__ import annotations
 

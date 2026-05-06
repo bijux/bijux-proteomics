@@ -1,4 +1,4 @@
-"""Legacy execution alias for orchestration logging helpers."""
+"""Compatibility run-logging entrypoints."""
 
 from bijux_proteomics_runtime.runs.logging import (
     NoopStructuredLogger,
