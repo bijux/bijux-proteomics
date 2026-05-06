@@ -1,5 +1,5 @@
 # Generated package-root budget report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_budgets
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_budgets
 
 total_init_line_count = 146
 over_budget_packages = []

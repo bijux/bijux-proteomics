@@ -1,16 +1,16 @@
 # Generated package-root line-count report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_line_counts
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_line_counts
 
 [guard]
-max_total_init_line_count = 155
+max_total_init_line_count = 146
 max_total_top_level_python_module_count = 8
 
 [[package]]
 distribution_name = "agentic-proteins"
 import_root = "agentic_proteins"
-init_line_count = 25
+init_line_count = 16
 top_level_python_module_count = 1
-public_symbol_count = 3
+public_symbol_count = 1
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"

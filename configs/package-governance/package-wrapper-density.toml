@@ -1,5 +1,5 @@
 # Generated package wrapper density report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_wrapper_density
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_wrapper_density
 
 [guard]
 max_total_wrapper_module_count = 226

@@ -1,16 +1,16 @@
 # Generated package release dossiers.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_release_dossiers
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_release_dossiers
 
 [[package]]
 distribution_name = "agentic-proteins"
-strongest_value = "`execution/`, `providers/`, `state/`, and `tools/`"
-weakest_value = "root public breadth still exceeds owner logic depth"
-broadest_debt = "root public breadth still exceeds owner logic depth"
-strengths = ["owner domains: 6", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/agentic-proteins.toml"]
+strongest_value = "`orchestration/`, `providers/`, `state/`, and `tools/` `providers/experimental/` only"
+weakest_value = "docs and tree still contradict each other"
+broadest_debt = "docs and tree still contradict each other"
+strengths = ["owner domains: 7", "dependency dossier: 2 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/agentic-proteins.toml"]
 limits = ["core program and review-gate domain contracts", "candidate-ranking and scenario decision policy logic", "evidence trust and contradiction-resolution semantics", "lab planning and execution-outcome scheduling behavior"]
 proofs = ["docs proof artifacts: 1", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
-unresolved_debt_ids = ["agentic-proteins:reopened-completion-claim"]
-exact_not_ready_reasons = ["root public breadth still exceeds owner logic depth"]
+unresolved_debt_ids = ["agentic-proteins:reopened-completion-claim", "agentic-proteins:test-tree-gaps"]
+exact_not_ready_reasons = ["docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]
@@ -22,7 +22,7 @@ strengths = ["owner domains: 6", "dependency dossier: 6 outbound edges and 0 inb
 limits = ["runtime product APIs", "canonical proteomics domain models", "package-specific scientific semantics"]
 proofs = ["docs proof artifacts: 3", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-dev:docs-claim-gap", "bijux-proteomics-dev:reopened-completion-claim", "bijux-proteomics-dev:test-tree-gaps"]
-exact_not_ready_reasons = ["public docs still outrun proof for integrity", "README maturity language still outruns owned logic and proof", "1 source owner families still lack matching test families"]
+exact_not_ready_reasons = ["public docs still outrun proof for integrity", "docs and tree still contradict each other", "1 source owner families still lack matching test families"]
 publishable = false
 
 [[package]]

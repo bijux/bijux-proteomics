@@ -1,5 +1,5 @@
 # Generated package thin-module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_thin_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_thin_modules
 
 [guard]
 max_total_thin_module_count = 123

@@ -1,5 +1,5 @@
 # Generated package fixture realism report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_fixture_realism
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_realism
 
 [guard]
 max_total_toy_named_fixture_count = 0

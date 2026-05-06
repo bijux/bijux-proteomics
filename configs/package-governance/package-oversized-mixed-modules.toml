@@ -1,5 +1,5 @@
 # Generated package oversized mixed-module report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_oversized_mixed_modules
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_oversized_mixed_modules
 
 [guard]
 max_total_oversized_mixed_module_count = 31

@@ -1,19 +1,19 @@
 # Generated package scorecard.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_scorecard
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_scorecard
 
 [guard]
 min_architectural_ready_package_count = 0
-max_total_unresolved_debt_count = 21
+max_total_unresolved_debt_count = 22
 
 [[package]]
 distribution_name = "agentic-proteins"
 owner_logic_module_count = 0
 public_breadth_count = 1
-wrapper_module_count = 88
-missing_test_family_count = 0
+wrapper_module_count = 115
+missing_test_family_count = 1
 flat_test_module_count = 0
 proof_depth_count = 1
-unresolved_debt_count = 1
+unresolved_debt_count = 2
 architectural_ready = false
 
 [[package]]
@@ -33,7 +33,7 @@ owner_logic_module_count = 111
 public_breadth_count = 0
 wrapper_module_count = 27
 missing_test_family_count = 1
-flat_test_module_count = 15
+flat_test_module_count = 0
 proof_depth_count = 3
 unresolved_debt_count = 3
 architectural_ready = false

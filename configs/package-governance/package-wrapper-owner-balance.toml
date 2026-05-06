@@ -1,5 +1,5 @@
 # Generated package wrapper-owner balance report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_wrapper_owner_balance
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_wrapper_owner_balance
 
 [guard]
 max_total_wrapper_outpaces_owner_count = 0

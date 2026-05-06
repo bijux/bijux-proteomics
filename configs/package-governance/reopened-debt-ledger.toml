@@ -1,13 +1,21 @@
 # Generated reopened debt ledger.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.reopened_debt_ledger
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.reopened_debt_ledger
 
 [[debt]]
 debt_id = "agentic-proteins:reopened-completion-claim"
 distribution_name = "agentic-proteins"
 debt_family = "reopened-completion-claim"
 severity = "high"
-summary = "root public breadth still exceeds owner logic depth"
+summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "agentic-proteins:test-tree-gaps"
+distribution_name = "agentic-proteins"
+debt_family = "test-tree-gaps"
+severity = "medium"
+summary = "1 source owner families still lack matching test families"
+evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-core:mixed-responsibility-modules"
@@ -46,7 +54,7 @@ debt_id = "bijux-proteomics-dev:reopened-completion-claim"
 distribution_name = "bijux-proteomics-dev"
 debt_family = "reopened-completion-claim"
 severity = "high"
-summary = "README maturity language still outruns owned logic and proof"
+summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]

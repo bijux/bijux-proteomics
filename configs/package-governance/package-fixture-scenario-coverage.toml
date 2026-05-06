@@ -1,5 +1,5 @@
 # Generated package fixture scenario coverage report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_fixture_scenario_coverage
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_scenario_coverage
 
 [guard]
 min_total_medium_realistic_fixture_count = 54

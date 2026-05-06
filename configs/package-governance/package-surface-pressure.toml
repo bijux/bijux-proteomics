@@ -1,5 +1,5 @@
 # Generated package surface pressure report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_surface_pressure
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_surface_pressure
 
 [guard]
 max_total_root_export_symbol_count = 41

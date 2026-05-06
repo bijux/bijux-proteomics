@@ -1,5 +1,5 @@
 # Generated canonical package-root public symbol ownership map.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.public_symbol_ownership
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_symbol_ownership
 
 [[symbol]]
 name = "AppConfig"

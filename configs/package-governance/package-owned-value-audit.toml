@@ -1,17 +1,17 @@
 # Generated package owned-value audit.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_owned_value_audit
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_owned_value_audit
 
 [guard]
-min_total_owned_value_bullet_count = 41
+min_total_owned_value_bullet_count = 42
 min_total_owner_depth_count = 393
 
 [[package]]
 distribution_name = "agentic-proteins"
-owned_value_bullets = ["compatibility routing and legacy entrypoint continuity", "forwarding-only import surfaces grouped under `interfaces/`, `agents/`,", "migration-safe preservation of historical CLI and package roots"]
-owned_value_summary = "compatibility routing and legacy entrypoint continuity; forwarding-only import surfaces grouped under `interfaces/`, `agents/`,; migration-safe preservation of historical CLI and package roots"
+owned_value_bullets = ["compatibility routing and legacy entrypoint continuity", "forwarding-only import surfaces grouped under `interfaces/`, `agents/`,", "compatibility aliases under `execution/`, `agents/execution/`, and", "migration-safe preservation of historical CLI and package roots"]
+owned_value_summary = "compatibility routing and legacy entrypoint continuity; forwarding-only import surfaces grouped under `interfaces/`, `agents/`,; compatibility aliases under `execution/`, `agents/execution/`, and; migration-safe preservation of historical CLI and package roots"
 owner_depth_count = 0
 public_breadth_count = 1
-readme_sentence_count = 125
+readme_sentence_count = 127
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"

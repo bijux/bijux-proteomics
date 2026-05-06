@@ -1,5 +1,5 @@
 # Generated package root-surface illusion report.
-# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.package_shape.package_root_surface_illusions
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_surface_illusions
 
 [guard]
 max_total_root_surface_illusion_count = 1
@@ -8,7 +8,7 @@ max_total_root_surface_illusion_count = 1
 distribution_name = "agentic-proteins"
 compatibility_surfaces = []
 root_public_module_count = 0
-root_export_symbol_count = 3
+root_export_symbol_count = 1
 owner_logic_module_count = 0
 illusion_reasons = ["root public breadth still exceeds owner logic depth"]
 root_surface_hides_owner_depth = true
