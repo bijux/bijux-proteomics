@@ -9,29 +9,29 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.serialization.json_models import JsonModel
 
-from bijux_proteomics_knowledge.references.benchmarks import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.references.contexts import (
+from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
     ScientificContextEntry,
 )
-from bijux_proteomics_knowledge.references.literature import (
+from bijux_proteomics_knowledge.references.grounding.literature import (
     DEFAULT_LITERATURE_GROUPS,
     LiteratureGroup,
 )
-from bijux_proteomics_knowledge.references.narratives import (
+from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
     WorkflowNarrative,
     WorkflowNarrativeKind,
 )
-from bijux_proteomics_knowledge.references.problems import (
+from bijux_proteomics_knowledge.references.grounding.problems import (
     DEFAULT_KNOWN_PROBLEM_REGISTRY,
     KnownProblemRegistryEntry,
 )
-from bijux_proteomics_knowledge.references.rules import (
+from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
     ScientificRuleReference,
 )

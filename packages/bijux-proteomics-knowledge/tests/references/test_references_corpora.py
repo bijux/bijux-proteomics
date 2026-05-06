@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_knowledge.references.corpora import (
+from bijux_proteomics_knowledge.references.grounding.corpora import (
     DEFAULT_CORPUS_MANIFESTS,
     KnowledgeCorpusSourceKind,
 )

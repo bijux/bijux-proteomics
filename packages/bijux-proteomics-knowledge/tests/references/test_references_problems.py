@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.problems import (
+from bijux_proteomics_knowledge.references.grounding.problems import (
     DEFAULT_KNOWN_PROBLEM_REGISTRY,
     KnowledgeProblemKind,
 )

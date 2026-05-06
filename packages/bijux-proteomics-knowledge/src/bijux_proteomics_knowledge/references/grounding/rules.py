@@ -10,7 +10,7 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics_foundation.serialization.json_models import JsonModel
-from bijux_proteomics_knowledge.references.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
 
 
 class KnowledgeRuleDomain(StrEnum):
@@ -218,7 +218,7 @@ def build_ranking_rule_grounding_ledger(
 ) -> RankingRuleGroundingLedger:
     """Build knowledge-backed rule grounding for one workflow family."""
 
-    from bijux_proteomics_knowledge.references.briefings import (
+    from bijux_proteomics_knowledge.references.workflows.briefings import (
         build_workflow_reference_briefing,
     )
 

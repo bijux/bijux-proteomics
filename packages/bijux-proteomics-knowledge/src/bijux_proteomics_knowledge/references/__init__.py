@@ -5,29 +5,16 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.benchmarks import BenchmarkManifest, KnowledgeWorkflowFamily
-from bijux_proteomics_knowledge.references.briefings import (
-    WorkflowReferenceBriefing,
-    build_workflow_reference_briefing,
-)
-from bijux_proteomics_knowledge.references.contexts import ScientificContextEntry
-from bijux_proteomics_knowledge.references.ontologies import (
+from bijux_proteomics_knowledge.references.public import (
+    BenchmarkManifest,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
+    KnowledgeWorkflowFamily,
+    ScientificContextEntry,
+    ScientificRuleReference,
+    WorkflowReferenceBriefing,
+    build_workflow_reference_briefing,
+    get_benchmark_manifest,
     resolve_ontology_mapping,
 )
-from bijux_proteomics_knowledge.references.rules import ScientificRuleReference
-from bijux_proteomics_knowledge.references.workflow_queries import get_benchmark_manifest
-
-__all__ = [
-    "BenchmarkManifest",
-    "KnowledgeOntologyDomain",
-    "KnowledgeOntologyMapping",
-    "KnowledgeWorkflowFamily",
-    "ScientificContextEntry",
-    "ScientificRuleReference",
-    "WorkflowReferenceBriefing",
-    "build_workflow_reference_briefing",
-    "get_benchmark_manifest",
-    "resolve_ontology_mapping",
-]
+from bijux_proteomics_knowledge.references.public import __all__

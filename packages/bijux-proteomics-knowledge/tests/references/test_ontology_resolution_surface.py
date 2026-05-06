@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.ontologies import (
+from bijux_proteomics_knowledge.references.grounding.ontologies import (
     KnowledgeOntologyDomain,
     resolve_ontology_mapping,
 )

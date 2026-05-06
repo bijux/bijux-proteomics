@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.contexts import (
+from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
     KnowledgeContextDomain,
 )

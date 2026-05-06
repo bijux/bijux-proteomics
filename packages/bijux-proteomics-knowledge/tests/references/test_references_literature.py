@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references.literature import (
+from bijux_proteomics_knowledge.references.grounding.literature import (
     DEFAULT_LITERATURE_GROUPS,
     LiteratureFocusArea,
 )

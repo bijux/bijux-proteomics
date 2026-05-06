@@ -7,36 +7,36 @@ import ast
 from pathlib import Path
 
 import bijux_proteomics_knowledge as knowledge
-from bijux_proteomics_knowledge.charter import (
+from bijux_proteomics_knowledge.governance.charter import (
     DEFAULT_KNOWLEDGE_MODULE_AUDIT,
     KnowledgeModuleClassification,
 )
-from bijux_proteomics_knowledge.references.benchmarks import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.references.briefings import (
+from bijux_proteomics_knowledge.references.workflows.briefings import (
     build_workflow_reference_briefing,
 )
-from bijux_proteomics_knowledge.references.citations import (
+from bijux_proteomics_knowledge.references.grounding.citations import (
     DEFAULT_CITATION_REGISTRY,
 )
-from bijux_proteomics_knowledge.references.contexts import (
+from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
 )
-from bijux_proteomics_knowledge.references.corpora import (
+from bijux_proteomics_knowledge.references.grounding.corpora import (
     DEFAULT_CORPUS_MANIFESTS,
 )
-from bijux_proteomics_knowledge.references.literature import (
+from bijux_proteomics_knowledge.references.grounding.literature import (
     DEFAULT_LITERATURE_GROUPS,
 )
-from bijux_proteomics_knowledge.references.narratives import (
+from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
 )
-from bijux_proteomics_knowledge.references.problems import (
+from bijux_proteomics_knowledge.references.grounding.problems import (
     DEFAULT_KNOWN_PROBLEM_REGISTRY,
 )
-from bijux_proteomics_knowledge.references.rules import (
+from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
 )
 
