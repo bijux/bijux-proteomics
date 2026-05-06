@@ -42,7 +42,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _program() -> object:
@@ -360,7 +362,10 @@ def test_assess_recommendation_readiness_degrades_stale_grounded_support_with_ex
         reason.startswith("evidence-assay-stale:")
         for reason in result.degradation_reasons
     )
-    assert any("stale and should be refreshed" in reason for reason in result.degradation_reasons)
+    assert any(
+        "stale and should be refreshed" in reason
+        for reason in result.degradation_reasons
+    )
 
 
 def test_final_decision_recommendation_holds_when_evidence_gate_refuses() -> None:
@@ -397,6 +402,11 @@ def test_final_decision_recommendation_holds_when_evidence_gate_refuses() -> Non
     assert recommendation.requires_human_review is True
     assert recommendation.gate_result is not None
     assert recommendation.gate_result.disposition.value == "refused"
+    assert "evidence gate refused the recommendation" in recommendation.downgrade_chain
+    assert any(
+        "contradiction pressure=" in reason or reason.startswith("resolve contradiction:")
+        for reason in recommendation.downgrade_chain
+    )
 
 
 def test_comparative_candidate_review_packet_surfaces_multi_objective_deltas() -> None:

@@ -64,7 +64,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 def _ready_state() -> DecisionReadiness:
@@ -739,6 +741,10 @@ def test_build_review_board_packet_keeps_ranked_evidence_and_qc_caveats_visible(
     assert packet.ranked_evidence[0].candidate_id == "candidate-1"
     assert packet.ranked_evidence[0].qc_caveats == ["batch shift remains unresolved"]
     assert packet.next_step_proposals
+    assert "direct evidence" in packet.data_says
+    assert "can claim" in packet.benchmark_allows.lower()
+    assert packet.literature_suggests
+    assert packet.we_still_do_not_know
 
 
 def test_summarize_hold_pressure_counts_hold_actions() -> None:
@@ -981,7 +987,9 @@ def test_decision_support_outputs_keep_reasons_and_questions_separate() -> None:
     )
     ranking = CandidateRanking(
         program_id="prog-output-boundaries",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.0, rank=1)
+        ],
     )
     risks = [
         CandidateRiskProfile(

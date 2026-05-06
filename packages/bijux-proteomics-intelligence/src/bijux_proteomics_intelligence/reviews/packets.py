@@ -34,7 +34,13 @@ from bijux_proteomics_intelligence.posture.evidence import (
     summarize_evidence_contradictions,
 )
 from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
+
 
 class IntelligenceReviewPacket(JsonModel):
     """Integrated intelligence packet for review-gate decision meetings."""
@@ -83,6 +89,10 @@ class ReviewBoardPacket(JsonModel):
     ranked_evidence: list[ReviewBoardEvidenceLine] = Field(default_factory=list)
     qc_caveats: list[str] = Field(default_factory=list)
     next_step_proposals: list[str] = Field(default_factory=list)
+    data_says: str = Field(..., min_length=1)
+    benchmark_allows: str = Field(..., min_length=1)
+    literature_suggests: str = Field(..., min_length=1)
+    we_still_do_not_know: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class AdvancedIntelligenceReviewPacket(JsonModel):
@@ -174,6 +184,64 @@ def _candidate_next_step_proposals(
     return sorted(dict.fromkeys(proposals))
 
 
+def _build_claim_partition(
+    *,
+    ranking: CandidateRanking,
+    evidence_bundle: EvidenceBundle | None,
+    contradiction_summary: EvidenceContradictionSummary | None,
+    unresolved_questions: list[str],
+    workflow_family: KnowledgeWorkflowFamily | None,
+) -> tuple[str, str, str, tuple[str, ...]]:
+    top_candidate_id = (
+        ranking.ranked_candidates[0].candidate_id
+        if ranking.ranked_candidates
+        else "no-ranked-candidate"
+    )
+    if evidence_bundle is None:
+        data_says = "direct evidence was not attached to this review packet"
+    elif contradiction_summary is None:
+        data_says = (
+            f"direct evidence was attached for {top_candidate_id}, but contradiction posture was not summarized"
+        )
+    elif contradiction_summary.posture.value == "blocking":
+        data_says = (
+            f"direct evidence remains contradictory for {top_candidate_id} and cannot support a clean recommendation"
+        )
+    elif contradiction_summary.posture.value == "unresolved":
+        data_says = (
+            f"direct evidence keeps {top_candidate_id} reviewable, but unresolved contradictions still weaken confidence"
+        )
+    else:
+        data_says = (
+            f"direct evidence currently supports {top_candidate_id} without explicit contradiction pressure"
+        )
+
+    if workflow_family is None:
+        benchmark_allows = "no workflow-family benchmark briefing was attached to bound this recommendation"
+        literature_suggests = (
+            "no workflow-family literature briefing was attached to shape downstream interpretation"
+        )
+        unknowns = tuple(unresolved_questions)
+        return data_says, benchmark_allows, literature_suggests, unknowns
+
+    briefing = build_workflow_reference_briefing(workflow_family)
+    benchmark_allows = briefing.evidence_claim.narrative_text
+    literature_suggests = (
+        briefing.literature_groups[0].curation_note
+        if briefing.literature_groups
+        else briefing.limitation.narrative_text
+    )
+    unknowns = tuple(
+        dict.fromkeys(
+            [
+                *unresolved_questions,
+                *briefing.scope_limit_notes[:2],
+            ]
+        )
+    )
+    return data_says, benchmark_allows, literature_suggests, unknowns
+
+
 def build_review_board_packet(
     evaluations: ScenarioSetEvaluation,
     ranking: CandidateRanking,
@@ -201,6 +269,15 @@ def build_review_board_packet(
         {str(item).strip() for item in qc_caveats if str(item).strip()}
     )
     unresolved_ledger = summarize_unresolved_question_ledger(evaluations)
+    data_says, benchmark_allows, literature_suggests, unknowns = (
+        _build_claim_partition(
+            ranking=ranking,
+            evidence_bundle=evidence_bundle,
+            contradiction_summary=contradiction_summary,
+            unresolved_questions=unresolved_ledger.prioritized_questions,
+            workflow_family=workflow_family,
+        )
+    )
     ranked_evidence: list[ReviewBoardEvidenceLine] = []
     for ranked_candidate in ranking.ranked_candidates[:5]:
         assessment = assessment_map.get(ranked_candidate.candidate_id)
@@ -247,6 +324,10 @@ def build_review_board_packet(
         ranked_evidence=ranked_evidence,
         qc_caveats=qc_caveat_list,
         next_step_proposals=sorted(dict.fromkeys(next_step_proposals)),
+        data_says=data_says,
+        benchmark_allows=benchmark_allows,
+        literature_suggests=literature_suggests,
+        we_still_do_not_know=unknowns,
     )
 
 
@@ -371,7 +452,8 @@ def build_comparative_candidate_review_packet(
         preferred_score=preferred.score,
         compared_score=compared.score,
         evidence_support_delta=round(
-            preferred_assessment.evidence_support - compared_assessment.evidence_support,
+            preferred_assessment.evidence_support
+            - compared_assessment.evidence_support,
             4,
         ),
         residual_risk_delta=round(

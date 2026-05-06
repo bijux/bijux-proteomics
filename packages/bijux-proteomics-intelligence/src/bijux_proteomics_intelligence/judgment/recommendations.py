@@ -24,7 +24,9 @@ from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
 from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.references.workflows.benchmarks import KnowledgeWorkflowFamily
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
 
 
 class DecisionEscalationFlags(JsonModel):
@@ -54,6 +56,10 @@ class FinalDecisionRecommendation(JsonModel):
     gate_result: OperationResult | None = Field(
         default=None,
         description="Optional machine-readable refusal or degraded-success gate result.",
+    )
+    downgrade_chain: tuple[str, ...] = Field(
+        default_factory=tuple,
+        description="Ordered reasons that downgraded or held the recommendation.",
     )
     reasons: list[str] = Field(
         default_factory=list, description="Reasons supporting the final recommendation."
@@ -153,12 +159,16 @@ def build_final_decision_recommendation(
     consensus = summarize_scenario_consensus(evaluations)
     escalation = derive_decision_escalation_flags(evaluations)
     reasons = list(consensus.notes)
+    downgrade_chain: list[str] = []
     if escalation.high_hold_pressure:
         reasons.append("hold pressure is high across scenario evaluations")
+        downgrade_chain.append("scenario hold pressure stayed high")
     if escalation.wide_confidence_spread:
         reasons.append("scenario confidence spread is wide")
+        downgrade_chain.append("scenario confidence spread stayed wide")
     if escalation.conflicting_actions:
         reasons.append("scenario actions conflict")
+        downgrade_chain.append("scenario actions remained contradictory")
     gate_result: OperationResult | None = None
     action = consensus.recommended_action
     requires_human_review = escalation.escalate_to_human_review
@@ -168,18 +178,23 @@ def build_final_decision_recommendation(
             action = ScenarioAction.HOLD
             requires_human_review = True
             reasons.append(gate_result.summary)
+            downgrade_chain.append("evidence gate refused the recommendation")
             if gate_result.refusal is not None:
                 reasons.extend(gate_result.refusal.reason_details)
+                downgrade_chain.extend(gate_result.refusal.reason_details)
         elif gate_result.disposition.value == "degraded_success":
             requires_human_review = True
             reasons.append(gate_result.summary)
             reasons.extend(gate_result.degradation_reasons)
+            downgrade_chain.append("evidence gate degraded the recommendation")
+            downgrade_chain.extend(gate_result.degradation_reasons)
     if workflow_family is not None:
         reasons.append(f"workflow_family={workflow_family.value}")
     return FinalDecisionRecommendation(
         action=action,
         requires_human_review=requires_human_review,
         gate_result=gate_result,
+        downgrade_chain=tuple(dict.fromkeys(downgrade_chain)),
         reasons=reasons,
     )
 
