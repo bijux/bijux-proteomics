@@ -7,19 +7,19 @@ import random
 
 import pytest
 
-from agentic_proteins.biology.pathway import (
+from bijux_proteomics.biology.pathway import (
     ExecutionMode,
     PathwayContract,
     PathwayExecutor,
 )
-from agentic_proteins.biology.protein_agent import (
+from bijux_proteomics.biology.protein_agent import (
     ProteinAgent,
     ProteinConstraints,
     ProteinFailure,
     ProteinState,
 )
-from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
-from agentic_proteins.biology.validation import validate_transition
+from bijux_proteomics.biology.signals import SignalPayload, SignalScope, SignalType
+from bijux_proteomics.biology.validation import validate_transition
 
 
 def _constraints(energy: float = 1.0) -> ProteinConstraints:

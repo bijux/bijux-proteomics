@@ -9,18 +9,18 @@ from typing import TYPE_CHECKING, Any, cast
 from pydantic import ValidationError
 import pytest
 
-from agentic_proteins.biology.pathway import PathwayExecutor
-from agentic_proteins.biology.protein_agent import (
+from bijux_proteomics.biology.pathway import PathwayExecutor
+from bijux_proteomics.biology.protein_agent import (
     ProteinAgent,
     ProteinConstraints,
     ProteinFailure,
     ProteinLifecycle,
     ProteinState,
 )
-from agentic_proteins.biology.signals import SignalPayload, SignalScope, SignalType
+from bijux_proteomics.biology.signals import SignalPayload, SignalScope, SignalType
 
 if TYPE_CHECKING:
-    from agentic_proteins.biology.pathway import PathwayContract
+    from bijux_proteomics.biology.pathway import PathwayContract
 
 
 def _constraints() -> ProteinConstraints:
@@ -168,6 +168,6 @@ def test_signal_payload_rejects_non_string_metadata_keys() -> None:
 
 
 def _contract() -> PathwayContract:
-    from agentic_proteins.biology.pathway import PathwayContract
+    from bijux_proteomics.biology.pathway import PathwayContract
 
     return PathwayContract(max_coupling=3, forbid_cycles=True)

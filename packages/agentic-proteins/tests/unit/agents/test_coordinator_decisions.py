@@ -7,9 +7,9 @@ from agentic_proteins.agents.schemas import (
     CriticAgentOutput,
     QualityControlAgentOutput,
 )
-from agentic_proteins.core.decisions import Decision
-from agentic_proteins.core.execution import LoopLimits, LoopState
-from agentic_proteins.domain.metrics.quality import QCStatus
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
+from bijux_proteomics_runtime.support.primitives.execution import LoopLimits, LoopState
+from bijux_proteomics_intelligence.candidates.quality import QCStatus
 
 
 def test_coordinator_rejects_opaque_decision() -> None:

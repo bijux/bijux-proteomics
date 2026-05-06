@@ -78,7 +78,8 @@ def test_high_level_tests_use_public_entrypoints() -> None:
         "agentic_proteins.execution",
         "agentic_proteins.state",
         "agentic_proteins.tools",
-        "agentic_proteins.core",
+        "agentic_proteins.providers",
+        "agentic_proteins.agents",
     )
     for path in (root / "e2e").rglob("test_*.py"):
         tree = ast.parse(path.read_text(), filename=str(path))

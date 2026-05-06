@@ -9,7 +9,7 @@ from agentic_proteins.agents.schemas import (
     InputValidationAgentInput,
 )
 from agentic_proteins.agents.verification.input_validation import InputValidationAgent
-from agentic_proteins.core.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 
 
 def test_input_validation_agent_accepts_valid_sequence() -> None:

@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentic_proteins.core.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from agentic_proteins.execution.manager import RunManager
 from agentic_proteins.execution.run_config import RunConfig
 

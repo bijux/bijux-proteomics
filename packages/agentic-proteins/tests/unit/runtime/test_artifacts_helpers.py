@@ -6,9 +6,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.core.failures import FailureType
-from agentic_proteins.core.tooling import ToolError
-from agentic_proteins.domain.candidates.schema import Candidate
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.tooling import ToolError
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 from agentic_proteins.state.context import create_run_context
 import agentic_proteins.execution.artifacts as artifacts_module
 from agentic_proteins.state.workspace import RunWorkspace
