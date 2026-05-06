@@ -17,9 +17,9 @@ package-specific policy.
 ```mermaid
 flowchart LR
     ids["identity/identifiers.py<br/>stable identifiers"]
-    schema["serialization/documents.py<br/>shared payload shape"]
+    schema["serialization/document_schema.py<br/>shared payload shape"]
     serialization["serialization/<br/>transport form"]
-    migrations["compatibility/migrations.py<br/>version continuity"]
+    migrations["compatibility/schema_migrations.py<br/>version continuity"]
     errors["outcomes/exceptions.py<br/>shared failure vocabulary"]
     consumers["all higher packages"]
 
@@ -60,8 +60,8 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/documents.py` for stable shared meaning
-- `src/bijux_proteomics_foundation/serialization/` and `compatibility/migrations.py` for transport and compatibility structure
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py` for stable shared meaning
+- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py` for transport and compatibility structure
 - `src/bijux_proteomics_foundation/outcomes/exceptions.py` for shared failure vocabulary
 
 ## Boundary Test

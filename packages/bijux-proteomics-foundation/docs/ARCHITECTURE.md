@@ -19,18 +19,21 @@ with the same rules.
 
 ## Module topology
 
-- `serialization/documents.py` owns document metadata and shared value wrappers
-- `compatibility/evolution.py`, `compatibility/migrations.py`, and
-  `compatibility/versions.py` own schema compatibility and version-to-version
+- `serialization/document_schema.py` owns document metadata, audit lineage, and
+  package-emitted contract identity
+- `serialization/scientific_values.py` owns nullability, duration, timestamp,
+  and coordinate wrappers shared across higher packages
+- `compatibility/schema_assessments.py`, `compatibility/schema_migrations.py`, and
+  `compatibility/schema_versions.py` own schema compatibility and version-to-version
   upgrade flow
-- `serialization/canonicalization.py`, `serialization/hashing.py`,
-  `serialization/fingerprints.py`, `serialization/json_models.py`, and
-  `serialization/ordering.py` own deterministic rendering, hashing, and
+- `serialization/canonical_json.py`, `serialization/stable_hashes.py`,
+  `serialization/fingerprints.py`, `serialization/json_contracts.py`, and
+  `serialization/stable_values.py` own deterministic rendering, hashing, and
   fingerprint behavior
 - `identity/identifiers.py` owns stable identifier kinds and construction helpers
 - `support/provenance.py`, `support/states.py`, and `support/charter.py` own
   shared provenance, support-state, and package-charter contracts
-- `outcomes/exceptions.py`, `outcomes/error_envelopes.py`,
+- `outcomes/exceptions.py`, `outcomes/failures.py`,
   `outcomes/refusals.py`, and `outcomes/results.py` own shared
   machine-readable contract outcomes
 
@@ -52,9 +55,12 @@ serialization rules, compatibility logic, or migration path behavior locally.
 
 - add code here when a new concern changes canonical document primitives shared
   by multiple packages
-- extend `serialization/documents.py`, `compatibility/evolution.py`,
-  `serialization/canonicalization.py`, `serialization/hashing.py`,
-  `identity/identifiers.py`, or `compatibility/migrations.py` before
+- extend `serialization/document_schema.py`,
+  `serialization/scientific_values.py`,
+  `compatibility/schema_assessments.py`,
+  `serialization/canonical_json.py`,
+  `serialization/stable_hashes.py`,
+  `identity/identifiers.py`, or `compatibility/schema_migrations.py` before
   higher packages invent local copies of the same rules
 - prefer adding stable low-volatility helpers here when the change would
   otherwise fragment serialization or compatibility behavior across packages

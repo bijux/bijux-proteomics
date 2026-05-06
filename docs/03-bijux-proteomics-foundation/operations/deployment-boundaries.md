@@ -19,6 +19,6 @@ Deployment boundaries matter because a package can be publishable without being 
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/serialization/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
 - `src/bijux_proteomics_foundation/serialization/`
 - `packages/bijux-proteomics-foundation/tests`

@@ -19,6 +19,6 @@ Artifacts matter because they survive the moment of execution and become someone
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `documents.py`
-- `src/bijux_proteomics_foundation/serialization/` and `migrations.py`
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py`
+- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py`
 - `packages/bijux-proteomics-foundation/tests`

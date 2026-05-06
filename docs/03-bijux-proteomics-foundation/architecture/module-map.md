@@ -13,8 +13,8 @@ last_reviewed: 2026-04-26
 
 ## Owned Module Families
 
-- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/documents.py` define stable shared identifiers and payload shape
-- `src/bijux_proteomics_foundation/serialization/` and `compatibility/migrations.py` own durable transport and version movement
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py` define stable shared identifiers and payload shape
+- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py` own durable transport and version movement
 - `src/bijux_proteomics_foundation/outcomes/` keeps shared failure vocabulary small and reusable
 
 ## First Proof Check

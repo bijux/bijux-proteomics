@@ -147,7 +147,7 @@ refusal = OperationRefusal(
 Error envelopes:
 
 ```python
-from bijux_proteomics_foundation.outcomes.error_envelopes import (
+from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
     ErrorEnvelope,
 )
@@ -235,14 +235,17 @@ result = OperationResult.success(
 
 ## Source guide
 
-- [`src/bijux_proteomics_foundation/serialization/documents.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/documents.py) for document metadata and shared value wrappers
-- [`src/bijux_proteomics_foundation/compatibility/evolution.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/evolution.py) for compatibility and schema-evolution assessments
-- [`src/bijux_proteomics_foundation/serialization/canonicalization.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonicalization.py) for canonical serialization
-- [`src/bijux_proteomics_foundation/serialization/hashing.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/hashing.py) for deterministic hashing policies
+- [`src/bijux_proteomics_foundation/serialization/document_schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/document_schema.py) for document metadata and audit lineage
+- [`src/bijux_proteomics_foundation/serialization/scientific_values.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/scientific_values.py) for nullability, duration, timestamp, and coordinate wrappers
+- [`src/bijux_proteomics_foundation/compatibility/schema_assessments.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_assessments.py) for compatibility and schema-evolution assessments
+- [`src/bijux_proteomics_foundation/serialization/canonical_json.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonical_json.py) for canonical serialization
+- [`src/bijux_proteomics_foundation/serialization/stable_hashes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py) for deterministic hashing policies
+- [`src/bijux_proteomics_foundation/serialization/json_contracts.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py) for reusable JSON-backed contract helpers
 - [`src/bijux_proteomics_foundation/identity/identifiers.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py) for shared identifier contracts
 - [`src/bijux_proteomics_foundation/support/provenance.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/provenance.py) for provenance pointers and adjacent support-state contracts
+- [`src/bijux_proteomics_foundation/outcomes/failures.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/failures.py) for structured machine-readable failure contracts
 - [`src/bijux_proteomics_foundation/outcomes/results.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/results.py) for shared refusal and operation-result contracts
-- [`src/bijux_proteomics_foundation/compatibility/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/migrations.py) for migration behavior
+- [`src/bijux_proteomics_foundation/compatibility/schema_migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_migrations.py) for migration behavior
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable behavior expectations
 
 ## Documentation

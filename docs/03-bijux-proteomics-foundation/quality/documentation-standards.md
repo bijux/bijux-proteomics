@@ -38,7 +38,7 @@ This page should keep the documentation anchored on contract travel, not local c
 ## First Proof Check
 
 - `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
 - `src/bijux_proteomics_foundation/serialization/`
 
 ## Design Pressure

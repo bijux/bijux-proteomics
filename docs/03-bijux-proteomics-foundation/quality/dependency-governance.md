@@ -43,7 +43,7 @@ This page should help a reviewer judge whether a dependency still belongs in a s
 ## First Proof Check
 
 - `packages/bijux-proteomics-foundation/tests`
-- `src/bijux_proteomics_foundation/serialization/documents.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
 - `src/bijux_proteomics_foundation/serialization/`
 
 ## Design Pressure
