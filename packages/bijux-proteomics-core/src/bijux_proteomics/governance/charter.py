@@ -122,7 +122,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "sequences/core.py",
             "sequences/digestion.py",
-            "chemistry/__init__.py",
+            "chemistry/contracts.py",
         ),
         release_blocker="Core cannot ship if sequence and peptide semantics collapse into format glue or tool-specific heuristics.",
     ),
@@ -133,7 +133,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/formats.py",
             "io/ingestion.py",
             "io/spectra.py",
-            "identification/__init__.py",
+            "identification/contracts.py",
             "identification/search_adapters.py",
         ),
         release_blocker="Core cannot ship if external-engine normalization loses explicit support, loss, and refusal boundaries.",
@@ -142,9 +142,11 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         family=CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY,
         owned_surface="Study design, MS1 feature parsing, quantification rollup, normalization, and QC semantics for reproducible quantitative analysis.",
         required_modules=(
-            "study/__init__.py",
+            "study/contracts.py",
+            "study/laboratory_plans.py",
+            "study/laboratory_operations.py",
             "study/qc.py",
-            "quantification/__init__.py",
+            "quantification/contracts.py",
         ),
         release_blocker="Core cannot ship if quantitative outputs stop carrying design and QC meaning that downstream packages depend on.",
     ),
@@ -152,9 +154,9 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         family=CoreScientificDomainFamily.PTM_AND_DIA,
         owned_surface="PTM localization and DIA-native evidence semantics that preserve uncertainty, library identity, and targeted follow-up meaning.",
         required_modules=(
-            "ptm/__init__.py",
+            "ptm/contracts.py",
             "ptm/review.py",
-            "dia/__init__.py",
+            "dia/contracts.py",
         ),
         release_blocker="Core cannot ship if PTM or DIA workflows flatten ambiguity into generic evidence records.",
     ),
@@ -162,10 +164,10 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         family=CoreScientificDomainFamily.REVIEW_AND_HANDOFF,
         owned_surface="Review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
         required_modules=(
-            "review/__init__.py",
+            "review/contracts.py",
             "review/protein_family_graphs.py",
-            "collaboration/__init__.py",
-            "structure_report/render.py",
+            "review/collaboration.py",
+            "review/structure_reports/render.py",
         ),
         release_blocker="Core cannot ship if review-facing scientific artifacts become presentation-only shells without underlying evidence structure.",
     ),
@@ -174,9 +176,10 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Runtime-agnostic workflow blueprints, execution requests, and replayable scientific workflow contracts.",
         required_modules=(
             "workflow/blueprint.py",
-            "execution/backend.py",
-            "execution/runner.py",
-            "execution/runtime_adapter.py",
+            "interfaces/execution/backend.py",
+            "interfaces/execution/runner.py",
+            "interfaces/execution/runtime_adapter.py",
+            "interfaces/runtime_plans.py",
         ),
         release_blocker="Core cannot ship if workflow contracts require runtime internals instead of scientific inputs and explicit adapters.",
     ),
@@ -188,7 +191,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interfaces/examples.py",
             "interfaces/cli/app.py",
             "governance/charter.py",
-            "adoption/__init__.py",
+            "benchmarks/adoption.py",
         ),
         release_blocker="Core cannot ship if its public package surface describes the wrong owner story or hides the scientific boundary behind stale compatibility language.",
     ),
@@ -230,11 +233,13 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
     if compatibility_target is not None:
         return _module_family(compatibility_target)
 
+    if module_path.startswith(("workflow/", "interfaces/execution/")) or module_path in {
+        "interfaces/runtime_plans.py"
+    }:
+        return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
     if module_path in {"__init__.py"} or module_path.startswith(
         ("governance/",)
-    ) or module_path.startswith(
-        ("interfaces/", "adoption/", "benchmarks/")
-    ):
+    ) or module_path.startswith(("interfaces/", "benchmarks/")):
         return CoreScientificDomainFamily.PACKAGE_SURFACE
     if module_path.startswith("domain/"):
         return CoreScientificDomainFamily.PROGRAM_GOVERNANCE
@@ -249,17 +254,10 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
     if module_path.startswith(("ptm/", "dia/")):
         return CoreScientificDomainFamily.PTM_AND_DIA
-    if module_path.startswith(("workflow/", "execution/")):
-        return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
     if module_path.startswith(
         (
             "review/",
-            "collaboration/",
-            "corpus/",
             "biology/",
-            "lab/",
-            "intelligence/",
-            "structure_report/",
         )
     ):
         return CoreScientificDomainFamily.REVIEW_AND_HANDOFF

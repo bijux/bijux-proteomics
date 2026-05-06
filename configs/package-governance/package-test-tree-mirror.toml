@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_test_tree_mirror
 
 [guard]
-min_total_mirrored_owner_family_count = 60
-max_total_missing_test_family_count = 9
+min_total_mirrored_owner_family_count = 55
+max_total_missing_test_family_count = 7
 max_total_flat_test_module_count = 10
 
 [[package]]
@@ -35,10 +35,10 @@ flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-source_owner_families = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "governance", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study", "workflow"]
-test_families = ["adoption", "biology", "chemistry", "cli", "collaboration", "corpus", "dia", "domain", "execution", "identification", "intelligence", "interfaces", "io", "lab", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
-mirrored_owner_families = ["adoption", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "study", "workflow"]
-missing_test_families = ["benchmarks", "governance", "structure_report"]
+source_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "identification", "interfaces", "io", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
+mirrored_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+missing_test_families = ["governance"]
 extra_test_families = ["cli", "performance", "qc"]
 flat_test_module_count = 10
 

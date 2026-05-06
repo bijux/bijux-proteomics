@@ -121,7 +121,7 @@ outgoing_workspace_modules = ["bijux_proteomics.quantification", "bijux_proteomi
 [[module]]
 module_name = "bijux_proteomics_intelligence.interpretation.structures"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.structure_report"]
+outgoing_workspace_modules = ["bijux_proteomics.domain.sequence.summary", "bijux_proteomics.domain.structure.structure", "bijux_proteomics.review.structure_reports"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.judgment"
@@ -201,7 +201,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.benchmarks"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.collaboration", "bijux_proteomics.dia", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences", "bijux_proteomics_foundation", "bijux_proteomics_foundation.support.states", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.lookups"]
+outgoing_workspace_modules = ["bijux_proteomics.dia", "bijux_proteomics.identification", "bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.review.collaboration", "bijux_proteomics.sequences", "bijux_proteomics_foundation", "bijux_proteomics_foundation.support.states", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.lookups"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.boards"

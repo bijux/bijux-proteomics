@@ -671,17 +671,17 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/structure_report/model.py"
-nonempty_line_count = 19
-public_function_count = 0
-public_class_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/workflow/runtime_bundles.py"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/runtime_plans.py"
 nonempty_line_count = 12
 public_function_count = 0
 public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/structure_reports/model.py"
+nonempty_line_count = 19
+public_function_count = 0
+public_class_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"

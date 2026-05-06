@@ -321,7 +321,7 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.api.v1.schema"]
 [[module]]
 module_name = "agentic_proteins.interfaces.structure_reports"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.structure_report", "bijux_proteomics.structure_report.render"]
+outgoing_workspace_modules = ["bijux_proteomics.review.structure_reports", "bijux_proteomics.review.structure_reports.render"]
 
 [[module]]
 module_name = "agentic_proteins.orchestration"

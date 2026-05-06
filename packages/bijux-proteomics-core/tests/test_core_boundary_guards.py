@@ -9,26 +9,15 @@ from pathlib import Path
 
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
-    "execution/runtime_adapter.py": {
+    "interfaces/execution/runtime_adapter.py": {
         "bijux_proteomics_runtime.runs.manager",
         "bijux_proteomics_runtime.runs.run_config",
     },
-    "workflow/runtime_bundles.py": {
+    "interfaces/runtime_plans.py": {
         "bijux_proteomics_runtime.workflows.plans",
     },
 }
 ALLOWED_CROSS_PACKAGE_IMPORTS = {
-    "intelligence/__init__.py": {
-        "bijux_proteomics_intelligence.reviews.boards",
-        "bijux_proteomics_intelligence.reviews.candidates",
-        "bijux_proteomics_intelligence.reviews.pathways",
-    },
-    "lab/operations.py": {
-        "bijux_proteomics_lab.reconciliation",
-    },
-    "lab/planning.py": {
-        "bijux_proteomics_lab.planning",
-    },
     "ptm/review.py": {
         "bijux_proteomics_lab.handoffs.ptm",
     },

@@ -29,7 +29,7 @@ def test_core_does_not_import_agentic_runtime_paths() -> None:
 
 def test_core_runtime_adapter_uses_canonical_runtime_imports() -> None:
     runtime_adapter = Path(
-        "packages/bijux-proteomics-core/src/bijux_proteomics/execution/runtime_adapter.py"
+        "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/execution/runtime_adapter.py"
     )
     content = _read(runtime_adapter)
 

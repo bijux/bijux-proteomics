@@ -13,6 +13,7 @@ ALLOWED_ROOT_TESTS = {
     "test_cross_package_invariants.py",
     "test_foundation_hashing_surface.py",
     "test_foundation_primitives_surface.py",
+    "test_owner_wrapper_guards.py",
     "test_package_charter.py",
     "test_public_api_surface.py",
     "test_source_tree_hygiene.py",

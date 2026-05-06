@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_tree_dossiers
 
 [guard]
-min_total_owner_domain_count = 69
+min_total_owner_domain_count = 62
 max_total_compatibility_surface_count = 0
 min_total_excluded_responsibility_count = 29
 
@@ -33,7 +33,7 @@ excluded_responsibilities = ["program lifecycle and gate logic", "candidate rank
 [[package]]
 distribution_name = "bijux-proteomics-core"
 import_root = "bijux_proteomics"
-owner_domains = ["adoption", "benchmarks", "biology", "chemistry", "collaboration", "corpus", "dia", "domain", "execution", "governance", "identification", "intelligence", "interfaces", "io", "lab", "ptm", "quantification", "review", "sequences", "structure_report", "study", "workflow"]
+owner_domains = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
 public_modules = []
 compatibility_surfaces = []
 excluded_responsibilities = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
