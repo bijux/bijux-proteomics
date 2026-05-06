@@ -24,6 +24,30 @@ LAYER_ORDER = {
     "utils": 1,
 }
 
+ALLOWED_TOP_LEVEL_ENTRIES = {
+    "__init__.py",
+    "agents",
+    "execution",
+    "interfaces",
+    "providers",
+    "py.typed",
+    "state",
+    "tools",
+}
+
+REMOVED_COMPAT_FAMILIES = {
+    "api",
+    "biology",
+    "core",
+    "design_loop",
+    "domain",
+    "memory",
+    "registry",
+    "report",
+    "runtime",
+    "validation",
+}
+
 
 def _module_layer(path: Path) -> int | None:
     parts = path.parts
@@ -65,10 +89,26 @@ def test_import_boundaries() -> None:
                     )
 
 
-def test_root_modules_removed() -> None:
+def test_package_root_uses_one_bridge_vocabulary() -> None:
     root = repo_root() / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
-    assert not (root / "planning.py").exists()
-    assert not (root / "providers.py").exists()
+    actual_entries = {
+        path.name for path in root.iterdir() if path.name != "__pycache__"
+    }
+
+    assert actual_entries <= ALLOWED_TOP_LEVEL_ENTRIES
+    assert not (actual_entries & REMOVED_COMPAT_FAMILIES)
+
+
+def test_removed_compat_families_stay_deleted() -> None:
+    root = repo_root() / "packages" / "agentic-proteins" / "src" / "agentic_proteins"
+    for family in REMOVED_COMPAT_FAMILIES:
+        assert not (root / family).exists(), family
+
+
+def test_package_root_exports_version_only() -> None:
+    import agentic_proteins
+
+    assert agentic_proteins.__all__ == ["__version__"]
 
 
 def test_high_level_tests_use_public_entrypoints() -> None:
