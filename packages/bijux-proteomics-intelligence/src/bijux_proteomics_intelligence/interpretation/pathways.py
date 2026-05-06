@@ -17,6 +17,7 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics_foundation import JsonModel
 
+
 class AnnotationCategory(StrEnum):
     """Interpretation-level categories for protein annotations."""
 
@@ -25,6 +26,7 @@ class AnnotationCategory(StrEnum):
     KINASE = "kinase"
     THEME = "theme"
 
+
 class SignalDirection(StrEnum):
     """Direction of one biological or statistical signal."""
 
@@ -32,13 +34,24 @@ class SignalDirection(StrEnum):
     DOWN = "down"
     MIXED = "mixed"
 
+
 class PathwayInterpretationCautionCode(StrEnum):
     """Caution codes that block pathway-level overclaiming."""
 
     LOW_SIGNIFICANT_ENTITY_COUNT = "low_significant_entity_count"
     THEME_ONLY_SUPPORT = "theme_only_support"
+    KINASE_ONLY_SUPPORT = "kinase_only_support"
     MIXED_SIGNAL_DIRECTION = "mixed_signal_direction"
     NO_ENRICHMENT_SUPPORT = "no_enrichment_support"
+
+
+class InterpretationClaimScope(StrEnum):
+    """Maximum claim strength supported by the current interpretation evidence."""
+
+    ADVISORY_ONLY = "advisory_only"
+    CAUTIOUS_PATHWAY = "cautious_pathway"
+    MECHANISTIC_BLOCKED = "mechanistic_blocked"
+
 
 class ProteinAnnotationAssignment(JsonModel):
     """One protein-to-term annotation with source provenance."""
@@ -52,6 +65,7 @@ class ProteinAnnotationAssignment(JsonModel):
     source: str = Field(..., min_length=1)
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
+
 class DifferentialConditionSignal(JsonModel):
     """One differential-abundance signal for a single entity."""
 
@@ -62,6 +76,7 @@ class DifferentialConditionSignal(JsonModel):
     log2_fold_change: float
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     annotation_terms: tuple[str, ...] = Field(default_factory=tuple)
+
 
 class DifferentialStatisticalProvenance(JsonModel):
     """Statistical provenance for a differential interpretation."""
@@ -77,6 +92,7 @@ class DifferentialStatisticalProvenance(JsonModel):
     significant_entity_count: int = Field(..., ge=0)
     enrichment_method: str = Field(..., min_length=1)
     multiple_testing_method: str = Field(..., min_length=1)
+
 
 class ProteinSetEnrichmentEntry(JsonModel):
     """One term-level overrepresentation result."""
@@ -96,6 +112,7 @@ class ProteinSetEnrichmentEntry(JsonModel):
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
     odds_ratio: float = Field(..., ge=0.0)
 
+
 class EnrichmentProvenance(JsonModel):
     """Explicit background and multiple-testing provenance for enrichment."""
 
@@ -107,6 +124,7 @@ class EnrichmentProvenance(JsonModel):
     multiple_testing_method: str = Field(..., min_length=1)
     annotation_source_count: int = Field(..., ge=0)
 
+
 class ProteinSetEnrichmentReport(JsonModel):
     """Overrepresentation report for one protein set."""
 
@@ -116,6 +134,7 @@ class ProteinSetEnrichmentReport(JsonModel):
     background_protein_count: int = Field(..., ge=0)
     provenance: EnrichmentProvenance
     entries: tuple[ProteinSetEnrichmentEntry, ...] = Field(default_factory=tuple)
+
 
 class BiologicalTheme(JsonModel):
     """One extracted biological theme over a protein set."""
@@ -130,6 +149,7 @@ class BiologicalTheme(JsonModel):
     score: float
     adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
 
+
 class BiologicalThemeExtraction(JsonModel):
     """Top biological themes for one interpreted protein set."""
 
@@ -138,6 +158,7 @@ class BiologicalThemeExtraction(JsonModel):
     query_protein_count: int = Field(..., ge=0)
     enrichment_provenance: EnrichmentProvenance
     themes: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
+
 
 class PathwayInterpretationCaution(JsonModel):
     """One caution that keeps enrichment summaries from becoming overclaims."""
@@ -150,16 +171,19 @@ class PathwayInterpretationCaution(JsonModel):
     evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
     recommended_next_step: str = Field(..., min_length=1)
 
+
 class PathwayInterpretationCautionReport(JsonModel):
     """Caution report for pathway and thematic interpretation claims."""
 
     model_config = ConfigDict(extra="forbid")
 
     blocked: bool
+    claim_scope: InterpretationClaimScope
     caution_items: tuple[PathwayInterpretationCaution, ...] = Field(
         default_factory=tuple
     )
     safe_summary: str = Field(..., min_length=1)
+
 
 class DifferentialAbundanceInterpretation(JsonModel):
     """Differential-abundance interpretation with enrichment and provenance."""
@@ -176,9 +200,11 @@ class DifferentialAbundanceInterpretation(JsonModel):
     )
     enriched_terms: tuple[ProteinSetEnrichmentEntry, ...] = Field(default_factory=tuple)
     theme_summary: tuple[BiologicalTheme, ...] = Field(default_factory=tuple)
+    biological_claim_scope: InterpretationClaimScope
     caution_report: PathwayInterpretationCautionReport
     statistical_provenance: DifferentialStatisticalProvenance
     interpretation_summary: str = Field(..., min_length=1)
+
 
 class RankedEntityScore(JsonModel):
     """One ranked entity for GSEA-style enrichment."""
@@ -187,6 +213,7 @@ class RankedEntityScore(JsonModel):
 
     entity_id: str = Field(..., min_length=1)
     score: float
+
 
 class RankedEnrichmentEntry(JsonModel):
     """One ranked-set enrichment result."""
@@ -202,6 +229,7 @@ class RankedEnrichmentEntry(JsonModel):
     hit_count: int = Field(..., ge=0)
     leading_edge: tuple[str, ...] = Field(default_factory=tuple)
 
+
 class RankedEnrichmentReport(JsonModel):
     """GSEA-style ranked enrichment report."""
 
@@ -209,6 +237,7 @@ class RankedEnrichmentReport(JsonModel):
 
     entity_count: int = Field(..., ge=0)
     entries: tuple[RankedEnrichmentEntry, ...] = Field(default_factory=tuple)
+
 
 def _bh_adjust(p_values: list[float]) -> list[float]:
     if not p_values:
@@ -223,6 +252,7 @@ def _bh_adjust(p_values: list[float]) -> list[float]:
         adjusted[index] = min(1.0, running)
     return adjusted
 
+
 def _annotation_lookup(
     annotations: tuple[ProteinAnnotationAssignment, ...],
 ) -> dict[str, list[ProteinAnnotationAssignment]]:
@@ -230,6 +260,7 @@ def _annotation_lookup(
     for annotation in annotations:
         lookup[annotation.protein_ref].append(annotation)
     return lookup
+
 
 def _category_priority(category: AnnotationCategory) -> int:
     if category is AnnotationCategory.PATHWAY:
@@ -239,6 +270,7 @@ def _category_priority(category: AnnotationCategory) -> int:
     if category is AnnotationCategory.THEME:
         return 2
     return 3
+
 
 def _term_lookup(
     annotations: tuple[ProteinAnnotationAssignment, ...],
@@ -254,6 +286,7 @@ def _term_lookup(
         lookup[key].add(annotation.protein_ref)
     return lookup
 
+
 def _hypergeometric_tail(
     population_size: int, successes: int, draws: int, overlap: int
 ) -> float:
@@ -267,6 +300,7 @@ def _hypergeometric_tail(
             / denominator
         )
     return min(1.0, tail)
+
 
 def _odds_ratio(
     overlap: int,
@@ -282,6 +316,7 @@ def _odds_ratio(
         + 0.5
     )
     return (a * d) / (b * c)
+
 
 def compute_protein_set_enrichment(
     query_proteins: tuple[str, ...],
@@ -363,6 +398,7 @@ def compute_protein_set_enrichment(
         entries=finalized,
     )
 
+
 def extract_biological_themes(
     query_proteins: tuple[str, ...],
     background_proteins: tuple[str, ...],
@@ -391,6 +427,7 @@ def extract_biological_themes(
         enrichment_provenance=enrichment.provenance,
         themes=themes,
     )
+
 
 def _build_pathway_interpretation_caution_report(
     significant_entries: list[DifferentialAbundanceEntry],
@@ -446,6 +483,20 @@ def _build_pathway_interpretation_caution_report(
                 ),
             )
         )
+    elif themes and all(theme.category is AnnotationCategory.KINASE for theme in themes):
+        cautions.append(
+            PathwayInterpretationCaution(
+                code=PathwayInterpretationCautionCode.KINASE_ONLY_SUPPORT,
+                blocked_claim=True,
+                summary=(
+                    "Kinase-substrate style themes alone do not justify a mechanistic pathway claim."
+                ),
+                evidence_refs=("biological_theme_extraction.themes",),
+                recommended_next_step=(
+                    "require pathway-level or orthogonal perturbation support before naming mechanism"
+                ),
+            )
+        )
     if len(directions) > 1:
         cautions.append(
             PathwayInterpretationCaution(
@@ -467,11 +518,20 @@ def _build_pathway_interpretation_caution_report(
         safe_summary = "Pathway summaries are usable only with the listed caution notes kept visible."
     else:
         safe_summary = "Pathway interpretation has enough support for cautious use."
+    claim_scope = (
+        InterpretationClaimScope.MECHANISTIC_BLOCKED
+        if blocked
+        else InterpretationClaimScope.CAUTIOUS_PATHWAY
+        if enriched_terms
+        else InterpretationClaimScope.ADVISORY_ONLY
+    )
     return PathwayInterpretationCautionReport(
         blocked=blocked,
+        claim_scope=claim_scope,
         caution_items=tuple(cautions),
         safe_summary=safe_summary,
     )
+
 
 def interpret_differential_abundance(
     report: DifferentialAbundanceReport,
@@ -549,6 +609,7 @@ def interpret_differential_abundance(
         top_downregulated=tuple(_signal(entry) for entry in ordered_down),
         enriched_terms=enrichment.entries[:max_terms],
         theme_summary=themes.themes,
+        biological_claim_scope=caution_report.claim_scope,
         caution_report=caution_report,
         statistical_provenance=DifferentialStatisticalProvenance(
             entity_level=report.entity_level.value,
@@ -563,6 +624,7 @@ def interpret_differential_abundance(
         ),
         interpretation_summary=summary,
     )
+
 
 def compute_ranked_enrichment(
     ranked_entities: tuple[RankedEntityScore, ...],
@@ -625,6 +687,7 @@ def compute_ranked_enrichment(
             )
         ),
     )
+
 
 def _annotation_terms_for_entity(
     entity_id: str,

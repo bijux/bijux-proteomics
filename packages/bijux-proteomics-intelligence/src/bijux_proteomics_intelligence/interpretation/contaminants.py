@@ -14,6 +14,10 @@ from bijux_proteomics.study.qc import (
 )
 from bijux_proteomics.quantification import BatchEffectAdvisoryReport
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_intelligence.interpretation.pathways import (
+    InterpretationClaimScope,
+)
+
 
 class ContaminantArtifactFinding(JsonModel):
     """One likely contaminant or workflow artifact explanation."""
@@ -26,6 +30,7 @@ class ContaminantArtifactFinding(JsonModel):
     supporting_metrics: dict[str, float] = Field(default_factory=dict)
     suggested_action: str = Field(..., min_length=1)
 
+
 class ContaminantArtifactIntelligence(JsonModel):
     """Interpretation of likely contamination or acquisition artifacts."""
 
@@ -33,7 +38,12 @@ class ContaminantArtifactIntelligence(JsonModel):
 
     run_id: str = Field(..., min_length=1)
     findings: tuple[ContaminantArtifactFinding, ...] = Field(default_factory=tuple)
+    biological_claim_scope: InterpretationClaimScope = (
+        InterpretationClaimScope.ADVISORY_ONLY
+    )
+    overclaim_guardrails: tuple[str, ...] = Field(default_factory=tuple)
     interpretation_summary: str = Field(..., min_length=1)
+
 
 def interpret_contaminant_artifacts(
     run_report: LcmsRunQcReport,
@@ -109,8 +119,13 @@ def interpret_contaminant_artifacts(
     return ContaminantArtifactIntelligence(
         run_id=run_report.run_id,
         findings=tuple(findings),
+        overclaim_guardrails=(
+            "contaminant findings explain technical risk and sample quality, not biological mechanism",
+            "treat acquisition-artifact language as operator guidance until orthogonal biological evidence agrees",
+        ),
         interpretation_summary=findings[0].summary,
     )
+
 
 def extract_contaminant_theme(
     batch_report: BatchEffectAdvisoryReport,

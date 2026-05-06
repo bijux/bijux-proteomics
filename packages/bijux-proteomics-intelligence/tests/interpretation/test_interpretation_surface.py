@@ -43,6 +43,7 @@ from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence.interpretation import (
     AnalyticalContrastRejectionReason,
     EnrichmentProvenance,
+    InterpretationClaimScope,
     MissingnessPatternLabel,
     OutlierInterpretationClass,
     PathwayInterpretationCautionCode,
@@ -141,6 +142,11 @@ def test_run_interpretation_summary_and_artifact_intelligence_use_real_qc_surfac
     assert any(
         finding.code == "mass-calibration-drift" for finding in artifacts.findings
     )
+    assert artifacts.biological_claim_scope is InterpretationClaimScope.ADVISORY_ONLY
+    assert artifacts.overclaim_guardrails == (
+        "contaminant findings explain technical risk and sample quality, not biological mechanism",
+        "treat acquisition-artifact language as operator guidance until orthogonal biological evidence agrees",
+    )
 
 
 def test_differential_interpretation_and_theme_extraction_surface_signal() -> None:
@@ -182,6 +188,10 @@ def test_differential_interpretation_and_theme_extraction_surface_signal() -> No
         == "benjamini-hochberg"
     )
     assert interpretation.caution_report.blocked is True
+    assert (
+        interpretation.biological_claim_scope
+        is InterpretationClaimScope.MECHANISTIC_BLOCKED
+    )
     assert interpretation.caution_report.caution_items[0].code is (
         PathwayInterpretationCautionCode.LOW_SIGNIFICANT_ENTITY_COUNT
     )
