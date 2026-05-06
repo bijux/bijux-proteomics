@@ -5,23 +5,23 @@ from dataclasses import dataclass
 from pathlib import Path
 import tomllib
 
-from bijux_proteomics_knowledge.references.benchmarks import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
 )
-from bijux_proteomics_knowledge.references.citations import DEFAULT_CITATION_REGISTRY
-from bijux_proteomics_knowledge.references.contexts import (
+from bijux_proteomics_knowledge.references.grounding.citations import DEFAULT_CITATION_REGISTRY
+from bijux_proteomics_knowledge.references.grounding.contexts import (
     DEFAULT_SCIENTIFIC_CONTEXT_ENTRIES,
 )
-from bijux_proteomics_knowledge.references.corpora import DEFAULT_CORPUS_MANIFESTS
-from bijux_proteomics_knowledge.references.literature import DEFAULT_LITERATURE_GROUPS
-from bijux_proteomics_knowledge.references.narratives import (
+from bijux_proteomics_knowledge.references.grounding.corpora import DEFAULT_CORPUS_MANIFESTS
+from bijux_proteomics_knowledge.references.grounding.literature import DEFAULT_LITERATURE_GROUPS
+from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
 )
-from bijux_proteomics_knowledge.references.ontologies import DEFAULT_ONTOLOGY_MAPPINGS
-from bijux_proteomics_knowledge.references.problems import (
+from bijux_proteomics_knowledge.references.grounding.ontologies import DEFAULT_ONTOLOGY_MAPPINGS
+from bijux_proteomics_knowledge.references.grounding.problems import (
     DEFAULT_KNOWN_PROBLEM_REGISTRY,
 )
-from bijux_proteomics_knowledge.references.rules import (
+from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
 )
 

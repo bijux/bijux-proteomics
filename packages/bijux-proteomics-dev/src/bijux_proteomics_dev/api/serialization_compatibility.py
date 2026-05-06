@@ -14,7 +14,7 @@ from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_knowledge.memory.evidence import EvidenceBundle
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
 from bijux_proteomics_lab.handoffs.artifacts import (
     build_lab_artifact_upgrade_advisory,
