@@ -60,6 +60,10 @@ This package also provides benchmark-backed review outputs for `dda`, `dia`,
 checked-in datasets, owner surfaces, and explicit scientific limits in
 `reviews/benchmarks.py`.
 
+Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
+package `docs/*.md` set aligned before claiming new intelligence behavior or
+scientific scope.
+
 It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
 `lfq`, and `multiplex` workflows when reviewers need package-owned claims
 instead of presentation-only summaries.

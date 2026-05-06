@@ -43,6 +43,10 @@ honesty, feasibility, and traceability rather than analytical enthusiasm.
 Operational honesty, feasibility, and traceability are the non-negotiable
 release criteria for this package.
 
+Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
+package `docs/*.md` set aligned before claiming stronger operational coverage
+or handoff safety guarantees.
+
 ## Why teams pick this package
 
 - dependency-aware planning that keeps queue pressure, gate pressure, and
