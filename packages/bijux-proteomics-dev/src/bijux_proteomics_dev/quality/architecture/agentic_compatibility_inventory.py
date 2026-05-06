@@ -8,7 +8,7 @@ from enum import StrEnum
 import io
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.architecture.runtime_migration_ledger import (
+from bijux_proteomics_dev.release.governance.compatibility_ledger import (
     build_ledger,
 )
 from bijux_proteomics_dev.quality.architecture.scanner import (

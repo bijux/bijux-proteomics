@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_dev.release.readiness.package_family_readiness import (
+from bijux_proteomics_dev.release.governance.package_family_readiness import (
     build_package_family_readiness_reports,
     validate_package_family_readiness,
 )

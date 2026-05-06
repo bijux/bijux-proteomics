@@ -229,7 +229,7 @@ def run(check: bool = False) -> int:
         if _is_up_to_date(rows):
             print(f"migration ledger is up to date for {len(rows)} modules")
             return 0
-        print("migration ledger is stale; regenerate with runtime_migration_ledger")
+        print("migration ledger is stale; regenerate with compatibility_ledger")
         return 1
     write_ledger(rows)
     write_summary(rows)

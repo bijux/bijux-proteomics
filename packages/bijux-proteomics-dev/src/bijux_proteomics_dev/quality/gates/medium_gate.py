@@ -19,7 +19,7 @@ from bijux_proteomics_dev.quality.artifacts.bundle_verification import (
 from bijux_proteomics_dev.quality.dependencies.dependency_boundaries import (
     validate_workspace_dependency_boundaries,
 )
-from bijux_proteomics_dev.release.readiness.package_family_readiness import (
+from bijux_proteomics_dev.release.governance.package_family_readiness import (
     validate_package_family_readiness,
 )
 
@@ -56,7 +56,7 @@ def default_medium_gate_targets() -> tuple[MediumGateTarget, ...]:
         ),
         MediumGateTarget(
             surface="runtime-service",
-            test_path="packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py",
+            test_path="packages/bijux-proteomics-runtime/tests/governance/test_document_contract_surfaces.py",
             rationale="prove runtime contract publication and service surfaces stay aligned",
         ),
         MediumGateTarget(

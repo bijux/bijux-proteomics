@@ -11,7 +11,7 @@ from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_manifest,
 )
 from bijux_proteomics_dev.quality.graphs.package_graph import load_workspace_packages
-from bijux_proteomics_dev.release.readiness.ssot_readiness import validate_ssot_readiness
+from bijux_proteomics_dev.release.governance.ssot_readiness import validate_ssot_readiness
 
 __all__ = [
     "ScientificReleaseDossierEntry",

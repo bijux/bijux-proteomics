@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.api.package_shape.public_symbol_ownership import (
+from bijux_proteomics_dev.governance.package_shape.public_symbol_ownership import (
     validate_public_symbol_ownership,
 )
 from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (

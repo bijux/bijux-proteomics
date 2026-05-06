@@ -15,7 +15,7 @@ evidence_paths = [
   "docs/07-bijux-proteomics-lab/index.md",
   "configs/package-governance/scientific-release-workflows.toml",
   "configs/package-governance/high-value-artifact-schemas.toml",
-  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/readiness/scientific_readiness.py",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/scientific_readiness.py",
 ]
 rationale = "the scientific platform family ships only when the durable artifact, interpretation, and lab review surfaces all stay documented together"
 
@@ -29,7 +29,7 @@ evidence_paths = [
   "docs/08-bijux-proteomics-maintain/index.md",
   "docs/09-bijux-proteomics-runtime/index.md",
   "apis/bijux-proteomics-runtime/v1/schema.yaml",
-  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/runtime/live_contracts.py",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/runtime/live_contracts.py",
 ]
 rationale = "the runtime service family ships only when maintainer governance and canonical runtime API contracts stay aligned around the live execution owner"
 

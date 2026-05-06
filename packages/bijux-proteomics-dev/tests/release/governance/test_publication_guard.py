@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics_dev.release.readiness.publication_guard import (
+from bijux_proteomics_dev.release.governance.publication_guard import (
     artifact_versions,
     assert_artifacts_match_version,
     assert_publishable_version,

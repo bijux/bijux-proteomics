@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_dev.release.readiness.ssot_readiness import (
+from bijux_proteomics_dev.release.governance.ssot_readiness import (
     build_ssot_readiness_report,
     validate_ssot_readiness,
 )
