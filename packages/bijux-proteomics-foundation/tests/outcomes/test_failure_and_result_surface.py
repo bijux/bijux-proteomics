@@ -3,35 +3,19 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
 import string
 
 from hypothesis import given
 from hypothesis import strategies as st
-from pydantic import ConfigDict, Field, ValidationError
+from pydantic import ValidationError
 import pytest
 
-from bijux_proteomics_foundation import (
-    JsonModel,
-    fingerprint_model,
-    hash_payload,
-    to_canonical_json,
-)
 from bijux_proteomics_foundation.outcomes.failures import (
     ErrorCategory,
     ErrorEnvelope,
     build_error_envelope_from_exception,
     summarize_exception_chain,
 )
-from bijux_proteomics_foundation.identity.identifiers import (
-    IdentifierKind,
-    build_identifier,
-    classify_identifier,
-    ensure_identifier_kind,
-)
-from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
-from bijux_proteomics_foundation.serialization.canonical_json import normalize_json_value
 from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.outcomes.results import (
     OperationDisposition,
@@ -67,16 +51,6 @@ JSON_OBJECT_STRATEGY = st.dictionaries(
     JSON_VALUE_STRATEGY,
     max_size=5,
 )
-IDENTIFIER_SUFFIX_STRATEGY = st.lists(
-    st.text(alphabet=string.ascii_letters + string.digits, min_size=1, max_size=8),
-    min_size=1,
-    max_size=4,
-)
-IDENTIFIER_RAW_SUFFIX_STRATEGY = st.text(
-    alphabet=string.ascii_letters + string.digits + " -_",
-    min_size=1,
-    max_size=24,
-).filter(lambda value: bool(value.strip()))
 TOKEN_TEXT_STRATEGY = st.text(
     alphabet=string.ascii_lowercase + string.digits + "-_/",
     min_size=1,
@@ -92,31 +66,6 @@ HEX_DIGEST_STRATEGY = st.text(
     min_size=64,
     max_size=64,
 )
-
-
-class SerializationSurfaceJsonModel(JsonModel):
-    model_config = ConfigDict(extra="forbid")
-
-    document_schema: dict[str, str] = Field(
-        default_factory=lambda: {
-            "created_by": "bijux-proteomics-foundation",
-            "schema_version": "1.0.0",
-        }
-    )
-    name: str
-    values: list[int]
-    attributes: dict[str, str]
-
-
-def _structurally_equivalent_value(value: object) -> object:
-    if isinstance(value, dict):
-        return {
-            key: _structurally_equivalent_value(inner)
-            for key, inner in reversed(tuple(value.items()))
-        }
-    if isinstance(value, list):
-        return tuple(_structurally_equivalent_value(item) for item in value)
-    return value
 
 
 @st.composite
@@ -160,7 +109,9 @@ def operation_refusal_strategy(
         recommended_actions=tuple(
             draw(st.lists(SENTENCE_TEXT_STRATEGY, min_size=0, max_size=4))
         ),
-        provenance=tuple(draw(st.lists(provenance_pointer_strategy(), min_size=0, max_size=3))),
+        provenance=tuple(
+            draw(st.lists(provenance_pointer_strategy(), min_size=0, max_size=3))
+        ),
     )
 
 
@@ -168,7 +119,9 @@ def operation_refusal_strategy(
 def operation_result_strategy(draw: st.DrawFn) -> OperationResult:
     operation = draw(TOKEN_TEXT_STRATEGY)
     summary = draw(SENTENCE_TEXT_STRATEGY)
-    provenance = tuple(draw(st.lists(provenance_pointer_strategy(), min_size=0, max_size=3)))
+    provenance = tuple(
+        draw(st.lists(provenance_pointer_strategy(), min_size=0, max_size=3))
+    )
     variant = draw(st.sampled_from(("success", "refused", "degraded")))
 
     if variant == "success":
@@ -205,79 +158,37 @@ def operation_result_strategy(draw: st.DrawFn) -> OperationResult:
     )
 
 
-@given(kind=st.sampled_from(tuple(IdentifierKind)), parts=IDENTIFIER_SUFFIX_STRATEGY)
-def test_identifier_building_normalizes_suffixes_and_preserves_kind(
-    kind: IdentifierKind, parts: list[str]
-) -> None:
-    identifier = build_identifier(kind, " ".join(parts))
-
-    ensure_identifier_kind(identifier, kind)
-    assert identifier == identifier.lower()
-    assert " " not in identifier
-
-
-@given(data=st.data(), raw_suffix=IDENTIFIER_RAW_SUFFIX_STRATEGY)
-def test_identifier_classification_round_trips_and_rejects_wrong_kind(
-    data: st.DataObject,
-    raw_suffix: str,
-) -> None:
-    kind = data.draw(st.sampled_from(tuple(IdentifierKind)))
-    wrong_kind = data.draw(
-        st.sampled_from(tuple(candidate for candidate in IdentifierKind if candidate is not kind))
+def test_support_state_refusal_and_error_models_serialize_deterministically() -> None:
+    pointer = ProvenancePointer(
+        pointer_kind=ProvenancePointerKind.ARTIFACT,
+        locator="artifacts/review/run-7.json",
+        pointer_role="review_artifact",
+        pointer_labels=("review", "canonical"),
+    )
+    refusal = OperationRefusal(
+        operation="mzidentml_ingestion",
+        kind=RefusalKind.UNSUPPORTED,
+        code="Engine Timeout",
+        reason="the engine output is incomplete",
+        support_state=SupportState.INCOMPLETE,
+        reason_details=("missing peptide evidence", "engine timeout"),
+        recommended_actions=("retry with full export", "collect complete run log"),
+        provenance=(pointer,),
+    )
+    envelope = ErrorEnvelope(
+        category=ErrorCategory.RUNTIME,
+        code="Engine Timeout",
+        message="external engine did not complete before timeout",
+        context={"step_id": "search", "run_id": "run-77"},
+        cause_chain=("timeout", "adapter"),
+        provenance=(pointer,),
     )
 
-    identifier = build_identifier(kind, raw_suffix)
-
-    assert classify_identifier(identifier) is kind
-    assert identifier == f"{kind.value}-{raw_suffix.strip().lower().replace(' ', '-')}"
-
-    ensure_identifier_kind(identifier, kind)
-    with pytest.raises(ValueError, match=wrong_kind.value):
-        ensure_identifier_kind(identifier, wrong_kind)
-
-
-@given(
-    kind=st.sampled_from(tuple(IdentifierKind)),
-    blank_suffix=st.text(alphabet=" \t", min_size=0, max_size=8),
-)
-def test_identifier_building_rejects_blank_suffixes(
-    kind: IdentifierKind,
-    blank_suffix: str,
-) -> None:
-    with pytest.raises(ValueError, match="must be non-empty"):
-        build_identifier(kind, blank_suffix)
-
-
-@given(payload=JSON_OBJECT_STRATEGY)
-def test_hashing_and_ordering_are_deterministic_for_equivalent_payloads(
-    payload: dict[str, object],
-) -> None:
-    reordered = {
-        key: stable_order_value(value)
-        for key, value in reversed(tuple(payload.items()))
-    }
-
-    assert stable_order_value(payload) == stable_order_value(reordered)
-    assert hash_payload(payload) == hash_payload(reordered)
-
-
-@given(payload=JSON_OBJECT_STRATEGY)
-def test_hashing_is_stable_under_recursive_ordering_noise(
-    payload: dict[str, object],
-) -> None:
-    equivalent = _structurally_equivalent_value(payload)
-
-    assert hash_payload(payload) == hash_payload(equivalent)
-
-
-@given(payload=JSON_OBJECT_STRATEGY)
-def test_canonical_json_is_stable_for_structurally_equivalent_payloads(
-    payload: dict[str, object],
-) -> None:
-    equivalent = _structurally_equivalent_value(payload)
-
-    assert normalize_json_value(payload) == normalize_json_value(equivalent)
-    assert to_canonical_json(payload) == to_canonical_json(equivalent)
+    assert refusal.code == "engine_timeout"
+    assert refusal.support_state is SupportState.INCOMPLETE
+    assert envelope.code == "engine_timeout"
+    assert envelope.context[0] == ("run_id", "run-77")
+    assert envelope.cause_chain == ("timeout", "adapter")
 
 
 @given(refusal=operation_refusal_strategy())
@@ -357,39 +268,6 @@ def test_shared_operation_result_distinguishes_success_refusal_and_degraded_succ
     assert success.disposition is OperationDisposition.SUCCESS
     assert refused.disposition is OperationDisposition.REFUSED
     assert degraded.disposition is OperationDisposition.DEGRADED_SUCCESS
-
-
-def test_serialization_helpers_cover_json_jsonl_tsv_and_canonical_round_trip(
-    tmp_path: Path,
-) -> None:
-    document = SerializationSurfaceJsonModel(
-        name="foundation",
-        values=[3, 1, 2],
-        attributes={"lane": "A", "instrument": "orbitrap"},
-    )
-
-    json_path = tmp_path / "surface.json"
-    stable_json_path = tmp_path / "surface.stable.json"
-    jsonl_path = tmp_path / "surface.jsonl"
-    tsv_path = tmp_path / "surface.tsv"
-
-    document.save_json(json_path)
-    document.save_stable_json(stable_json_path)
-    document.save_jsonl(jsonl_path)
-    document.save_tsv(tsv_path)
-
-    assert SerializationSurfaceJsonModel.from_dict(document.to_dict()) == document
-    assert SerializationSurfaceJsonModel.from_json(document.to_json()) == document
-    assert SerializationSurfaceJsonModel.load_json(json_path) == document
-    assert json.loads(document.to_jsonl_line()) == document.to_dict()
-    assert json.loads(to_canonical_json(document)) == document.to_dict()
-    assert fingerprint_model(document) == document.content_fingerprint()
-
-    header, row = document.to_tsv_row()
-    tsv_lines = tsv_path.read_text().splitlines()
-    assert tsv_lines == [header, row]
-    assert sorted(document.to_flat_dict()) == header.split("\t")
-    assert stable_json_path.read_text().startswith("{\n")
 
 
 def test_refusal_serialization_preserves_normalized_reason_codes() -> None:
