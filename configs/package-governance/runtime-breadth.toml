@@ -3,16 +3,16 @@
 
 [metrics]
 public_entrypoint_count = 5
-extension_point_count = 4
+extension_point_count = 3
 config_knob_count = 10
-first_level_subtree_count = 12
-total_breadth_count = 31
-owner_execution_module_count = 121
-thin_module_count = 28
-owner_execution_modules_per_surface = 3.9
+first_level_subtree_count = 8
+total_breadth_count = 26
+owner_execution_module_count = 125
+thin_module_count = 26
+owner_execution_modules_per_surface = 4.81
 
 [guard]
-baseline_total_breadth_count = 31
-baseline_first_level_subtree_count = 12
-baseline_owner_execution_module_count = 121
-baseline_owner_execution_modules_per_surface = 3.9
+baseline_total_breadth_count = 26
+baseline_first_level_subtree_count = 8
+baseline_owner_execution_module_count = 125
+baseline_owner_execution_modules_per_surface = 4.81

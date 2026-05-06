@@ -2,57 +2,37 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.api.runtime_topology
 
 [budget]
-max_first_level_subtrees = 13
-actual_first_level_subtrees = 13
-
-[[subtree]]
-name = "agents"
-module_count = 24
+max_first_level_subtrees = 8
+actual_first_level_subtrees = 8
 
 [[subtree]]
 name = "api"
-module_count = 24
-
-[[subtree]]
-name = "core"
-module_count = 16
+module_count = 28
 
 [[subtree]]
 name = "execution"
-module_count = 13
+module_count = 43
 
 [[subtree]]
-name = "interfaces"
-module_count = 4
-
-[[subtree]]
-name = "memory"
-module_count = 3
+name = "governance"
+module_count = 2
 
 [[subtree]]
 name = "providers"
-module_count = 14
+module_count = 15
 
 [[subtree]]
 name = "runs"
-module_count = 30
-
-[[subtree]]
-name = "runtime"
-module_count = 3
-
-[[subtree]]
-name = "sandbox"
-module_count = 1
+module_count = 31
 
 [[subtree]]
 name = "state"
-module_count = 3
+module_count = 5
 
 [[subtree]]
-name = "tools"
-module_count = 6
+name = "support"
+module_count = 20
 
 [[subtree]]
 name = "workflows"
-module_count = 5
+module_count = 6
