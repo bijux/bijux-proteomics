@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.candidates import (
     MultiObjectiveRankingInput,
     build_multi_objective_ranking_report,
 )

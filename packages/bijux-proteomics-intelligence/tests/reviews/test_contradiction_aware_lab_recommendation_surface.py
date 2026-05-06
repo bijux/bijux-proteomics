@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.boards import (
     DecisionRelevantContradiction,
     build_contradiction_aware_lab_recommendation_report,
 )

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.candidates import (
     QuantOutlierObservation,
     RunQcSummaryLink,
     build_outlier_qc_integrated_report,

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.pathways import (
     EnrichmentCorrectionMethod,
     build_enrichment_background_provenance,
 )

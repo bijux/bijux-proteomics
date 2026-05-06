@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.candidates import (
     EvidenceGraphCandidate,
     prioritize_candidates_from_evidence_graph,
 )

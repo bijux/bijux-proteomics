@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.intelligence import (
+from bijux_proteomics_intelligence.reviews.candidates import (
     RankingPolicyRule,
     build_ranking_policy_language_document,
 )
