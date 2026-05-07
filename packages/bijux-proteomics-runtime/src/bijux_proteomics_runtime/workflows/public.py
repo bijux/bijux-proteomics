@@ -49,6 +49,14 @@ _WORKFLOW_EXPORT_GROUPS = {
         "WorkflowStageHandoffContract",
         "build_canonical_workflow_handoff_contracts",
     ],
+    "bijux_proteomics_runtime.workflows.manifest": [
+        "CANONICAL_WORKFLOW_MANIFEST_PATH",
+        "CanonicalWorkflowManifest",
+        "CanonicalWorkflowManifestIssue",
+        "CanonicalWorkflowManifestStageEntry",
+        "build_canonical_workflow_manifest",
+        "validate_canonical_workflow_manifest",
+    ],
     "bijux_proteomics_runtime.workflows.packets": [
         "WorkflowPacketSerializationMode",
         "WorkflowStagePacketBoundaryContract",
