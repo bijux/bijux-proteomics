@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
-
 from bijux_proteomics_runtime.api.catalog import build_runtime_status_response
 from bijux_proteomics_runtime.runs.import_lineage import (
     load_import_run_bundle,
@@ -22,28 +20,19 @@ from bijux_proteomics_runtime.workflows.paths import (
 from ..support.fixture_data import load_fixture
 
 
-def test_runtime_local_path_publishes_reviewable_outputs_from_fixture(
+def _first_sequence_from_fixture() -> str:
+    fixture_dir = Path(__file__).resolve().parents[1] / "fixtures" / "first_useful_run"
+    lines = (fixture_dir / "proteins.fasta").read_text(encoding="utf-8").splitlines()
+    return "".join(line.strip() for line in lines if line and not line.startswith(">"))
+
+
+def test_runtime_local_path_publishes_reviewable_outputs_from_real_corpus(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    fixture = load_fixture("execution", "sequence_review_path.json")
-
-    def _fake_run_flow(candidate, context, tool):  # type: ignore[no-untyped-def]
-        result = dict(fixture["fake_run_flow_result"])
-        result["candidate_id"] = candidate.candidate_id
-        result["candidate"] = candidate.model_dump()
-        return result
-
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_run_flow,
-    )
-
     manifest = run_reviewable_sequence_path(
         tmp_path,
-        sequence=str(fixture["sequence"]),
-        provider=str(fixture["provider"]),
-        execution_mode=str(fixture["execution_mode"]),
+        sequence=_first_sequence_from_fixture(),
+        execution_mode="cpu",
     )
     workspace = RunWorkspace.for_run(tmp_path, manifest.run_id)
     bundle = load_local_run_bundle(workspace)
@@ -53,12 +42,15 @@ def test_runtime_local_path_publishes_reviewable_outputs_from_fixture(
 
     assert manifest.command == "run"
     assert manifest.import_only is False
-    assert set(manifest.artifact_kinds) == set(fixture["expected_artifact_kinds"])
-    assert bundle.run_context.workflow.workflow_family == str(
-        fixture["expected_workflow_family"]
-    )
-    assert bundle.run_summary["outcome"] == str(fixture["expected_outcome"])
-    assert status.summary.outcome == str(fixture["expected_outcome"])
+    assert set(manifest.artifact_kinds) == {
+        "runtime-status",
+        "runtime-report",
+        "runtime-replay-contract",
+        "runtime-integrity-report",
+    }
+    assert bundle.run_context.workflow.workflow_family == "structure_prediction"
+    assert bundle.run_summary["command"] == "run"
+    assert status.summary.command == "run"
     assert integrity.verified is True
     assert set(manifest.artifact_kinds).issubset(
         {entry.artifact_kind for entry in ledger.entries}

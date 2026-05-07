@@ -13,20 +13,20 @@ from pathlib import Path
 from time import perf_counter
 from typing import Any, cast
 
-from bijux_proteomics_intelligence.learning.refinement.runner import (
-    LoopContext,
-    LoopRunner,
-)
 from bijux_proteomics_intelligence.candidates import (
     CandidateStore,
     update_candidate_from_result,
 )
 from bijux_proteomics_intelligence.candidates.quality import QCStatus
 from bijux_proteomics_intelligence.candidates.schema import Candidate
-
+from bijux_proteomics_intelligence.learning.refinement.runner import (
+    LoopContext,
+    LoopRunner,
+)
 from bijux_proteomics_runtime.execution.agents.analysis.failure_analysis import (
     FailureAnalysisAgent,
 )
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
 from bijux_proteomics_runtime.execution.agents.coordination.coordinator import (
     CoordinatorAgent,
 )
@@ -55,6 +55,95 @@ from bijux_proteomics_runtime.execution.agents.verification.input_validation imp
 from bijux_proteomics_runtime.execution.agents.verification.quality_control import (
     QualityControlAgent,
 )
+from bijux_proteomics_runtime.execution.compiler.boundary import ToolBoundary
+from bijux_proteomics_runtime.execution.engine.executor import (
+    LocalExecutor,
+    materialize_observation,
+)
+from bijux_proteomics_runtime.execution.tools.base import Tool
+from bijux_proteomics_runtime.execution.tools.heuristic import (
+    HeuristicStructureTool,
+)
+from bijux_proteomics_runtime.execution.validation import validate_outputs
+from bijux_proteomics_runtime.providers.capabilities import (
+    validate_runtime_capabilities,
+)
+from bijux_proteomics_runtime.runs.analysis import RunAnalysis
+from bijux_proteomics_runtime.runs.artifacts import (
+    TelemetryHooks,
+    map_failure_type,
+    require_human_decision,
+    validate_human_decision,
+    write_artifact,
+    write_failure_artifacts,
+)
+from bijux_proteomics_runtime.runs.checkpoints import (
+    build_resume_checkpoint,
+    write_resume_checkpoint,
+)
+from bijux_proteomics_runtime.runs.context import RunContext, create_run_context
+from bijux_proteomics_runtime.runs.contracts import (
+    RunContextContract,
+    RuntimeDatasetKind,
+    build_run_context_contract,
+)
+from bijux_proteomics_runtime.runs.execution_decisions import (
+    build_runtime_degraded_execution_report,
+    build_runtime_refusal_decision_report,
+    write_runtime_execution_decision_report,
+)
+from bijux_proteomics_runtime.runs.failure_reports import (
+    RuntimeFailureCategory,
+    build_runtime_failure_report,
+    write_runtime_failure_report,
+)
+from bijux_proteomics_runtime.runs.import_lineage import (
+    build_import_run_bundle,
+    build_import_trace,
+    write_import_documents,
+    write_import_run_bundle,
+    write_import_trace,
+)
+from bijux_proteomics_runtime.runs.integrity import (
+    guard_path_size,
+    guard_payload_size,
+    verify_runtime_artifact_integrity,
+)
+from bijux_proteomics_runtime.runs.launch_bundles import (
+    build_container_run_bundle,
+    build_scheduler_job_bundle,
+    write_container_run_bundle,
+    write_scheduler_job_bundle,
+)
+from bijux_proteomics_runtime.runs.ledger import (
+    load_artifact_ledger,
+    refresh_runtime_artifact_ledger,
+)
+from bijux_proteomics_runtime.runs.lifecycle import RunLifecycleState
+from bijux_proteomics_runtime.runs.output import (
+    ErrorDetail,
+    RunOutput,
+    RunStatus,
+    VersionInfo,
+)
+from bijux_proteomics_runtime.runs.preflight import (
+    RuntimePreflightReport,
+    build_runtime_preflight_report,
+    write_runtime_preflight_report,
+)
+from bijux_proteomics_runtime.runs.replay import (
+    build_local_run_bundle,
+    build_replay_contract,
+    write_local_run_bundle,
+    write_replay_contract,
+)
+from bijux_proteomics_runtime.runs.request import RunRequest
+from bijux_proteomics_runtime.runs.run_config import RunConfig
+from bijux_proteomics_runtime.runs.state_machine import RunStateMachine
+from bijux_proteomics_runtime.runs.tool_reliability import (
+    ToolReliabilityTracker,
+)
+from bijux_proteomics_runtime.state.schemas import StateSnapshot
 from bijux_proteomics_runtime.support.primitives.decisions import Decision
 from bijux_proteomics_runtime.support.primitives.execution import (
     ExecutionContext,
@@ -82,100 +171,10 @@ from bijux_proteomics_runtime.support.primitives.tooling import (
     ToolInvocationSpec,
     ToolResult,
 )
-from bijux_proteomics_runtime.execution.compiler.boundary import ToolBoundary
-from bijux_proteomics_runtime.execution.engine.executor import (
-    LocalExecutor,
-    materialize_observation,
-)
-from bijux_proteomics_runtime.execution.validation import validate_outputs
-from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
-from bijux_proteomics_runtime.runs.context import RunContext, create_run_context
-from bijux_proteomics_runtime.runs.contracts import (
-    RunContextContract,
-    RuntimeDatasetKind,
-    build_run_context_contract,
-)
-from bijux_proteomics_runtime.runs.lifecycle import RunLifecycleState
-from bijux_proteomics_runtime.runs.output import (
-    ErrorDetail,
-    RunOutput,
-    RunStatus,
-    VersionInfo,
-)
-from bijux_proteomics_runtime.runs.request import RunRequest
-from bijux_proteomics_runtime.runs.artifacts import (
-    TelemetryHooks,
-    map_failure_type,
-    require_human_decision,
-    validate_human_decision,
-    write_artifact,
-    write_failure_artifacts,
-)
-from bijux_proteomics_runtime.providers.capabilities import (
-    validate_runtime_capabilities,
-)
-from bijux_proteomics_runtime.runs.analysis import RunAnalysis
-from bijux_proteomics_runtime.runs.tool_reliability import (
-    ToolReliabilityTracker,
-)
-from bijux_proteomics_runtime.runs.ledger import (
-    load_artifact_ledger,
-    refresh_runtime_artifact_ledger,
-)
-from bijux_proteomics_runtime.runs.launch_bundles import (
-    build_container_run_bundle,
-    build_scheduler_job_bundle,
-    write_container_run_bundle,
-    write_scheduler_job_bundle,
-)
-from bijux_proteomics_runtime.runs.import_lineage import (
-    build_import_run_bundle,
-    build_import_trace,
-    write_import_documents,
-    write_import_run_bundle,
-    write_import_trace,
-)
-from bijux_proteomics_runtime.runs.integrity import (
-    guard_path_size,
-    guard_payload_size,
-    verify_runtime_artifact_integrity,
-)
-from bijux_proteomics_runtime.runs.checkpoints import (
-    build_resume_checkpoint,
-    write_resume_checkpoint,
-)
-from bijux_proteomics_runtime.runs.execution_decisions import (
-    build_runtime_degraded_execution_report,
-    build_runtime_refusal_decision_report,
-    write_runtime_execution_decision_report,
-)
-from bijux_proteomics_runtime.runs.failure_reports import (
-    RuntimeFailureCategory,
-    build_runtime_failure_report,
-    write_runtime_failure_report,
-)
-from bijux_proteomics_runtime.runs.preflight import (
-    RuntimePreflightReport,
-    build_runtime_preflight_report,
-    write_runtime_preflight_report,
-)
-from bijux_proteomics_runtime.runs.replay import (
-    build_local_run_bundle,
-    build_replay_contract,
-    write_local_run_bundle,
-    write_replay_contract,
-)
-from bijux_proteomics_runtime.runs.state_machine import RunStateMachine
-from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.workspace import (
     write_json_atomic,
     write_text_atomic,
 )
-from bijux_proteomics_runtime.execution.tools.base import Tool
-from bijux_proteomics_runtime.execution.tools.heuristic import (
-    HeuristicStructureTool,
-)
-from bijux_proteomics_runtime.state.schemas import StateSnapshot
 
 __all__ = [
     "PipelineArtifacts",
@@ -882,6 +881,7 @@ class RunManager:
         run_id: str | None = None,
     ) -> dict[str, Any]:
         """Import external-engine outputs without pretending runtime produced them."""
+        start = perf_counter()
         try:
             RunRequest.model_validate({"sequence": sequence})
         except Exception as exc:  # noqa: BLE001
@@ -897,6 +897,7 @@ class RunManager:
         context, warnings = create_run_context(
             self._base_dir, self._config, run_id=run_id
         )
+        context.telemetry.record_event("run_start")
         run_context_contract = build_run_context_contract(
             run_id=context.run_id,
             started_at=context.start_time.isoformat(),
@@ -1062,6 +1063,9 @@ class RunManager:
             run_id=context.run_id,
             max_artifact_bytes=max_bundle_artifact_bytes,
         )
+        context.telemetry.observe("run_total_ms", (perf_counter() - start) * 1000.0)
+        _ensure_telemetry_costs(context)
+        context.telemetry.flush()
         refresh_runtime_artifact_ledger(
             context.workspace,
             run_id=context.run_id,

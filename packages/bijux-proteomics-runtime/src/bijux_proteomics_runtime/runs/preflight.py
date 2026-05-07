@@ -130,8 +130,12 @@ def build_runtime_preflight_report(
         )
         if dataset_exists:
             try:
-                payload = json.loads(source_path.read_text(encoding="utf-8"))
-                layout_valid = isinstance(payload, (dict, list))
+                if source_path.suffix.lower() in {".tsv", ".csv"}:
+                    header = source_path.read_text(encoding="utf-8").splitlines()[:1]
+                    layout_valid = bool(header and header[0].strip())
+                else:
+                    payload = json.loads(source_path.read_text(encoding="utf-8"))
+                    layout_valid = isinstance(payload, (dict, list))
             except json.JSONDecodeError:
                 layout_valid = False
             checks.append(

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -12,10 +13,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runs.contracts import RunContextContract
-from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.ledger import (
     refresh_runtime_artifact_ledger,
 )
+from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.operations import build_runtime_run_config
 from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
@@ -327,10 +328,28 @@ def run_reviewable_import_path(
 
 
 def _load_import_payload(source_path: Path) -> dict[str, object]:
-    payload = json.loads(source_path.read_text(encoding="utf-8"))
-    if isinstance(payload, dict):
-        return payload
-    return {"items": payload}
+    suffix = source_path.suffix.lower()
+    if suffix == ".json":
+        payload = json.loads(source_path.read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            return payload
+        return {"items": payload}
+    if suffix in {".tsv", ".csv"}:
+        delimiter = "\t" if suffix == ".tsv" else ","
+        with source_path.open(encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle, delimiter=delimiter)
+            rows = [dict(row) for row in reader]
+            columns = tuple(reader.fieldnames or ())
+        return {
+            "source_format": suffix.lstrip("."),
+            "columns": columns,
+            "row_count": len(rows),
+            "rows": rows,
+        }
+    return {
+        "source_format": suffix.lstrip(".") or "text",
+        "text": source_path.read_text(encoding="utf-8"),
+    }
 
 
 def _write_reviewable_output_manifest(
