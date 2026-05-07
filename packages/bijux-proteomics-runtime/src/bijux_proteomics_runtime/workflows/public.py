@@ -44,6 +44,16 @@ _WORKFLOW_EXPORT_GROUPS = {
         "simulation_contract_lane_ids",
         "workflow_assurance_lanes",
     ],
+    "bijux_proteomics_runtime.workflows.benchmark_runs": [
+        "BenchmarkRunMode",
+        "BenchmarkRunSpec",
+        "BenchmarkRuntimeTruthRow",
+        "build_benchmark_run_specs",
+        "build_benchmark_runtime_truth_surface",
+        "run_benchmark_dda_import_path",
+        "run_benchmark_dia_import_path",
+        "run_benchmark_sequence_path",
+    ],
     "bijux_proteomics_runtime.workflows.handoffs": [
         "WorkflowOwnerPackage",
         "WorkflowStageHandoffContract",
