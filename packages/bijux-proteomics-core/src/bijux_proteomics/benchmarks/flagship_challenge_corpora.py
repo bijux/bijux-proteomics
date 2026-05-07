@@ -217,6 +217,10 @@ def _read_tsv_rows(repo_relative_path: str) -> list[dict[str, str]]:
         return list(csv.DictReader(handle, delimiter="\t"))
 
 
+def _read_json_payload(repo_relative_path: str) -> dict[str, object]:
+    return json.loads((_repo_root() / repo_relative_path).read_text(encoding="utf-8"))
+
+
 def _holdout_findings(
     report: WorkflowGeneralizationReport,
 ) -> tuple[HoldoutOutcomeFinding, ...]:
@@ -370,6 +374,34 @@ def _ptm_protein_sequences(repo_relative_fasta_path: str) -> dict[str, str]:
     return {
         record.canonical_accession: record.residues
         for record in fasta_report.accepted_records
+    }
+
+
+def _total_tic(repo_relative_path: str) -> float:
+    return round(
+        sum(float(row["tic"]) for row in _read_tsv_rows(repo_relative_path)),
+        6,
+    )
+
+
+def _targeted_follow_up_summary(repo_relative_path: str) -> dict[str, float | bool]:
+    payload = _read_json_payload(repo_relative_path)
+    workflow_summary = payload["workflow_readiness_summary"]
+    handoff = payload["handoff_validation"]
+    transition_review = payload["transition_review"]
+    review_packet = payload["review_packet"]
+    executable_plan = payload["executable_plan"]
+    return {
+        "ready_step_count": float(workflow_summary["ready_step_count"]),
+        "blocked_step_count": float(workflow_summary["blocked_step_count"]),
+        "accepted_assay_count": float(len(handoff["accepted_assay_ids"])),
+        "approved_transition_count": float(
+            len(transition_review["approved_transition_ids"])
+        ),
+        "blocked_dependency_count": float(len(executable_plan["blocked_by"])),
+        "readiness_score": float(transition_review["readiness_score"]),
+        "accepted": bool(handoff["accepted"]),
+        "ready_for_synthesis": bool(review_packet["ready_for_synthesis"]),
     }
 
 
@@ -901,6 +933,94 @@ def _build_ptm_perturbation_report() -> PerturbationReactionReport:
     )
 
 
+def _build_targeted_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("targeted_interference_carryover_perturbation")
+    baseline_qc_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv"
+    )
+    baseline_follow_up_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "targeted_transition_review_package/follow_up/supported_targeted_follow_up.json"
+    )
+    perturbed_qc_path = f"{challenge_root}/evidence/perturbed_targeted_benchmark_qc.tsv"
+    perturbed_follow_up_path = (
+        f"{challenge_root}/follow_up/perturbed_supported_targeted_follow_up.json"
+    )
+    baseline_qc_tic = _total_tic(baseline_qc_path)
+    perturbed_qc_tic = _total_tic(perturbed_qc_path)
+    baseline_follow_up = _targeted_follow_up_summary(baseline_follow_up_path)
+    perturbed_follow_up = _targeted_follow_up_summary(perturbed_follow_up_path)
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_follow_up["approved_transition_count"] == 0.0
+        and perturbed_follow_up["readiness_score"] < baseline_follow_up["readiness_score"]
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.WEAKENS
+        if perturbed_qc_tic < baseline_qc_tic
+        else PerturbationReactionState.SURVIVES
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if not perturbed_follow_up["accepted"]
+        and not perturbed_follow_up["ready_for_synthesis"]
+        else PerturbationReactionState.WEAKENS
+    )
+    return PerturbationReactionReport(
+        challenge_id="targeted-interference-carryover-perturbation",
+        workflow_family="targeted",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "calibrant drift",
+            "transition interference",
+            "carryover-blocked follow-up",
+        ),
+        evidence_paths=(
+            baseline_qc_path,
+            baseline_follow_up_path,
+            perturbed_qc_path,
+            perturbed_follow_up_path,
+        ),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="total_tic",
+                baseline_value=baseline_qc_tic,
+                perturbed_value=perturbed_qc_tic,
+                delta=round(perturbed_qc_tic - baseline_qc_tic, 6),
+                interpretation="Lower total ion current makes the quantitative surface visibly weaker before any targeted follow-up claims are promoted.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="approved_transition_count",
+                baseline_value=float(baseline_follow_up["approved_transition_count"]),
+                perturbed_value=float(perturbed_follow_up["approved_transition_count"]),
+                delta=float(
+                    perturbed_follow_up["approved_transition_count"]
+                    - baseline_follow_up["approved_transition_count"]
+                ),
+                interpretation="Losing approved transitions collapses the narrow targeted handoff the supported packet previously justified.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="blocked_dependency_count",
+                baseline_value=float(baseline_follow_up["blocked_dependency_count"]),
+                perturbed_value=float(perturbed_follow_up["blocked_dependency_count"]),
+                delta=float(
+                    perturbed_follow_up["blocked_dependency_count"]
+                    - baseline_follow_up["blocked_dependency_count"]
+                ),
+                interpretation="More blocked dependencies expose how quickly targeted follow-up becomes execution-ineligible under interference and carryover pressure.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus forces the targeted workflow from supported follow-up into blocked execution posture under calibrant drift, interference, and carryover pressure."
+        ),
+    )
+
+
 def build_perturbation_reports() -> tuple[PerturbationReactionReport, ...]:
     """Return the currently shipped perturbation reports."""
 
@@ -910,6 +1030,7 @@ def build_perturbation_reports() -> tuple[PerturbationReactionReport, ...]:
         _build_lfq_perturbation_report(),
         _build_multiplex_perturbation_report(),
         _build_ptm_perturbation_report(),
+        _build_targeted_perturbation_report(),
     )
 
 

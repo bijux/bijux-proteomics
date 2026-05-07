@@ -224,6 +224,90 @@ def _refresh_multiplex_and_ptm_perturbation_assets() -> tuple[str, ...]:
     return tuple(written)
 
 
+def _refresh_targeted_perturbation_assets() -> tuple[str, ...]:
+    written: list[str] = []
+
+    qc_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv"
+    )
+    for row in qc_rows:
+        row["tic"] = str(round(float(row["tic"]) * 0.38, 2))
+        row["bpc"] = str(round(float(row["bpc"]) * 0.44, 2))
+    qc_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "targeted_interference_carryover_perturbation/evidence/perturbed_targeted_benchmark_qc.tsv"
+    )
+    _write_tsv(qc_path, qc_rows)
+    written.append(qc_path)
+
+    follow_up_path = (
+        _repo_root()
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        / "targeted_transition_review_package/follow_up/supported_targeted_follow_up.json"
+    )
+    follow_up_payload = json.loads(follow_up_path.read_text(encoding="utf-8"))
+    follow_up_payload["review_queue_decision"]["state"] = "blocked"
+    follow_up_payload["review_queue_decision"][
+        "summary"
+    ] = "calibrant drift, transition interference, and carryover block direct targeted execution"
+    follow_up_payload["workflow_readiness_summary"]["ready_step_count"] = 2
+    follow_up_payload["workflow_readiness_summary"]["blocked_step_count"] = 3
+    follow_up_payload["workflow_readiness_summary"]["missing_evidence_needs"] = [
+        "fresh calibrant curve",
+        "transition interference cleanup",
+    ]
+    follow_up_payload["workflow_readiness_summary"]["blocking_assay_ids"] = [
+        "assay-egfr-prm",
+        "assay-egfr-orthogonal",
+    ]
+    follow_up_payload["handoff_validation"]["accepted"] = False
+    follow_up_payload["handoff_validation"]["accepted_assay_ids"] = []
+    follow_up_payload["handoff_validation"]["blockers"] = [
+        "heavy-light mismatch above tolerance",
+        "carryover remains visible in blank injections",
+    ]
+    follow_up_payload["transition_review"]["approved_transition_ids"] = []
+    follow_up_payload["transition_review"]["exploratory_transition_ids"] = [
+        "tr-egfr-y7",
+    ]
+    follow_up_payload["transition_review"]["refused_transition_ids"] = [
+        "tr-egfr-y5",
+        "tr-egfr-y8",
+    ]
+    follow_up_payload["transition_review"]["readiness_score"] = 0.1
+    follow_up_payload["review_packet"]["ready_for_synthesis"] = False
+    follow_up_payload["review_packet"]["blocking_findings"] = [
+        "calibration drift exceeds supported handoff range",
+        "transition interference remains above reviewable threshold",
+        "carryover invalidates direct progression to assay execution",
+    ]
+    follow_up_payload["review_packet"]["recommended_actions"] = [
+        "rerun calibrant standards",
+        "redesign transitions with stronger selectivity",
+    ]
+    follow_up_payload["executable_plan"]["plan_kind"] = "blocked_review"
+    follow_up_payload["executable_plan"]["blocked_by"] = [
+        "transition interference audit",
+        "carryover remediation",
+    ]
+    follow_up_payload["outcome"]["assay_outcomes"] = [
+        {
+            "assay_id": "assay-egfr-prm",
+            "status": "blocked",
+            "reason": "carryover and heavy-light mismatch remain unresolved",
+        }
+    ]
+    perturbed_follow_up_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "targeted_interference_carryover_perturbation/follow_up/perturbed_supported_targeted_follow_up.json"
+    )
+    _write_json(perturbed_follow_up_path, follow_up_payload)
+    written.append(perturbed_follow_up_path)
+
+    return tuple(written)
+
+
 def refresh_flagship_challenge_assets() -> tuple[str, ...]:
     """Write checked challenge assets to the product-owned challenge root."""
 
@@ -251,6 +335,7 @@ def refresh_flagship_challenge_assets() -> tuple[str, ...]:
 
     written.extend(_refresh_dda_dia_lfq_perturbation_assets())
     written.extend(_refresh_multiplex_and_ptm_perturbation_assets())
+    written.extend(_refresh_targeted_perturbation_assets())
 
     for report in build_perturbation_reports():
         challenge_root = report.artifact_path.rsplit("/", 1)[0]

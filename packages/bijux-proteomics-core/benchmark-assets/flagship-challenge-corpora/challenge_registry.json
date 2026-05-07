@@ -81,6 +81,15 @@
       "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
       "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
       "workflow_family": "ptm"
+    },
+    {
+      "challenge_id": "targeted-interference-carryover-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "workflow_family": "targeted"
     }
   ],
   "note": "The flagship challenge registry keeps blinded holdouts and adversarial perturbation corpora visible as product evidence instead of test-only sidecars.",

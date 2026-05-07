@@ -1,0 +1,18 @@
+{
+  "challenge_id": "targeted-interference-carryover-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/evidence/perturbed_targeted_benchmark_qc.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/follow_up/perturbed_supported_targeted_follow_up.json"
+  ],
+  "note": "This perturbation corpus forces the targeted workflow from supported follow-up into blocked execution posture under calibrant drift, interference, and carryover pressure.",
+  "perturbation_axes": [
+    "calibrant drift",
+    "transition interference",
+    "carryover-blocked follow-up"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+  "workflow_family": "targeted"
+}
