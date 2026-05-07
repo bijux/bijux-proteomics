@@ -39,12 +39,37 @@ class HandoffSupportStatement(JsonModel):
     evidence_refs: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class HandoffAuthorityOwner(StrEnum):
+    """Stable owners for scientific recommendation and execution authority."""
+
+    UPSTREAM_REVIEW = "upstream_review"
+    LAB_EXECUTION = "lab_execution"
+
+
+class HandoffAuthorityBoundary(JsonModel):
+    """Machine-readable boundary between recommendation authority and lab execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str = Field(..., min_length=1)
+    scientific_recommendation_owner: HandoffAuthorityOwner = Field(
+        default=HandoffAuthorityOwner.UPSTREAM_REVIEW
+    )
+    operational_execution_owner: HandoffAuthorityOwner = Field(
+        default=HandoffAuthorityOwner.LAB_EXECUTION
+    )
+    blocked_authority_claims: tuple[str, ...] = Field(default_factory=tuple)
+    supported_execution_claims: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class HandoffExplanation(JsonModel):
     """Structured explanation of what a handoff can honestly claim."""
 
     model_config = ConfigDict(extra="forbid")
 
     candidate_id: str = Field(..., min_length=1)
+    authority_boundary: HandoffAuthorityBoundary | None = Field(default=None)
     supported: tuple[HandoffSupportStatement, ...] = Field(default_factory=tuple)
     exploratory: tuple[HandoffSupportStatement, ...] = Field(default_factory=tuple)
     blocked: tuple[HandoffSupportStatement, ...] = Field(default_factory=tuple)
@@ -196,10 +221,59 @@ def build_handoff_explanation(
 
     return HandoffExplanation(
         candidate_id=candidate_id,
+        authority_boundary=_build_authority_boundary(
+            candidate_id=candidate_id,
+            handoff_validation=handoff_validation,
+            review_packet=review_packet,
+            executable_plan=executable_plan,
+        ),
         supported=tuple(supported),
         exploratory=tuple(exploratory),
         blocked=tuple(blocked),
         summary=summary,
+    )
+
+
+def _build_authority_boundary(
+    *,
+    candidate_id: str,
+    handoff_validation: CandidateHandoffValidation,
+    review_packet: ReviewPacket,
+    executable_plan: ExecutableAssayPlan,
+) -> HandoffAuthorityBoundary:
+    """Keep scientific recommendation ownership separate from lab execution."""
+
+    blocked_authority_claims = [
+        "lab does not decide whether the candidate is scientifically ready to advance"
+    ]
+    supported_execution_claims = [
+        "lab can report whether the current handoff is executable or must be refused"
+    ]
+    notes = [
+        "scientific recommendation authority remains upstream of lab execution",
+        "lab owns execution honesty, scheduling safety, and refusal when blockers remain",
+    ]
+    if not review_packet.ready_for_synthesis or review_packet.blocking_findings:
+        blocked_authority_claims.append(
+            "lab cannot upgrade a blocked review packet into progression approval"
+        )
+    if handoff_validation.blockers:
+        blocked_authority_claims.append(
+            "lab cannot convert unresolved scientific blockers into execution approval"
+        )
+    if executable_plan.ready_for_execution and not executable_plan.blocked_by:
+        supported_execution_claims.append(
+            "lab can confirm the requested batch is execution-ready as written"
+        )
+    else:
+        supported_execution_claims.append(
+            "lab can block scheduling when execution prerequisites remain unresolved"
+        )
+    return HandoffAuthorityBoundary(
+        candidate_id=candidate_id,
+        blocked_authority_claims=tuple(dict.fromkeys(blocked_authority_claims)),
+        supported_execution_claims=tuple(dict.fromkeys(supported_execution_claims)),
+        notes=tuple(dict.fromkeys(notes)),
     )
 
 
@@ -287,6 +361,8 @@ def refuse_irresponsible_assay_handoff(
 
 
 __all__ = [
+    "HandoffAuthorityBoundary",
+    "HandoffAuthorityOwner",
     "HandoffExplanation",
     "HandoffSupportLevel",
     "HandoffSupportStatement",

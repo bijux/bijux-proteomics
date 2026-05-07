@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_lab.handoffs import (
+    HandoffAuthorityOwner,
     HandoffSupportLevel,
     TargetedTransitionReview,
     TargetedTransitionReviewEntry,
@@ -101,6 +102,24 @@ def test_build_handoff_explanation_separates_supported_exploratory_and_blocked()
     assert any(
         "too high for lab handoff" in item.summary for item in explanation.blocked
     )
+    assert explanation.authority_boundary is not None
+    assert (
+        explanation.authority_boundary.scientific_recommendation_owner
+        is HandoffAuthorityOwner.UPSTREAM_REVIEW
+    )
+    assert (
+        explanation.authority_boundary.operational_execution_owner
+        is HandoffAuthorityOwner.LAB_EXECUTION
+    )
+    assert any(
+        "does not decide whether the candidate is scientifically ready to advance"
+        in claim
+        for claim in explanation.authority_boundary.blocked_authority_claims
+    )
+    assert any(
+        "execution honesty" in note
+        for note in explanation.authority_boundary.notes
+    )
 
 
 def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> None:
@@ -143,4 +162,10 @@ def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> 
     assert refusal.result.refusal.code == "irresponsible_assay_handoff"
     assert "contradiction pressure is too high for lab handoff" in (
         refusal.result.refusal.reason_details
+    )
+    assert refusal.explanation.authority_boundary is not None
+    assert any(
+        "cannot convert unresolved scientific blockers into execution approval"
+        in claim
+        for claim in refusal.explanation.authority_boundary.blocked_authority_claims
     )
