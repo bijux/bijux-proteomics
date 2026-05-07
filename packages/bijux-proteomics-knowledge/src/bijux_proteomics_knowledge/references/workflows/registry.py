@@ -21,6 +21,10 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 from bijux_proteomics_knowledge.references.workflows.briefings import (
     build_workflow_reference_briefing,
 )
+from bijux_proteomics_knowledge.references.workflows.scientific_release import (
+    ScientificGraduationState,
+    build_scientific_release_packet,
+)
 
 
 class BenchmarkAuthorityStatus(StrEnum):
@@ -48,6 +52,8 @@ class BenchmarkAuthorityAssessment(JsonModel):
     interpretation_context_lines: tuple[str, ...] = Field(default_factory=tuple)
     decision_grade_definition: str = Field(..., min_length=1)
     decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_quality_gate_passed: bool = False
+    graduation_state: ScientificGraduationState
 
 
 class BenchmarkRegistryEntry(JsonModel):
@@ -80,6 +86,9 @@ class BenchmarkRegistryEntry(JsonModel):
     interpretation_context_lines: tuple[str, ...] = Field(default_factory=tuple)
     decision_grade_definition: str = Field(..., min_length=1)
     decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
+    threshold_ids: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_quality_gate_passed: bool = False
+    graduation_state: ScientificGraduationState
 
 
 class BenchmarkRegistryReport(JsonModel):
@@ -124,6 +133,7 @@ def assess_benchmark_authority(
 
     today = reviewed_on or date.today()
     briefing = build_workflow_reference_briefing(manifest.workflow_family)
+    release_packet = build_scientific_release_packet(manifest)
     age_days = max(0, (today - manifest.last_reviewed_on).days)
     blocking_reasons: list[str] = []
     authority_status = BenchmarkAuthorityStatus.ACTIVE
@@ -162,6 +172,8 @@ def assess_benchmark_authority(
             criterion.summary
             for criterion in briefing.decision_grade_framework.criteria
         ),
+        evidence_quality_gate_passed=release_packet.evidence_quality_gate_passed,
+        graduation_state=release_packet.graduation_state,
     )
 
 
@@ -173,6 +185,7 @@ def build_benchmark_registry_entry(
     """Build one public registry entry from a curated benchmark manifest."""
 
     authority = assess_benchmark_authority(manifest, reviewed_on=reviewed_on)
+    release_packet = build_scientific_release_packet(manifest)
     return BenchmarkRegistryEntry(
         benchmark_id=manifest.benchmark_id,
         title=manifest.title,
@@ -207,6 +220,11 @@ def build_benchmark_registry_entry(
         interpretation_context_lines=authority.interpretation_context_lines,
         decision_grade_definition=authority.decision_grade_definition,
         decision_grade_criteria=authority.decision_grade_criteria,
+        threshold_ids=tuple(
+            entry.threshold_id for entry in release_packet.threshold_evidence.entries
+        ),
+        evidence_quality_gate_passed=authority.evidence_quality_gate_passed,
+        graduation_state=authority.graduation_state,
     )
 
 
