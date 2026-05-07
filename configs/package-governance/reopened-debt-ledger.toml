@@ -10,14 +10,6 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "agentic-proteins:test-tree-gaps"
-distribution_name = "agentic-proteins"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "1 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-core:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-core"
 debt_family = "mixed-responsibility-modules"
@@ -34,36 +26,12 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-core:test-tree-gaps"
-distribution_name = "bijux-proteomics-core"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "1 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-dev:docs-claim-gap"
-distribution_name = "bijux-proteomics-dev"
-debt_family = "docs-claim-gap"
-severity = "high"
-summary = "public docs still outrun proof for integrity"
-evidence_report = "configs/package-governance/package-docs-claim-proof.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-dev:reopened-completion-claim"
 distribution_name = "bijux-proteomics-dev"
 debt_family = "reopened-completion-claim"
 severity = "high"
 summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-dev:test-tree-gaps"
-distribution_name = "bijux-proteomics-dev"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "1 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-foundation:reopened-completion-claim"
@@ -90,22 +58,6 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-intelligence:test-tree-gaps"
-distribution_name = "bijux-proteomics-intelligence"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "1 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-knowledge:docs-claim-gap"
-distribution_name = "bijux-proteomics-knowledge"
-debt_family = "docs-claim-gap"
-severity = "high"
-summary = "public docs still outrun proof for replay"
-evidence_report = "configs/package-governance/package-docs-claim-proof.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-knowledge:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-knowledge"
 debt_family = "mixed-responsibility-modules"
@@ -120,14 +72,6 @@ debt_family = "reopened-completion-claim"
 severity = "high"
 summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-lab:docs-claim-gap"
-distribution_name = "bijux-proteomics-lab"
-debt_family = "docs-claim-gap"
-severity = "high"
-summary = "public docs still outrun proof for integrity"
-evidence_report = "configs/package-governance/package-docs-claim-proof.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-lab:mixed-responsibility-modules"
@@ -146,14 +90,6 @@ summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-lab:test-tree-gaps"
-distribution_name = "bijux-proteomics-lab"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "1 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-runtime:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-runtime"
 debt_family = "mixed-responsibility-modules"
@@ -168,11 +104,3 @@ debt_family = "reopened-completion-claim"
 severity = "high"
 summary = "docs and tree still contradict each other"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-runtime:test-tree-gaps"
-distribution_name = "bijux-proteomics-runtime"
-debt_family = "test-tree-gaps"
-severity = "medium"
-summary = "2 source owner families still lack matching test families"
-evidence_report = "configs/package-governance/package-test-tree-mirror.toml"
