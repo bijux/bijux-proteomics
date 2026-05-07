@@ -108,7 +108,22 @@ class LLMRegulator:
     prompt_log: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        pass
+        if not self.model_id.strip():
+            raise ValueError("model_id must be non-empty.")
+        if not 0.0 <= self.temperature <= 2.0:
+            raise ValueError("temperature must be between 0.0 and 2.0.")
+        if (
+            self.approval_mode is ApprovalMode.MANUAL_APPROVE
+            and self.approval_hook is None
+        ):
+            raise ValueError("manual approval requires a hook.")
+        overlapping_actions = set(self.authority.allowed_actions) & set(
+            self.authority.forbidden_actions
+        )
+        if overlapping_actions:
+            raise ValueError("authority actions cannot be both allowed and forbidden.")
+        if len(self.failure_modes) != len(set(self.failure_modes)):
+            raise ValueError("failure_modes must not contain duplicates.")
 
     def propose(self, prompt: str, proposal: Proposal | None) -> Proposal | None:
         self.prompt_log.append(prompt)
