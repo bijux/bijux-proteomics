@@ -7,11 +7,19 @@ from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     MissingValueKind,
     Ms1FeatureRecord,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_label_free_intensity_table,
 )
 from bijux_proteomics.quantification.benchmarks import (
+    MultiplexRatioExpectation,
+    QuantTruthDirection,
+    QuantTruthExpectationEntry,
     build_effect_size_stability_benchmark_report,
+    build_multiplex_artifact_pressure_benchmark_report,
     build_quant_missingness_robustness_report,
     build_quant_normalization_impact_benchmark_report,
+    build_quant_truth_package_benchmark_report,
 )
 
 
@@ -218,3 +226,200 @@ def test_effect_size_stability_benchmark_report_stays_stable_under_small_perturb
 
     assert report.stable_top_rank is True
     assert report.overlap_fraction >= 0.5
+
+
+def _multiplex_design() -> tuple[ExperimentalDesignEntry, ...]:
+    return (
+        ExperimentalDesignEntry(
+            sample_id="plex-a-126",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="plex-a-126.mzml",
+            batch="plex-a",
+            multiplex_group="plex-a",
+            multiplex_channel="126",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="plex-a-127",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="plex-a-127.mzml",
+            batch="plex-a",
+            multiplex_group="plex-a",
+            multiplex_channel="127",
+        ),
+    )
+
+
+def _multiplex_records() -> tuple[Ms1FeatureRecord, ...]:
+    return (
+        Ms1FeatureRecord(
+            feature_id="plex-001",
+            sample_id="plex-a-126",
+            peptide="SPIKEA",
+            canonical_peptide="SPIKEA",
+            intensity=200.0,
+            protein_refs=("SPIKEA",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="plex-002",
+            sample_id="plex-a-127",
+            peptide="SPIKEA",
+            canonical_peptide="SPIKEA",
+            intensity=100.0,
+            protein_refs=("SPIKEA",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="plex-003",
+            sample_id="plex-a-126",
+            peptide="SPIKEB",
+            canonical_peptide="SPIKEB",
+            intensity=220.0,
+            protein_refs=("SPIKEB",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="plex-004",
+            sample_id="plex-a-127",
+            peptide="SPIKEB",
+            canonical_peptide="SPIKEB",
+            intensity=140.0,
+            protein_refs=("SPIKEB",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+
+
+def _truth_records() -> tuple[Ms1FeatureRecord, ...]:
+    return (
+        Ms1FeatureRecord(
+            feature_id="truth-001",
+            sample_id="case-1",
+            peptide="TRUTHA",
+            canonical_peptide="TRUTHA",
+            intensity=1200.0,
+            protein_refs=("TP1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-002",
+            sample_id="case-2",
+            peptide="TRUTHA",
+            canonical_peptide="TRUTHA",
+            intensity=1180.0,
+            protein_refs=("TP1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-003",
+            sample_id="ctrl-1",
+            peptide="TRUTHA",
+            canonical_peptide="TRUTHA",
+            intensity=120.0,
+            protein_refs=("TP1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-004",
+            sample_id="ctrl-2",
+            peptide="TRUTHA",
+            canonical_peptide="TRUTHA",
+            intensity=130.0,
+            protein_refs=("TP1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-005",
+            sample_id="case-1",
+            peptide="TRUTHB",
+            canonical_peptide="TRUTHB",
+            intensity=110.0,
+            protein_refs=("TP2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-006",
+            sample_id="case-2",
+            peptide="TRUTHB",
+            canonical_peptide="TRUTHB",
+            intensity=115.0,
+            protein_refs=("TP2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-007",
+            sample_id="ctrl-1",
+            peptide="TRUTHB",
+            canonical_peptide="TRUTHB",
+            intensity=900.0,
+            protein_refs=("TP2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="truth-008",
+            sample_id="ctrl-2",
+            peptide="TRUTHB",
+            canonical_peptide="TRUTHB",
+            intensity=920.0,
+            protein_refs=("TP2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+
+
+def test_multiplex_artifact_pressure_benchmark_report_surfaces_compression_and_bleed() -> (
+    None
+):
+    table = build_label_free_intensity_table(
+        _multiplex_records(),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_multiplex_artifact_pressure_benchmark_report(
+        table,
+        design_entries=_multiplex_design(),
+        expected_ratios=(
+            MultiplexRatioExpectation(
+                numerator_sample_id="plex-a-126",
+                denominator_sample_id="plex-a-127",
+                expected_ratio=4.0,
+            ),
+        ),
+        interference_fraction_by_sample={"plex-a-126": 0.12},
+        reporter_bleed_fraction_by_sample={"plex-a-127": 0.18},
+    )
+
+    assert report.materially_compressed_count == 1
+    assert report.interference_flagged_channel_count == 1
+    assert report.reporter_bleed_flagged_channel_count == 1
+    assert report.ready_for_ratio_claims is False
+
+
+def test_quant_truth_package_benchmark_report_tracks_controlled_shifts() -> None:
+    report = build_quant_truth_package_benchmark_report(
+        _truth_records(),
+        design_entries=_design(),
+        expectations=(
+            QuantTruthExpectationEntry(
+                entity_id="TP1",
+                expected_direction=QuantTruthDirection.UP_IN_CONDITION_A,
+                minimum_absolute_log2_fold_change=1.0,
+            ),
+            QuantTruthExpectationEntry(
+                entity_id="TP2",
+                expected_direction=QuantTruthDirection.UP_IN_CONDITION_B,
+                minimum_absolute_log2_fold_change=1.0,
+            ),
+        ),
+        condition_a="case",
+        condition_b="ctrl",
+    )
+
+    assert report.matched_expected_count == 2
+    assert report.missed_expected_count == 0
+    assert report.unexpected_leader_ids == ()
