@@ -20,8 +20,10 @@ from bijux_proteomics_knowledge.memory.models.claims import (
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceRelevanceScore,
+    EvidenceStateIndex,
     KnowledgeQualityAudit,
     audit_knowledge_quality,
+    build_evidence_state_index,
     rank_evidence_for_decision,
 )
 from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
@@ -58,6 +60,10 @@ class KnowledgeReviewPacket(JsonModel):
     )
     quality_audit: KnowledgeQualityAudit = Field(
         ..., description="Bundle-level quality audit."
+    )
+    evidence_state_index: EvidenceStateIndex = Field(
+        ...,
+        description="Machine-readable trust, freshness, contradiction, and caveat index.",
     )
     hypothesis_dossier: HypothesisDossier = Field(
         ..., description="Claim-level hypothesis dossier."
@@ -213,6 +219,7 @@ def build_knowledge_review_packet(
         decision_tag=decision_tag,
         required_modalities=required_modalities,
     )
+    state_index = build_evidence_state_index(bundle, decision_tag=decision_tag)
     dossier = build_hypothesis_dossier(bundle, claims, decision_tag=decision_tag)
     gaps = identify_knowledge_gaps(bundle, claims, decision_tag=decision_tag)
     trust, _ = resolve_conflicts(bundle)
@@ -277,6 +284,7 @@ def build_knowledge_review_packet(
         decision_tag=decision_tag,
         evidence_ranking=ranking,
         quality_audit=audit,
+        evidence_state_index=state_index,
         hypothesis_dossier=dossier,
         knowledge_gaps=gaps,
         conflict_clusters=clusters,
@@ -370,14 +378,14 @@ def _build_executive_summary(
     ]
     if knowledge_gaps:
         summary.append(f"{len(knowledge_gaps)} unresolved knowledge gaps remain")
+    if biological_takeaway is not None and biological_takeaway.downgrade_reasons:
+        summary.append(
+            f"grounding limits: {biological_takeaway.downgrade_reasons[0]}"
+        )
     if biological_takeaway is not None:
         summary.append(
             f"biological grounding: {biological_takeaway.grounding_state.value}"
         )
-        if biological_takeaway.downgrade_reasons:
-            summary.append(
-                f"grounding limits: {biological_takeaway.downgrade_reasons[0]}"
-            )
     return summary
 
 

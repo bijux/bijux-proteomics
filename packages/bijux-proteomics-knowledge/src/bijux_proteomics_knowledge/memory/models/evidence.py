@@ -841,6 +841,62 @@ class KnowledgeQualityAudit(JsonModel):
     )
 
 
+class EvidenceFreshnessState(StrEnum):
+    """Freshness posture for one evidence record."""
+
+    FRESH = "fresh"
+    EXPIRING_SOON = "expiring_soon"
+    STALE = "stale"
+
+
+class EvidenceContradictionState(StrEnum):
+    """Conflict posture for one evidence record."""
+
+    CONSISTENT = "consistent"
+    DUPLICATED = "duplicated"
+    CONTRADICTED = "contradicted"
+
+
+class EvidenceSufficiencyState(StrEnum):
+    """Whether one evidence record is sufficient for review use."""
+
+    SUFFICIENT = "sufficient"
+    THIN = "thin"
+    INSUFFICIENT = "insufficient"
+
+
+class EvidenceAssessment(JsonModel):
+    """Machine-readable assessment for one evidence record."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(..., min_length=1)
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+    freshness_state: EvidenceFreshnessState
+    contradiction_state: EvidenceContradictionState
+    sufficiency_state: EvidenceSufficiencyState
+    uncertainty_score: float = Field(..., ge=0.0, le=1.0)
+    caveat_codes: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class EvidenceStateIndex(JsonModel):
+    """Bundle-level machine-readable index over trust, freshness, and caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_id: str = Field(..., min_length=1)
+    target_id: str = Field(..., min_length=1)
+    decision_tag: str | None = None
+    record_assessments: tuple[EvidenceAssessment, ...] = Field(default_factory=tuple)
+    trusted_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    fresh_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    contradictory_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    insufficient_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    high_uncertainty_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    caveat_codes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class QuantitativeCoverageReport(JsonModel):
     """Coverage report for quantitative evidence support within a bundle."""
 
@@ -1983,6 +2039,193 @@ def _refresh_action_for_record(record: EvidenceRecord) -> str:
     return "refresh the curated note with a current reviewer assessment"
 
 
+def assess_evidence_record(
+    record: EvidenceRecord,
+    *,
+    bundle: EvidenceBundle,
+    now: datetime | None = None,
+    policy: TrustPolicy | None = None,
+    conflict_policy: ConflictPolicy | None = None,
+) -> EvidenceAssessment:
+    """Return a machine-readable assessment for one evidence record."""
+
+    now = now or datetime.now(UTC)
+    policy = policy or default_trust_policy()
+    conflicts = flag_conflicting_evidence(bundle, policy=conflict_policy)
+    duplicate_groups = deduplicate_records(bundle)
+    duplicate_ids = {
+        evidence_id
+        for group in duplicate_groups
+        if len(group) > 1
+        for evidence_id in group
+    }
+    conflict_ids = {
+        conflict.left_evidence_id for conflict in conflicts
+    } | {conflict.right_evidence_id for conflict in conflicts}
+    quality = decompose_evidence_quality(record, now=now)
+    artifact_risk = assess_artifact_risk(record)
+    trust_score = round(score_evidence_record(record, now=now, policy=policy), 4)
+    max_age_days = policy.max_age_days_by_source.get(record.source_type)
+    age_days = max((now - record.observed_at).total_seconds() / 86400.0, 0.0)
+
+    caveat_codes: list[str] = []
+    notes: list[str] = []
+
+    is_stale = (
+        record.expires_at is not None
+        and record.expires_at <= now
+        or max_age_days is not None
+        and age_days > max_age_days
+    )
+    expires_soon = (
+        not is_stale
+        and (
+            record.expires_at is not None
+            and 0 <= (record.expires_at - now).total_seconds() / 86400.0 <= 30
+            or max_age_days is not None
+            and 0 <= max_age_days - age_days <= 30
+        )
+    )
+    if is_stale:
+        freshness_state = EvidenceFreshnessState.STALE
+        caveat_codes.append("stale_evidence")
+        notes.append("record exceeded the freshness window")
+    elif expires_soon:
+        freshness_state = EvidenceFreshnessState.EXPIRING_SOON
+        caveat_codes.append("expiring_soon")
+        notes.append("record is approaching the freshness window")
+    else:
+        freshness_state = EvidenceFreshnessState.FRESH
+
+    if record.evidence_id in conflict_ids:
+        contradiction_state = EvidenceContradictionState.CONTRADICTED
+        caveat_codes.append("contradicted")
+        notes.append("bundle contains at least one conflict involving this record")
+    elif record.evidence_id in duplicate_ids:
+        contradiction_state = EvidenceContradictionState.DUPLICATED
+        caveat_codes.append("duplicated")
+        notes.append("bundle contains duplicate lineage for this record")
+    else:
+        contradiction_state = EvidenceContradictionState.CONSISTENT
+
+    uncertainty_score = round(1.0 - quality.derived_confidence, 4)
+    if quality.context_match < 0.55 or quality.context_relevance < 0.55:
+        caveat_codes.append("low_context")
+        notes.append("scientific context fields remain incomplete")
+    if quality.statistical_support < 0.4:
+        caveat_codes.append("weak_quantitative_support")
+        notes.append("quantitative support remains weak or absent")
+    if artifact_risk.risk_score > 0.4:
+        caveat_codes.append("artifact_risk")
+        notes.append("artifact risk weakens interpretation confidence")
+
+    if trust_score < 0.5 or quality.derived_confidence < 0.45:
+        sufficiency_state = EvidenceSufficiencyState.INSUFFICIENT
+        caveat_codes.append("insufficient_for_review")
+        notes.append("record is too weak for dependable review use")
+    elif trust_score < 0.72 or uncertainty_score > 0.45:
+        sufficiency_state = EvidenceSufficiencyState.THIN
+        caveat_codes.append("thin_grounding")
+        notes.append("record remains reviewable but not strong enough to stand alone")
+    else:
+        sufficiency_state = EvidenceSufficiencyState.SUFFICIENT
+
+    return EvidenceAssessment(
+        evidence_id=record.evidence_id,
+        trust_score=trust_score,
+        freshness_state=freshness_state,
+        contradiction_state=contradiction_state,
+        sufficiency_state=sufficiency_state,
+        uncertainty_score=uncertainty_score,
+        caveat_codes=tuple(dict.fromkeys(caveat_codes)),
+        notes=tuple(dict.fromkeys(notes)),
+    )
+
+
+def build_evidence_state_index(
+    bundle: EvidenceBundle,
+    *,
+    decision_tag: str | None = None,
+    now: datetime | None = None,
+    policy: TrustPolicy | None = None,
+    conflict_policy: ConflictPolicy | None = None,
+) -> EvidenceStateIndex:
+    """Return a machine-readable state index for review workflows."""
+
+    records = [
+        record
+        for record in bundle.records
+        if decision_tag is None or decision_tag in record.decision_tags
+    ]
+    scoped_bundle = EvidenceBundle(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        records=records,
+    )
+    assessments = tuple(
+        assess_evidence_record(
+            record,
+            bundle=scoped_bundle,
+            now=now,
+            policy=policy,
+            conflict_policy=conflict_policy,
+        )
+        for record in records
+    )
+    trusted_record_ids = tuple(
+        assessment.evidence_id
+        for assessment in assessments
+        if assessment.trust_score >= 0.75
+    )
+    contradictory_record_ids = tuple(
+        assessment.evidence_id
+        for assessment in assessments
+        if assessment.contradiction_state is not EvidenceContradictionState.CONSISTENT
+    )
+    insufficient_record_ids = tuple(
+        assessment.evidence_id
+        for assessment in assessments
+        if assessment.sufficiency_state is not EvidenceSufficiencyState.SUFFICIENT
+    )
+    high_uncertainty_record_ids = tuple(
+        assessment.evidence_id
+        for assessment in assessments
+        if (
+            assessment.uncertainty_score >= 0.35
+            or assessment.freshness_state is not EvidenceFreshnessState.FRESH
+            or assessment.contradiction_state
+            is not EvidenceContradictionState.CONSISTENT
+            or assessment.sufficiency_state is not EvidenceSufficiencyState.SUFFICIENT
+        )
+    )
+    caveat_codes = {
+        code for assessment in assessments for code in assessment.caveat_codes
+    }
+    if records and len(trusted_record_ids) < 2:
+        caveat_codes.add("thin_grounding")
+    if contradictory_record_ids:
+        caveat_codes.add("contradicted")
+    if high_uncertainty_record_ids:
+        caveat_codes.add("high_uncertainty")
+
+    return EvidenceStateIndex(
+        bundle_id=bundle.bundle_id,
+        target_id=bundle.target_id,
+        decision_tag=decision_tag,
+        record_assessments=assessments,
+        trusted_record_ids=trusted_record_ids,
+        fresh_record_ids=tuple(
+            assessment.evidence_id
+            for assessment in assessments
+            if assessment.freshness_state is EvidenceFreshnessState.FRESH
+        ),
+        contradictory_record_ids=contradictory_record_ids,
+        insufficient_record_ids=insufficient_record_ids,
+        high_uncertainty_record_ids=high_uncertainty_record_ids,
+        caveat_codes=tuple(sorted(caveat_codes)),
+    )
+
+
 def deduplicate_records(bundle: EvidenceBundle) -> list[list[str]]:
     """Group records that look like duplicates."""
     grouped: dict[tuple[str, str, str], list[str]] = {}
@@ -2071,17 +2314,6 @@ def flag_conflicting_evidence(
                     )
                 )
                 continue
-            if _looks_polarity_conflict(left.claim, right.claim):
-                conflicts.append(
-                    EvidenceConflict(
-                        conflict_type="opposite_claim_polarity",
-                        severity="high",
-                        left_evidence_id=left.evidence_id,
-                        right_evidence_id=right.evidence_id,
-                        reason="evidence claims suggest opposite progression polarity",
-                    )
-                )
-                continue
             if (
                 left.species is not None
                 and right.species is not None
@@ -2126,6 +2358,17 @@ def flag_conflicting_evidence(
                         reason="same decision tag but materially different claim strength",
                     )
                 )
+                continue
+            if _looks_polarity_conflict(left.claim, right.claim):
+                conflicts.append(
+                    EvidenceConflict(
+                        conflict_type="opposite_claim_polarity",
+                        severity="high",
+                        left_evidence_id=left.evidence_id,
+                        right_evidence_id=right.evidence_id,
+                        reason="evidence claims suggest opposite progression polarity",
+                    )
+                )
     return conflicts
 
 
@@ -2133,7 +2376,14 @@ def _looks_polarity_conflict(left_claim: str, right_claim: str) -> bool:
     left_text = left_claim.strip().lower()
     right_text = right_claim.strip().lower()
     positive_tokens = {"meets", "supports", "retains", "passes", "improves"}
-    negative_tokens = {"misses", "fails", "contraindicates", "worsens", "reduces"}
+    negative_tokens = {
+        "miss",
+        "misses",
+        "fails",
+        "contraindicates",
+        "worsens",
+        "reduces",
+    }
     left_positive = any(token in left_text for token in positive_tokens)
     right_positive = any(token in right_text for token in positive_tokens)
     left_negative = any(token in left_text for token in negative_tokens)

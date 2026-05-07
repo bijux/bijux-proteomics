@@ -38,6 +38,8 @@ def test_build_knowledge_review_packet_returns_integrated_sections(
     assert packet.target_id == "target-review"
     assert packet.decision_tag == "progression"
     assert len(packet.evidence_ranking) == 1
+    assert packet.evidence_state_index.record_assessments
+    assert packet.evidence_state_index.fresh_record_ids == ("review-1",)
     assert packet.hypothesis_dossier.supporting_claim_ids == ["claim-review-1"]
     assert any(
         gap.gap_code == "open-claims-require-resolution"
@@ -215,3 +217,55 @@ def test_knowledge_review_packet_downgrades_biological_takeaway_under_contradict
     )
     assert packet.biological_takeaway.downgrade_reasons
     assert any("grounding limits" in line for line in packet.executive_summary)
+    assert packet.evidence_state_index.contradictory_record_ids
+    assert "contradicted" in packet.evidence_state_index.caveat_codes
+
+
+def test_knowledge_review_packet_keeps_machine_readable_state_index_visible() -> None:
+    bundle = EvidenceBundle(
+        bundle_id="bundle-state-review",
+        target_id="target-state-review",
+        records=[
+            EvidenceRecord(
+                evidence_id="state-1",
+                kind=EvidenceKind.ASSAY,
+                title="assay support",
+                source="lab",
+                claim="Candidate meets progression gate.",
+                decision_tags=["progression"],
+                confidence=0.88,
+                strength=EvidenceStrength.SUPPORTING,
+            ),
+            EvidenceRecord(
+                evidence_id="state-2",
+                kind=EvidenceKind.LITERATURE,
+                title="thin paper",
+                source="PMID:3",
+                claim="Candidate may miss progression gate.",
+                decision_tags=["progression"],
+                confidence=0.45,
+                strength=EvidenceStrength.EXPLORATORY,
+            ),
+        ],
+    )
+    claims = [
+        build_claim(
+            claim_id="claim-state-review",
+            target_id="target-state-review",
+            statement="candidate is still under review",
+            evidence_ids=["state-1", "state-2"],
+            status=ClaimStatus.SUPPORTED,
+            resolution_assays=["orthogonal assay"],
+        )
+    ]
+
+    packet = build_knowledge_review_packet(
+        bundle,
+        claims,
+        decision_tag="progression",
+        workflow_family=KnowledgeWorkflowFamily.DDA,
+    )
+
+    assert packet.evidence_state_index.record_assessments
+    assert "thin_grounding" in packet.evidence_state_index.caveat_codes
+    assert "state-2" in packet.evidence_state_index.high_uncertainty_record_ids

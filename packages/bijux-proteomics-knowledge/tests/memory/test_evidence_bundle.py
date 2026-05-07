@@ -10,17 +10,22 @@ from typing import cast
 from bijux_proteomics_knowledge.memory.models.evidence import (
     BundleFreshnessReport,
     ContextScoringProfile,
+    EvidenceAssessment,
     EvidenceBundle,
     EvidenceConflict,
-    EvidenceRecordQuery,
+    EvidenceContradictionState,
     EvidenceExtractionMethod,
+    EvidenceFreshnessState,
     EvidenceKind,
     EvidenceOrigin,
     EvidenceRecord,
+    EvidenceRecordQuery,
     EvidenceRefreshNeed,
     EvidenceRefreshPriority,
     EvidenceSourceType,
+    EvidenceStateIndex,
     EvidenceStrength,
+    EvidenceSufficiencyState,
     EvidenceTrustBalanceReport,
     GovernedArtifactReference,
     GovernedEvidenceBundle,
@@ -34,8 +39,10 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     assess_context_compatibility,
     assess_context_completeness,
     assess_decision_readiness,
+    assess_evidence_record,
     assess_scientific_context_completeness,
     audit_knowledge_quality,
+    build_evidence_state_index,
     build_governed_evidence_bundle,
     compute_bundle_trust,
     coverage_report,
@@ -472,6 +479,97 @@ def test_compute_bundle_trust_accounts_for_staleness_conflicts_and_duplicates() 
     assert trust.provenance.policy_id == "default-trust-policy"
     assert trust.provenance.inputs[0].evidence_id == "assay-1"
     assert any(rule.rule_id == "conflict-penalty" for rule in trust.provenance.rules)
+
+
+def test_assess_evidence_record_exposes_machine_readable_caveats() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-assessment",
+        target_id="target-assessment",
+        records=[
+            EvidenceRecord(
+                evidence_id="assay-support",
+                kind=EvidenceKind.ASSAY,
+                title="Supportive assay",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://shared-run",
+                claim="Candidate meets the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.82,
+                strength=EvidenceStrength.SUPPORTING,
+                observed_at=now - timedelta(days=10),
+            ),
+            EvidenceRecord(
+                evidence_id="assay-conflict",
+                kind=EvidenceKind.ASSAY,
+                title="Conflicting assay",
+                source="lab-2",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                source_uri="lab://shared-run",
+                claim="Candidate may miss the activity gate.",
+                decision_tags=["progression"],
+                confidence=0.44,
+                strength=EvidenceStrength.EXPLORATORY,
+                observed_at=now - timedelta(days=300),
+            ),
+        ],
+    )
+
+    assessment = assess_evidence_record(
+        bundle.records[1],
+        bundle=bundle,
+        now=now,
+    )
+
+    assert isinstance(assessment, EvidenceAssessment)
+    assert assessment.freshness_state is EvidenceFreshnessState.STALE
+    assert assessment.contradiction_state is EvidenceContradictionState.CONTRADICTED
+    assert assessment.sufficiency_state is EvidenceSufficiencyState.INSUFFICIENT
+    assert "stale_evidence" in assessment.caveat_codes
+    assert "contradicted" in assessment.caveat_codes
+
+
+def test_build_evidence_state_index_surfaces_trust_freshness_and_uncertainty() -> None:
+    now = datetime(2026, 1, 10, tzinfo=UTC)
+    bundle = EvidenceBundle(
+        bundle_id="bundle-state-index",
+        target_id="target-state-index",
+        records=[
+            EvidenceRecord(
+                evidence_id="fresh-support",
+                kind=EvidenceKind.ASSAY,
+                title="Fresh support",
+                source="lab",
+                source_type=EvidenceSourceType.LAB_ASSAY,
+                claim="Candidate meets the progression gate.",
+                decision_tags=["progression"],
+                confidence=0.9,
+                strength=EvidenceStrength.DECISIVE,
+                observed_at=now - timedelta(days=2),
+            ),
+            EvidenceRecord(
+                evidence_id="aging-literature",
+                kind=EvidenceKind.LITERATURE,
+                title="Aging paper",
+                source="PMID:2",
+                source_type=EvidenceSourceType.LITERATURE,
+                claim="Candidate may miss the progression gate.",
+                decision_tags=["progression"],
+                confidence=0.52,
+                strength=EvidenceStrength.EXPLORATORY,
+                observed_at=now - timedelta(days=340),
+            ),
+        ],
+    )
+
+    state_index = build_evidence_state_index(bundle, decision_tag="progression", now=now)
+
+    assert isinstance(state_index, EvidenceStateIndex)
+    assert state_index.trusted_record_ids == ("fresh-support",)
+    assert "aging-literature" in state_index.insufficient_record_ids
+    assert "aging-literature" in state_index.high_uncertainty_record_ids
+    assert "expiring_soon" in state_index.caveat_codes
 
 
 def test_compute_bundle_trust_uses_explicit_trust_policy() -> None:
