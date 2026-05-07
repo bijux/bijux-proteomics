@@ -15,10 +15,19 @@ from bijux_proteomics.ptm import (
     PtmProteinSiteMapping,
     PtmSiteEntry,
 )
+from bijux_proteomics.ptm.proteoforms import (
+    ProteoformEvidenceLevel,
+    ProteoformPtmAssignment,
+    build_proteoform_identity,
+)
 from bijux_proteomics.ptm.review import (
+    build_acetyl_specific_review_fixture_report,
+    build_phospho_specific_review_fixture_report,
     build_ptm_motif_enrichment_background_provenance_report,
     build_ptm_occupancy_counterpart_report,
     build_ptm_site_localization_evidence_graph,
+    build_ubiquitin_remnant_workflow_report,
+    evaluate_glycopeptide_support_boundary,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
@@ -140,6 +149,110 @@ class PtmLabTargetingRubricReport(JsonModel):
     entries: tuple[PtmLabTargetingRubricEntry, ...] = Field(default_factory=tuple)
     targetable_count: int = Field(..., ge=0)
     interpretive_only_count: int = Field(..., ge=0)
+
+
+class PtmRawSpectrumValidationLaneReport(JsonModel):
+    """Raw-spectrum-linked validation lane for one PTM benchmark workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    raw_spectrum_artifact_path: str = Field(..., min_length=1)
+    localized_spectrum_count: int = Field(..., ge=0)
+    fragment_supported_spectrum_count: int = Field(..., ge=0)
+    unsupported_spectrum_ids: tuple[str, ...] = Field(default_factory=tuple)
+    ready_for_rescoring_follow_up: bool
+    note: str = Field(..., min_length=1)
+
+
+class PtmFamilyCredibilityDisposition(StrEnum):
+    """Scientific credibility posture for one PTM family."""
+
+    SUPPORTED = "supported"
+    INTERPRETIVE_ONLY = "interpretive_only"
+    REFUSED = "refused"
+
+
+class PtmFamilyCredibilityTrack(JsonModel):
+    """Separate scientific credibility track for one PTM family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    family_name: str = Field(..., min_length=1)
+    disposition: PtmFamilyCredibilityDisposition
+    evidence_summary: str = Field(..., min_length=1)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PtmFamilyCredibilityTrackReport(JsonModel):
+    """Family-specific PTM credibility tracks instead of one blob posture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tracks: tuple[PtmFamilyCredibilityTrack, ...] = Field(default_factory=tuple)
+    supported_families: tuple[str, ...] = Field(default_factory=tuple)
+    interpretive_only_families: tuple[str, ...] = Field(default_factory=tuple)
+    refused_families: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ProteoformBenchmarkScenario(JsonModel):
+    """One proteoform benchmark scenario with ambiguity and PTM combinatorics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    sequence: str = Field(..., min_length=1)
+    protein_origin: str = Field(..., min_length=1)
+    evidence_level: ProteoformEvidenceLevel
+    ptm_assignments: tuple[ProteoformPtmAssignment, ...] = Field(default_factory=tuple)
+    isoform_ambiguous: bool = False
+    shared_peptide_pressure: bool = False
+    expected_interpretive_only: bool = False
+
+
+class ProteoformBenchmarkEntry(JsonModel):
+    """Observed proteoform benchmark result for one scenario."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    canonical_proteoform_key: str = Field(..., min_length=1)
+    assignment_count: int = Field(..., ge=0)
+    interpretive_only: bool
+    note: str = Field(..., min_length=1)
+
+
+class ProteoformBenchmarkReport(JsonModel):
+    """Benchmark over proteoform ambiguity, shared peptides, and PTM combinatorics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[ProteoformBenchmarkEntry, ...] = Field(default_factory=tuple)
+    interpretive_only_count: int = Field(..., ge=0)
+
+
+class PtmOccupancyStressBenchmarkReport(JsonModel):
+    """Occupancy benchmark under missing-feature and replicate variability pressure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    complete_counterpart_count: int = Field(..., ge=0)
+    missing_counterpart_count: int = Field(..., ge=0)
+    ambiguous_site_count: int = Field(..., ge=0)
+    occupancy_shift_fraction: float = Field(..., ge=0.0, le=1.0)
+    stable_under_replicate_variability: bool
+    note: str = Field(..., min_length=1)
+
+
+class GlycopeptideSupportRoadmapReport(JsonModel):
+    """Scientific and engineering roadmap required for credible glycopeptide support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    requested_workflow: str = Field(..., min_length=1)
+    current_disposition: str = Field(..., min_length=1)
+    required_scientific_work: tuple[str, ...] = Field(default_factory=tuple)
+    required_engineering_work: tuple[str, ...] = Field(default_factory=tuple)
+    blocking_evidence_fields: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def build_ptm_localization_confidence_benchmark_report(
@@ -400,4 +513,251 @@ def build_ptm_lab_targeting_rubric_report(
             for entry in entries
             if entry.disposition is PtmLabTargetingDisposition.INTERPRETIVE_ONLY
         ),
+    )
+
+
+def build_ptm_raw_spectrum_validation_lane_report(
+    records: tuple[PtmEvidenceRecord, ...],
+    *,
+    raw_spectrum_artifact_path: str,
+    fragment_ion_support_by_spectrum: dict[str, tuple[str, ...]],
+) -> PtmRawSpectrumValidationLaneReport:
+    """Link PTM localization review back to raw-spectrum-like fragment support."""
+
+    localized_spectrum_ids = tuple(sorted({record.spectrum_id for record in records}))
+    fragment_supported = tuple(
+        spectrum_id
+        for spectrum_id in localized_spectrum_ids
+        if fragment_ion_support_by_spectrum.get(spectrum_id)
+    )
+    unsupported = tuple(
+        spectrum_id
+        for spectrum_id in localized_spectrum_ids
+        if not fragment_ion_support_by_spectrum.get(spectrum_id)
+    )
+    ready = len(fragment_supported) == len(localized_spectrum_ids) and bool(fragment_supported)
+    return PtmRawSpectrumValidationLaneReport(
+        raw_spectrum_artifact_path=raw_spectrum_artifact_path,
+        localized_spectrum_count=len(localized_spectrum_ids),
+        fragment_supported_spectrum_count=len(fragment_supported),
+        unsupported_spectrum_ids=unsupported,
+        ready_for_rescoring_follow_up=ready,
+        note=(
+            "all localized spectra remain linked to fragment-ion support for rescoring follow-up"
+            if ready
+            else "some localized spectra still lack raw-spectrum-linked fragment support and remain review-only"
+        ),
+    )
+
+
+def build_ptm_family_credibility_track_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    protein_sequences: dict[str, str],
+) -> PtmFamilyCredibilityTrackReport:
+    """Build separate credibility tracks for major PTM families."""
+
+    phospho = build_phospho_specific_review_fixture_report(
+        site_entries,
+        feature_records=feature_records,
+        protein_sequences=protein_sequences,
+    )
+    acetyl = build_acetyl_specific_review_fixture_report(
+        site_entries,
+        feature_records=feature_records,
+        protein_sequences=protein_sequences,
+    )
+    ubiquitin = build_ubiquitin_remnant_workflow_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+    glyco = evaluate_glycopeptide_support_boundary(
+        requested_workflow="n_glycopeptide_localization",
+        has_glycan_composition=False,
+        has_glycosite_localization=False,
+        has_oxonium_ion_support=False,
+        treats_as_ordinary_modification=True,
+    )
+    tracks = (
+        PtmFamilyCredibilityTrack(
+            family_name="phosphorylation",
+            disposition=(
+                PtmFamilyCredibilityDisposition.INTERPRETIVE_ONLY
+                if phospho.ambiguous_site_keys or phospho.caveats
+                else PtmFamilyCredibilityDisposition.SUPPORTED
+            ),
+            evidence_summary="phospho review includes localization, motif windows, and occupancy-linked evidence",
+            caveats=phospho.caveats,
+        ),
+        PtmFamilyCredibilityTrack(
+            family_name="acetylation",
+            disposition=(
+                PtmFamilyCredibilityDisposition.INTERPRETIVE_ONLY
+                if acetyl.caveats
+                else PtmFamilyCredibilityDisposition.SUPPORTED
+            ),
+            evidence_summary="acetyl review distinguishes terminal and residue placements with occupancy-linked caveats",
+            caveats=acetyl.caveats,
+        ),
+        PtmFamilyCredibilityTrack(
+            family_name="ubiquitin_remnant",
+            disposition=(
+                PtmFamilyCredibilityDisposition.INTERPRETIVE_ONLY
+                if ubiquitin.ambiguous_entry_count or ubiquitin.non_lysine_entry_count
+                else PtmFamilyCredibilityDisposition.SUPPORTED
+            ),
+            evidence_summary="ubiquitin-remnant review checks lysine consistency, ambiguity, and quant-linked sample presence",
+            caveats=(
+                *(
+                    ("contains ambiguous ubiquitin-remnant entries",)
+                    if ubiquitin.ambiguous_entry_count
+                    else ()
+                ),
+                *(
+                    ("contains non-lysine remnant inconsistencies",)
+                    if ubiquitin.non_lysine_entry_count
+                    else ()
+                ),
+            ),
+        ),
+        PtmFamilyCredibilityTrack(
+            family_name="glyco_adjacent",
+            disposition=PtmFamilyCredibilityDisposition.REFUSED,
+            evidence_summary="glyco-adjacent support remains refused until glyco-specific evidence semantics are implemented",
+            caveats=(
+                glyco.reason,
+                *glyco.notes,
+            ),
+        ),
+    )
+    return PtmFamilyCredibilityTrackReport(
+        tracks=tracks,
+        supported_families=tuple(
+            track.family_name
+            for track in tracks
+            if track.disposition is PtmFamilyCredibilityDisposition.SUPPORTED
+        ),
+        interpretive_only_families=tuple(
+            track.family_name
+            for track in tracks
+            if track.disposition is PtmFamilyCredibilityDisposition.INTERPRETIVE_ONLY
+        ),
+        refused_families=tuple(
+            track.family_name
+            for track in tracks
+            if track.disposition is PtmFamilyCredibilityDisposition.REFUSED
+        ),
+    )
+
+
+def build_proteoform_benchmark_report(
+    scenarios: tuple[ProteoformBenchmarkScenario, ...],
+) -> ProteoformBenchmarkReport:
+    """Benchmark proteoform interpretation under isoform and PTM-combination pressure."""
+
+    entries: list[ProteoformBenchmarkEntry] = []
+    for scenario in scenarios:
+        identity = build_proteoform_identity(
+            sequence=scenario.sequence,
+            protein_origin=scenario.protein_origin,
+            evidence_level=scenario.evidence_level,
+            ptm_assignments=scenario.ptm_assignments,
+            ambiguity_summary=(
+                "isoform ambiguity and shared peptide pressure remain active"
+                if scenario.isoform_ambiguous or scenario.shared_peptide_pressure
+                else None
+            ),
+        )
+        interpretive_only = (
+            scenario.expected_interpretive_only
+            or scenario.isoform_ambiguous
+            or scenario.shared_peptide_pressure
+            or len(scenario.ptm_assignments) > 2
+        )
+        entries.append(
+            ProteoformBenchmarkEntry(
+                scenario_id=scenario.scenario_id,
+                canonical_proteoform_key=identity.canonical_proteoform_key,
+                assignment_count=len(identity.ptm_assignments),
+                interpretive_only=interpretive_only,
+                note=(
+                    "proteoform remains interpretive-only because isoform or combinatorial pressure is still unresolved"
+                    if interpretive_only
+                    else "proteoform identity stays bounded and reviewable under the benchmark scenario"
+                ),
+            )
+        )
+    return ProteoformBenchmarkReport(
+        entries=tuple(entries),
+        interpretive_only_count=sum(1 for entry in entries if entry.interpretive_only),
+    )
+
+
+def build_ptm_occupancy_stress_benchmark_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    baseline_feature_records: tuple[Ms1FeatureRecord, ...],
+    stressed_feature_records: tuple[Ms1FeatureRecord, ...],
+) -> PtmOccupancyStressBenchmarkReport:
+    """Benchmark occupancy behavior under missing-feature and replicate pressure."""
+
+    baseline = build_ptm_occupancy_counterpart_report(
+        site_entries,
+        feature_records=baseline_feature_records,
+    )
+    stressed = build_ptm_occupancy_counterpart_report(
+        site_entries,
+        feature_records=stressed_feature_records,
+    )
+    baseline_complete = sum(
+        1 for entry in baseline.entries if entry.uncertainty is PtmOccupancyUncertainty.NONE
+    )
+    stressed_complete = sum(
+        1 for entry in stressed.entries if entry.uncertainty is PtmOccupancyUncertainty.NONE
+    )
+    denominator = max(baseline_complete, 1)
+    shift_fraction = abs(baseline_complete - stressed_complete) / denominator
+    stable = shift_fraction <= 0.5
+    return PtmOccupancyStressBenchmarkReport(
+        complete_counterpart_count=stressed_complete,
+        missing_counterpart_count=stressed.missing_counterpart_count,
+        ambiguous_site_count=stressed.ambiguous_site_count,
+        occupancy_shift_fraction=round(shift_fraction, 6),
+        stable_under_replicate_variability=stable,
+        note=(
+            "occupancy support stays bounded under replicate variability and missing-feature pressure"
+            if stable
+            else "occupancy support degrades sharply under missing-feature or replicate pressure"
+        ),
+    )
+
+
+def build_glycopeptide_support_roadmap_report(
+    *,
+    requested_workflow: str,
+) -> GlycopeptideSupportRoadmapReport:
+    """Define the exact work needed before glycopeptide support becomes credible."""
+
+    boundary = evaluate_glycopeptide_support_boundary(
+        requested_workflow=requested_workflow,
+        has_glycan_composition=False,
+        has_glycosite_localization=False,
+        has_oxonium_ion_support=False,
+        treats_as_ordinary_modification=True,
+    )
+    return GlycopeptideSupportRoadmapReport(
+        requested_workflow=requested_workflow,
+        current_disposition=boundary.disposition.value,
+        required_scientific_work=(
+            "define glycan-composition evidence semantics instead of flattening glycans into ordinary modifications",
+            "require glycosite-localization evidence with oxonium-ion support and glyco-aware false-localization controls",
+            "separate glycopeptide family claims from phospho-style site semantics in benchmark and review outputs",
+        ),
+        required_engineering_work=(
+            "build glyco-aware import contracts that preserve glycan composition and site-localization fields together",
+            "add glyco-specific benchmark fixtures and rescoring surfaces instead of TSV-only placeholder support",
+            "add release-facing review artifacts that state glyco-family scope and unsupported vendor behaviors explicitly",
+        ),
+        blocking_evidence_fields=boundary.missing_evidence_fields,
     )
