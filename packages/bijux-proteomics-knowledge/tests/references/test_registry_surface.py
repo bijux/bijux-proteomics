@@ -26,6 +26,13 @@ def test_build_benchmark_registry_entry_carries_dataset_shape_and_claims() -> No
     assert entry.label_strategy == manifest.label_strategy
     assert entry.benchmark_package_id == manifest.benchmark_package.package_id
     assert entry.benchmark_package_summary == manifest.benchmark_package.package_summary
+    assert entry.replay_report_id == f"replay_report:{manifest.workflow_family.value}"
+    assert entry.replay_validating_tests
+    assert entry.replay_limit_summary
+    assert (
+        entry.benchmark_ledger_entry_id
+        == f"benchmark_ledger:{manifest.workflow_family.value}"
+    )
     assert entry.comparator_path_ids == manifest.comparator_path_ids
     assert entry.supported_repo_claims == manifest.supported_repo_claims
     assert entry.realism_limits == manifest.fixture_realism_limits

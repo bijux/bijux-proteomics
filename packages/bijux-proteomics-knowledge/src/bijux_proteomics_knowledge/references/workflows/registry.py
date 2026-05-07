@@ -11,6 +11,9 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
+from bijux_proteomics_knowledge.references.workflows.benchmark_ledger import (
+    build_workflow_benchmark_ledger_entry,
+)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     DEFAULT_BENCHMARK_MANIFESTS,
     BenchmarkCrossCheckStatus,
@@ -20,6 +23,9 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 )
 from bijux_proteomics_knowledge.references.workflows.briefings import (
     build_workflow_reference_briefing,
+)
+from bijux_proteomics_knowledge.references.workflows.replay_proof import (
+    build_workflow_replay_proof_report,
 )
 from bijux_proteomics_knowledge.references.workflows.scientific_release import (
     ScientificGraduationState,
@@ -78,6 +84,10 @@ class BenchmarkRegistryEntry(JsonModel):
     cross_check_status: BenchmarkCrossCheckStatus
     benchmark_package_id: str | None = None
     benchmark_package_summary: str | None = None
+    replay_report_id: str | None = None
+    replay_validating_tests: tuple[str, ...] = Field(default_factory=tuple)
+    replay_limit_summary: tuple[str, ...] = Field(default_factory=tuple)
+    benchmark_ledger_entry_id: str | None = None
     comparator_path_ids: tuple[str, ...] = Field(default_factory=tuple)
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
@@ -186,6 +196,8 @@ def build_benchmark_registry_entry(
 
     authority = assess_benchmark_authority(manifest, reviewed_on=reviewed_on)
     release_packet = build_scientific_release_packet(manifest)
+    replay_report = build_workflow_replay_proof_report(manifest)
+    benchmark_ledger = build_workflow_benchmark_ledger_entry(manifest)
     return BenchmarkRegistryEntry(
         benchmark_id=manifest.benchmark_id,
         title=manifest.title,
@@ -212,6 +224,10 @@ def build_benchmark_registry_entry(
             if manifest.benchmark_package is not None
             else None
         ),
+        replay_report_id=replay_report.report_id if replay_report.replay_supported else None,
+        replay_validating_tests=replay_report.validating_tests,
+        replay_limit_summary=replay_report.replay_limit_summary,
+        benchmark_ledger_entry_id=benchmark_ledger.ledger_entry_id,
         comparator_path_ids=manifest.comparator_path_ids,
         supported_repo_claims=manifest.supported_repo_claims,
         authorized_claim_scope=authority.authorized_claim_scope,
