@@ -15,13 +15,17 @@ from bijux_proteomics_foundation import JsonModel
 class FlagshipPublicEvidenceKind(StrEnum):
     """Dominant evidence kind used to anchor one public benchmark asset."""
 
+    ARTIFACT_INVENTORY = "artifact_inventory"
+    BENCHMARK_PACKAGE_MANIFEST = "benchmark_package_manifest"
     RAW_SPECTRA = "raw_spectra"
     IMPORTED_SEARCH_RESULTS = "imported_search_results"
     QUANT_FEATURE_TABLE = "quant_feature_table"
     PTM_LOCALIZATION_TABLE = "ptm_localization_table"
     REFERENCE_FASTA = "reference_fasta"
+    SCIENTIFIC_INVARIANT_LEDGER = "scientific_invariant_ledger"
     EXPERIMENTAL_DESIGN = "experimental_design"
     EXPECTATION_MANIFEST = "expectation_manifest"
+    WARNING_DEMONSTRATION_LEDGER = "warning_demonstration_ledger"
 
 
 class FlagshipPublicBenchmarkAsset(JsonModel):
@@ -64,6 +68,38 @@ class FlagshipPublicBenchmarkCatalog(JsonModel):
 def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
     return (
         FlagshipPublicBenchmarkAsset(
+            asset_role="package_manifest",
+            path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json",
+            evidence_kind=FlagshipPublicEvidenceKind.BENCHMARK_PACKAGE_MANIFEST,
+            public_identity_note=(
+                "the tracked package manifest is the current machine-readable anchor for the public DDA benchmark center"
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="artifact_inventory",
+            path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/artifact_inventory.json",
+            evidence_kind=FlagshipPublicEvidenceKind.ARTIFACT_INVENTORY,
+            public_identity_note=(
+                "artifact inventory keeps digests, row counts, and reviewer notes visible from files alone"
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="scientific_invariants",
+            path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/scientific_invariants.json",
+            evidence_kind=FlagshipPublicEvidenceKind.SCIENTIFIC_INVARIANT_LEDGER,
+            public_identity_note=(
+                "numeric invariants stop the DDA flagship package from reading like structure-only packaging"
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="warning_demonstrations",
+            path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json",
+            evidence_kind=FlagshipPublicEvidenceKind.WARNING_DEMONSTRATION_LEDGER,
+            public_identity_note=(
+                "warning demonstrations turn protein-rollup caution into concrete public evidence"
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="spectra",
             path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
             evidence_kind=FlagshipPublicEvidenceKind.RAW_SPECTRA,
@@ -72,19 +108,19 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
-            asset_role="search_results",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/results.tsv",
+            asset_role="primary_search_results",
+            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
-                "imported search results anchor identification, calibration, and protein-inference scrutiny in a governed checked-in result table"
+                "the primary MaxQuant export anchors the reviewable runtime import lane in a governed checked-in result table"
             ),
         ),
         FlagshipPublicBenchmarkAsset(
-            asset_role="reference_fasta",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/proteins.fasta",
-            evidence_kind=FlagshipPublicEvidenceKind.REFERENCE_FASTA,
+            asset_role="comparator_search_results",
+            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
+            evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
-                "reference FASTA preserves the exact sequence backdrop used for flagship DDA review"
+                "the paired MSFragger export keeps cross-engine DDA warning pressure public and reviewable"
             ),
         ),
         FlagshipPublicBenchmarkAsset(
@@ -113,7 +149,7 @@ def build_flagship_dda_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         package_id="flagship_public_package:dda_reviewable_run",
         workflow_family="dda",
         package_label="Flagship public DDA reviewable run",
-        replaced_proof_surface="closed_fixture_bundle:dda_identification_only",
+        replaced_proof_surface="legacy_fixture_bundle:dda_mini_study",
         source_assets=_dda_assets(),
         expected_review_artifacts=(
             "artifacts/workflows/reviewable-proteomics/runtime/sequence_intake.json",
@@ -125,13 +161,13 @@ def build_flagship_dda_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "calibration drift",
             "protein inference ambiguity",
             "target-decoy collisions",
-            "contaminant promotion pressure",
+            "cross-engine protein rollup drift",
         ),
         claim_scope=(
-            "primary DDA credibility should now be described against a public reviewable run with raw spectra, imported results, and downstream review expectations."
+            "primary DDA credibility should now be described against the tracked public package with raw spectra, paired imported results, invariant ledgers, and explicit warning demonstrations."
         ),
         note=(
-            "This package becomes the main DDA proof center and demotes earlier closed fixture bundles to regression support only."
+            "This package becomes the main DDA proof center and demotes the earlier DDA mini-study surface to legacy regression support only."
         ),
     )
 

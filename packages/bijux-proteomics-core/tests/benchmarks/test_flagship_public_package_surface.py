@@ -24,10 +24,20 @@ def test_flagship_dda_public_benchmark_package_anchors_raw_and_review_paths() ->
 
     assert package.package_id == "flagship_public_package:dda_reviewable_run"
     assert package.workflow_family == "dda"
-    assert any(asset.path.endswith("production_run/spectra.mgf") for asset in package.source_assets)
-    assert any(asset.path.endswith("production_run/results.tsv") for asset in package.source_assets)
-    assert "calibration drift" in package.scientific_pressures
-    assert "public reviewable run" in package.claim_scope
+    assert any(
+        asset.path.endswith("public_benchmark_packages/dda_reviewable_run/package_manifest.json")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json")
+        for asset in package.source_assets
+    )
+    assert any(
+        asset.path.endswith("search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv")
+        for asset in package.source_assets
+    )
+    assert "cross-engine protein rollup drift" in package.scientific_pressures
+    assert "invariant ledgers" in package.claim_scope
 
 
 def test_flagship_lfq_public_benchmark_package_anchors_study_scale_quant_pressure() -> None:
