@@ -15,7 +15,16 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_runtime.runs.contracts import RunContextContract
+from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
+from bijux_proteomics_runtime.runs.recovery import (
+    RuntimeFailureRecoveryAudit,
+    build_runtime_failure_recovery_audit,
+)
 from bijux_proteomics_runtime.runs.replay import ReplayContract
+from bijux_proteomics_runtime.runs.reruns import (
+    PartialRerunPlan,
+    build_partial_rerun_plan,
+)
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from bijux_proteomics_runtime.workflows.assurance import build_workflow_assurance_matrix
 from bijux_proteomics_runtime.workflows.paths import (
@@ -92,6 +101,44 @@ class BenchmarkArtifactBrowser(JsonModel):
     imported_results: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
     review_outputs: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
     handoff_outputs: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkReplayDecision(JsonModel):
+    """One replay scenario over a runtime benchmark package."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    eligible: bool
+    invalidation_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    reused_nodes: tuple[str, ...] = Field(default_factory=tuple)
+    rerun_nodes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkReplayAudit(JsonModel):
+    """Replay and invalidation posture for one runtime benchmark run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    exact_reuse: BenchmarkReplayDecision
+    tool_change: BenchmarkReplayDecision
+    input_change: BenchmarkReplayDecision
+
+
+class BenchmarkFailureRecoveryBundle(JsonModel):
+    """Engineering-failure and scientific-invalidation split for one run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    engineering_recovery: RuntimeFailureRecoveryAudit
+    scientific_invalidation_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    preserved_artifact_kinds: tuple[str, ...] = Field(default_factory=tuple)
+    blocked_artifact_kinds: tuple[str, ...] = Field(default_factory=tuple)
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -322,6 +369,102 @@ def build_benchmark_artifact_browser(
     )
 
 
+def build_benchmark_replay_audit(
+    base_dir: Path,
+    *,
+    package_id: str,
+    manifest: RuntimeReviewableOutputPath,
+    artifacts_dir: Path | None = None,
+) -> BenchmarkReplayAudit:
+    """Build replay and invalidation posture for one runtime benchmark run."""
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        manifest.run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    run_context = RunContextContract.load_json(workspace.run_context_path)
+    replay_contract = ReplayContract.load_json(workspace.replay_contract_path)
+    artifact_ledger = RuntimeArtifactLedger.load_json(workspace.artifact_ledger_path)
+    exact_plan = build_partial_rerun_plan(
+        previous_run_context=run_context,
+        previous_replay_contract=replay_contract,
+        current_replay_contract=replay_contract,
+        artifact_ledger=artifact_ledger,
+    )
+    tool_change_contract = replay_contract.model_copy(
+        update={
+            "tool_fingerprint": _stable_fingerprint(
+                {
+                    "provider_name": run_context.provider_name,
+                    "tool_versions": {run_context.provider_name: "changed"},
+                }
+            )
+        }
+    )
+    tool_change_plan = build_partial_rerun_plan(
+        previous_run_context=run_context,
+        previous_replay_contract=replay_contract,
+        current_replay_contract=tool_change_contract,
+        artifact_ledger=artifact_ledger,
+    )
+    input_change_contract = replay_contract.model_copy(
+        update={"input_fingerprint": "changed_" + replay_contract.input_fingerprint}
+    )
+    input_change_plan = build_partial_rerun_plan(
+        previous_run_context=run_context,
+        previous_replay_contract=replay_contract,
+        current_replay_contract=input_change_contract,
+        artifact_ledger=artifact_ledger,
+    )
+    return BenchmarkReplayAudit(
+        package_id=package_id,
+        run_id=manifest.run_id,
+        exact_reuse=_replay_decision("exact_reuse", exact_plan),
+        tool_change=_replay_decision("tool_change", tool_change_plan),
+        input_change=_replay_decision("input_change", input_change_plan),
+    )
+
+
+def build_benchmark_failure_recovery_bundle(
+    base_dir: Path,
+    *,
+    package_id: str,
+    manifest: RuntimeReviewableOutputPath,
+    artifacts_dir: Path | None = None,
+) -> BenchmarkFailureRecoveryBundle:
+    """Build engineering-failure and scientific-invalidation split for one run."""
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        manifest.run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    engineering = build_runtime_failure_recovery_audit(workspace, run_id=manifest.run_id)
+    replay_audit = build_benchmark_replay_audit(
+        base_dir,
+        package_id=package_id,
+        manifest=manifest,
+        artifacts_dir=artifacts_dir,
+    )
+    return BenchmarkFailureRecoveryBundle(
+        package_id=package_id,
+        run_id=manifest.run_id,
+        engineering_recovery=engineering,
+        scientific_invalidation_reasons=replay_audit.input_change.invalidation_reasons,
+        preserved_artifact_kinds=tuple(
+            _normalize_recovery_artifact_kind(artifact.artifact_kind, artifact.path)
+            for artifact in engineering.preserved_artifacts
+        ),
+        blocked_artifact_kinds=tuple(
+            _normalize_recovery_artifact_kind(artifact.artifact_kind, artifact.path)
+            for artifact in engineering.blocked_artifacts
+        ),
+        notes=(
+            "engineering failure is determined from artifact survivability and integrity checks",
+            "scientific invalidation is determined from replay fingerprint changes rather than filesystem corruption",
+        ),
+    )
+
+
 def _run_import_benchmark_path(
     base_dir: Path,
     *,
@@ -361,6 +504,12 @@ def _sequence_from_fasta(path: Path) -> str:
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _stable_fingerprint(payload: dict[str, object]) -> str:
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 def _load_json_dict(path: Path) -> dict[str, Any]:
@@ -437,13 +586,40 @@ def _summarize_runtime_output(path: Path, artifact_kind: str) -> BenchmarkArtifa
     )
 
 
+def _replay_decision(scenario_id: str, plan: PartialRerunPlan) -> BenchmarkReplayDecision:
+    return BenchmarkReplayDecision(
+        scenario_id=scenario_id,
+        eligible=plan.replay_eligibility.eligible,
+        invalidation_reasons=plan.replay_eligibility.invalidation_reasons,
+        reused_nodes=tuple(step.node_id for step in plan.reuse_steps),
+        rerun_nodes=tuple(step.node_id for step in plan.rerun_steps),
+    )
+
+
+def _normalize_recovery_artifact_kind(artifact_kind: str, path: str) -> str:
+    name = Path(path).name
+    if artifact_kind == "runtime-artifact-item":
+        if name == "review_packet.json":
+            return "runtime-review-packet"
+        if name == "evidence_bundle.json":
+            return "runtime-evidence-bundle"
+        if name == "reviewable_import_path.json":
+            return "runtime-reviewable-import-path"
+    return artifact_kind
+
+
 __all__ = [
     "BenchmarkArtifactBrowser",
     "BenchmarkArtifactEntry",
+    "BenchmarkFailureRecoveryBundle",
+    "BenchmarkReplayAudit",
+    "BenchmarkReplayDecision",
     "BenchmarkRunMode",
     "BenchmarkRunSpec",
     "BenchmarkRuntimeTruthRow",
     "build_benchmark_artifact_browser",
+    "build_benchmark_failure_recovery_bundle",
+    "build_benchmark_replay_audit",
     "build_benchmark_run_specs",
     "build_benchmark_runtime_truth_surface",
     "run_benchmark_dda_import_path",
