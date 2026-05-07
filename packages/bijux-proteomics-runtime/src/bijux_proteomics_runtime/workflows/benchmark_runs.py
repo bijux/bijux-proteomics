@@ -142,6 +142,61 @@ class BenchmarkFailureRecoveryBundle(JsonModel):
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class BenchmarkDigestRecord(JsonModel):
+    """One input or artifact digest entry used by provenance reports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    label: str = Field(..., min_length=1)
+    path: str = Field(..., min_length=1)
+    sha256: str = Field(..., min_length=64, max_length=64)
+
+
+class BenchmarkRunProvenanceReport(JsonModel):
+    """Exact provenance surface for one runtime benchmark run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    command: str = Field(..., min_length=1)
+    workflow_family: str = Field(..., min_length=1)
+    runtime_app_version: str = Field(..., min_length=1)
+    runtime_git_commit: str = Field(..., min_length=1)
+    provider_name: str = Field(..., min_length=1)
+    provider_version: str | None = Field(default=None)
+    external_engine_name: str | None = Field(default=None)
+    external_engine_version: str | None = Field(default=None)
+    parameter_choices: tuple[str, ...] = Field(default_factory=tuple)
+    input_digests: tuple[BenchmarkDigestRecord, ...] = Field(default_factory=tuple)
+    artifact_digests: tuple[BenchmarkDigestRecord, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkCostArtifact(JsonModel):
+    """One cost-relevant runtime artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_kind: str = Field(..., min_length=1)
+    size_bytes: int = Field(..., ge=0)
+
+
+class BenchmarkExecutionCostReport(JsonModel):
+    """Execution-cost realism surface for one runtime benchmark run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    workflow_family: str = Field(..., min_length=1)
+    wall_time_ms: float = Field(..., ge=0.0)
+    cost_metrics: dict[str, float] = Field(default_factory=dict)
+    total_artifact_bytes: int = Field(..., ge=0)
+    largest_artifacts: tuple[BenchmarkCostArtifact, ...] = Field(default_factory=tuple)
+    critical_bottlenecks: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
     """Return the runtime-owned flagship benchmark packages."""
     return (
@@ -465,6 +520,123 @@ def build_benchmark_failure_recovery_bundle(
     )
 
 
+def build_benchmark_run_provenance_report(
+    base_dir: Path,
+    *,
+    package_id: str,
+    manifest: RuntimeReviewableOutputPath,
+    artifacts_dir: Path | None = None,
+) -> BenchmarkRunProvenanceReport:
+    """Build exact provenance for one runtime benchmark run."""
+    spec = _spec_by_id(package_id)
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        manifest.run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    run_context = RunContextContract.load_json(workspace.run_context_path)
+    replay_contract = ReplayContract.load_json(workspace.replay_contract_path)
+    run_summary = _load_json_dict(workspace.run_summary_path)
+    provider_version = None
+    version_payload = run_summary.get("version")
+    if isinstance(version_payload, dict):
+        tool_versions = version_payload.get("tool_versions")
+        if isinstance(tool_versions, dict):
+            value = tool_versions.get(run_context.provider_name)
+            provider_version = str(value) if value is not None else None
+    return BenchmarkRunProvenanceReport(
+        package_id=package_id,
+        run_id=manifest.run_id,
+        command=manifest.command,
+        workflow_family=manifest.workflow_family,
+        runtime_app_version=str(run_summary["version"]["app"]),
+        runtime_git_commit=str(run_summary["version"]["git_commit"]),
+        provider_name=run_context.provider_name,
+        provider_version=provider_version,
+        external_engine_name=_spec_by_id(package_id).engine_name,
+        external_engine_version=_spec_by_id(package_id).engine_version,
+        parameter_choices=(
+            f"config_fingerprint={run_context.config_fingerprint}",
+            f"parameter_fingerprint={replay_contract.parameter_fingerprint}",
+            f"tool_fingerprint={replay_contract.tool_fingerprint}",
+            f"artifact_policy_fingerprint={replay_contract.artifact_policy_fingerprint}",
+        ),
+        input_digests=tuple(
+            _build_digest_record(label, path)
+            for label, path in _iter_input_paths(spec)
+        ),
+        artifact_digests=tuple(
+            BenchmarkDigestRecord(
+                label=entry.artifact_kind,
+                path=entry.path,
+                sha256=entry.content_sha256,
+            )
+            for entry in RuntimeArtifactLedger.load_json(workspace.artifact_ledger_path).entries
+        ),
+        notes=(
+            "runtime provenance fixes the exact input and artifact digests before downstream review consumers interpret benchmark results",
+        ),
+    )
+
+
+def build_benchmark_execution_cost_report(
+    base_dir: Path,
+    *,
+    package_id: str,
+    manifest: RuntimeReviewableOutputPath,
+    artifacts_dir: Path | None = None,
+) -> BenchmarkExecutionCostReport:
+    """Build cost realism for one runtime benchmark run."""
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        manifest.run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    telemetry = _load_json_dict(workspace.telemetry_path)
+    ledger = RuntimeArtifactLedger.load_json(workspace.artifact_ledger_path)
+    timers = telemetry.get("timers", {})
+    run_total = 0.0
+    if isinstance(timers, dict):
+        values = timers.get("run_total_ms", [])
+        if isinstance(values, list) and values:
+            run_total = max(float(value) for value in values)
+    largest_entries = sorted(
+        ledger.entries,
+        key=lambda entry: entry.size_bytes,
+        reverse=True,
+    )[:3]
+    critical_bottlenecks = []
+    if isinstance(timers, dict):
+        critical_bottlenecks.extend(
+            sorted(
+                timers,
+                key=lambda name: max(float(value) for value in timers[name]),
+                reverse=True,
+            )[:3]
+        )
+    if not critical_bottlenecks:
+        critical_bottlenecks = ["artifact_serialization"]
+    return BenchmarkExecutionCostReport(
+        package_id=package_id,
+        run_id=manifest.run_id,
+        workflow_family=manifest.workflow_family,
+        wall_time_ms=run_total,
+        cost_metrics={
+            key: float(value)
+            for key, value in _dict_items(telemetry.get("cost", {}))
+        },
+        total_artifact_bytes=sum(entry.size_bytes for entry in ledger.entries),
+        largest_artifacts=tuple(
+            BenchmarkCostArtifact(
+                artifact_kind=entry.artifact_kind,
+                size_bytes=entry.size_bytes,
+            )
+            for entry in largest_entries
+        ),
+        critical_bottlenecks=tuple(critical_bottlenecks),
+    )
+
+
 def _run_import_benchmark_path(
     base_dir: Path,
     *,
@@ -608,18 +780,45 @@ def _normalize_recovery_artifact_kind(artifact_kind: str, path: str) -> str:
     return artifact_kind
 
 
+def _build_digest_record(label: str, path: Path) -> BenchmarkDigestRecord:
+    return BenchmarkDigestRecord(label=label, path=str(path), sha256=_sha256(path))
+
+
+def _iter_input_paths(spec: BenchmarkRunSpec) -> tuple[tuple[str, Path], ...]:
+    repo_root = _repo_root()
+    return (
+        ("primary_input", repo_root / spec.primary_input_path),
+        *(
+            (f"companion_input_{index}", repo_root / path)
+            for index, path in enumerate(spec.companion_input_paths, start=1)
+        ),
+    )
+
+
+def _dict_items(payload: object) -> tuple[tuple[str, object], ...]:
+    if not isinstance(payload, dict):
+        return ()
+    return tuple((str(key), value) for key, value in payload.items())
+
+
 __all__ = [
     "BenchmarkArtifactBrowser",
     "BenchmarkArtifactEntry",
+    "BenchmarkCostArtifact",
+    "BenchmarkDigestRecord",
+    "BenchmarkExecutionCostReport",
     "BenchmarkFailureRecoveryBundle",
     "BenchmarkReplayAudit",
     "BenchmarkReplayDecision",
     "BenchmarkRunMode",
+    "BenchmarkRunProvenanceReport",
     "BenchmarkRunSpec",
     "BenchmarkRuntimeTruthRow",
     "build_benchmark_artifact_browser",
+    "build_benchmark_execution_cost_report",
     "build_benchmark_failure_recovery_bundle",
     "build_benchmark_replay_audit",
+    "build_benchmark_run_provenance_report",
     "build_benchmark_run_specs",
     "build_benchmark_runtime_truth_surface",
     "run_benchmark_dda_import_path",
