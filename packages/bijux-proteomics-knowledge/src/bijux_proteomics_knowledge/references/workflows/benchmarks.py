@@ -430,11 +430,11 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:dia_library_extraction_consistency",
         workflow_family=KnowledgeWorkflowFamily.DIA,
-        title="DIA extraction consistency benchmark",
-        scientific_focus="Consistency of peptide-centric extraction across DIA-style reports.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:spectronaut_dia_fixture_export",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+        title="DIA library review public benchmark package",
+        scientific_focus="Library-conditioned DIA extraction over a tracked public package with explicit comparator and runtime-import boundaries.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:dia_library_review_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/package_manifest.json",
         organism="human",
         sample_complexity="library-conditioned DIA adapter export with bounded precursor diversity",
         label_strategy="label-free",
@@ -449,7 +449,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         success_metric="Stable extracted peptide quantities and aligned DIA transition semantics.",
         result_claim="DIA adapters should preserve acquisition semantics, transition alignment, and SWATH-style extraction expectations.",
         cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
-        cross_check_note="The manifest is checked against a pinned Spectronaut-style output, but not against live DIA-NN or Spectronaut execution inside the repo.",
+        cross_check_note="The manifest is checked against a tracked DIA public package with Spectronaut-style and DIA-NN-style exports, but it still does not claim chromatogram-level vendor execution parity inside the repo.",
         primary_citation_ids=(
             "citation:swath_2012",
             "citation:psi_ms_cv_2012",
@@ -460,10 +460,10 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         benchmark_rationale="The knowledge layer needs a curated record of the DIA assumptions that justify spectral-library and transition-based claims downstream.",
         version_trace=(
-            "The benchmark is pinned to the checked-in Spectronaut-style export and the current DIA reference corpus links reviewed on 2026-05-05.",
+            "The benchmark is pinned to the checked-in DIA public package and the current DIA reference corpus links reviewed on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked DIA reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "Dataset paths and linked DIA reference corpora were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
         dataset_license_and_reuse_note="The checked-in DIA fixture is reused as internal benchmark evidence and does not widen redistribution rights for vendor DIA outputs beyond the repository snapshot.",
         instrument_profiles=("Orbitrap", "timsTOF"),
@@ -473,9 +473,9 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Confirm vocabulary normalization against the PSI-MS controlled vocabulary.",
         ),
         benchmark_package=WorkflowBenchmarkPackage(
-            package_id="benchmark_package:dia_library_extraction_bundle",
-            package_summary="DIA benchmark package ties pinned Spectronaut-style exports to settings and pipeline snapshots so extraction-and-interpretation review can be replayed with transparent spectral-library assumptions.",
-            promotion_goal="Promote the DIA benchmark from a checked-in report review into a reproducible extraction-and-interpretation package with explicit library conditioning.",
+            package_id="benchmark_package:dia_library_review_package",
+            package_summary="DIA benchmark package ties a tracked public package to Spectronaut-style and DIA-NN-style exports so extraction-and-interpretation review stays outsider-readable with explicit library assumptions.",
+            promotion_goal="Keep DIA authority anchored in the tracked public package instead of a thinner checked-in report review bundle.",
             realism_pressures=(
                 "library-conditioned peptide extraction pressure through pinned report and pipeline exports",
                 "method-scope pressure that keeps DIA interpretation bounded by visible library assumptions",
@@ -548,7 +548,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "comparator_path:diann_report_normalization_contracts",
         ),
         comparison_notes=(
-            "Compare adapter-normalized outputs against the checked-in Spectronaut-style export because direct DIA-NN or Spectronaut execution is outside repo scope.",
+            "Compare adapter-normalized outputs against the tracked DIA public package because direct DIA-NN or Spectronaut execution is outside repo scope.",
             "Keep SWATH-style transition semantics aligned with the published DIA method reference.",
         ),
         exclusion_notes=(
@@ -556,7 +556,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Excludes biological absence claims when a peptide is missing from the checked-in DIA extraction export.",
         ),
         weakness_notes=(
-            "The fixture export does not capture the full instability of production library curation and chromatographic drift.",
+            "The public package still does not capture the full instability of production library curation and chromatographic drift.",
             "Library-conditioned extraction can look more complete than the underlying protein-level support actually is.",
         ),
         fixture_realism_limits=(
@@ -579,7 +579,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "DIA adapter normalization preserves library-conditioned transition semantics across the pinned export corpus",
             "DIA review surfaces keep capability limits explicit instead of implying vendor-pipeline parity",
         ),
-        last_reviewed_on=date(2026, 5, 5),
+        last_reviewed_on=date(2026, 5, 7),
         freshness_window_days=365,
         obsolescence_conditions=(
             "Supported DIA export dialects change without fixture refresh.",
@@ -593,11 +593,11 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:ptm_site_localization_confidence",
         workflow_family=KnowledgeWorkflowFamily.PTM,
-        title="PTM site-localization confidence benchmark",
-        scientific_focus="Phosphorylation localization confidence and PTM term normalization.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:ptm_localization_fixture",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+        title="PTM localization public benchmark package",
+        scientific_focus="Localization, ambiguity, occupancy-facing feature context, and raw-spectrum context over a tracked PTM public package.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:ptm_localization_review_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/package_manifest.json",
         organism="human",
         sample_complexity="phosphorylation-oriented localization fixture with bounded site ambiguity",
         label_strategy="label-free",
@@ -612,7 +612,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         success_metric="Stable localization confidence assignments with curated PTM term provenance.",
         result_claim="PTM localization outputs should retain both PSI-MOD concept mapping and Ascore-style evidence interpretation.",
         cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest is benchmarked against a pinned localization fixture and method references, but not yet against an external rescoring lane.",
+        cross_check_note="The manifest is benchmarked against a tracked PTM public package with localization, feature, raw-spectrum, and sequence-context evidence, but comparator-backed claim support is still refused.",
         primary_citation_ids=(
             "citation:psi_mod_2008",
             "citation:ascore_2006",
@@ -623,10 +623,10 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         benchmark_rationale="PTM features need both ontology grounding and a localization-confidence method reference to keep downstream rule interpretation defensible.",
         version_trace=(
-            "The benchmark is pinned to the checked-in PTM localization fixture and linked PTM reference corpora reviewed on 2026-05-05.",
+            "The benchmark is pinned to the checked-in PTM public package and linked PTM reference corpora reviewed on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked PTM reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "Dataset paths and linked PTM reference corpora were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
         dataset_license_and_reuse_note="The checked-in PTM fixture is reused as internal benchmark evidence and does not imply redistribution rights beyond the repository’s reviewed test data.",
         instrument_profiles=("Orbitrap",),
@@ -634,6 +634,122 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Use the bundled PTM localization fixture corpus.",
             "Preserve phosphorylation-site localization scores and ambiguous-site handling.",
             "Map modification concepts to PSI-MOD-backed identifiers before emitting conclusions.",
+        ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:ptm_localization_review_package",
+            package_summary="PTM benchmark package ties a tracked public package to localization, PTM feature, raw-spectrum, and reference-sequence evidence so ambiguity and targetability stay outsider-readable.",
+            promotion_goal="Keep PTM authority anchored in the tracked public package instead of a thinner localization fixture story.",
+            realism_pressures=(
+                "site-localization ambiguity and occupancy-facing feature pressure through tracked localization and PTM feature files",
+                "raw-spectrum and sequence-context pressure that keeps PTM review tied to inspectable evidence",
+            ),
+            transparent_assumptions=(
+                "the public package proves bounded localization review and explicit ambiguity handling, not comparator-backed PTM parity",
+                "runtime and comparator closure still remain outside the current PTM flagship package",
+            ),
+            governed_output_surfaces=(
+                "ptm.localization_review",
+                "ptm.lab_targeting_packet",
+                "ptm.occupancy_counterpart",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:package_readme",
+                    artifact_kind=BenchmarkPackageArtifactKind.BENCHMARK_README,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/README.md",
+                    note="Human-readable entrypoint that states the exact PTM ambiguity boundary.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:package_manifest",
+                    artifact_kind=BenchmarkPackageArtifactKind.BENCHMARK_MANIFEST,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/package_manifest.json",
+                    note="Machine-readable PTM package summary with package scope and package files.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:artifact_inventory",
+                    artifact_kind=BenchmarkPackageArtifactKind.ARTIFACT_INVENTORY,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/artifact_inventory.json",
+                    note="Artifact inventory with digests and row counts for the tracked PTM package files.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:quality_sheet",
+                    artifact_kind=BenchmarkPackageArtifactKind.ARTIFACT_INVENTORY,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/quality_sheet.json",
+                    required_for_reproduction=False,
+                    note="Quality sheet that keeps PTM runtime and comparator blockers explicit from the package root.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:lifecycle_record",
+                    artifact_kind=BenchmarkPackageArtifactKind.ARTIFACT_INVENTORY,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/lifecycle.json",
+                    required_for_reproduction=False,
+                    note="Lifecycle record that states which stronger PTM package should replace the current one.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:localization_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.RESULTS_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+                    note="Tracked PTM localization evidence with explicit site ambiguity.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:feature_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.FEATURE_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/ptm/ptm_features.tsv",
+                    note="Tracked PTM feature evidence that keeps occupancy-facing interpretation grounded in files.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:reference_fasta",
+                    artifact_kind=BenchmarkPackageArtifactKind.PROTEIN_FASTA,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/fasta/ptm_sites.fasta",
+                    note="Reference sequence context for exact site coordinates and residue identity.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="ptm_localization_review_package:raw_spectra",
+                    artifact_kind=BenchmarkPackageArtifactKind.RAW_SPECTRA,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
+                    note="Raw-like spectrum that keeps fragment-linked PTM evidence inspectable.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_public_package",
+                    summary="Open the PTM package README, manifest, quality sheet, and lifecycle record before relying on PTM summary prose.",
+                    artifact_ids=(
+                        "ptm_localization_review_package:package_readme",
+                        "ptm_localization_review_package:package_manifest",
+                        "ptm_localization_review_package:quality_sheet",
+                        "ptm_localization_review_package:lifecycle_record",
+                    ),
+                    expected_outputs=(
+                        "ambiguity and runtime gaps stay explicit",
+                        "the current PTM public package boundary is visible from files alone",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="replay_localization_and_feature_review",
+                    summary="Replay PTM localization and occupancy-facing review over the tracked localization and feature files.",
+                    artifact_ids=(
+                        "ptm_localization_review_package:localization_table",
+                        "ptm_localization_review_package:feature_table",
+                    ),
+                    expected_outputs=(
+                        "localized and ambiguous PTM evidence remain distinct",
+                        "occupancy-facing interpretation remains tied to tracked PTM feature evidence",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="keep_raw_and_sequence_context_visible",
+                    summary="Use the raw-like spectrum and reference FASTA before any PTM targetability claim is strengthened.",
+                    artifact_ids=(
+                        "ptm_localization_review_package:raw_spectra",
+                        "ptm_localization_review_package:reference_fasta",
+                    ),
+                    expected_outputs=(
+                        "fragment-linked PTM evidence stays inspectable",
+                        "site coordinates remain tied to reference sequence context",
+                    ),
+                ),
+            ),
         ),
         comparator_path_ids=("comparator_path:maxquant_evidence_import_contracts",),
         comparison_notes=(
@@ -646,7 +762,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         weakness_notes=(
             "Localization confidence can still hide uncertainty about biological relevance and occupancy magnitude.",
-            "The fixture surface is phosphorylation-oriented and does not generalize to every PTM family equally well.",
+            "The public package is still phosphorylation-oriented and does not generalize to every PTM family equally well under broader production PTM diversity.",
         ),
         fixture_realism_limits=(
             "The fixture emphasizes phosphorylation localization and does not represent full PTM family diversity.",
@@ -668,7 +784,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "PTM review preserves localization confidence, ambiguity, and PSI-MOD grounding across the pinned phospho-oriented fixture",
             "PTM benchmark outputs separate localized evidence from broader occupancy or regulatory claims",
         ),
-        last_reviewed_on=date(2026, 5, 5),
+        last_reviewed_on=date(2026, 5, 7),
         freshness_window_days=365,
         obsolescence_conditions=(
             "PTM localization conventions change without a fixture refresh.",
@@ -682,11 +798,11 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:lfq_quantification_repeatability",
         workflow_family=KnowledgeWorkflowFamily.LFQ,
-        title="LFQ repeatability benchmark",
-        scientific_focus="Label-free quantification repeatability on study-scale fixture inputs.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:lfq_study_scale_fixture",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+        title="LFQ cohort review public benchmark package",
+        scientific_focus="Label-free quantification repeatability and missingness review over a tracked cohort-shaped public package.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:lfq_cohort_review_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/package_manifest.json",
         organism="human",
         sample_complexity="study-scale cohort fixture with bounded missingness and two-condition replicate structure",
         label_strategy="label-free",
@@ -701,7 +817,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         success_metric="Consistent protein abundance summaries across repeated LFQ fixture runs.",
         result_claim="Label-free quantification outputs should preserve study design semantics and repeatable abundance rollups.",
         cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest proves repeatability over the bundled LFQ fixture, not parity with an external LFQ engine or a broader cohort truth set.",
+        cross_check_note="The manifest proves repeatability over a tracked LFQ public package, but still does not claim runtime execution or broader cohort truth parity.",
         primary_citation_ids=("citation:uniprot_2025",),
         corpus_ids=(
             "corpus:quant_fixture_suite",
@@ -709,10 +825,10 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         benchmark_rationale="The suite uses bundled LFQ fixtures to prove repeatability, but interpretation remains tied to stable reference-proteome identifiers.",
         version_trace=(
-            "The benchmark is pinned to the checked-in study-scale quantification fixture and current proteome reference links reviewed on 2026-05-05.",
+            "The benchmark is pinned to the checked-in LFQ public package and current proteome reference links reviewed on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked quantification reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "Dataset paths and linked quantification reference corpora were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
         dataset_license_and_reuse_note="The checked-in LFQ fixture is reused as internal benchmark evidence and does not widen redistribution rights for any external quantification pipelines beyond the repository snapshot.",
         instrument_profiles=("Orbitrap",),
@@ -722,9 +838,9 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Map quantified proteins through curated UniProt-backed identifiers.",
         ),
         benchmark_package=WorkflowBenchmarkPackage(
-            package_id="benchmark_package:lfq_cohort_repeatability_bundle",
-            package_summary="LFQ benchmark package pairs a cohort-shaped design table with study-scale feature evidence so missingness, batches, instruments, and replicate structure stay first-class in review outputs.",
-            promotion_goal="Promote the LFQ benchmark from a study-scale fixture into a cohort-style repeatability package with realistic missingness and replicate structure.",
+            package_id="benchmark_package:lfq_cohort_review_package",
+            package_summary="LFQ benchmark package ties a tracked public package to cohort-shaped design and study-scale feature evidence so missingness and replicate structure stay outsider-readable.",
+            promotion_goal="Keep LFQ authority anchored in the tracked public package instead of a thinner study-scale fixture bundle.",
             realism_pressures=(
                 "cohort-shaped replicate and batch pressure through an eight-sample design table",
                 "missingness pressure that keeps quant review bounded by actual dropout and design semantics",
@@ -793,7 +909,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         comparator_path_ids=("comparator_path:maxquant_evidence_import_contracts",),
         comparison_notes=(
-            "Compare rollups against the checked-in study-scale LFQ fixture instead of claiming parity with unexecuted external quantification pipelines.",
+            "Compare rollups against the tracked LFQ public package instead of claiming parity with unexecuted external quantification pipelines.",
             "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
         ),
         exclusion_notes=(
@@ -801,7 +917,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Excludes direct parity claims against external LFQ pipelines that are not executed inside the repository.",
         ),
         weakness_notes=(
-            "Study-scale fixtures underrepresent the sample heterogeneity and dropout patterns seen in broader cohorts.",
+            "The public package still underrepresents the sample heterogeneity and dropout patterns seen in broader production cohorts.",
             "Protein-level repeatability can obscure peptide-level ambiguity and design-sensitive missingness.",
         ),
         fixture_realism_limits=(
@@ -824,7 +940,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "LFQ review preserves study-design semantics, missingness visibility, and repeatable rollup behavior across the bundled fixture",
             "LFQ benchmark outputs can support review-grade abundance interpretation when QC and replicate caveats remain explicit",
         ),
-        last_reviewed_on=date(2026, 5, 5),
+        last_reviewed_on=date(2026, 5, 7),
         freshness_window_days=365,
         obsolescence_conditions=(
             "LFQ design fixtures change in sample structure without metadata refresh.",
@@ -838,11 +954,11 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:multiplex_tmtpro_quantification",
         workflow_family=KnowledgeWorkflowFamily.MULTIPLEX,
-        title="Multiplex TMTpro quantification benchmark",
-        scientific_focus="Isobaric multiplex assumptions and reporter-channel interpretation.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:tmtpro_multiplex_fixture",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+        title="Multiplex TMTpro public benchmark package",
+        scientific_focus="Isobaric multiplex channel and chemistry interpretation over a tracked TMTpro public package.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:multiplex_tmtpro_review_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/package_manifest.json",
         organism="human",
         sample_complexity="paired-plex reporter-channel fixture with bounded interference and missing-channel pressure",
         label_strategy="TMTpro multiplex",
@@ -857,7 +973,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         success_metric="Stable multiplex abundance outputs with explicit TMTpro chemistry assumptions.",
         result_claim="Multiplex quantification should preserve TMTpro channel semantics and label-chemistry caveats.",
         cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest is bounded to the bundled multiplex fixture and published chemistry framing rather than a live vendor multiplex pipeline.",
+        cross_check_note="The manifest is bounded to a tracked multiplex public package and published chemistry framing rather than a live vendor multiplex pipeline.",
         primary_citation_ids=("citation:tmtpro_2020",),
         corpus_ids=(
             "corpus:quant_fixture_suite",
@@ -865,10 +981,10 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         benchmark_rationale="Multiplex quantification depends on durable label-chemistry assumptions that need a curated reference surface instead of ad hoc comments.",
         version_trace=(
-            "The benchmark is pinned to the checked-in multiplex quantification fixture and current chemistry reference links reviewed on 2026-05-05.",
+            "The benchmark is pinned to the checked-in multiplex public package and current chemistry reference links reviewed on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked multiplex reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "Dataset paths and linked multiplex reference corpora were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
         dataset_license_and_reuse_note="The checked-in multiplex fixture is reused as internal benchmark evidence and does not imply redistribution rights for any vendor multiplex outputs beyond the repository snapshot.",
         instrument_profiles=("Orbitrap",),
@@ -878,9 +994,9 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Keep label-chemistry assumptions explicit in any downstream interpretation.",
         ),
         benchmark_package=WorkflowBenchmarkPackage(
-            package_id="benchmark_package:multiplex_tmtpro_stress_bundle",
-            package_summary="Multiplex benchmark package keeps reporter features, multiplex design, and chemistry-driven decision surfaces together so interference pressure, missing channels, and reference dependence stay explicit.",
-            promotion_goal="Promote the multiplex benchmark from a narrow TMTpro fixture into a stress package that makes interference, missing channels, and reference dependence auditable.",
+            package_id="benchmark_package:multiplex_tmtpro_review_package",
+            package_summary="Multiplex benchmark package ties a tracked public package to reporter features and multiplex design so channel and chemistry pressure stay outsider-readable.",
+            promotion_goal="Keep multiplex authority anchored in the tracked public package instead of a thinner TMTpro fixture bundle.",
             realism_pressures=(
                 "reference-channel and pooled-reference dependence pressure across paired plexes",
                 "missing-channel and imbalance pressure that keeps multiplex review from reading like label-free abundance truth",
@@ -941,7 +1057,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             ),
         ),
         comparison_notes=(
-            "Compare reporter handling against the checked-in multiplex fixture because direct vendor-specific multiplex pipelines are not executed here.",
+            "Compare reporter handling against the tracked multiplex public package because direct vendor-specific multiplex pipelines are not executed here.",
             "Limit support claims to channel semantics and chemistry caveats, not full external pipeline parity.",
         ),
         exclusion_notes=(
@@ -949,7 +1065,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Excludes vendor-pipeline parity claims beyond the checked-in multiplex fixture and published chemistry framing.",
         ),
         weakness_notes=(
-            "The fixture surface is narrower than production multiplex cohorts with more severe missing-channel and interference behavior.",
+            "The public package surface is still narrower than production multiplex cohorts with more severe missing-channel and interference behavior.",
             "Channel stability can look stronger than the underlying protein-level certainty actually is.",
         ),
         fixture_realism_limits=(
@@ -972,7 +1088,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Multiplex review preserves TMTpro reporter semantics, missing-channel visibility, and balance caveats across the bundled fixture",
             "Multiplex benchmark outputs can support review-grade interpretation when channel chemistry limits remain explicit",
         ),
-        last_reviewed_on=date(2026, 5, 5),
+        last_reviewed_on=date(2026, 5, 7),
         freshness_window_days=365,
         obsolescence_conditions=(
             "Multiplex channel mappings or fixture design change without metadata refresh.",
@@ -986,11 +1102,11 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:targeted_transition_quality_control",
         workflow_family=KnowledgeWorkflowFamily.TARGETED,
-        title="Targeted transition quality-control benchmark",
-        scientific_focus="Transition-level quality checks over chromatogram-shaped targeted outputs.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:chromatogram_qc_transition_fixture",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+        title="Targeted transition public benchmark package",
+        scientific_focus="Transition-level quality checks and operator consequence packets over a tracked targeted public package.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:targeted_transition_review_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/package_manifest.json",
         organism="human",
         sample_complexity="targeted chromatogram QC fixture with bounded transition diversity and shared-peptide caution",
         label_strategy="targeted transition monitoring",
@@ -1005,7 +1121,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         success_metric="Stable transition-level QC summaries for bundled chromatogram evidence.",
         result_claim="Targeted-style chromatogram summaries should preserve transition-level evidence and protein-inference caution when rolled up.",
         cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest is grounded in the bundled chromatogram fixture and inference references, not in a live vendor targeted workflow.",
+        cross_check_note="The manifest is grounded in a tracked targeted public package with QC and follow-up packets, not in a live vendor targeted workflow.",
         primary_citation_ids=("citation:protein_inference_2012",),
         corpus_ids=(
             "corpus:chromatogram_qc_fixture",
@@ -1013,10 +1129,10 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         benchmark_rationale="Targeted outputs often collapse transition evidence quickly, so the benchmark captures how much interpretation can safely happen before protein-level rollup.",
         version_trace=(
-            "The benchmark is pinned to the checked-in chromatogram QC fixture and current protein-inference reference links reviewed on 2026-05-05.",
+            "The benchmark is pinned to the checked-in targeted public package and current protein-inference reference links reviewed on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked targeted reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "Dataset paths and linked targeted reference corpora were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
         dataset_license_and_reuse_note="The checked-in chromatogram fixture is reused as internal benchmark evidence and does not widen redistribution rights for vendor targeted outputs beyond the repository snapshot.",
         instrument_profiles=("Triple quadrupole", "Orbitrap"),
@@ -1026,9 +1142,9 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Report any protein rollup with explicit inference caution.",
         ),
         benchmark_package=WorkflowBenchmarkPackage(
-            package_id="benchmark_package:targeted_transition_control_bundle",
-            package_summary="Targeted benchmark package combines chromatogram-shaped QC evidence with approved, failed, and refused follow-up packets so calibration pressure, transition reproducibility, and operator-facing risk stay explicit.",
-            promotion_goal="Promote the targeted benchmark from a chromatogram QC fixture into a control bundle that includes calibration pressure, interference risk, and transition reproducibility scrutiny.",
+            package_id="benchmark_package:targeted_transition_review_package",
+            package_summary="Targeted benchmark package ties a tracked public package to transition QC evidence and approved, failed, and refused follow-up packets so operator risk stays outsider-readable.",
+            promotion_goal="Keep targeted authority anchored in the tracked public package instead of a thinner chromatogram QC bundle.",
             realism_pressures=(
                 "transition reproducibility pressure through supported, failed, and refused targeted follow-up packets",
                 "control and interference pressure that keeps operator-facing targeted review honest about execution risk",
@@ -1101,7 +1217,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             ),
         ),
         comparison_notes=(
-            "Compare targeted QC handling against the checked-in chromatogram fixture and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
+            "Compare targeted QC handling against the tracked targeted public package and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
             "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
         ),
         exclusion_notes=(
@@ -1109,7 +1225,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Excludes unqualified protein certainty when the benchmark only proves cautious transition retention and rollup visibility.",
         ),
         weakness_notes=(
-            "The QC fixture is operationally tidy compared with noisier targeted production runs and carryover scenarios.",
+            "The public package evidence is still operationally tidy compared with noisier targeted production runs and carryover scenarios.",
             "Transition retention is easier to prove than protein-specific interpretability in shared-peptide settings.",
         ),
         fixture_realism_limits=(
@@ -1132,7 +1248,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Targeted benchmark outputs preserve transition-level QC evidence and explicit protein-inference caution across the bundled chromatogram fixture",
             "Targeted review can support operator-facing QC interpretation without pretending to prove vendor-parity targeted biology",
         ),
-        last_reviewed_on=date(2026, 5, 5),
+        last_reviewed_on=date(2026, 5, 7),
         freshness_window_days=365,
         obsolescence_conditions=(
             "Targeted fixture schema changes without updated transition-level metadata.",
