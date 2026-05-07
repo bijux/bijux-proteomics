@@ -22,6 +22,12 @@ def _root_pyproject() -> dict[str, object]:
         return tomllib.load(handle)
 
 
+def _tox_config() -> ConfigParser:
+    parser = ConfigParser()
+    parser.read(REPO_ROOT / "tox.ini", encoding="utf-8")
+    return parser
+
+
 def test_root_mypy_configuration_uses_namespace_packages() -> None:
     assert _mypy_config()["mypy"]["namespace_packages"] == "true"
 
@@ -31,6 +37,12 @@ def test_root_pyproject_declares_documented_quality_tooling() -> None:
     interrogate = tool_section["interrogate"]
     assert interrogate["fail-under"] == 32
     assert interrogate["color"] is True
+
+
+def test_root_tox_configuration_redirects_state_into_root_artifacts() -> None:
+    tox_config = _tox_config()
+
+    assert tox_config["tox"]["toxworkdir"] == "{tox_root}/artifacts/root/tox"
 
 
 def test_root_pyproject_declares_documented_security_tooling() -> None:
