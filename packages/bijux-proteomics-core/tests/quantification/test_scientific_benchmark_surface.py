@@ -5,8 +5,13 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelBasedChannelPolicyEntry,
+    LabelBasedChannelRole,
+    LabelBasedQuantPolicy,
+    MissingChannelPolicy,
     MissingValueKind,
     Ms1FeatureRecord,
+    MultiplexNormalizationPolicy,
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
@@ -17,6 +22,7 @@ from bijux_proteomics.quantification.benchmarks import (
     QuantTruthExpectationEntry,
     build_effect_size_stability_benchmark_report,
     build_multiplex_artifact_pressure_benchmark_report,
+    build_multiplex_stress_benchmark_report,
     build_quant_missingness_robustness_report,
     build_quant_normalization_impact_benchmark_report,
     build_quant_truth_package_benchmark_report,
@@ -423,3 +429,72 @@ def test_quant_truth_package_benchmark_report_tracks_controlled_shifts() -> None
     assert report.matched_expected_count == 2
     assert report.missed_expected_count == 0
     assert report.unexpected_leader_ids == ()
+
+
+def test_multiplex_stress_benchmark_report_flags_reference_dropout_and_unbalanced_design() -> (
+    None
+):
+    design_entries = _multiplex_design() + (
+        ExperimentalDesignEntry(
+            sample_id="plex-a-128",
+            condition="carrier",
+            replicate=1,
+            fraction=1,
+            spectra_file="plex-a-128.mzml",
+            batch="plex-a",
+            multiplex_group="plex-a",
+            multiplex_channel="128",
+        ),
+    )
+    records = _multiplex_records() + (
+        Ms1FeatureRecord(
+            feature_id="plex-005",
+            sample_id="plex-a-128",
+            peptide="SPIKEC",
+            canonical_peptide="SPIKEC",
+            intensity=900.0,
+            protein_refs=("SPIKEC",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    policy = LabelBasedQuantPolicy(
+        missing_channel_policy=MissingChannelPolicy.PRESERVE,
+        channel_entries=(
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="126",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="127",
+                channel_role=LabelBasedChannelRole.SAMPLE,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="128",
+                channel_role=LabelBasedChannelRole.CARRIER,
+            ),
+            LabelBasedChannelPolicyEntry(
+                multiplex_group="plex-a",
+                multiplex_channel="129",
+                channel_role=LabelBasedChannelRole.REFERENCE,
+            ),
+        ),
+    )
+
+    report = build_multiplex_stress_benchmark_report(
+        table,
+        design_entries=design_entries,
+        policy=policy,
+        normalization_policy=MultiplexNormalizationPolicy(balance_ratio_threshold=1.2),
+    )
+
+    assert report.reference_dropout_count == 1
+    assert report.bundle_missing_channel_count >= 1
+    assert report.ready_for_biological_rollup is False

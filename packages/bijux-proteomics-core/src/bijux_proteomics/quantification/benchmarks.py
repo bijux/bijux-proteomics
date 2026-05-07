@@ -11,12 +11,15 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    LabelBasedQuantPolicy,
     LabelFreeQuantTable,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
+    MultiplexNormalizationPolicy,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
+    build_label_based_quant_bundle,
     build_label_free_intensity_table,
     normalize_label_free_table,
     summarize_missing_values,
@@ -28,9 +31,11 @@ from bijux_proteomics.quantification.readiness import (
 from bijux_proteomics.quantification.review import (
     MissingnessMechanismKind,
     MissingnessMechanismProfileReport,
+    MultiplexChannelBalanceDiagnosticsReport,
     QuantNormalizationPolicyKind,
     build_effect_size_first_differential_abundance_report,
     build_missingness_mechanism_profile_report,
+    build_multiplex_channel_balance_diagnostics_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -176,6 +181,20 @@ class QuantTruthPackageBenchmarkReport(JsonModel):
     matched_expected_count: int = Field(..., ge=0)
     missed_expected_count: int = Field(..., ge=0)
     unexpected_leader_ids: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class MultiplexStressBenchmarkReport(JsonModel):
+    """Stress benchmark for multiplex reference dropout and carrier overload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bundle_missing_channel_count: int = Field(..., ge=0)
+    reference_dropout_count: int = Field(..., ge=0)
+    carrier_overload_count: int = Field(..., ge=0)
+    unbalanced_group_count: int = Field(..., ge=0)
+    diagnostics: MultiplexChannelBalanceDiagnosticsReport
+    ready_for_biological_rollup: bool
     note: str = Field(..., min_length=1)
 
 
@@ -567,5 +586,69 @@ def build_quant_truth_package_benchmark_report(
             "controlled shifts were recovered without unexpected leaders dominating the contrast"
             if matched_count == len(entries) and not unexpected_leaders
             else "controlled shifts still compete with unexpected or misdirected quantitative leaders"
+        ),
+    )
+
+
+def build_multiplex_stress_benchmark_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: LabelBasedQuantPolicy,
+    normalization_policy: MultiplexNormalizationPolicy | None = None,
+    overloaded_carrier_ratio_threshold: float = 2.0,
+) -> MultiplexStressBenchmarkReport:
+    """Stress multiplex support with missing references, carrier overload, and imbalance."""
+
+    quant_bundle = build_label_based_quant_bundle(
+        table,
+        design_entries=design_entries,
+        policy=policy,
+    )
+    diagnostics = build_multiplex_channel_balance_diagnostics_report(
+        table,
+        design_entries=design_entries,
+        quant_policy=policy,
+        normalization_policy=normalization_policy,
+    )
+    reference_dropout_count = sum(
+        1
+        for entry in quant_bundle.missing_channels
+        if entry.expected_role.value == "reference"
+    )
+    carrier_overload_count = sum(
+        1
+        for entry in diagnostics.caveats
+        if "carrier/reference channels" in entry
+    )
+    sample_counts_by_group: dict[str, int] = {}
+    for entry in design_entries:
+        if entry.multiplex_group:
+            sample_counts_by_group[entry.multiplex_group] = (
+                sample_counts_by_group.get(entry.multiplex_group, 0) + 1
+            )
+    counts = tuple(sample_counts_by_group.values())
+    smallest = min(counts) if counts else 0
+    largest = max(counts) if counts else 0
+    unbalanced_group_count = (
+        1 if smallest and (largest / smallest) >= overloaded_carrier_ratio_threshold else 0
+    )
+    ready = (
+        reference_dropout_count == 0
+        and diagnostics.flagged_imbalance_count == 0
+        and diagnostics.missing_channel_count == 0
+        and unbalanced_group_count == 0
+    )
+    return MultiplexStressBenchmarkReport(
+        bundle_missing_channel_count=len(quant_bundle.missing_channels),
+        reference_dropout_count=reference_dropout_count,
+        carrier_overload_count=carrier_overload_count,
+        unbalanced_group_count=unbalanced_group_count,
+        diagnostics=diagnostics,
+        ready_for_biological_rollup=ready,
+        note=(
+            "multiplex support survives missing-channel, carrier, and balance stress"
+            if ready
+            else "multiplex support remains bounded by missing references, carrier pressure, or unbalanced design"
         ),
     )
