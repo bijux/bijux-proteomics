@@ -40,6 +40,84 @@ class BenchmarkEvidenceTier(StrEnum):
     EXTERNAL_REPRODUCTION_PACKAGE = "external_reproduction_package"
 
 
+class BenchmarkPackageArtifactKind(StrEnum):
+    """Artifact roles inside a reproducible benchmark package."""
+
+    DESIGN_TABLE = "design_table"
+    EXPECTATION_LEDGER = "expectation_ledger"
+    EXTERNAL_PIPELINE_EXPORT = "external_pipeline_export"
+    FEATURE_TABLE = "feature_table"
+    FIXTURE_MANIFEST = "fixture_manifest"
+    FOLLOW_UP_PACKET = "follow_up_packet"
+    PROTEIN_FASTA = "protein_fasta"
+    RAW_SPECTRA = "raw_spectra"
+    RESULTS_TABLE = "results_table"
+    RUNTIME_POLICY = "runtime_policy"
+    SEARCH_SETTINGS = "search_settings"
+    TARGETED_QC_TABLE = "targeted_qc_table"
+
+
+class BenchmarkPackageArtifact(JsonModel):
+    """One governed repo artifact that belongs to a benchmark package."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    artifact_kind: BenchmarkPackageArtifactKind
+    repo_relative_path: str = Field(..., min_length=1)
+    required_for_reproduction: bool = True
+    note: str = Field(..., min_length=1)
+
+
+class BenchmarkReproductionStep(JsonModel):
+    """One reviewable step for replaying a benchmark package."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    step_id: str = Field(..., min_length=1)
+    summary: str = Field(..., min_length=1)
+    artifact_ids: tuple[str, ...] = Field(..., min_length=1)
+    outside_repo_execution: bool = False
+    expected_outputs: tuple[str, ...] = Field(..., min_length=1)
+
+    @field_validator("artifact_ids", "expected_outputs")
+    @classmethod
+    def _forbid_blank_step_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        cleaned = tuple(item.strip() for item in value if item.strip())
+        if not cleaned:
+            raise ValueError("at least one non-blank value is required")
+        return cleaned
+
+
+class WorkflowBenchmarkPackage(JsonModel):
+    """One benchmark package that promotes a fixture into a reviewable bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    package_summary: str = Field(..., min_length=1)
+    promotion_goal: str = Field(..., min_length=1)
+    realism_pressures: tuple[str, ...] = Field(..., min_length=1)
+    transparent_assumptions: tuple[str, ...] = Field(..., min_length=1)
+    governed_output_surfaces: tuple[str, ...] = Field(..., min_length=1)
+    package_artifacts: tuple[BenchmarkPackageArtifact, ...] = Field(..., min_length=1)
+    reproduction_steps: tuple[BenchmarkReproductionStep, ...] = Field(
+        ..., min_length=1
+    )
+
+    @field_validator(
+        "realism_pressures",
+        "transparent_assumptions",
+        "governed_output_surfaces",
+    )
+    @classmethod
+    def _forbid_blank_package_values(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        cleaned = tuple(item.strip() for item in value if item.strip())
+        if not cleaned:
+            raise ValueError("at least one non-blank value is required")
+        return cleaned
+
+
 class BenchmarkManifest(JsonModel):
     """One reproducible benchmark contract for a workflow family."""
 
@@ -71,6 +149,8 @@ class BenchmarkManifest(JsonModel):
     dataset_license_and_reuse_note: str = Field(..., min_length=1)
     instrument_profiles: tuple[str, ...] = Field(..., min_length=1)
     reproduction_requirements: tuple[str, ...] = Field(..., min_length=1)
+    benchmark_package: WorkflowBenchmarkPackage | None = None
+    comparator_path_ids: tuple[str, ...] = Field(default_factory=tuple)
     comparison_notes: tuple[str, ...] = Field(..., min_length=1)
     exclusion_notes: tuple[str, ...] = Field(..., min_length=1)
     weakness_notes: tuple[str, ...] = Field(..., min_length=1)
@@ -92,6 +172,7 @@ class BenchmarkManifest(JsonModel):
         "retrieval_trace",
         "instrument_profiles",
         "reproduction_requirements",
+        "comparator_path_ids",
         "comparison_notes",
         "exclusion_notes",
         "weakness_notes",
@@ -156,6 +237,105 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Normalize search-engine exports through the core adapter fixture corpus.",
             "Validate peptide-spectrum match confidence with target-decoy-oriented outputs.",
             "Map identified proteins against curated UniProt-reviewed records.",
+        ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:dda_msfragger_reproduction_bundle",
+            package_summary="DDA benchmark package combines raw-like spectra, a pinned search export, fixture manifest, and expected workflow outputs so adapter review can be replayed from spectra-shaped inputs to review-ready evidence without pretending the engine rerun happens in-repo.",
+            promotion_goal="Promote the DDA benchmark from a checked-in export review into a reproducible raw-to-result package with explicit engine-outside-repo boundaries.",
+            realism_pressures=(
+                "raw-spectrum-to-result replay pressure through spectra, FASTA, and pinned result snapshots",
+                "production-like fixture governance with expected workflow outputs and QC policy references",
+            ),
+            transparent_assumptions=(
+                "engine execution remains outside repo scope even though spectra and search settings are pinned here",
+                "result review authority is limited to the checked-in MSFragger export rather than raw-spectrum scoring parity",
+            ),
+            governed_output_surfaces=(
+                "identification.search_adapters",
+                "identification.review_ready_evidence_bundle",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:raw_spectra",
+                    artifact_kind=BenchmarkPackageArtifactKind.RAW_SPECTRA,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
+                    note="Pinned spectra-shaped input that keeps the benchmark anchored to a raw-like acquisition surface.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:protein_fasta",
+                    artifact_kind=BenchmarkPackageArtifactKind.PROTEIN_FASTA,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/proteins.fasta",
+                    note="Reviewed proteome snapshot for bounded replay against the pinned result bundle.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:fixture_manifest",
+                    artifact_kind=BenchmarkPackageArtifactKind.FIXTURE_MANIFEST,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/fixture_manifest.json",
+                    note="Fixture-level checksum ledger that keeps replay inputs explicit.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:results_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.RESULTS_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_results.tsv",
+                    note="Pinned MSFragger result table used for adapter-normalized review comparison.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:search_settings",
+                    artifact_kind=BenchmarkPackageArtifactKind.SEARCH_SETTINGS,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger.params",
+                    note="Search parameter snapshot that makes external-engine assumptions explicit.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_msfragger_bundle:expectation_ledger",
+                    artifact_kind=BenchmarkPackageArtifactKind.EXPECTATION_LEDGER,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/workflow_end_to_end_expectations.json",
+                    note="Expected workflow outputs that keep raw-to-review replay scoped and reviewable.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_fixture_inputs",
+                    summary="Verify the governed spectra, FASTA, and fixture ledger before treating the package as a valid replay surface.",
+                    artifact_ids=(
+                        "dda_msfragger_bundle:raw_spectra",
+                        "dda_msfragger_bundle:protein_fasta",
+                        "dda_msfragger_bundle:fixture_manifest",
+                    ),
+                    expected_outputs=(
+                        "input hashes and bounded replay scope remain explicit",
+                        "raw-like acquisition surface is pinned before review claims are made",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="compare_external_engine_export",
+                    summary="Replay adapter normalization against the pinned MSFragger result table and its search settings snapshot.",
+                    artifact_ids=(
+                        "dda_msfragger_bundle:results_table",
+                        "dda_msfragger_bundle:search_settings",
+                    ),
+                    outside_repo_execution=True,
+                    expected_outputs=(
+                        "target-decoy semantics remain visible after adapter normalization",
+                        "reviewed-proteome mapping stays grounded in the pinned result snapshot",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="check_review_ready_expectations",
+                    summary="Cross-check review-ready evidence against the production-like expectation ledger instead of stopping at parser success.",
+                    artifact_ids=(
+                        "dda_msfragger_bundle:results_table",
+                        "dda_msfragger_bundle:expectation_ledger",
+                    ),
+                    expected_outputs=(
+                        "review-ready evidence bundle stays inside the documented workflow surface",
+                        "raw-to-result benchmark package proves bounded replay rather than generic engine parity",
+                    ),
+                ),
+            ),
+        ),
+        comparator_path_ids=(
+            "comparator_path:msfragger_imported_dda_review",
+            "comparator_path:maxquant_evidence_import_contracts",
         ),
         comparison_notes=(
             "Compare normalized outputs against the checked-in MSFragger export rather than rerunning external engines in-repo.",
@@ -245,6 +425,81 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Preserve DIA acquisition labels and transition-aligned peptide extraction semantics.",
             "Confirm vocabulary normalization against the PSI-MS controlled vocabulary.",
         ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:dia_library_extraction_bundle",
+            package_summary="DIA benchmark package ties pinned Spectronaut-style exports to settings and pipeline snapshots so extraction-and-interpretation review can be replayed with transparent spectral-library assumptions.",
+            promotion_goal="Promote the DIA benchmark from a checked-in report review into a reproducible extraction-and-interpretation package with explicit library conditioning.",
+            realism_pressures=(
+                "library-conditioned peptide extraction pressure through pinned report and pipeline exports",
+                "method-scope pressure that keeps DIA interpretation bounded by visible library assumptions",
+            ),
+            transparent_assumptions=(
+                "library generation and vendor execution remain outside repo scope even though settings and outputs are pinned",
+                "comparison authority stops at checked-in extraction outputs rather than chromatogram-level vendor parity",
+            ),
+            governed_output_surfaces=(
+                "identification.search_adapters",
+                "dia.capability_matrix",
+                "identification.review_ready_evidence_bundle",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="dia_library_bundle:report",
+                    artifact_kind=BenchmarkPackageArtifactKind.RESULTS_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+                    note="Pinned Spectronaut-style report that anchors DIA extraction review.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dia_library_bundle:pipeline_export",
+                    artifact_kind=BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_pipeline_export.tsv",
+                    note="Pipeline-facing export snapshot that keeps adapter field coverage auditable.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dia_library_bundle:settings",
+                    artifact_kind=BenchmarkPackageArtifactKind.SEARCH_SETTINGS,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_settings.txt",
+                    note="Pinned DIA settings snapshot that exposes spectral-library and extraction assumptions.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_library_conditioning",
+                    summary="Review the pinned DIA settings before treating the checked-in extraction report as benchmark authority.",
+                    artifact_ids=("dia_library_bundle:settings",),
+                    outside_repo_execution=True,
+                    expected_outputs=(
+                        "library-conditioned assumptions stay explicit",
+                        "DIA review remains bounded by the documented extraction posture",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="normalize_report_and_pipeline_export",
+                    summary="Replay adapter normalization over both the report and pipeline export so field-level extraction semantics stay auditable.",
+                    artifact_ids=(
+                        "dia_library_bundle:report",
+                        "dia_library_bundle:pipeline_export",
+                    ),
+                    expected_outputs=(
+                        "transition-aligned peptide evidence remains reviewable",
+                        "adapter field-loss accounting stays visible instead of hiding library-shaped columns",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="assemble_interpretation_review",
+                    summary="Build DIA capability and review-ready evidence outputs from the pinned extraction surface.",
+                    artifact_ids=("dia_library_bundle:report",),
+                    expected_outputs=(
+                        "DIA capability boundaries remain explicit",
+                        "interpretation claims stop at library-conditioned review scope",
+                    ),
+                ),
+            ),
+        ),
+        comparator_path_ids=(
+            "comparator_path:spectronaut_dia_review_contracts",
+            "comparator_path:diann_report_normalization_contracts",
+        ),
         comparison_notes=(
             "Compare adapter-normalized outputs against the checked-in Spectronaut-style export because direct DIA-NN or Spectronaut execution is outside repo scope.",
             "Keep SWATH-style transition semantics aligned with the published DIA method reference.",
@@ -299,8 +554,8 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         organism="human",
         sample_complexity="phosphorylation-oriented localization fixture with bounded site ambiguity",
         label_strategy="label-free",
-        sample_count=4,
-        replicate_count=2,
+        sample_count=8,
+        replicate_count=4,
         acquisition_mode="data-dependent acquisition",
         truth_surfaces=(
             "localized-site confidence",
@@ -333,6 +588,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Preserve phosphorylation-site localization scores and ambiguous-site handling.",
             "Map modification concepts to PSI-MOD-backed identifiers before emitting conclusions.",
         ),
+        comparator_path_ids=("comparator_path:maxquant_evidence_import_contracts",),
         comparison_notes=(
             "Compare localization handling against the checked-in PTM localization fixture because direct rescoring engines are not executed in the repo test path.",
             "Retain Ascore-style ambiguity framing and PSI-MOD grounding in the resulting claims.",
@@ -418,6 +674,77 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Preserve sample-design semantics during quantification aggregation.",
             "Map quantified proteins through curated UniProt-backed identifiers.",
         ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:lfq_cohort_repeatability_bundle",
+            package_summary="LFQ benchmark package pairs a cohort-shaped design table with study-scale feature evidence so missingness, batches, instruments, and replicate structure stay first-class in review outputs.",
+            promotion_goal="Promote the LFQ benchmark from a study-scale fixture into a cohort-style repeatability package with realistic missingness and replicate structure.",
+            realism_pressures=(
+                "cohort-shaped replicate and batch pressure through an eight-sample design table",
+                "missingness pressure that keeps quant review bounded by actual dropout and design semantics",
+            ),
+            transparent_assumptions=(
+                "the study remains fixture-sized even though it carries cohort-style batch and instrument structure",
+                "repeatability under this bundle does not imply spike-in accuracy or broad cohort transfer",
+            ),
+            governed_output_surfaces=(
+                "quantification.feature_ingestion",
+                "quantification.review",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="lfq_cohort_bundle:feature_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.FEATURE_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+                    note="Study-scale LFQ feature evidence with visible missingness and replicate structure.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="lfq_cohort_bundle:design_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.DESIGN_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv",
+                    note="Eight-sample cohort-shaped design with batches, instruments, and replicate labels.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="lfq_cohort_bundle:expectation_ledger",
+                    artifact_kind=BenchmarkPackageArtifactKind.EXPECTATION_LEDGER,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
+                    required_for_reproduction=False,
+                    note="Pinned quant reproducibility ledger that keeps review output hashes explicit even though it is narrower than the study-scale cohort table.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_cohort_design",
+                    summary="Check that replicate, batch, condition, and instrument structure remain governed before reading the benchmark as cohort-like evidence.",
+                    artifact_ids=("lfq_cohort_bundle:design_table",),
+                    expected_outputs=(
+                        "cohort-style replicate structure remains explicit",
+                        "batch and instrument posture stays visible before quant rollup begins",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="assemble_quant_review_bundle",
+                    summary="Replay LFQ feature ingestion and quant review assembly over the study-scale design and feature tables.",
+                    artifact_ids=(
+                        "lfq_cohort_bundle:feature_table",
+                        "lfq_cohort_bundle:design_table",
+                    ),
+                    expected_outputs=(
+                        "missingness and QC caveats remain first-class review signals",
+                        "protein-level abundance rollups preserve design semantics instead of flattening them",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="cross_check_repeatability_scope",
+                    summary="Use the pinned reproducibility ledger as a bounded cross-check rather than treating stable values as general LFQ truth.",
+                    artifact_ids=("lfq_cohort_bundle:expectation_ledger",),
+                    expected_outputs=(
+                        "repeatability claims remain separate from accuracy claims",
+                        "review outputs stay tied to the governed cohort-style fixture scope",
+                    ),
+                ),
+            ),
+        ),
+        comparator_path_ids=("comparator_path:maxquant_evidence_import_contracts",),
         comparison_notes=(
             "Compare rollups against the checked-in study-scale LFQ fixture instead of claiming parity with unexecuted external quantification pipelines.",
             "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
@@ -502,6 +829,69 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Use multiplex design and feature fixtures from the bundled quantification corpus.",
             "Preserve reporter-channel assignments for TMTpro-labeled samples.",
             "Keep label-chemistry assumptions explicit in any downstream interpretation.",
+        ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:multiplex_tmtpro_stress_bundle",
+            package_summary="Multiplex benchmark package keeps reporter features, multiplex design, and chemistry-driven decision surfaces together so interference pressure, missing channels, and reference dependence stay explicit.",
+            promotion_goal="Promote the multiplex benchmark from a narrow TMTpro fixture into a stress package that makes interference, missing channels, and reference dependence auditable.",
+            realism_pressures=(
+                "reference-channel and pooled-reference dependence pressure across paired plexes",
+                "missing-channel and imbalance pressure that keeps multiplex review from reading like label-free abundance truth",
+            ),
+            transparent_assumptions=(
+                "the package models bounded TMTpro behavior rather than severe production-scale carrier overload",
+                "channel-aware review remains the governed output, not vendor-specific TMT execution parity",
+            ),
+            governed_output_surfaces=(
+                "quantification.label_based_quant_bundle",
+                "quantification.multiplex_balance",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="multiplex_stress_bundle:feature_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.FEATURE_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+                    note="Reporter-channel feature evidence that carries imbalance and carrier-shape pressure.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="multiplex_stress_bundle:design_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.DESIGN_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+                    note="Multiplex design table that keeps group, channel, and pooled-reference roles explicit.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_channel_roles",
+                    summary="Review multiplex groups, channel identities, and pooled-reference roles before any label-based rollup is trusted.",
+                    artifact_ids=("multiplex_stress_bundle:design_table",),
+                    expected_outputs=(
+                        "reference-channel dependence remains explicit",
+                        "missing-channel pressure can be traced back to governed channel roles",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="assemble_label_based_quant_bundle",
+                    summary="Replay reporter-aware quantification and preserve missing channels instead of forcing a falsely complete plex.",
+                    artifact_ids=(
+                        "multiplex_stress_bundle:feature_table",
+                        "multiplex_stress_bundle:design_table",
+                    ),
+                    expected_outputs=(
+                        "reporter-channel assignments remain stable",
+                        "missing channels remain explicit review caveats",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="check_balance_and_interference_pressure",
+                    summary="Use channel balance diagnostics to keep imbalance and chemistry caveats visible during interpretation.",
+                    artifact_ids=("multiplex_stress_bundle:feature_table",),
+                    expected_outputs=(
+                        "imbalance and carrier-driven pressure stay review-visible",
+                        "multiplex support remains bounded by chemistry-aware caveats",
+                    ),
+                ),
+            ),
         ),
         comparison_notes=(
             "Compare reporter handling against the checked-in multiplex fixture because direct vendor-specific multiplex pipelines are not executed here.",
@@ -588,6 +978,81 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "Keep transition-level measures intact before protein-level summary.",
             "Report any protein rollup with explicit inference caution.",
         ),
+        benchmark_package=WorkflowBenchmarkPackage(
+            package_id="benchmark_package:targeted_transition_control_bundle",
+            package_summary="Targeted benchmark package combines chromatogram-shaped QC evidence with approved, failed, and refused follow-up packets so calibration pressure, transition reproducibility, and operator-facing risk stay explicit.",
+            promotion_goal="Promote the targeted benchmark from a chromatogram QC fixture into a control bundle that includes calibration pressure, interference risk, and transition reproducibility scrutiny.",
+            realism_pressures=(
+                "transition reproducibility pressure through supported, failed, and refused targeted follow-up packets",
+                "control and interference pressure that keeps operator-facing targeted review honest about execution risk",
+            ),
+            transparent_assumptions=(
+                "the bundle proves targeted review governance rather than live Skyline or vendor chromatogram parity",
+                "calibration and control pressure are modeled through review packets and QC tables, not through raw vendor traces",
+            ),
+            governed_output_surfaces=(
+                "formats.targeted_qc_ingestion",
+                "lab.targeted_follow_up_handoff",
+            ),
+            package_artifacts=(
+                BenchmarkPackageArtifact(
+                    artifact_id="targeted_control_bundle:qc_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.TARGETED_QC_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+                    note="Chromatogram-shaped QC table that anchors transition-level review.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="targeted_control_bundle:approved_follow_up",
+                    artifact_kind=BenchmarkPackageArtifactKind.FOLLOW_UP_PACKET,
+                    repo_relative_path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json",
+                    note="Execution-ready targeted packet that keeps reproducible approval posture visible.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="targeted_control_bundle:failed_follow_up",
+                    artifact_kind=BenchmarkPackageArtifactKind.FOLLOW_UP_PACKET,
+                    repo_relative_path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json",
+                    note="Failed transition packet that carries control gaps and likely assay-failure pressure.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="targeted_control_bundle:refused_follow_up",
+                    artifact_kind=BenchmarkPackageArtifactKind.FOLLOW_UP_PACKET,
+                    repo_relative_path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
+                    note="Refused targeted packet that keeps weak science and missing controls from being laundered into execution.",
+                ),
+            ),
+            reproduction_steps=(
+                BenchmarkReproductionStep(
+                    step_id="inspect_transition_qc_surface",
+                    summary="Review the chromatogram-shaped QC table before any targeted support claim is escalated.",
+                    artifact_ids=("targeted_control_bundle:qc_table",),
+                    expected_outputs=(
+                        "transition-level evidence remains the primary review surface",
+                        "protein-level certainty stays secondary to QC and inference caution",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="compare_approved_and_failed_follow_up_packets",
+                    summary="Use approved and failed handoff packets to keep control coverage, heavy standards, and execution-safe transitions explicit.",
+                    artifact_ids=(
+                        "targeted_control_bundle:approved_follow_up",
+                        "targeted_control_bundle:failed_follow_up",
+                    ),
+                    expected_outputs=(
+                        "transition reproducibility pressure remains operator-visible",
+                        "missing controls remain explicit blockers instead of hidden assumptions",
+                    ),
+                ),
+                BenchmarkReproductionStep(
+                    step_id="preserve_refusal_boundaries",
+                    summary="Keep refused targeted packets in the package so weak science and high-risk transitions remain part of the benchmark truth surface.",
+                    artifact_ids=("targeted_control_bundle:refused_follow_up",),
+                    expected_outputs=(
+                        "interference and control risk remain visible in review outputs",
+                        "targeted support claims stop before weak science is turned into executable spend",
+                    ),
+                ),
+            ),
+        ),
         comparison_notes=(
             "Compare targeted QC handling against the checked-in chromatogram fixture and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
             "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
@@ -638,6 +1103,10 @@ __all__ = [
     "BenchmarkEvidenceTier",
     "BenchmarkManifest",
     "BenchmarkCrossCheckStatus",
+    "BenchmarkPackageArtifact",
+    "BenchmarkPackageArtifactKind",
+    "BenchmarkReproductionStep",
     "DEFAULT_BENCHMARK_MANIFESTS",
     "KnowledgeWorkflowFamily",
+    "WorkflowBenchmarkPackage",
 ]

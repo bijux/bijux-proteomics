@@ -6,9 +6,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
     BenchmarkCrossCheckStatus,
     BenchmarkEvidenceTier,
-    DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
