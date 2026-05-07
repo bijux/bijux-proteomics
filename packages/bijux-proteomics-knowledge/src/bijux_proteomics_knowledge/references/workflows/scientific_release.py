@@ -267,7 +267,7 @@ def build_flagship_reproducibility_pack(
     artifact_ids = tuple(
         artifact.artifact_id
         for artifact in manifest.benchmark_package.package_artifacts
-    ) if manifest.benchmark_package is not None else ()
+    ) if manifest.benchmark_package is not None else (manifest.dataset_id,)
     return FlagshipReproducibilityPack(
         pack_id=f"{manifest.benchmark_id}:flagship_reproducibility_pack",
         workflow_family=manifest.workflow_family,

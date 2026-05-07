@@ -104,6 +104,10 @@ from bijux_proteomics_knowledge.references.workflows.lookups import (
 from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkAuthorityStatus,
 )
+from bijux_proteomics_knowledge.references.workflows.scientific_release import (
+    ScientificReleasePacket,
+    build_scientific_release_packet,
+)
 
 
 class BenchmarkReviewClaim(JsonModel):
@@ -206,6 +210,7 @@ class WorkflowBenchmarkReview(JsonModel):
     curated_reference_context: tuple[str, ...] = Field(default_factory=tuple)
     decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
     minimum_controls_required: tuple[str, ...] = Field(default_factory=tuple)
+    scientific_release_packet: ScientificReleasePacket
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
@@ -484,6 +489,7 @@ def build_dda_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -525,6 +531,7 @@ def build_dda_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -716,6 +723,7 @@ def build_dia_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -771,6 +779,7 @@ def build_dia_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -976,6 +985,7 @@ def build_ptm_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -1034,6 +1044,7 @@ def build_ptm_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1170,6 +1181,7 @@ def build_lfq_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -1211,6 +1223,7 @@ def build_lfq_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1456,6 +1469,7 @@ def build_targeted_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -1513,6 +1527,7 @@ def build_targeted_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1729,6 +1744,7 @@ def build_multiplex_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
+    scientific_release_packet = build_scientific_release_packet(manifest)
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -1784,6 +1800,7 @@ def build_multiplex_benchmark_review(
         curated_reference_context=curated_reference_context,
         decision_grade_criteria=decision_grade_criteria,
         minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
+        scientific_release_packet=scientific_release_packet,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
