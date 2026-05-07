@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from pathlib import Path
 import re
 
@@ -13,11 +14,11 @@ from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import parse_mzml, stream_mzml_spectra
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -179,6 +180,38 @@ class FormatCapabilityMatrixReport(JsonModel):
 
     entries: tuple[FormatCapabilityEntry, ...] = Field(default_factory=tuple)
     generated_from: str = Field(..., min_length=1)
+
+
+class RawSpectraDialectRealityState(StrEnum):
+    """Practical support state for one raw-spectra dialect surface."""
+
+    SUPPORTED = "supported"
+    PARTIAL = "partial"
+    REFUSED = "refused"
+
+
+class RawSpectraDialectRealityEntry(JsonModel):
+    """Reality check entry for one mzML or related raw-spectra dialect."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_name: str = Field(..., min_length=1)
+    format_name: str = Field(..., min_length=1)
+    support_state: RawSpectraDialectRealityState
+    practical_scope: str = Field(..., min_length=1)
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class RawSpectraDialectRealityReport(JsonModel):
+    """Practical support report over mzML, MGF, and vendor-native raw surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[RawSpectraDialectRealityEntry, ...] = Field(default_factory=tuple)
+    supported_count: int = Field(..., ge=0)
+    partial_count: int = Field(..., ge=0)
+    refused_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
 
 
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
@@ -690,6 +723,98 @@ def build_format_capability_matrix_from_fixtures(
     return FormatCapabilityMatrixReport(
         entries=tuple(entries),
         generated_from=str(fixtures_dir),
+    )
+
+
+def build_raw_spectra_dialect_reality_report(
+    paths: tuple[Path, ...],
+) -> RawSpectraDialectRealityReport:
+    """Classify practical raw-spectra support without overstating vendor coverage."""
+
+    entries: list[RawSpectraDialectRealityEntry] = []
+    for path in sorted(paths, key=lambda item: item.name):
+        suffix = path.suffix.lower()
+        if suffix == ".mzml":
+            decoding = inspect_mzml_decoding_support(path)
+            support_state = (
+                RawSpectraDialectRealityState.SUPPORTED
+                if decoding.supported
+                else RawSpectraDialectRealityState.PARTIAL
+            )
+            practical_scope = (
+                "standard mzML float-array decoding is directly supported, but practical coverage still depends on the upstream vendor conversion path"
+                if decoding.supported
+                else "mzML payload is recognizable, but binary-array dialect choices still limit direct practical coverage"
+            )
+            entries.append(
+                RawSpectraDialectRealityEntry(
+                    input_name=path.name,
+                    format_name="mzml",
+                    support_state=support_state,
+                    practical_scope=practical_scope,
+                    diagnostics=decoding.diagnostics,
+                )
+            )
+            continue
+        if suffix == ".mgf":
+            entries.append(
+                RawSpectraDialectRealityEntry(
+                    input_name=path.name,
+                    format_name="mgf",
+                    support_state=RawSpectraDialectRealityState.PARTIAL,
+                    practical_scope=(
+                        "MGF remains a parseable exchange surface, not a full instrument-native replacement for precursor and binary-array provenance"
+                    ),
+                    diagnostics=(
+                        "MGF preserves peak lists and a bounded metadata subset",
+                        "instrument-native binary encoding, chromatograms, and richer acquisition metadata remain outside the MGF scope",
+                    ),
+                )
+            )
+            continue
+        if suffix in {".raw", ".wiff", ".d"}:
+            entries.append(
+                RawSpectraDialectRealityEntry(
+                    input_name=path.name,
+                    format_name=suffix.lstrip("."),
+                    support_state=RawSpectraDialectRealityState.REFUSED,
+                    practical_scope=(
+                        "vendor-native raw files still require external conversion before current ingestion and review workflows can make scientific claims"
+                    ),
+                    diagnostics=(
+                        "vendor-native binary dialect is not directly decoded in-repo",
+                        "convert to mzML with a documented conversion path before treating the result as a supported ingestion surface",
+                    ),
+                )
+            )
+            continue
+        entries.append(
+            RawSpectraDialectRealityEntry(
+                input_name=path.name,
+                format_name=suffix.lstrip(".") or "unknown",
+                support_state=RawSpectraDialectRealityState.REFUSED,
+                practical_scope="raw-spectra dialect is unknown to the current ingestion boundary",
+                diagnostics=("no practical ingestion support is defined for this suffix",),
+            )
+        )
+
+    supported_count = sum(
+        entry.support_state is RawSpectraDialectRealityState.SUPPORTED
+        for entry in entries
+    )
+    partial_count = sum(
+        entry.support_state is RawSpectraDialectRealityState.PARTIAL
+        for entry in entries
+    )
+    refused_count = len(entries) - supported_count - partial_count
+    return RawSpectraDialectRealityReport(
+        entries=tuple(entries),
+        supported_count=supported_count,
+        partial_count=partial_count,
+        refused_count=refused_count,
+        note=(
+            "raw-spectra dialect reality distinguishes standard mzML decoding support from exchange-only MGF behavior and refused vendor-native raw surfaces"
+        ),
     )
 
 
