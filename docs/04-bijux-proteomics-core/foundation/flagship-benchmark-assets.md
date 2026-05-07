@@ -14,6 +14,10 @@ fixtures. They live under one product-owned root:
 
 `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/`
 
+The punishing companion surface now lives beside them under:
+
+`packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/`
+
 This handbook explains what is copied, what is generated, what public sources
 justify the copied files, how to rebuild the package metadata, and where the
 repository keeps the current freshness and obsolescence pressure visible.
@@ -93,9 +97,18 @@ not yet close the scientific gap across all workflow families.
 - `targeted`: public and consequence-bearing, but still import-only and not yet
   calibration-strong enough for decision-grade trust
 
+Those limits are now pressure-tested explicitly through the blinded holdout and
+perturbation roots in the Flagship Challenge Corpus Catalog.
+
 ## First Proof Check
 
 - `packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_asset_roots.py`
 - `packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_asset_maintenance.py`
 - `packages/bijux-proteomics-core/tests/benchmarks/test_flagship_asset_root_surface.py`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages`
+
+## Challenge Pressure
+
+Open [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
+when you need the frozen holdouts and adversarial perturbations that challenge
+these public package claims directly.

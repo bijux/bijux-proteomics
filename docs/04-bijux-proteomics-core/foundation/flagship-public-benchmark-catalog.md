@@ -120,3 +120,7 @@ family-transfer report still collapses outsider-facing trust.
 Open [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/)
 when you need the copied-source contract, citation discipline, refresh command,
 freshness report, or obsolescence audit for these package roots.
+
+Open [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
+when you need the blinded holdouts and perturbation roots that deliberately try
+to break the claims these package roots would otherwise make too comfortably.
