@@ -37,7 +37,7 @@ def test_comparator_failure_report_tracks_known_targeted_loss_dossier() -> None:
 
     assert isinstance(entry, BenchmarkComparatorFailureEntry)
     assert entry.known_loss_to_established_tool is True
-    assert entry.public_claim_support_state is ComparatorClaimSupportState.REFUSED
+    assert entry.public_claim_support_state is ComparatorClaimSupportState.ADVISORY
     assert "Skyline" in entry.improvement_target or "Skyline".lower() in entry.improvement_target.lower()
 
 

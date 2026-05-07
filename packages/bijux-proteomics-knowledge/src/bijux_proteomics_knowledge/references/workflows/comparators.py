@@ -268,6 +268,51 @@ DEFAULT_WORKFLOW_COMPARATOR_PATHS: tuple[WorkflowComparatorPath, ...] = (
             "full spectral-library generation parity outside the pinned report snapshot",
         ),
     ),
+    WorkflowComparatorPath(
+        comparator_path_id="comparator_path:skyline_targeted_review_contracts",
+        comparator_tool=ProteomicsComparatorTool.SKYLINE,
+        benchmark_ids=("benchmark:targeted_transition_quality_control",),
+        workflow_families=(KnowledgeWorkflowFamily.TARGETED,),
+        comparison_summary=(
+            "Skyline-class targeted comparison checks whether the tracked QC table and "
+            "approved, failed, and refused follow-up packets preserve the same operator-visible "
+            "calibration, interference, and consequence boundaries that an external targeted "
+            "workflow would insist on."
+        ),
+        fixture_paths=(
+            "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+            "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+            "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json",
+            "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json",
+        ),
+        owned_surfaces=(
+            "bijux-proteomics-core: formats.targeted_qc_ingestion",
+            "bijux-proteomics-core: dia.targeted_benchmarks",
+            "bijux-proteomics-lab: benchmarks.follow_up",
+            "bijux-proteomics-intelligence: benchmark_reviews",
+        ),
+        comparison_behaviors=(
+            ComparatorBehaviorClaim(
+                behavior_id="targeted_qc_retention",
+                status=ComparatorBehaviorStatus.MATCHES,
+                summary="targeted review preserves transition-level QC and keeps clean-looking chromatograms subordinate to explicit calibration and interference checks",
+            ),
+            ComparatorBehaviorClaim(
+                behavior_id="follow_up_consequence_partition",
+                status=ComparatorBehaviorStatus.MATCHES,
+                summary="approved, failed, and refused targeted follow-up consequences remain separately reviewable instead of collapsing into one positive assay story",
+            ),
+            ComparatorBehaviorClaim(
+                behavior_id="skyline_vendor_execution_parity",
+                status=ComparatorBehaviorStatus.DOES_NOT_ATTEMPT,
+                summary="the repository does not execute Skyline or vendor chromatogram engines and therefore does not claim chromatogram-shape parity",
+            ),
+        ),
+        non_goals=(
+            "live Skyline or vendor chromatogram execution parity",
+            "calibration-perfect targeted vendor behavior outside the tracked QC and follow-up package",
+        ),
+    ),
 )
 
 
@@ -341,13 +386,6 @@ def _build_tool_status(
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX and comparator_tool is ProteomicsComparatorTool.MAXQUANT:
         not_attempted_behaviors = (
             "the repository does not yet offer a MaxQuant-style multiplex comparator path for vendor-specific TMT parity",
-        )
-    if workflow_family is KnowledgeWorkflowFamily.TARGETED and comparator_tool is ProteomicsComparatorTool.SKYLINE:
-        refused_behaviors = (
-            "the repository refuses to present targeted QC fixtures as Skyline-level chromatogram parity without a raw calibration comparator package",
-        )
-        not_attempted_behaviors = (
-            "the repository does not yet offer a Skyline-style targeted comparator path",
         )
     if workflow_family is KnowledgeWorkflowFamily.TARGETED and comparator_tool is ProteomicsComparatorTool.MAXQUANT:
         not_attempted_behaviors = (

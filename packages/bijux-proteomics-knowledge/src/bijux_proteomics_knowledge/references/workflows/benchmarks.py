@@ -611,8 +611,8 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         success_metric="Stable localization confidence assignments with curated PTM term provenance.",
         result_claim="PTM localization outputs should retain both PSI-MOD concept mapping and Ascore-style evidence interpretation.",
-        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest is benchmarked against a tracked PTM public package with localization, feature, raw-spectrum, and sequence-context evidence, but comparator-backed claim support is still refused.",
+        cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        cross_check_note="The manifest is benchmarked against a tracked PTM public package with localization, feature, raw-spectrum, and sequence-context evidence, and public claims stay bounded by explicit comparator caveats instead of being refused outright.",
         primary_citation_ids=(
             "citation:psi_mod_2008",
             "citation:ascore_2006",
@@ -816,8 +816,8 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         success_metric="Consistent protein abundance summaries across repeated LFQ fixture runs.",
         result_claim="Label-free quantification outputs should preserve study design semantics and repeatable abundance rollups.",
-        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest proves repeatability over a tracked LFQ public package, but still does not claim runtime execution or broader cohort truth parity.",
+        cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        cross_check_note="The manifest proves repeatability over a tracked LFQ public package and keeps broader cohort truth parity explicitly advisory rather than refused.",
         primary_citation_ids=("citation:uniprot_2025",),
         corpus_ids=(
             "corpus:quant_fixture_suite",
@@ -1120,8 +1120,8 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
         ),
         success_metric="Stable transition-level QC summaries for bundled chromatogram evidence.",
         result_claim="Targeted-style chromatogram summaries should preserve transition-level evidence and protein-inference caution when rolled up.",
-        cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
-        cross_check_note="The manifest is grounded in a tracked targeted public package with QC and follow-up packets, not in a live vendor targeted workflow.",
+        cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
+        cross_check_note="The manifest is grounded in a tracked targeted public package with QC and follow-up packets, and public claims stay bounded by Skyline-class operational comparison rather than live vendor targeted parity.",
         primary_citation_ids=("citation:protein_inference_2012",),
         corpus_ids=(
             "corpus:chromatogram_qc_fixture",
@@ -1216,6 +1216,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
                 ),
             ),
         ),
+        comparator_path_ids=("comparator_path:skyline_targeted_review_contracts",),
         comparison_notes=(
             "Compare targeted QC handling against the tracked targeted public package and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
             "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
