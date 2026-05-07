@@ -3,86 +3,86 @@
 
 [guard]
 max_total_top_level_root_file_count = 0
-max_total_undocumented_owner_family_count = 31
-max_total_stale_documented_path_count = 1
+max_total_undocumented_owner_family_count = 0
+max_total_stale_documented_path_count = 0
 max_total_historical_shape_count = 0
 
 [[package]]
 distribution_name = "agentic-proteins"
 top_level_root_file_count = 0
-documented_owner_families = ["agents", "agents/execution", "execution", "interfaces", "orchestration", "providers", "providers/experimental", "state"]
-undocumented_owner_families = ["tools"]
+documented_owner_families = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
 top_level_root_file_count = 0
-documented_owner_families = ["api", "docs", "quality", "release", "security", "tools"]
-undocumented_owner_families = ["governance"]
-stale_documented_paths = ["api/"]
+documented_owner_families = ["docs", "governance", "quality", "release", "security", "tools"]
+undocumented_owner_families = []
+stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
 top_level_root_file_count = 0
-documented_owner_families = []
-undocumented_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+documented_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
 top_level_root_file_count = 0
-documented_owner_families = ["benchmarks", "chemistry", "dia", "domain", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
-undocumented_owner_families = ["biology", "governance"]
+documented_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
 top_level_root_file_count = 0
-documented_owner_families = ["api", "api/routes", "api/v1/endpoints", "execution", "execution/agents", "providers", "runs", "state", "support", "workflows"]
-undocumented_owner_families = ["governance"]
+documented_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 top_level_root_file_count = 0
-documented_owner_families = ["learning/refinement"]
-undocumented_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+documented_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
 top_level_root_file_count = 0
-documented_owner_families = ["references/grounding", "references/workflows"]
-undocumented_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+documented_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
 top_level_root_file_count = 0
-documented_owner_families = []
-undocumented_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+documented_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
-docs_tree_contradiction = true
+docs_tree_contradiction = false
 historical_shape_dominates_design = false

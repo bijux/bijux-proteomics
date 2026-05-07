@@ -50,6 +50,11 @@ evidence models, and lab-planning contracts are already real. The broader
 proteomics workflow stack for sequence intake, assay progression, evidence
 integration, and reviewable scientific delivery is still being built out.
 
+The current non-negotiable gaps are collected in
+[`docs/01-bijux-proteomics/foundation/current-capability-limits.md`](docs/01-bijux-proteomics/foundation/current-capability-limits.md)
+so releases, handbook pages, and package claims can point to one exact
+repository-scoped limits surface instead of drifting independently.
+
 This repository publishes `7` packages: `6` real product packages plus `1`
 compatibility bridge. Each release tag builds one staged bundle per package,
 uploads distributions to PyPI, publishes release bundles to their exact GHCR
@@ -120,6 +125,7 @@ What is still missing or deliberately incomplete:
 
 - Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
 - Scientific workflow roadmap: [Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
+- Current capability limits: [Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
 - API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
 - Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - Compatibility package: [agentic-proteins handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/)

@@ -6,7 +6,7 @@ debt_id = "agentic-proteins:reopened-completion-claim"
 distribution_name = "agentic-proteins"
 debt_family = "reopened-completion-claim"
 severity = "high"
-summary = "docs and tree still contradict each other"
+summary = "root public breadth still exceeds owner logic depth"
 evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
@@ -18,44 +18,12 @@ summary = "17 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-core:reopened-completion-claim"
-distribution_name = "bijux-proteomics-core"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-dev:reopened-completion-claim"
-distribution_name = "bijux-proteomics-dev"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-foundation:reopened-completion-claim"
-distribution_name = "bijux-proteomics-foundation"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-intelligence:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-intelligence"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
 summary = "5 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-intelligence:reopened-completion-claim"
-distribution_name = "bijux-proteomics-intelligence"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
 
 [[debt]]
 debt_id = "bijux-proteomics-knowledge:mixed-responsibility-modules"
@@ -66,14 +34,6 @@ summary = "3 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-knowledge:reopened-completion-claim"
-distribution_name = "bijux-proteomics-knowledge"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-lab:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-lab"
 debt_family = "mixed-responsibility-modules"
@@ -82,25 +42,9 @@ summary = "4 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]
-debt_id = "bijux-proteomics-lab:reopened-completion-claim"
-distribution_name = "bijux-proteomics-lab"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
-
-[[debt]]
 debt_id = "bijux-proteomics-runtime:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-runtime"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
 summary = "3 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
-
-[[debt]]
-debt_id = "bijux-proteomics-runtime:reopened-completion-claim"
-distribution_name = "bijux-proteomics-runtime"
-debt_family = "reopened-completion-claim"
-severity = "high"
-summary = "docs and tree still contradict each other"
-evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"

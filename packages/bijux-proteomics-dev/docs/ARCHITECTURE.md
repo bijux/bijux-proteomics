@@ -27,9 +27,11 @@ enforce:
 
 ## Module topology
 
+- `governance/` owns package-shape audits, release-blocking repository
+  contracts, and cross-package structural truth reports
 - `quality/` owns repository-level quality, boundary, and migration checks
 - `security/` owns dependency and audit policy enforcement
-- `api/` owns OpenAPI freeze and drift tooling
+- `quality/architecture/` owns OpenAPI freeze, drift, and boundary tooling
 - `docs/` owns publication, link, and consistency enforcement
 - `release/` owns release-readiness and workflow validation helpers
 - `tools/` owns maintainer-only operational utilities

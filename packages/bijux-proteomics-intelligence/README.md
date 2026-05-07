@@ -42,7 +42,7 @@ The package root is curated on purpose. Import exact owner modules such as
 `candidates.ranking`, `judgment.paths`, `posture.evidence`,
 `interpretation.runs`, and `reviews.benchmarks` instead of treating the
 package root like a broad symbol menu. The machine-readable charter in
-`governance/charter.py` and the governed capability map define six stable
+`governance/charter.py` and the governed capability map define six durable
 analytical families:
 
 - candidates
@@ -54,11 +54,6 @@ analytical families:
 
 Those families are the durable answer to what intelligence can decide and what it
 must refuse or downgrade.
-
-This package also provides benchmark-backed review outputs for `dda`, `dia`,
-`ptm`, `lfq`, and `multiplex` workflows so release-facing claims stay tied to
-checked-in datasets, owner surfaces, and explicit scientific limits in
-`reviews/benchmarks.py`.
 
 Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
 package `docs/*.md` set aligned before claiming new intelligence behavior or

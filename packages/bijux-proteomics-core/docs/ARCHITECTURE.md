@@ -21,6 +21,8 @@ runtime-agnostic workflow seams.
 
 - `domain/` owns canonical program semantics: targets, constraints, context,
   criteria, liabilities, lifecycle, review gates, and validation
+- `biology/` owns biological regulator, pathway, protein-agent, and signal
+  semantics that stay below runtime orchestration and above raw chemistry
 - `sequences/` and `chemistry/` own peptide, digest, isotope, and modification
   semantics
 - `io/` and `identification/` own normalized evidence ingestion and
@@ -32,6 +34,8 @@ runtime-agnostic workflow seams.
 - `workflow/` owns scientific workflow blueprints
 - `interfaces/` owns runtime-facing seams, examples, and CLI boundaries
 - `benchmarks/` owns packaged corpus, adoption, and benchmark evidence surfaces
+- `governance/` owns the machine-readable package charter and owner-map
+  boundaries for core scientific surfaces
 
 ## Dependency direction
 

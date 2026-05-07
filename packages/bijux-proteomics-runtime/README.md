@@ -32,9 +32,9 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-runtime` is the canonical runtime package for execution
-control, provider binding, deterministic replay, and operator-facing
-orchestration surfaces in `bijux-proteomics`.
+`bijux-proteomics-runtime` is the execution owner for provider binding,
+deterministic replay, and operator-facing orchestration surfaces in
+`bijux-proteomics`.
 
 Use this package when you need supported CLI, HTTP API, provider wiring,
 runtime state handling, and replay-safe orchestration for canonical

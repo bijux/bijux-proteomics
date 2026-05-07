@@ -108,6 +108,9 @@ but it is still building the scientific workflow spine that should carry one
 proteomics program from sequence intake through assay planning, evidence review,
 and advancement decisions.
 
+The live repository-wide limit list is
+[Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/).
+
 ## Start Here
 
 - Open the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
@@ -116,6 +119,9 @@ and advancement decisions.
 - Open the [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
   when the question is what the current package stack still needs before it
   becomes a full proteomics workflow engine.
+- Open the [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+  when the question is what this repository still refuses, only partially
+  supports, or cannot yet prove scientifically.
 - Open one product handbook when you already know where the real idea lives:
   evidence, decisions, lab work, execution, or shared contracts.
 - Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)

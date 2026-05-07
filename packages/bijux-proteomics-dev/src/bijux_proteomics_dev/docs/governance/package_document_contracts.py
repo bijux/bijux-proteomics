@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
+import re
 
-from bijux_proteomics_dev.governance.support.workspace_inventory import package_root
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    package_root,
+)
 
 __all__ = [
     "architecture_doc_path",
@@ -11,6 +13,7 @@ __all__ = [
     "markdown_bullets",
     "module_topology_tokens",
     "readme_path",
+    "readme_opening_lines",
     "section_lines",
 ]
 
@@ -28,6 +31,28 @@ def architecture_doc_path(package_name: str) -> Path:
 
 def readme_path(package_name: str) -> Path:
     return package_root(package_name) / "README.md"
+
+
+def readme_opening_lines(package_name: str) -> tuple[str, ...]:
+    lines = readme_path(package_name).read_text(encoding="utf-8").splitlines()
+    opening: list[str] = []
+    in_generated_badges = False
+    for line in lines:
+        stripped = line.rstrip()
+        if stripped == "<!-- bijux-proteomics-badges:generated:start -->":
+            in_generated_badges = True
+            continue
+        if stripped == "<!-- bijux-proteomics-badges:generated:end -->":
+            in_generated_badges = False
+            continue
+        if in_generated_badges:
+            continue
+        if stripped.startswith("## "):
+            break
+        if stripped.startswith("# "):
+            continue
+        opening.append(stripped)
+    return tuple(opening)
 
 
 def section_lines(path: Path, heading: str) -> tuple[str, ...]:
@@ -58,7 +83,5 @@ def module_topology_tokens(package_name: str) -> tuple[str, ...]:
     for line in section_lines(
         architecture_doc_path(package_name), "## Module topology"
     ):
-        if not line.startswith("- "):
-            continue
         tokens.extend(match.group(1) for match in re.finditer(r"`([^`]+)`", line))
     return tuple(tokens)

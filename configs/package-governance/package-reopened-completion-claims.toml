@@ -2,44 +2,44 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims
 
 [guard]
-max_total_reopened_completion_claim_count = 8
+max_total_reopened_completion_claim_count = 1
 
 [[package]]
 distribution_name = "agentic-proteins"
-reopened_reasons = ["docs and tree still contradict each other", "root public breadth still exceeds owner logic depth", "README maturity language still outruns owned logic and proof"]
+reopened_reasons = ["root public breadth still exceeds owner logic depth"]
 reopened_completion_claim = true
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-reopened_reasons = ["docs and tree still contradict each other", "README maturity language still outruns owned logic and proof"]
-reopened_completion_claim = true
+reopened_reasons = []
+reopened_completion_claim = false

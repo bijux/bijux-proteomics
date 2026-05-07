@@ -32,9 +32,10 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-core` is the scientific heart of the suite. It owns the
-proteomics domain models, evidence normalization, uncertainty-aware review
-artifacts, and workflow contracts that the surrounding packages consume.
+`bijux-proteomics-core` is the semantic owner for durable proteomics meaning in
+this repository. It owns the domain models, evidence normalization,
+uncertainty-aware review artifacts, and workflow contracts that the surrounding
+packages consume.
 
 Use this package when the change defines scientific meaning that should remain
 true before runtime execution, knowledge curation, intelligence judgment, or

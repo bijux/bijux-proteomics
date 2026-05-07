@@ -48,6 +48,8 @@ constraints.
   downstream feedback posture
 - `benchmarks/claims.py` and `benchmarks/rehearsals.py` own targeted
   operational claim support and rehearsal delivery
+- `governance/` owns the machine-readable lab charter and owner-map boundaries
+  for operational planning, readiness, handoff, and reconciliation surfaces
 
 ## Dependency direction
 

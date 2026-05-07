@@ -41,6 +41,10 @@ goal is not to decorate package boundaries with ambition. The goal is to grow a
 real scientific workflow on top of those boundaries without losing ownership
 clarity.
 
+The roadmap is about what should exist next. The exact list of what does not
+yet exist lives in
+[Current Capability Limits](./current-capability-limits.md).
+
 ## Boundary
 
 This roadmap should keep the repository honest. If a future claim sounds like a

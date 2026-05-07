@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from pathlib import Path
 
 from bijux_proteomics_dev.docs.governance.package_document_contracts import (
     module_topology_tokens,
 )
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     root_python_modules,
@@ -14,7 +14,6 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     src_root,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_TOPOLOGY_DRIFT_PATH",
@@ -65,11 +64,18 @@ class PackageTopologyDriftReport:
 
 
 def _documented_owner_families(package_name: str) -> tuple[str, ...]:
-    values = {
-        token.rstrip("/")
-        for token in module_topology_tokens(package_name)
-        if token.endswith("/")
-    }
+    values: set[str] = set()
+    for token in module_topology_tokens(package_name):
+        candidate = token.rstrip("/")
+        root_name = import_root(package_name)
+        if candidate.startswith(f"{root_name}/"):
+            candidate = candidate[len(root_name) + 1 :]
+        elif candidate.startswith(f"{root_name}."):
+            candidate = candidate[len(root_name) + 1 :].replace(".", "/")
+        if "/" in candidate:
+            values.add(candidate.split("/", 1)[0])
+        elif token.endswith("/"):
+            values.add(candidate)
     return tuple(sorted(values))
 
 
@@ -86,9 +92,7 @@ def _path_exists_in_src(package_name: str, token: str) -> bool:
         return True
     if not candidate_path.suffix and (candidate_path / "__init__.py").exists():
         return True
-    if candidate_path.suffix == ".py" and candidate_path.exists():
-        return True
-    return False
+    return candidate_path.suffix == ".py" and candidate_path.exists()
 
 
 def _historical_topology_mentions(
@@ -163,10 +167,20 @@ def build_package_topology_drift_report() -> PackageTopologyDriftReport:
 def validate_package_topology_drift(
     report: PackageTopologyDriftReport | None = None,
 ) -> tuple[str, ...]:
-    """Fail release when topology drift worsens."""
+    """Fail release when topology docs drift or new topology debt appears."""
 
     report = report or build_package_topology_drift_report()
     failures: list[str] = []
+    contradictions = tuple(
+        entry.distribution_name
+        for entry in report.entries
+        if entry.docs_tree_contradiction
+    )
+    if contradictions:
+        failures.append(
+            "docs and tree still contradict each other in "
+            + ", ".join(contradictions)
+        )
     total_top_level_root_file_count = sum(
         entry.top_level_root_file_count for entry in report.entries
     )

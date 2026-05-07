@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import re
 
+from bijux_proteomics_dev.docs.governance.package_document_contracts import (
+    readme_opening_lines,
+)
 from bijux_proteomics_dev.governance.package_shape.package_owned_value_audit import (
     build_package_owned_value_audit_report,
 )
@@ -12,7 +16,6 @@ from bijux_proteomics_dev.governance.package_shape.package_release_dossiers impo
 from bijux_proteomics_dev.governance.package_shape.package_scorecard import (
     build_package_scorecard_report,
 )
-from bijux_proteomics_dev.docs.governance.package_document_contracts import readme_path
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
@@ -36,6 +39,9 @@ MATURITY_TOKENS = (
     "mature",
     "reviewer-ready",
     "release-ready",
+)
+MATURITY_PATTERNS = tuple(
+    re.compile(rf"\b{re.escape(token)}\b", re.IGNORECASE) for token in MATURITY_TOKENS
 )
 
 
@@ -83,9 +89,9 @@ def build_package_readme_maturity_report() -> PackageReadmeMaturityReport:
     }
     entries: list[PackageReadmeMaturityEntry] = []
     for package_name, owned_entry in sorted(owned_value.items()):
-        readme_text = readme_path(package_name).read_text(encoding="utf-8").lower()
+        readme_text = "\n".join(readme_opening_lines(package_name))
         maturity_claim_count = sum(
-            readme_text.count(token) for token in MATURITY_TOKENS
+            len(pattern.findall(readme_text)) for pattern in MATURITY_PATTERNS
         )
         scorecard_entry = scorecard[package_name]
         unresolved_debt_count = len(release_dossiers[package_name].unresolved_debt_ids)

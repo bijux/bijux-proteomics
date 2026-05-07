@@ -17,11 +17,16 @@ def test_reopened_debt_ledger_tracks_live_structural_debt() -> None:
     debt_ids = {entry.debt_id for entry in report.entries}
 
     assert REOPENED_DEBT_LEDGER_PATH.exists()
+    assert len(report.entries) == 6
+    assert "agentic-proteins:reopened-completion-claim" in debt_ids
     assert "bijux-proteomics-core:mixed-responsibility-modules" in debt_ids
-    assert "bijux-proteomics-foundation:reopened-completion-claim" in debt_ids
-    assert "bijux-proteomics-runtime:reopened-completion-claim" in debt_ids
+    assert "bijux-proteomics-runtime:mixed-responsibility-modules" in debt_ids
     assert "bijux-proteomics-lab:mixed-responsibility-modules" in debt_ids
     assert not any(debt_id.endswith(":test-tree-gaps") for debt_id in debt_ids)
+    assert not any(
+        debt_id.startswith("bijux-proteomics-foundation:reopened-completion-claim")
+        for debt_id in debt_ids
+    )
     assert any(entry.severity == "high" for entry in report.entries)
 
 

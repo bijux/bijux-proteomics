@@ -32,6 +32,8 @@ re-curating locally.
 - `reviews/trends.py` owns packet comparisons and trend summaries for reviewer-facing change over time
 - `references/grounding/` owns selective citations, contexts, corpora, ontologies, problems, and rules
 - `references/workflows/` owns workflow briefings, benchmark manifests, workflow narratives, and the narrow workflow lookup surface
+- `governance/` owns the machine-readable knowledge charter and owner-map
+  boundaries for scientific memory, review, and grounding surfaces
 
 ## Dependency direction
 
