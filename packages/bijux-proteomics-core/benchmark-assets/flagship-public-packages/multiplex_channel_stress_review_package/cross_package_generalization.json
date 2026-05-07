@@ -1,0 +1,56 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/cross_package_generalization.json",
+  "family_stability_label": "fragile_transfer",
+  "family_stability_score": 0.7,
+  "findings": [
+    {
+      "claim_id": "channel-imbalance-visibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package"
+      ],
+      "note": "The second package keeps the internal-support boundary honest under stronger stress.",
+      "state": "survives",
+      "summary": "Channel imbalance and dropout pressure are still visible across both multiplex packages."
+    },
+    {
+      "claim_id": "outsider-auditable-authority",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/quality_sheet.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/package_manifest.json"
+      ],
+      "note": "The second package strengthens the stress surface, but it does not add outsider review or lab consequence authority.",
+      "state": "collapses",
+      "summary": "Multiplex still does not earn outsider-facing trust language even with a second package."
+    }
+  ],
+  "metric_deltas": [
+    {
+      "delta": 0.0,
+      "interpretation": "The multiplex companion package keeps a similar feature count while changing channel imbalance and dropout pressure.",
+      "metric_id": "feature_rows",
+      "primary_value": 12.0,
+      "secondary_value": 12.0
+    },
+    {
+      "delta": 2.0,
+      "interpretation": "The companion multiplex package introduces explicit missing-channel rows that the flagship package does not carry.",
+      "metric_id": "missing_channel_rows",
+      "primary_value": 0.0,
+      "secondary_value": 2.0
+    }
+  ],
+  "note": "This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.",
+  "package_manifest_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/package_manifest.json"
+  ],
+  "primary_package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "report_id": "multiplex-cross-package-generalization",
+  "runtime_package_ids": [
+    "multiplex-tmtpro-review-corpus",
+    "multiplex-channel-stress-review-corpus"
+  ],
+  "secondary_package_id": "public_companion_package:multiplex_channel_stress_review_package",
+  "workflow_family": "multiplex"
+}

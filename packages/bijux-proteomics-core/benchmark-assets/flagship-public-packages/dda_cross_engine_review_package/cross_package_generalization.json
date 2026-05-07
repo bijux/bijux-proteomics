@@ -1,0 +1,56 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json",
+  "family_stability_label": "highly_stable",
+  "family_stability_score": 0.83,
+  "findings": [
+    {
+      "claim_id": "target-decoy-semantics",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json"
+      ],
+      "note": "The second package still keeps target and decoy records visible and reviewable.",
+      "state": "survives",
+      "summary": "Target-decoy-facing import normalization still survives the second DDA package."
+    },
+    {
+      "claim_id": "protein-rollup-stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/quality_sheet.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/quality_sheet.json"
+      ],
+      "note": "Cross-engine protein-facing confidence is still not strong enough to remove the downgrade-heavy DDA stance.",
+      "state": "weakens",
+      "summary": "Protein-rollup caution remains necessary and becomes slightly harsher under the companion engine pairing."
+    }
+  ],
+  "metric_deltas": [
+    {
+      "delta": -1.0,
+      "interpretation": "The companion DDA package has fewer accepted imported rows, so family trust cannot assume primary-import density transfers unchanged.",
+      "metric_id": "primary_import_rows",
+      "primary_value": 3.0,
+      "secondary_value": 2.0
+    },
+    {
+      "delta": -1.0,
+      "interpretation": "Comparator density shifts under the companion engine pairing.",
+      "metric_id": "comparator_rows",
+      "primary_value": 3.0,
+      "secondary_value": 2.0
+    }
+  ],
+  "note": "This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.",
+  "package_manifest_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json"
+  ],
+  "primary_package_id": "flagship_public_package:dda_reviewable_run",
+  "report_id": "dda-cross-package-generalization",
+  "runtime_package_ids": [
+    "dda-maxquant-pipeline-corpus",
+    "dda-comet-cross-engine-corpus"
+  ],
+  "secondary_package_id": "public_companion_package:dda_cross_engine_review_package",
+  "workflow_family": "dda"
+}

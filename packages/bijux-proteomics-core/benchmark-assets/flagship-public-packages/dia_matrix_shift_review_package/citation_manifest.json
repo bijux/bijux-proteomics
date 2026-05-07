@@ -1,0 +1,20 @@
+{
+  "package_id": "public_companion_package:dia_matrix_shift_review_package",
+  "workflow_family": "dia",
+  "citations": [
+    {
+      "citation_id": "citation:diann_project",
+      "title": "DIA-NN project repository",
+      "doi": null,
+      "url": "https://github.com/vdemichev/DiaNN",
+      "why_it_matters": "DIA-NN defines the primary exported-result dialect for the DIA companion package."
+    },
+    {
+      "citation_id": "citation:spectronaut_product",
+      "title": "Spectronaut product page",
+      "doi": null,
+      "url": "https://biognosys.com/software/spectronaut/",
+      "why_it_matters": "Spectronaut defines the comparator surface for the DIA companion package."
+    }
+  ]
+}

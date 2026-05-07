@@ -1,0 +1,56 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json",
+  "family_stability_label": "highly_stable",
+  "family_stability_score": 0.83,
+  "findings": [
+    {
+      "claim_id": "library-conditioned-precursor-review",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json"
+      ],
+      "note": "Both packages still support bounded precursor-facing review under explicit library conditions.",
+      "state": "survives",
+      "summary": "Library-conditioned precursor review survives across both DIA public packages."
+    },
+    {
+      "claim_id": "protein-absence-overreach",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/quality_sheet.json"
+      ],
+      "note": "The thinner companion package keeps protein-level overreach pressure visible.",
+      "state": "weakens",
+      "summary": "Protein-level absence language becomes weaker on the companion package and must stay downgrade-heavy."
+    }
+  ],
+  "metric_deltas": [
+    {
+      "delta": -1.0,
+      "interpretation": "The companion DIA package is visibly thinner at the precursor-report layer.",
+      "metric_id": "primary_precursor_rows",
+      "primary_value": 3.0,
+      "secondary_value": 2.0
+    },
+    {
+      "delta": -1.0,
+      "interpretation": "The exported-result density shifts materially across the DIA family pair.",
+      "metric_id": "primary_pipeline_rows",
+      "primary_value": 3.0,
+      "secondary_value": 2.0
+    }
+  ],
+  "note": "This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.",
+  "package_manifest_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json"
+  ],
+  "primary_package_id": "flagship_public_package:dia_library_review_package",
+  "report_id": "dia-cross-package-generalization",
+  "runtime_package_ids": [
+    "dia-diann-pipeline-corpus",
+    "dia-matrix-shift-review-corpus"
+  ],
+  "secondary_package_id": "public_companion_package:dia_matrix_shift_review_package",
+  "workflow_family": "dia"
+}

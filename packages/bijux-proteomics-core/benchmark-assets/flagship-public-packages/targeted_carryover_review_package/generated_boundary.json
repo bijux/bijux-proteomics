@@ -1,0 +1,18 @@
+{
+  "package_id": "public_companion_package:targeted_carryover_review_package",
+  "workflow_family": "targeted",
+  "generated_boundaries": [
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/README.md",
+      "boundary_kind": "curated_readme",
+      "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh",
+      "note": "README is human-authored to explain carryover stress in the targeted companion package."
+    },
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv",
+      "boundary_kind": "generated_report",
+      "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh",
+      "note": "The targeted QC table is derived from the flagship QC table with stronger carryover drift."
+    }
+  ]
+}

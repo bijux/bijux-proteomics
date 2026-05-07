@@ -1,0 +1,8 @@
+digestion_enzyme = trypsin
+max_missed_cleavages = 2
+precursor_tolerance_ppm = 8
+fragment_tolerance_ppm = 20
+library_file = /data/library_decoy.sptxt
+decoy_prefix = DECOY_
+fixed_modifications = C:57.021464
+variable_modifications = M:15.994915;Y:79.966331

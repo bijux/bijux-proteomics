@@ -1,0 +1,127 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/citation_manifest.json",
+  "claim_scope": "This companion DDA package exists to test whether the main DDA claims survive a different primary import engine and a slightly busier sample context.",
+  "comparator_availability": "Comet-versus-Sage confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/generalization-dda/runtime/review_packet.json",
+    "artifacts/workflows/generalization-dda/runtime/evidence_bundle.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/lifecycle.json",
+  "note": "The companion DDA package supports family-level generalization checks, but it still does not grant live-engine rerun parity or broad cohort-grade DDA authority.",
+  "package_id": "public_companion_package:dda_cross_engine_review_package",
+  "package_label": "Companion public DDA cross-engine review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package",
+  "public_dataset_identity": "tracked Comet primary export plus Sage comparator export with production-run spectrum context and slightly higher sample-complexity pressure",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "secondary_fixture_bundle:dda_cross_engine_variation",
+  "runtime_availability": "import_only runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "cross-engine peptide acceptance drift",
+    "protein-rollup instability under a different primary import dialect",
+    "sample-complexity shift relative to the flagship package"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/README.md",
+      "public_identity_note": "The DDA companion package starts outsider review from a different engine pairing and slightly busier sample context."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+      "public_identity_note": "The machine-readable manifest states how this DDA companion package differs from the flagship primary package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/artifact_inventory.json",
+      "public_identity_note": "The artifact inventory keeps digests and simple row counts visible for the DDA companion package."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/quality_sheet.json",
+      "public_identity_note": "The DDA companion quality sheet keeps its weaker and stronger boundaries public."
+    },
+    {
+      "asset_role": "lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/lifecycle.json",
+      "public_identity_note": "The DDA companion lifecycle record explains why the package exists as a generalization challenge rather than a replacement flagship."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest shows where every copied or derived DDA companion artifact came from."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest ties the DDA companion package to search-engine and protein-inference references."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary manifest keeps copied snapshots distinct from generated metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions tell maintainers how to refresh the DDA companion package surfaces."
+    },
+    {
+      "asset_role": "spectra",
+      "evidence_kind": "raw_spectra",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/evidence/spectra.mgf",
+      "public_identity_note": "A raw-like spectrum keeps the DDA companion package tied to inspectable fragment evidence rather than export-only prose."
+    },
+    {
+      "asset_role": "design",
+      "evidence_kind": "experimental_design",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/evidence/design.tsv",
+      "public_identity_note": "The design table preserves the sample and instrument context for the DDA companion package."
+    },
+    {
+      "asset_role": "expectation_ledger",
+      "evidence_kind": "expectation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/evidence/workflow_end_to_end_expectations.json",
+      "public_identity_note": "The expectation ledger keeps the runtime and review outputs explicit for the DDA companion package."
+    },
+    {
+      "asset_role": "primary_import",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv",
+      "public_identity_note": "The Comet export gives the DDA companion package a different primary import dialect from the flagship package."
+    },
+    {
+      "asset_role": "primary_settings",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet.params",
+      "public_identity_note": "The Comet settings snapshot keeps the companion DDA import assumptions inspectable."
+    },
+    {
+      "asset_role": "comparator_import",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv",
+      "public_identity_note": "The Sage export provides a different comparator pressure shape from the flagship DDA package."
+    },
+    {
+      "asset_role": "comparator_settings",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_config.json",
+      "public_identity_note": "The Sage config snapshot keeps the DDA companion comparator assumptions reviewable."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/source_locator_manifest.json",
+  "workflow_family": "dda"
+}

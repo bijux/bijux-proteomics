@@ -1,0 +1,278 @@
+{
+  "candidate_id": "cand-mapk-weak-carryover",
+  "target_id": "target-mapk-carryover",
+  "review_queue_decision": {
+    "review_id": "review-mapk-weak",
+    "program_id": "prog-mapk",
+    "gate_id": "gate-targeted-follow-up",
+    "state": "deferred",
+    "summary": "targeted follow-up request remains deferred because the upstream science is too weak for spend Carryover stress package keeps transition reuse risk explicit.",
+    "evidence_ids": [
+      "ev-theme-1",
+      "ev-stale-2"
+    ]
+  },
+  "workflow_readiness_summary": {
+    "program_id": "prog-mapk",
+    "ready_step_count": 1,
+    "blocked_step_count": 4,
+    "missing_evidence_needs": [
+      "assay",
+      "pathway"
+    ],
+    "blocking_assay_ids": [
+      "prm-assay"
+    ],
+    "blocking_review_gate_ids": [
+      "gate-targeted-follow-up"
+    ],
+    "step_statuses": [
+      {
+        "step_id": "intake",
+        "stage_kind": "intake",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "evidence-review",
+        "stage_kind": "evidence_review",
+        "ready": false,
+        "blockers": [
+          "missing_evidence:assay",
+          "missing_evidence:pathway"
+        ]
+      },
+      {
+        "step_id": "assay-execution",
+        "stage_kind": "assay_execution",
+        "ready": false,
+        "blockers": [
+          "blocking_assay:prm-assay"
+        ]
+      },
+      {
+        "step_id": "decision-review",
+        "stage_kind": "decision_review",
+        "ready": false,
+        "blockers": [
+          "blocking_review_gate:gate-targeted-follow-up"
+        ]
+      },
+      {
+        "step_id": "learning-loop",
+        "stage_kind": "learning_loop",
+        "ready": false,
+        "blockers": [
+          "missing_evidence:assay"
+        ]
+      }
+    ]
+  },
+  "plate_advisory": {
+    "plate_id": "plate-weak-01",
+    "row_count": 8,
+    "column_count": 12,
+    "randomization_seed": 21,
+    "assignments": [
+      {
+        "sample_id": "weak-signal-01",
+        "condition": "treated",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-mapk-weak-1",
+        "plate_id": "plate-weak-01",
+        "well_id": "A01",
+        "lineage_label": "cand-mapk-weak|treated|rep1",
+        "sample_role": "sample",
+        "randomization_block": "block-a",
+        "multiplex_group": "weak-panel-1",
+        "contamination_watch": true
+      },
+      {
+        "sample_id": "weak-signal-02",
+        "condition": "treated",
+        "replicate": 2,
+        "fraction": 1,
+        "batch": "batch-mapk-weak-1",
+        "plate_id": "plate-weak-01",
+        "well_id": "A02",
+        "lineage_label": "cand-mapk-weak|treated|rep2",
+        "sample_role": "sample",
+        "randomization_block": "block-a",
+        "multiplex_group": "weak-panel-1",
+        "contamination_watch": true
+      }
+    ],
+    "control_well_ids": [],
+    "blocked_layout_labels": [
+      "missing-reference-control",
+      "weak-lineage"
+    ],
+    "multiplex_group_count": 1,
+    "contamination_watch_well_ids": [
+      "A01",
+      "A02"
+    ],
+    "layout_summary": "layout remains blocked because the weak targeted request lacks control wells and clean lineage separation",
+    "notes": [
+      "no pooled reference or QC bridge has been reserved for the proposed plate",
+      "adjacent weak-signal wells raise contamination and misinterpretation risk"
+    ]
+  },
+  "handoff_validation": {
+    "program_id": "prog-mapk",
+    "candidate_id": "cand-mapk-weak",
+    "accepted": false,
+    "accepted_assay_ids": [],
+    "blockers": [
+      "upstream evidence remains theme-level and is too weak for irreversible lab spend",
+      "contradiction pressure remains unresolved across the supporting bundle"
+    ],
+    "skepticism_notes": [
+      "fresh orthogonal evidence is required before targeted assay scheduling",
+      "the current signal could still be explained by poor localization and low uniqueness"
+    ],
+    "required_next_actions": [
+      "collect a stronger orthogonal assay before rebuilding the targeted panel",
+      "refresh the evidence bundle with current, claim-linked measurements"
+    ]
+  },
+  "transition_review": {
+    "assay_id": "prm-assay",
+    "approved_transition_ids": [],
+    "exploratory_transition_ids": [
+      "tr-mapk-watch"
+    ],
+    "refused_transition_ids": [
+      "tr-mapk-bad"
+    ],
+    "readiness_score": 0.0,
+    "entries": [
+      {
+        "transition_id": "tr-mapk-watch",
+        "disposition": "exploratory",
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "overall_risk_score": 0.44,
+          "supported_for_follow_up": true,
+          "findings": []
+        },
+        "missing_controls": [
+          "heavy-standard"
+        ],
+        "reasons": [
+          "assay risk score 0.44 keeps the transition exploratory",
+          "missing required controls: heavy-standard"
+        ]
+      },
+      {
+        "transition_id": "tr-mapk-bad",
+        "disposition": "refused",
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "overall_risk_score": 0.73,
+          "supported_for_follow_up": false,
+          "findings": []
+        },
+        "missing_controls": [
+          "heavy-standard",
+          "pooled-reference"
+        ],
+        "reasons": [
+          "assay risk score 0.73 is too high for confident transition approval",
+          "transition is not responsible to schedule as written"
+        ]
+      }
+    ],
+    "notes": [
+      "all targeted transition choices remain blocked by weak science or missing controls"
+    ]
+  },
+  "review_packet": {
+    "program_id": "prog-mapk",
+    "ready_for_synthesis": false,
+    "blocking_findings": [
+      "targeted follow-up lacks orthogonal support",
+      "bundle still contains unresolved contradiction pressure",
+      "carryover stress package keeps calibration and reuse risk explicit"
+    ],
+    "recommended_actions": [
+      "collect a stronger orthogonal assay before targeted scheduling",
+      "refresh localization evidence with a current measurement set"
+    ],
+    "advancement_evidence": {
+      "bundle_id": "bundle-mapk-weak",
+      "target_id": "target-mapk",
+      "evidence_ids": [
+        "ev-theme-1",
+        "ev-stale-2"
+      ],
+      "required_evidence_kinds": [
+        "assay",
+        "pathway"
+      ],
+      "missing_evidence_kinds": [
+        "assay"
+      ],
+      "items": [
+        {
+          "evidence_id": "ev-theme-1",
+          "kind": "pathway",
+          "confidence": 0.41,
+          "strength": "weak",
+          "claim": "theme-level enrichment suggests MAPK activity but lacks claim-linked assay support"
+        }
+      ]
+    }
+  },
+  "executable_plan": {
+    "program_id": "prog-mapk",
+    "batch_id": "batch-mapk-weak-1",
+    "plan_kind": "executable",
+    "instructions": [
+      {
+        "instruction_id": "batch-mapk-weak-1:prm-assay",
+        "assay_id": "prm-assay",
+        "batch_id": "batch-mapk-weak-1",
+        "sample_kind": "targeted",
+        "objective": "attempt targeted confirmation of the weak MAPK signal",
+        "blocking": true,
+        "preflight_checks": [
+          "heavy standard reserved",
+          "pooled reference reserved"
+        ]
+      }
+    ],
+    "blocked_by": [
+      "review gate pending: gate-targeted-follow-up",
+      "missing controls prevent a responsible targeted run"
+    ],
+    "ready_for_execution": false
+  },
+  "alternative_plan_options": [
+    {
+      "plan_id": "orthogonal-rebuild",
+      "prioritized_assay_ids": [
+        "orthogonal-assay"
+      ],
+      "evidence_gain_score": 0.78,
+      "estimated_cost": 1.8,
+      "turnaround_days": 5.0,
+      "supporting_rationale": [
+        "first rebuild scientific support before targeted follow-up"
+      ]
+    },
+    {
+      "plan_id": "weak-prm-direct",
+      "prioritized_assay_ids": [
+        "prm-assay"
+      ],
+      "evidence_gain_score": 0.24,
+      "estimated_cost": 1.1,
+      "turnaround_days": 3.0,
+      "supporting_rationale": [
+        "cheap direct run but unlikely to resolve the scientific uncertainty responsibly"
+      ]
+    }
+  ]
+}

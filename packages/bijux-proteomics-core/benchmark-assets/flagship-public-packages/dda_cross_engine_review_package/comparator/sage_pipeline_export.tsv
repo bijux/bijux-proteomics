@@ -1,0 +1,3 @@
+scan_id	stripped_peptide	precursor_charge	score_discriminant	protein_group	decoy_flag	qvalue
+sage-pipe-1	PEPTIDE	2	14.2	P12345	target	0.001
+sage-pipe-2	PEPTIDER	3	9.4	DECOY_P99999	decoy	0.007

@@ -1,0 +1,109 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/citation_manifest.json",
+  "claim_scope": "This companion targeted package exists to test whether the main targeted claims survive under stronger carryover and calibration stress.",
+  "comparator_availability": "bounded Skyline-class comparator confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/generalization-targeted/runtime/review_packet.json",
+    "artifacts/workflows/generalization-targeted/runtime/evidence_bundle.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/lifecycle.json",
+  "note": "The companion targeted package supports family-level generalization checks, but calibration-clean and vendor-parity authority remain outside the current proof boundary.",
+  "package_id": "public_companion_package:targeted_carryover_review_package",
+  "package_label": "Companion public targeted carryover review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package",
+  "public_dataset_identity": "tracked targeted QC and follow-up evidence with stronger carryover drift and heavier refusal pressure than the flagship package",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "secondary_fixture_bundle:targeted_carryover_variation",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "carryover drift",
+    "calibration fragility",
+    "follow-up refusal pressure under weaker transition behavior"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/README.md",
+      "public_identity_note": "The targeted companion package starts from explicit carryover and calibration drift pressure."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/package_manifest.json",
+      "public_identity_note": "The targeted companion manifest explains how carryover pressure differs from the flagship package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/artifact_inventory.json",
+      "public_identity_note": "The targeted companion inventory keeps QC and follow-up evidence auditable."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/quality_sheet.json",
+      "public_identity_note": "The targeted companion quality sheet makes carryover-driven downgrade pressure public."
+    },
+    {
+      "asset_role": "lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/lifecycle.json",
+      "public_identity_note": "The targeted companion lifecycle record explains that this package exists to stress transition carryover and calibration claims."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest shows where the targeted carryover evidence came from."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest ties the targeted companion package to calibration and carryover references."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary manifest distinguishes the derived carryover stress QC table from copied follow-up support files."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions tell maintainers how to refresh the targeted carryover package surfaces."
+    },
+    {
+      "asset_role": "targeted_qc",
+      "evidence_kind": "targeted_qc_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv",
+      "public_identity_note": "The targeted companion QC table worsens TIC drift and carryover relative to the flagship package."
+    },
+    {
+      "asset_role": "supported_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/follow_up/supported_targeted_follow_up.json",
+      "public_identity_note": "The supported follow-up keeps the best-case carryover package outcome visible."
+    },
+    {
+      "asset_role": "failed_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/follow_up/failed_targeted_transition_follow_up.json",
+      "public_identity_note": "The failed follow-up keeps transition-fragility pressure explicit in the targeted companion package."
+    },
+    {
+      "asset_role": "refused_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/follow_up/refused_targeted_follow_up.json",
+      "public_identity_note": "The refused follow-up keeps weak calibration and carryover posture from looking operationally safe by omission."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/source_locator_manifest.json",
+  "workflow_family": "targeted"
+}

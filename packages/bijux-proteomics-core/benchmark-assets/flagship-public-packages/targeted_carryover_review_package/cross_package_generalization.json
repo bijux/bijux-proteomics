@@ -1,0 +1,56 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json",
+  "family_stability_label": "highly_stable",
+  "family_stability_score": 0.87,
+  "findings": [
+    {
+      "claim_id": "calibration-and-transition-visibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package"
+      ],
+      "note": "The second package still keeps approved, failed, and refused targeted consequence states visible.",
+      "state": "survives",
+      "summary": "Calibration and transition QC visibility still survive across both targeted public packages."
+    },
+    {
+      "claim_id": "promotion-confidence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/quality_sheet.json"
+      ],
+      "note": "The second package makes it explicit that targeted authority is not tied to one cleaner QC table.",
+      "state": "weakens",
+      "summary": "Promotion confidence weakens on the carryover-stress targeted package and remains bounded."
+    }
+  ],
+  "metric_deltas": [
+    {
+      "delta": 0.0,
+      "interpretation": "The targeted companion package keeps similar QC density while shifting the intensity profile downward.",
+      "metric_id": "qc_rows",
+      "primary_value": 5.0,
+      "secondary_value": 5.0
+    },
+    {
+      "delta": -2305.2999999999993,
+      "interpretation": "Median TIC drops on the carryover-stress targeted package.",
+      "metric_id": "median_tic",
+      "primary_value": 14990.5,
+      "secondary_value": 12685.2
+    }
+  ],
+  "note": "This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.",
+  "package_manifest_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/package_manifest.json"
+  ],
+  "primary_package_id": "flagship_public_package:targeted_transition_review_package",
+  "report_id": "targeted-cross-package-generalization",
+  "runtime_package_ids": [
+    "targeted-transition-review-corpus",
+    "targeted-carryover-review-corpus"
+  ],
+  "secondary_package_id": "public_companion_package:targeted_carryover_review_package",
+  "workflow_family": "targeted"
+}

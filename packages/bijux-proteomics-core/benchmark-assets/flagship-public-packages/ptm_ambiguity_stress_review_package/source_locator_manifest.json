@@ -1,0 +1,16 @@
+{
+  "package_id": "public_companion_package:ptm_ambiguity_stress_review_package",
+  "workflow_family": "ptm",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package",
+  "remote_sources": [
+    {
+      "source_id": "ptm-companion:localization",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+      "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+      "why_it_matters": "The PTM ambiguity stress table is derived from the tracked localization fixture.",
+      "availability_expectation": "The repository source should remain reachable while this companion package remains active.",
+      "license_note": "This tracked file is a repository-owned derived snapshot."
+    }
+  ]
+}

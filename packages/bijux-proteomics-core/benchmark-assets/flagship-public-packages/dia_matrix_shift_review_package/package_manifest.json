@@ -1,0 +1,109 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/citation_manifest.json",
+  "claim_scope": "This companion DIA package exists to test whether library-conditioned claims survive a thinner matrix and a different primary exported-result surface.",
+  "comparator_availability": "DIA-NN-versus-Spectronaut confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/generalization-dia/runtime/review_packet.json",
+    "artifacts/workflows/generalization-dia/runtime/evidence_bundle.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/lifecycle.json",
+  "note": "The companion DIA package supports family-level generalization checks, but its authority remains library-conditioned and does not claim chromatogram-side vendor parity.",
+  "package_id": "public_companion_package:dia_matrix_shift_review_package",
+  "package_label": "Companion public DIA matrix-shift review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package",
+  "public_dataset_identity": "tracked DIA-NN primary report and pipeline export paired against a Spectronaut comparator with visibly thinner matrix support",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "secondary_fixture_bundle:dia_matrix_shift_variation",
+  "runtime_availability": "raw-executable runtime lane exists and remains library-conditioned",
+  "scientific_pressures": [
+    "matrix-conditioned precursor thinning",
+    "library assumption transfer pressure",
+    "protein evidence overreach under weaker extraction support"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/README.md",
+      "public_identity_note": "The DIA companion package starts from a different report shape and matrix pressure than the flagship package."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+      "public_identity_note": "The DIA companion manifest explains how the shifted library and matrix pressure differs from the flagship package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/artifact_inventory.json",
+      "public_identity_note": "The DIA companion inventory keeps digests and row counts visible."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/quality_sheet.json",
+      "public_identity_note": "The DIA companion quality sheet makes its weaker matrix-transfer posture explicit."
+    },
+    {
+      "asset_role": "lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/lifecycle.json",
+      "public_identity_note": "The DIA companion lifecycle record explains that this package exists to stress family transfer, not to replace the flagship package."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest shows where the DIA companion exports came from."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest ties the DIA companion package to DIA method and library-dependence references."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary manifest distinguishes copied DIA exports from generated metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions tell maintainers how to refresh the DIA companion package surfaces."
+    },
+    {
+      "asset_role": "primary_report",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+      "public_identity_note": "The DIA-NN report drives the companion raw-executable DIA review lane."
+    },
+    {
+      "asset_role": "primary_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_pipeline_export.tsv",
+      "public_identity_note": "The DIA-NN pipeline export keeps the companion package tied to a different extracted-result surface from the flagship package."
+    },
+    {
+      "asset_role": "comparator_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
+      "public_identity_note": "The Spectronaut export provides the companion comparator surface."
+    },
+    {
+      "asset_role": "comparator_settings",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_settings.txt",
+      "public_identity_note": "The Spectronaut settings snapshot keeps the companion comparator assumptions visible."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/source_locator_manifest.json",
+  "workflow_family": "dia"
+}
