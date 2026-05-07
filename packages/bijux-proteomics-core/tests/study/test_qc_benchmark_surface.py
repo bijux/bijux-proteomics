@@ -4,16 +4,23 @@
 from __future__ import annotations
 
 from bijux_proteomics.study.qc_benchmarks import (
+    ContaminationCleanupObservation,
+    QcCarryoverObservation,
     QcContaminationPropagationObservation,
     QcControlCoverageObservation,
     QcDecisionOutcomeObservation,
     QcDriftObservation,
     QcPromotionBlockObservation,
+    SamplePrepDigestionObservation,
+    build_contamination_cleanup_dossier_report,
+    build_qc_carryover_benchmark_report,
     build_qc_contamination_propagation_report,
     build_qc_control_coverage_report,
     build_qc_decision_validity_benchmark_report,
     build_qc_drift_benchmark_report,
     build_qc_promotion_block_report,
+    build_sample_prep_digestion_realism_report,
+    build_workflow_minimum_control_report,
 )
 
 
@@ -166,3 +173,106 @@ def test_build_qc_drift_benchmark_report_requires_dual_drift_blocking() -> None:
     assert report.dual_drift_count == 2
     assert report.unblocked_dual_drift_count == 1
     assert report.ready_for_cohort_interpretation is False
+
+
+def test_build_qc_carryover_benchmark_report_requires_cross_surface_visibility() -> (
+    None
+):
+    report = build_qc_carryover_benchmark_report(
+        (
+            QcCarryoverObservation(
+                run_id="run-a",
+                carryover_fraction=0.08,
+                blank_control_present=True,
+                wash_step_documented=True,
+                lab_advisory_triggered=True,
+                runtime_report_flagged=True,
+            ),
+            QcCarryoverObservation(
+                run_id="run-b",
+                carryover_fraction=0.12,
+                blank_control_present=False,
+                wash_step_documented=True,
+                lab_advisory_triggered=False,
+                runtime_report_flagged=True,
+            ),
+        )
+    )
+
+    assert report.elevated_carryover_count == 2
+    assert report.unresolved_carryover_count == 1
+    assert report.spans_core_lab_runtime is False
+    assert report.ready_for_promotion is False
+
+
+def test_build_sample_prep_digestion_realism_report_blocks_decoupled_success() -> None:
+    report = build_sample_prep_digestion_realism_report(
+        (
+            SamplePrepDigestionObservation(
+                sample_id="sample-a",
+                missed_cleavage_rate=0.31,
+                semi_specific_fraction=0.12,
+                contaminant_fraction=0.05,
+                chemistry_layer_passed=True,
+                sample_prep_failure_visible=True,
+            ),
+            SamplePrepDigestionObservation(
+                sample_id="sample-b",
+                missed_cleavage_rate=0.08,
+                semi_specific_fraction=0.04,
+                contaminant_fraction=0.03,
+                chemistry_layer_passed=True,
+                sample_prep_failure_visible=False,
+            ),
+        )
+    )
+
+    assert report.digestion_failure_count == 1
+    assert report.decoupled_success_count == 1
+    assert report.ready_for_sequence_level_claims is False
+
+
+def test_build_workflow_minimum_control_report_names_controls_for_each_workflow() -> None:
+    report = build_workflow_minimum_control_report()
+
+    assert {entry.workflow_family for entry in report.entries} == {
+        "dda",
+        "dia",
+        "lfq",
+        "multiplex",
+        "ptm",
+        "targeted",
+    }
+    targeted = next(entry for entry in report.entries if entry.workflow_family == "targeted")
+    assert targeted.minimum_controls == ("blank", "heavy_reference", "calibration_standard")
+
+
+def test_build_contamination_cleanup_dossier_report_requires_full_propagation() -> None:
+    report = build_contamination_cleanup_dossier_report(
+        (
+            ContaminationCleanupObservation(
+                run_id="run-a",
+                contamination_fraction=0.18,
+                cleanup_control_present=True,
+                carryover_suspected=False,
+                identification_posture_changed=True,
+                quant_posture_changed=True,
+                interpretation_posture_changed=True,
+                corrective_action_visible=True,
+            ),
+            ContaminationCleanupObservation(
+                run_id="run-b",
+                contamination_fraction=0.14,
+                cleanup_control_present=False,
+                carryover_suspected=True,
+                identification_posture_changed=True,
+                quant_posture_changed=False,
+                interpretation_posture_changed=True,
+                corrective_action_visible=False,
+            ),
+        )
+    )
+
+    assert report.full_propagation_count == 1
+    assert report.unresolved_cleanup_failure_count == 1
+    assert report.scientifically_defensible is False

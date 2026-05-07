@@ -87,6 +87,43 @@ class TargetedWorkflowBenchmarkReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class TargetedHandoffHonestyObservation(JsonModel):
+    """One targeted handoff packet checked against what the benchmark actually proved."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    handoff_id: str = Field(..., min_length=1)
+    claimed_transition_ready: bool
+    calibration_failures_visible: bool
+    interference_failures_visible: bool
+    control_gaps_visible: bool
+
+
+class TargetedOutcomeReconciliationObservation(JsonModel):
+    """One observed targeted outcome compared with the claimed handoff posture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    handoff_id: str = Field(..., min_length=1)
+    observed_transition_failure: bool
+    reconciliation_recorded: bool
+    corrective_action_visible: bool
+
+
+class TargetedRawToReviewedBundleReport(JsonModel):
+    """One raw-to-reviewed targeted bundle linking QC, handoff honesty, and outcomes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    chromatogram_surface_reviewable: bool
+    honest_handoff_count: int = Field(..., ge=0)
+    inflated_handoff_count: int = Field(..., ge=0)
+    reconciled_outcome_count: int = Field(..., ge=0)
+    unreconciled_outcome_count: int = Field(..., ge=0)
+    ready_for_reviewed_handoff: bool
+    note: str = Field(..., min_length=1)
+
+
 def _fraction(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
@@ -280,5 +317,66 @@ def build_targeted_workflow_benchmark_report(
             "targeted workflow clears calibration, heavy/light pairing, and interference pressure"
             if ready
             else "targeted workflow remains limited by calibration failure, incomplete pairing, or transition interference"
+        ),
+    )
+
+
+def build_targeted_raw_to_reviewed_bundle_report(
+    *,
+    chromatogram_failed_metric_rows: int,
+    benchmark_report: TargetedWorkflowBenchmarkReport,
+    handoff_observations: tuple[TargetedHandoffHonestyObservation, ...],
+    outcome_observations: tuple[TargetedOutcomeReconciliationObservation, ...],
+) -> TargetedRawToReviewedBundleReport:
+    """Link targeted QC, handoff honesty, and observed outcome reconciliation."""
+
+    chromatogram_surface_reviewable = chromatogram_failed_metric_rows == 0
+    honest_handoff_count = 0
+    inflated_handoff_count = 0
+    for observation in handoff_observations:
+        inflated = (
+            observation.claimed_transition_ready
+            and (
+                not observation.calibration_failures_visible
+                or not observation.interference_failures_visible
+                or not observation.control_gaps_visible
+            )
+        )
+        if inflated:
+            inflated_handoff_count += 1
+        else:
+            honest_handoff_count += 1
+
+    reconciled_outcome_count = 0
+    unreconciled_outcome_count = 0
+    for observation in outcome_observations:
+        if (
+            observation.observed_transition_failure
+            and observation.reconciliation_recorded
+            and observation.corrective_action_visible
+        ) or not observation.observed_transition_failure:
+            reconciled_outcome_count += 1
+        else:
+            unreconciled_outcome_count += 1
+
+    ready = (
+        chromatogram_surface_reviewable
+        and benchmark_report.ready_for_transition_handoff
+        and inflated_handoff_count == 0
+        and unreconciled_outcome_count == 0
+        and bool(handoff_observations)
+        and bool(outcome_observations)
+    )
+    return TargetedRawToReviewedBundleReport(
+        chromatogram_surface_reviewable=chromatogram_surface_reviewable,
+        honest_handoff_count=honest_handoff_count,
+        inflated_handoff_count=inflated_handoff_count,
+        reconciled_outcome_count=reconciled_outcome_count,
+        unreconciled_outcome_count=unreconciled_outcome_count,
+        ready_for_reviewed_handoff=ready,
+        note=(
+            "targeted bundle keeps chromatogram QC, handoff honesty, and observed outcome reconciliation aligned before follow-up claims are promoted"
+            if ready
+            else "targeted bundle still contains QC, handoff, or reconciliation gaps that would let review-grade evidence masquerade as execution-ready follow-up"
         ),
     )

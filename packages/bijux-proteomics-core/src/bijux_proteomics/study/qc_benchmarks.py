@@ -144,6 +144,99 @@ class QcDriftBenchmarkReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class QcCarryoverObservation(JsonModel):
+    """One carryover case that must stay visible across QC, lab, and reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    carryover_fraction: float = Field(..., ge=0.0, le=1.0)
+    blank_control_present: bool
+    wash_step_documented: bool
+    lab_advisory_triggered: bool
+    runtime_report_flagged: bool
+
+
+class QcCarryoverBenchmarkReport(JsonModel):
+    """Benchmark whether carryover pressure survives across repository boundaries."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    elevated_carryover_count: int = Field(..., ge=0)
+    unresolved_carryover_count: int = Field(..., ge=0)
+    spans_core_lab_runtime: bool
+    ready_for_promotion: bool
+    note: str = Field(..., min_length=1)
+
+
+class SamplePrepDigestionObservation(JsonModel):
+    """One sample-prep and digestion case linking chemistry success to experimental reality."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    missed_cleavage_rate: float = Field(..., ge=0.0, le=1.0)
+    semi_specific_fraction: float = Field(..., ge=0.0, le=1.0)
+    contaminant_fraction: float = Field(..., ge=0.0, le=1.0)
+    chemistry_layer_passed: bool
+    sample_prep_failure_visible: bool
+
+
+class SamplePrepDigestionRealismReport(JsonModel):
+    """Benchmark whether digestion and sample prep stay coupled to experimental failure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    digestion_failure_count: int = Field(..., ge=0)
+    decoupled_success_count: int = Field(..., ge=0)
+    ready_for_sequence_level_claims: bool
+    note: str = Field(..., min_length=1)
+
+
+class WorkflowMinimumControlEntry(JsonModel):
+    """Minimal controls that must exist before a workflow can leave advisory status."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: str = Field(..., min_length=1)
+    minimum_controls: tuple[str, ...] = Field(default_factory=tuple)
+    promotion_rule: str = Field(..., min_length=1)
+
+
+class WorkflowMinimumControlReport(JsonModel):
+    """Minimal-control policy across serious workflow families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[WorkflowMinimumControlEntry, ...] = Field(default_factory=tuple)
+
+
+class ContaminationCleanupObservation(JsonModel):
+    """One contamination case with cleanup visibility and downstream consequence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    contamination_fraction: float = Field(..., ge=0.0, le=1.0)
+    cleanup_control_present: bool
+    carryover_suspected: bool
+    identification_posture_changed: bool
+    quant_posture_changed: bool
+    interpretation_posture_changed: bool
+    corrective_action_visible: bool
+
+
+class ContaminationCleanupDossierReport(JsonModel):
+    """Whole-repository dossier for contamination and cleanup propagation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    unresolved_cleanup_failure_count: int = Field(..., ge=0)
+    full_propagation_count: int = Field(..., ge=0)
+    scientifically_defensible: bool
+    note: str = Field(..., min_length=1)
+
+
 def _fraction(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
@@ -331,5 +424,157 @@ def build_qc_drift_benchmark_report(
             "run-level and batch-level drift are jointly contained before cohort interpretation"
             if ready
             else "dual drift remains scientifically dangerous because at least one affected run still escaped promotion blocking"
+        ),
+    )
+
+
+def build_qc_carryover_benchmark_report(
+    observations: tuple[QcCarryoverObservation, ...],
+    *,
+    elevated_carryover_threshold: float = 0.05,
+) -> QcCarryoverBenchmarkReport:
+    """Benchmark whether carryover stays visible from QC into lab and reporting."""
+
+    elevated_count = 0
+    unresolved_count = 0
+    spans_core_lab_runtime = True
+    for observation in observations:
+        elevated = observation.carryover_fraction >= elevated_carryover_threshold
+        if elevated:
+            elevated_count += 1
+            fully_visible = (
+                observation.blank_control_present
+                and observation.wash_step_documented
+                and observation.lab_advisory_triggered
+                and observation.runtime_report_flagged
+            )
+            if not fully_visible:
+                unresolved_count += 1
+        spans_core_lab_runtime = spans_core_lab_runtime and (
+            observation.lab_advisory_triggered and observation.runtime_report_flagged
+        )
+    ready = elevated_count == 0 or unresolved_count == 0
+    return QcCarryoverBenchmarkReport(
+        elevated_carryover_count=elevated_count,
+        unresolved_carryover_count=unresolved_count,
+        spans_core_lab_runtime=spans_core_lab_runtime,
+        ready_for_promotion=ready,
+        note=(
+            "carryover pressure survives across QC, lab advisories, and runtime reporting before promotion"
+            if ready
+            else "carryover still disappears between QC, lab advisories, and reporting, leaving unsafe promotion gaps"
+        ),
+    )
+
+
+def build_sample_prep_digestion_realism_report(
+    observations: tuple[SamplePrepDigestionObservation, ...],
+    *,
+    missed_cleavage_threshold: float = 0.25,
+    semi_specific_threshold: float = 0.15,
+    contaminant_threshold: float = 0.1,
+) -> SamplePrepDigestionRealismReport:
+    """Benchmark whether digestion success remains coupled to experimental failure modes."""
+
+    digestion_failure_count = 0
+    decoupled_success_count = 0
+    for observation in observations:
+        digestion_failed = (
+            observation.missed_cleavage_rate >= missed_cleavage_threshold
+            or observation.semi_specific_fraction >= semi_specific_threshold
+            or observation.contaminant_fraction >= contaminant_threshold
+        )
+        if digestion_failed:
+            digestion_failure_count += 1
+        if observation.chemistry_layer_passed and (
+            digestion_failed or observation.sample_prep_failure_visible
+        ):
+            decoupled_success_count += 1
+    ready = digestion_failure_count == 0 and decoupled_success_count == 0
+    return SamplePrepDigestionRealismReport(
+        digestion_failure_count=digestion_failure_count,
+        decoupled_success_count=decoupled_success_count,
+        ready_for_sequence_level_claims=ready,
+        note=(
+            "sequence- and chemistry-layer success stays coupled to sample-prep and digestion quality before interpretation"
+            if ready
+            else "one or more cases still look chemically successful while sample prep or digestion failure would make the science unreliable"
+        ),
+    )
+
+
+def build_workflow_minimum_control_report() -> WorkflowMinimumControlReport:
+    """Name the minimum controls required before each workflow can leave advisory status."""
+
+    return WorkflowMinimumControlReport(
+        entries=(
+            WorkflowMinimumControlEntry(
+                workflow_family="dda",
+                minimum_controls=("blank", "pooled_reference"),
+                promotion_rule="DDA claims remain advisory until both blank and pooled-reference behavior are visible.",
+            ),
+            WorkflowMinimumControlEntry(
+                workflow_family="dia",
+                minimum_controls=("blank", "pooled_reference", "library_reference"),
+                promotion_rule="DIA claims remain advisory until carryover, pooled stability, and library-conditioned behavior are all reviewable.",
+            ),
+            WorkflowMinimumControlEntry(
+                workflow_family="lfq",
+                minimum_controls=("blank", "pooled_reference", "batch_bridge"),
+                promotion_rule="LFQ claims remain advisory until missingness, pooled stability, and batch bridging are all explicit.",
+            ),
+            WorkflowMinimumControlEntry(
+                workflow_family="multiplex",
+                minimum_controls=("reference_channel", "bridge_channel", "blank"),
+                promotion_rule="Multiplex claims remain advisory until reference-channel, bridge-channel, and blank behavior stay visible.",
+            ),
+            WorkflowMinimumControlEntry(
+                workflow_family="ptm",
+                minimum_controls=("enrichment_blank", "site_localization_reference"),
+                promotion_rule="PTM claims remain advisory until enrichment blank behavior and localization reference evidence are present.",
+            ),
+            WorkflowMinimumControlEntry(
+                workflow_family="targeted",
+                minimum_controls=("blank", "heavy_reference", "calibration_standard"),
+                promotion_rule="Targeted claims remain advisory until blank, heavy-reference, and calibration-standard behavior are explicit.",
+            ),
+        )
+    )
+
+
+def build_contamination_cleanup_dossier_report(
+    observations: tuple[ContaminationCleanupObservation, ...],
+    *,
+    contamination_threshold: float = 0.1,
+) -> ContaminationCleanupDossierReport:
+    """Build a dossier showing whether bad cleanup propagates through the repository."""
+
+    unresolved_cleanup_failure_count = 0
+    full_propagation_count = 0
+    for observation in observations:
+        elevated = observation.contamination_fraction >= contamination_threshold
+        propagated = (
+            observation.identification_posture_changed
+            and observation.quant_posture_changed
+            and observation.interpretation_posture_changed
+        )
+        if elevated and propagated and observation.corrective_action_visible:
+            full_propagation_count += 1
+        elif elevated and (
+            not observation.cleanup_control_present
+            or observation.carryover_suspected
+            or not propagated
+            or not observation.corrective_action_visible
+        ):
+            unresolved_cleanup_failure_count += 1
+    defensible = full_propagation_count > 0 and unresolved_cleanup_failure_count == 0
+    return ContaminationCleanupDossierReport(
+        unresolved_cleanup_failure_count=unresolved_cleanup_failure_count,
+        full_propagation_count=full_propagation_count,
+        scientifically_defensible=defensible,
+        note=(
+            "contamination and cleanup failures propagate through identification, quantification, interpretation, and corrective action surfaces"
+            if defensible
+            else "one or more contamination cases still fail to propagate cleanly through cleanup controls or downstream scientific posture"
         ),
     )
