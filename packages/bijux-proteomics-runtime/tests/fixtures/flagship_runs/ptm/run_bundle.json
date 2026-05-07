@@ -1,0 +1,138 @@
+{
+  "artifact_inventory": [
+    {
+      "artifact_id": "ptm-localization-review-corpus:public:1",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/README.md",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:public:2",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/package_manifest.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:public:3",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/quality_sheet.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:public:4",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/lifecycle.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:primary_input",
+      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/ptm/localization_results.tsv",
+      "artifact_role": "primary_input",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:companion_input:1",
+      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/ptm/ptm_features.tsv",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:companion_input:2",
+      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/fasta/ptm_sites.fasta",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "ptm:runtime:1",
+      "artifact_path": "runtime-generated/ptm_sites.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "ptm.accepted_identifications"
+    },
+    {
+      "artifact_id": "ptm:runtime:2",
+      "artifact_path": "runtime-generated/ptm_occupancy.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "ptm.site_entries"
+    },
+    {
+      "artifact_id": "ptm:runtime:3",
+      "artifact_path": "runtime-generated/ptm_motif_windows.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "ptm.occupancy_entries"
+    },
+    {
+      "artifact_id": "ptm:runtime:4",
+      "artifact_path": "runtime-generated/ptm_lab_packet.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "ptm.lab_validation_packet"
+    }
+  ],
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/run_bundle.json",
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "benchmark_id": "benchmark:ptm_site_localization_confidence",
+  "benchmark_package_id": "benchmark_package:ptm_localization_review_package",
+  "bundle_id": "flagship-run-bundle:ptm",
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/failure_replay.json",
+  "last_reproduced_on": "2026-05-07",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/ptm.json",
+    "artifacts/intelligence/recommendation-packets/ptm.json",
+    "artifacts/lab/flagship-follow-up-packets/ptm.json"
+  ],
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
+  "remaining_blockers": [
+    "Compare localization handling against the checked-in PTM localization fixture because direct rescoring engines are not executed in the repo test path.",
+    "Retain Ascore-style ambiguity framing and PSI-MOD grounding in the resulting claims.",
+    "public comparator-backed claim support is refused",
+    "biological grounding remains thin",
+    "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
+  ],
+  "runtime_package_id": "ptm-localization-review-corpus",
+  "runtime_surface": {
+    "canonical_entrypoint": "bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_ptm_review_path",
+    "execution_summary": [
+      "accepted_identification_count=8",
+      "mapped_site_count=5",
+      "motif_window_count=5",
+      "occupancy_entry_count=10",
+      "lab_packet_target_count=5",
+      "unresolved_risk_count=4"
+    ],
+    "input_artifact_ids": [
+      "ptm-localization-review-corpus:primary_input",
+      "ptm-localization-review-corpus:companion_input:1",
+      "ptm-localization-review-corpus:companion_input:2"
+    ],
+    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
+    "run_mode": "raw_executable",
+    "runtime_artifact_ids": [
+      "ptm:runtime:1",
+      "ptm:runtime:2",
+      "ptm:runtime:3",
+      "ptm:runtime:4"
+    ],
+    "runtime_package_id": "ptm-localization-review-corpus",
+    "surface_id": "flagship-runtime-surface:ptm",
+    "toolchain_or_import_path": "ptm localization review corpus",
+    "validating_test_paths": [
+      "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py"
+    ],
+    "workflow_family": "ptm"
+  },
+  "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/stage_lineage.json",
+  "workflow_family": "ptm"
+}

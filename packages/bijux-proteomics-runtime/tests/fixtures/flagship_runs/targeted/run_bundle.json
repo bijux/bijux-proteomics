@@ -1,0 +1,154 @@
+{
+  "artifact_inventory": [
+    {
+      "artifact_id": "targeted-transition-review-corpus:public:1",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/README.md",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:public:2",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/package_manifest.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:public:3",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/quality_sheet.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:public:4",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/lifecycle.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:primary_input",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+      "artifact_role": "primary_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:companion_input:1",
+      "artifact_path": "packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-lab",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:companion_input:2",
+      "artifact_path": "packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-lab",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "targeted-transition-review-corpus:companion_input:3",
+      "artifact_path": "packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-lab",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "targeted:runtime:1",
+      "artifact_path": "runtime-generated/chromatogram_qc.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "targeted.chromatogram_qc"
+    },
+    {
+      "artifact_id": "targeted:runtime:2",
+      "artifact_path": "runtime-generated/transition_review.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "targeted.transition_review"
+    },
+    {
+      "artifact_id": "targeted:runtime:3",
+      "artifact_path": "runtime-generated/calibration_readout.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "targeted.calibration_readout"
+    },
+    {
+      "artifact_id": "targeted:runtime:4",
+      "artifact_path": "runtime-generated/interference_review.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "targeted.interference_review"
+    },
+    {
+      "artifact_id": "targeted:runtime:5",
+      "artifact_path": "runtime-generated/follow_up_consequences.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "targeted.follow_up_consequences"
+    }
+  ],
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json",
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "benchmark_id": "benchmark:targeted_transition_quality_control",
+  "benchmark_package_id": "benchmark_package:targeted_transition_review_package",
+  "bundle_id": "flagship-run-bundle:targeted",
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json",
+  "last_reproduced_on": "2026-05-07",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/targeted.json",
+    "artifacts/intelligence/recommendation-packets/targeted.json",
+    "artifacts/lab/flagship-follow-up-packets/targeted.json"
+  ],
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
+  "remaining_blockers": [
+    "Compare targeted QC handling against the tracked targeted public package and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
+    "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
+    "public comparator-backed claim support is refused",
+    "biological grounding remains thin",
+    "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
+  ],
+  "runtime_package_id": "targeted-transition-review-corpus",
+  "runtime_surface": {
+    "canonical_entrypoint": "bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_targeted_review_path",
+    "execution_summary": [
+      "qc_point_count=5",
+      "approved_transition_count=1",
+      "exploratory_transition_count=3",
+      "refused_transition_count=2",
+      "blocked_follow_up_count=2",
+      "observed_outcome_count=2"
+    ],
+    "input_artifact_ids": [
+      "targeted-transition-review-corpus:primary_input",
+      "targeted-transition-review-corpus:companion_input:1",
+      "targeted-transition-review-corpus:companion_input:2",
+      "targeted-transition-review-corpus:companion_input:3"
+    ],
+    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
+    "run_mode": "import_only",
+    "runtime_artifact_ids": [
+      "targeted:runtime:1",
+      "targeted:runtime:2",
+      "targeted:runtime:3",
+      "targeted:runtime:4",
+      "targeted:runtime:5"
+    ],
+    "runtime_package_id": "targeted-transition-review-corpus",
+    "surface_id": "flagship-runtime-surface:targeted",
+    "toolchain_or_import_path": "targeted transition review corpus",
+    "validating_test_paths": [
+      "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py"
+    ],
+    "workflow_family": "targeted"
+  },
+  "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json",
+  "workflow_family": "targeted"
+}

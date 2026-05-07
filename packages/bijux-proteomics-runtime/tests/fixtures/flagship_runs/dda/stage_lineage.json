@@ -1,0 +1,39 @@
+{
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/stage_lineage.json",
+  "lineage_id": "flagship-stage-lineage:dda",
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
+  "stages": [
+    {
+      "consumed_artifact_ids": [
+        "dda-maxquant-pipeline-corpus:primary_input",
+        "dda-maxquant-pipeline-corpus:companion_input:1",
+        "dda-maxquant-pipeline-corpus:companion_input:2"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "dda:runtime-imported-evidence",
+        "dda:runtime-status",
+        "dda:runtime-report"
+      ],
+      "stage_id": "ingest-package-inputs",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane"
+    },
+    {
+      "consumed_artifact_ids": [
+        "dda:runtime-imported-evidence",
+        "dda:runtime-status",
+        "dda:runtime-report"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "dda:runtime-replay-contract",
+        "dda:runtime-integrity-report",
+        "dda:runtime-evidence-bundle",
+        "dda:runtime-review-packet"
+      ],
+      "stage_id": "publish-runtime-review",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
+    }
+  ],
+  "workflow_family": "dda"
+}

@@ -1,0 +1,75 @@
+{
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/failure_replay.json",
+  "cases": [
+    {
+      "blocked_artifact_ids": [],
+      "case_id": "dda:execution_failure",
+      "failure_kind": "execution_failure",
+      "invalidation_reasons": [],
+      "note": "engineering failure keeps preserved runtime artifacts visible while naming which outputs become blocked",
+      "surfaced_artifact_ids": [
+        "dda:runtime-evidence-bundle",
+        "dda:runtime-artifact-item",
+        "dda:runtime-review-packet",
+        "dda:runtime-reviewable-import-path",
+        "dda:runtime-import-run-bundle",
+        "dda:runtime-import-trace",
+        "dda:runtime-integrity-report",
+        "dda:runtime-preflight-report",
+        "dda:runtime-replay-contract",
+        "dda:runtime-config",
+        "dda:runtime-run-context",
+        "dda:runtime-output",
+        "dda:runtime-plan",
+        "dda:runtime-report",
+        "dda:runtime-status",
+        "dda:runtime-telemetry"
+      ]
+    },
+    {
+      "blocked_artifact_ids": [],
+      "case_id": "dda:scientific_invalidation",
+      "failure_kind": "scientific_invalidation",
+      "invalidation_reasons": [
+        "input_changed"
+      ],
+      "note": "scientific invalidation is recorded separately from filesystem corruption so reviewers can distinguish wrong assumptions from broken execution",
+      "surfaced_artifact_ids": [
+        "dda:runtime-evidence-bundle",
+        "dda:runtime-artifact-item",
+        "dda:runtime-review-packet",
+        "dda:runtime-reviewable-import-path",
+        "dda:runtime-import-run-bundle",
+        "dda:runtime-import-trace",
+        "dda:runtime-integrity-report",
+        "dda:runtime-preflight-report",
+        "dda:runtime-replay-contract",
+        "dda:runtime-config",
+        "dda:runtime-run-context",
+        "dda:runtime-output",
+        "dda:runtime-plan",
+        "dda:runtime-report",
+        "dda:runtime-status",
+        "dda:runtime-telemetry"
+      ]
+    },
+    {
+      "blocked_artifact_ids": [
+        "dda:runtime-evidence-bundle",
+        "dda:runtime-review-packet"
+      ],
+      "case_id": "dda:structurally_incomplete_import",
+      "failure_kind": "structurally_incomplete_import",
+      "invalidation_reasons": [
+        "structurally_incomplete_imported_artifact"
+      ],
+      "note": "if imported result tables are structurally incomplete, runtime keeps the import trace but blocks downstream review and handoff outputs",
+      "surfaced_artifact_ids": [
+        "dda:runtime-imported-evidence"
+      ]
+    }
+  ],
+  "note": "This artifact demonstrates how runtime distinguishes execution failure, scientific invalidation, and structurally incomplete imports on the flagship import lanes.",
+  "replay_id": "flagship-failure-replay:dda",
+  "workflow_family": "dda"
+}
