@@ -17,6 +17,10 @@ internal-support family.
 Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
 
+Family-level trust in this bundle now assumes paired public benchmark packages
+and one published family-transfer report per workflow family, not one unusually
+convenient flagship package.
+
 ## Current Bundle
 
 - bundle id: `flagship-release-candidate-bundle`
@@ -38,6 +42,8 @@ Internal-support-only workflow families today: `multiplex`.
   - `lfq-cohort-review-corpus`
   - `ptm-localization-review-corpus`
   - `targeted-transition-review-corpus`
+- family-transfer scorecard:
+  - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/family_stability_scorecard.json`
 - trust pages:
   - [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/)
   - [Why Trust DIA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dia/)
@@ -51,14 +57,15 @@ Internal-support-only workflow families today: `multiplex`.
 ## Honest Reading
 
 - `dda` survives one full outsider packet:
-  public package, runtime lane, comparator pressure, scientific reading,
-  recommendation packet, and lab packet
+  two public packages, one family-transfer report, runtime lane, comparator
+  pressure, scientific reading, recommendation packet, and lab packet
 - `dia`, `lfq`, `ptm`, and `targeted` now also survive full outsider packets,
-  but each authority stays bounded by advisory comparator posture, external
-  execution limits, or exploratory lab consequence
+  but each authority stays bounded by advisory comparator posture, the measured
+  drift recorded in its family-transfer report, external execution limits, or
+  exploratory lab consequence
 - `multiplex` has real package and runtime substance, but it is intentionally
-  narrowed to internal support only until outsider review and lab consequence
-  surfaces exist
+  narrowed to internal support only because its companion stress package still
+  collapses outsider-facing trust in the published family-transfer report
 
 ## Boundary
 

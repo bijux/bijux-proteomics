@@ -12,15 +12,17 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `ptm` surface.
 
 The trustworthy part today is the repository's ambiguity discipline around
-localization, targetability, and follow-up burden plus one real PTM public
-package. PTM is now outsider-auditable in a bounded sense, not a decision-grade
-promotion story.
+localization, targetability, and follow-up burden across two public PTM
+packages plus one published cross-package report. PTM is outsider-auditable in
+a bounded sense, not a decision-grade promotion story.
 
 ## Open First
 
 - `benchmark:ptm_localization_consistency`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json`
 - `packages/bijux-proteomics-core/src/bijux_proteomics/ptm/benchmarks.py`
 - `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py`
 
@@ -31,6 +33,9 @@ promotion story.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `advisory`.
 - the runtime package is now `ptm-localization-review-corpus`.
+- the companion family-transfer report is currently `highly_stable` at `0.8`,
+  but targetability confidence weakens materially on the ambiguity-stress
+  package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
@@ -50,6 +55,9 @@ promotion story.
   raw-spectrum context tied together in one inspectable surface
 - the runtime bundle now preserves localization, occupancy, motif, and
   lab-targeting outputs inside one checked PTM run family
+- the companion ambiguity-stress package publishes a second family-transfer
+  check at
+  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json`
 
 ## What You Should Not Trust Yet
 
@@ -57,4 +65,5 @@ promotion story.
   this public workflow claim
 - occupancy and regulatory interpretation still remain narrower than
   localization evidence
+- targetability confidence weakens materially on the ambiguity-stress package
 - PTM follow-up remains exploratory

@@ -11,9 +11,10 @@ last_reviewed: 2026-05-07
 
 This page is about the current flagship `dda` result surface.
 
-It does not say DDA is solved in general. It says the repository now ships one
-outsider-auditable DDA family that a skeptical reviewer can inspect from files,
-runtime lineage, comparator pressure, decision posture, and lab consequence.
+It does not say DDA is solved in general. It says the repository now ships two
+public DDA packages and one published cross-package report, so a skeptical
+reviewer can inspect whether the main DDA claims survive beyond one unusually
+convenient package.
 
 ## Open First
 
@@ -22,6 +23,8 @@ runtime lineage, comparator pressure, decision posture, and lab consequence.
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/artifact_inventory.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
 
@@ -46,7 +49,12 @@ runtime lineage, comparator pressure, decision posture, and lab consequence.
 ## Why This Is Trustworthy Now
 
 - the public package is inspectable from tracked files alone
+- one companion public package keeps DDA trust from depending only on the
+  MaxQuant-versus-MSFragger pairing
 - the primary MaxQuant import and MSFragger comparator export are both shipped
+- the companion Comet-versus-Sage package ships a second engine pairing and a
+  published family-transfer report at
+  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json`
 - numeric invariants and one concrete protein-rollup warning are published
 - runtime, knowledge, intelligence, and lab all point at the same family
 
@@ -54,5 +62,7 @@ runtime lineage, comparator pressure, decision posture, and lab consequence.
 
 - this is not live-engine rerun parity
 - this is not broad cohort-grade DDA authority
+- the family-transfer report still shows that protein-facing confidence weakens
+  under the companion engine pairing
 - protein-facing claims stay downgrade-heavy because the comparator package
   demonstrates cross-engine rollup drift directly

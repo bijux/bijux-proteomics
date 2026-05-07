@@ -12,9 +12,10 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `targeted` surface.
 
 The trustworthy part today is the explicit QC, calibration, and interference
-limit surface plus one real targeted public package. The repository now earns a
-bounded outsider-auditable targeted workflow claim, not a vendor-parity or
-calibration-clean targeted authority.
+limit surface across two public targeted packages plus one published
+cross-package report. The repository earns a bounded outsider-auditable
+targeted workflow claim, not a vendor-parity or calibration-clean targeted
+authority.
 
 ## Open First
 
@@ -24,6 +25,8 @@ calibration-clean targeted authority.
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json`
 
 ## Current Trust Earned
 
@@ -33,6 +36,8 @@ calibration-clean targeted authority.
 - public claim support is `advisory`.
 - the runtime package is now `targeted-transition-review-corpus`.
 - the runtime lane is `raw_executable`.
+- the companion family-transfer report is currently `highly_stable` at `0.87`,
+  but promotion confidence weakens under the carryover-stress package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
@@ -52,10 +57,13 @@ calibration-clean targeted authority.
   follow-up packets together
 - the runtime bundle now preserves transition-level QC, blocked follow-up
   pressure, and observed follow-up consequence outputs in one checked lane
+- the companion carryover package publishes a second family-transfer check at
+  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json`
 
 ## What You Should Not Trust Yet
 
 - comparator drift or missing external execution parity still materially limits
   this public workflow claim
 - calibration-clean and vendor-parity targeted authority are not earned
+- promotion confidence weakens on the carryover-stress package
 - targeted follow-up remains exploratory

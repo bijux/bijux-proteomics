@@ -11,10 +11,11 @@ last_reviewed: 2026-05-07
 
 This page is about the current flagship `dia` result surface.
 
-The right trust level is bounded. The repository now ships one outsider-readable
-DIA public package with explicit capability limits, and the flagship runtime
-lane now executes that package directly. The authority still stops at
-library-conditioned review rather than vendor-execution parity.
+The right trust level is bounded. The repository now ships two public DIA
+packages plus one published cross-package report, so a reviewer can inspect
+whether DIA trust survives beyond one library-conditioned package. The
+authority still stops at library-conditioned review rather than
+vendor-execution parity.
 
 ## Open First
 
@@ -24,6 +25,8 @@ library-conditioned review rather than vendor-execution parity.
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
 
 ## Current Trust Earned
@@ -34,6 +37,8 @@ library-conditioned review rather than vendor-execution parity.
 - public claim support is `advisory`.
 - the runtime package `dia-diann-pipeline-corpus` is real and currently
   `raw_executable`.
+- the companion family-transfer report is currently `highly_stable` at `0.83`,
+  but protein-level absence language still weakens on the second package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
@@ -52,6 +57,8 @@ library-conditioned review rather than vendor-execution parity.
   browsing without stopping at an import-only bridge
 - the tracked public package makes artifact inventory, quality posture, and
   lifecycle boundaries inspectable without reading internal code
+- the companion matrix-shift package publishes a second family-transfer check at
+  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json`
 
 ## What You Should Not Trust Yet
 
@@ -59,3 +66,5 @@ library-conditioned review rather than vendor-execution parity.
 - chromatogram-level and vendor-execution parity are not earned
 - the current reproduction story still depends on execution steps outside the
   repository proof boundary
+- protein-level absence claims stay downgrade-heavy because the second package
+  weakens them materially

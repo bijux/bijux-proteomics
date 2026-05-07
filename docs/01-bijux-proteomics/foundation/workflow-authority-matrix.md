@@ -15,6 +15,10 @@ workflow families.
 Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 Internal-support-only workflow families today: `multiplex`.
 
+Family-level trust now requires two public benchmark packages plus one
+published cross-package generalization report. The current scorecard lives at
+`packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/family_stability_scorecard.json`.
+
 ## Current Authority
 
 | Workflow | Internal benchmark-backed | Raw-executable | Externally cross-checked | Outsider-auditable | Lab-consequential | Public language |
@@ -35,10 +39,43 @@ Internal-support-only workflow families today: `multiplex`.
 - `externally cross-checked` means public comparator posture is at least
   advisory rather than refused
 - `outsider-auditable` means the benchmark package, runtime lane, scientific
-  reading, recommendation packet, and lab packet can be opened together by a
-  skeptical reviewer
+  reading, recommendation packet, lab packet, and the family generalization
+  report can be opened together by a skeptical reviewer
 - `lab-consequential` means a dedicated flagship lab packet exists, even when
   the packet still keeps the family exploratory-only
+
+## Family Transfer Evidence
+
+- `dda`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json`
+- `dia`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json`
+- `lfq`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json`
+- `multiplex`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/cross_package_generalization.json`
+- `ptm`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json`
+- `targeted`
+  - companion package:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package`
+  - generalization report:
+    `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/cross_package_generalization.json`
 
 ## Boundary
 

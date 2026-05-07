@@ -12,9 +12,9 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `lfq` surface.
 
 What you can trust here is the repo's honesty around missingness, QC, and
-bounded cohort interpretation plus one real LFQ public package. The repository
-now earns a bounded outsider-auditable LFQ claim, not broad cohort-transfer or
-decision-grade quant authority.
+bounded cohort interpretation across two public LFQ packages plus one published
+cross-package report. The repository earns a bounded outsider-auditable LFQ
+claim, not broad cohort-transfer or decision-grade quant authority.
 
 ## Open First
 
@@ -23,6 +23,8 @@ decision-grade quant authority.
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json`
 
 ## Current Trust Earned
 
@@ -31,6 +33,8 @@ decision-grade quant authority.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `advisory`.
 - the runtime package is now `lfq-cohort-review-corpus`.
+- the companion family-transfer report is currently `highly_stable` at `0.84`,
+  but effect-direction confidence weakens on the sparse contrast package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
@@ -51,9 +55,13 @@ decision-grade quant authority.
   lifecycle visible instead of implied
 - the runtime bundle now shows normalization, missingness, differential, and
   review outputs as one checked flagship run family
+- the companion sparse-contrast package publishes a second family-transfer check
+  at
+  `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json`
 
 ## What You Should Not Trust Yet
 
 - comparator drift or missing external execution parity still materially limits
   this public workflow claim
-- generalization beyond the current cohort package is not earned
+- effect-direction confidence weakens on the sparse companion cohort
+- broad generalization beyond the two current cohort packages is not earned

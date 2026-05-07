@@ -28,6 +28,8 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
         in text
     )
     assert "internal-support-only workflow families: `multiplex`" in text
+    assert "family_stability_scorecard.json" in text
+    assert "paired public benchmark packages" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
