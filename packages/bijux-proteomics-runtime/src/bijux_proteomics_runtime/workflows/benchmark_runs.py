@@ -35,6 +35,7 @@ from bijux_proteomics_runtime.workflows.paths import (
     run_reviewable_import_path,
     run_reviewable_sequence_path,
 )
+from bijux_proteomics_runtime.workflows.proof_classes import RuntimeProofClass
 from bijux_proteomics_runtime.workflows.runs import (
     MultiplexRuntimeWorkflowRunReport,
     PtmRuntimeWorkflowRunReport,
@@ -82,6 +83,7 @@ class BenchmarkRuntimeTruthRow(JsonModel):
     package_id: str = Field(..., min_length=1)
     workflow_family: str = Field(..., min_length=1)
     run_mode: BenchmarkRunMode
+    proof_class: RuntimeProofClass | None = Field(default=None)
     replayable: bool
     externally_cross_checked: bool
     artifact_browser_ready: bool
@@ -178,6 +180,7 @@ class BenchmarkRunProvenanceReport(JsonModel):
     run_id: str = Field(..., min_length=1)
     command: str = Field(..., min_length=1)
     workflow_family: str = Field(..., min_length=1)
+    proof_class: RuntimeProofClass
     runtime_app_version: str = Field(..., min_length=1)
     runtime_git_commit: str = Field(..., min_length=1)
     provider_name: str = Field(..., min_length=1)
@@ -552,6 +555,7 @@ def build_benchmark_runtime_truth_surface() -> tuple[BenchmarkRuntimeTruthRow, .
                     package_id=f"{workflow_family}-blocked-runtime-path",
                     workflow_family=workflow_family,
                     run_mode=BenchmarkRunMode.BLOCKED,
+                    proof_class=None,
                     replayable=False,
                     externally_cross_checked=False,
                     artifact_browser_ready=False,
@@ -568,6 +572,7 @@ def build_benchmark_runtime_truth_surface() -> tuple[BenchmarkRuntimeTruthRow, .
                 package_id=spec.package_id,
                 workflow_family=workflow_family,
                 run_mode=spec.run_mode,
+                proof_class=_proof_class_for_run_mode(spec.run_mode),
                 replayable=True,
                 externally_cross_checked=workflow_family in {"dda_import", "dia_import"},
                 artifact_browser_ready=workflow_family in {"dda_import", "dia_import"},
@@ -783,6 +788,7 @@ def build_benchmark_run_provenance_report(
         run_id=manifest.run_id,
         command=manifest.command,
         workflow_family=manifest.workflow_family,
+        proof_class=_proof_class_for_run_mode(spec.run_mode),
         runtime_app_version=str(run_summary["version"]["app"]),
         runtime_git_commit=str(run_summary["version"]["git_commit"]),
         provider_name=run_context.provider_name,
@@ -962,6 +968,14 @@ def _load_json_dict(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise TypeError(f"expected JSON object at {path}")
     return payload
+
+
+def _proof_class_for_run_mode(run_mode: BenchmarkRunMode) -> RuntimeProofClass:
+    if run_mode is BenchmarkRunMode.RAW_EXECUTABLE:
+        return RuntimeProofClass.RAW_EXECUTION
+    if run_mode is BenchmarkRunMode.IMPORT_ONLY:
+        return RuntimeProofClass.IMPORT_BACKED_EXECUTION
+    raise ValueError(f"unsupported proof class for blocked runtime mode: {run_mode}")
 
 
 def _preview_for_json(path: Path, *, limit: int = 3) -> tuple[str, ...]:

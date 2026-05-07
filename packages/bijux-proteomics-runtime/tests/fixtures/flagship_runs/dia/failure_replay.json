@@ -1,11 +1,12 @@
 {
-  "replay_id": "flagship-failure-replay:dia",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/failure_replay.json",
-  "workflow_family": "dia",
   "cases": [
     {
+      "blocked_artifact_ids": [],
       "case_id": "dia:execution_failure",
       "failure_kind": "execution_failure",
+      "invalidation_reasons": [],
+      "note": "engineering failure keeps preserved runtime artifacts visible while naming which outputs become blocked",
       "surfaced_artifact_ids": [
         "dia:runtime-evidence-bundle",
         "dia:runtime-artifact-item",
@@ -23,53 +24,52 @@
         "dia:runtime-report",
         "dia:runtime-status",
         "dia:runtime-telemetry"
-      ],
-      "blocked_artifact_ids": [],
-      "invalidation_reasons": [],
-      "note": "engineering failure keeps preserved runtime artifacts visible while naming which outputs become blocked"
+      ]
     },
     {
+      "blocked_artifact_ids": [],
       "case_id": "dia:scientific_invalidation",
       "failure_kind": "scientific_invalidation",
-      "surfaced_artifact_ids": [
-        "dia:runtime-evidence-bundle",
-        "dia:runtime-artifact-item",
-        "dia:runtime-review-packet",
-        "dia:runtime-reviewable-import-path",
-        "dia:runtime-import-run-bundle",
-        "dia:runtime-import-trace",
-        "dia:runtime-integrity-report",
-        "dia:runtime-preflight-report",
-        "dia:runtime-replay-contract",
-        "dia:runtime-config",
-        "dia:runtime-run-context",
-        "dia:runtime-output",
-        "dia:runtime-plan",
-        "dia:runtime-report",
-        "dia:runtime-status",
-        "dia:runtime-telemetry"
-      ],
-      "blocked_artifact_ids": [],
       "invalidation_reasons": [
         "input_changed"
       ],
-      "note": "scientific invalidation is recorded separately from filesystem corruption so reviewers can distinguish wrong assumptions from broken execution"
+      "note": "scientific invalidation is recorded separately from filesystem corruption so reviewers can distinguish wrong assumptions from broken execution",
+      "surfaced_artifact_ids": [
+        "dia:runtime-evidence-bundle",
+        "dia:runtime-artifact-item",
+        "dia:runtime-review-packet",
+        "dia:runtime-reviewable-import-path",
+        "dia:runtime-import-run-bundle",
+        "dia:runtime-import-trace",
+        "dia:runtime-integrity-report",
+        "dia:runtime-preflight-report",
+        "dia:runtime-replay-contract",
+        "dia:runtime-config",
+        "dia:runtime-run-context",
+        "dia:runtime-output",
+        "dia:runtime-plan",
+        "dia:runtime-report",
+        "dia:runtime-status",
+        "dia:runtime-telemetry"
+      ]
     },
     {
-      "case_id": "dia:structurally_incomplete_import",
-      "failure_kind": "structurally_incomplete_import",
-      "surfaced_artifact_ids": [
-        "dia:runtime-imported-evidence"
-      ],
       "blocked_artifact_ids": [
         "dia:runtime-evidence-bundle",
         "dia:runtime-review-packet"
       ],
+      "case_id": "dia:structurally_incomplete_import",
+      "failure_kind": "structurally_incomplete_import",
       "invalidation_reasons": [
         "structurally_incomplete_imported_artifact"
       ],
-      "note": "if imported result tables are structurally incomplete, runtime keeps the import trace but blocks downstream review and handoff outputs"
+      "note": "if imported result tables are structurally incomplete, runtime keeps the import trace but blocks downstream review and handoff outputs",
+      "surfaced_artifact_ids": [
+        "dia:runtime-imported-evidence"
+      ]
     }
   ],
-  "note": "This artifact demonstrates how runtime distinguishes execution failure, scientific invalidation, and structurally incomplete imports on the flagship import lanes."
+  "note": "This artifact demonstrates how runtime distinguishes execution failure, scientific invalidation, and structurally incomplete imports on the flagship import lanes.",
+  "replay_id": "flagship-failure-replay:dia",
+  "workflow_family": "dia"
 }

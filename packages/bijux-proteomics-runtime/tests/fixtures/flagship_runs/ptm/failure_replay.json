@@ -1,46 +1,46 @@
 {
-  "replay_id": "flagship-failure-replay:ptm",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/failure_replay.json",
-  "workflow_family": "ptm",
   "cases": [
     {
-      "case_id": "ptm:execution_failure",
-      "failure_kind": "execution_failure",
-      "surfaced_artifact_ids": [
-        "ptm:runtime:1"
-      ],
       "blocked_artifact_ids": [
         "ptm:runtime:4"
       ],
+      "case_id": "ptm:execution_failure",
+      "failure_kind": "execution_failure",
       "invalidation_reasons": [],
-      "note": "runtime preserves early-stage evidence but blocks later review outputs when execution breaks mid-flight"
+      "note": "runtime preserves early-stage evidence but blocks later review outputs when execution breaks mid-flight",
+      "surfaced_artifact_ids": [
+        "ptm:runtime:1"
+      ]
     },
     {
+      "blocked_artifact_ids": [],
       "case_id": "ptm:scientific_invalidation",
       "failure_kind": "scientific_invalidation",
-      "surfaced_artifact_ids": [
-        "ptm:runtime:2"
-      ],
-      "blocked_artifact_ids": [],
       "invalidation_reasons": [
         "scientific_limits_remain"
       ],
-      "note": "runtime still records the run, but the review posture is downgraded when the scientific assumptions or claim boundaries fail."
+      "note": "runtime still records the run, but the review posture is downgraded when the scientific assumptions or claim boundaries fail.",
+      "surfaced_artifact_ids": [
+        "ptm:runtime:2"
+      ]
     },
     {
-      "case_id": "ptm:structurally_incomplete_input",
-      "failure_kind": "structurally_incomplete_input",
-      "surfaced_artifact_ids": [
-        "ptm:primary_input"
-      ],
       "blocked_artifact_ids": [
         "ptm:runtime:3"
       ],
+      "case_id": "ptm:structurally_incomplete_input",
+      "failure_kind": "structurally_incomplete_input",
       "invalidation_reasons": [
         "required_input_fields_missing"
       ],
-      "note": "runtime should name structurally incomplete inputs directly before downstream interpretation leaves the workflow boundary."
+      "note": "runtime should name structurally incomplete inputs directly before downstream interpretation leaves the workflow boundary.",
+      "surfaced_artifact_ids": [
+        "ptm:primary_input"
+      ]
     }
   ],
-  "note": "This artifact demonstrates how runtime records execution failure, scientific invalidation, and structurally incomplete inputs on the flagship review lanes."
+  "note": "This artifact demonstrates how runtime records execution failure, scientific invalidation, and structurally incomplete inputs on the flagship review lanes.",
+  "replay_id": "flagship-failure-replay:ptm",
+  "workflow_family": "ptm"
 }

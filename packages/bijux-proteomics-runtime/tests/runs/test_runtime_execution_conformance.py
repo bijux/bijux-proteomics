@@ -2,43 +2,26 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runs.import_lineage import ImportRunBundle
-from bijux_proteomics_runtime.runs.import_lineage import RuntimeImportTrace
-from bijux_proteomics_runtime.runs.import_lineage import load_import_run_bundle
-from bijux_proteomics_runtime.runs.import_lineage import load_import_trace
-from bijux_proteomics_runtime.runs.launch_bundles import ContainerRunBundle
-from bijux_proteomics_runtime.runs.launch_bundles import SchedulerJobBundle
-from bijux_proteomics_runtime.runs.launch_bundles import load_container_run_bundle
-from bijux_proteomics_runtime.runs.launch_bundles import load_scheduler_job_bundle
-from bijux_proteomics_runtime.runs.replay import LocalRunBundle
-from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
-from bijux_proteomics_runtime.runs import RunConfig
+from bijux_proteomics_runtime.runs import RunConfig, RunManager
+from bijux_proteomics_runtime.runs.import_lineage import (
+    ImportRunBundle,
+    RuntimeImportTrace,
+    load_import_run_bundle,
+    load_import_trace,
+)
+from bijux_proteomics_runtime.runs.launch_bundles import (
+    ContainerRunBundle,
+    SchedulerJobBundle,
+    load_container_run_bundle,
+    load_scheduler_job_bundle,
+)
+from bijux_proteomics_runtime.runs.replay import LocalRunBundle, load_local_run_bundle
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
-def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]
-    return {
-        "candidate_id": candidate.candidate_id,
-        "candidate": candidate.model_dump(),
-        "plan_fingerprint": "plan-1",
-        "tool_status": "success",
-        "report": {"status": "ok"},
-        "qc_status": "acceptable",
-        "coordinator_decision": "TerminateRun",
-        "failure_type": "none",
-        "lifecycle_state": "done",
-    }
-
-
 def test_runtime_local_execution_surface_is_reusable(
-    tmp_path: Path, monkeypatch
+    tmp_path: Path,
 ) -> None:
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_success,
-    )
-
     manager = RunManager(tmp_path)
     manager.run("MPEPTIDE", run_id="runtime-local-conformance-1")
 
@@ -52,12 +35,7 @@ def test_runtime_local_execution_surface_is_reusable(
 
 def test_runtime_container_execution_surface_is_runtime_owned(
     tmp_path: Path,
-    monkeypatch,
 ) -> None:
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_success,
-    )
     manager = RunManager(
         tmp_path,
         RunConfig(
@@ -78,12 +56,7 @@ def test_runtime_container_execution_surface_is_runtime_owned(
 
 def test_runtime_scheduler_execution_surface_is_runtime_owned(
     tmp_path: Path,
-    monkeypatch,
 ) -> None:
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_success,
-    )
     manager = RunManager(
         tmp_path,
         RunConfig(

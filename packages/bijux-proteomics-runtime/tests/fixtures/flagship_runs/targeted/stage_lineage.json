@@ -1,37 +1,37 @@
 {
-  "lineage_id": "flagship-stage-lineage:targeted",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json",
-  "workflow_family": "targeted",
+  "lineage_id": "flagship-stage-lineage:targeted",
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
   "stages": [
     {
-      "stage_id": "ingest-package-inputs",
-      "owner_package": "bijux-proteomics-runtime",
-      "summary": "ingest the tracked flagship package inputs into the runtime lane",
       "consumed_artifact_ids": [
         "targeted-transition-review-corpus:primary_input",
         "targeted-transition-review-corpus:companion_input:1",
         "targeted-transition-review-corpus:companion_input:2",
         "targeted-transition-review-corpus:companion_input:3"
       ],
+      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "targeted:runtime:1",
         "targeted:runtime:2"
-      ]
+      ],
+      "stage_id": "ingest-package-inputs",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane"
     },
     {
-      "stage_id": "publish-runtime-review",
-      "owner_package": "bijux-proteomics-runtime",
-      "summary": "publish the reviewable runtime artifacts that downstream owners consume",
       "consumed_artifact_ids": [
         "targeted:runtime:1",
         "targeted:runtime:2"
       ],
+      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "targeted:runtime:3",
         "targeted:runtime:4",
         "targeted:runtime:5"
-      ]
+      ],
+      "stage_id": "publish-runtime-review",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
     }
   ],
-  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose."
+  "workflow_family": "targeted"
 }

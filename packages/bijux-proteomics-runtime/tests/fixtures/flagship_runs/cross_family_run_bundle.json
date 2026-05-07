@@ -1,22 +1,6 @@
 {
-  "bundle_id": "flagship-cross-family-run-bundle",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/cross_family_run_bundle.json",
-  "workflow_families": [
-    "dda",
-    "dia",
-    "lfq",
-    "multiplex",
-    "ptm",
-    "targeted"
-  ],
-  "per_family_bundle_paths": [
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/run_bundle.json",
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/run_bundle.json",
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/run_bundle.json",
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/run_bundle.json",
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/run_bundle.json",
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json"
-  ],
+  "bundle_id": "flagship-cross-family-run-bundle",
   "core_artifact_paths": [
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
@@ -24,14 +8,6 @@
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/README.md",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md"
-  ],
-  "knowledge_artifact_paths": [
-    "artifacts/knowledge/scientific-reading-packs/dda.json",
-    "artifacts/knowledge/scientific-reading-packs/dia.json",
-    "artifacts/knowledge/scientific-reading-packs/lfq.json",
-    "artifacts/knowledge/scientific-reading-packs/multiplex.json",
-    "artifacts/knowledge/scientific-reading-packs/ptm.json",
-    "artifacts/knowledge/scientific-reading-packs/targeted.json"
   ],
   "intelligence_artifact_paths": [
     "artifacts/intelligence/recommendation-packets/dda.json",
@@ -41,6 +17,14 @@
     "artifacts/intelligence/recommendation-packets/ptm.json",
     "artifacts/intelligence/recommendation-packets/targeted.json"
   ],
+  "knowledge_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/dda.json",
+    "artifacts/knowledge/scientific-reading-packs/dia.json",
+    "artifacts/knowledge/scientific-reading-packs/lfq.json",
+    "artifacts/knowledge/scientific-reading-packs/multiplex.json",
+    "artifacts/knowledge/scientific-reading-packs/ptm.json",
+    "artifacts/knowledge/scientific-reading-packs/targeted.json"
+  ],
   "lab_artifact_paths": [
     "artifacts/lab/flagship-follow-up-packets/dda.json",
     "artifacts/lab/flagship-follow-up-packets/dia.json",
@@ -49,5 +33,21 @@
     "artifacts/lab/flagship-follow-up-packets/ptm.json",
     "artifacts/lab/flagship-follow-up-packets/targeted.json"
   ],
-  "note": "This bundle keeps the exact core, knowledge, intelligence, and lab artifacts visible beside the runtime-owned flagship run bundles so the workflow stops looking like adjacent islands."
+  "note": "This bundle keeps the exact core, knowledge, intelligence, and lab artifacts visible beside the runtime-owned flagship run bundles so the workflow stops looking like adjacent islands.",
+  "per_family_bundle_paths": [
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/run_bundle.json",
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/run_bundle.json",
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/run_bundle.json",
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/run_bundle.json",
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/run_bundle.json",
+    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json"
+  ],
+  "workflow_families": [
+    "dda",
+    "dia",
+    "lfq",
+    "multiplex",
+    "ptm",
+    "targeted"
+  ]
 }

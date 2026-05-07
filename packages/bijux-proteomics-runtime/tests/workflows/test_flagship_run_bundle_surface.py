@@ -57,6 +57,7 @@ def test_flagship_run_bundles_keep_runtime_and_downstream_artifacts_linked(
     targeted = build_flagship_run_bundle("targeted", base_dir=tmp_path / "targeted")
 
     assert dda.runtime_surface.run_mode.value == "import_only"
+    assert dda.runtime_surface.proof_class.value == "import_backed_execution"
     assert any(
         artifact.artifact_role == "runtime-imported-evidence"
         for artifact in dda.artifact_inventory
@@ -67,6 +68,7 @@ def test_flagship_run_bundles_keep_runtime_and_downstream_artifacts_linked(
     )
 
     assert lfq.runtime_surface.run_mode.value == "raw_executable"
+    assert lfq.runtime_surface.proof_class.value == "raw_execution"
     assert any(
         "review_bundle_hash=" in line for line in lfq.runtime_surface.execution_summary
     )
@@ -105,6 +107,7 @@ def test_cross_family_bundle_and_registry_publish_runtime_review_surfaces(
     )
     assert len(registry.entries) == 6
     assert registry.entries[0].bundle_artifact_path.endswith("dda/run_bundle.json")
+    assert registry.entries[0].proof_class.value == "import_backed_execution"
     assert any(
         entry.runtime_package_id == "targeted-transition-review-corpus"
         for entry in registry.entries

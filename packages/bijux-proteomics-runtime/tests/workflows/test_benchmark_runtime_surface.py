@@ -96,7 +96,9 @@ def test_benchmark_runtime_truth_surface_tracks_all_flagship_run_families() -> N
     rows = {row.workflow_family: row for row in build_benchmark_runtime_truth_surface()}
 
     assert rows["sequence_to_digest"].run_mode.value == "raw_executable"
+    assert rows["sequence_to_digest"].proof_class.value == "raw_execution"
     assert rows["dda_import"].externally_cross_checked is True
+    assert rows["dda_import"].proof_class.value == "import_backed_execution"
     assert rows["dia_import"].artifact_browser_ready is True
     assert rows["quant_review"].run_mode.value == "raw_executable"
     assert rows["multiplex_review"].run_mode.value == "raw_executable"

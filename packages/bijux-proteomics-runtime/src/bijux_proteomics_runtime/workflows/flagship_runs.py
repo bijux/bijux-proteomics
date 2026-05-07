@@ -28,6 +28,7 @@ from bijux_proteomics_runtime.workflows.benchmark_runs import (
     run_benchmark_ptm_review_path,
     run_benchmark_targeted_review_path,
 )
+from bijux_proteomics_runtime.workflows.proof_classes import RuntimeProofClass
 
 __all__ = [
     "FlagshipCrossFamilyRunBundle",
@@ -83,6 +84,7 @@ class FlagshipRuntimeSurfaceSnapshot(JsonModel):
     workflow_family: str = Field(..., min_length=1)
     runtime_package_id: str = Field(..., min_length=1)
     run_mode: BenchmarkRunMode
+    proof_class: RuntimeProofClass
     canonical_entrypoint: str = Field(..., min_length=1)
     toolchain_or_import_path: str = Field(..., min_length=1)
     input_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -187,6 +189,7 @@ class FlagshipRunRegistryEntry(JsonModel):
     workflow_family: str = Field(..., min_length=1)
     benchmark_id: str = Field(..., min_length=1)
     runtime_package_id: str = Field(..., min_length=1)
+    proof_class: RuntimeProofClass
     bundle_artifact_path: str = Field(..., min_length=1)
     stage_lineage_artifact_path: str = Field(..., min_length=1)
     failure_replay_artifact_path: str = Field(..., min_length=1)
@@ -327,6 +330,7 @@ def build_flagship_run_registry(
             workflow_family=bundle.workflow_family,
             benchmark_id=bundle.benchmark_id,
             runtime_package_id=bundle.runtime_package_id,
+            proof_class=bundle.runtime_surface.proof_class,
             bundle_artifact_path=bundle.artifact_path,
             stage_lineage_artifact_path=bundle.stage_lineage_artifact_path,
             failure_replay_artifact_path=bundle.failure_replay_artifact_path,
@@ -531,6 +535,7 @@ def _import_runtime_surface_snapshot(
         workflow_family=workflow_family,
         runtime_package_id=spec.package_id,
         run_mode=spec.run_mode,
+        proof_class=RuntimeProofClass.IMPORT_BACKED_EXECUTION,
         canonical_entrypoint=spec.canonical_entrypoint,
         toolchain_or_import_path=(
             f"{spec.engine_name}:{spec.engine_version}"
@@ -579,6 +584,11 @@ def _report_runtime_surface_snapshot(
         workflow_family=workflow_family,
         runtime_package_id=spec.package_id,
         run_mode=spec.run_mode,
+        proof_class=(
+            RuntimeProofClass.RAW_EXECUTION
+            if spec.run_mode is BenchmarkRunMode.RAW_EXECUTABLE
+            else RuntimeProofClass.IMPORT_BACKED_EXECUTION
+        ),
         canonical_entrypoint=spec.canonical_entrypoint,
         toolchain_or_import_path=spec.display_name,
         input_artifact_ids=tuple(
