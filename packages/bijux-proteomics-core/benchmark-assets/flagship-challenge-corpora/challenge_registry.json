@@ -63,6 +63,24 @@
       "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
       "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
       "workflow_family": "lfq"
+    },
+    {
+      "challenge_id": "multiplex-reference-bleed-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "workflow_family": "multiplex"
+    },
+    {
+      "challenge_id": "ptm-ambiguity-occupancy-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "workflow_family": "ptm"
     }
   ],
   "note": "The flagship challenge registry keeps blinded holdouts and adversarial perturbation corpora visible as product evidence instead of test-only sidecars.",

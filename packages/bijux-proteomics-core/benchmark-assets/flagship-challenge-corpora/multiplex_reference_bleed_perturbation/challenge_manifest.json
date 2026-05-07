@@ -1,0 +1,17 @@
+{
+  "challenge_id": "multiplex-reference-bleed-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/evidence/perturbed_multiplex_ms1_features.tsv"
+  ],
+  "note": "This perturbation corpus combines reference dropout, bleed, and carrier distortion so multiplex claims collapse into bounded internal-support posture.",
+  "perturbation_axes": [
+    "reference dropout",
+    "channel bleed",
+    "carrier-conditioned ratio compression"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+  "workflow_family": "multiplex"
+}

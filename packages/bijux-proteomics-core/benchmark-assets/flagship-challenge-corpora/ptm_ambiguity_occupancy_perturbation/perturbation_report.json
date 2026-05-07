@@ -1,0 +1,44 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+  "challenge_id": "ptm-ambiguity-occupancy-perturbation",
+  "comparator_reaction": "weakens",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/evidence/perturbed_localization_results.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/evidence/perturbed_ptm_features.tsv"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 2.0,
+      "delta": -2.0,
+      "interpretation": "Losing decisive and supported PTM sites removes the narrow set of localization claims the package could previously defend.",
+      "metric_id": "decisive_or_supported_site_count",
+      "perturbed_value": 0.0
+    },
+    {
+      "baseline_value": 2.0,
+      "delta": 2.0,
+      "interpretation": "More ambiguous sites make PTM localization and occupancy conclusions visibly less credible.",
+      "metric_id": "ambiguous_site_count",
+      "perturbed_value": 4.0
+    },
+    {
+      "baseline_value": 2.0,
+      "delta": 2.0,
+      "interpretation": "When ambiguity propagates into more occupancy sites, targetability language must stay interpretive-only.",
+      "metric_id": "ambiguity_propagated_site_count",
+      "perturbed_value": 4.0
+    }
+  ],
+  "note": "This perturbation corpus worsens localization ambiguity and occupancy fragility enough to collapse PTM conclusions back to interpretive-only posture.",
+  "perturbation_axes": [
+    "localization ambiguity",
+    "occupancy instability",
+    "targetability collapse"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "ptm",
+  "workflow_reaction": "collapses"
+}

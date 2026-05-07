@@ -17,11 +17,35 @@ from bijux_proteomics.benchmarks.workflow_generalization import (
     build_workflow_generalization_reports,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
-from bijux_proteomics.quantification import parse_ms1_feature_table
+from bijux_proteomics.ptm import (
+    build_ptm_site_table,
+    map_ptm_evidence_to_protein_sites,
+    parse_ptm_localization_tsv,
+)
+from bijux_proteomics.ptm.benchmarks import (
+    build_ptm_ambiguity_propagation_benchmark_report,
+    build_ptm_lab_targeting_rubric_report,
+    build_ptm_localization_confidence_benchmark_report,
+)
+from bijux_proteomics.quantification import (
+    build_label_free_intensity_table,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics.quantification.benchmarks import (
+    MultiplexRatioExpectation,
     build_effect_size_stability_benchmark_report,
+    build_multiplex_artifact_pressure_benchmark_report,
     build_quant_missingness_robustness_report,
 )
+from bijux_proteomics.quantification.contracts import (
+    LabelBasedChannelPolicyEntry,
+    LabelBasedChannelRole,
+    LabelBasedQuantPolicy,
+    MissingChannelPolicy,
+    QuantEntityLevel,
+    QuantRollupMethod,
+)
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import JsonModel
 
 _CHALLENGE_ROOT = (
@@ -307,6 +331,48 @@ def _count_missing_values(summary_report) -> int:
     )
 
 
+def _observed_feature_row_count(
+    repo_relative_path: str,
+    *,
+    sample_ids: set[str],
+) -> int:
+    return sum(
+        1
+        for row in _read_tsv_rows(repo_relative_path)
+        if row["sample_id"] in sample_ids and row["intensity"].strip()
+    )
+
+
+def _multiplex_channel_policy(design_entries) -> LabelBasedQuantPolicy:
+    return LabelBasedQuantPolicy(
+        missing_channel_policy=MissingChannelPolicy.PRESERVE,
+        channel_entries=tuple(
+            LabelBasedChannelPolicyEntry(
+                multiplex_group=entry.multiplex_group or "",
+                multiplex_channel=entry.multiplex_channel or "",
+                channel_role=(
+                    LabelBasedChannelRole.CARRIER
+                    if entry.sample_role == "pooled_reference"
+                    else LabelBasedChannelRole.SAMPLE
+                ),
+            )
+            for entry in design_entries
+            if entry.multiplex_group and entry.multiplex_channel
+        ),
+    )
+
+
+def _ptm_protein_sequences(repo_relative_fasta_path: str) -> dict[str, str]:
+    fasta_report = parse_fasta_document(
+        (_repo_root() / repo_relative_fasta_path).read_text(encoding="utf-8"),
+        mode=FastaParseMode.STRICT,
+    )
+    return {
+        record.canonical_accession: record.residues
+        for record in fasta_report.accepted_records
+    }
+
+
 def _build_dda_perturbation_report() -> PerturbationReactionReport:
     challenge_root = _perturbation_root("dda_calibration_decoy_perturbation")
     baseline_path = (
@@ -537,6 +603,304 @@ def _build_lfq_perturbation_report() -> PerturbationReactionReport:
     )
 
 
+def _build_multiplex_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("multiplex_reference_bleed_perturbation")
+    baseline_feature_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv"
+    )
+    design_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "multiplex_tmtpro_review_package/evidence/multiplex.design.tsv"
+    )
+    perturbed_feature_path = (
+        f"{challenge_root}/evidence/perturbed_multiplex_ms1_features.tsv"
+    )
+    design_entries = parse_experimental_design_table(_repo_root() / design_path).accepted_entries
+    expected_ratios = (
+        MultiplexRatioExpectation(
+            numerator_sample_id="plex_a_126",
+            denominator_sample_id="plex_a_127N",
+            expected_ratio=1.0,
+        ),
+        MultiplexRatioExpectation(
+            numerator_sample_id="plex_b_126",
+            denominator_sample_id="plex_b_127N",
+            expected_ratio=1.0,
+        ),
+    )
+    baseline_table = build_label_free_intensity_table(
+        parse_ms1_feature_table(_repo_root() / baseline_feature_path).accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    perturbed_table = build_label_free_intensity_table(
+        parse_ms1_feature_table(_repo_root() / perturbed_feature_path).accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    baseline_artifact = build_multiplex_artifact_pressure_benchmark_report(
+        baseline_table,
+        design_entries=design_entries,
+        expected_ratios=expected_ratios,
+        interference_fraction_by_sample={
+            "plex_a_126": 0.0,
+            "plex_a_127N": 0.0,
+            "plex_b_126": 0.0,
+            "plex_b_127N": 0.0,
+        },
+        reporter_bleed_fraction_by_sample={
+            "plex_a_126": 0.0,
+            "plex_a_127N": 0.0,
+            "plex_b_126": 0.0,
+            "plex_b_127N": 0.0,
+        },
+    )
+    perturbed_artifact = build_multiplex_artifact_pressure_benchmark_report(
+        perturbed_table,
+        design_entries=design_entries,
+        expected_ratios=expected_ratios,
+        interference_fraction_by_sample={
+            "plex_a_126": 0.22,
+            "plex_a_127N": 0.18,
+            "plex_b_126": 0.21,
+            "plex_b_127N": 0.17,
+        },
+        reporter_bleed_fraction_by_sample={
+            "plex_a_127N": 0.19,
+            "plex_b_127N": 0.16,
+        },
+    )
+    reference_sample_ids = {"plex_a_128N", "plex_b_128N"}
+    baseline_reference_rows = _observed_feature_row_count(
+        baseline_feature_path,
+        sample_ids=reference_sample_ids,
+    )
+    perturbed_reference_rows = _observed_feature_row_count(
+        perturbed_feature_path,
+        sample_ids=reference_sample_ids,
+    )
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_artifact.materially_compressed_count
+        > baseline_artifact.materially_compressed_count
+        and perturbed_reference_rows == 0
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_artifact.interference_flagged_channel_count
+        or perturbed_artifact.reporter_bleed_flagged_channel_count
+        else PerturbationReactionState.SURVIVES
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if workflow_reaction is PerturbationReactionState.COLLAPSES
+        else PerturbationReactionState.WEAKENS
+    )
+    return PerturbationReactionReport(
+        challenge_id="multiplex-reference-bleed-perturbation",
+        workflow_family="multiplex",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "reference dropout",
+            "channel bleed",
+            "carrier-conditioned ratio compression",
+        ),
+        evidence_paths=(baseline_feature_path, design_path, perturbed_feature_path),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="materially_compressed_ratio_count",
+                baseline_value=float(baseline_artifact.materially_compressed_count),
+                perturbed_value=float(perturbed_artifact.materially_compressed_count),
+                delta=float(
+                    perturbed_artifact.materially_compressed_count
+                    - baseline_artifact.materially_compressed_count
+                ),
+                interpretation="More materially compressed ratios mean multiplex conclusions are no longer stable under bleed and carrier distortion pressure.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="reference_feature_row_count",
+                baseline_value=float(baseline_reference_rows),
+                perturbed_value=float(perturbed_reference_rows),
+                delta=float(perturbed_reference_rows - baseline_reference_rows),
+                interpretation="Reference-channel dropout removes the pooled anchor that the multiplex review packet depends on.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="interference_or_bleed_flagged_channel_count",
+                baseline_value=float(
+                    baseline_artifact.interference_flagged_channel_count
+                    + baseline_artifact.reporter_bleed_flagged_channel_count
+                ),
+                perturbed_value=float(
+                    perturbed_artifact.interference_flagged_channel_count
+                    + perturbed_artifact.reporter_bleed_flagged_channel_count
+                ),
+                delta=float(
+                    perturbed_artifact.interference_flagged_channel_count
+                    + perturbed_artifact.reporter_bleed_flagged_channel_count
+                    - baseline_artifact.interference_flagged_channel_count
+                    - baseline_artifact.reporter_bleed_flagged_channel_count
+                ),
+                interpretation="Flagged interference and bleed make channel-level and protein-level multiplex conclusions visibly unsafe.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus combines reference dropout, bleed, and carrier distortion so multiplex claims collapse into bounded internal-support posture."
+        ),
+    )
+
+
+def _build_ptm_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("ptm_ambiguity_occupancy_perturbation")
+    baseline_localization_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "ptm_localization_review_package/evidence/localization_results.tsv"
+    )
+    baseline_feature_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "ptm_localization_review_package/evidence/ptm_features.tsv"
+    )
+    fasta_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "ptm_localization_review_package/evidence/ptm_sites.fasta"
+    )
+    perturbed_localization_path = (
+        f"{challenge_root}/evidence/perturbed_localization_results.tsv"
+    )
+    perturbed_feature_path = f"{challenge_root}/evidence/perturbed_ptm_features.tsv"
+    protein_sequences = _ptm_protein_sequences(fasta_path)
+    baseline_localization = parse_ptm_localization_tsv(
+        _repo_root() / baseline_localization_path
+    )
+    baseline_mappings = map_ptm_evidence_to_protein_sites(
+        baseline_localization.accepted_records,
+        protein_sequences=protein_sequences,
+    )
+    baseline_sites = build_ptm_site_table(baseline_mappings)
+    baseline_features = parse_ms1_feature_table(
+        _repo_root() / baseline_feature_path
+    ).accepted_records
+    perturbed_localization = parse_ptm_localization_tsv(
+        _repo_root() / perturbed_localization_path
+    )
+    perturbed_mappings = map_ptm_evidence_to_protein_sites(
+        perturbed_localization.accepted_records,
+        protein_sequences=protein_sequences,
+    )
+    perturbed_sites = build_ptm_site_table(perturbed_mappings)
+    perturbed_features = parse_ms1_feature_table(
+        _repo_root() / perturbed_feature_path
+    ).accepted_records
+    fragment_support = {
+        "scan=ptm-001": ("b5", "y6"),
+        "scan=ptm-002": ("b4",),
+    }
+    baseline_confidence = build_ptm_localization_confidence_benchmark_report(
+        baseline_localization.accepted_records,
+        baseline_mappings,
+        fragment_ion_support_by_spectrum=fragment_support,
+    )
+    perturbed_confidence = build_ptm_localization_confidence_benchmark_report(
+        perturbed_localization.accepted_records,
+        perturbed_mappings,
+        fragment_ion_support_by_spectrum=fragment_support,
+    )
+    baseline_ambiguity = build_ptm_ambiguity_propagation_benchmark_report(
+        baseline_sites,
+        feature_records=baseline_features,
+    )
+    perturbed_ambiguity = build_ptm_ambiguity_propagation_benchmark_report(
+        perturbed_sites,
+        feature_records=perturbed_features,
+    )
+    perturbed_targeting = build_ptm_lab_targeting_rubric_report(
+        perturbed_localization.accepted_records,
+        perturbed_mappings,
+        perturbed_sites,
+        feature_records=perturbed_features,
+    )
+    baseline_confident_count = (
+        baseline_confidence.decisive_count + baseline_confidence.supported_count
+    )
+    perturbed_confident_count = (
+        perturbed_confidence.decisive_count + perturbed_confidence.supported_count
+    )
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_confident_count == 0
+        and perturbed_confidence.ambiguous_count > baseline_confidence.ambiguous_count
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.WEAKENS
+        if perturbed_ambiguity.propagated_site_count
+        > baseline_ambiguity.propagated_site_count
+        else PerturbationReactionState.SURVIVES
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if workflow_reaction is PerturbationReactionState.COLLAPSES
+        and perturbed_targeting.targetable_count == 0
+        else PerturbationReactionState.WEAKENS
+    )
+    return PerturbationReactionReport(
+        challenge_id="ptm-ambiguity-occupancy-perturbation",
+        workflow_family="ptm",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "localization ambiguity",
+            "occupancy instability",
+            "targetability collapse",
+        ),
+        evidence_paths=(
+            baseline_localization_path,
+            baseline_feature_path,
+            fasta_path,
+            perturbed_localization_path,
+            perturbed_feature_path,
+        ),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="decisive_or_supported_site_count",
+                baseline_value=float(baseline_confident_count),
+                perturbed_value=float(perturbed_confident_count),
+                delta=float(perturbed_confident_count - baseline_confident_count),
+                interpretation="Losing decisive and supported PTM sites removes the narrow set of localization claims the package could previously defend.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="ambiguous_site_count",
+                baseline_value=float(baseline_confidence.ambiguous_count),
+                perturbed_value=float(perturbed_confidence.ambiguous_count),
+                delta=float(
+                    perturbed_confidence.ambiguous_count
+                    - baseline_confidence.ambiguous_count
+                ),
+                interpretation="More ambiguous sites make PTM localization and occupancy conclusions visibly less credible.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="ambiguity_propagated_site_count",
+                baseline_value=float(baseline_ambiguity.propagated_site_count),
+                perturbed_value=float(perturbed_ambiguity.propagated_site_count),
+                delta=float(
+                    perturbed_ambiguity.propagated_site_count
+                    - baseline_ambiguity.propagated_site_count
+                ),
+                interpretation="When ambiguity propagates into more occupancy sites, targetability language must stay interpretive-only.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus worsens localization ambiguity and occupancy fragility enough to collapse PTM conclusions back to interpretive-only posture."
+        ),
+    )
+
+
 def build_perturbation_reports() -> tuple[PerturbationReactionReport, ...]:
     """Return the currently shipped perturbation reports."""
 
@@ -544,6 +908,8 @@ def build_perturbation_reports() -> tuple[PerturbationReactionReport, ...]:
         _build_dda_perturbation_report(),
         _build_dia_perturbation_report(),
         _build_lfq_perturbation_report(),
+        _build_multiplex_perturbation_report(),
+        _build_ptm_perturbation_report(),
     )
 
 

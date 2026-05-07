@@ -160,6 +160,70 @@ def _refresh_dda_dia_lfq_perturbation_assets() -> tuple[str, ...]:
     return tuple(written)
 
 
+def _refresh_multiplex_and_ptm_perturbation_assets() -> tuple[str, ...]:
+    written: list[str] = []
+
+    multiplex_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv"
+    )
+    for row in multiplex_rows:
+        if row["sample_id"] in {"plex_a_128N", "plex_b_128N"}:
+            row["intensity"] = ""
+            row["missing_reason"] = "reference_dropout"
+        elif row["sample_id"] in {"plex_a_126", "plex_b_126"}:
+            row["intensity"] = str(round(float(row["intensity"]) * 0.35, 2))
+        elif row["sample_id"] in {"plex_a_127N", "plex_b_127N"}:
+            row["intensity"] = str(round(float(row["intensity"]) * 1.65, 2))
+    multiplex_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "multiplex_reference_bleed_perturbation/evidence/perturbed_multiplex_ms1_features.tsv"
+    )
+    _write_tsv(multiplex_path, multiplex_rows)
+    written.append(multiplex_path)
+
+    localization_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "ptm_localization_review_package/evidence/localization_results.tsv"
+    )
+    for row in localization_rows:
+        if row["spectrum_id"] in {"scan=ptm-003", "scan=ptm-004"}:
+            row["q_value"] = "0.024"
+            row["localization_score"] = "0.680"
+            row["candidate_sites"] = "1;5"
+        elif row["spectrum_id"] == "scan=ptm-007":
+            row["q_value"] = "0.028"
+            row["localization_score"] = "0.610"
+            row["candidate_sites"] = "8;9"
+    localization_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "ptm_ambiguity_occupancy_perturbation/evidence/perturbed_localization_results.tsv"
+    )
+    _write_tsv(localization_path, localization_rows)
+    written.append(localization_path)
+
+    feature_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "ptm_localization_review_package/evidence/ptm_features.tsv"
+    )
+    for row in feature_rows:
+        if row["feature_id"] in {"ptm-f005", "ptm-f007", "ptm-f011"}:
+            row["intensity"] = ""
+            row["missing_reason"] = "interference_filtered"
+        elif row["feature_id"] == "ptm-f006":
+            row["intensity"] = "540"
+        elif row["feature_id"] == "ptm-f008":
+            row["intensity"] = "610"
+    feature_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "ptm_ambiguity_occupancy_perturbation/evidence/perturbed_ptm_features.tsv"
+    )
+    _write_tsv(feature_path, feature_rows)
+    written.append(feature_path)
+
+    return tuple(written)
+
+
 def refresh_flagship_challenge_assets() -> tuple[str, ...]:
     """Write checked challenge assets to the product-owned challenge root."""
 
@@ -186,6 +250,7 @@ def refresh_flagship_challenge_assets() -> tuple[str, ...]:
         written.extend((manifest_path, report.artifact_path, readme_path))
 
     written.extend(_refresh_dda_dia_lfq_perturbation_assets())
+    written.extend(_refresh_multiplex_and_ptm_perturbation_assets())
 
     for report in build_perturbation_reports():
         challenge_root = report.artifact_path.rsplit("/", 1)[0]
