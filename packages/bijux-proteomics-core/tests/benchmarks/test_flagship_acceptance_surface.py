@@ -30,6 +30,8 @@ def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
         KnowledgeWorkflowFamily.DIA,
         KnowledgeWorkflowFamily.LFQ,
         KnowledgeWorkflowFamily.MULTIPLEX,
+        KnowledgeWorkflowFamily.PTM,
+        KnowledgeWorkflowFamily.TARGETED,
     )
     assert all(
         sheet.acceptance_passed is True
@@ -94,6 +96,31 @@ def test_multiplex_acceptance_sheet_fails_and_keeps_internal_support_only_honest
     assert criteria["multiplex_channel_dropout"].observed_value == "1"
     assert criteria["multiplex_ratio_compression"].observed_value == "2"
     assert criteria["multiplex_downstream_review_promotion"].observed_value == "refused"
+
+
+def test_ptm_acceptance_sheet_keeps_ambiguity_and_family_scope_thresholds_explicit() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.PTM)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.acceptance_passed is True
+    assert sheet.claim_ahead_of_evidence is False
+    assert criteria["ptm_localization_quality"].observed_value == "5"
+    assert criteria["ptm_ambiguity_burden"].observed_value == "2"
+    assert criteria["ptm_motif_credibility"].observed_value == "2"
+    assert criteria["ptm_occupancy_stability"].observed_value == "4"
+
+
+def test_targeted_acceptance_sheet_keeps_follow_up_promotion_thresholds_explicit() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.TARGETED)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.acceptance_passed is True
+    assert sheet.claim_ahead_of_evidence is False
+    assert criteria["targeted_calibration_quality"].observed_value == "1"
+    assert criteria["targeted_transition_interference"].observed_value == "1"
+    assert criteria["targeted_heavy_light_coherence"].observed_value == "1"
+    assert criteria["targeted_carryover_posture"].observed_value == "0"
+    assert criteria["targeted_follow_up_promotion"].observed_value == "supported"
 
 
 def test_published_acceptance_json_matches_live_surface() -> None:

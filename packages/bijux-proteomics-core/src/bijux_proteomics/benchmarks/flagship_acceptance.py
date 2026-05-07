@@ -27,6 +27,8 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     build_dia_benchmark_review,
     build_lfq_benchmark_review,
     build_multiplex_benchmark_review,
+    build_ptm_benchmark_review,
+    build_targeted_benchmark_review,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
@@ -52,6 +54,8 @@ _SUPPORTED_FAMILIES: tuple[KnowledgeWorkflowFamily, ...] = (
     KnowledgeWorkflowFamily.DIA,
     KnowledgeWorkflowFamily.LFQ,
     KnowledgeWorkflowFamily.MULTIPLEX,
+    KnowledgeWorkflowFamily.PTM,
+    KnowledgeWorkflowFamily.TARGETED,
 )
 
 
@@ -125,6 +129,8 @@ def _reviews() -> dict[KnowledgeWorkflowFamily, WorkflowBenchmarkReview]:
             build_dia_benchmark_review(),
             build_lfq_benchmark_review(),
             build_multiplex_benchmark_review(),
+            build_ptm_benchmark_review(),
+            build_targeted_benchmark_review(),
         )
     }
 
@@ -158,6 +164,8 @@ def build_flagship_acceptance_sheet(
         KnowledgeWorkflowFamily.DIA: _build_dia_acceptance_sheet,
         KnowledgeWorkflowFamily.LFQ: _build_lfq_acceptance_sheet,
         KnowledgeWorkflowFamily.MULTIPLEX: _build_multiplex_acceptance_sheet,
+        KnowledgeWorkflowFamily.PTM: _build_ptm_acceptance_sheet,
+        KnowledgeWorkflowFamily.TARGETED: _build_targeted_acceptance_sheet,
     }
     try:
         return builders[workflow_family]()
@@ -536,6 +544,179 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
         blocked_claims=(
             "do not publish multiplex as outsider-auditable while channel dropout and compression remain open",
             "do not treat reporter-channel summaries as broad biological authority",
+        ),
+    )
+
+
+def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
+    workflow_family = KnowledgeWorkflowFamily.PTM
+    review = _reviews()[workflow_family]
+    criteria = (
+        FlagshipAcceptanceCriterion(
+            criterion_id="ptm_localization_quality",
+            dimension="localization quality",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "phospho_review_packet", "motif_windows"),
+            required_relation=AcceptanceRelation.AT_LEAST,
+            required_value="5",
+            passed=_claim_metric_float(review, "phospho_review_packet", "motif_windows") >= 5.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="PTM trust starts only when the flagship packet still carries at least five motif windows, keeping localized biology tied to explicit site context instead of score-only slogans.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="ptm_ambiguity_burden",
+            dimension="ambiguity burden",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "site_ambiguity_visibility", "ambiguous_sites"),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="2",
+            passed=_claim_metric_float(review, "site_ambiguity_visibility", "ambiguous_sites") <= 2.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="The current PTM package keeps ambiguity burden barely inside trust by exposing exactly two ambiguous sites; anything broader would push the family back below bounded outsider authority.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="ptm_motif_credibility",
+            dimension="motif credibility",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=str(len(review.supported_ptm_families)),
+            required_relation=AcceptanceRelation.AT_LEAST,
+            required_value="2",
+            passed=len(review.supported_ptm_families) >= 2,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="PTM motif credibility is published only because two PTM families remain explicitly supported while glyco-adjacent interpretation is still refused in the same packet.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="ptm_occupancy_stability",
+            dimension="occupancy stability",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "phospho_review_packet", "quantified_samples"),
+            required_relation=AcceptanceRelation.AT_LEAST,
+            required_value="4",
+            passed=_claim_metric_float(review, "phospho_review_packet", "quantified_samples") >= 4.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/ptm/test_occupancy_counterpart_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="The occupancy surface needs at least four quantified samples so PTM trust still reflects measurable abundance context rather than motif-only interpretation.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="ptm_targetability_promotion",
+            dimension="targetability promotion",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value=_claim_support_state(review, "raw_spectrum_validation_lane"),
+            required_relation=AcceptanceRelation.ONE_OF,
+            required_value="advisory|supported",
+            passed=_claim_support_state(review, "raw_spectrum_validation_lane")
+            in {"advisory", "supported"},
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="PTM follow-up promotion remains bounded but legitimate only while the raw-spectrum validation lane is still visible as advisory or stronger instead of disappearing behind TSV-localization confidence alone.",
+        ),
+    )
+    return _sheet_from_criteria(
+        workflow_family=workflow_family,
+        review=review,
+        criteria=criteria,
+        blocked_claims=(
+            "do not present PTM as glycopeptide-ready",
+            "do not flatten ambiguous-site burden into pathway certainty",
+        ),
+    )
+
+
+def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
+    workflow_family = KnowledgeWorkflowFamily.TARGETED
+    review = _reviews()[workflow_family]
+    criteria = (
+        FlagshipAcceptanceCriterion(
+            criterion_id="targeted_calibration_quality",
+            dimension="calibration quality",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "calibration_failed"),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="1",
+            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "calibration_failed") <= 1.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Targeted trust is capped at one failed calibration standard in the flagship package; more than that would make even bounded follow-up language dishonest.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="targeted_transition_interference",
+            dimension="transition interference",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "interference_flags"),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="1",
+            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "interference_flags") <= 1.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="The targeted sheet allows at most one explicit interference flag, forcing follow-up trust to remain coupled to chromatogram trouble instead of hiding it under clean handoff prose.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="targeted_heavy_light_coherence",
+            dimension="heavy-light coherence",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "missing_pairs"),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="1",
+            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "missing_pairs") <= 1.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Heavy/light pairing is bounded tightly because targeted follow-up credibility collapses quickly when missing pairs are allowed to accumulate silently.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="targeted_carryover_posture",
+            dimension="carryover posture",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "chromatogram_qc_surface", "failed_metric_rows"),
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="0",
+            passed=_claim_metric_float(review, "chromatogram_qc_surface", "failed_metric_rows") == 0.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Carryover posture remains acceptable only while the shipped chromatogram QC table stays free of failed metric rows in the public targeted package.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="targeted_follow_up_promotion",
+            dimension="follow-up promotion",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value=_claim_support_state(review, "raw_to_reviewed_bundle"),
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="supported",
+            passed=_claim_support_state(review, "raw_to_reviewed_bundle") == "supported",
+            evidence_paths=(
+                "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Targeted outsider trust depends on a supported raw-to-reviewed bundle so inflated handoffs stay caught and reconciled before any lab-facing promotion survives regeneration.",
+        ),
+    )
+    return _sheet_from_criteria(
+        workflow_family=workflow_family,
+        review=review,
+        criteria=criteria,
+        blocked_claims=(
+            "do not imply vendor-ready targeted execution from a bounded review bundle",
+            "do not promote targeted follow-up when calibration and pairing caveats widen",
         ),
     )
 

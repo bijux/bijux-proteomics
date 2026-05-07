@@ -1,0 +1,88 @@
+{
+  "acceptance_passed": true,
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/targeted_acceptance_sheet.json",
+  "benchmark_id": "benchmark:targeted_transition_quality_control",
+  "benchmark_package_id": "flagship_public_package:targeted_transition_review_package",
+  "blocked_claims": [
+    "do not imply vendor-ready targeted execution from a bounded review bundle",
+    "do not promote targeted follow-up when calibration and pairing caveats widen"
+  ],
+  "claim_ahead_of_evidence": false,
+  "criteria": [
+    {
+      "criterion_id": "targeted_calibration_quality",
+      "dimension": "calibration quality",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Targeted trust is capped at one failed calibration standard in the flagship package; more than that would make even bounded follow-up language dishonest.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": true,
+      "required_relation": "at_most",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "targeted_transition_interference",
+      "dimension": "transition interference",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "The targeted sheet allows at most one explicit interference flag, forcing follow-up trust to remain coupled to chromatogram trouble instead of hiding it under clean handoff prose.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": true,
+      "required_relation": "at_most",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "targeted_heavy_light_coherence",
+      "dimension": "heavy-light coherence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Heavy/light pairing is bounded tightly because targeted follow-up credibility collapses quickly when missing pairs are allowed to accumulate silently.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": true,
+      "required_relation": "at_most",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "targeted_carryover_posture",
+      "dimension": "carryover posture",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Carryover posture remains acceptable only while the shipped chromatogram QC table stays free of failed metric rows in the public targeted package.",
+      "observed_kind": "integer",
+      "observed_value": "0",
+      "passed": true,
+      "required_relation": "exactly",
+      "required_value": "0"
+    },
+    {
+      "criterion_id": "targeted_follow_up_promotion",
+      "dimension": "follow-up promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Targeted outsider trust depends on a supported raw-to-reviewed bundle so inflated handoffs stay caught and reconciled before any lab-facing promotion survives regeneration.",
+      "observed_kind": "state",
+      "observed_value": "supported",
+      "passed": true,
+      "required_relation": "exactly",
+      "required_value": "supported"
+    }
+  ],
+  "earned_release_language": "outsider_auditable_bounded",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "public_release_language": "outsider_auditable_bounded",
+  "sheet_id": "flagship-acceptance:targeted",
+  "workflow_family": "targeted"
+}

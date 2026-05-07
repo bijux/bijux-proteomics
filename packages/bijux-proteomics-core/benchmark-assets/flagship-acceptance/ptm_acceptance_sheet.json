@@ -1,0 +1,88 @@
+{
+  "acceptance_passed": true,
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/ptm_acceptance_sheet.json",
+  "benchmark_id": "benchmark:ptm_site_localization_confidence",
+  "benchmark_package_id": "flagship_public_package:ptm_localization_review_package",
+  "blocked_claims": [
+    "do not present PTM as glycopeptide-ready",
+    "do not flatten ambiguous-site burden into pathway certainty"
+  ],
+  "claim_ahead_of_evidence": false,
+  "criteria": [
+    {
+      "criterion_id": "ptm_localization_quality",
+      "dimension": "localization quality",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "PTM trust starts only when the flagship packet still carries at least five motif windows, keeping localized biology tied to explicit site context instead of score-only slogans.",
+      "observed_kind": "integer",
+      "observed_value": "5",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "5"
+    },
+    {
+      "criterion_id": "ptm_ambiguity_burden",
+      "dimension": "ambiguity burden",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "The current PTM package keeps ambiguity burden barely inside trust by exposing exactly two ambiguous sites; anything broader would push the family back below bounded outsider authority.",
+      "observed_kind": "integer",
+      "observed_value": "2",
+      "passed": true,
+      "required_relation": "at_most",
+      "required_value": "2"
+    },
+    {
+      "criterion_id": "ptm_motif_credibility",
+      "dimension": "motif credibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "PTM motif credibility is published only because two PTM families remain explicitly supported while glyco-adjacent interpretation is still refused in the same packet.",
+      "observed_kind": "integer",
+      "observed_value": "2",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "2"
+    },
+    {
+      "criterion_id": "ptm_occupancy_stability",
+      "dimension": "occupancy stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_occupancy_counterpart_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "The occupancy surface needs at least four quantified samples so PTM trust still reflects measurable abundance context rather than motif-only interpretation.",
+      "observed_kind": "integer",
+      "observed_value": "4",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "4"
+    },
+    {
+      "criterion_id": "ptm_targetability_promotion",
+      "dimension": "targetability promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "PTM follow-up promotion remains bounded but legitimate only while the raw-spectrum validation lane is still visible as advisory or stronger instead of disappearing behind TSV-localization confidence alone.",
+      "observed_kind": "state",
+      "observed_value": "advisory",
+      "passed": true,
+      "required_relation": "one_of",
+      "required_value": "advisory|supported"
+    }
+  ],
+  "earned_release_language": "outsider_auditable_bounded",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "public_release_language": "outsider_auditable_bounded",
+  "sheet_id": "flagship-acceptance:ptm",
+  "workflow_family": "ptm"
+}
