@@ -9,6 +9,11 @@ from functools import lru_cache
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.benchmarks.flagship_acceptance import (
+    AcceptanceReleaseLanguage,
+    FlagshipAcceptanceSheet,
+    build_flagship_acceptance_sheet,
+)
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     BenchmarkDisposition,
@@ -288,6 +293,7 @@ def _dedupe_links(
 def _complete_outsider_surface(
     *,
     workflow_family: KnowledgeWorkflowFamily,
+    acceptance_sheet: FlagshipAcceptanceSheet,
     manifest: BenchmarkManifest,
     runtime_truth: BenchmarkRuntimeTruthRow | None,
     recommendation: BenchmarkRecommendationPacket,
@@ -300,6 +306,9 @@ def _complete_outsider_surface(
         and runtime_truth is not None
         and runtime_truth.run_mode is not BenchmarkRunMode.BLOCKED
         and not runtime_gate_issues
+        and acceptance_sheet.earned_release_language
+        is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
+        and not acceptance_sheet.claim_ahead_of_evidence
         and recommendation.disposition is not BenchmarkDisposition.DO_NOT_RECOMMEND
         and lab_packet.posture is not FlagshipLabPacketPosture.NOT_WORTH_ASSAY
     )
@@ -308,6 +317,7 @@ def _complete_outsider_surface(
 def _missing_surface_reasons(
     *,
     workflow_family: KnowledgeWorkflowFamily,
+    acceptance_sheet: FlagshipAcceptanceSheet,
     manifest: BenchmarkManifest,
     review: WorkflowBenchmarkReview,
     reading_pack: WorkflowScientificReadingPack,
@@ -321,6 +331,15 @@ def _missing_surface_reasons(
     elif manifest.evidence_tier is not BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE:
         reasons.append(
             f"benchmark evidence tier is {manifest.evidence_tier.value}, so the family still lacks a flagship outsider-readable public package"
+        )
+    if acceptance_sheet.claim_ahead_of_evidence:
+        reasons.append(
+            "the current flagship acceptance sheet says release language is ahead of the benchmark evidence"
+        )
+        reasons.extend(
+            f"acceptance failed for {criterion.dimension}: observed {criterion.observed_value} but required {criterion.required_relation.value} {criterion.required_value}"
+            for criterion in acceptance_sheet.criteria
+            if not criterion.passed
         )
     if runtime_truth is None:
         reasons.append("no flagship runtime truth row is published for this workflow family yet")
@@ -348,6 +367,7 @@ def build_flagship_outsider_review_packet(
     """Build one outsider-auditable packet for a flagship workflow family."""
 
     review = _reviews_by_family()[workflow_family]
+    acceptance_sheet = build_flagship_acceptance_sheet(workflow_family)
     manifest = get_benchmark_manifest_for_family(workflow_family)
     reading_pack = _reading_packs_by_family()[workflow_family]
     recommendation = _recommendation_packets_by_family()[workflow_family]
@@ -361,6 +381,7 @@ def build_flagship_outsider_review_packet(
     review_links = _dedupe_links((*benchmark_review_links, *runtime_links))
     complete_surface = _complete_outsider_surface(
         workflow_family=workflow_family,
+        acceptance_sheet=acceptance_sheet,
         manifest=manifest,
         runtime_truth=runtime_truth,
         recommendation=recommendation,
@@ -429,6 +450,7 @@ def build_flagship_outsider_review_packet(
         complete_outsider_surface=complete_surface,
         missing_surface_reasons=_missing_surface_reasons(
             workflow_family=workflow_family,
+            acceptance_sheet=acceptance_sheet,
             manifest=manifest,
             review=review,
             reading_pack=reading_pack,

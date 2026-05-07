@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics.benchmarks.flagship_acceptance import (
+    build_flagship_acceptance_dashboard,
+)
 from bijux_proteomics_dev.governance.package_shape.package_readme_maturity import (
     PACKAGE_README_MATURITY_PATH,
     build_package_readme_maturity_report,
@@ -83,6 +86,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_authority_doc_issues = validate_workflow_authority_docs(repo_root)
     freshness_issues = validate_generated_governance_freshness()
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
+    acceptance_dashboard = build_flagship_acceptance_dashboard()
     ranking_improvement = compare_ranking_policies_against_benchmark_corpus(
         build_legacy_ranking_policy(),
         build_flagship_ranking_policy(),
@@ -141,6 +145,17 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
                 detail=issue.detail,
             )
         )
+    for row in acceptance_dashboard.rows:
+        if row.claim_ahead_of_evidence:
+            blockers.append(
+                RepositoryTruthIssue(
+                    code=f"workflow-acceptance-{row.workflow_family.value}-claim-ahead-of-evidence",
+                    detail=(
+                        f"{row.workflow_family.value} still claims {row.public_release_language.value} "
+                        f"but only earns {row.earned_release_language.value} under the flagship acceptance sheet"
+                    ),
+                )
+            )
     if reopened_packages:
         blockers.append(
             RepositoryTruthIssue(
@@ -212,6 +227,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             "artifacts/intelligence/ranking-benchmarks/reviewable-ranking-corpus.json",
             "artifacts/intelligence/ranking-benchmarks/flagship-reviewable-ranking.json",
             "artifacts/runtime/proof-accounting/runtime_proof_map.json",
+            acceptance_dashboard.artifact_path,
         ),
         blockers=tuple(blockers),
     )

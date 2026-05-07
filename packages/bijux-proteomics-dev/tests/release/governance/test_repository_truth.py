@@ -158,3 +158,74 @@ def test_repository_truth_report_blocks_workflow_authority_doc_drift(
         code="workflow-authority-docs-internal-support-family-has-trust-page",
         detail="multiplex is internal-support only in the matrix but still has a trust page",
     ) in report.blockers
+
+
+def test_repository_truth_report_blocks_acceptance_claim_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_scorecard_report",
+        lambda: SimpleNamespace(entries=(SimpleNamespace(architectural_ready=True),)),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_reopened_completion_claim_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_readme_maturity_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_family_readiness_reports",
+        lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        lambda repo_root=None: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_scientific_release_dossier",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_authority_docs",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_generated_governance_freshness",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.compare_ranking_policies_against_benchmark_corpus",
+        lambda legacy, flagship: SimpleNamespace(
+            decision_improved=True,
+            corpus_id="mock-corpus",
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
+        lambda repo_root: SimpleNamespace(issues=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
+        lambda: SimpleNamespace(
+            artifact_path="packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/acceptance_dashboard.json",
+            rows=(
+                SimpleNamespace(
+                    workflow_family=SimpleNamespace(value="dia"),
+                    public_release_language=SimpleNamespace(value="outsider_auditable_bounded"),
+                    earned_release_language=SimpleNamespace(value="review_grade_bounded"),
+                    claim_ahead_of_evidence=True,
+                ),
+            ),
+        ),
+    )
+
+    report = build_repository_truth_report(REPO_ROOT)
+
+    assert RepositoryTruthIssue(
+        code="workflow-acceptance-dia-claim-ahead-of-evidence",
+        detail=(
+            "dia still claims outsider_auditable_bounded but only earns review_grade_bounded under the flagship acceptance sheet"
+        ),
+    ) in report.blockers

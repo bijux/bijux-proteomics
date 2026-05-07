@@ -118,3 +118,30 @@ def test_outsider_packets_refuse_runtime_shortcut_backed_authority(
 
     assert packet.complete_outsider_surface is False
     assert "dda import still depends on a fake helper" in packet.missing_surface_reasons
+
+
+def test_outsider_packets_refuse_acceptance_sheet_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.outsider_packets.build_flagship_acceptance_sheet",
+        lambda workflow_family: SimpleNamespace(
+            earned_release_language=SimpleNamespace(value="review_grade_bounded"),
+            claim_ahead_of_evidence=True,
+            criteria=(
+                SimpleNamespace(
+                    passed=False,
+                    dimension="calibration sanity",
+                    observed_value="0",
+                    required_relation=SimpleNamespace(value="at_least"),
+                    required_value="1",
+                ),
+            ),
+        ),
+    )
+
+    packet = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.DDA)
+
+    assert packet.complete_outsider_surface is False
+    assert any("acceptance sheet says release language is ahead" in reason for reason in packet.missing_surface_reasons)
+    assert any("calibration sanity" in reason for reason in packet.missing_surface_reasons)

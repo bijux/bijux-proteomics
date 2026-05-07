@@ -11,6 +11,9 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.benchmarks.flagship_acceptance import (
+    build_flagship_acceptance_sheet,
+)
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.reviews.benchmarks import (
     WorkflowBenchmarkReview,
@@ -302,6 +305,7 @@ def _outsider_auditable_cell(
     outsider_packet: FlagshipOutsiderReviewPacket | None,
     runtime_spec: BenchmarkRunSpec | None,
 ) -> WorkflowAuthorityCell:
+    acceptance_sheet = build_flagship_acceptance_sheet(workflow_family)
     earned = outsider_packet.complete_outsider_surface if outsider_packet is not None else False
     artifact_paths = [
         link.repo_relative_path
@@ -311,6 +315,7 @@ def _outsider_auditable_cell(
             else ()
         )
     ]
+    artifact_paths.append(acceptance_sheet.artifact_path)
     if runtime_spec is not None:
         artifact_paths.extend(runtime_spec.public_package_paths[:1])
     return WorkflowAuthorityCell(
@@ -318,9 +323,9 @@ def _outsider_auditable_cell(
         earned=earned,
         artifact_paths=tuple(dict.fromkeys(artifact_paths)),
         note=(
-            "This workflow family ships enough benchmark, runtime, recommendation, and lab evidence to support bounded outsider review."
+            "This workflow family ships enough benchmark, runtime, recommendation, lab, and acceptance-sheet evidence to support bounded outsider review."
             if earned
-            else "This workflow family does not currently earn outsider-auditable language."
+            else "This workflow family does not currently earn outsider-auditable language because the outsider packet or acceptance sheet still fails."
         ),
     )
 
