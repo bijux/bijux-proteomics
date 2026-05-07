@@ -35,7 +35,7 @@ def test_root_mypy_configuration_uses_namespace_packages() -> None:
 def test_root_pyproject_declares_documented_quality_tooling() -> None:
     tool_section = _root_pyproject()["tool"]
     interrogate = tool_section["interrogate"]
-    assert interrogate["fail-under"] == 32
+    assert interrogate["fail-under"] == 45
     assert interrogate["color"] is True
 
 

@@ -118,7 +118,7 @@ bijux-proteomics-lab = { workspace = true }
 members = ["packages/*"]
 
 [tool.interrogate]
-fail-under = 32
+fail-under = 45
 color = true
 
 [tool.bandit]
