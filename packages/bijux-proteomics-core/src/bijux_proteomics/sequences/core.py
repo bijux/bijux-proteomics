@@ -653,7 +653,7 @@ def build_fasta_stats(
     )
     return FastaStatsReport(
         total_records=len(records),
-        unique_accessions=len({record.canonical_accession for record in records}),
+        unique_accessions=len({_stable_record_accession(record) for record in records}),
         total_residues=sum(lengths),
         min_length=min(lengths) if lengths else None,
         median_length=float(median(lengths)) if lengths else None,
@@ -677,14 +677,14 @@ def deduplicate_fasta_records(
     duplicate_sequences: list[str] = []
 
     for record in records:
-        if record.canonical_accession in seen_accessions:
+        if _stable_record_accession(record) in seen_accessions:
             duplicate_accessions.append(record.source_identifier)
             continue
         if record.sequence_checksum in seen_sequences:
             duplicate_sequences.append(record.source_identifier)
             continue
         kept.append(record)
-        seen_accessions.add(record.canonical_accession)
+        seen_accessions.add(_stable_record_accession(record))
         seen_sequences.add(record.sequence_checksum)
 
     return tuple(kept), FastaDeduplicationReport(
@@ -692,6 +692,14 @@ def deduplicate_fasta_records(
         output_records=len(kept),
         duplicate_accessions=tuple(duplicate_accessions),
         duplicate_sequences=tuple(duplicate_sequences),
+    )
+
+
+def _stable_record_accession(record: NormalizedProteinRecord) -> str:
+    if record.isoform is None:
+        return f"{record.accession_namespace}:{record.canonical_accession}"
+    return (
+        f"{record.accession_namespace}:{record.canonical_accession}-{record.isoform}"
     )
 
 
