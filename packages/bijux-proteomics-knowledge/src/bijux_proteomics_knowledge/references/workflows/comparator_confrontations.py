@@ -1,0 +1,228 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Public comparator confrontations for flagship workflow benchmark families."""
+
+from __future__ import annotations
+
+from enum import StrEnum
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.comparators import (
+    ProteomicsComparatorTool,
+    list_workflow_comparator_paths,
+)
+from bijux_proteomics_knowledge.references.workflows.reference_support import (
+    get_benchmark_manifest_for_family,
+)
+
+
+class ComparatorConfrontationOutcome(StrEnum):
+    """Outcome of one scientific comparison axis."""
+
+    ALIGNED = "aligned"
+    REPO_STRICTER = "repo_stricter"
+    REPO_WEAKER = "repo_weaker"
+    BLOCKED = "blocked"
+
+
+class ComparatorConfrontationFinding(JsonModel):
+    """One explicit scientific difference against an established workflow."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    finding_id: str = Field(..., min_length=1)
+    axis: str = Field(..., min_length=1)
+    outcome: ComparatorConfrontationOutcome
+    repository_position: str = Field(..., min_length=1)
+    comparator_position: str = Field(..., min_length=1)
+    scientific_difference: str = Field(..., min_length=1)
+    consequence_for_review: str = Field(..., min_length=1)
+
+
+class WorkflowComparatorConfrontation(JsonModel):
+    """One workflow-family comparator confrontation on a flagship benchmark."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    confrontation_id: str = Field(..., min_length=1)
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_id: str = Field(..., min_length=1)
+    comparator_tool: ProteomicsComparatorTool
+    findings: tuple[ComparatorConfrontationFinding, ...] = Field(
+        default_factory=tuple
+    )
+    overall_conclusion: str = Field(..., min_length=1)
+    artifact_refs: tuple[str, ...] = Field(default_factory=tuple)
+    next_escalation: str = Field(..., min_length=1)
+
+
+class WorkflowComparatorConfrontationReport(JsonModel):
+    """Comparator confrontations across workflow families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[WorkflowComparatorConfrontation, ...] = Field(default_factory=tuple)
+
+
+def _build_dda_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.DDA)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.DDA
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:dda",
+        workflow_family=KnowledgeWorkflowFamily.DDA,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.MSFRAGGER,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dda:peptide_evidence",
+                axis="peptide-level evidence",
+                outcome=ComparatorConfrontationOutcome.ALIGNED,
+                repository_position="The repository preserves the pinned peptide evidence and keeps adapter-normalized PSM semantics visible in the review surface.",
+                comparator_position="The established DDA workflow produces the pinned peptide evidence snapshot that the repository normalizes and reviews.",
+                scientific_difference="There is no current peptide-evidence disagreement inside the pinned export boundary.",
+                consequence_for_review="Peptide-facing review can stay benchmark-backed as long as the conversation remains inside the pinned export family.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dda:protein_evidence",
+                axis="protein-level evidence",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository keeps reviewed-proteome grounding and protein-inference caveats explicit before any protein-facing claim leaves review status.",
+                comparator_position="The external DDA workflow provides the protein evidence snapshot, but it does not itself carry the repository's downgrade logic around downstream claim scope.",
+                scientific_difference="The repository is stricter about not letting imported protein evidence harden into unqualified certainty.",
+                consequence_for_review="Protein-level interpretation stays more conservative than a naive import of the comparator output.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dda:calibration",
+                axis="calibration and live-engine parity",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository only normalizes and reviews the checked-in comparator export and does not rerun the external engine.",
+                comparator_position="The established DDA workflow owns the live search execution, engine calibration, and raw-spectrum scoring behavior.",
+                scientific_difference="The repository cannot currently prove live-engine calibration parity or raw-spectrum scoring equivalence.",
+                consequence_for_review="Current DDA authority stays bounded to imported evidence review, not end-to-end DDA engine parity.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dda:downstream_review",
+                axis="downstream review behavior",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository carries field-loss accounting and target-decoy caution into the review-facing packet.",
+                comparator_position="The external workflow produces the search result, but its review posture is not represented as a governed downgrade chain in this repository.",
+                scientific_difference="The repository is stronger at keeping downgrade logic and provenance visible once the external result becomes review material.",
+                consequence_for_review="Review packets better expose why strong-looking DDA evidence can still remain bounded.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository confronts the established DDA workflow honestly: peptide import semantics and bounded protein review survive, but live-engine calibration parity still belongs to the comparator."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Add a real public DDA package with harder raw-data identity and a stronger live-engine confrontation so the DDA comparison moves beyond pinned-export review."
+        ),
+    )
+
+
+def _build_dia_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.DIA)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.DIA
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:dia",
+        workflow_family=KnowledgeWorkflowFamily.DIA,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.SPECTRONAUT,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dia:peptide_evidence",
+                axis="peptide and transition evidence",
+                outcome=ComparatorConfrontationOutcome.ALIGNED,
+                repository_position="The repository normalizes the pinned DIA export into the same governed transition and peptide-facing evidence surface it uses for review.",
+                comparator_position="The established DIA workflow produces the pinned transition-rich export that the repository ingests.",
+                scientific_difference="Within the imported report boundary, transition semantics remain aligned enough for governed review.",
+                consequence_for_review="Peptide- and transition-facing review can remain benchmark-backed under the current pinned export package.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dia:protein_evidence",
+                axis="protein-level evidence",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository refuses to let library-conditioned evidence imply open-ended protein certainty or absence claims.",
+                comparator_position="The established DIA workflow can present stronger-looking protein summaries even when the underlying evidence remains library-conditioned.",
+                scientific_difference="The repository keeps a tighter boundary between transition evidence and protein-level interpretation.",
+                consequence_for_review="Protein-facing DIA conclusions stay more conservative and more explicit about library scope.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dia:quant_summaries",
+                axis="quant summaries",
+                outcome=ComparatorConfrontationOutcome.ALIGNED,
+                repository_position="The repository preserves the imported quant summary structure and keeps library-conditioned assumptions visible in review.",
+                comparator_position="The established DIA workflow emits the quant summary snapshot that the repository imports and interprets.",
+                scientific_difference="There is no current quant-summary disagreement inside the pinned export family, but the repo remains bounded to import-shaped proof.",
+                consequence_for_review="Quant summaries can be compared and reviewed without pretending the repository has reproduced vendor internals.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:dia:missingness_behavior",
+                axis="missingness and absent-expected-peptide behavior",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository can expose missing expected peptides and library gaps in review, but it does not yet pressure them through a harder public runtime package.",
+                comparator_position="The established DIA workflow owns the original classifier and extraction behavior that generated the missingness posture.",
+                scientific_difference="The repository still lacks a stronger confrontation on how absent expected peptides and vendor extraction choices alter downstream trust.",
+                consequence_for_review="DIA review remains honest about missingness limits, but not yet fully cross-checked at the execution layer.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository can confront an established DIA workflow on imported evidence and review semantics, but still loses on execution-level and missingness realism beyond the pinned report boundary."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Add a harder public DIA package and a live external confrontation so missing expected peptides, library gaps, and vendor execution choices move from advisory caveats into real public comparison pressure."
+        ),
+    )
+
+
+_SUPPORTED_BUILDERS = {
+    KnowledgeWorkflowFamily.DDA: _build_dda_confrontation,
+    KnowledgeWorkflowFamily.DIA: _build_dia_confrontation,
+}
+
+
+def build_workflow_comparator_confrontation(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowComparatorConfrontation:
+    """Build the comparator confrontation for one supported workflow family."""
+
+    return _SUPPORTED_BUILDERS[workflow_family]()
+
+
+def build_workflow_comparator_confrontation_report(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> WorkflowComparatorConfrontationReport:
+    """Build comparator confrontations across supported workflow families."""
+
+    families = (
+        (workflow_family,)
+        if workflow_family is not None
+        else tuple(_SUPPORTED_BUILDERS)
+    )
+    return WorkflowComparatorConfrontationReport(
+        entries=tuple(
+            build_workflow_comparator_confrontation(family) for family in families
+        )
+    )
+
+
+__all__ = [
+    "ComparatorConfrontationFinding",
+    "ComparatorConfrontationOutcome",
+    "WorkflowComparatorConfrontation",
+    "WorkflowComparatorConfrontationReport",
+    "build_workflow_comparator_confrontation",
+    "build_workflow_comparator_confrontation_report",
+]
