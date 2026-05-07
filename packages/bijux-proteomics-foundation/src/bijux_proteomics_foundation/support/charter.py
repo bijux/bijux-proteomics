@@ -102,6 +102,7 @@ DEFAULT_FOUNDATION_CHARTER_ENTRIES: tuple[FoundationCharterEntry, ...] = (
         required_modules=(
             "identity/identifiers.py",
             "support/provenance.py",
+            "support/public_api.py",
             "support/states.py",
             "compatibility/schema_versions.py",
         ),
@@ -197,12 +198,13 @@ def _classify_foundation_module(module_path: str) -> FoundationModuleAuditEntry:
         "support/__init__.py",
         "support/charter.py",
         "support/provenance.py",
+        "support/public_api.py",
         "support/states.py",
     }:
         return _shared_contract_entry(
             module_path,
             (FoundationCharterCapability.IDENTIFIERS_AND_STATES,),
-            "Shared identifiers, provenance, state vocabulary, and version primitives belong in foundation because every higher package must agree on them.",
+            "Shared identifiers, provenance, state vocabulary, version primitives, and the audited root export ledger belong in foundation because every higher package must agree on them.",
         )
 
     if module_path in {
