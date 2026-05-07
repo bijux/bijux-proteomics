@@ -41,8 +41,11 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/versioning/version_resolver.py`
 - `src/bijux_proteomics_dev/release/versioning/changelog_version.py`
 - `src/bijux_proteomics_dev/release/governance/publication_guard.py`
+- `src/bijux_proteomics_dev/release/governance/repository_truth.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
+- `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
 - `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
+- `configs/package-governance/canonical-workflow-manifest.toml`
 - `configs/package-governance/scientific-release-workflows.toml`
 
 ## Scientific Proof Chain
@@ -70,6 +73,14 @@ Use `build_scientific_release_dossier()` when you need the live code-backed
 index, and review
 `configs/package-governance/scientific-release-workflows.toml` when you need
 the checked-in declaration that release policy depends on.
+
+Use `build_repository_truth_report()` when the question is stronger than
+package publication and benchmark scope: it answers whether the repository may
+honestly speak in `reference-grade` or `elite` language at all.
+
+Use `validate_generated_governance_freshness()` before release to make sure
+the generated governance reports under `configs/package-governance/` are still
+fresh instead of silently stale.
 
 Use `validate_ssot_readiness()` when the question is whether public symbol
 ownership, duplicate model ownership, compatibility-bridge posture, and

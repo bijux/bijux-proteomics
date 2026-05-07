@@ -57,6 +57,12 @@ The current non-negotiable gaps are collected in
 so releases, handbook pages, and package claims can point to one exact
 repository-scoped limits surface instead of drifting independently.
 
+The repository also does **not** yet claim `reference-grade` or `elite`
+posture by its own release-truth standard. One canonical workflow is now
+checked and reviewable, but reopened completion claims, architectural-ready
+package gaps, and broader release-family debt still block stronger maturity
+language.
+
 This repository publishes `7` packages: `6` real product packages plus `1`
 compatibility bridge. Each release tag builds one staged bundle per package,
 uploads distributions to PyPI, publishes release bundles to their exact GHCR

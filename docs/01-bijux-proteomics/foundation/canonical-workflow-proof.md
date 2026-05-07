@@ -55,6 +55,20 @@ The canonical proof set does not authorize broad claims about:
 Those remain explicit boundary-only surfaces until they have their own checked
 proof sets.
 
+## Reference-Grade Boundary
+
+One undeniable workflow is necessary, but it is not enough by itself to make
+the whole repository `reference-grade` or `elite`.
+
+Those stronger postures stay blocked until repository-level release truth is
+clean on four fronts at the same time:
+
+- the canonical workflow manifest stays valid and shortcut-free
+- ranking behavior proves itself on a governed decision-quality corpus
+- generated governance reports are fresh before release
+- reopened completion pressure and architectural-ready package gaps no longer
+  contradict stronger maturity claims
+
 ## Boundary
 
 Only `reviewable-proteomics` may be described with canonical workflow prose.
