@@ -60,6 +60,16 @@ workflow families that the suite can defend today:
 - `multiplex`
 - `targeted`
 
+For the strongest current outsider-readable proof, start with the DDA package
+before reading the release policy helpers:
+
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/README.md`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/scientific_invariants.json`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
+- `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/comparator_confrontations.py`
+
 Reviewers should be able to open one manifest and see:
 
 - the owning package
@@ -69,6 +79,13 @@ Reviewers should be able to open one manifest and see:
 - the doc path that explains the scope
 - the exact scientific limit summary that keeps the claim honest
 
+For `dda`, the release conversation should now point directly to:
+
+- `benchmark:dda_search_reproducibility`
+- `benchmark_package:dda_reviewable_run`
+- `dda-maxquant-pipeline-corpus`
+- `comparator_path:msfragger_imported_dda_review`
+
 Use `build_scientific_release_dossier()` when you need the live code-backed
 index, and review
 `configs/package-governance/scientific-release-workflows.toml` when you need
@@ -77,6 +94,11 @@ the checked-in declaration that release policy depends on.
 Use `build_repository_truth_report()` when the question is stronger than
 package publication and benchmark scope: it answers whether the repository may
 honestly speak in `reference-grade` or `elite` language at all.
+
+That report should not be the first stop for workflow trust. First open the
+flagship package, runtime lane, comparator surface, and validating tests. Then
+use repository truth to decide how far the repository may generalize from those
+artifacts.
 
 Use `validate_generated_governance_freshness()` before release to make sure
 the generated governance reports under `configs/package-governance/` are still
