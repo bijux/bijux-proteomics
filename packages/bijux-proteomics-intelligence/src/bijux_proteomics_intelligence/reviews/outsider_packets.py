@@ -74,6 +74,7 @@ _RUNTIME_TRUTH_BY_FAMILY: dict[KnowledgeWorkflowFamily, str] = {
     KnowledgeWorkflowFamily.DIA: "dia_import",
     KnowledgeWorkflowFamily.LFQ: "quant_review",
     KnowledgeWorkflowFamily.PTM: "ptm_review",
+    KnowledgeWorkflowFamily.TARGETED: "targeted_review",
 }
 
 
