@@ -46,6 +46,7 @@ flowchart LR
 ## Start With
 
 - open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question starts from a legacy import, CLI path, or API surface
+- open [Flagship Run Registry](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/flagship-run-registry/) when the question is which public benchmark runs are actually checked and what claims they authorize
 - open [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/) when the question is whether a legacy module still belongs in runtime ownership
 - open the lower package handbooks when the disputed behavior is really domain, evidence, recommendation, or lab meaning
 
