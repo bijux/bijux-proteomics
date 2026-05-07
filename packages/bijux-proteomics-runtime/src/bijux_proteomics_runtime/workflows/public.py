@@ -6,6 +6,21 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.canonical": [
+        "CanonicalWorkflowBreakageFinding",
+        "CanonicalWorkflowBreakageReport",
+        "CanonicalWorkflowDeterminismReport",
+        "CanonicalWorkflowProofBundle",
+        "CanonicalWorkflowScopeDossier",
+        "CanonicalWorkflowStage",
+        "CanonicalWorkflowStageProof",
+        "WorkflowArtifactClaim",
+        "WorkflowClaimKind",
+        "build_canonical_workflow_proof_bundle",
+        "build_flagship_workflow_scope_dossier",
+        "compare_canonical_workflow_proof_bundles",
+        "evaluate_canonical_workflow_breakage",
+    ],
     "bijux_proteomics_runtime.workflows.acceptance": [
         "WorkflowAcceptanceDossier",
         "WorkflowFailureCategory",
