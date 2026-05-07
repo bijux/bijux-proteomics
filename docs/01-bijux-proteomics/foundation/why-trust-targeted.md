@@ -12,12 +12,13 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `targeted` surface.
 
 The trustworthy part today is the explicit QC, calibration, and interference
-limit surface. The repository does not yet earn a flagship outsider-auditable
-targeted workflow claim.
+limit surface plus one real targeted public package. The repository does not
+yet earn a flagship outsider-auditable targeted workflow claim.
 
 ## Open First
 
 - `benchmark:targeted_transition_consistency`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv`
 - `packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json`
 - `packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json`
@@ -27,7 +28,7 @@ targeted workflow claim.
 
 - `outsider_review:targeted` is not complete enough to count as an
   outsider-auditable flagship family.
-- benchmark evidence tier is `curated_mini_study`.
+- benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `refused`.
 - no flagship runtime truth row is published for targeted yet.
 - the recommendation posture is `do_not_recommend`.
@@ -44,9 +45,11 @@ targeted workflow claim.
 
 - the QC and follow-up packet boundaries are explicit
 - refusal is visible when calibration and interference realism remain too thin
+- the tracked public package keeps QC tables and approved, failed, and refused
+  follow-up packets together
 
 ## What You Should Not Trust Yet
 
 - there is still no flagship runtime truth row for targeted
 - comparator-backed public support is still refused
-- this is still a curated mini-study rather than a flagship public package
+- biological grounding remains thin

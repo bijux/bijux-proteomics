@@ -11,16 +11,16 @@ last_reviewed: 2026-05-07
 
 The current flagship release-candidate surface is not the whole repository.
 
-It is one outsider-auditable DDA family plus four explicitly incomplete review
-families that are shipped with their blocker pages instead of being flattened
-into optimistic release language.
+It is two outsider-auditable families, `dda` and `dia`, plus three explicitly
+incomplete review families that are shipped alongside their blocker pages
+instead of being flattened into optimistic release language.
 
 ## Current Bundle
 
 - bundle id: `flagship-release-candidate-bundle`
 - strongest workflow family: `dda`
-- outsider-auditable workflow families: `dda`
-- blocked workflow families: `dia`, `lfq`, `ptm`, `targeted`
+- outsider-auditable workflow families: `dda`, `dia`
+- blocked workflow families: `lfq`, `ptm`, `targeted`
 
 ## What The Bundle Collects
 
@@ -42,18 +42,18 @@ into optimistic release language.
   - [Why Trust PTM](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-ptm/)
   - [Why Trust Targeted](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-targeted/)
 - distrust pages:
-  - [Why Not Trust DIA Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-dia-yet/)
   - [Why Not Trust LFQ Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-lfq-yet/)
   - [Why Not Trust PTM Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-ptm-yet/)
   - [Why Not Trust Targeted Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-targeted-yet/)
 
 ## Honest Reading
 
-- `dda` is the only family that currently survives one full outsider packet:
+- `dda` survives one full outsider packet:
   public package, runtime lane, comparator pressure, scientific reading,
   recommendation packet, and lab packet
-- `dia` is real enough to inspect, but still anchored in `curated_mini_study`
-  status
+- `dia` now also survives one full outsider packet, but its authority stays
+  bounded by library-conditioned import review, advisory claim support, and
+  execution steps that still sit outside the repository proof boundary
 - `lfq`, `ptm`, and `targeted` are currently stronger as explicit refusal
   surfaces than as positive release families
 

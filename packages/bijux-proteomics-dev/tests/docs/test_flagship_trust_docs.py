@@ -52,7 +52,8 @@ def test_non_dda_trust_pages_keep_weaker_posture_visible() -> None:
     ptm = _read_doc("why-trust-ptm.md")
     targeted = _read_doc("why-trust-targeted.md")
 
-    assert "curated_mini_study" in dia
+    assert "external_reproduction_package" in dia
+    assert "import_only" in dia
     assert "do_not_recommend" in lfq
     assert "public claim support is `refused`" in ptm
     assert "no flagship runtime truth row is published for targeted yet" in targeted

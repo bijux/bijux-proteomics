@@ -13,7 +13,8 @@ last_reviewed: 2026-05-07
 
 ## Current Blockers
 
-- benchmark evidence tier is `curated_mini_study`
+- a real targeted public package exists, but it is still not enough to make
+  targeted outsider-auditable
 - no flagship runtime truth row is published for targeted yet
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
@@ -21,10 +22,9 @@ last_reviewed: 2026-05-07
 
 ## What Would Need To Change
 
-- replace the current curated package with a flagship public package that
-  carries real raw-data identity and harder calibration and interference
-  pressure
 - build a raw-to-reviewed targeted comparator against Skyline-class workflows
   so targeted support stops losing on calibration and interference realism
 - publish one real flagship targeted runtime truth row instead of keeping this
   workflow family outside the runtime surface
+- reduce assay burden enough that the current public package can justify
+  stronger recommendation posture

@@ -11,13 +11,14 @@ last_reviewed: 2026-05-07
 
 This page is about the current flagship `lfq` surface.
 
-What you can trust here is mostly the repo's honesty around missingness, QC,
-and decision refusal. The repository does not currently earn a positive
-outsider-auditable LFQ claim.
+What you can trust here is the repo's honesty around missingness, QC, and
+decision refusal plus one real LFQ public package. The repository still does
+not earn a positive outsider-auditable LFQ claim.
 
 ## Open First
 
 - `benchmark:lfq_cohort_repeatability`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json`
@@ -26,7 +27,7 @@ outsider-auditable LFQ claim.
 
 - `outsider_review:lfq` is not complete enough to count as an outsider-auditable
   flagship family.
-- benchmark evidence tier is `curated_mini_study`.
+- benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `refused`.
 - the runtime package is still `quant_review-blocked-runtime-path`.
 - the recommendation posture is `do_not_recommend`.
@@ -45,9 +46,11 @@ outsider-auditable LFQ claim.
   prose
 - the repo refuses stronger public support than the current comparator and
   runtime evidence deserve
+- the tracked public package keeps cohort design, feature evidence, and package
+  lifecycle visible instead of implied
 
 ## What You Should Not Trust Yet
 
 - no flagship LFQ runtime family is wired
 - comparator-backed public support is still refused
-- this is not a flagship public LFQ package
+- biological grounding remains thin

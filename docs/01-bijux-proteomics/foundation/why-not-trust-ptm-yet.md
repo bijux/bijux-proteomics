@@ -13,7 +13,8 @@ last_reviewed: 2026-05-07
 
 ## Current Blockers
 
-- no benchmark package is registered for PTM at flagship-public level
+- a real PTM public package exists, but it is still not enough to make PTM
+  outsider-auditable
 - no flagship runtime benchmark path is wired for this workflow family yet
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
@@ -21,9 +22,7 @@ last_reviewed: 2026-05-07
 
 ## What Would Need To Change
 
-- replace the current curated PTM package with a flagship public package that
-  carries real raw-data identity and harder ambiguity pressure
 - add stronger rescoring or external PTM comparator evidence so localization
   trust is not limited to imported tables
-- create a benchmark package with governed artifacts and reviewable
-  reproduction steps
+- add a flagship PTM runtime family with reviewable execution truth instead of
+  leaving the package disconnected from runtime proof

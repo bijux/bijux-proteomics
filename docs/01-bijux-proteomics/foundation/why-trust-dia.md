@@ -11,14 +11,15 @@ last_reviewed: 2026-05-07
 
 This page is about the current flagship `dia` result surface.
 
-The right trust level is bounded. The repository can currently prove one
-reviewable DIA import family with explicit capability limits. It cannot yet
-pretend that this is a flagship outsider-readable public package on the same
-level as DDA.
+The right trust level is bounded. The repository now ships one outsider-readable
+DIA public package with explicit capability limits, but that authority still
+stops at library-conditioned import review rather than vendor-execution parity.
 
 ## Open First
 
 - `benchmark:dia_library_extraction_consistency`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/README.md`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_pipeline_export.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv`
@@ -26,9 +27,9 @@ level as DDA.
 
 ## Current Trust Earned
 
-- `outsider_review:dia` is inspectable, but not complete enough to count as an
-  outsider-auditable flagship public package.
-- benchmark evidence tier is `curated_mini_study`.
+- `outsider_review:dia` is complete enough to count as an outsider-auditable
+  flagship family.
+- benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `advisory`.
 - the runtime package `dia-diann-pipeline-corpus` is real and currently
   `import_only`.
@@ -48,9 +49,12 @@ level as DDA.
 - the DIA-NN and Spectronaut confrontation is visible instead of implied
 - the runtime import lane is real enough to preserve lineage and artifact
   browsing
+- the tracked public package makes artifact inventory, quality posture, and
+  lifecycle boundaries inspectable without reading internal code
 
 ## What You Should Not Trust Yet
 
-- this is still a `curated_mini_study`, not a flagship public package
 - vendor-library parity is not earned
-- broader raw-first DIA package realism is still missing
+- chromatogram-level and vendor-execution parity are not earned
+- the current reproduction story still depends on execution steps outside the
+  repository proof boundary

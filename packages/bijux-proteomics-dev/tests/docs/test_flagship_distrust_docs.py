@@ -21,7 +21,6 @@ def _read_doc(name: str) -> str:
 
 def test_flagship_distrust_pages_exist_for_incomplete_workflows() -> None:
     expected_files = (
-        "why-not-trust-dia-yet.md",
         "why-not-trust-lfq-yet.md",
         "why-not-trust-ptm-yet.md",
         "why-not-trust-targeted-yet.md",
@@ -34,12 +33,12 @@ def test_flagship_distrust_pages_exist_for_incomplete_workflows() -> None:
 
 
 def test_distrust_pages_name_real_missing_substance() -> None:
-    dia = _read_doc("why-not-trust-dia-yet.md")
     lfq = _read_doc("why-not-trust-lfq-yet.md")
     ptm = _read_doc("why-not-trust-ptm-yet.md")
     targeted = _read_doc("why-not-trust-targeted-yet.md")
 
-    assert "curated_mini_study" in dia
     assert "no flagship runtime benchmark path is wired" in lfq
-    assert "no benchmark package is registered for PTM" in ptm
+    assert "public package" in lfq
+    assert "no flagship runtime benchmark path is wired" in ptm
+    assert "public comparator-backed claim support is still refused" in ptm
     assert "no flagship runtime truth row is published for targeted yet" in targeted
