@@ -22,6 +22,16 @@ def test_benchmark_artifact_browser_summarizes_import_lane_outputs(
         "imported tabular comparator payload with 3 rows"
     )
     assert any(
+        entry.path.endswith("public_benchmark_packages/dda_reviewable_run/README.md")
+        for entry in browser.public_package_artifacts
+    )
+    assert any(
+        entry.path.endswith(
+            "public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json"
+        )
+        for entry in browser.public_package_artifacts
+    )
+    assert any(
         entry.artifact_kind == "runtime-review-packet"
         for entry in browser.handoff_outputs
     )

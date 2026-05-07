@@ -22,6 +22,10 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
     )
     assert specs["sequence-first-useful-corpus"].run_mode.value == "raw_executable"
     assert specs["dda-maxquant-pipeline-corpus"].engine_name == "maxquant"
+    assert any(
+        path.endswith("public_benchmark_packages/dda_reviewable_run/package_manifest.json")
+        for path in specs["dda-maxquant-pipeline-corpus"].public_package_paths
+    )
     assert specs["dia-diann-pipeline-corpus"].engine_version == "2.1.0"
 
 

@@ -56,6 +56,7 @@ class BenchmarkRunSpec(JsonModel):
     companion_input_paths: tuple[str, ...] = Field(default_factory=tuple)
     engine_name: str | None = Field(default=None)
     engine_version: str | None = Field(default=None)
+    public_package_paths: tuple[str, ...] = Field(default_factory=tuple)
     validating_test_paths: tuple[str, ...] = Field(default_factory=tuple)
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -97,6 +98,9 @@ class BenchmarkArtifactBrowser(JsonModel):
     command: str = Field(..., min_length=1)
     workflow_family: str = Field(..., min_length=1)
     parameter_choices: tuple[str, ...] = Field(default_factory=tuple)
+    public_package_artifacts: tuple[BenchmarkArtifactEntry, ...] = Field(
+        default_factory=tuple
+    )
     input_artifacts: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
     imported_results: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
     review_outputs: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
@@ -244,11 +248,18 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             ),
             engine_name="maxquant",
             engine_version="19.0",
+            public_package_paths=(
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/README.md",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/scientific_invariants.json",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json",
+            ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py",
             ),
             notes=(
                 "runtime imports the tracked MaxQuant export and keeps provenance explicit instead of pretending to execute MaxQuant",
+                "the runtime DDA lane points directly to the shipped public package metadata and warning ledgers",
             ),
         ),
         BenchmarkRunSpec(
@@ -381,6 +392,9 @@ def build_benchmark_artifact_browser(
         _repo_root() / path for path in spec.companion_input_paths
     )
     imported_results = ()
+    public_package_artifacts = tuple(
+        _summarize_source_path(_repo_root() / path) for path in spec.public_package_paths
+    )
     handoff_outputs: list[BenchmarkArtifactEntry] = []
     if manifest.import_trace_path is not None:
         imported_payload = _load_json_dict(
@@ -418,6 +432,7 @@ def build_benchmark_artifact_browser(
             f"parameter_fingerprint={replay_contract.parameter_fingerprint}",
             f"tool_fingerprint={replay_contract.tool_fingerprint}",
         ),
+        public_package_artifacts=public_package_artifacts,
         input_artifacts=tuple(_summarize_source_path(path) for path in input_paths),
         imported_results=imported_results,
         review_outputs=tuple(
