@@ -4,7 +4,7 @@
 [guard]
 min_total_mirrored_owner_family_count = 62
 max_total_missing_test_family_count = 0
-max_total_flat_test_module_count = 10
+max_total_flat_test_module_count = 0
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -36,11 +36,11 @@ flat_test_module_count = 0
 [[package]]
 distribution_name = "bijux-proteomics-core"
 source_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
-test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "governance", "identification", "interfaces", "io", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
+test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "governance", "identification", "interfaces", "io", "package", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
 mirrored_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
 missing_test_families = []
-extra_test_families = ["cli", "performance", "qc"]
-flat_test_module_count = 10
+extra_test_families = ["cli", "package", "performance", "qc"]
+flat_test_module_count = 0
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
