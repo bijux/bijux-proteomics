@@ -34,6 +34,8 @@ def test_flagship_public_benchmark_catalog_doc_names_machine_readable_package_su
     assert "quality posture" in text
     assert "lifecycle posture" in text
     assert "benchmark-assets/flagship-public-packages" in text
+    assert "family-transfer report" in text
+    assert "companion package root" in text
 
 
 def test_flagship_public_benchmark_catalog_doc_points_to_asset_root_handbook() -> None:
@@ -46,3 +48,4 @@ def test_flagship_public_benchmark_catalog_doc_keeps_multiplex_internal_support_
     text = _read_doc()
 
     assert "internal-support family" in text
+    assert "collapses outsider-facing trust" in text
