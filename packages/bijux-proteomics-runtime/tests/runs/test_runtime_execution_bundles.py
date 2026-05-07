@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runs import (
+    RunConfig,
+    RunManager,
     build_run_context_contract,
     create_run_context,
 )
@@ -14,7 +15,6 @@ from bijux_proteomics_runtime.runs.launch_bundles import (
     build_scheduler_job_bundle,
 )
 from bijux_proteomics_runtime.runs.replay import build_replay_contract
-from bijux_proteomics_runtime.runs import RunConfig
 
 
 def _contract(tmp_path: Path, *, run_id: str, config: RunConfig | None = None):
@@ -106,26 +106,7 @@ def test_runtime_scheduler_job_bundle_captures_launch_metadata_and_replay_bounda
 
 def test_runtime_run_manager_persists_non_local_execution_bundles(
     tmp_path: Path,
-    monkeypatch,
 ) -> None:
-    def _fake_run_flow(candidate, context, tool):  # type: ignore[no-untyped-def]
-        return {
-            "candidate_id": candidate.candidate_id,
-            "candidate": candidate.model_dump(),
-            "plan_fingerprint": "plan-1",
-            "tool_status": "success",
-            "report": {"status": "ok"},
-            "qc_status": "acceptable",
-            "coordinator_decision": "TerminateRun",
-            "failure_type": "none",
-            "lifecycle_state": "done",
-        }
-
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_run_flow,
-    )
-
     container_manager = RunManager(
         tmp_path,
         RunConfig(

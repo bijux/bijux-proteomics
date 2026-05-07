@@ -8,7 +8,6 @@ from bijux_proteomics_runtime.runs import RunManager
 from bijux_proteomics_runtime.runs.context import create_run_context
 from bijux_proteomics_runtime.runs.execution_decisions import (
     ExecutionDecisionState,
-    RuntimeExecutionDecisionReport,
     build_runtime_degraded_execution_report,
     build_runtime_refusal_decision_report,
     load_runtime_execution_decision_report,
@@ -102,26 +101,9 @@ def test_runtime_degraded_execution_report_is_written_for_cpu_fallback(
         context, warnings = real_create_run_context(base_dir, config, run_id=run_id)
         return context, [*warnings, "cpu_fallback:local_esmfold_to_cpu"]
 
-    def _fake_run_flow(candidate, context, tool):  # type: ignore[no-untyped-def]
-        return {
-            "candidate_id": candidate.candidate_id,
-            "candidate": candidate.model_dump(),
-            "plan_fingerprint": "plan-degraded",
-            "tool_status": "success",
-            "report": {"status": "ok"},
-            "qc_status": "acceptable",
-            "coordinator_decision": "TerminateRun",
-            "failure_type": "none",
-            "lifecycle_state": "done",
-        }
-
     monkeypatch.setattr(
         "bijux_proteomics_runtime.runs.manager.create_run_context",
         _create_run_context_with_cpu_fallback,
-    )
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_run_flow,
     )
     manager = RunManager(tmp_path)
 

@@ -163,24 +163,10 @@ def test_runtime_replay_fixture_proves_reuse_refusal_and_partial_rerun(
 
 def test_runtime_corruption_fixture_refuses_reuse_of_modified_bundle(
     tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    fixture = load_fixture("execution", "sequence_review_path.json")
-
-    def _fake_run_flow(candidate, context, tool):  # type: ignore[no-untyped-def]
-        result = dict(fixture["fake_run_flow_result"])
-        result["candidate_id"] = candidate.candidate_id
-        result["candidate"] = candidate.model_dump()
-        return result
-
-    monkeypatch.setattr(
-        "bijux_proteomics_runtime.runs.manager.run_flow",
-        _fake_run_flow,
-    )
-
     run_id = "runtime-corruption-proof-1"
     manager = RunManager(tmp_path)
-    manager.run(str(fixture["sequence"]), run_id=run_id)
+    manager.run("MPEPTIDE", run_id=run_id)
     workspace = RunWorkspace.for_run(tmp_path, run_id)
     workspace.local_run_bundle_path.write_text('{"corrupted": true}', encoding="utf-8")
 
