@@ -33,7 +33,7 @@ def test_rejection_quality_corpus_forces_explicit_refusal() -> None:
     scenario = corpus.scenarios[0]
     assert scenario.expected_selected_option_id is None
     assert scenario.expected_disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
-    assert "public comparator-backed claim support is refused" in scenario.required_blockers
+    assert "biological grounding remains thin" in scenario.required_blockers
 
 
 def test_other_decision_corpora_stay_artifact_backed_and_goal_specific() -> None:

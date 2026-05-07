@@ -219,13 +219,13 @@ def build_rejection_quality_corpus() -> BenchmarkDecisionCorpus:
                 scenario_id="refuse-thin-targeted-and-ptm-promotion",
                 corpus_kind=BenchmarkDecisionCorpusKind.REJECTION_QUALITY,
                 summary=(
-                    "PTM and targeted paths can look operationally exciting while still lacking enough comparator-backed trust to justify promotion."
+                    "PTM and targeted paths can look operationally exciting while still lacking enough grounded and burden-justified trust to justify promotion."
                 ),
                 decision_quality_claim=(
                     "The right decision is refusal when attractive benchmark surfaces remain thin, contradictory, or operationally unjustified."
                 ),
                 naive_failure_mode=(
-                    "promotion by assay excitement ignores thin grounding, refused public claim support, and high follow-up burden"
+                    "promotion by assay excitement ignores thin grounding and high follow-up burden"
                 ),
                 options=(
                     _solo_option(
@@ -248,8 +248,8 @@ def build_rejection_quality_corpus() -> BenchmarkDecisionCorpus:
                 expected_selected_option_id=None,
                 expected_disposition=BenchmarkDisposition.DO_NOT_RECOMMEND,
                 required_blockers=(
-                    "public comparator-backed claim support is refused",
                     "biological grounding remains thin",
+                    "operational burden remains too high for a justified recommendation",
                 ),
             ),
         ),
@@ -271,13 +271,13 @@ def build_comparator_aware_decision_corpus() -> BenchmarkDecisionCorpus:
                 scenario_id="comparator-mismatch-blocks-lfq-promotion",
                 corpus_kind=BenchmarkDecisionCorpusKind.COMPARATOR_AWARE,
                 summary=(
-                    "Comparator refusal on the LFQ path should materially change the recommendation and push the safer DIA path ahead."
+                    "Bounded comparator posture on the LFQ path should still materially change the recommendation and keep the safer DIA path ahead."
                 ),
                 decision_quality_claim=(
                     "External tool mismatches must change recommendation output, not merely decorate it."
                 ),
                 naive_failure_mode=(
-                    "surface-heavy ranking promotes LFQ repeatability without treating refused comparator support as decision-changing evidence"
+                    "surface-heavy ranking promotes LFQ repeatability without treating advisory comparator posture as decision-changing evidence"
                 ),
                 options=(
                     _solo_option(
@@ -294,7 +294,7 @@ def build_comparator_aware_decision_corpus() -> BenchmarkDecisionCorpus:
                         surface_attractiveness=0.84,
                         lab_burden=LabBurdenTier.MEDIUM,
                         turnaround_days=16,
-                        burden_note="LFQ follow-up looks inexpensive, but comparator-backed trust is still refused in the benchmark review.",
+                        burden_note="LFQ follow-up looks inexpensive, but comparator-backed trust remains advisory and generalization stays bounded in the benchmark review.",
                     ),
                 ),
                 expected_selected_option_id="dia_library_path",
@@ -448,26 +448,18 @@ def build_do_not_recommend_benchmark_suite() -> BenchmarkDecisionCorpus:
         corpus_kind=BenchmarkDecisionCorpusKind.DO_NOT_RECOMMEND,
         scenarios=(
             BenchmarkDecisionScenario(
-                scenario_id="lfq-and-multiplex-stay-on-hold-with-refused-comparators",
+                scenario_id="multiplex-stays-on-hold-with-internal-support-only-authority",
                 corpus_kind=BenchmarkDecisionCorpusKind.DO_NOT_RECOMMEND,
                 summary=(
-                    "LFQ and multiplex both remain too weakly cross-checked for an affirmative recommendation."
+                    "Multiplex should still resolve to no action while it remains an internal-support family without outsider review or lab consequence authority."
                 ),
                 decision_quality_claim=(
-                    "The intelligence layer must choose no action when benchmark evidence is too weak or contradictory."
+                    "The intelligence layer must choose no action when a workflow family is still explicitly narrowed to internal support only."
                 ),
                 naive_failure_mode=(
-                    "supportive internal signals are mistaken for decision-worthy trust despite refused comparator posture"
+                    "supportive internal signals are mistaken for decision-worthy trust even though the workflow family remains internal-support only"
                 ),
                 options=(
-                    _solo_option(
-                        KnowledgeWorkflowFamily.LFQ,
-                        option_id="lfq_hold_path",
-                        surface_attractiveness=0.81,
-                        lab_burden=LabBurdenTier.MEDIUM,
-                        turnaround_days=18,
-                        burden_note="LFQ follow-up still depends on stronger external comparator grounding before promotion.",
-                    ),
                     _solo_option(
                         KnowledgeWorkflowFamily.MULTIPLEX,
                         option_id="multiplex_hold_path",
@@ -482,13 +474,14 @@ def build_do_not_recommend_benchmark_suite() -> BenchmarkDecisionCorpus:
                 required_blockers=(
                     "public comparator-backed claim support is refused",
                     "biological grounding remains thin",
+                    "operational burden remains too high for a justified recommendation",
                 ),
             ),
             BenchmarkDecisionScenario(
                 scenario_id="ptm-and-targeted-remain-unjustified-for-lab-spend",
                 corpus_kind=BenchmarkDecisionCorpusKind.DO_NOT_RECOMMEND,
                 summary=(
-                    "PTM and targeted still do not justify lab spend when both comparator support and burden remain poor."
+                    "PTM and targeted still do not justify lab spend when both remain exploratory and burden-heavy."
                 ),
                 decision_quality_claim=(
                     "Weak comparator trust plus high operational burden should force a do-not-recommend outcome."
@@ -517,7 +510,6 @@ def build_do_not_recommend_benchmark_suite() -> BenchmarkDecisionCorpus:
                 expected_selected_option_id=None,
                 expected_disposition=BenchmarkDisposition.DO_NOT_RECOMMEND,
                 required_blockers=(
-                    "public comparator-backed claim support is refused",
                     "operational burden remains too high for a justified recommendation",
                 ),
             ),

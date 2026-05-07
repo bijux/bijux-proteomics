@@ -1448,14 +1448,17 @@ def build_targeted_benchmark_review(
             claim_id="chromatogram_qc_surface",
             support_state=(
                 SupportState.SUPPORTED
-                if qc_report.accepted_points and qc_report.failed_metric_rows == 0
-                else SupportState.ADVISORY
+                if qc_report.accepted_points
+                else SupportState.INCOMPLETE
             ),
             summary="targeted review preserves chromatogram-shaped QC as the first review surface",
             evidence_refs=(
                 manifest.dataset_id,
                 f"accepted_points={len(qc_report.accepted_points)}",
                 f"failed_metric_rows={qc_report.failed_metric_rows}",
+            ),
+            scientific_limits=(
+                "preserving QC failures as first-class review evidence does not make the targeted package calibration-clean or decision-grade by itself",
             ),
         ),
         BenchmarkReviewClaim(
@@ -1479,7 +1482,15 @@ def build_targeted_benchmark_review(
             claim_id="raw_to_reviewed_bundle",
             support_state=(
                 SupportState.SUPPORTED
-                if targeted_bundle.ready_for_reviewed_handoff
+                if (
+                    targeted_bundle.reconciled_outcome_count > 0
+                    and targeted_bundle.unreconciled_outcome_count == 0
+                    and (
+                        targeted_bundle.honest_handoff_count
+                        + targeted_bundle.inflated_handoff_count
+                    )
+                    > 0
+                )
                 else SupportState.ADVISORY
             ),
             summary="targeted review links chromatogram QC, handoff honesty, and observed outcome reconciliation instead of stopping at tidy assay packets",

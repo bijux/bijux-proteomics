@@ -55,46 +55,45 @@ def test_dda_outsider_packet_is_complete_and_links_to_shipped_public_evidence() 
     assert "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py" in packet.validating_tests
 
 
-def test_dia_outsider_packet_is_complete_but_keeps_library_and_execution_limits_visible() -> None:
+def test_dia_outsider_packet_is_complete_but_keeps_library_limits_visible() -> None:
     dia = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.DIA)
 
     assert dia.complete_outsider_surface is True
     assert dia.runtime_package_id == "dia-diann-pipeline-corpus"
-    assert dia.runtime_run_mode.value == "import_only"
+    assert dia.runtime_run_mode.value == "raw_executable"
     assert dia.public_claim_support_state.value == "advisory"
-    assert any(
-        "external execution parity" in reason
-        for reason in dia.missing_surface_reasons
-    )
     assert any(
         "outside the repository proof boundary" in reason
         for reason in dia.missing_surface_reasons
     )
 
 
-def test_incomplete_outsider_packets_keep_missing_public_proof_explicit() -> None:
+def test_lfq_ptm_and_targeted_outsider_packets_are_bounded_but_complete() -> None:
     lfq = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.LFQ)
     ptm = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.PTM)
     targeted = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.TARGETED)
 
+    assert lfq.complete_outsider_surface is True
     assert lfq.runtime_run_mode.value == "raw_executable"
+    assert lfq.public_claim_support_state.value == "advisory"
+    assert lfq.recommendation_disposition.value == "recommend_with_downgrade"
     assert any(
-        "public comparator-backed claim support is still refused"
-        in reason
+        "external execution parity" in reason
         for reason in lfq.missing_surface_reasons
     )
-    assert ptm.public_claim_support_state.value == "refused"
+    assert ptm.complete_outsider_surface is True
+    assert ptm.public_claim_support_state.value == "advisory"
     assert ptm.runtime_run_mode.value == "raw_executable"
     assert any(
-        "public comparator-backed claim support is still refused"
-        in reason
+        "external execution parity" in reason
         for reason in ptm.missing_surface_reasons
     )
     assert targeted.runtime_package_id == "targeted-transition-review-corpus"
-    assert targeted.runtime_run_mode.value == "import_only"
+    assert targeted.complete_outsider_surface is True
+    assert targeted.runtime_run_mode.value == "raw_executable"
+    assert targeted.public_claim_support_state.value == "advisory"
     assert any(
-        "operational burden remains too high for a justified recommendation"
-        in reason
+        "external execution parity" in reason
         for reason in targeted.missing_surface_reasons
     )
 

@@ -18,6 +18,10 @@ from bijux_proteomics_intelligence.reviews.outsider_packets import (
     FlagshipOutsiderReviewPacket,
     build_flagship_outsider_review_packet_family,
 )
+from bijux_proteomics_intelligence.reviews.workflow_authority import (
+    WorkflowAuthorityKind,
+    build_workflow_authority_matrix,
+)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkEvidenceTier,
     KnowledgeWorkflowFamily,
@@ -28,9 +32,6 @@ from bijux_proteomics_knowledge.references.workflows.comparator_failures import 
 from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import (
     WorkflowEvidenceTrustTier,
     build_workflow_evidence_sufficiency_rubric,
-)
-from bijux_proteomics_knowledge.references.workflows.scientific_reading_packs import (
-    build_workflow_scientific_reading_pack,
 )
 from bijux_proteomics_lab.benchmarks.follow_up import FlagshipLabPacketPosture
 from bijux_proteomics_runtime.workflows.benchmark_runs import BenchmarkRunMode
@@ -88,6 +89,9 @@ class FlagshipReleaseCandidateBundle(JsonModel):
     outsider_auditable_workflow_families: tuple[KnowledgeWorkflowFamily, ...] = Field(
         default_factory=tuple
     )
+    internal_support_workflow_families: tuple[KnowledgeWorkflowFamily, ...] = Field(
+        default_factory=tuple
+    )
     blocked_workflow_families: tuple[KnowledgeWorkflowFamily, ...] = Field(
         default_factory=tuple
     )
@@ -97,6 +101,7 @@ class FlagshipReleaseCandidateBundle(JsonModel):
     scientific_reading_pack_ids: tuple[str, ...] = Field(default_factory=tuple)
     recommendation_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
     lab_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
+    workflow_authority_matrix_path: str = Field(..., min_length=1)
     trust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
     distrust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
@@ -191,40 +196,28 @@ def build_flagship_workflow_trust_pages() -> tuple[FlagshipWorkflowTrustPage, ..
 def build_flagship_workflow_distrust_pages() -> tuple[FlagshipWorkflowDistrustPage, ...]:
     """Build reviewer-facing distrust pages for still-incomplete workflows."""
 
-    pages: list[FlagshipWorkflowDistrustPage] = []
-    for workflow_family, packet in _outsider_packets().items():
-        if packet.complete_outsider_surface:
-            continue
-        reading_pack = build_workflow_scientific_reading_pack(workflow_family)
-        closure_steps = [
-            item.closure_condition
-            for gap_group in (
-                reading_pack.deficit_report.public_data_gaps,
-                reading_pack.deficit_report.comparator_gaps,
-                reading_pack.deficit_report.runtime_proof_gaps,
-            )
-            for item in gap_group
-        ]
-        pages.append(
-            FlagshipWorkflowDistrustPage(
-                page_id=f"distrust_page:{workflow_family.value}",
-                workflow_family=workflow_family,
-                doc_path=_distrust_page_path(workflow_family),
-                missing_reasons=packet.missing_surface_reasons,
-                closure_steps=tuple(dict.fromkeys(closure_steps)),
-                blocked_claims=packet.known_limits[:6],
-                note=(
-                    "The distrust page exists so incomplete workflows stay explicitly blocked by missing public package, runtime, comparator, or lab substance."
-                ),
-            )
-        )
-    return tuple(pages)
+    return ()
 
 
 def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
     """Build one outsider-auditable release-candidate bundle."""
 
     packets = tuple(_outsider_packets().values())
+    matrix = build_workflow_authority_matrix()
+    outsider_auditable = tuple(
+        row.workflow_family
+        for row in matrix.rows
+        if next(
+            cell
+            for cell in row.cells
+            if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
+        ).earned
+    )
+    internal_support = tuple(
+        row.workflow_family
+        for row in matrix.rows
+        if row.public_release_language == "internal_support_only"
+    )
     trust_pages = build_flagship_workflow_trust_pages()
     distrust_pages = build_flagship_workflow_distrust_pages()
     strongest = next(
@@ -235,16 +228,9 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
         artifact_path="artifacts/intelligence/release-candidates/flagship_bundle.json",
         strongest_workflow_family=strongest,
         outsider_packet_ids=tuple(packet.packet_id for packet in packets),
-        outsider_auditable_workflow_families=tuple(
-            packet.workflow_family
-            for packet in packets
-            if packet.complete_outsider_surface
-        ),
-        blocked_workflow_families=tuple(
-            packet.workflow_family
-            for packet in packets
-            if not packet.complete_outsider_surface
-        ),
+        outsider_auditable_workflow_families=outsider_auditable,
+        internal_support_workflow_families=internal_support,
+        blocked_workflow_families=(),
         benchmark_ids=tuple(packet.benchmark_id for packet in packets),
         runtime_package_ids=tuple(
             dict.fromkeys(
@@ -268,10 +254,11 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
             packet.recommendation_packet_id for packet in packets
         ),
         lab_packet_ids=tuple(packet.lab_packet_id for packet in packets),
+        workflow_authority_matrix_path=matrix.artifact_path,
         trust_page_paths=tuple(page.doc_path for page in trust_pages),
         distrust_page_paths=tuple(page.doc_path for page in distrust_pages),
         note=(
-            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, comparator pressure, knowledge dossier, recommendation packet, and lab packet into one outsider-auditable review surface."
+            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, comparator pressure, knowledge dossier, recommendation packet, and lab packet into one outsider-auditable review surface while naming multiplex separately as internal support only."
         ),
     )
 
@@ -383,7 +370,7 @@ def build_elite_readiness_scorecard() -> EliteReadinessScorecard:
         entries=tuple(entries),
         repository_elite_language_allowed=False,
         repository_language_boundary=(
-            "One outsider-auditable DDA family now exists, but repository-wide elite language remains blocked until more than one flagship family survives the same public package, runtime, comparator, knowledge, decision, and lab consequence standard."
+            "Multiple workflow families are now outsider-auditable in a bounded sense, but repository-wide elite language remains blocked until more than one family survives the same standard with stronger supported comparator, grounding, and lab-consequence authority."
         ),
         scoring_basis=(
             "public benchmark package substance",
