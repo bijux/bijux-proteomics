@@ -21,6 +21,8 @@ def test_comparator_confrontation_report_currently_covers_dda_and_dia() -> None:
         KnowledgeWorkflowFamily.DIA,
         KnowledgeWorkflowFamily.LFQ,
         KnowledgeWorkflowFamily.MULTIPLEX,
+        KnowledgeWorkflowFamily.PTM,
+        KnowledgeWorkflowFamily.TARGETED,
     }
 
 
@@ -90,3 +92,39 @@ def test_multiplex_comparator_confrontation_keeps_blocked_channel_path_visible()
 
     assert blocked.outcome is ComparatorConfrontationOutcome.BLOCKED
     assert "blocked" in blocked.scientific_difference.lower()
+
+
+def test_ptm_comparator_confrontation_keeps_localization_and_ambiguity_split() -> (
+    None
+):
+    confrontation = build_workflow_comparator_confrontation(KnowledgeWorkflowFamily.PTM)
+
+    assert {finding.axis for finding in confrontation.findings} == {
+        "localization agreement",
+        "ambiguity divergence",
+        "downstream consequence differences",
+    }
+    assert any(
+        finding.outcome is ComparatorConfrontationOutcome.REPO_STRICTER
+        for finding in confrontation.findings
+    )
+
+
+def test_targeted_comparator_confrontation_admits_calibration_and_interference_loss() -> (
+    None
+):
+    confrontation = build_workflow_comparator_confrontation(
+        KnowledgeWorkflowFamily.TARGETED
+    )
+
+    weaker_axes = {
+        finding.axis
+        for finding in confrontation.findings
+        if finding.outcome is ComparatorConfrontationOutcome.REPO_WEAKER
+    }
+
+    assert weaker_axes == {
+        "calibration behavior",
+        "interference conclusions",
+    }
+    assert "Skyline-class" in confrontation.next_escalation

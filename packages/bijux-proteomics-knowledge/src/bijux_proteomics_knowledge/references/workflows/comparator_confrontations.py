@@ -284,11 +284,111 @@ def _build_multiplex_confrontation() -> WorkflowComparatorConfrontation:
     )
 
 
+def _build_ptm_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.PTM)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.PTM
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:ptm",
+        workflow_family=KnowledgeWorkflowFamily.PTM,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.MAXQUANT,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:ptm:localization_agreement",
+                axis="localization agreement",
+                outcome=ComparatorConfrontationOutcome.ALIGNED,
+                repository_position="The repository preserves localized versus ambiguous site evidence in the imported PTM review surface.",
+                comparator_position="The established PTM workflow provides the imported localization-rich evidence table that the repository normalizes and reviews.",
+                scientific_difference="Within the imported evidence boundary, the localization ladder remains aligned enough for governed PTM review.",
+                consequence_for_review="Site-localization review can stay benchmark-backed while the conversation remains inside the pinned imported evidence family.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:ptm:ambiguity_divergence",
+                axis="ambiguity divergence",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository insists that ambiguous site groups stay visible and refuses to let them harden into a clean mechanistic site claim.",
+                comparator_position="The external PTM workflow can still look stronger at a glance because the ambiguity burden is easier to miss once a site table is already emitted.",
+                scientific_difference="The repository is stricter about carrying ambiguity pressure into the final PTM interpretation.",
+                consequence_for_review="PTM packets better show why a site list is not automatically a mechanism claim.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:ptm:downstream_consequence",
+                axis="downstream consequence differences",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository can explain why PTM evidence stays bounded, but it still lacks a harder public comparator package that pressures broader PTM family diversity and downstream consequence realism.",
+                comparator_position="The external PTM workflow owns the original algorithmic behavior that generated the imported site evidence and the broader family-specific burden the repository still lacks.",
+                scientific_difference="The repository remains weaker on broader PTM comparator realism beyond the tidy imported phospho-oriented evidence package.",
+                consequence_for_review="PTM authority remains strong on explicit ambiguity handling but still narrow on public comparator breadth.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository holds the line well on PTM ambiguity honesty, but it still relies on a narrow imported comparator family and therefore remains weaker on broader downstream PTM consequence realism."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Add a harder flagship PTM package with broader family burden and external rescoring pressure so the PTM confrontation stops depending on one tidy imported evidence family."
+        ),
+    )
+
+
+def _build_targeted_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.TARGETED)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.TARGETED
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:targeted",
+        workflow_family=KnowledgeWorkflowFamily.TARGETED,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.SKYLINE,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:targeted:calibration",
+                axis="calibration behavior",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository can state calibration burden and block overconfident follow-up, but it does not yet confront real calibration curves or calibrant drift against a Skyline-class comparator package.",
+                comparator_position="The established targeted workflow owns the calibration-facing chromatogram and quantitative behavior the repository still lacks.",
+                scientific_difference="The external targeted workflow clearly beats the repository on real calibration realism today.",
+                consequence_for_review="Targeted decision-grade support remains blocked until calibration evidence becomes comparator-facing public substance.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:targeted:transition_handling",
+                axis="transition handling",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository is stronger at refusing to flatten transition-level caveats into automatic protein certainty or clean handoff optimism.",
+                comparator_position="The external targeted workflow offers the deeper transition execution surface, but that does not automatically mean it carries the repository's refusal logic into the final operator narrative.",
+                scientific_difference="The repository is stricter about keeping transition-level caution attached to the final follow-up recommendation.",
+                consequence_for_review="Transition-facing review remains more honest even though the underlying comparator package is scientifically richer.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:targeted:interference_conclusions",
+                axis="interference conclusions",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository names interference burden and blocks overclaiming, but it still has no public raw comparator bundle that proves it can read interference as well as the established targeted workflow.",
+                comparator_position="The established targeted workflow owns the chromatogram-heavy interference evidence and vendor-shaped execution burden that the repository does not yet reproduce.",
+                scientific_difference="The external targeted workflow still wins on interference realism, even though the repository is more explicit about the consequence of failure.",
+                consequence_for_review="Targeted support remains advisory because interference conclusions are not yet backed by a real public comparator bundle.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository is better at refusing overconfident targeted storytelling, but the established targeted workflow still clearly beats it on calibration and interference realism."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Build the promised Skyline-class raw comparator package so calibration curves, transition behavior, and interference conclusions are confronted on real public artifacts rather than only described."
+        ),
+    )
+
+
 _SUPPORTED_BUILDERS = {
     KnowledgeWorkflowFamily.DDA: _build_dda_confrontation,
     KnowledgeWorkflowFamily.DIA: _build_dia_confrontation,
     KnowledgeWorkflowFamily.LFQ: _build_lfq_confrontation,
     KnowledgeWorkflowFamily.MULTIPLEX: _build_multiplex_confrontation,
+    KnowledgeWorkflowFamily.PTM: _build_ptm_confrontation,
+    KnowledgeWorkflowFamily.TARGETED: _build_targeted_confrontation,
 }
 
 
