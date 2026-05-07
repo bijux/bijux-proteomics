@@ -14,6 +14,8 @@ from bijux_proteomics_lab.benchmarks import (
     build_flagship_assay_burden_report,
     build_flagship_lab_follow_up_packet,
     build_flagship_lab_follow_up_packet_family,
+    build_flagship_lab_review_board,
+    build_flagship_minimum_controls_table,
     build_flagship_not_worth_assay_report,
 )
 
@@ -121,3 +123,40 @@ def test_not_worth_assay_report_lists_interesting_but_blocked_workflows() -> Non
     }
     assert all(entry.blocker_summary for entry in report.entries)
     assert all(entry.burden_tradeoffs for entry in report.entries)
+
+
+def test_flagship_minimum_controls_table_covers_every_workflow_family() -> None:
+    table = build_flagship_minimum_controls_table()
+
+    assert table.table_id == "flagship-minimum-controls-table"
+    assert table.artifact_path.startswith("artifacts/")
+    assert {entry.workflow_family for entry in table.entries} == {
+        KnowledgeWorkflowFamily.DDA,
+        KnowledgeWorkflowFamily.DIA,
+        KnowledgeWorkflowFamily.LFQ,
+        KnowledgeWorkflowFamily.MULTIPLEX,
+        KnowledgeWorkflowFamily.PTM,
+        KnowledgeWorkflowFamily.TARGETED,
+    }
+    multiplex_entry = next(
+        entry
+        for entry in table.entries
+        if entry.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
+    )
+    assert "reference_channel" in multiplex_entry.minimum_controls
+    assert "bridge_channel" in multiplex_entry.minimum_controls
+    assert multiplex_entry.current_blockers
+
+
+def test_flagship_lab_review_board_ranks_by_science_and_operational_feasibility() -> (
+    None
+):
+    artifact = build_flagship_lab_review_board()
+
+    assert artifact.artifact_id == "flagship-lab-review-board"
+    assert artifact.artifact_path.startswith("artifacts/")
+    assert artifact.entries[0].workflow_family is KnowledgeWorkflowFamily.DDA
+    assert artifact.entries[1].workflow_family is KnowledgeWorkflowFamily.DIA
+    assert artifact.entries[-1].workflow_family is KnowledgeWorkflowFamily.PTM
+    assert artifact.entries[0].overall_priority_score >= artifact.entries[-1].overall_priority_score
+    assert all(entry.rationale for entry in artifact.entries)

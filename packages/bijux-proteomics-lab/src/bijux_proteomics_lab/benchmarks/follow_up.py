@@ -11,6 +11,7 @@ from functools import lru_cache
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     list_flagship_benchmark_reviews,
 )
@@ -21,9 +22,15 @@ from bijux_proteomics_intelligence.judgment.benchmark_packets import (
 from bijux_proteomics_intelligence.judgment.benchmark_policies import (
     BenchmarkDisposition,
 )
-from bijux_proteomics_intelligence.reviews.benchmarks import WorkflowBenchmarkReview
+from bijux_proteomics_intelligence.reviews.benchmarks import (
+    ReviewerGroundingState,
+    WorkflowBenchmarkReview,
+)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
+    ComparatorClaimSupportState,
 )
 
 __all__ = [
@@ -33,11 +40,17 @@ __all__ = [
     "FlagshipLabFollowUpPacket",
     "FlagshipLabFollowUpPacketFamily",
     "FlagshipLabPacketPosture",
+    "FlagshipLabReviewBoardArtifact",
+    "FlagshipLabReviewBoardEntry",
+    "FlagshipMinimumControlsTable",
+    "FlagshipMinimumControlsTableEntry",
     "FlagshipNotWorthAssayEntry",
     "FlagshipNotWorthAssayReport",
     "build_flagship_assay_burden_report",
     "build_flagship_lab_follow_up_packet",
     "build_flagship_lab_follow_up_packet_family",
+    "build_flagship_lab_review_board",
+    "build_flagship_minimum_controls_table",
     "build_flagship_not_worth_assay_report",
 ]
 
@@ -143,6 +156,58 @@ class FlagshipNotWorthAssayReport(JsonModel):
     report_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
     entries: tuple[FlagshipNotWorthAssayEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipMinimumControlsTableEntry(JsonModel):
+    """Per-family control and design bar for honest decision-grade packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_id: str = Field(..., min_length=1)
+    minimum_controls: tuple[str, ...] = Field(default_factory=tuple)
+    design_conditions: tuple[str, ...] = Field(default_factory=tuple)
+    decision_grade_bar: tuple[str, ...] = Field(default_factory=tuple)
+    currently_decision_grade_ready: bool
+    current_blockers: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class FlagshipMinimumControlsTable(JsonModel):
+    """Cross-family minimum-controls table for flagship lab packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    table_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipMinimumControlsTableEntry, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipLabReviewBoardEntry(JsonModel):
+    """Ranked cross-family follow-up candidate for lab review-board decisions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_id: str = Field(..., min_length=1)
+    scientific_credibility_score: float = Field(..., ge=0.0, le=1.0)
+    operational_feasibility_score: float = Field(..., ge=0.0, le=1.0)
+    overall_priority_score: float = Field(..., ge=0.0, le=1.0)
+    recommendation_posture: str = Field(..., min_length=1)
+    rationale: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class FlagshipLabReviewBoardArtifact(JsonModel):
+    """Lab-facing ranked review board artifact across flagship benchmark packages."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipLabReviewBoardEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -402,6 +467,48 @@ _FOLLOW_UP_BLUEPRINTS: dict[KnowledgeWorkflowFamily, _FollowUpBlueprint] = {
             "This packet keeps transition, calibration, and interference consequences explicit before the lab spends effort on targeted follow-up."
         ),
     ),
+    KnowledgeWorkflowFamily.MULTIPLEX: _FollowUpBlueprint(
+        suggested_assay_strategy=(
+            "Run one multiplex follow-up only if reference and bridge channels can be preserved and the carrier-load story remains quantitatively honest."
+        ),
+        exploratory_boundary=(
+            "Multiplex follow-up stays exploratory while ratio compression, bridge behavior, and design imbalance still dominate the interpretation.",
+        ),
+        decision_grade_boundary=(
+            "Decision-grade multiplex work requires stable reference or bridge channels, explicit carrier-load accounting, and a balanced label design that does not bury the claim in channel asymmetry.",
+        ),
+        extra_controls=("carrier_load_audit",),
+        design_conditions=(
+            "Keep reference and bridge channels inside the same label map used for the real samples.",
+            "Declare carrier and channel-balance assumptions before the run begins.",
+        ),
+        expected_failure_modes=(
+            "ratio compression survives the rerun and makes the quantitative story look cleaner than it is",
+            "unbalanced channel design hides the fact that the signal is structurally fragile",
+        ),
+        proceed_reasons=(
+            "Proceed only when the label map and carrier posture can be defended as part of the scientific design, not as a convenience.",
+        ),
+        stop_reasons=(
+            "Do not proceed without defended bridge or reference channels.",
+            "Do not queue the run when carrier assumptions remain opaque.",
+        ),
+        estimated_relative_cost=7.4,
+        estimated_queue_days=25,
+        confidence_gain_score=0.31,
+        dependency_chain=(
+            "reference or bridge channels",
+            "declared carrier strategy",
+            "balanced label map",
+        ),
+        tradeoffs=(
+            "Multiplex follow-up can consume substantial queue and reagent budget while still remaining quantitatively fragile.",
+            "Confidence gain is low because the benchmark review is still thin and comparator-backed support is refused.",
+        ),
+        note=(
+            "This blueprint keeps multiplex review-board scoring honest even though no dedicated packet is promoted in this tranche."
+        ),
+    ),
 }
 
 
@@ -571,5 +678,165 @@ def build_flagship_not_worth_assay_report() -> FlagshipNotWorthAssayReport:
         entries=entries,
         note=(
             "This report makes refusal visible when a benchmark path is still too weak, ambiguous, or expensive to justify action."
+        ),
+    )
+
+
+def _claim_support_score(review: WorkflowBenchmarkReview) -> float:
+    if not review.claim_summaries:
+        return 0.0
+    total = 0.0
+    for claim in review.claim_summaries:
+        if claim.support_state is SupportState.SUPPORTED:
+            total += 1.0
+        elif claim.support_state is SupportState.ADVISORY:
+            total += 0.5
+        elif claim.support_state is SupportState.AMBIGUOUS:
+            total += 0.25
+    return total / len(review.claim_summaries)
+
+
+def _comparator_score(review: WorkflowBenchmarkReview) -> float:
+    if review.public_claim_support_state is ComparatorClaimSupportState.SUPPORTED:
+        return 1.0
+    if review.public_claim_support_state is ComparatorClaimSupportState.ADVISORY:
+        return 0.55
+    return 0.0
+
+
+def _grounding_score(review: WorkflowBenchmarkReview) -> float:
+    if review.reviewer_grounding_state is ReviewerGroundingState.DECISION_GRADE:
+        return 1.0
+    if review.reviewer_grounding_state is ReviewerGroundingState.REVIEW_GRADE:
+        return 0.68
+    return 0.18
+
+
+def _burden_profile_for_family(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> FlagshipAssayBurdenProfile:
+    if workflow_family in _PACKET_FAMILIES:
+        return build_flagship_lab_follow_up_packet(workflow_family).burden_profile
+    blueprint = _FOLLOW_UP_BLUEPRINTS[workflow_family]
+    return FlagshipAssayBurdenProfile(
+        workflow_family=workflow_family,
+        estimated_relative_cost=blueprint.estimated_relative_cost,
+        estimated_queue_days=blueprint.estimated_queue_days,
+        confidence_gain_score=blueprint.confidence_gain_score,
+        dependency_chain=blueprint.dependency_chain,
+        tradeoffs=blueprint.tradeoffs,
+    )
+
+
+def _operational_feasibility_score(burden_profile: FlagshipAssayBurdenProfile) -> float:
+    cost_score = max(0.0, 1.0 - (burden_profile.estimated_relative_cost / 10.0))
+    queue_score = max(0.0, 1.0 - (burden_profile.estimated_queue_days / 30.0))
+    dependency_score = max(0.0, 1.0 - (len(burden_profile.dependency_chain) / 6.0))
+    return min(
+        1.0,
+        (
+            cost_score * 0.3
+            + queue_score * 0.2
+            + dependency_score * 0.2
+            + burden_profile.confidence_gain_score * 0.3
+        ),
+    )
+
+
+def build_flagship_minimum_controls_table() -> FlagshipMinimumControlsTable:
+    """Build the per-family minimum-controls table for decision-grade lab packets."""
+
+    entries: list[FlagshipMinimumControlsTableEntry] = []
+    for workflow_family in KnowledgeWorkflowFamily:
+        review = _reviews_by_family()[workflow_family]
+        blueprint = _FOLLOW_UP_BLUEPRINTS[workflow_family]
+        blockers: list[str] = list(review.improvement_targets[:2])
+        if review.public_claim_support_state is not ComparatorClaimSupportState.SUPPORTED:
+            blockers.append("comparator-backed public claim support is not yet supported")
+        if review.reviewer_grounding_state is not ReviewerGroundingState.DECISION_GRADE:
+            blockers.append("biological grounding is below decision-grade")
+        entries.append(
+            FlagshipMinimumControlsTableEntry(
+                workflow_family=workflow_family,
+                benchmark_id=review.benchmark_id,
+                minimum_controls=_dedupe(
+                    review.minimum_controls_required + blueprint.extra_controls
+                ),
+                design_conditions=blueprint.design_conditions,
+                decision_grade_bar=_dedupe(
+                    review.decision_grade_criteria + blueprint.decision_grade_boundary
+                ),
+                currently_decision_grade_ready=(
+                    review.public_claim_support_state
+                    is ComparatorClaimSupportState.SUPPORTED
+                    and review.reviewer_grounding_state
+                    is ReviewerGroundingState.DECISION_GRADE
+                    and review.ready_for_release_review
+                ),
+                current_blockers=_dedupe(blockers),
+            )
+        )
+    return FlagshipMinimumControlsTable(
+        table_id="flagship-minimum-controls-table",
+        artifact_path="artifacts/lab/flagship-follow-up-packets/minimum_controls.json",
+        entries=tuple(entries),
+        note=(
+            "This table names the control and design conditions that must exist before a flagship lab packet can honestly be called decision-grade."
+        ),
+    )
+
+
+def build_flagship_lab_review_board() -> FlagshipLabReviewBoardArtifact:
+    """Build the ranked lab review-board artifact across flagship benchmark packages."""
+
+    entries: list[FlagshipLabReviewBoardEntry] = []
+    for workflow_family in KnowledgeWorkflowFamily:
+        review = _reviews_by_family()[workflow_family]
+        burden_profile = _burden_profile_for_family(workflow_family)
+        scientific_credibility_score = min(
+            1.0,
+            (
+                _claim_support_score(review) * 0.45
+                + _comparator_score(review) * 0.25
+                + _grounding_score(review) * 0.2
+                + (0.1 if review.ready_for_release_review else 0.0)
+            ),
+        )
+        operational_feasibility_score = _operational_feasibility_score(burden_profile)
+        overall_priority_score = scientific_credibility_score * 0.65 + operational_feasibility_score * 0.35
+        if review.public_claim_support_state is ComparatorClaimSupportState.REFUSED:
+            overall_priority_score *= 0.82
+        if overall_priority_score >= 0.55 and review.public_claim_support_state is not ComparatorClaimSupportState.REFUSED:
+            recommendation_posture = "advance_exploratory_slot"
+        elif overall_priority_score >= 0.38:
+            recommendation_posture = "hold_until_blockers_close"
+        else:
+            recommendation_posture = "refuse_queue"
+        entries.append(
+            FlagshipLabReviewBoardEntry(
+                workflow_family=workflow_family,
+                benchmark_id=review.benchmark_id,
+                scientific_credibility_score=round(scientific_credibility_score, 4),
+                operational_feasibility_score=round(operational_feasibility_score, 4),
+                overall_priority_score=round(min(overall_priority_score, 1.0), 4),
+                recommendation_posture=recommendation_posture,
+                rationale=_dedupe(
+                    [
+                        review.reviewer_summary,
+                        *review.comparator_failure_summaries[:1],
+                        *burden_profile.tradeoffs[:1],
+                    ]
+                ),
+            )
+        )
+    ranked_entries = tuple(
+        sorted(entries, key=lambda entry: entry.overall_priority_score, reverse=True)
+    )
+    return FlagshipLabReviewBoardArtifact(
+        artifact_id="flagship-lab-review-board",
+        artifact_path="artifacts/lab/flagship-follow-up-packets/review_board.json",
+        entries=ranked_entries,
+        note=(
+            "This artifact ranks flagship follow-up candidates by scientific credibility and operational feasibility together so lab queue decisions stop being driven by excitement alone."
         ),
     )
