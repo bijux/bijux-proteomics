@@ -1,0 +1,16 @@
+{
+  "package_id": "flagship_public_package:ptm_localization_review_package",
+  "workflow_family": "ptm",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package",
+  "remote_sources": [
+    {
+      "source_id": "ptm:ascore_reference",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+      "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
+      "why_it_matters": "The flagship PTM package is judged against localization ambiguity and site-assignment caution.",
+      "availability_expectation": "The PTM localization reference should remain reachable while localization authority stays central to the package.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the PTM-localization reference page."
+    }
+  ]
+}

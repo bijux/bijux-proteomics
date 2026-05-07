@@ -1,0 +1,134 @@
+{
+  "report_id": "flagship-asset-refresh-report",
+  "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/freshness_report.json",
+  "checked_on": "2026-05-07T12:30:16.857347Z",
+  "entries": [
+    {
+      "package_id": "flagship_public_package:dda_reviewable_run",
+      "workflow_family": "dda",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run",
+      "local_paths_present": true,
+      "local_path_count": 3,
+      "remote_checks": [
+        {
+          "source_id": "dda:maxquant_reference",
+          "public_reference_url": "https://www.maxquant.org/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "dda:msfragger_reference",
+          "public_reference_url": "https://msfragger.nesvilab.org/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "dda:reference_proteome",
+          "public_reference_url": "https://www.uniprot.org",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 3,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    },
+    {
+      "package_id": "flagship_public_package:dia_library_review_package",
+      "workflow_family": "dia",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package",
+      "local_paths_present": true,
+      "local_path_count": 2,
+      "remote_checks": [
+        {
+          "source_id": "dia:spectronaut_reference",
+          "public_reference_url": "https://biognosys.com/software/spectronaut/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        },
+        {
+          "source_id": "dia:diann_reference",
+          "public_reference_url": "https://github.com/vdemichev/DiaNN",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 2,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    },
+    {
+      "package_id": "flagship_public_package:lfq_cohort_review_package",
+      "workflow_family": "lfq",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",
+      "local_paths_present": true,
+      "local_path_count": 1,
+      "remote_checks": [
+        {
+          "source_id": "lfq:normalization_reference",
+          "public_reference_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 1,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    },
+    {
+      "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+      "workflow_family": "multiplex",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
+      "local_paths_present": true,
+      "local_path_count": 1,
+      "remote_checks": [
+        {
+          "source_id": "multiplex:tmtpro_reference",
+          "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 1,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    },
+    {
+      "package_id": "flagship_public_package:ptm_localization_review_package",
+      "workflow_family": "ptm",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package",
+      "local_paths_present": true,
+      "local_path_count": 1,
+      "remote_checks": [
+        {
+          "source_id": "ptm:ascore_reference",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 1,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    },
+    {
+      "package_id": "flagship_public_package:targeted_transition_review_package",
+      "workflow_family": "targeted",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
+      "local_paths_present": true,
+      "local_path_count": 1,
+      "remote_checks": [
+        {
+          "source_id": "targeted:guideline_reference",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "status": "available",
+          "detail": "remote checks skipped by caller"
+        }
+      ],
+      "citation_count": 1,
+      "freshness_state": "ready",
+      "note": "Remote source pages stay reachable and copied snapshots still exist."
+    }
+  ],
+  "note": "The freshness report keeps remote reference availability, copied snapshot presence, and citation count visible before the repository claims stronger flagship authority."
+}

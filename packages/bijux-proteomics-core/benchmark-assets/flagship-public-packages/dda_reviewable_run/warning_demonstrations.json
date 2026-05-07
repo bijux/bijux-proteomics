@@ -1,0 +1,13 @@
+[
+  {
+    "consequence": "Protein-facing DDA claims must stay downgrade-heavy even when peptide-facing evidence looks clean, because the public comparator corpus demonstrates engine-dependent rollup behavior directly.",
+    "demonstrated_metric": 5.0,
+    "evidence_artifact_ids": [
+      "dda_reviewable_run:maxquant_export",
+      "dda_reviewable_run:msfragger_export"
+    ],
+    "metric_summary": "The pinned MaxQuant and MSFragger exports produce five material protein-inference disagreements across the shipped strategy set.",
+    "warning_id": "dda_reviewable_run:protein_rollup_engine_drift",
+    "warning_label": "protein-level agreement does not survive cross-engine rollup"
+  }
+]

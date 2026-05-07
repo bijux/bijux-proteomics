@@ -1,0 +1,20 @@
+{
+  "package_id": "flagship_public_package:dia_library_review_package",
+  "workflow_family": "dia",
+  "citations": [
+    {
+      "citation_id": "citation:diann_2020",
+      "title": "DIA-NN: neural networks and interference correction enable deep proteome coverage in high throughput",
+      "doi": "10.1038/s41592-019-0638-x",
+      "url": "https://www.nature.com/articles/s41592-019-0638-x",
+      "why_it_matters": "Anchors the DIA-NN comparator dialect in the flagship DIA package."
+    },
+    {
+      "citation_id": "citation:dia_library_limits",
+      "title": "Library-based data-independent acquisition still carries library completeness assumptions",
+      "doi": null,
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6949130/",
+      "why_it_matters": "Anchors the library-conditioned caution in the flagship DIA package."
+    }
+  ]
+}

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.benchmarks.flagship_asset_roots import flagship_asset_root
 from bijux_proteomics.identification.search_adapter_loss import (
     build_protein_inference_engine_disagreement_dossier,
     build_search_adapter_information_loss_report,
@@ -23,42 +24,20 @@ from bijux_proteomics.identification.search_adapters import (
 )
 from bijux_proteomics_foundation import JsonModel
 
-PACKAGE_ROOT = (
-    "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
-    "dda_reviewable_run"
-)
-MAXQUANT_PIPELINE_EXPORT = (
-    "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/"
-    "maxquant_pipeline_export.tsv"
-)
-MAXQUANT_SETTINGS = (
-    "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/"
-    "maxquant_settings.txt"
-)
-MSFRAGGER_PIPELINE_EXPORT = (
-    "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/"
-    "msfragger_pipeline_export.tsv"
-)
-MSFRAGGER_SETTINGS = (
-    "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/"
-    "msfragger.params"
-)
-RAW_SPECTRA = "packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf"
-EXPERIMENTAL_DESIGN = (
-    "packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv"
-)
-EXPECTATION_MANIFEST = (
-    "packages/bijux-proteomics-core/tests/fixtures/production_run/"
-    "workflow_end_to_end_expectations.json"
-)
-QUALITY_SHEET = (
-    "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
-    "dda_reviewable_run/quality_sheet.json"
-)
-LIFECYCLE_RECORD = (
-    "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
-    "dda_reviewable_run/lifecycle.json"
-)
+PACKAGE_ROOT = flagship_asset_root("dda_reviewable_run")
+MAXQUANT_PIPELINE_EXPORT = f"{PACKAGE_ROOT}/primary/maxquant_pipeline_export.tsv"
+MAXQUANT_SETTINGS = f"{PACKAGE_ROOT}/primary/maxquant_settings.txt"
+MSFRAGGER_PIPELINE_EXPORT = f"{PACKAGE_ROOT}/comparator/msfragger_pipeline_export.tsv"
+MSFRAGGER_SETTINGS = f"{PACKAGE_ROOT}/comparator/msfragger.params"
+RAW_SPECTRA = f"{PACKAGE_ROOT}/evidence/spectra.mgf"
+EXPERIMENTAL_DESIGN = f"{PACKAGE_ROOT}/evidence/design.tsv"
+EXPECTATION_MANIFEST = f"{PACKAGE_ROOT}/evidence/workflow_end_to_end_expectations.json"
+QUALITY_SHEET = f"{PACKAGE_ROOT}/quality_sheet.json"
+LIFECYCLE_RECORD = f"{PACKAGE_ROOT}/lifecycle.json"
+SOURCE_LOCATOR_MANIFEST = f"{PACKAGE_ROOT}/source_locator_manifest.json"
+CITATION_MANIFEST = f"{PACKAGE_ROOT}/citation_manifest.json"
+GENERATED_BOUNDARY = f"{PACKAGE_ROOT}/generated_boundary.json"
+REBUILD_INSTRUCTIONS = f"{PACKAGE_ROOT}/rebuild_instructions.md"
 
 
 class DdaReviewableArtifactKind(StrEnum):
@@ -424,6 +403,10 @@ def build_dda_reviewable_package() -> DdaReviewablePackage:
             f"{PACKAGE_ROOT}/artifact_inventory.json",
             QUALITY_SHEET,
             LIFECYCLE_RECORD,
+            SOURCE_LOCATOR_MANIFEST,
+            CITATION_MANIFEST,
+            GENERATED_BOUNDARY,
+            REBUILD_INSTRUCTIONS,
             f"{PACKAGE_ROOT}/scientific_invariants.json",
             f"{PACKAGE_ROOT}/warning_demonstrations.json",
         ),

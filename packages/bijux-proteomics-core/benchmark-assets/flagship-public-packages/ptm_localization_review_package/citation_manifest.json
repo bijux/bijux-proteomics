@@ -1,0 +1,13 @@
+{
+  "package_id": "flagship_public_package:ptm_localization_review_package",
+  "workflow_family": "ptm",
+  "citations": [
+    {
+      "citation_id": "citation:ascore_2006",
+      "title": "AScore: a probability-based tool for evaluating phosphorylation site localization",
+      "doi": "10.1021/ac060835b",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
+      "why_it_matters": "Anchors localization confidence and ambiguity caution in the PTM package."
+    }
+  ]
+}

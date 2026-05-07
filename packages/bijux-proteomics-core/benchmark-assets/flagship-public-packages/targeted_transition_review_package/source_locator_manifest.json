@@ -1,0 +1,16 @@
+{
+  "package_id": "flagship_public_package:targeted_transition_review_package",
+  "workflow_family": "targeted",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
+  "remote_sources": [
+    {
+      "source_id": "targeted:guideline_reference",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+      "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+      "why_it_matters": "The flagship targeted package is explicitly about transition-level QC and targeted assay discipline.",
+      "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by QC and consequence evidence.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+    }
+  ]
+}

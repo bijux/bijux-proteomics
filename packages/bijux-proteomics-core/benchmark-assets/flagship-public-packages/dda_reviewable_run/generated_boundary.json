@@ -1,0 +1,24 @@
+{
+  "package_id": "flagship_public_package:dda_reviewable_run",
+  "workflow_family": "dda",
+  "generated_boundaries": [
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/spectra.mgf",
+      "boundary_kind": "copied_snapshot",
+      "regeneration_command": "rsync the tracked spectrum snapshot from tests/fixtures into the flagship asset root",
+      "note": "The raw-like spectrum is copied from the legacy fixture source so the flagship package can own a stable local evidence copy."
+    },
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+      "boundary_kind": "generated_report",
+      "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+      "note": "The package manifest is generated from code-owned benchmark and asset-root builders."
+    },
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
+      "boundary_kind": "curated_readme",
+      "regeneration_command": "edit the README when flagship DDA authority changes and rerun the asset maintenance refresh",
+      "note": "The README is human-curated because it explains authority and limits in outsider-facing language."
+    }
+  ]
+}

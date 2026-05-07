@@ -1,0 +1,133 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "dia:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The DIA package README defines exactly where library-conditioned evidence stops and where vendor-execution parity is still absent.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
+      "row_count": null,
+      "sha256": "75e0e2b029ca78bdfa204b81abde65b85372a5d50ecfbc2f481c2393220b8de9",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The DIA manifest is the machine-readable entrypoint for the flagship library-conditioned review package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+      "row_count": null,
+      "sha256": "caf248b86e8a573e3e7643185fc69cf9606df4bc220fcb8db46a498a134fac4f",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "note": "The DIA artifact inventory keeps digests, row counts, and dependency edges explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
+      "row_count": null,
+      "sha256": "41a8e03a0d01456d564b8d9e014652f953cb00f56e0e331be28e917e8d8a744a",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The DIA quality sheet says plainly that the public package is import-backed and library-conditioned.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+      "row_count": null,
+      "sha256": "4a97c4e3c5ffe4339c86bdea907088c58dac01f7bd8c7317e3b307bfd7346e65",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The DIA lifecycle record states which missing runtime and chromatogram pressures would obsolete this package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
+      "row_count": null,
+      "sha256": "7ddf9a4d100d16b0d37455c77d9f90a3ce2f0f7a8e25ea3c03bd475658c69993",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest keeps copied DIA snapshots and public tool pages tied together in one rebuildable surface.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/source_locator_manifest.json",
+      "row_count": null,
+      "sha256": "7a65029f1c255762f519ecad2833c6e858ea06d44f568d6de41afd39cef2ccec",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest keeps library-conditioned DIA references inspectable from files alone.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/citation_manifest.json",
+      "row_count": null,
+      "sha256": "d513c940e73fafcf35e7fc9a333f31c7700eca9eea55c98bd76ad23b07ccf850",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary file says which DIA asset-root files are copied evidence versus generated metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
+      "row_count": null,
+      "sha256": "6b15969706ebe3febfbdfd4b9a6a5049b83f653503dcc80b9e2cd9d0856933ac",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions define how to refresh the DIA asset root without treating it like a hidden test bundle.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "f4ac4ae5ed2c6c9246d69364c17d2f46c1a7caec0befdab9aa3a5d23b4d678c6",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:spectronaut_report",
+      "evidence_kind": "imported_search_results",
+      "note": "The Spectronaut-style report anchors one public DIA extraction view with explicit library-conditioned assumptions.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+      "row_count": 3,
+      "sha256": "60b2d626e92541abbd2462a293117af63829cc0c96a41077fa9408dfac3609df",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:spectronaut_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "note": "The Spectronaut-style pipeline export exposes adapter field coverage and DIA review drift risk.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv",
+      "row_count": 3,
+      "sha256": "3e300fddd94f318dcac866d20f41e138badef01214ee0df44ac2cd7c09894dfd",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:spectronaut_settings",
+      "evidence_kind": "expectation_manifest",
+      "note": "Pinned settings keep library and extraction assumptions inspectable instead of implied.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt",
+      "row_count": null,
+      "sha256": "6c8eb73f7a4f54c61b498cf240c9ccd9c8ad3460899a3be176b78cd2c3eaf816",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:diann_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "note": "The DIA-NN-style export is the current external confrontation partner for library-conditioned DIA review.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+      "row_count": 3,
+      "sha256": "4d8e06e9ac5f9d57e861c70e47199149d5cdaddf1738bd90026d463672c9a9d6",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:diann_config",
+      "evidence_kind": "expectation_manifest",
+      "note": "The DIA-NN-style config snapshot keeps classifier and library assumptions visible beside the export.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json",
+      "row_count": null,
+      "sha256": "798bc7a878b0e07ac3cdb85c11c884c502bb2ac50220529d1b27a3241b667185",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone.",
+  "package_id": "flagship_public_package:dia_library_review_package"
+}

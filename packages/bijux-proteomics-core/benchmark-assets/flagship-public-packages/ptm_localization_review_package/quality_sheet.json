@@ -1,0 +1,20 @@
+{
+  "comparator_state": "public comparator-backed claim support is refused",
+  "current_readiness": "public_package_and_runtime_ready_comparator_blocked",
+  "exact_blockers": [
+    "no comparator-backed public claim support",
+    "outsider-auditable PTM authority still lacks stronger targetability and generalization closure"
+  ],
+  "exact_strengths": [
+    "localization ambiguity and raw-spectrum context are public",
+    "occupancy and targetability limits are inspectable from tracked files",
+    "runtime now executes the tracked PTM localization review path"
+  ],
+  "lab_consequence_state": "current lab packet says not worth the assay",
+  "note": "PTM now has a real public package and runtime lane, but comparator and outsider-trust closure remain blocking gaps.",
+  "package_id": "flagship_public_package:ptm_localization_review_package",
+  "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/quality_sheet.json",
+  "raw_identity_state": "localization, feature, raw-spectrum, and FASTA snapshots are tracked",
+  "runtime_state": "reviewable raw-executable runtime lane exists",
+  "workflow_family": "ptm"
+}

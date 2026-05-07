@@ -1,0 +1,65 @@
+[
+  {
+    "artifact_id": "dda_reviewable_run:raw_spectra",
+    "artifact_kind": "raw_spectra",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/spectra.mgf",
+    "reviewer_note": "One raw-like tandem spectrum keeps the package tied to inspectable fragment evidence.",
+    "row_count": null,
+    "sha256": "cbdcdfb849094cd912238117b8e9f1d7af1402006bd268d094b97c7b4f4d05f6",
+    "spectra_count": 1
+  },
+  {
+    "artifact_id": "dda_reviewable_run:experimental_design",
+    "artifact_kind": "experimental_design",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
+    "reviewer_note": "The design table records instrument, batch, and engine context for the reviewable run.",
+    "row_count": 1,
+    "sha256": "59a5f9786b825bca78ab9e046a07de06baf76ba484b6cd3acb3a64b0ba013c0d",
+    "spectra_count": null
+  },
+  {
+    "artifact_id": "dda_reviewable_run:expectation_manifest",
+    "artifact_kind": "expectation_manifest",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/workflow_end_to_end_expectations.json",
+    "reviewer_note": "The expectation manifest states which workflow surfaces must exist before the package counts as reviewable.",
+    "row_count": null,
+    "sha256": "eb3cc977dc0d9488ea6c2af34ec18d47c19a6109f76049a6467904a94cb97e01",
+    "spectra_count": null
+  },
+  {
+    "artifact_id": "dda_reviewable_run:maxquant_export",
+    "artifact_kind": "primary_search_export",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+    "reviewer_note": "This is the primary imported DDA result set; it replaces the old fake-export benchmark placeholder.",
+    "row_count": 3,
+    "sha256": "e4e83e3d45817dded49899f201b5933ac30dfd61355a1246f111549afc82f427",
+    "spectra_count": null
+  },
+  {
+    "artifact_id": "dda_reviewable_run:maxquant_settings",
+    "artifact_kind": "primary_search_settings",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_settings.txt",
+    "reviewer_note": "The MaxQuant settings file exposes the pinned enzyme, tolerances, and decoy prefix.",
+    "row_count": null,
+    "sha256": "316e724b20c228655b7203dde70f644c55e966e9f74d1be93bcffc0fcbbd6b02",
+    "spectra_count": null
+  },
+  {
+    "artifact_id": "dda_reviewable_run:msfragger_export",
+    "artifact_kind": "comparator_search_export",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
+    "reviewer_note": "The comparator export is shipped alongside the primary path so warning pressure is visible in files, not only in prose.",
+    "row_count": 3,
+    "sha256": "fb6fbbb6d104dda343db8eb0d084904f246e477661278610346168a7db9c1e24",
+    "spectra_count": null
+  },
+  {
+    "artifact_id": "dda_reviewable_run:msfragger_settings",
+    "artifact_kind": "comparator_search_settings",
+    "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger.params",
+    "reviewer_note": "The comparator settings file keeps the alternate search space and tolerance assumptions inspectable.",
+    "row_count": null,
+    "sha256": "8809282534bb9eb321a264992d07a8ccb5e687faa90485e8d06ce89f7cbde3d2",
+    "spectra_count": null
+  }
+]

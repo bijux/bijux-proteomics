@@ -1,0 +1,17 @@
+{
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "lifecycle_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
+  "note": "The targeted package is real and public now, but it should be replaced by a runtime-backed targeted flagship package when one exists.",
+  "obsolescence_triggers": [
+    "Targeted QC schema, follow-up packet rules, or calibration expectations change without package refresh.",
+    "A runtime-backed targeted package becomes available."
+  ],
+  "package_id": "flagship_public_package:targeted_transition_review_package",
+  "retirement_conditions": [
+    "Retire this package when a stronger targeted package adds runtime and comparator closure.",
+    "Retire this package from flagship authority if transition-control claims widen past the current QC and follow-up evidence bed."
+  ],
+  "successor_package_id": null,
+  "workflow_family": "targeted"
+}

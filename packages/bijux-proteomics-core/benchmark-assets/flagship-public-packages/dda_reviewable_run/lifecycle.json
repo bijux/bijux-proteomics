@@ -1,0 +1,17 @@
+{
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "lifecycle_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/lifecycle.json",
+  "note": "The DDA package stays current only while its raw-like and paired-export boundary remains the actual flagship proof center.",
+  "obsolescence_triggers": [
+    "DDA exported-result dialects change without refreshing the paired package artifacts.",
+    "The package remains one-run only while broader DDA release claims expand."
+  ],
+  "package_id": "flagship_public_package:dda_reviewable_run",
+  "retirement_conditions": [
+    "Retire this package from flagship authority when a broader multi-run DDA package replaces it.",
+    "Retire this package from outsider release leadership if the paired comparator export or warning ledger goes stale."
+  ],
+  "successor_package_id": null,
+  "workflow_family": "dda"
+}

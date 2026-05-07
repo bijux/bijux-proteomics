@@ -1,0 +1,19 @@
+{
+  "comparator_state": "Spectronaut-versus-DIA-NN confrontation is shipped",
+  "current_readiness": "public_package_ready_but_library_conditioned",
+  "exact_blockers": [
+    "no chromatogram-level vendor parity",
+    "library incompleteness and absent-peptide consequences still block broader biological confidence"
+  ],
+  "exact_strengths": [
+    "paired DIA exported-result surfaces make library assumptions inspectable",
+    "runtime and comparator identity are both visible from tracked files"
+  ],
+  "lab_consequence_state": "lab packet exists but remains exploratory-only",
+  "note": "DIA now has a real public package, but it still stops at library-conditioned import review.",
+  "package_id": "flagship_public_package:dia_library_review_package",
+  "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+  "raw_identity_state": "library-conditioned exported-result snapshots are tracked",
+  "runtime_state": "reviewable import-only runtime lane exists",
+  "workflow_family": "dia"
+}

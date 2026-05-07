@@ -1,0 +1,349 @@
+{
+  "contract_id": "flagship-asset-root-contract",
+  "contract_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/asset_root_contract.json",
+  "entries": [
+    {
+      "package_id": "flagship_public_package:dda_reviewable_run",
+      "workflow_family": "dda",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/rebuild_instructions.md",
+      "expected_wall_time_minutes": 6,
+      "expected_disk_footprint_mb": 8,
+      "known_license_limits": [
+        "The tracked DDA package currently ships checked exported-result snapshots, not live MaxQuant or MSFragger executables."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "dda:maxquant_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
+          "public_reference_url": "https://www.maxquant.org/",
+          "why_it_matters": "MaxQuant defines the primary imported DDA result dialect for the current flagship package.",
+          "availability_expectation": "The MaxQuant project page should remain reachable while the imported-result dialect stays part of flagship DDA proof.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the project source page, not a downloadable binary."
+        },
+        {
+          "source_id": "dda:msfragger_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
+          "public_reference_url": "https://msfragger.nesvilab.org/",
+          "why_it_matters": "MSFragger defines the comparator dialect used for the flagship DDA cross-engine warning surface.",
+          "availability_expectation": "The MSFragger project page should remain reachable while comparator-backed DDA proof depends on it.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the project source page, not an executable redistribution path."
+        },
+        {
+          "source_id": "dda:reference_proteome",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
+          "public_reference_url": "https://www.uniprot.org",
+          "why_it_matters": "The DDA package relies on reference proteome context to keep peptide and protein review grounded.",
+          "availability_expectation": "UniProt should remain reachable while the reference grounding claim stays in force.",
+          "license_note": "Public availability check targets the reference resource page used by the package README and citation manifest."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:target_decoy_2007",
+          "title": "Significance analysis of shotgun proteomics data",
+          "doi": "10.1038/nmeth1019",
+          "url": "https://www.nature.com/articles/nmeth1019",
+          "why_it_matters": "Anchors target-decoy caution in the flagship DDA package."
+        },
+        {
+          "citation_id": "citation:protein_inference_2012",
+          "title": "Computational solutions for mass spectrometry-based protein inference",
+          "doi": "10.1074/mcp.R111.014795",
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3494198/",
+          "why_it_matters": "Anchors protein-inference caution in the flagship DDA package."
+        },
+        {
+          "citation_id": "citation:uniprot_2025",
+          "title": "UniProt: the Universal Protein Knowledgebase in 2025",
+          "doi": "10.1093/nar/gkae1010",
+          "url": "https://www.uniprot.org",
+          "why_it_matters": "Anchors the reference proteome context named in the package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/spectra.mgf",
+          "boundary_kind": "copied_snapshot",
+          "regeneration_command": "rsync the tracked spectrum snapshot from tests/fixtures into the flagship asset root",
+          "note": "The raw-like spectrum is copied from the legacy fixture source so the flagship package can own a stable local evidence copy."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The package manifest is generated from code-owned benchmark and asset-root builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when flagship DDA authority changes and rerun the asset maintenance refresh",
+          "note": "The README is human-curated because it explains authority and limits in outsider-facing language."
+        }
+      ]
+    },
+    {
+      "package_id": "flagship_public_package:dia_library_review_package",
+      "workflow_family": "dia",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/rebuild_instructions.md",
+      "expected_wall_time_minutes": 7,
+      "expected_disk_footprint_mb": 8,
+      "known_license_limits": [
+        "The DIA package currently ships imported report snapshots and settings, not live vendor chromatogram execution."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "dia:spectronaut_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+          "public_reference_url": "https://biognosys.com/software/spectronaut/",
+          "why_it_matters": "Spectronaut defines the primary library-conditioned DIA evidence dialect carried by the flagship package.",
+          "availability_expectation": "The Spectronaut product page should remain reachable while the package stays anchored to this import surface.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the product reference page."
+        },
+        {
+          "source_id": "dia:diann_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
+          "public_reference_url": "https://github.com/vdemichev/DiaNN",
+          "why_it_matters": "DIA-NN defines the comparator dialect used in the flagship DIA confrontation.",
+          "availability_expectation": "The DIA-NN project page should remain reachable while confrontation-backed DIA proof depends on it.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the public project page."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:diann_2020",
+          "title": "DIA-NN: neural networks and interference correction enable deep proteome coverage in high throughput",
+          "doi": "10.1038/s41592-019-0638-x",
+          "url": "https://www.nature.com/articles/s41592-019-0638-x",
+          "why_it_matters": "Anchors the DIA-NN comparator dialect in the flagship DIA package."
+        },
+        {
+          "citation_id": "citation:dia_library_limits",
+          "title": "Library-based data-independent acquisition still carries library completeness assumptions",
+          "doi": null,
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6949130/",
+          "why_it_matters": "Anchors the library-conditioned caution in the flagship DIA package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The DIA package manifest is generated from shared builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when the DIA authority boundary changes and rerun the asset maintenance refresh",
+          "note": "The README is curated because it names library-conditioned limits in outsider-facing language."
+        }
+      ]
+    },
+    {
+      "package_id": "flagship_public_package:lfq_cohort_review_package",
+      "workflow_family": "lfq",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/rebuild_instructions.md",
+      "expected_wall_time_minutes": 5,
+      "expected_disk_footprint_mb": 5,
+      "known_license_limits": [
+        "The LFQ package currently ships cohort-shaped feature and design snapshots, not a second raw cohort or spike-in truth package."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "lfq:normalization_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+          "public_reference_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
+          "why_it_matters": "The flagship LFQ package is judged against cohort-scale missingness and normalization expectations, not toy abundance matrices.",
+          "availability_expectation": "The public normalization and missingness reference should remain reachable while LFQ authority remains bounded by cohort-shaped evidence.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the public methodology reference."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:lfq_missingness_reference",
+          "title": "Missing value imputation and quantitative reproducibility remain central LFQ trust pressures",
+          "doi": null,
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
+          "why_it_matters": "Anchors the cohort-scale missingness and reproducibility caution in the LFQ package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The LFQ package manifest is generated from shared builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when LFQ authority changes and rerun the asset maintenance refresh",
+          "note": "The README is curated because it explains current LFQ trust boundaries in human language."
+        }
+      ]
+    },
+    {
+      "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+      "workflow_family": "multiplex",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/rebuild_instructions.md",
+      "expected_wall_time_minutes": 5,
+      "expected_disk_footprint_mb": 4,
+      "known_license_limits": [
+        "The multiplex package currently ships TMTpro-shaped feature and design snapshots, not a raw vendor acquisition replay."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "multiplex:tmtpro_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+          "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
+          "why_it_matters": "The flagship multiplex package is explicitly about TMTpro channel pressure and reference-channel design.",
+          "availability_expectation": "The TMTpro product reference should remain reachable while the package stays tied to TMTpro chemistry claims.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the chemistry reference page."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:multiplex_ratio_compression",
+          "title": "Ratio compression and interference remain central multiplex interpretation pressures",
+          "doi": null,
+          "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5001537/",
+          "why_it_matters": "Anchors the ratio-compression and interference caution in the multiplex package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The multiplex package manifest is generated from shared builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when multiplex authority changes and rerun the asset maintenance refresh",
+          "note": "The README is curated because it explains chemistry-specific authority and limits."
+        }
+      ]
+    },
+    {
+      "package_id": "flagship_public_package:ptm_localization_review_package",
+      "workflow_family": "ptm",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/rebuild_instructions.md",
+      "expected_wall_time_minutes": 6,
+      "expected_disk_footprint_mb": 6,
+      "known_license_limits": [
+        "The PTM package currently ships localization and occupancy snapshots, not live rescoring or broad PTM-family execution parity."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "ptm:ascore_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
+          "why_it_matters": "The flagship PTM package is judged against localization ambiguity and site-assignment caution.",
+          "availability_expectation": "The PTM localization reference should remain reachable while localization authority stays central to the package.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the PTM-localization reference page."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:ascore_2006",
+          "title": "AScore: a probability-based tool for evaluating phosphorylation site localization",
+          "doi": "10.1021/ac060835b",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
+          "why_it_matters": "Anchors localization confidence and ambiguity caution in the PTM package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The PTM package manifest is generated from shared builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when PTM authority changes and rerun the asset maintenance refresh",
+          "note": "The README is curated because it names ambiguity and targetability limits in human language."
+        }
+      ]
+    },
+    {
+      "package_id": "flagship_public_package:targeted_transition_review_package",
+      "workflow_family": "targeted",
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
+      "expected_wall_time_minutes": 5,
+      "expected_disk_footprint_mb": 4,
+      "known_license_limits": [
+        "The targeted package currently ships transition QC and consequence packet snapshots, not live vendor chromatogram execution or external calibration reruns."
+      ],
+      "remote_sources": [
+        {
+          "source_id": "targeted:guideline_reference",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+          "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "why_it_matters": "The flagship targeted package is explicitly about transition-level QC and targeted assay discipline.",
+          "availability_expectation": "The targeted assay guideline reference should remain reachable while targeted authority remains bounded by QC and consequence evidence.",
+          "license_note": "The local file is a tracked snapshot; public availability check targets the targeted-guideline reference page."
+        }
+      ],
+      "citations": [
+        {
+          "citation_id": "citation:targeted_guideline_2011",
+          "title": "Guidelines for performing targeted proteomics assays",
+          "doi": null,
+          "url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+          "why_it_matters": "Anchors transition-level QC and follow-up discipline in the targeted package."
+        }
+      ],
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+          "note": "The targeted package manifest is generated from shared builders."
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "regeneration_command": "edit the README when targeted authority changes and rerun the asset maintenance refresh",
+          "note": "The README is curated because it explains targeted consequence and calibration limits in human language."
+        }
+      ]
+    }
+  ],
+  "note": "The flagship asset-root contract tells maintainers where each public package lives, how to rebuild it, which copied snapshots it depends on, and what public references keep the package scientifically interpretable."
+}

@@ -1,0 +1,124 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "ptm:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The PTM package README explains what ambiguity, localization, and targetability limits still stay in force.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/README.md",
+      "row_count": null,
+      "sha256": "e38e11fed56ab8fdc3ecc6c4825d74ef1474fc43871afb1242bde6d4e94a2fd6",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The PTM manifest is the machine-readable boundary for the localization review package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json",
+      "row_count": null,
+      "sha256": "ad6bd4228110e492a2cacc99526ddcebeba000a046d003d3f31f2c06509e9bff",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "note": "The PTM artifact inventory keeps localization, occupancy, raw-spectrum, and FASTA context visible together.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/artifact_inventory.json",
+      "row_count": null,
+      "sha256": "8b8f66f60caa7083aa164c41ea5a1bc8ab461d1d2e834226c9978c7bf52de8fd",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The PTM quality sheet makes clear that the package is real and inspectable but still blocked by runtime and comparator gaps.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/quality_sheet.json",
+      "row_count": null,
+      "sha256": "37909e60543a71bdf3ea0e3073ca54665b52d7edf7083b44d2dd0aad120087a3",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The PTM lifecycle record states which rescoring, runtime, and PTM-family breadth upgrades would obsolete this package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/lifecycle.json",
+      "row_count": null,
+      "sha256": "7d18d1672991fa6d85df7b5cfd2173c0f5b8c3c118856ae7c7f96233fbb8e235",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest keeps copied PTM evidence and public localization references rebuildable.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/source_locator_manifest.json",
+      "row_count": null,
+      "sha256": "629e216cdbdba8d6f96ceb075d31f0742902d097518478f1d5cc30e543844274",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest keeps PTM localization references explicit in the asset root itself.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/citation_manifest.json",
+      "row_count": null,
+      "sha256": "70120504edb7369e0f4f549088440d68539cf2ce4e0be9ec5ff4c932156eebd6",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary file distinguishes copied PTM evidence from generated package metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/generated_boundary.json",
+      "row_count": null,
+      "sha256": "d49be00571e82d48428111f741d1ca00e77f8f9ed75d9eae971dd0c5dbaae723",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions define how to refresh the PTM asset root without treating it like test collateral.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "c957d7df6fb6254795664d66e2ea5e7b5163a864e453ba17a26cafe9851c7bbb",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:localization_table",
+      "evidence_kind": "ptm_localization_table",
+      "note": "Localization results keep ambiguous-site handling tied to tracked PTM evidence.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
+      "row_count": 8,
+      "sha256": "a711e01b793af64df1c24802a661a53eb8c88a7d5abee2b66cd7fab89cc054d1",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:ptm_feature_table",
+      "evidence_kind": "quant_feature_table",
+      "note": "PTM feature intensities keep occupancy interpretation grounded in tracked quantitative evidence.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv",
+      "row_count": 12,
+      "sha256": "b82315f3faf721e357c61d679b2e3df3de510a0ca71dd200af38c229e751fe93",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:reference_fasta",
+      "evidence_kind": "reference_fasta",
+      "note": "Reference sequence context preserves site coordinates and residue identity.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta",
+      "row_count": null,
+      "sha256": "e88abeb1cc950f7b839a32db2eca4b52eae97348bee9587cda066da313912a40",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "ptm:raw_spectra",
+      "evidence_kind": "raw_spectra",
+      "note": "Raw spectra keep fragment-linked PTM validation tied to a concrete evidence surface.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/spectra.mgf",
+      "row_count": null,
+      "sha256": "cbdcdfb849094cd912238117b8e9f1d7af1402006bd268d094b97c7b4f4d05f6",
+      "spectra_count": 1
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/artifact_inventory.json",
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone.",
+  "package_id": "flagship_public_package:ptm_localization_review_package"
+}

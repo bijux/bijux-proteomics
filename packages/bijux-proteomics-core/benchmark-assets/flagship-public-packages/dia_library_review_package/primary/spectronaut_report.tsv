@@ -1,0 +1,4 @@
+EG.PrecursorId	PEP.StrippedSequence	FG.Charge	EG.Cscore	PG.ProteinAccessions	EG.IsDecoy
+sn-corpus-1001	PEPTIDE	2	0.985	P81111;Q81112	false
+sn-corpus-1002	PEPTIDER	3	0.941	P82222	false
+sn-corpus-1003	DECOYPEP	2	0.510	DECOY_P83333	true

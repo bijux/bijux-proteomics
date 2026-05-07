@@ -13,6 +13,9 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.benchmarks.flagship_asset_roots import (
+    flagship_asset_root,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -22,10 +25,14 @@ class FlagshipPublicEvidenceKind(StrEnum):
     ARTIFACT_INVENTORY = "artifact_inventory"
     BENCHMARK_PACKAGE_MANIFEST = "benchmark_package_manifest"
     BENCHMARK_README = "benchmark_readme"
+    CITATION_MANIFEST = "citation_manifest"
     FOLLOW_UP_PACKET = "follow_up_packet"
+    GENERATED_BOUNDARY_MANIFEST = "generated_boundary_manifest"
     PACKAGE_LIFECYCLE_RECORD = "package_lifecycle_record"
     PACKAGE_QUALITY_SHEET = "package_quality_sheet"
     RAW_SPECTRA = "raw_spectra"
+    REBUILD_INSTRUCTIONS = "rebuild_instructions"
+    SOURCE_LOCATOR_MANIFEST = "source_locator_manifest"
     IMPORTED_SEARCH_RESULTS = "imported_search_results"
     QUANT_FEATURE_TABLE = "quant_feature_table"
     PTM_LOCALIZATION_TABLE = "ptm_localization_table"
@@ -61,6 +68,10 @@ class FlagshipPublicBenchmarkPackage(JsonModel):
     artifact_inventory_path: str = Field(..., min_length=1)
     quality_sheet_path: str = Field(..., min_length=1)
     lifecycle_record_path: str = Field(..., min_length=1)
+    source_locator_manifest_path: str = Field(..., min_length=1)
+    citation_manifest_path: str = Field(..., min_length=1)
+    generated_boundary_path: str = Field(..., min_length=1)
+    rebuild_instructions_path: str = Field(..., min_length=1)
     replaced_proof_surface: str = Field(..., min_length=1)
     public_dataset_identity: str = Field(..., min_length=1)
     runtime_availability: str = Field(..., min_length=1)
@@ -206,10 +217,7 @@ def _lifecycle_path(package_root: str) -> str:
 
 
 def _package_root(dir_name: str) -> str:
-    return (
-        "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
-        f"{dir_name}"
-    )
+    return flagship_asset_root(dir_name)
 
 
 def _package_manifest_path(package_root: str) -> str:
@@ -222,6 +230,22 @@ def _artifact_inventory_path(package_root: str) -> str:
 
 def _readme_path(package_root: str) -> str:
     return f"{package_root}/README.md"
+
+
+def _source_locator_manifest_path(package_root: str) -> str:
+    return f"{package_root}/source_locator_manifest.json"
+
+
+def _citation_manifest_path(package_root: str) -> str:
+    return f"{package_root}/citation_manifest.json"
+
+
+def _generated_boundary_path(package_root: str) -> str:
+    return f"{package_root}/generated_boundary.json"
+
+
+def _rebuild_instructions_path(package_root: str) -> str:
+    return f"{package_root}/rebuild_instructions.md"
 
 
 def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
@@ -268,6 +292,38 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest says exactly which copied snapshots and public reference pages make the DDA package rebuildable."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps the public scientific references explicit instead of burying them in prose."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file tells outsiders which DDA package files are copied snapshots, generated metadata, or hand-curated explanation."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions turn the DDA package from a static tree into a governed asset root."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="scientific_invariants",
             path=f"{package_root}/scientific_invariants.json",
             evidence_kind=FlagshipPublicEvidenceKind.SCIENTIFIC_INVARIANT_LEDGER,
@@ -285,7 +341,7 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="spectra",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
+            path=f"{package_root}/evidence/spectra.mgf",
             evidence_kind=FlagshipPublicEvidenceKind.RAW_SPECTRA,
             public_identity_note=(
                 "Raw tandem spectra keep the flagship DDA package tied to inspectable evidence rather than a closed export alone."
@@ -293,7 +349,7 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="primary_search_results",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
+            path=f"{package_root}/primary/maxquant_pipeline_export.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
                 "The primary MaxQuant export anchors the reviewable runtime import lane in a governed checked-in result table."
@@ -301,7 +357,7 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="comparator_search_results",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
+            path=f"{package_root}/comparator/msfragger_pipeline_export.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
                 "The paired MSFragger export keeps cross-engine DDA warning pressure public and reviewable."
@@ -309,7 +365,7 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="experimental_design",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
+            path=f"{package_root}/evidence/design.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
             public_identity_note=(
                 "Design metadata keeps downstream review tied to the actual sample structure."
@@ -317,7 +373,7 @@ def _dda_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="expectation_manifest",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/workflow_end_to_end_expectations.json",
+            path=f"{package_root}/evidence/workflow_end_to_end_expectations.json",
             evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
             public_identity_note=(
                 "Workflow expectations keep the flagship package linked to explicit review and runtime outputs."
@@ -370,8 +426,40 @@ def _dia_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest keeps copied DIA snapshots and public tool pages tied together in one rebuildable surface."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps library-conditioned DIA references inspectable from files alone."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file says which DIA asset-root files are copied evidence versus generated metadata."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions define how to refresh the DIA asset root without treating it like a hidden test bundle."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="spectronaut_report",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+            path=f"{package_root}/primary/spectronaut_report.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
                 "The Spectronaut-style report anchors one public DIA extraction view with explicit library-conditioned assumptions."
@@ -379,7 +467,7 @@ def _dia_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="spectronaut_pipeline_export",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_pipeline_export.tsv",
+            path=f"{package_root}/primary/spectronaut_pipeline_export.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
                 "The Spectronaut-style pipeline export exposes adapter field coverage and DIA review drift risk."
@@ -387,7 +475,7 @@ def _dia_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="spectronaut_settings",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_settings.txt",
+            path=f"{package_root}/primary/spectronaut_settings.txt",
             evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
             public_identity_note=(
                 "Pinned settings keep library and extraction assumptions inspectable instead of implied."
@@ -395,7 +483,7 @@ def _dia_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="diann_pipeline_export",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
+            path=f"{package_root}/comparator/diann_pipeline_export.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.IMPORTED_SEARCH_RESULTS,
             public_identity_note=(
                 "The DIA-NN-style export is the current external confrontation partner for library-conditioned DIA review."
@@ -403,7 +491,7 @@ def _dia_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="diann_config",
-            path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_config.json",
+            path=f"{package_root}/comparator/diann_config.json",
             evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
             public_identity_note=(
                 "The DIA-NN-style config snapshot keeps classifier and library assumptions visible beside the export."
@@ -456,8 +544,40 @@ def _lfq_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest makes the copied LFQ cohort snapshots and public method references rebuildable."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps LFQ missingness and normalization references explicit."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file distinguishes copied cohort evidence from generated LFQ package metadata."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions define how to refresh the LFQ asset root as a product surface rather than a test helper."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="feature_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+            path=f"{package_root}/evidence/study_scale_ms1_features.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.QUANT_FEATURE_TABLE,
             public_identity_note=(
                 "The study-scale MS1 table is the current public quantitative evidence bed for LFQ review."
@@ -465,7 +585,7 @@ def _lfq_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="design_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv",
+            path=f"{package_root}/evidence/study_scale.design.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
             public_identity_note=(
                 "The cohort-shaped design table keeps replicate, batch, and instrument structure explicit."
@@ -473,7 +593,7 @@ def _lfq_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="reproducibility_manifest",
-            path="packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
+            path=f"{package_root}/evidence/quant_reproducibility_manifest.json",
             evidence_kind=FlagshipPublicEvidenceKind.EXPECTATION_MANIFEST,
             public_identity_note=(
                 "The reproducibility manifest keeps bounded repeatability outputs pinned beside the study-scale evidence."
@@ -526,8 +646,40 @@ def _multiplex_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest keeps copied multiplex evidence and chemistry references rebuildable."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps the multiplex chemistry and ratio-compression references explicit."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file distinguishes copied multiplex evidence from generated package metadata."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions define how to refresh the multiplex asset root as a durable product surface."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="feature_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+            path=f"{package_root}/evidence/multiplex_ms1_features.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.QUANT_FEATURE_TABLE,
             public_identity_note=(
                 "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files."
@@ -535,7 +687,7 @@ def _multiplex_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="design_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+            path=f"{package_root}/evidence/multiplex.design.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.EXPERIMENTAL_DESIGN,
             public_identity_note=(
                 "The multiplex design table preserves pooled-reference roles and channel assignments."
@@ -588,8 +740,40 @@ def _ptm_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest keeps copied PTM evidence and public localization references rebuildable."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps PTM localization references explicit in the asset root itself."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file distinguishes copied PTM evidence from generated package metadata."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions define how to refresh the PTM asset root without treating it like test collateral."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="localization_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+            path=f"{package_root}/evidence/localization_results.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.PTM_LOCALIZATION_TABLE,
             public_identity_note=(
                 "Localization results keep ambiguous-site handling tied to tracked PTM evidence."
@@ -597,7 +781,7 @@ def _ptm_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="ptm_feature_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/ptm/ptm_features.tsv",
+            path=f"{package_root}/evidence/ptm_features.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.QUANT_FEATURE_TABLE,
             public_identity_note=(
                 "PTM feature intensities keep occupancy interpretation grounded in tracked quantitative evidence."
@@ -605,7 +789,7 @@ def _ptm_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="reference_fasta",
-            path="packages/bijux-proteomics-core/tests/fixtures/fasta/ptm_sites.fasta",
+            path=f"{package_root}/evidence/ptm_sites.fasta",
             evidence_kind=FlagshipPublicEvidenceKind.REFERENCE_FASTA,
             public_identity_note=(
                 "Reference sequence context preserves site coordinates and residue identity."
@@ -613,7 +797,7 @@ def _ptm_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="raw_spectra",
-            path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
+            path=f"{package_root}/evidence/spectra.mgf",
             evidence_kind=FlagshipPublicEvidenceKind.RAW_SPECTRA,
             public_identity_note=(
                 "Raw spectra keep fragment-linked PTM validation tied to a concrete evidence surface."
@@ -666,8 +850,40 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
             ),
         ),
         FlagshipPublicBenchmarkAsset(
+            asset_role="source_locator_manifest",
+            path=_source_locator_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.SOURCE_LOCATOR_MANIFEST,
+            public_identity_note=(
+                "The source locator manifest keeps copied targeted QC evidence and public assay references rebuildable."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="citation_manifest",
+            path=_citation_manifest_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.CITATION_MANIFEST,
+            public_identity_note=(
+                "The citation manifest keeps targeted assay discipline references explicit inside the asset root."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="generated_boundary",
+            path=_generated_boundary_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.GENERATED_BOUNDARY_MANIFEST,
+            public_identity_note=(
+                "The generated boundary file distinguishes copied targeted evidence from generated metadata."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
+            asset_role="rebuild_instructions",
+            path=_rebuild_instructions_path(package_root),
+            evidence_kind=FlagshipPublicEvidenceKind.REBUILD_INSTRUCTIONS,
+            public_identity_note=(
+                "The rebuild instructions define how to refresh the targeted asset root as a product evidence surface."
+            ),
+        ),
+        FlagshipPublicBenchmarkAsset(
             asset_role="targeted_qc_table",
-            path="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+            path=f"{package_root}/evidence/targeted_benchmark_qc.tsv",
             evidence_kind=FlagshipPublicEvidenceKind.TARGETED_QC_TABLE,
             public_identity_note=(
                 "Transition-level QC evidence is the tracked base layer for the targeted public package."
@@ -675,7 +891,7 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="approved_follow_up",
-            path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json",
+            path=f"{package_root}/follow_up/supported_targeted_follow_up.json",
             evidence_kind=FlagshipPublicEvidenceKind.FOLLOW_UP_PACKET,
             public_identity_note=(
                 "The approved targeted follow-up packet shows the current strongest operator-facing consequence of the package."
@@ -683,7 +899,7 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="failed_follow_up",
-            path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json",
+            path=f"{package_root}/follow_up/failed_targeted_transition_follow_up.json",
             evidence_kind=FlagshipPublicEvidenceKind.FOLLOW_UP_PACKET,
             public_identity_note=(
                 "The failed follow-up packet keeps control and transition failure pressure in the public package."
@@ -691,7 +907,7 @@ def _targeted_assets() -> tuple[FlagshipPublicBenchmarkAsset, ...]:
         ),
         FlagshipPublicBenchmarkAsset(
             asset_role="refused_follow_up",
-            path="packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
+            path=f"{package_root}/follow_up/refused_targeted_follow_up.json",
             evidence_kind=FlagshipPublicEvidenceKind.FOLLOW_UP_PACKET,
             public_identity_note=(
                 "The refused follow-up packet stops weak targeted science from looking executable by omission."
@@ -713,6 +929,10 @@ def build_flagship_dda_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="legacy_fixture_bundle:dda_mini_study",
         public_dataset_identity=(
             "tracked raw-like spectrum plus paired MaxQuant and MSFragger exported-result snapshots inside one outsider-readable DDA package"
@@ -754,6 +974,10 @@ def build_flagship_dia_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="curated_fixture_bundle:dia_library_extraction_bundle",
         public_dataset_identity=(
             "tracked Spectronaut-style and DIA-NN-style exported-result snapshots with explicit library-conditioned settings and confrontation scope"
@@ -794,11 +1018,15 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:lfq_tidy_matrix_only",
         public_dataset_identity=(
             "tracked study-scale feature and cohort-design snapshots with explicit missingness and repeatability boundaries"
         ),
-        runtime_availability="no flagship runtime lane is wired yet",
+        runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="external comparator confrontation exists but decision-grade claim support is still refused",
         source_assets=_lfq_assets(),
         expected_review_artifacts=(
@@ -816,7 +1044,7 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "LFQ credibility is now anchored in a public cohort-style package with feature, design, and reproducibility surfaces instead of a tidy closed matrix story."
         ),
         note=(
-            "This package makes LFQ evidence inspectable from tracked files, but runtime execution and stronger comparator closure are still missing."
+            "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-auditable LFQ authority still depends on stronger comparator and generalization closure."
         ),
     )
 
@@ -834,11 +1062,15 @@ def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchma
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:multiplex_channel_fixture",
         public_dataset_identity=(
             "tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure"
         ),
-        runtime_availability="no flagship runtime lane is wired yet",
+        runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="external confrontation exists, but runtime-linked outsider proof is absent",
         source_assets=_multiplex_assets(),
         expected_review_artifacts=(
@@ -855,7 +1087,7 @@ def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchma
             "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape."
         ),
         note=(
-            "This package makes multiplex chemistry and channel evidence public, but it does not yet have a flagship runtime lane or outsider release packet."
+            "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-facing multiplex consequence and trust closure still lag behind the chemistry surface."
         ),
     )
 
@@ -873,11 +1105,15 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:ptm_localization_only",
         public_dataset_identity=(
             "tracked localization, PTM feature, raw-spectrum, and sequence-context snapshots with explicit ambiguity limits"
         ),
-        runtime_availability="no flagship runtime lane is wired yet",
+        runtime_availability="raw-executable runtime lane exists and is reviewable",
         comparator_availability="public comparator-backed claim support is still refused",
         source_assets=_ptm_assets(),
         expected_review_artifacts=(
@@ -895,7 +1131,7 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "PTM credibility is now anchored in a public localization review package with raw-spectrum and feature context instead of a hidden fixture-only contract."
         ),
         note=(
-            "This package makes PTM evidence inspectable from files, but runtime execution and comparator closure remain blocked."
+            "This package now has a product-owned asset root and a raw-executable runtime lane, but comparator-backed and outsider-auditable PTM authority remain blocked."
         ),
     )
 
@@ -913,11 +1149,15 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
         artifact_inventory_path=_artifact_inventory_path(package_root),
         quality_sheet_path=_quality_path(package_root),
         lifecycle_record_path=_lifecycle_path(package_root),
+        source_locator_manifest_path=_source_locator_manifest_path(package_root),
+        citation_manifest_path=_citation_manifest_path(package_root),
+        generated_boundary_path=_generated_boundary_path(package_root),
+        rebuild_instructions_path=_rebuild_instructions_path(package_root),
         replaced_proof_surface="closed_fixture_bundle:targeted_transition_control_bundle",
         public_dataset_identity=(
             "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots"
         ),
-        runtime_availability="no flagship runtime truth row is published yet",
+        runtime_availability="import-only runtime lane exists and is reviewable",
         comparator_availability="public comparator-backed claim support is still refused",
         source_assets=_targeted_assets(),
         expected_review_artifacts=(
@@ -934,7 +1174,7 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
             "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture."
         ),
         note=(
-            "This package makes targeted transition evidence public, but runtime execution and comparator closure are still behind the package surface."
+            "This package now has a product-owned asset root and a reviewable import-only runtime lane, but raw-executable and comparator-backed targeted authority still trail the package surface."
         ),
     )
 
@@ -1027,76 +1267,80 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             workflow_family="lfq",
             quality_path=_quality_path(_package_root("lfq_cohort_review_package")),
             raw_identity_state="study-scale cohort-like feature and design snapshots are tracked",
-            runtime_state="no flagship runtime lane is wired yet",
+            runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="confrontation exists but release-facing claim support remains refused",
             lab_consequence_state="current lab packet says not worth the assay",
-            current_readiness="public_package_ready_runtime_blocked",
+            current_readiness="public_package_and_runtime_ready_comparator_blocked",
             exact_strengths=(
                 "cohort design and missingness evidence are public and inspectable",
                 "repeatability boundary is visible instead of implied",
+                "runtime now executes the tracked LFQ cohort review path",
             ),
             exact_blockers=(
-                "no flagship runtime lane",
                 "no stronger public truth package for accuracy beyond repeatability",
+                "outsider-auditable LFQ authority still lacks stronger comparator and generalization closure",
             ),
-            note="LFQ package substance is now public, but runtime and decision-grade trust remain behind it.",
+            note="LFQ package substance and runtime execution are both real now, but decision-grade outsider trust still remains behind them.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:multiplex_tmtpro_review_package",
             workflow_family="multiplex",
             quality_path=_quality_path(_package_root("multiplex_tmtpro_review_package")),
             raw_identity_state="TMTpro feature and channel-design snapshots are tracked",
-            runtime_state="no flagship runtime lane is wired yet",
+            runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="external confrontation exists but outsider release proof is still thinner than DDA",
             lab_consequence_state="no multiplex lab consequence packet is shipped",
-            current_readiness="public_package_ready_runtime_and_lab_blocked",
+            current_readiness="public_package_and_runtime_ready_lab_blocked",
             exact_strengths=(
                 "reporter-channel and pooled-reference roles are explicit in tracked files",
                 "ratio-compression and missing-channel pressure are public package concerns rather than hidden caveats",
+                "runtime now executes the tracked multiplex review path",
             ),
             exact_blockers=(
-                "no flagship runtime lane",
                 "no multiplex lab packet or outsider review packet family",
+                "no explicit public outsider trust surface for multiplex yet",
             ),
-            note="Multiplex now has a real public package, but runtime and downstream consequence layers still lag behind it.",
+            note="Multiplex now has a real public package and runtime lane, but downstream consequence and outsider trust layers still lag behind it.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:ptm_localization_review_package",
             workflow_family="ptm",
             quality_path=_quality_path(_package_root("ptm_localization_review_package")),
             raw_identity_state="localization, feature, raw-spectrum, and FASTA snapshots are tracked",
-            runtime_state="no flagship runtime lane is wired yet",
+            runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="public comparator-backed claim support is refused",
             lab_consequence_state="current lab packet says not worth the assay",
-            current_readiness="public_package_ready_runtime_and_comparator_blocked",
+            current_readiness="public_package_and_runtime_ready_comparator_blocked",
             exact_strengths=(
                 "localization ambiguity and raw-spectrum context are public",
                 "occupancy and targetability limits are inspectable from tracked files",
+                "runtime now executes the tracked PTM localization review path",
             ),
             exact_blockers=(
-                "no flagship runtime lane",
                 "no comparator-backed public claim support",
+                "outsider-auditable PTM authority still lacks stronger targetability and generalization closure",
             ),
-            note="PTM now has a real public package, but runtime and comparator closure remain blocking gaps.",
+            note="PTM now has a real public package and runtime lane, but comparator and outsider-trust closure remain blocking gaps.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:targeted_transition_review_package",
             workflow_family="targeted",
             quality_path=_quality_path(_package_root("targeted_transition_review_package")),
             raw_identity_state="transition QC and approved/failed/refused consequence packet snapshots are tracked",
-            runtime_state="no flagship runtime truth row is published yet",
+            runtime_state="reviewable import-only runtime lane exists",
             comparator_state="public comparator-backed claim support is refused",
             lab_consequence_state="lab packet family exists but current posture remains not worth the assay",
-            current_readiness="public_package_ready_runtime_and_comparator_blocked",
+            current_readiness="public_package_ready_import_runtime_and_comparator_blocked",
             exact_strengths=(
                 "approved, failed, and refused targeted consequences are all public package artifacts",
                 "transition-level QC remains the primary tracked evidence surface",
+                "runtime now preserves a reviewable import-only targeted path",
             ),
             exact_blockers=(
-                "no flagship runtime truth row",
+                "runtime still stops at import-backed targeted review",
                 "no comparator-backed targeted claim support",
             ),
-            note="Targeted now has a real public package, but runtime execution and comparator closure still trail the package surface.",
+            note="Targeted now has a real public package and import-backed runtime lane, but raw-executable and comparator closure still trail the package surface.",
         ),
     )
 

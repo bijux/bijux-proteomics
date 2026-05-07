@@ -1,0 +1,110 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
+  "claim_scope": "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture.",
+  "comparator_availability": "public comparator-backed claim support is still refused",
+  "expected_review_artifacts": [
+    "artifacts/workflows/reviewable-proteomics/lab/follow_up_packet.json",
+    "artifacts/workflows/reviewable-proteomics/core/targeted_qc_review.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
+  "note": "This package now has a product-owned asset root and a reviewable import-only runtime lane, but raw-executable and comparator-backed targeted authority still trail the package surface.",
+  "package_id": "flagship_public_package:targeted_transition_review_package",
+  "package_label": "Flagship public targeted transition review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
+  "public_dataset_identity": "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "closed_fixture_bundle:targeted_transition_control_bundle",
+  "runtime_availability": "import-only runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "transition reproducibility",
+    "calibration absence",
+    "interference risk",
+    "premature protein certainty"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
+      "public_identity_note": "The targeted package README makes transition-level value and vendor-parity gaps explicit."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+      "public_identity_note": "The targeted manifest is the machine-readable anchor for the transition-control review package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
+      "public_identity_note": "The targeted artifact inventory keeps QC tables and approved/failed/refused follow-up packets together."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
+      "public_identity_note": "The targeted quality sheet says directly that package evidence is ahead of runtime execution and comparator closure."
+    },
+    {
+      "asset_role": "lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
+      "public_identity_note": "The targeted lifecycle record names the calibration, interference, and runtime upgrades needed before stronger claims are allowed."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest keeps copied targeted QC evidence and public assay references rebuildable."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest keeps targeted assay discipline references explicit inside the asset root."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary file distinguishes copied targeted evidence from generated metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions define how to refresh the targeted asset root as a product evidence surface."
+    },
+    {
+      "asset_role": "targeted_qc_table",
+      "evidence_kind": "targeted_qc_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+      "public_identity_note": "Transition-level QC evidence is the tracked base layer for the targeted public package."
+    },
+    {
+      "asset_role": "approved_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+      "public_identity_note": "The approved targeted follow-up packet shows the current strongest operator-facing consequence of the package."
+    },
+    {
+      "asset_role": "failed_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json",
+      "public_identity_note": "The failed follow-up packet keeps control and transition failure pressure in the public package."
+    },
+    {
+      "asset_role": "refused_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json",
+      "public_identity_note": "The refused follow-up packet stops weak targeted science from looking executable by omission."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
+  "workflow_family": "targeted"
+}
