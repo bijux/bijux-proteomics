@@ -459,6 +459,55 @@ class TargetedWorkflowBoundaryReport(JsonModel):
     refusal_reason: str | None = None
 
 
+class TargetedPlatformSupportState(StrEnum):
+    """Practical support posture for one targeted platform and method combination."""
+
+    SUPPORTED = "supported"
+    PARTIAL = "partial"
+    REFUSED = "refused"
+
+
+class TargetedPlatformAssumptionInput(JsonModel):
+    """Method, platform, and assumption context for targeted follow-up support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    platform_id: str = Field(..., min_length=1)
+    method: TargetedWorkflowMethod
+    has_transition_list: bool
+    has_retention_windows: bool
+    has_collision_energy_profile: bool
+    has_instrument_method_template: bool
+    has_heavy_reference: bool
+    has_calibration_standards: bool
+    has_vendor_tuning_profile: bool
+
+
+class TargetedPlatformSupportEntry(JsonModel):
+    """One platform support entry with explicit missing assumptions and partial rules."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    platform_id: str = Field(..., min_length=1)
+    method: TargetedWorkflowMethod
+    support_state: TargetedPlatformSupportState
+    required_assumptions: tuple[str, ...] = Field(default_factory=tuple)
+    missing_assumptions: tuple[str, ...] = Field(default_factory=tuple)
+    partial_support_definition: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
+class TargetedPlatformSupportMatrixReport(JsonModel):
+    """Support matrix over targeted method/platform assumptions."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[TargetedPlatformSupportEntry, ...] = Field(default_factory=tuple)
+    supported_count: int = Field(..., ge=0)
+    partial_count: int = Field(..., ge=0)
+    refused_count: int = Field(..., ge=0)
+
+
 def evaluate_targeted_workflow_boundary(
     payload: TargetedWorkflowBoundaryInput,
 ) -> TargetedWorkflowBoundaryReport:
@@ -495,6 +544,86 @@ def evaluate_targeted_workflow_boundary(
         supported=True,
         assumptions=tuple(assumptions),
         refusal_reason=None,
+    )
+
+
+def build_targeted_platform_support_matrix(
+    payloads: tuple[TargetedPlatformAssumptionInput, ...],
+) -> TargetedPlatformSupportMatrixReport:
+    """Classify targeted platform support with explicit partial and refusal boundaries."""
+
+    entries: list[TargetedPlatformSupportEntry] = []
+    required_assumptions = (
+        "transition_list",
+        "retention_windows",
+        "collision_energy_profile",
+        "instrument_method_template",
+        "heavy_reference",
+        "calibration_standards",
+        "vendor_tuning_profile",
+    )
+    hard_blocking = {
+        "transition_list",
+        "retention_windows",
+        "collision_energy_profile",
+    }
+    for payload in payloads:
+        observed = {
+            "transition_list": payload.has_transition_list,
+            "retention_windows": payload.has_retention_windows,
+            "collision_energy_profile": payload.has_collision_energy_profile,
+            "instrument_method_template": payload.has_instrument_method_template,
+            "heavy_reference": payload.has_heavy_reference,
+            "calibration_standards": payload.has_calibration_standards,
+            "vendor_tuning_profile": payload.has_vendor_tuning_profile,
+        }
+        missing = tuple(
+            name for name in required_assumptions if not observed[name]
+        )
+        if any(name in hard_blocking for name in missing):
+            support_state = TargetedPlatformSupportState.REFUSED
+            note = (
+                "targeted follow-up is refused because the method lacks one or more hard assay preconditions"
+            )
+        elif missing:
+            support_state = TargetedPlatformSupportState.PARTIAL
+            note = (
+                "targeted follow-up remains reviewable, but platform-specific standards or templates are still incomplete"
+            )
+        else:
+            support_state = TargetedPlatformSupportState.SUPPORTED
+            note = (
+                "targeted follow-up satisfies transition, timing, standards, heavy-reference, and platform-tuning assumptions"
+            )
+        entries.append(
+            TargetedPlatformSupportEntry(
+                platform_id=payload.platform_id,
+                method=payload.method,
+                support_state=support_state,
+                required_assumptions=required_assumptions,
+                missing_assumptions=missing,
+                partial_support_definition=(
+                    "partial targeted support means the assay is specific enough to review, but missing templates, heavy references, calibration standards, "
+                    "or vendor tuning still block strong platform-ready follow-up claims"
+                ),
+                note=note,
+            )
+        )
+
+    supported_count = sum(
+        entry.support_state is TargetedPlatformSupportState.SUPPORTED
+        for entry in entries
+    )
+    partial_count = sum(
+        entry.support_state is TargetedPlatformSupportState.PARTIAL
+        for entry in entries
+    )
+    refused_count = len(entries) - supported_count - partial_count
+    return TargetedPlatformSupportMatrixReport(
+        entries=tuple(entries),
+        supported_count=supported_count,
+        partial_count=partial_count,
+        refused_count=refused_count,
     )
 
 
