@@ -77,7 +77,7 @@ def _resolve_reference(doc_path: Path, reference: str) -> Path:
 def _should_track_reference(doc_path: Path, reference: str) -> bool:
     if reference.startswith("packages/"):
         return True
-    return "packages" in doc_path.parts
+    return reference.startswith("src/")
 
 
 def collect_source_path_references() -> tuple[SourcePathReference, ...]:

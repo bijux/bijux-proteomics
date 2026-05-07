@@ -38,11 +38,11 @@ This page should make release support feel like a pre-publication proof chain. T
 
 ## First Proof Check
 
-- `src/bijux_proteomics_dev/release/version_resolver.py`
-- `src/bijux_proteomics_dev/release/changelog_version.py`
-- `src/bijux_proteomics_dev/release/publication_guard.py`
-- `src/bijux_proteomics_dev/release/scientific_readiness.py`
-- `src/bijux_proteomics_dev/release/ssot_readiness.py`
+- `src/bijux_proteomics_dev/release/versioning/version_resolver.py`
+- `src/bijux_proteomics_dev/release/versioning/changelog_version.py`
+- `src/bijux_proteomics_dev/release/governance/publication_guard.py`
+- `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
+- `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
 - `configs/package-governance/scientific-release-workflows.toml`
 
 ## Scientific Proof Chain

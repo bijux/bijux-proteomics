@@ -19,6 +19,6 @@ Diagnostics should reveal whether a failure belongs to this package or to a neig
 
 ## First Proof Check
 
-- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
-- `src/bijux_proteomics_lab/repositories.py` and `serialization.py`
+- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
+- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
 - `packages/bijux-proteomics-lab/tests`

@@ -35,8 +35,8 @@ understanding stop lining up.
 ## First Proof Check
 
 - `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
-- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/packets.py`
 
 ## Design Pressure
 

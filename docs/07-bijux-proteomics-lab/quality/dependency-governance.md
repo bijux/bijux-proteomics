@@ -43,8 +43,8 @@ This page should help reviewers keep the lab package honest. A dependency is ris
 ## First Proof Check
 
 - `packages/bijux-proteomics-lab/tests`
-- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
-- `src/bijux_proteomics_lab/repositories.py` and `serialization.py`
+- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
+- `src/bijux_proteomics_lab/reconciliation/follow_up.py` and `serialization.py`
 
 ## Design Pressure
 

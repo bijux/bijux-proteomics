@@ -19,6 +19,6 @@ CLI documentation should describe the commands the package truly owns, not the c
 
 ## First Proof Check
 
-- `src/bijux_proteomics_lab/planning.py` and `outcomes.py`
-- `src/bijux_proteomics_lab/schema.py` and `serialization.py`
+- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py`
+- `src/bijux_proteomics_lab/design/protocols.py`, `handoffs/artifacts.py`, and `handoffs/serialization.py`
 - `packages/bijux-proteomics-lab/tests`
