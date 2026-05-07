@@ -49,14 +49,14 @@ Per-family artifacts:
 
 ## Current Runtime Families
 
-| Workflow | Runtime package id | Current lane |
+| Workflow | Runtime package id | Current lane | Proof class |
 | --- | --- | --- |
-| `dda` | `dda-maxquant-pipeline-corpus` | strict import lane over tracked MaxQuant exports |
-| `dia` | `dia-diann-pipeline-corpus` | strict import lane over tracked DIA-NN exports |
-| `lfq` | `lfq-cohort-review-corpus` | raw-executable review lane over tracked feature and design tables |
-| `multiplex` | `multiplex-tmtpro-review-corpus` | raw-executable review lane over tracked channel feature and design tables |
-| `ptm` | `ptm-localization-review-corpus` | raw-executable review lane over tracked localization, feature, and FASTA evidence |
-| `targeted` | `targeted-transition-review-corpus` | strict import-facing review lane over tracked QC and follow-up artifacts |
+| `dda` | `dda-maxquant-pipeline-corpus` | strict import lane over tracked MaxQuant exports | `import_backed_execution` |
+| `dia` | `dia-diann-pipeline-corpus` | strict import lane over tracked DIA-NN exports | `import_backed_execution` |
+| `lfq` | `lfq-cohort-review-corpus` | raw-executable review lane over tracked feature and design tables | `raw_execution` |
+| `multiplex` | `multiplex-tmtpro-review-corpus` | raw-executable review lane over tracked channel feature and design tables | `raw_execution` |
+| `ptm` | `ptm-localization-review-corpus` | raw-executable review lane over tracked localization, feature, and FASTA evidence | `raw_execution` |
+| `targeted` | `targeted-transition-review-corpus` | strict import-facing review lane over tracked QC and follow-up artifacts | `import_backed_execution` |
 
 ## What These Bundles Authorize
 
@@ -71,3 +71,7 @@ Per-family artifacts:
 These bundles prove runtime execution and runtime traceability. They do not
 automatically upgrade knowledge, comparator, recommendation, or lab authority.
 Use the cross-family bundle to see those downstream owners directly.
+
+When the question becomes whether a lane is raw, import-backed, replay-backed,
+or simulation-only, continue with
+`docs/09-bijux-proteomics-runtime/runtime-proof-accounting.md`.
