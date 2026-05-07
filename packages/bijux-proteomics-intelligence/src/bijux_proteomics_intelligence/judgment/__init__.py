@@ -5,8 +5,25 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.judgment.canonical_reviews import *  # noqa: F401,F403
-from bijux_proteomics_intelligence.judgment.paths import *  # noqa: F401,F403
-from bijux_proteomics_intelligence.judgment.policies import *  # noqa: F401,F403
-from bijux_proteomics_intelligence.judgment.recommendations import *  # noqa: F401,F403
-from bijux_proteomics_intelligence.judgment.scenarios import *  # noqa: F401,F403
+from importlib import import_module
+from typing import Any
+
+_JUDGMENT_MODULES = (
+    "bijux_proteomics_intelligence.judgment.canonical_reviews",
+    "bijux_proteomics_intelligence.judgment.paths",
+    "bijux_proteomics_intelligence.judgment.policies",
+    "bijux_proteomics_intelligence.judgment.recommendations",
+    "bijux_proteomics_intelligence.judgment.scenarios",
+)
+
+__all__: list[str] = []
+
+
+def __getattr__(name: str) -> Any:
+    """Load judgment exports lazily so package import stays cycle-safe."""
+
+    for module_name in _JUDGMENT_MODULES:
+        module = import_module(module_name)
+        if hasattr(module, name):
+            return getattr(module, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
