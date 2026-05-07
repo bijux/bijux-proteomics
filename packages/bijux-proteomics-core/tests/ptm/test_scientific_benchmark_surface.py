@@ -6,13 +6,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
 from bijux_proteomics.ptm.benchmarks import (
     PtmLocalizationConfidenceTier,
+    build_ptm_ambiguity_propagation_benchmark_report,
     build_ptm_localization_confidence_benchmark_report,
 )
+from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -67,3 +70,30 @@ def test_ptm_localization_confidence_benchmark_report_scores_decisive_and_ambigu
     assert decisive.fragment_ion_count >= 2
     assert ambiguous.ambiguity_present is True
     assert report.ambiguous_count >= 1
+
+
+def test_ptm_ambiguity_propagation_benchmark_report_downgrades_ambiguous_sites() -> (
+    None
+):
+    parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        parsed.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    sites = build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
+
+    report = build_ptm_ambiguity_propagation_benchmark_report(
+        sites,
+        feature_records=features,
+    )
+
+    propagated = next(entry for entry in report.entries if entry.propagated_to_quant)
+    interpretive_only = next(entry for entry in report.entries if entry.interpretive_only)
+
+    assert propagated.localization_ambiguous is True
+    assert propagated.ambiguous_occupancy_count >= 1
+    assert interpretive_only.missing_counterpart_count >= 0
+    assert report.interpretive_only_count >= 1

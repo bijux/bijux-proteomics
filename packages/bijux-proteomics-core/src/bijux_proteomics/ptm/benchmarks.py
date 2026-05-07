@@ -9,8 +9,17 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.ptm import PtmEvidenceRecord, PtmProteinSiteMapping
-from bijux_proteomics.ptm.review import build_ptm_site_localization_evidence_graph
+from bijux_proteomics.ptm import (
+    PtmEvidenceRecord,
+    PtmOccupancyUncertainty,
+    PtmProteinSiteMapping,
+    PtmSiteEntry,
+)
+from bijux_proteomics.ptm.review import (
+    build_ptm_occupancy_counterpart_report,
+    build_ptm_site_localization_evidence_graph,
+)
+from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -51,6 +60,33 @@ class PtmLocalizationConfidenceBenchmarkReport(JsonModel):
     ambiguous_count: int = Field(..., ge=0)
     refused_count: int = Field(..., ge=0)
     ready_for_site_level_claims: bool
+
+
+class PtmAmbiguityPropagationBenchmarkEntry(JsonModel):
+    """How site ambiguity propagates into downstream PTM quant interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    localization_ambiguous: bool
+    occupancy_sample_count: int = Field(..., ge=0)
+    ambiguous_occupancy_count: int = Field(..., ge=0)
+    missing_counterpart_count: int = Field(..., ge=0)
+    propagated_to_quant: bool
+    interpretive_only: bool
+    note: str = Field(..., min_length=1)
+
+
+class PtmAmbiguityPropagationBenchmarkReport(JsonModel):
+    """Benchmark whether PTM ambiguity truly downgrades downstream interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PtmAmbiguityPropagationBenchmarkEntry, ...] = Field(
+        default_factory=tuple
+    )
+    propagated_site_count: int = Field(..., ge=0)
+    interpretive_only_count: int = Field(..., ge=0)
 
 
 def build_ptm_localization_confidence_benchmark_report(
@@ -120,5 +156,63 @@ def build_ptm_localization_confidence_benchmark_report(
                 PtmLocalizationConfidenceTier.SUPPORTED,
             }
             for entry in entries
+        ),
+    )
+
+
+def build_ptm_ambiguity_propagation_benchmark_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+) -> PtmAmbiguityPropagationBenchmarkReport:
+    """Benchmark how unresolved PTM localization propagates into occupancy claims."""
+
+    occupancy_report = build_ptm_occupancy_counterpart_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+    occupancy_by_site: dict[str, list] = {}
+    for entry in occupancy_report.entries:
+        occupancy_by_site.setdefault(entry.site_key, []).append(entry)
+    report_entries: list[PtmAmbiguityPropagationBenchmarkEntry] = []
+    for site_entry in site_entries:
+        occupancy_entries = occupancy_by_site.get(site_entry.site_key, [])
+        ambiguous_occupancy_count = sum(
+            1
+            for entry in occupancy_entries
+            if entry.uncertainty is PtmOccupancyUncertainty.AMBIGUOUS_SITE
+        )
+        missing_counterpart_count = sum(
+            1
+            for entry in occupancy_entries
+            if entry.uncertainty is PtmOccupancyUncertainty.MISSING_COUNTERPART
+        )
+        propagated = site_entry.ambiguous and ambiguous_occupancy_count > 0
+        interpretive_only = site_entry.ambiguous or missing_counterpart_count > 0
+        report_entries.append(
+            PtmAmbiguityPropagationBenchmarkEntry(
+                site_key=site_entry.site_key,
+                localization_ambiguous=site_entry.ambiguous,
+                occupancy_sample_count=len(occupancy_entries),
+                ambiguous_occupancy_count=ambiguous_occupancy_count,
+                missing_counterpart_count=missing_counterpart_count,
+                propagated_to_quant=propagated,
+                interpretive_only=interpretive_only,
+                note=(
+                    "localization ambiguity propagated into occupancy uncertainty"
+                    if propagated
+                    else "site-level occupancy remains usable only within its explicit caveats"
+                    if interpretive_only
+                    else "site-level occupancy remains aligned with resolved localization"
+                ),
+            )
+        )
+    return PtmAmbiguityPropagationBenchmarkReport(
+        entries=tuple(report_entries),
+        propagated_site_count=sum(
+            1 for entry in report_entries if entry.propagated_to_quant
+        ),
+        interpretive_only_count=sum(
+            1 for entry in report_entries if entry.interpretive_only
         ),
     )
