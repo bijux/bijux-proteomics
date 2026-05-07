@@ -1,0 +1,17 @@
+{
+  "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "workflow_family": "multiplex",
+  "lifecycle_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/lifecycle.json",
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "obsolescence_triggers": [
+    "TMTpro channel mappings or multiplex design assumptions change without package refresh.",
+    "A runtime-backed multiplex package becomes available."
+  ],
+  "retirement_conditions": [
+    "Retire this package when a stronger multiplex package adds runtime and lab consequence closure.",
+    "Retire this package from flagship authority if chemistry claims widen beyond the current TMTpro evidence bed."
+  ],
+  "successor_package_id": null,
+  "note": "The multiplex package is public now, but it still needs runtime and consequence-bearing layers before it can lead broader trust language."
+}

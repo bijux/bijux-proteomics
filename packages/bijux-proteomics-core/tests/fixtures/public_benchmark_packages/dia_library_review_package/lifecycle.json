@@ -1,0 +1,17 @@
+{
+  "package_id": "flagship_public_package:dia_library_review_package",
+  "workflow_family": "dia",
+  "lifecycle_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/lifecycle.json",
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "obsolescence_triggers": [
+    "Library-conditioned export dialects or settings change without package refresh.",
+    "A chromatogram-level runtime or vendor-parity package becomes available."
+  ],
+  "retirement_conditions": [
+    "Retire this package when a broader chromatogram-backed DIA package replaces it.",
+    "Retire this package from flagship authority if the confrontation no longer covers the current DIA review story."
+  ],
+  "successor_package_id": null,
+  "note": "The DIA package is a serious current package, but it should be replaced once chromatogram-level public proof becomes feasible."
+}

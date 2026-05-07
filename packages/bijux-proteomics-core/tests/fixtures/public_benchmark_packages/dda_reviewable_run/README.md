@@ -17,6 +17,8 @@ Tracked package metadata lives beside this file:
 
 - `package_manifest.json`
 - `artifact_inventory.json`
+- `quality_sheet.json`
+- `lifecycle.json`
 - `scientific_invariants.json`
 - `warning_demonstrations.json`
 

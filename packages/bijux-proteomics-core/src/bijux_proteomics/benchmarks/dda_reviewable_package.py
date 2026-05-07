@@ -51,6 +51,14 @@ EXPECTATION_MANIFEST = (
     "packages/bijux-proteomics-core/tests/fixtures/production_run/"
     "workflow_end_to_end_expectations.json"
 )
+QUALITY_SHEET = (
+    "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
+    "dda_reviewable_run/quality_sheet.json"
+)
+LIFECYCLE_RECORD = (
+    "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/"
+    "dda_reviewable_run/lifecycle.json"
+)
 
 
 class DdaReviewableArtifactKind(StrEnum):
@@ -414,6 +422,8 @@ def build_dda_reviewable_package() -> DdaReviewablePackage:
             f"{PACKAGE_ROOT}/README.md",
             f"{PACKAGE_ROOT}/package_manifest.json",
             f"{PACKAGE_ROOT}/artifact_inventory.json",
+            QUALITY_SHEET,
+            LIFECYCLE_RECORD,
             f"{PACKAGE_ROOT}/scientific_invariants.json",
             f"{PACKAGE_ROOT}/warning_demonstrations.json",
         ),

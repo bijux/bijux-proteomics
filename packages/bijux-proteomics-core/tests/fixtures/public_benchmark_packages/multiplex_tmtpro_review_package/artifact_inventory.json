@@ -1,0 +1,70 @@
+{
+  "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "inventory_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/artifact_inventory.json",
+  "artifacts": [
+    {
+      "artifact_id": "multiplex:package_readme",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/README.md",
+      "evidence_kind": "benchmark_readme",
+      "sha256": "46cea1a5a7771400317171f6719f771ee462920ededc977c8997756a5fd46ca6",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The multiplex package README states exactly which TMTpro chemistry claims are earned and which production-scale claims stay blocked."
+    },
+    {
+      "artifact_id": "multiplex:package_manifest",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/package_manifest.json",
+      "evidence_kind": "benchmark_package_manifest",
+      "sha256": "3baab812e85fb29446834733f680e174ed237da407e6214ad268bb384486c682",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The multiplex manifest is the machine-readable entrypoint for the TMTpro stress package."
+    },
+    {
+      "artifact_id": "multiplex:artifact_inventory",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/artifact_inventory.json",
+      "evidence_kind": "artifact_inventory",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The multiplex artifact inventory keeps channel evidence, design metadata, and digest checks visible."
+    },
+    {
+      "artifact_id": "multiplex:quality_sheet",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/quality_sheet.json",
+      "evidence_kind": "package_quality_sheet",
+      "sha256": "8b1298ad5f40e6aa8538ab8bd0109249b2547fb1baacbe58ca257dfca423b8ee",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The multiplex quality sheet makes the package’s chemistry strength and runtime weakness visible at a glance."
+    },
+    {
+      "artifact_id": "multiplex:lifecycle_record",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/lifecycle.json",
+      "evidence_kind": "package_lifecycle_record",
+      "sha256": "91b41ab69129c8aeb55f6e50d83f090bbddb9819385e0c8f8b34aa8b1df422f7",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The multiplex lifecycle record names the channel and carrier pressures that would obsolete this package."
+    },
+    {
+      "artifact_id": "multiplex:feature_table",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+      "evidence_kind": "quant_feature_table",
+      "sha256": "54ef1f14ff94f9bbfdb4430e940b641ac3d6c31e13d3f71c8566c5dd1b63f48b",
+      "row_count": 12,
+      "spectra_count": null,
+      "note": "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files."
+    },
+    {
+      "artifact_id": "multiplex:design_table",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+      "evidence_kind": "experimental_design",
+      "sha256": "a87b46b35974161d55b64096017d182658948100fcfb4ab598689ec037860363",
+      "row_count": 6,
+      "spectra_count": null,
+      "note": "The multiplex design table preserves pooled-reference roles and channel assignments."
+    }
+  ],
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone."
+}

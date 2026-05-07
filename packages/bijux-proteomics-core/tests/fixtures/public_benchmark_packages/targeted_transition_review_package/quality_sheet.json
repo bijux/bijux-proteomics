@@ -1,0 +1,19 @@
+{
+  "package_id": "flagship_public_package:targeted_transition_review_package",
+  "workflow_family": "targeted",
+  "quality_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/quality_sheet.json",
+  "raw_identity_state": "transition QC and approved/failed/refused consequence packet snapshots are tracked",
+  "runtime_state": "no flagship runtime truth row is published yet",
+  "comparator_state": "public comparator-backed claim support is refused",
+  "lab_consequence_state": "lab packet family exists but current posture remains not worth the assay",
+  "current_readiness": "public_package_ready_runtime_and_comparator_blocked",
+  "exact_strengths": [
+    "approved, failed, and refused targeted consequences are all public package artifacts",
+    "transition-level QC remains the primary tracked evidence surface"
+  ],
+  "exact_blockers": [
+    "no flagship runtime truth row",
+    "no comparator-backed targeted claim support"
+  ],
+  "note": "Targeted now has a real public package, but runtime execution and comparator closure still trail the package surface."
+}

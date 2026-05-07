@@ -61,5 +61,23 @@
     "row_count": null,
     "spectra_count": null,
     "reviewer_note": "The comparator settings file keeps the alternate search space and tolerance assumptions inspectable."
+  },
+  {
+    "artifact_id": "dda_reviewable_run:quality_sheet",
+    "artifact_kind": "package_quality_sheet",
+    "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/quality_sheet.json",
+    "sha256": "d7fb54548396751270e3f204f74488c4722d03212335ea524feddb768b7b41ba",
+    "row_count": null,
+    "spectra_count": null,
+    "reviewer_note": "The quality sheet states current raw identity, runtime, comparator, and lab consequence readiness for the DDA package."
+  },
+  {
+    "artifact_id": "dda_reviewable_run:lifecycle_record",
+    "artifact_kind": "package_lifecycle_record",
+    "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/lifecycle.json",
+    "sha256": "d7fbf855413df2734d433902a58384e853bbaa9e8de3adcdff8d0a853c153115",
+    "row_count": null,
+    "spectra_count": null,
+    "reviewer_note": "The lifecycle record states when the DDA package goes stale and what broader package should replace it."
   }
 ]

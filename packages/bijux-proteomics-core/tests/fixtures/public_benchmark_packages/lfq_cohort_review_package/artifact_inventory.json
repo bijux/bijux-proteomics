@@ -1,0 +1,79 @@
+{
+  "package_id": "flagship_public_package:lfq_cohort_review_package",
+  "inventory_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/artifact_inventory.json",
+  "artifacts": [
+    {
+      "artifact_id": "lfq:package_readme",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/README.md",
+      "evidence_kind": "benchmark_readme",
+      "sha256": "796fcd7858668249836f3b09b75f202c2380431cbe44a00a5d86ce190af15ca0",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The LFQ package README names the cohort-shaped evidence, missingness burden, and the current runtime gap."
+    },
+    {
+      "artifact_id": "lfq:package_manifest",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/package_manifest.json",
+      "evidence_kind": "benchmark_package_manifest",
+      "sha256": "747863985b73342f4aa47e2c7cca72f1c13f3d566bb2a952bc5bc58493a6e378",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The LFQ manifest is the machine-readable anchor for the study-scale public review package."
+    },
+    {
+      "artifact_id": "lfq:artifact_inventory",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/artifact_inventory.json",
+      "evidence_kind": "artifact_inventory",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together."
+    },
+    {
+      "artifact_id": "lfq:quality_sheet",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/quality_sheet.json",
+      "evidence_kind": "package_quality_sheet",
+      "sha256": "12e3f4e59652cad042442fd3ff909e951af6305fc0f155f159efc250ef392476",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The LFQ quality sheet states clearly that package substance is ahead of runtime and comparator closure."
+    },
+    {
+      "artifact_id": "lfq:lifecycle_record",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/lifecycle.json",
+      "evidence_kind": "package_lifecycle_record",
+      "sha256": "a43279c9e1bfc29a665f093d7363e1a5d374ef5b9d9102b9d17c1f43d0f36a99",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The LFQ lifecycle record names the missing runtime and truth-surface upgrades needed before stronger claims are allowed."
+    },
+    {
+      "artifact_id": "lfq:feature_table",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+      "evidence_kind": "quant_feature_table",
+      "sha256": "22e2541ac72bf39edd22f0c67993de86d0929bc7fb30bf0a3093fb3b5e90d0b2",
+      "row_count": 24,
+      "spectra_count": null,
+      "note": "The study-scale MS1 table is the current public quantitative evidence bed for LFQ review."
+    },
+    {
+      "artifact_id": "lfq:design_table",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv",
+      "evidence_kind": "experimental_design",
+      "sha256": "b65e2a4fdab019e8b63db35d027254fece56153def41ffb1d1b1390921a8ff6e",
+      "row_count": 8,
+      "spectra_count": null,
+      "note": "The cohort-shaped design table keeps replicate, batch, and instrument structure explicit."
+    },
+    {
+      "artifact_id": "lfq:reproducibility_manifest",
+      "repo_relative_path": "packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
+      "evidence_kind": "expectation_manifest",
+      "sha256": "4ee93a01a2414ae9265ef7a838dd4bb3258c1d7f5cee418374225b2566efdabd",
+      "row_count": null,
+      "spectra_count": null,
+      "note": "The reproducibility manifest keeps bounded repeatability outputs pinned beside the study-scale evidence."
+    }
+  ],
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone."
+}
