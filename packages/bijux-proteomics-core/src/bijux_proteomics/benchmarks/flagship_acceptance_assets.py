@@ -9,6 +9,9 @@ import argparse
 from pathlib import Path
 
 from bijux_proteomics.benchmarks.flagship_acceptance import (
+    build_flagship_acceptance_dashboard,
+    build_flagship_acceptance_history_ledger,
+    build_flagship_acceptance_rationale_dossier,
     list_flagship_acceptance_sheets,
 )
 
@@ -32,6 +35,12 @@ def _refresh_acceptance_assets() -> tuple[str, ...]:
     written: list[str] = []
     for sheet in list_flagship_acceptance_sheets():
         written.append(_write_json(repo_root / sheet.artifact_path, sheet.to_stable_json()))
+    dashboard = build_flagship_acceptance_dashboard()
+    written.append(_write_json(repo_root / dashboard.artifact_path, dashboard.to_stable_json()))
+    ledger = build_flagship_acceptance_history_ledger()
+    written.append(_write_json(repo_root / ledger.artifact_path, ledger.to_stable_json()))
+    dossier = build_flagship_acceptance_rationale_dossier()
+    written.append(_write_json(repo_root / dossier.artifact_path, dossier.to_stable_json()))
     return tuple(written)
 
 

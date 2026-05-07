@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from enum import StrEnum
 from functools import lru_cache
 
@@ -36,13 +37,26 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
     ComparatorClaimSupportState,
 )
+from bijux_proteomics_knowledge.references.workflows.scientific_thresholds import (
+    WorkflowThresholdEvidenceReport,
+)
 
 __all__ = [
     "AcceptanceObservedKind",
     "AcceptanceRelation",
     "AcceptanceReleaseLanguage",
+    "AcceptanceThresholdChangeDirection",
+    "FlagshipAcceptanceDashboard",
+    "FlagshipAcceptanceDashboardRow",
     "FlagshipAcceptanceCriterion",
+    "FlagshipAcceptanceHistoryEntry",
+    "FlagshipAcceptanceHistoryLedger",
+    "FlagshipAcceptanceRationaleDossier",
+    "FlagshipAcceptanceRationaleEntry",
     "FlagshipAcceptanceSheet",
+    "build_flagship_acceptance_dashboard",
+    "build_flagship_acceptance_history_ledger",
+    "build_flagship_acceptance_rationale_dossier",
     "build_flagship_acceptance_sheet",
     "list_flagship_acceptance_sheets",
 ]
@@ -85,6 +99,15 @@ class AcceptanceReleaseLanguage(StrEnum):
     INTERNAL_SUPPORT_ONLY = "internal_support_only"
 
 
+class AcceptanceThresholdChangeDirection(StrEnum):
+    """How one threshold moved relative to the previously published bar."""
+
+    INITIAL_PUBLISHED = "initial_published"
+    STRICTER = "stricter"
+    LOOSER = "looser"
+    UNCHANGED = "unchanged"
+
+
 class FlagshipAcceptanceCriterion(JsonModel):
     """One measurable acceptance bar for a flagship workflow family."""
 
@@ -117,6 +140,84 @@ class FlagshipAcceptanceSheet(JsonModel):
     criteria: tuple[FlagshipAcceptanceCriterion, ...] = Field(default_factory=tuple)
     blocked_claims: tuple[str, ...] = Field(default_factory=tuple)
     artifact_path: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAcceptanceDashboardRow(JsonModel):
+    """One cross-family dashboard row over flagship acceptance posture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_package_id: str = Field(..., min_length=1)
+    public_release_language: AcceptanceReleaseLanguage
+    earned_release_language: AcceptanceReleaseLanguage
+    acceptance_passed: bool
+    claim_ahead_of_evidence: bool
+    failing_criteria: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_paths: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAcceptanceDashboard(JsonModel):
+    """Cross-family dashboard for current versus required flagship trust bars."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    dashboard_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    rows: tuple[FlagshipAcceptanceDashboardRow, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAcceptanceHistoryEntry(JsonModel):
+    """One threshold record inside the flagship benchmark history ledger."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    criterion_id: str = Field(..., min_length=1)
+    recorded_on: date
+    required_value: str = Field(..., min_length=1)
+    observed_value: str = Field(..., min_length=1)
+    change_direction: AcceptanceThresholdChangeDirection
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAcceptanceHistoryLedger(JsonModel):
+    """Ledger that prevents flagship acceptance thresholds from drifting quietly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    ledger_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipAcceptanceHistoryEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAcceptanceRationaleEntry(JsonModel):
+    """One scientific rationale behind a published flagship acceptance bar."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    criterion_id: str = Field(..., min_length=1)
+    threshold_summary: str = Field(..., min_length=1)
+    comparator_basis: str = Field(..., min_length=1)
+    literature_basis: str = Field(..., min_length=1)
+    benchmark_difficulty_basis: str = Field(..., min_length=1)
+    lab_consequence_basis: str = Field(..., min_length=1)
+    evidence_paths: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class FlagshipAcceptanceRationaleDossier(JsonModel):
+    """Why each published flagship acceptance threshold exists at all."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    dossier_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipAcceptanceRationaleEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -179,6 +280,131 @@ def list_flagship_acceptance_sheets() -> tuple[FlagshipAcceptanceSheet, ...]:
     """Return the currently published flagship acceptance sheets."""
 
     return tuple(build_flagship_acceptance_sheet(family) for family in _SUPPORTED_FAMILIES)
+
+
+def build_flagship_acceptance_dashboard() -> FlagshipAcceptanceDashboard:
+    """Build the cross-family dashboard for flagship trust bars."""
+
+    rows = []
+    for sheet in list_flagship_acceptance_sheets():
+        failing = tuple(
+            criterion.criterion_id for criterion in sheet.criteria if not criterion.passed
+        )
+        rows.append(
+            FlagshipAcceptanceDashboardRow(
+                workflow_family=sheet.workflow_family,
+                benchmark_package_id=sheet.benchmark_package_id,
+                public_release_language=sheet.public_release_language,
+                earned_release_language=sheet.earned_release_language,
+                acceptance_passed=sheet.acceptance_passed,
+                claim_ahead_of_evidence=sheet.claim_ahead_of_evidence,
+                failing_criteria=failing,
+                evidence_paths=(sheet.artifact_path,),
+                note=(
+                    "the current release claim is ahead of the benchmark evidence"
+                    if sheet.claim_ahead_of_evidence
+                    else "the current release language is still inside the measured flagship acceptance bar"
+                ),
+            )
+        )
+    return FlagshipAcceptanceDashboard(
+        dashboard_id="flagship-acceptance-dashboard",
+        artifact_path=f"{_ASSET_ROOT}/acceptance_dashboard.json",
+        rows=tuple(rows),
+        note=(
+            "This dashboard compares the current public release language against the earned benchmark acceptance posture for every flagship workflow family."
+        ),
+    )
+
+
+def build_flagship_acceptance_history_ledger() -> FlagshipAcceptanceHistoryLedger:
+    """Record the currently published flagship thresholds and their direction."""
+
+    entries = []
+    today = date.today()
+    for sheet in list_flagship_acceptance_sheets():
+        for criterion in sheet.criteria:
+            entries.append(
+                FlagshipAcceptanceHistoryEntry(
+                    workflow_family=sheet.workflow_family,
+                    criterion_id=criterion.criterion_id,
+                    recorded_on=today,
+                    required_value=criterion.required_value,
+                    observed_value=criterion.observed_value,
+                    change_direction=AcceptanceThresholdChangeDirection.INITIAL_PUBLISHED,
+                    note=(
+                        "initial publication of the flagship acceptance bar; future edits must declare whether the threshold became stricter or looser"
+                    ),
+                )
+            )
+    return FlagshipAcceptanceHistoryLedger(
+        ledger_id="flagship-benchmark-history-ledger",
+        artifact_path=f"{_ASSET_ROOT}/benchmark_history_ledger.json",
+        entries=tuple(entries),
+        note=(
+            "The initial ledger records the first published threshold set so later edits cannot quietly move acceptance bars in a self-serving direction."
+        ),
+    )
+
+
+def build_flagship_acceptance_rationale_dossier() -> FlagshipAcceptanceRationaleDossier:
+    """Explain why each published acceptance bar exists scientifically."""
+
+    threshold_reports = {
+        family: _reviews()[family].scientific_release_packet.threshold_evidence
+        for family in _SUPPORTED_FAMILIES
+    }
+    perturbations = _perturbations()
+    holdouts = _holdouts()
+    entries: list[FlagshipAcceptanceRationaleEntry] = []
+    for sheet in list_flagship_acceptance_sheets():
+        threshold_report = threshold_reports[sheet.workflow_family]
+        threshold_ids = tuple(entry.threshold_id for entry in threshold_report.entries)
+        challenge_refs: tuple[str, ...] = ()
+        if sheet.workflow_family.value in holdouts:
+            challenge_refs += (holdouts[sheet.workflow_family.value].artifact_path,)
+        if sheet.workflow_family.value in perturbations:
+            challenge_refs += (perturbations[sheet.workflow_family.value].artifact_path,)
+        for criterion in sheet.criteria:
+            entries.append(
+                FlagshipAcceptanceRationaleEntry(
+                    workflow_family=sheet.workflow_family,
+                    criterion_id=criterion.criterion_id,
+                    threshold_summary=(
+                        f"{criterion.dimension} is accepted only when {criterion.required_relation.value} {criterion.required_value}"
+                    ),
+                    comparator_basis=(
+                        f"{len(_reviews()[sheet.workflow_family].comparator_positions)} comparator positions and "
+                        f"{_reviews()[sheet.workflow_family].public_claim_support_state.value} public comparator support keep the threshold tied to shipped external pressure."
+                    ),
+                    literature_basis=_literature_basis(
+                        threshold_report=threshold_report,
+                        threshold_ids=threshold_ids,
+                    ),
+                    benchmark_difficulty_basis=(
+                        "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: "
+                        + ", ".join(challenge_refs)
+                        if challenge_refs
+                        else "the threshold is anchored only to the current flagship public package because no separate challenge root exists for this family yet"
+                    ),
+                    lab_consequence_basis=(
+                        "minimum controls that remain visible in the benchmark review: "
+                        + ", ".join(_reviews()[sheet.workflow_family].minimum_controls_required)
+                    ),
+                    evidence_paths=(
+                        criterion.evidence_paths
+                        + challenge_refs
+                    ),
+                )
+            )
+    return FlagshipAcceptanceRationaleDossier(
+        dossier_id="flagship-acceptance-rationale-dossier",
+        artifact_path=f"{_ASSET_ROOT}/acceptance_rationale_dossier.json",
+        entries=tuple(entries),
+        note=(
+            "The rationale dossier ties every flagship acceptance bar back to shipped comparator pressure, literature-backed threshold anchors, benchmark difficulty, or lab consequence."
+        ),
+    )
 
 
 def _build_dda_acceptance_sheet() -> FlagshipAcceptanceSheet:
@@ -817,3 +1043,22 @@ def _metric_value(report: PerturbationReactionReport, metric_id: str) -> str:
 def _metric_float(report: PerturbationReactionReport, metric_id: str) -> float:
     metric = next(item for item in report.metric_deltas if item.metric_id == metric_id)
     return float(metric.perturbed_value)
+
+
+def _literature_basis(
+    *,
+    threshold_report: WorkflowThresholdEvidenceReport,
+    threshold_ids: tuple[str, ...],
+) -> str:
+    if not threshold_ids:
+        return "no workflow-threshold evidence anchors were published for this family"
+    return (
+        "workflow-threshold anchors remain visible through "
+        + ", ".join(threshold_ids)
+        + " with citations "
+        + ", ".join(
+            citation_id
+            for entry in threshold_report.entries
+            for citation_id in entry.citation_ids
+        )
+    )

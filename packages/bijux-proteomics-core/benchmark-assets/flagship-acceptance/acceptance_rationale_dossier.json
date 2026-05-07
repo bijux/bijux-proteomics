@@ -1,0 +1,447 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/acceptance_rationale_dossier.json",
+  "dossier_id": "flagship-acceptance-rationale-dossier",
+  "entries": [
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dda_search_coverage",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through target_decoy_visibility, decision_trust_floor with citations citation:target_decoy_2007, citation:target_decoy_2007",
+      "threshold_summary": "search coverage is accepted only when at_least 2",
+      "workflow_family": "dda"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dda_protein_inference_stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/tests/identification/test_protein_inference_benchmark_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through target_decoy_visibility, decision_trust_floor with citations citation:target_decoy_2007, citation:target_decoy_2007",
+      "threshold_summary": "protein inference stability is accepted only when exactly true",
+      "workflow_family": "dda"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dda_calibration_sanity",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through target_decoy_visibility, decision_trust_floor with citations citation:target_decoy_2007, citation:target_decoy_2007",
+      "threshold_summary": "calibration sanity is accepted only when at_least 1",
+      "workflow_family": "dda"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dda_comparator_divergence_tolerance",
+      "evidence_paths": [
+        "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through target_decoy_visibility, decision_trust_floor with citations citation:target_decoy_2007, citation:target_decoy_2007",
+      "threshold_summary": "comparator divergence tolerance is accepted only when one_of advisory|supported",
+      "workflow_family": "dda"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dda_review_packet_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through target_decoy_visibility, decision_trust_floor with citations citation:target_decoy_2007, citation:target_decoy_2007",
+      "threshold_summary": "review-packet promotion is accepted only when one_of review_grade:true|decision_grade:true",
+      "workflow_family": "dda"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dia_library_dependence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, library_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through library_conditioned_import_supported, biological_interpretation_supported with citations citation:swath_2012, citation:psi_ms_cv_2012, citation:swath_2012, citation:psi_ms_cv_2012",
+      "threshold_summary": "library dependence is accepted only when at_least 0.67",
+      "workflow_family": "dia"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dia_peptide_evidence_coverage",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, library_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through library_conditioned_import_supported, biological_interpretation_supported with citations citation:swath_2012, citation:psi_ms_cv_2012, citation:swath_2012, citation:psi_ms_cv_2012",
+      "threshold_summary": "peptide evidence coverage is accepted only when at_least 4",
+      "workflow_family": "dia"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dia_protein_evidence_stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, library_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through library_conditioned_import_supported, biological_interpretation_supported with citations citation:swath_2012, citation:psi_ms_cv_2012, citation:swath_2012, citation:psi_ms_cv_2012",
+      "threshold_summary": "protein evidence stability is accepted only when at_least 1",
+      "workflow_family": "dia"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dia_quantitative_coherence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/tests/dia/test_scientific_support_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, library_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through library_conditioned_import_supported, biological_interpretation_supported with citations citation:swath_2012, citation:psi_ms_cv_2012, citation:swath_2012, citation:psi_ms_cv_2012",
+      "threshold_summary": "quantitative coherence is accepted only when at_most 0.33",
+      "workflow_family": "dia"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "dia_review_packet_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, library_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through library_conditioned_import_supported, biological_interpretation_supported with citations citation:swath_2012, citation:psi_ms_cv_2012, citation:swath_2012, citation:psi_ms_cv_2012",
+      "threshold_summary": "review-packet promotion is accepted only when one_of review_grade:true|decision_grade:true",
+      "workflow_family": "dia"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "lfq_missingness_burden",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/tests/quantification/test_missingness_profile_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, batch_bridge",
+      "literature_basis": "workflow-threshold anchors remain visible through decision_grade_replicate_correlation, batch_shift_boundary with citations citation:uniprot_2025, citation:uniprot_2025",
+      "threshold_summary": "missingness burden is accepted only when at_most 2",
+      "workflow_family": "lfq"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "lfq_normalization_drift",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_effect_size_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, batch_bridge",
+      "literature_basis": "workflow-threshold anchors remain visible through decision_grade_replicate_correlation, batch_shift_boundary with citations citation:uniprot_2025, citation:uniprot_2025",
+      "threshold_summary": "normalization drift is accepted only when exactly decision_grade",
+      "workflow_family": "lfq"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "lfq_differential_reproducibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, batch_bridge",
+      "literature_basis": "workflow-threshold anchors remain visible through decision_grade_replicate_correlation, batch_shift_boundary with citations citation:uniprot_2025, citation:uniprot_2025",
+      "threshold_summary": "differential reproducibility is accepted only when at_least 24",
+      "workflow_family": "lfq"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "lfq_comparator_divergence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, batch_bridge",
+      "literature_basis": "workflow-threshold anchors remain visible through decision_grade_replicate_correlation, batch_shift_boundary with citations citation:uniprot_2025, citation:uniprot_2025",
+      "threshold_summary": "comparator divergence is accepted only when one_of advisory|supported",
+      "workflow_family": "lfq"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "lfq_recommendation_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, pooled_reference, batch_bridge",
+      "literature_basis": "workflow-threshold anchors remain visible through decision_grade_replicate_correlation, batch_shift_boundary with citations citation:uniprot_2025, citation:uniprot_2025",
+      "threshold_summary": "recommendation promotion is accepted only when one_of review_grade:true|decision_grade:true",
+      "workflow_family": "lfq"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and refused public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "multiplex_interference",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: reference_channel, bridge_channel, blank",
+      "literature_basis": "workflow-threshold anchors remain visible through channel_balance_supported with citations citation:tmtpro_2020",
+      "threshold_summary": "interference is accepted only when at_most 1",
+      "workflow_family": "multiplex"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and refused public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "multiplex_channel_dropout",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: reference_channel, bridge_channel, blank",
+      "literature_basis": "workflow-threshold anchors remain visible through channel_balance_supported with citations citation:tmtpro_2020",
+      "threshold_summary": "channel dropout is accepted only when exactly 0",
+      "workflow_family": "multiplex"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and refused public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "multiplex_reference_channel_fragility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: reference_channel, bridge_channel, blank",
+      "literature_basis": "workflow-threshold anchors remain visible through channel_balance_supported with citations citation:tmtpro_2020",
+      "threshold_summary": "reference-channel fragility is accepted only when exactly 0",
+      "workflow_family": "multiplex"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and refused public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "multiplex_ratio_compression",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+        "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: reference_channel, bridge_channel, blank",
+      "literature_basis": "workflow-threshold anchors remain visible through channel_balance_supported with citations citation:tmtpro_2020",
+      "threshold_summary": "ratio compression is accepted only when exactly 0",
+      "workflow_family": "multiplex"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and refused public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "multiplex_downstream_review_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: reference_channel, bridge_channel, blank",
+      "literature_basis": "workflow-threshold anchors remain visible through channel_balance_supported with citations citation:tmtpro_2020",
+      "threshold_summary": "downstream review promotion is accepted only when one_of advisory|supported",
+      "workflow_family": "multiplex"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "ptm_localization_quality",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: enrichment_blank, site_localization_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through localization_confidence_supported with citations citation:psi_mod_2008, citation:ascore_2006",
+      "threshold_summary": "localization quality is accepted only when at_least 5",
+      "workflow_family": "ptm"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "ptm_ambiguity_burden",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: enrichment_blank, site_localization_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through localization_confidence_supported with citations citation:psi_mod_2008, citation:ascore_2006",
+      "threshold_summary": "ambiguity burden is accepted only when at_most 2",
+      "workflow_family": "ptm"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "ptm_motif_credibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: enrichment_blank, site_localization_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through localization_confidence_supported with citations citation:psi_mod_2008, citation:ascore_2006",
+      "threshold_summary": "motif credibility is accepted only when at_least 2",
+      "workflow_family": "ptm"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "ptm_occupancy_stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_occupancy_counterpart_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: enrichment_blank, site_localization_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through localization_confidence_supported with citations citation:psi_mod_2008, citation:ascore_2006",
+      "threshold_summary": "occupancy stability is accepted only when at_least 4",
+      "workflow_family": "ptm"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json, packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "comparator_basis": "1 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "ptm_targetability_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/ptm/test_lab_validation_packet_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: enrichment_blank, site_localization_reference",
+      "literature_basis": "workflow-threshold anchors remain visible through localization_confidence_supported with citations citation:psi_mod_2008, citation:ascore_2006",
+      "threshold_summary": "targetability promotion is accepted only when one_of advisory|supported",
+      "workflow_family": "ptm"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "targeted_calibration_quality",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, heavy_reference, calibration_standard",
+      "literature_basis": "workflow-threshold anchors remain visible through transition_interference_boundary, carryover_visibility_boundary with citations citation:protein_inference_2012, citation:protein_inference_2012",
+      "threshold_summary": "calibration quality is accepted only when at_most 1",
+      "workflow_family": "targeted"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "targeted_transition_interference",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, heavy_reference, calibration_standard",
+      "literature_basis": "workflow-threshold anchors remain visible through transition_interference_boundary, carryover_visibility_boundary with citations citation:protein_inference_2012, citation:protein_inference_2012",
+      "threshold_summary": "transition interference is accepted only when at_most 1",
+      "workflow_family": "targeted"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "targeted_heavy_light_coherence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, heavy_reference, calibration_standard",
+      "literature_basis": "workflow-threshold anchors remain visible through transition_interference_boundary, carryover_visibility_boundary with citations citation:protein_inference_2012, citation:protein_inference_2012",
+      "threshold_summary": "heavy-light coherence is accepted only when at_most 1",
+      "workflow_family": "targeted"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "targeted_carryover_posture",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, heavy_reference, calibration_standard",
+      "literature_basis": "workflow-threshold anchors remain visible through transition_interference_boundary, carryover_visibility_boundary with citations citation:protein_inference_2012, citation:protein_inference_2012",
+      "threshold_summary": "carryover posture is accepted only when exactly 0",
+      "workflow_family": "targeted"
+    },
+    {
+      "benchmark_difficulty_basis": "challenge evidence is part of this threshold because the flagship package already ships blinded holdout or perturbation pressure: packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "comparator_basis": "2 comparator positions and advisory public comparator support keep the threshold tied to shipped external pressure.",
+      "criterion_id": "targeted_follow_up_promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json"
+      ],
+      "lab_consequence_basis": "minimum controls that remain visible in the benchmark review: blank, heavy_reference, calibration_standard",
+      "literature_basis": "workflow-threshold anchors remain visible through transition_interference_boundary, carryover_visibility_boundary with citations citation:protein_inference_2012, citation:protein_inference_2012",
+      "threshold_summary": "follow-up promotion is accepted only when exactly supported",
+      "workflow_family": "targeted"
+    }
+  ],
+  "note": "The rationale dossier ties every flagship acceptance bar back to shipped comparator pressure, literature-backed threshold anchors, benchmark difficulty, or lab consequence."
+}

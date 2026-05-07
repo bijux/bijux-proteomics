@@ -1,0 +1,91 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/acceptance_dashboard.json",
+  "dashboard_id": "flagship-acceptance-dashboard",
+  "note": "This dashboard compares the current public release language against the earned benchmark acceptance posture for every flagship workflow family.",
+  "rows": [
+    {
+      "acceptance_passed": true,
+      "benchmark_package_id": "flagship_public_package:dda_reviewable_run",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "outsider_auditable_bounded",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/dda_acceptance_sheet.json"
+      ],
+      "failing_criteria": [],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "outsider_auditable_bounded",
+      "workflow_family": "dda"
+    },
+    {
+      "acceptance_passed": true,
+      "benchmark_package_id": "flagship_public_package:dia_library_review_package",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "outsider_auditable_bounded",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/dia_acceptance_sheet.json"
+      ],
+      "failing_criteria": [],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "outsider_auditable_bounded",
+      "workflow_family": "dia"
+    },
+    {
+      "acceptance_passed": true,
+      "benchmark_package_id": "flagship_public_package:lfq_cohort_review_package",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "outsider_auditable_bounded",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/lfq_acceptance_sheet.json"
+      ],
+      "failing_criteria": [],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "outsider_auditable_bounded",
+      "workflow_family": "lfq"
+    },
+    {
+      "acceptance_passed": false,
+      "benchmark_package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "internal_support_only",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/multiplex_acceptance_sheet.json"
+      ],
+      "failing_criteria": [
+        "multiplex_interference",
+        "multiplex_channel_dropout",
+        "multiplex_reference_channel_fragility",
+        "multiplex_ratio_compression",
+        "multiplex_downstream_review_promotion"
+      ],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "internal_support_only",
+      "workflow_family": "multiplex"
+    },
+    {
+      "acceptance_passed": true,
+      "benchmark_package_id": "flagship_public_package:ptm_localization_review_package",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "outsider_auditable_bounded",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/ptm_acceptance_sheet.json"
+      ],
+      "failing_criteria": [],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "outsider_auditable_bounded",
+      "workflow_family": "ptm"
+    },
+    {
+      "acceptance_passed": true,
+      "benchmark_package_id": "flagship_public_package:targeted_transition_review_package",
+      "claim_ahead_of_evidence": false,
+      "earned_release_language": "outsider_auditable_bounded",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/targeted_acceptance_sheet.json"
+      ],
+      "failing_criteria": [],
+      "note": "the current release language is still inside the measured flagship acceptance bar",
+      "public_release_language": "outsider_auditable_bounded",
+      "workflow_family": "targeted"
+    }
+  ]
+}

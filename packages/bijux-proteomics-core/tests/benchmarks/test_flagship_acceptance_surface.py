@@ -8,6 +8,10 @@ from pathlib import Path
 
 from bijux_proteomics.benchmarks.flagship_acceptance import (
     AcceptanceReleaseLanguage,
+    AcceptanceThresholdChangeDirection,
+    build_flagship_acceptance_dashboard,
+    build_flagship_acceptance_history_ledger,
+    build_flagship_acceptance_rationale_dossier,
     build_flagship_acceptance_sheet,
     list_flagship_acceptance_sheets,
 )
@@ -129,3 +133,40 @@ def test_published_acceptance_json_matches_live_surface() -> None:
         assert payload["sheet_id"] == sheet.sheet_id
         assert payload["workflow_family"] == sheet.workflow_family.value
         assert payload["acceptance_passed"] is sheet.acceptance_passed
+
+
+def test_acceptance_dashboard_marks_multiplex_as_internal_support_only() -> None:
+    dashboard = build_flagship_acceptance_dashboard()
+    rows = {row.workflow_family: row for row in dashboard.rows}
+
+    assert dashboard.artifact_path.endswith("acceptance_dashboard.json")
+    assert rows[KnowledgeWorkflowFamily.DDA].claim_ahead_of_evidence is False
+    assert rows[KnowledgeWorkflowFamily.MULTIPLEX].acceptance_passed is False
+    assert rows[KnowledgeWorkflowFamily.MULTIPLEX].earned_release_language is (
+        AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+    )
+    assert rows[KnowledgeWorkflowFamily.MULTIPLEX].failing_criteria
+
+
+def test_acceptance_history_ledger_tracks_initial_threshold_publication() -> None:
+    ledger = build_flagship_acceptance_history_ledger()
+
+    assert ledger.artifact_path.endswith("benchmark_history_ledger.json")
+    assert len(ledger.entries) == 30
+    assert all(
+        entry.change_direction is AcceptanceThresholdChangeDirection.INITIAL_PUBLISHED
+        for entry in ledger.entries
+    )
+
+
+def test_acceptance_rationale_dossier_ties_thresholds_to_real_evidence() -> None:
+    dossier = build_flagship_acceptance_rationale_dossier()
+
+    assert dossier.artifact_path.endswith("acceptance_rationale_dossier.json")
+    assert len(dossier.entries) == 30
+    assert any(
+        "challenge evidence is part of this threshold" in entry.benchmark_difficulty_basis
+        for entry in dossier.entries
+        if entry.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
+    )
+    assert all(entry.evidence_paths for entry in dossier.entries)
