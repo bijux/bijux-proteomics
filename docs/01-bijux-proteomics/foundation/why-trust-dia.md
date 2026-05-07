@@ -12,17 +12,18 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `dia` result surface.
 
 The right trust level is bounded. The repository now ships one outsider-readable
-DIA public package with explicit capability limits, but that authority still
-stops at library-conditioned import review rather than vendor-execution parity.
+DIA public package with explicit capability limits, and the flagship runtime
+lane now executes that package directly. The authority still stops at
+library-conditioned review rather than vendor-execution parity.
 
 ## Open First
 
 - `benchmark:dia_library_extraction_consistency`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md`
-- `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv`
-- `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_pipeline_export.tsv`
-- `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
 
 ## Current Trust Earned
@@ -32,7 +33,7 @@ stops at library-conditioned import review rather than vendor-execution parity.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `advisory`.
 - the runtime package `dia-diann-pipeline-corpus` is real and currently
-  `import_only`.
+  `raw_executable`.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
 
@@ -47,8 +48,8 @@ stops at library-conditioned import review rather than vendor-execution parity.
 
 - the repo keeps DIA partial-support language explicit
 - the DIA-NN and Spectronaut confrontation is visible instead of implied
-- the runtime import lane is real enough to preserve lineage and artifact
-  browsing
+- the runtime lane is raw-executable enough to preserve lineage and artifact
+  browsing without stopping at an import-only bridge
 - the tracked public package makes artifact inventory, quality posture, and
   lifecycle boundaries inspectable without reading internal code
 

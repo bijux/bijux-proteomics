@@ -18,13 +18,16 @@ scope drift differently.
 
 ## Repository-Wide Limits
 
-- there is now one outsider-auditable DDA workflow family, but there is still
-  no broad cross-family proteomics proof set that survives the same standard
-- several workflow families are benchmark-backed at the reviewed-artifact level
-  without being raw-to-result reproducible inside this repository
-- release-facing benchmark discipline is stronger than before, but some
-  scientific surfaces are still governed more by bounded refusal and caveat
-  than by full positive support
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Internal-support-only workflow families today: `multiplex`.
+
+- several workflow families are now outsider-auditable in a bounded sense, but
+  there is still no broad cross-family proteomics proof set that survives the
+  same standard with supported comparator posture and decision-grade
+  consequence
+- DDA still stops short of in-repo live-engine rerun parity
+- multiplex still remains internal support only, so no release language should
+  let it ride for free on adjacent flagship trust claims
 
 ## Scientific Limits
 
@@ -39,9 +42,10 @@ scope drift differently.
 
 ## Execution Limits
 
-- runtime end-to-end proof is now real for one DDA outsider-auditable family,
-  but most workflow families still stop at blocked or thinner runtime truth
-  rows
+- runtime end-to-end proof is now real across DIA, LFQ, multiplex, PTM, and
+  targeted review lanes, but DDA still stops at import-backed runtime proof and
+  every family remains bounded by narrower claim scope than a broad production
+  workflow promise
 - compatibility remains intentionally visible through `agentic-proteins`; the
   migration is controlled, but the compatibility bridge still exists
 - provider and execution realism still depend on a narrower set of validated

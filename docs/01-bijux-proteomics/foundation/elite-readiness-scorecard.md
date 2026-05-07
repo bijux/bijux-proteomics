@@ -27,17 +27,17 @@ It does not count files, documents, governance volume, or maintenance theater.
 | Workflow | Score | Outsider-auditable | Elite language allowed |
 | --- | ---: | :---: | :---: |
 | `dda` | `0.77` | yes | no |
-| `dia` | `0.77` | yes | no |
-| `lfq` | `0.42` | no | no |
-| `ptm` | `0.42` | no | no |
-| `targeted` | `0.38` | no | no |
+| `dia` | `0.81` | yes | no |
+| `lfq` | `0.81` | yes | no |
+| `ptm` | `0.81` | yes | no |
+| `targeted` | `0.81` | yes | no |
 
 ## Current Boundary
 
-Two outsider-auditable families now exist, but repository-wide elite language
-remains blocked until more than one flagship family survives the same standard
-without leaning on advisory claim support, import-only runtime truth, or
-execution steps that still sit outside the repository proof boundary.
+Five outsider-auditable families now exist in a bounded sense, but
+repository-wide elite language remains blocked until more than one flagship
+family survives the same standard with supported comparator posture, stronger
+grounding, and more than exploratory lab consequence authority.
 
 Repository-wide elite language remains blocked.
 
@@ -45,10 +45,11 @@ Repository-wide elite language remains blocked.
 
 - DDA still carries advisory comparator-backed claim support and exploratory
   follow-up posture
-- DIA is outsider-auditable now, but still limited by import-only runtime truth,
-  advisory public claim support, and library-conditioned execution boundaries
-- LFQ, PTM, and targeted now have checked runtime execution, but they remain
-  blocked by refused claim support, thin grounding, or unjustified lab burden
+- DIA, LFQ, PTM, and targeted are outsider-auditable now, but they still rely
+  on advisory public claim support and bounded execution or generalization
+  language
+- multiplex remains internal support only and does not count toward elite
+  language at all
 
 ## Rule
 

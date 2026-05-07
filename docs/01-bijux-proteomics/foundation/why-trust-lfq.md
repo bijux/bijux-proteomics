@@ -12,31 +12,32 @@ last_reviewed: 2026-05-07
 This page is about the current flagship `lfq` surface.
 
 What you can trust here is the repo's honesty around missingness, QC, and
-decision refusal plus one real LFQ public package. The repository still does
-not earn a positive outsider-auditable LFQ claim.
+bounded cohort interpretation plus one real LFQ public package. The repository
+now earns a bounded outsider-auditable LFQ claim, not broad cohort-transfer or
+decision-grade quant authority.
 
 ## Open First
 
 - `benchmark:lfq_cohort_repeatability`
 - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json`
-- `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv`
-- `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv`
-- `packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json`
 
 ## Current Trust Earned
 
-- `outsider_review:lfq` is not complete enough to count as an outsider-auditable
+- `outsider_review:lfq` is complete enough to count as an outsider-auditable
   flagship family.
 - benchmark evidence tier is `external_reproduction_package`.
-- public claim support is `refused`.
+- public claim support is `advisory`.
 - the runtime package is now `lfq-cohort-review-corpus`.
-- the recommendation posture is `do_not_recommend`.
-- the lab posture is `not_worth_assay`.
+- the recommendation posture is `recommend_with_downgrade`.
+- the lab posture is `exploratory_only`.
 
 ## Exact Claims
 
 - LFQ review preserves study-design semantics, missingness visibility, and
-  repeatable rollup behavior across the bundled fixture
+  repeatable rollup behavior across the bundled cohort package
 - LFQ benchmark outputs can support review-grade abundance interpretation when
   QC and replicate caveats remain explicit
 
@@ -44,16 +45,15 @@ not earn a positive outsider-auditable LFQ claim.
 
 - the repository will not hide missingness or QC weakness behind smooth summary
   prose
-- the repo refuses stronger public support than the current comparator and
-  runtime evidence deserve
+- the repo keeps comparator and generalization limits visible instead of
+  flattening the current package into universal cohort truth
 - the tracked public package keeps cohort design, feature evidence, and package
   lifecycle visible instead of implied
 - the runtime bundle now shows normalization, missingness, differential, and
-  review outputs as one checked flagship run family rather than a blocked hole
+  review outputs as one checked flagship run family
 
 ## What You Should Not Trust Yet
 
-- comparator-backed public support is still refused
-- biological grounding remains thin
 - comparator drift or missing external execution parity still materially limits
   this public workflow claim
+- generalization beyond the current cohort package is not earned

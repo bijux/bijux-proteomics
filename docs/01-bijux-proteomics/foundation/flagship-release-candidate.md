@@ -11,16 +11,18 @@ last_reviewed: 2026-05-07
 
 The current flagship release-candidate surface is not the whole repository.
 
-It is two outsider-auditable families, `dda` and `dia`, plus three explicitly
-incomplete review families that are shipped alongside their blocker pages
-instead of being flattened into optimistic release language.
+It is five bounded outsider-auditable families plus one explicitly narrowed
+internal-support family.
+
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Internal-support-only workflow families today: `multiplex`.
 
 ## Current Bundle
 
 - bundle id: `flagship-release-candidate-bundle`
 - strongest workflow family: `dda`
-- outsider-auditable workflow families: `dda`, `dia`
-- blocked workflow families: `lfq`, `ptm`, `targeted`
+- outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`
+- internal-support-only workflow families: `multiplex`
 
 ## What The Bundle Collects
 
@@ -42,25 +44,24 @@ instead of being flattened into optimistic release language.
   - [Why Trust LFQ](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-lfq/)
   - [Why Trust PTM](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-ptm/)
   - [Why Trust Targeted](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-targeted/)
-- distrust pages:
-  - [Why Not Trust LFQ Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-lfq-yet/)
-  - [Why Not Trust PTM Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-ptm-yet/)
-  - [Why Not Trust Targeted Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-not-trust-targeted-yet/)
+- authority boundary pages:
+  - [Multiplex Authority Boundary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/multiplex-authority-boundary/)
+  - [Workflow Authority Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-authority-matrix/)
 
 ## Honest Reading
 
 - `dda` survives one full outsider packet:
   public package, runtime lane, comparator pressure, scientific reading,
   recommendation packet, and lab packet
-- `dia` now also survives one full outsider packet, but its authority stays
-  bounded by library-conditioned import review, advisory claim support, and
-  execution steps that still sit outside the repository proof boundary
-- `lfq`, `ptm`, and `targeted` are currently stronger as explicit refusal
-  surfaces than as positive release families, even though each now has a
-  checked flagship runtime run bundle
+- `dia`, `lfq`, `ptm`, and `targeted` now also survive full outsider packets,
+  but each authority stays bounded by advisory comparator posture, external
+  execution limits, or exploratory lab consequence
+- `multiplex` has real package and runtime substance, but it is intentionally
+  narrowed to internal support only until outsider review and lab consequence
+  surfaces exist
 
 ## Boundary
 
 This page does not authorize repository-wide excellence language. It only names
-the strongest current outsider-auditable family and the blocker pages for the
-rest.
+the strongest current outsider-auditable family set and the internal-support
+boundary for the rest.

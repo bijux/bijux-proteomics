@@ -63,6 +63,9 @@ checked and reviewable, but reopened completion claims, architectural-ready
 package gaps, and broader release-family debt still block stronger maturity
 language.
 
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Internal-support-only workflow families today: `multiplex`.
+
 This repository publishes `7` packages: `6` real product packages plus `1`
 compatibility bridge. Each release tag builds one staged bundle per package,
 uploads distributions to PyPI, publishes release bundles to their exact GHCR

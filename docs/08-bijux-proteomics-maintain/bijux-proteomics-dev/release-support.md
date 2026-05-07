@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-dev-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-05-07
 ---
 
 # Release Support
@@ -61,6 +61,9 @@ workflow families that the suite can defend today:
 - `multiplex`
 - `targeted`
 
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+Internal-support-only workflow families today: `multiplex`.
+
 For the strongest current outsider-readable proof, start with the DDA package
 before reading the release policy helpers:
 
@@ -113,10 +116,11 @@ flagship package, runtime lane, comparator surface, and validating tests. Then
 use repository truth to decide how far the repository may generalize from those
 artifacts.
 
-The current repository-wide language boundary is stricter than the DDA proof
-itself:
+The current repository-wide language boundary is stricter than the strongest
+current outsider packet:
 
-- one outsider-auditable DDA family exists
+- five bounded outsider-auditable workflow families exist
+- multiplex remains internal support only
 - repository-wide elite language is still blocked
 - the scorecard for that boundary lives in
   `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`

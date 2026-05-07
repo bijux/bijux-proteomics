@@ -23,18 +23,21 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
     text = _read_foundation_doc("flagship-release-candidate.md")
 
     assert "flagship-release-candidate-bundle" in text
-    assert "outsider-auditable workflow families: `dda`, `dia`" in text
-    assert "blocked workflow families: `lfq`, `ptm`, `targeted`" in text
+    assert (
+        "outsider-auditable workflow families: `dda`, `dia`, `lfq`, `ptm`, `targeted`"
+        in text
+    )
+    assert "internal-support-only workflow families: `multiplex`" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
     text = _read_foundation_doc("elite-readiness-scorecard.md")
 
     assert "| `dda` | `0.77` | yes | no |" in text
-    assert "| `dia` | `0.77` | yes | no |" in text
-    assert "| `lfq` | `0.42` | no | no |" in text
-    assert "| `ptm` | `0.42` | no | no |" in text
-    assert "| `targeted` | `0.38` | no | no |" in text
+    assert "| `dia` | `0.81` | yes | no |" in text
+    assert "| `lfq` | `0.81` | yes | no |" in text
+    assert "| `ptm` | `0.81` | yes | no |" in text
+    assert "| `targeted` | `0.81` | yes | no |" in text
     assert "repository-wide elite" in text
     assert "language remains blocked" in text
     assert "It does not count files, documents, governance volume" in text

@@ -56,10 +56,11 @@ def test_non_dda_trust_pages_keep_weaker_posture_visible() -> None:
     targeted = _read_doc("why-trust-targeted.md")
 
     assert "external_reproduction_package" in dia
-    assert "import_only" in dia
-    assert "do_not_recommend" in lfq
+    assert "raw_executable" in dia
+    assert "recommend_with_downgrade" in lfq
     assert "lfq-cohort-review-corpus" in lfq
-    assert "public claim support is `refused`" in ptm
+    assert "public claim support is `advisory`" in ptm
     assert "ptm-localization-review-corpus" in ptm
     assert "targeted-transition-review-corpus" in targeted
-    assert "public claim support is `refused`" in targeted
+    assert "public claim support is `advisory`" in targeted
+    assert "raw_executable" in targeted
