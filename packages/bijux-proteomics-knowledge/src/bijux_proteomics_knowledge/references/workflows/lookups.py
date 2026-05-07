@@ -29,6 +29,26 @@ from bijux_proteomics_knowledge.references.workflows.comparators import (
     get_workflow_comparator_path,
     list_workflow_comparator_paths,
 )
+from bijux_proteomics_knowledge.references.workflows.contradiction_dossiers import (
+    WorkflowContradictionDossier,
+    build_workflow_contradiction_dossier,
+    list_workflow_contradiction_dossiers,
+)
+from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import (
+    WorkflowEvidenceSufficiencyRubric,
+    build_workflow_evidence_sufficiency_rubric,
+    list_workflow_evidence_sufficiency_rubrics,
+)
+from bijux_proteomics_knowledge.references.workflows.knowledge_deficits import (
+    WorkflowKnowledgeDeficitReport,
+    build_workflow_knowledge_deficit_report,
+    list_workflow_knowledge_deficit_reports,
+)
+from bijux_proteomics_knowledge.references.workflows.literature_matrices import (
+    WorkflowLiteratureMatrix,
+    build_workflow_literature_matrix,
+    list_workflow_literature_matrices,
+)
 from bijux_proteomics_knowledge.references.workflows.narratives import (
     DEFAULT_WORKFLOW_NARRATIVES,
     WorkflowNarrative,
@@ -39,6 +59,11 @@ from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkRegistryReport,
     build_benchmark_registry,
     build_benchmark_registry_entry,
+)
+from bijux_proteomics_knowledge.references.workflows.scientific_reading_packs import (
+    WorkflowScientificReadingPack,
+    build_workflow_scientific_reading_pack,
+    list_workflow_scientific_reading_packs,
 )
 
 
@@ -143,6 +168,101 @@ def get_workflow_narrative(narrative_id: str) -> WorkflowNarrative | None:
     )
 
 
+def list_workflow_literature_matrices_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowLiteratureMatrix, ...]:
+    """Return curated literature matrices with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_literature_matrices()
+    return (build_workflow_literature_matrix(workflow_family),)
+
+
+def get_workflow_literature_matrix(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowLiteratureMatrix:
+    """Return the curated literature matrix for one workflow family."""
+
+    return build_workflow_literature_matrix(workflow_family)
+
+
+def list_workflow_contradiction_dossiers_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowContradictionDossier, ...]:
+    """Return contradiction dossiers with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_contradiction_dossiers()
+    return (build_workflow_contradiction_dossier(workflow_family),)
+
+
+def get_workflow_contradiction_dossier(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowContradictionDossier:
+    """Return the contradiction dossier for one workflow family."""
+
+    return build_workflow_contradiction_dossier(workflow_family)
+
+
+def list_workflow_evidence_sufficiency_rubrics_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowEvidenceSufficiencyRubric, ...]:
+    """Return evidence sufficiency rubrics with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_evidence_sufficiency_rubrics()
+    return (build_workflow_evidence_sufficiency_rubric(workflow_family),)
+
+
+def get_workflow_evidence_sufficiency_rubric(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowEvidenceSufficiencyRubric:
+    """Return the evidence sufficiency rubric for one workflow family."""
+
+    return build_workflow_evidence_sufficiency_rubric(workflow_family)
+
+
+def list_workflow_knowledge_deficit_reports_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowKnowledgeDeficitReport, ...]:
+    """Return knowledge deficit reports with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_knowledge_deficit_reports()
+    return (build_workflow_knowledge_deficit_report(workflow_family),)
+
+
+def get_workflow_knowledge_deficit_report(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowKnowledgeDeficitReport:
+    """Return the knowledge deficit report for one workflow family."""
+
+    return build_workflow_knowledge_deficit_report(workflow_family)
+
+
+def list_workflow_scientific_reading_packs_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowScientificReadingPack, ...]:
+    """Return scientific reading packs with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_scientific_reading_packs()
+    return (build_workflow_scientific_reading_pack(workflow_family),)
+
+
+def get_workflow_scientific_reading_pack(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowScientificReadingPack:
+    """Return the scientific reading pack for one workflow family."""
+
+    return build_workflow_scientific_reading_pack(workflow_family)
+
+
 __all__ = [
     "BenchmarkPackageArtifact",
     "BenchmarkPackageArtifactKind",
@@ -156,18 +276,33 @@ __all__ = [
     "get_benchmark_manifest",
     "get_benchmark_package",
     "get_benchmark_registry_entry",
+    "get_workflow_contradiction_dossier",
     "get_workflow_comparator_path",
+    "get_workflow_evidence_sufficiency_rubric",
+    "get_workflow_knowledge_deficit_report",
+    "get_workflow_literature_matrix",
     "get_workflow_narrative",
+    "get_workflow_scientific_reading_pack",
     "list_benchmark_comparator_failures",
     "list_workflow_comparator_paths",
     "build_workflow_comparator_matrix",
     "list_benchmark_registry_entries",
     "list_benchmark_manifests",
+    "list_workflow_contradiction_dossiers_lookup",
+    "list_workflow_evidence_sufficiency_rubrics_lookup",
+    "list_workflow_knowledge_deficit_reports_lookup",
+    "list_workflow_literature_matrices_lookup",
     "list_workflow_narratives",
+    "list_workflow_scientific_reading_packs_lookup",
     "BenchmarkRegistryEntry",
     "BenchmarkRegistryReport",
     "WorkflowBenchmarkPackage",
+    "WorkflowContradictionDossier",
     "WorkflowComparatorMatrixEntry",
     "WorkflowComparatorMatrixReport",
     "WorkflowComparatorPath",
+    "WorkflowEvidenceSufficiencyRubric",
+    "WorkflowKnowledgeDeficitReport",
+    "WorkflowLiteratureMatrix",
+    "WorkflowScientificReadingPack",
 ]

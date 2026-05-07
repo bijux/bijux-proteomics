@@ -46,13 +46,38 @@ from bijux_proteomics_knowledge.references.workflows.comparators import (
     get_workflow_comparator_path,
     list_workflow_comparator_paths,
 )
+from bijux_proteomics_knowledge.references.workflows.contradiction_dossiers import (
+    WorkflowContradictionDossier,
+)
+from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import (
+    WorkflowEvidenceSufficiencyRubric,
+    WorkflowEvidenceTrustTier,
+)
+from bijux_proteomics_knowledge.references.workflows.knowledge_deficits import (
+    KnowledgeDeficitSeverity,
+    WorkflowKnowledgeDeficitReport,
+)
+from bijux_proteomics_knowledge.references.workflows.literature_matrices import (
+    WorkflowLiteratureMatrix,
+    WorkflowLiteratureMatrixEntry,
+)
 from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_comparator_failure,
     get_benchmark_manifest,
     get_benchmark_package,
     get_benchmark_registry_entry,
+    get_workflow_contradiction_dossier,
+    get_workflow_evidence_sufficiency_rubric,
+    get_workflow_knowledge_deficit_report,
+    get_workflow_literature_matrix,
+    get_workflow_scientific_reading_pack,
     list_benchmark_comparator_failures,
     list_benchmark_registry_entries,
+    list_workflow_contradiction_dossiers_lookup,
+    list_workflow_evidence_sufficiency_rubrics_lookup,
+    list_workflow_knowledge_deficit_reports_lookup,
+    list_workflow_literature_matrices_lookup,
+    list_workflow_scientific_reading_packs_lookup,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkAuthorityAssessment,
@@ -61,6 +86,9 @@ from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkRegistryReport,
     assess_benchmark_authority,
     build_benchmark_registry,
+)
+from bijux_proteomics_knowledge.references.workflows.scientific_reading_packs import (
+    WorkflowScientificReadingPack,
 )
 
 __all__ = [
@@ -79,16 +107,24 @@ __all__ = [
     "ComparatorFailureSeverity",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
+    "KnowledgeDeficitSeverity",
     "KnowledgeWorkflowFamily",
     "ProteomicsComparatorTool",
     "ScientificContextEntry",
     "ScientificRuleReference",
     "WorkflowBenchmarkPackage",
+    "WorkflowContradictionDossier",
     "WorkflowComparatorMatrixEntry",
     "WorkflowComparatorMatrixReport",
     "WorkflowComparatorPath",
     "WorkflowComparatorToolStatus",
+    "WorkflowEvidenceSufficiencyRubric",
+    "WorkflowEvidenceTrustTier",
+    "WorkflowKnowledgeDeficitReport",
+    "WorkflowLiteratureMatrix",
+    "WorkflowLiteratureMatrixEntry",
     "WorkflowReferenceBriefing",
+    "WorkflowScientificReadingPack",
     "assess_benchmark_authority",
     "build_benchmark_registry",
     "build_benchmark_comparator_failure_report",
@@ -98,9 +134,19 @@ __all__ = [
     "get_benchmark_manifest",
     "get_benchmark_package",
     "get_benchmark_registry_entry",
+    "get_workflow_contradiction_dossier",
     "get_workflow_comparator_path",
+    "get_workflow_evidence_sufficiency_rubric",
+    "get_workflow_knowledge_deficit_report",
+    "get_workflow_literature_matrix",
+    "get_workflow_scientific_reading_pack",
     "list_benchmark_comparator_failures",
     "list_benchmark_registry_entries",
+    "list_workflow_contradiction_dossiers_lookup",
+    "list_workflow_evidence_sufficiency_rubrics_lookup",
+    "list_workflow_knowledge_deficit_reports_lookup",
+    "list_workflow_literature_matrices_lookup",
+    "list_workflow_scientific_reading_packs_lookup",
     "list_workflow_comparator_paths",
     "resolve_ontology_mapping",
 ]

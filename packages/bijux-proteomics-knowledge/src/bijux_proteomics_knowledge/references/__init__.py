@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics_knowledge.references import public as _public
 from bijux_proteomics_knowledge.references.public import (
     BenchmarkAuthorityAssessment,
     BenchmarkAuthorityStatus,
@@ -19,6 +20,7 @@ from bijux_proteomics_knowledge.references.public import (
     BenchmarkReproductionStep,
     ComparatorClaimSupportState,
     ComparatorFailureSeverity,
+    KnowledgeDeficitSeverity,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
     KnowledgeWorkflowFamily,
@@ -30,8 +32,14 @@ from bijux_proteomics_knowledge.references.public import (
     WorkflowComparatorMatrixReport,
     WorkflowComparatorPath,
     WorkflowComparatorToolStatus,
+    WorkflowContradictionDossier,
+    WorkflowEvidenceSufficiencyRubric,
+    WorkflowEvidenceTrustTier,
+    WorkflowKnowledgeDeficitReport,
+    WorkflowLiteratureMatrix,
+    WorkflowLiteratureMatrixEntry,
     WorkflowReferenceBriefing,
-    __all__,
+    WorkflowScientificReadingPack,
     assess_benchmark_authority,
     build_benchmark_comparator_failure_report,
     build_benchmark_registry,
@@ -42,8 +50,20 @@ from bijux_proteomics_knowledge.references.public import (
     get_benchmark_package,
     get_benchmark_registry_entry,
     get_workflow_comparator_path,
+    get_workflow_contradiction_dossier,
+    get_workflow_evidence_sufficiency_rubric,
+    get_workflow_knowledge_deficit_report,
+    get_workflow_literature_matrix,
+    get_workflow_scientific_reading_pack,
     list_benchmark_comparator_failures,
     list_benchmark_registry_entries,
     list_workflow_comparator_paths,
+    list_workflow_contradiction_dossiers_lookup,
+    list_workflow_evidence_sufficiency_rubrics_lookup,
+    list_workflow_knowledge_deficit_reports_lookup,
+    list_workflow_literature_matrices_lookup,
+    list_workflow_scientific_reading_packs_lookup,
     resolve_ontology_mapping,
 )
+
+__all__ = _public.__all__
