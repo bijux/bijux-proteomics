@@ -14,6 +14,7 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
 from bijux_proteomics_knowledge.reviews.packets import (
+    BiologicalGroundingState,
     DecisionGateProfile,
     OperationalDecisionLabel,
     ScientificConclusion,
@@ -62,6 +63,10 @@ def test_build_knowledge_review_packet_returns_integrated_sections(
     )
     assert packet.reference_disagreement_report is not None
     assert packet.reference_disagreement_report.entries
+    assert packet.biological_takeaway is not None
+    assert packet.biological_takeaway.benchmark_allows
+    assert packet.biological_takeaway.literature_suggests
+    assert any("biological grounding" in line for line in packet.executive_summary)
 
 
 def test_summarize_multi_decision_readiness_reports_portfolio_score() -> None:
@@ -190,3 +195,23 @@ def test_knowledge_review_packet_flags_missing_bundle_links_in_claim_provenance(
         "outside the attached bundle"
         in packet.critical_claim_provenance[0].missing_links[0]
     )
+
+
+def test_knowledge_review_packet_downgrades_biological_takeaway_under_contradiction(
+    contradictory_progression_bundle,
+    contradictory_progression_claims,
+) -> None:
+    packet = build_knowledge_review_packet(
+        contradictory_progression_bundle,
+        contradictory_progression_claims,
+        decision_tag="progression",
+        workflow_family=KnowledgeWorkflowFamily.TARGETED,
+    )
+
+    assert packet.biological_takeaway is not None
+    assert (
+        packet.biological_takeaway.grounding_state
+        is BiologicalGroundingState.BOUNDED_BY_CONTRADICTION
+    )
+    assert packet.biological_takeaway.downgrade_reasons
+    assert any("grounding limits" in line for line in packet.executive_summary)

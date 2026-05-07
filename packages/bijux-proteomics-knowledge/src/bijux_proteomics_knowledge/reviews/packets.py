@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
@@ -17,7 +19,6 @@ from bijux_proteomics_knowledge.memory.models.claims import (
 )
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
-    EvidenceConflict,
     EvidenceRelevanceScore,
     KnowledgeQualityAudit,
     audit_knowledge_quality,
@@ -30,6 +31,9 @@ from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
 )
 from bijux_proteomics_knowledge.reviews.provenance import (
     CriticalClaimProvenanceLine,
@@ -95,6 +99,32 @@ class KnowledgeReviewPacket(JsonModel):
         default=None,
         description="Benchmark-versus-literature disagreement artifact for this workflow family.",
     )
+    biological_takeaway: BiologicalTakeaway | None = Field(
+        default=None,
+        description="Bounded biological takeaway that keeps benchmark, literature, and unknowns separate.",
+    )
+
+
+class BiologicalGroundingState(StrEnum):
+    """How strong the current biological takeaway is after contradiction pressure."""
+
+    LITERATURE_GROUNDED_REVIEW_GRADE = "literature_grounded_review_grade"
+    BOUNDED_BY_CONTRADICTION = "bounded_by_contradiction"
+    THINLY_GROUNDED = "thinly_grounded"
+
+
+class BiologicalTakeaway(JsonModel):
+    """Structured biological takeaway that refuses to hide thin grounding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    grounding_state: BiologicalGroundingState
+    data_says: tuple[str, ...] = Field(default_factory=tuple)
+    benchmark_allows: tuple[str, ...] = Field(default_factory=tuple)
+    literature_suggests: tuple[str, ...] = Field(default_factory=tuple)
+    unknowns: tuple[str, ...] = Field(default_factory=tuple)
+    bounded_takeaway: str = Field(..., min_length=1)
+    downgrade_reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class ScientificConclusion(JsonModel):
@@ -196,12 +226,6 @@ def build_knowledge_review_packet(
         conflict_clusters=clusters,
         gate_profile=gate_profile,
     )
-    summary = _build_executive_summary(
-        quality_audit=audit,
-        dossier=dossier,
-        knowledge_gaps=gaps,
-        gate_recommendation=gate_recommendation,
-    )
     blocker_highlights = extract_blocker_highlights(
         quality_audit=audit,
         knowledge_gaps=gaps,
@@ -233,6 +257,21 @@ def build_knowledge_review_packet(
         reference_disagreement_report = build_reference_disagreement_report(
             workflow_family
         )
+    biological_takeaway = _build_biological_takeaway(
+        scientific_conclusions=scientific_conclusions,
+        knowledge_gaps=gaps,
+        conflict_clusters=clusters,
+        quality_audit=audit,
+        workflow_family=workflow_family,
+        reference_disagreement_report=reference_disagreement_report,
+    )
+    summary = _build_executive_summary(
+        quality_audit=audit,
+        dossier=dossier,
+        knowledge_gaps=gaps,
+        gate_recommendation=gate_recommendation,
+        biological_takeaway=biological_takeaway,
+    )
     return KnowledgeReviewPacket(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
@@ -249,6 +288,7 @@ def build_knowledge_review_packet(
         decision_intelligence_index=intelligence_index,
         critical_claim_provenance=critical_claim_provenance,
         reference_disagreement_report=reference_disagreement_report,
+        biological_takeaway=biological_takeaway,
     )
 
 
@@ -321,6 +361,7 @@ def _build_executive_summary(
     dossier: HypothesisDossier,
     knowledge_gaps: list[KnowledgeGap],
     gate_recommendation: str,
+    biological_takeaway: BiologicalTakeaway | None,
 ) -> list[str]:
     summary = [
         f"trust score {quality_audit.trust_score:.2f} with triangulation {quality_audit.triangulation_score:.2f}",
@@ -329,7 +370,92 @@ def _build_executive_summary(
     ]
     if knowledge_gaps:
         summary.append(f"{len(knowledge_gaps)} unresolved knowledge gaps remain")
+    if biological_takeaway is not None:
+        summary.append(
+            f"biological grounding: {biological_takeaway.grounding_state.value}"
+        )
+        if biological_takeaway.downgrade_reasons:
+            summary.append(
+                f"grounding limits: {biological_takeaway.downgrade_reasons[0]}"
+            )
     return summary
+
+
+def _build_biological_takeaway(
+    *,
+    scientific_conclusions: list[ScientificConclusion],
+    knowledge_gaps: list[KnowledgeGap],
+    conflict_clusters: list[ConflictCluster],
+    quality_audit: KnowledgeQualityAudit,
+    workflow_family: KnowledgeWorkflowFamily | None,
+    reference_disagreement_report: ReferenceDisagreementReport | None,
+) -> BiologicalTakeaway | None:
+    if workflow_family is None:
+        return None
+
+    briefing = build_workflow_reference_briefing(workflow_family)
+    data_says = tuple(
+        conclusion.statement for conclusion in scientific_conclusions[:3]
+    ) or ("current benchmark-backed packet has no claim-level biological statement",)
+    benchmark_allows = briefing.benchmark_manifest.supported_repo_claims[:2]
+    literature_suggests = tuple(
+        group.curation_note for group in briefing.literature_groups[:2]
+    )
+    unknowns = tuple(
+        dict.fromkeys(
+            [gap.gap_code for gap in knowledge_gaps[:2]]
+            + list(briefing.scope_limit_notes[:2])
+        )
+    )
+    downgrade_reasons: list[str] = []
+    contradiction_present = any(cluster.recommended_hold for cluster in conflict_clusters)
+    if contradiction_present:
+        downgrade_reasons.append(
+            "direct evidence conflict still forces a bounded biological reading"
+        )
+    if reference_disagreement_report is not None and reference_disagreement_report.entries:
+        downgrade_reasons.append(
+            "benchmark and literature still disagree on at least one workflow-facing claim"
+        )
+    if quality_audit.trust_score < 0.75:
+        downgrade_reasons.append(
+            "trust score remains below the threshold needed for a strong biological takeaway"
+        )
+    if quality_audit.triangulation_score < 0.6:
+        downgrade_reasons.append(
+            "triangulation remains too thin for a robust biological takeaway"
+        )
+
+    if contradiction_present or (
+        reference_disagreement_report is not None
+        and reference_disagreement_report.entries
+    ):
+        grounding_state = BiologicalGroundingState.BOUNDED_BY_CONTRADICTION
+        bounded_takeaway = (
+            "Biological takeaway remains downgraded because benchmark, literature, "
+            "or direct evidence still disagree inside the current workflow scope."
+        )
+    elif downgrade_reasons:
+        grounding_state = BiologicalGroundingState.THINLY_GROUNDED
+        bounded_takeaway = (
+            "Biological takeaway remains review-grade only because the evidence base "
+            "is still too thin to defend a stronger interpretation."
+        )
+    else:
+        grounding_state = BiologicalGroundingState.LITERATURE_GROUNDED_REVIEW_GRADE
+        bounded_takeaway = (
+            "Biological takeaway is literature-grounded and benchmark-bounded, but still "
+            "remains explicitly review-grade rather than broad decision-grade authority."
+        )
+    return BiologicalTakeaway(
+        grounding_state=grounding_state,
+        data_says=data_says,
+        benchmark_allows=benchmark_allows,
+        literature_suggests=literature_suggests,
+        unknowns=unknowns,
+        bounded_takeaway=bounded_takeaway,
+        downgrade_reasons=tuple(dict.fromkeys(downgrade_reasons)),
+    )
 
 
 def compute_decision_intelligence_index(

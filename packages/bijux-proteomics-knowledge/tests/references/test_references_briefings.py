@@ -39,3 +39,17 @@ def test_workflow_reference_briefing_keeps_provenance_visible() -> None:
     assert set(briefing.limitation.scope_limit_notes).issubset(
         briefing.scope_limit_notes
     )
+    assert briefing.interpretation_context_lines
+    assert briefing.decision_grade_framework.criteria
+
+
+def test_workflow_reference_briefing_carries_richer_quant_ptm_and_targeted_context() -> (
+    None
+):
+    lfq = build_workflow_reference_briefing(KnowledgeWorkflowFamily.LFQ)
+    ptm = build_workflow_reference_briefing(KnowledgeWorkflowFamily.PTM)
+    targeted = build_workflow_reference_briefing(KnowledgeWorkflowFamily.TARGETED)
+
+    assert "missingness" in lfq.interpretation_context_lines[0].lower()
+    assert "localization ambiguity" in ptm.interpretation_context_lines[0].lower()
+    assert "chromatogram qc" in targeted.decision_grade_framework.criteria[0].summary.lower()
