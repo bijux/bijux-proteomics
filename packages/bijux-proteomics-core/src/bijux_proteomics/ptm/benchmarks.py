@@ -16,6 +16,7 @@ from bijux_proteomics.ptm import (
     PtmSiteEntry,
 )
 from bijux_proteomics.ptm.review import (
+    build_ptm_motif_enrichment_background_provenance_report,
     build_ptm_occupancy_counterpart_report,
     build_ptm_site_localization_evidence_graph,
 )
@@ -86,6 +87,58 @@ class PtmAmbiguityPropagationBenchmarkReport(JsonModel):
         default_factory=tuple
     )
     propagated_site_count: int = Field(..., ge=0)
+    interpretive_only_count: int = Field(..., ge=0)
+
+
+class PtmMotifCredibilityDisposition(StrEnum):
+    """Whether a PTM motif result is credible enough for biological reading."""
+
+    CREDIBLE = "credible"
+    INTERPRETIVE_ONLY = "interpretive_only"
+
+
+class PtmMotifCredibilityBenchmarkReport(JsonModel):
+    """Benchmark report that prevents overreading PTM motif enrichment output."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    modification_name: str = Field(..., min_length=1)
+    foreground_site_count: int = Field(..., ge=0)
+    background_site_count: int = Field(..., ge=0)
+    ambiguous_site_fraction: float = Field(..., ge=0.0, le=1.0)
+    dominant_protein_fraction: float = Field(..., ge=0.0, le=1.0)
+    disposition: PtmMotifCredibilityDisposition
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PtmLabTargetingDisposition(StrEnum):
+    """Disposition for downstream lab targeting of PTM evidence."""
+
+    TARGETABLE = "targetable"
+    INTERPRETIVE_ONLY = "interpretive_only"
+
+
+class PtmLabTargetingRubricEntry(JsonModel):
+    """One PTM site evaluated against the public lab-targeting rubric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    localization_confidence_tier: PtmLocalizationConfidenceTier
+    occupancy_complete: bool
+    ambiguous_site: bool
+    best_q_value: float | None = Field(default=None, ge=0.0)
+    disposition: PtmLabTargetingDisposition
+    rationale: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PtmLabTargetingRubricReport(JsonModel):
+    """Public rubric for when PTM evidence is ready for lab targeting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PtmLabTargetingRubricEntry, ...] = Field(default_factory=tuple)
+    targetable_count: int = Field(..., ge=0)
     interpretive_only_count: int = Field(..., ge=0)
 
 
@@ -214,5 +267,137 @@ def build_ptm_ambiguity_propagation_benchmark_report(
         ),
         interpretive_only_count=sum(
             1 for entry in report_entries if entry.interpretive_only
+        ),
+    )
+
+
+def build_ptm_motif_credibility_benchmark_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    protein_sequences: dict[str, str],
+    modification_name: str,
+    minimum_foreground_site_count: int = 3,
+    maximum_ambiguous_site_fraction: float = 0.25,
+    maximum_dominant_protein_fraction: float = 0.6,
+) -> PtmMotifCredibilityBenchmarkReport:
+    """Check whether a PTM motif signal is strong enough for biological reading."""
+
+    report = build_ptm_motif_enrichment_background_provenance_report(
+        site_entries,
+        protein_sequences=protein_sequences,
+        modification_name=modification_name,
+        background_universe="all_modified_residue_candidates_in_observed_proteins",
+        applied_filters=(
+            "preserve_site_level_ambiguity",
+            "preserve_site_level_decoy_state",
+        ),
+    )
+    relevant_sites = tuple(
+        entry for entry in site_entries if entry.modification_name == modification_name
+    )
+    foreground_count = len(relevant_sites)
+    ambiguous_fraction = (
+        sum(1 for entry in relevant_sites if entry.ambiguous) / foreground_count
+        if foreground_count
+        else 0.0
+    )
+    protein_counts: dict[str, int] = {}
+    for entry in relevant_sites:
+        protein_counts[entry.protein_ref] = protein_counts.get(entry.protein_ref, 0) + 1
+    dominant_fraction = (
+        max(protein_counts.values()) / foreground_count if protein_counts else 0.0
+    )
+    caveats: list[str] = list(report.caveats)
+    if foreground_count < minimum_foreground_site_count:
+        caveats.append("foreground site count is too small for strong motif biology claims")
+    if ambiguous_fraction > maximum_ambiguous_site_fraction:
+        caveats.append("site ambiguity fraction is high enough to weaken motif interpretation")
+    if dominant_fraction > maximum_dominant_protein_fraction:
+        caveats.append("motif signal is concentrated in too few proteins")
+    disposition = (
+        PtmMotifCredibilityDisposition.CREDIBLE if not caveats else PtmMotifCredibilityDisposition.INTERPRETIVE_ONLY
+    )
+    return PtmMotifCredibilityBenchmarkReport(
+        modification_name=modification_name,
+        foreground_site_count=foreground_count,
+        background_site_count=report.background_site_count,
+        ambiguous_site_fraction=round(ambiguous_fraction, 6),
+        dominant_protein_fraction=round(dominant_fraction, 6),
+        disposition=disposition,
+        caveats=tuple(caveats),
+    )
+
+
+def build_ptm_lab_targeting_rubric_report(
+    records: tuple[PtmEvidenceRecord, ...],
+    mappings: tuple[PtmProteinSiteMapping, ...],
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    fragment_ion_support_by_spectrum: dict[str, tuple[str, ...]] | None = None,
+    maximum_site_q_value: float = 0.05,
+) -> PtmLabTargetingRubricReport:
+    """Apply one public rubric to PTM sites before lab-targeting claims."""
+
+    localization = build_ptm_localization_confidence_benchmark_report(
+        records,
+        mappings,
+        fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
+    )
+    localization_by_site = {entry.site_key: entry for entry in localization.entries}
+    occupancy = build_ptm_occupancy_counterpart_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+    incomplete_occupancy_sites = {
+        entry.site_key
+        for entry in occupancy.entries
+        if entry.uncertainty is not PtmOccupancyUncertainty.NONE
+    }
+    entries: list[PtmLabTargetingRubricEntry] = []
+    for site_entry in site_entries:
+        localization_entry = localization_by_site.get(site_entry.site_key)
+        localization_tier = (
+            localization_entry.confidence_tier
+            if localization_entry is not None
+            else PtmLocalizationConfidenceTier.REFUSED
+        )
+        occupancy_complete = site_entry.site_key not in incomplete_occupancy_sites
+        rationale: list[str] = []
+        if localization_tier is not PtmLocalizationConfidenceTier.DECISIVE:
+            rationale.append("localization confidence is not decisive")
+        if site_entry.ambiguous:
+            rationale.append("site localization remains ambiguous")
+        if not occupancy_complete:
+            rationale.append("modified and unmodified counterpart evidence is incomplete")
+        if site_entry.best_q_value is None or site_entry.best_q_value > maximum_site_q_value:
+            rationale.append("site-level q-value remains too weak for lab targeting")
+        disposition = (
+            PtmLabTargetingDisposition.TARGETABLE
+            if not rationale
+            else PtmLabTargetingDisposition.INTERPRETIVE_ONLY
+        )
+        if not rationale:
+            rationale.append("site clears localization, occupancy, and q-value requirements")
+        entries.append(
+            PtmLabTargetingRubricEntry(
+                site_key=site_entry.site_key,
+                localization_confidence_tier=localization_tier,
+                occupancy_complete=occupancy_complete,
+                ambiguous_site=site_entry.ambiguous,
+                best_q_value=site_entry.best_q_value,
+                disposition=disposition,
+                rationale=tuple(rationale),
+            )
+        )
+    return PtmLabTargetingRubricReport(
+        entries=tuple(entries),
+        targetable_count=sum(
+            1 for entry in entries if entry.disposition is PtmLabTargetingDisposition.TARGETABLE
+        ),
+        interpretive_only_count=sum(
+            1
+            for entry in entries
+            if entry.disposition is PtmLabTargetingDisposition.INTERPRETIVE_ONLY
         ),
     )
