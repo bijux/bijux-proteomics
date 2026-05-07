@@ -38,7 +38,10 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert not missing, (
         f"missing scientific release dossier guidance in {doc_path}: {missing}"
     )
-    assert "public_benchmark_packages/dda_reviewable_run/package_manifest.json" in text
+    assert (
+        "benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json"
+        in text
+    )
     assert "dda-maxquant-pipeline-corpus" in text
     assert "comparator_path:msfragger_imported_dda_review" in text
     assert "flagship-release-candidate.md" in text
