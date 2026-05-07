@@ -83,6 +83,7 @@ from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
+    BenchmarkPackageArtifactKind,
     KnowledgeWorkflowFamily,
 )
 from bijux_proteomics_knowledge.references.workflows.briefings import (
@@ -350,6 +351,59 @@ def _workflow_minimum_controls(
     return entry.minimum_controls
 
 
+def _infer_search_adapter_kind(source_path: Path) -> SearchAdapterKind:
+    """Infer the adapter kind for one checked-in benchmark result artifact."""
+
+    artifact_name = source_path.name.lower()
+    if "msfragger" in artifact_name:
+        return SearchAdapterKind.MSFRAGGER
+    if "maxquant" in artifact_name:
+        return SearchAdapterKind.MAXQUANT_EVIDENCE
+    if "spectronaut" in artifact_name:
+        return SearchAdapterKind.SPECTRONAUT
+    raise ValueError(f"cannot infer search adapter kind from {source_path.name!r}")
+
+
+def _infer_search_adapter_dialect_id(source_path: Path) -> str | None:
+    """Infer the checked-in result dialect when one benchmark path needs it."""
+
+    artifact_name = source_path.name.lower()
+    if "pipeline_export" in artifact_name:
+        return "pipeline-export"
+    return None
+
+
+def _resolve_primary_pipeline_export(manifest: BenchmarkManifest) -> Path:
+    """Resolve the primary checked-in external export for one benchmark package."""
+
+    package = manifest.benchmark_package
+    if package is None:
+        return _repo_root() / manifest.dataset_locator
+    primary_artifact = next(
+        (
+            artifact
+            for artifact in package.package_artifacts
+            if artifact.artifact_id.endswith("maxquant_export")
+            and artifact.artifact_kind
+            is BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT
+        ),
+        None,
+    )
+    if primary_artifact is None:
+        primary_artifact = next(
+            (
+                artifact
+                for artifact in package.package_artifacts
+                if artifact.artifact_kind
+                is BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT
+            ),
+            None,
+        )
+    if primary_artifact is None:
+        return _repo_root() / manifest.dataset_locator
+    return _repo_root() / primary_artifact.repo_relative_path
+
+
 def _build_grounding_payload(
     *,
     workflow_family: KnowledgeWorkflowFamily,
@@ -414,11 +468,16 @@ def build_dda_benchmark_review(
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.DDA:
         raise ValueError("DDA benchmark review requires a DDA workflow manifest")
-    result_path = source_path or (_repo_root() / manifest.dataset_locator)
-    normalization = normalize_search_results_with_adapter(
-        source_path=result_path,
-        adapter_kind=SearchAdapterKind.MSFRAGGER,
-    )
+    result_path = source_path or _resolve_primary_pipeline_export(manifest)
+    adapter_kind = _infer_search_adapter_kind(result_path)
+    normalization_kwargs = {
+        "source_path": result_path,
+        "adapter_kind": adapter_kind,
+    }
+    dialect_id = _infer_search_adapter_dialect_id(result_path)
+    if dialect_id is not None:
+        normalization_kwargs["dialect_id"] = dialect_id
+    normalization = normalize_search_results_with_adapter(**normalization_kwargs)
     conformance = build_search_adapter_conformance_report(normalization)
     review_bundle = build_review_ready_evidence_bundle(
         normalization.normalized_records,
@@ -495,9 +554,9 @@ def build_dda_benchmark_review(
         workflow_family=manifest.workflow_family,
         artifact_ids=(manifest.dataset_id, artifact_id),
         summary_lines=(
-            "Core owns DDA parsing and adapter normalization.",
+            "Core owns DDA parsing, adapter normalization, and the tracked public package boundary.",
             "Intelligence owns the release-facing benchmark review summary.",
-            "This benchmark is limited to the checked-in MSFragger fixture and explicit comparison notes.",
+            "This benchmark is limited to the tracked DDA public package, its primary imported export, and explicit cross-engine comparison notes.",
         ),
         scientific_limits=scientific_limits,
         hash_entries=(
@@ -513,7 +572,7 @@ def build_dda_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "DDA benchmark review preserves external-engine normalization, target-decoy posture, "
-            "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun; "
+            "and protein-level reviewability for the tracked DDA public package without pretending it is a full engine rerun; "
             f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,

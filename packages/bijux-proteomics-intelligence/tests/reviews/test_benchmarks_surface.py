@@ -69,7 +69,21 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
         for claim in review.claim_summaries
     )
     assert review.external_reviewer_bundle.completeness_notes == ()
-    assert "MSFragger fixture" in review.reviewer_summary
+    assert "tracked DDA public package" in review.reviewer_summary
+
+
+def test_build_dda_benchmark_review_defaults_to_public_package_primary_export() -> None:
+    review = build_dda_benchmark_review()
+
+    assert isinstance(review, WorkflowBenchmarkReview)
+    assert review.workflow_family is KnowledgeWorkflowFamily.DDA
+    assert review.benchmark_package_id == "benchmark_package:dda_reviewable_run"
+    assert any(
+        claim.claim_id == "target_decoy_semantics"
+        and claim.support_state is SupportState.SUPPORTED
+        for claim in review.claim_summaries
+    )
+    assert "tracked DDA public package" in review.reviewer_summary
 
 
 def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
