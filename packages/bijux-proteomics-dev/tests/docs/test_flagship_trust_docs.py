@@ -42,7 +42,10 @@ def test_dda_trust_page_leads_with_real_public_package_and_runtime_lane() -> Non
 
     assert "outsider_review:dda" in text
     assert "dda-maxquant-pipeline-corpus" in text
-    assert "public_benchmark_packages/dda_reviewable_run/package_manifest.json" in text
+    assert (
+        "benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json"
+        in text
+    )
     assert "search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv" in text
 
 

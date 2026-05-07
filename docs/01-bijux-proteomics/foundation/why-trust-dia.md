@@ -18,8 +18,8 @@ stops at library-conditioned import review rather than vendor-execution parity.
 ## Open First
 
 - `benchmark:dia_library_extraction_consistency`
-- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/package_manifest.json`
-- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/README.md`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_pipeline_export.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv`

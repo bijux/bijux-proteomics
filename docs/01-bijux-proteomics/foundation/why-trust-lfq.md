@@ -18,7 +18,7 @@ not earn a positive outsider-auditable LFQ claim.
 ## Open First
 
 - `benchmark:lfq_cohort_repeatability`
-- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv`
 - `packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json`

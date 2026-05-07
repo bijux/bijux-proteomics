@@ -18,7 +18,7 @@ yet earn a flagship outsider-auditable targeted workflow claim.
 ## Open First
 
 - `benchmark:targeted_transition_consistency`
-- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv`
 - `packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json`
 - `packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json`

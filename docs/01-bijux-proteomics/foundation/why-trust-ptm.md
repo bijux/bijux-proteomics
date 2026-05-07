@@ -18,7 +18,7 @@ public package. It is not a claim that PTM review is currently outsider-auditabl
 ## Open First
 
 - `benchmark:ptm_localization_consistency`
-- `packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/package_manifest.json`
+- `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json`
 - `packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv`
 - `packages/bijux-proteomics-core/src/bijux_proteomics/ptm/benchmarks.py`
 - `packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py`
