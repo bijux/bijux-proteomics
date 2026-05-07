@@ -11,9 +11,14 @@ from typing import Any
 
 __all__ = [
     "BaseProvider",
+    "ProviderArtifactGuarantees",
     "PredictionResult",
     "ProviderCapabilities",
+    "ProviderExecutionContract",
+    "ProviderFailureGuarantees",
     "ProviderMetadata",
+    "provider_contract_supports_error_code",
+    "validate_prediction_result",
     "_time_left",
 ]
 
@@ -31,6 +36,40 @@ class PredictionResult:
     pdb_text: str
     provider: str
     raw: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class ProviderArtifactGuarantees:
+    """Artifact guarantees that callers may rely on after prediction succeeds."""
+
+    pdb_text_required: bool = True
+    raw_payload_required: bool = False
+    required_raw_keys: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ProviderFailureGuarantees:
+    """Declared failure-code contract for one provider family."""
+
+    expected_error_codes: tuple[str, ...] = ()
+    cancellation_code: str | None = None
+    partial_output_code: str | None = None
+    malformed_input_code: str | None = None
+    corrupted_artifact_code: str | None = None
+
+
+@dataclass(frozen=True)
+class ProviderExecutionContract:
+    """Explicit execution guarantees beyond coarse capability flags."""
+
+    cooperative_cancellation: bool
+    artifact_guarantees: ProviderArtifactGuarantees = field(
+        default_factory=ProviderArtifactGuarantees
+    )
+    failure_guarantees: ProviderFailureGuarantees = field(
+        default_factory=ProviderFailureGuarantees
+    )
+    notes: str = ""
 
 
 @dataclass(frozen=True)
@@ -56,6 +95,22 @@ class BaseProvider:
 
     name: str = "base"
     metadata: ProviderMetadata = ProviderMetadata(name="base", experimental=False)
+    execution_contract: ProviderExecutionContract = ProviderExecutionContract(
+        cooperative_cancellation=False,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=False,
+            required_raw_keys=(),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=("UNKNOWN",),
+            cancellation_code=None,
+            partial_output_code="NO_OUTPUT",
+            malformed_input_code="BAD_INPUT",
+            corrupted_artifact_code="INVALID_OUTPUT_SHAPE",
+        ),
+        notes="base provider contract is intentionally conservative and must be specialized by concrete providers",
+    )
 
     def healthcheck(self) -> bool:
         """Checks the health of the provider.
@@ -87,6 +142,49 @@ class BaseProvider:
     def close(self) -> None:
         """Closes the provider."""
         return
+
+
+def provider_contract_supports_error_code(
+    contract: ProviderExecutionContract, code: str
+) -> bool:
+    """Return whether one provider contract explicitly supports an error code."""
+
+    declared = {
+        *contract.failure_guarantees.expected_error_codes,
+        *(
+            value
+            for value in (
+                contract.failure_guarantees.cancellation_code,
+                contract.failure_guarantees.partial_output_code,
+                contract.failure_guarantees.malformed_input_code,
+                contract.failure_guarantees.corrupted_artifact_code,
+            )
+            if value is not None
+        ),
+    }
+    return code in declared
+
+
+def validate_prediction_result(
+    result: PredictionResult,
+    *,
+    provider_name: str,
+    contract: ProviderExecutionContract,
+) -> list[str]:
+    """Return contract issues for one provider prediction result."""
+
+    issues: list[str] = []
+    guarantees = contract.artifact_guarantees
+    if guarantees.pdb_text_required and not result.pdb_text.strip():
+        issues.append("missing_pdb_text")
+    if result.provider != provider_name:
+        issues.append("provider_name_mismatch")
+    if guarantees.raw_payload_required and not result.raw:
+        issues.append("missing_raw_payload")
+    for key in guarantees.required_raw_keys:
+        if key not in result.raw:
+            issues.append(f"missing_raw_key:{key}")
+    return issues
 
 
 def _time_left(deadline: float) -> float:
