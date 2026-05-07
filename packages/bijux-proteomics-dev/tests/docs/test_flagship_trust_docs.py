@@ -55,5 +55,8 @@ def test_non_dda_trust_pages_keep_weaker_posture_visible() -> None:
     assert "external_reproduction_package" in dia
     assert "import_only" in dia
     assert "do_not_recommend" in lfq
+    assert "lfq-cohort-review-corpus" in lfq
     assert "public claim support is `refused`" in ptm
-    assert "no flagship runtime truth row is published for targeted yet" in targeted
+    assert "ptm-localization-review-corpus" in ptm
+    assert "targeted-transition-review-corpus" in targeted
+    assert "public claim support is `refused`" in targeted

@@ -30,7 +30,7 @@ yet earn a flagship outsider-auditable targeted workflow claim.
   outsider-auditable flagship family.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `refused`.
-- no flagship runtime truth row is published for targeted yet.
+- the runtime package is now `targeted-transition-review-corpus`.
 - the recommendation posture is `do_not_recommend`.
 - the lab posture is `not_worth_assay`.
 
@@ -47,9 +47,11 @@ yet earn a flagship outsider-auditable targeted workflow claim.
 - refusal is visible when calibration and interference realism remain too thin
 - the tracked public package keeps QC tables and approved, failed, and refused
   follow-up packets together
+- the runtime bundle now preserves transition-level QC, blocked follow-up
+  pressure, and observed follow-up consequence outputs in one checked lane
 
 ## What You Should Not Trust Yet
 
-- there is still no flagship runtime truth row for targeted
 - comparator-backed public support is still refused
 - biological grounding remains thin
+- operational burden remains too high for a justified recommendation

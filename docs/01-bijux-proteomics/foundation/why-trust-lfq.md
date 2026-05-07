@@ -29,7 +29,7 @@ not earn a positive outsider-auditable LFQ claim.
   flagship family.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `refused`.
-- the runtime package is still `quant_review-blocked-runtime-path`.
+- the runtime package is now `lfq-cohort-review-corpus`.
 - the recommendation posture is `do_not_recommend`.
 - the lab posture is `not_worth_assay`.
 
@@ -48,9 +48,12 @@ not earn a positive outsider-auditable LFQ claim.
   runtime evidence deserve
 - the tracked public package keeps cohort design, feature evidence, and package
   lifecycle visible instead of implied
+- the runtime bundle now shows normalization, missingness, differential, and
+  review outputs as one checked flagship run family rather than a blocked hole
 
 ## What You Should Not Trust Yet
 
-- no flagship LFQ runtime family is wired
 - comparator-backed public support is still refused
 - biological grounding remains thin
+- comparator drift or missing external execution parity still materially limits
+  this public workflow claim

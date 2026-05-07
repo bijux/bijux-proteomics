@@ -32,6 +32,9 @@ def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
 
     assert "| `dda` | `0.77` | yes | no |" in text
     assert "| `dia` | `0.77` | yes | no |" in text
+    assert "| `lfq` | `0.42` | no | no |" in text
+    assert "| `ptm` | `0.42` | no | no |" in text
+    assert "| `targeted` | `0.38` | no | no |" in text
     assert "repository-wide elite" in text
     assert "language remains blocked" in text
     assert "It does not count files, documents, governance volume" in text

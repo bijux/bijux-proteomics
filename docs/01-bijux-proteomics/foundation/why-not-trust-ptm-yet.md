@@ -15,7 +15,8 @@ last_reviewed: 2026-05-07
 
 - a real PTM public package exists, but it is still not enough to make PTM
   outsider-auditable
-- no flagship runtime benchmark path is wired for this workflow family yet
+- the runtime family now exists as `ptm-localization-review-corpus`, but
+  runtime execution alone does not close the comparator and grounding gaps
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
 - operational burden remains too high for a justified recommendation
@@ -24,5 +25,3 @@ last_reviewed: 2026-05-07
 
 - add stronger rescoring or external PTM comparator evidence so localization
   trust is not limited to imported tables
-- add a flagship PTM runtime family with reviewable execution truth instead of
-  leaving the package disconnected from runtime proof

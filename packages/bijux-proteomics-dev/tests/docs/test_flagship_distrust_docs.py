@@ -37,8 +37,9 @@ def test_distrust_pages_name_real_missing_substance() -> None:
     ptm = _read_doc("why-not-trust-ptm-yet.md")
     targeted = _read_doc("why-not-trust-targeted-yet.md")
 
-    assert "no flagship runtime benchmark path is wired" in lfq
+    assert "lfq-cohort-review-corpus" in lfq
     assert "public package" in lfq
-    assert "no flagship runtime benchmark path is wired" in ptm
+    assert "ptm-localization-review-corpus" in ptm
     assert "public comparator-backed claim support is still refused" in ptm
-    assert "no flagship runtime truth row is published for targeted yet" in targeted
+    assert "targeted-transition-review-corpus" in targeted
+    assert "operational burden remains too high for a justified recommendation" in targeted

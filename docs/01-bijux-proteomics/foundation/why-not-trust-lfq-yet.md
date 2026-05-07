@@ -15,7 +15,8 @@ last_reviewed: 2026-05-07
 
 - a real LFQ public package exists, but it still stops short of outsider-auditable
   authority
-- no flagship runtime benchmark path is wired for this workflow family yet
+- the runtime family now exists as `lfq-cohort-review-corpus`, but runtime
+  execution alone does not repair the missing comparator and grounding gaps
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
 - comparator drift or missing external execution parity still materially limits
@@ -25,7 +26,5 @@ last_reviewed: 2026-05-07
 
 - add stronger external quant comparator pressure so repeatability and
   effect-size claims are not inferred from fixture stability alone
-- add a flagship LFQ runtime family instead of leaving the workflow at
-  `quant_review-blocked-runtime-path`
 - harden biological grounding until the current public package is enough to
   support stronger recommendation and release posture

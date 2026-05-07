@@ -15,7 +15,8 @@ last_reviewed: 2026-05-07
 
 - a real targeted public package exists, but it is still not enough to make
   targeted outsider-auditable
-- no flagship runtime truth row is published for targeted yet
+- the runtime family now exists as `targeted-transition-review-corpus`, but
+  runtime execution alone does not overcome comparator refusal or lab burden
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
 - operational burden remains too high for a justified recommendation
@@ -24,7 +25,5 @@ last_reviewed: 2026-05-07
 
 - build a raw-to-reviewed targeted comparator against Skyline-class workflows
   so targeted support stops losing on calibration and interference realism
-- publish one real flagship targeted runtime truth row instead of keeping this
-  workflow family outside the runtime surface
 - reduce assay burden enough that the current public package can justify
   stronger recommendation posture

@@ -29,7 +29,7 @@ public package. It is not a claim that PTM review is currently outsider-auditabl
   flagship family.
 - benchmark evidence tier is `external_reproduction_package`.
 - public claim support is `refused`.
-- the runtime package is still `ptm_review-blocked-runtime-path`.
+- the runtime package is now `ptm-localization-review-corpus`.
 - the recommendation posture is `do_not_recommend`.
 - the lab posture is `not_worth_assay`.
 
@@ -47,9 +47,11 @@ public package. It is not a claim that PTM review is currently outsider-auditabl
 - the repo does not flatten PTM excitement into promotion language
 - the tracked public package keeps localization, feature, FASTA, and raw-spectrum
   context tied together in one inspectable surface
+- the runtime bundle now preserves localization, occupancy, motif, and
+  lab-targeting outputs inside one checked PTM run family
 
 ## What You Should Not Trust Yet
 
-- no flagship PTM runtime family is wired
 - public comparator-backed claim support is still refused
 - biological grounding remains thin
+- operational burden remains too high for a justified recommendation

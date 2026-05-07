@@ -33,8 +33,9 @@ instead of being flattened into optimistic release language.
 - runtime package ids:
   - `dda-maxquant-pipeline-corpus`
   - `dia-diann-pipeline-corpus`
-  - `quant_review-blocked-runtime-path`
-  - `ptm_review-blocked-runtime-path`
+  - `lfq-cohort-review-corpus`
+  - `ptm-localization-review-corpus`
+  - `targeted-transition-review-corpus`
 - trust pages:
   - [Why Trust DDA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dda/)
   - [Why Trust DIA](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-dia/)
@@ -55,7 +56,8 @@ instead of being flattened into optimistic release language.
   bounded by library-conditioned import review, advisory claim support, and
   execution steps that still sit outside the repository proof boundary
 - `lfq`, `ptm`, and `targeted` are currently stronger as explicit refusal
-  surfaces than as positive release families
+  surfaces than as positive release families, even though each now has a
+  checked flagship runtime run bundle
 
 ## Boundary
 

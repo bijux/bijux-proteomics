@@ -28,9 +28,9 @@ It does not count files, documents, governance volume, or maintenance theater.
 | --- | ---: | :---: | :---: |
 | `dda` | `0.77` | yes | no |
 | `dia` | `0.77` | yes | no |
-| `lfq` | `0.17` | no | no |
-| `ptm` | `0.08` | no | no |
-| `targeted` | `0.17` | no | no |
+| `lfq` | `0.42` | no | no |
+| `ptm` | `0.42` | no | no |
+| `targeted` | `0.38` | no | no |
 
 ## Current Boundary
 
@@ -47,8 +47,8 @@ Repository-wide elite language remains blocked.
   follow-up posture
 - DIA is outsider-auditable now, but still limited by import-only runtime truth,
   advisory public claim support, and library-conditioned execution boundaries
-- LFQ, PTM, and targeted remain blocked by runtime gaps, refused claim support,
-  or unjustified lab burden
+- LFQ, PTM, and targeted now have checked runtime execution, but they remain
+  blocked by refused claim support, thin grounding, or unjustified lab burden
 
 ## Rule
 
