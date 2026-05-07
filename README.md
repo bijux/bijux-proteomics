@@ -44,11 +44,13 @@ decision intelligence, evidence governance, and lab planning.
 The goal is not just to run a protein pipeline once. The goal is to keep
 behavior reviewable and reproducible as the system evolves.
 
-The important limit is that this repository is still earlier than that full
-scientific vision. The package split, governance surfaces, ranking helpers,
-evidence models, and lab-planning contracts are already real. The broader
-proteomics workflow stack for sequence intake, assay progression, evidence
-integration, and reviewable scientific delivery is still being built out.
+The important limit is that this repository now proves one narrow canonical
+workflow family, not broad proteomics workflow coverage. The package split,
+governance surfaces, ranking helpers, evidence models, and lab-planning
+contracts are already real. The checked `reviewable-proteomics` proof set now
+carries one artifact-backed workflow from sequence intake through review and
+follow-up, while broader glycopeptide, library-search, and external-engine
+coverage is still being built out.
 
 The current non-negotiable gaps are collected in
 [`docs/01-bijux-proteomics/foundation/current-capability-limits.md`](docs/01-bijux-proteomics/foundation/current-capability-limits.md)
@@ -111,20 +113,23 @@ What exists now:
 - deterministic runtime and compatibility routing
 - typed program, evidence, ranking, and assay-planning models
 - reviewable package handbooks and governance checks
+- one checked canonical workflow proof set for the narrow
+  `reviewable-proteomics` family
 
 What is still missing or deliberately incomplete:
 
-- an end-to-end scientific workflow that carries one proteomics program from
-  sequence intake through assay progression and evidence-backed advancement
-- explicit checked-in workflow blueprints that tie runtime, ranking, evidence,
-  and lab execution together
-- a clearer roadmap that distinguishes current reusable contracts from future
-  proteomics engine capabilities
+- broader workflow-family proof beyond the single `reviewable-proteomics`
+  canonical lane
+- dedicated checked proof sets for glycopeptide, library-search, and broader
+  external-engine workflow behavior
+- a clearer roadmap that distinguishes current canonical workflow proof from
+  future proteomics engine capabilities
 
 ## Start Here
 
 - Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
 - Scientific workflow roadmap: [Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
+- Canonical workflow proof: [Canonical workflow proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
 - Current capability limits: [Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
 - API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
 - Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)

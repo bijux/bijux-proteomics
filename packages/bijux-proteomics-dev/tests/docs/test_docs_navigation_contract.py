@@ -271,7 +271,9 @@ def test_repository_foundation_leaf_pages_keep_section_sidebar(
         "Documentation System",
         "Change Principles",
         "Decision Rules",
+        "Canonical Workflow Proof",
         "Scientific Workflow Roadmap",
+        "Current Capability Limits",
         "Duplicate Model Ownership",
     ]
 

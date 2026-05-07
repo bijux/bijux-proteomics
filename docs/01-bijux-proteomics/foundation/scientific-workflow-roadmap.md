@@ -9,8 +9,9 @@ last_reviewed: 2026-04-27
 
 # Scientific Workflow Roadmap
 
-`bijux-proteomics` already has substantial package contracts. What it does not
-yet have is the full scientific workflow spine those contracts should serve.
+`bijux-proteomics` already has substantial package contracts and now has one
+checked canonical workflow family. What it does not yet have is broad
+scientific workflow coverage across the larger proteomics surface.
 
 ## Current State
 
@@ -23,16 +24,15 @@ Today the repository is strongest in these areas:
 
 ## Next State
 
-The next durable step is to make one proteomics workflow legible end to end:
+The next durable step is to grow beyond the single canonical proof family:
 
-- sequence and program intake
-- evidence review and evidence-gap detection
-- assay planning and execution ordering
-- decision review and advancement
-- learning-loop feedback into the next revision
+- add more than one scientifically serious workflow family
+- keep glycopeptide, library-search, and external-engine behavior at explicit
+  boundary scope until they have checked proof
+- widen the proven workflow surface without losing package ownership clarity
 
-That workflow should remain reviewable from repository contracts rather than
-being hidden inside one runtime path or one notebook.
+Each new workflow family should remain reviewable from repository contracts
+rather than being hidden inside one runtime path or one notebook.
 
 ## Why This Matters
 
@@ -41,8 +41,8 @@ goal is not to decorate package boundaries with ambition. The goal is to grow a
 real scientific workflow on top of those boundaries without losing ownership
 clarity.
 
-The roadmap is about what should exist next. The exact list of what does not
-yet exist lives in
+The roadmap is about what should exist next after the current canonical proof
+family. The exact list of what does not yet exist lives in
 [Current Capability Limits](./current-capability-limits.md).
 
 ## Boundary

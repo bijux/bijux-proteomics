@@ -103,10 +103,9 @@ flowchart LR
 
 ## Current Limit
 
-The current repository can explain and validate package-level responsibilities,
-but it is still building the scientific workflow spine that should carry one
-proteomics program from sequence intake through assay planning, evidence review,
-and advancement decisions.
+The current repository now proves one narrow canonical workflow family,
+`reviewable-proteomics`, but it does not yet prove broad proteomics workflow
+coverage across every scientific family.
 
 The live repository-wide limit list is
 [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/).
@@ -117,8 +116,10 @@ The live repository-wide limit list is
   when the question is about the system as a whole and not yet about one
   package.
 - Open the [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
-  when the question is what the current package stack still needs before it
-  becomes a full proteomics workflow engine.
+  when the question is what the repository still needs beyond the current
+  canonical workflow family.
+- Open the [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
+  when the question is what one checked end-to-end workflow really covers today.
 - Open the [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
   when the question is what this repository still refuses, only partially
   supports, or cannot yet prove scientifically.
