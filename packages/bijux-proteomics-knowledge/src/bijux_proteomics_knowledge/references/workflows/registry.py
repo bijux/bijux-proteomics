@@ -11,12 +11,11 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
-
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
     BenchmarkCrossCheckStatus,
     BenchmarkEvidenceTier,
     BenchmarkManifest,
-    DEFAULT_BENCHMARK_MANIFESTS,
     KnowledgeWorkflowFamily,
 )
 
@@ -65,6 +64,9 @@ class BenchmarkRegistryEntry(JsonModel):
     sample_count: int = Field(..., ge=1)
     replicate_count: int = Field(..., ge=1)
     cross_check_status: BenchmarkCrossCheckStatus
+    benchmark_package_id: str | None = None
+    benchmark_package_summary: str | None = None
+    comparator_path_ids: tuple[str, ...] = Field(default_factory=tuple)
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     realism_limits: tuple[str, ...] = Field(default_factory=tuple)
@@ -169,6 +171,17 @@ def build_benchmark_registry_entry(
         sample_count=manifest.sample_count,
         replicate_count=manifest.replicate_count,
         cross_check_status=manifest.cross_check_status,
+        benchmark_package_id=(
+            manifest.benchmark_package.package_id
+            if manifest.benchmark_package is not None
+            else None
+        ),
+        benchmark_package_summary=(
+            manifest.benchmark_package.package_summary
+            if manifest.benchmark_package is not None
+            else None
+        ),
+        comparator_path_ids=manifest.comparator_path_ids,
         supported_repo_claims=manifest.supported_repo_claims,
         authorized_claim_scope=authority.authorized_claim_scope,
         realism_limits=authority.realism_limits,

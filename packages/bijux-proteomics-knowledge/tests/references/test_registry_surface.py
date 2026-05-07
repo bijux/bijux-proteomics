@@ -6,7 +6,6 @@ from __future__ import annotations
 from datetime import date
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    BenchmarkManifest,
     DEFAULT_BENCHMARK_MANIFESTS,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
@@ -25,6 +24,9 @@ def test_build_benchmark_registry_entry_carries_dataset_shape_and_claims() -> No
     assert entry.sample_complexity == manifest.sample_complexity
     assert entry.organism == manifest.organism
     assert entry.label_strategy == manifest.label_strategy
+    assert entry.benchmark_package_id == manifest.benchmark_package.package_id
+    assert entry.benchmark_package_summary == manifest.benchmark_package.package_summary
+    assert entry.comparator_path_ids == manifest.comparator_path_ids
     assert entry.supported_repo_claims == manifest.supported_repo_claims
     assert entry.realism_limits == manifest.fixture_realism_limits
 
