@@ -27,6 +27,10 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
         for path in specs["dda-maxquant-pipeline-corpus"].public_package_paths
     )
     assert specs["dia-diann-pipeline-corpus"].engine_version == "2.1.0"
+    assert any(
+        path.endswith("public_benchmark_packages/dia_library_review_package/package_manifest.json")
+        for path in specs["dia-diann-pipeline-corpus"].public_package_paths
+    )
 
 
 def test_run_benchmark_sequence_path_executes_real_runtime_path(tmp_path: Path) -> None:

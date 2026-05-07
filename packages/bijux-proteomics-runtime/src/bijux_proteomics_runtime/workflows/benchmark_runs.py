@@ -275,6 +275,12 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             ),
             engine_name="dia-nn",
             engine_version="2.1.0",
+            public_package_paths=(
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/README.md",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/lifecycle.json",
+            ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py",
             ),
