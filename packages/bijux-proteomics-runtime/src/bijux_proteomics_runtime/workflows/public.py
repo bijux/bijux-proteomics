@@ -6,6 +6,18 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.acceptance": [
+        "WorkflowAcceptanceDossier",
+        "WorkflowFailureCategory",
+        "WorkflowFailureTaxonomy",
+        "WorkflowFailureTaxonomyEntry",
+        "WorkflowProofBar",
+        "WorkflowProofRequirement",
+        "WorkflowStageAcceptance",
+        "build_flagship_workflow_acceptance_dossier",
+        "build_flagship_workflow_failure_taxonomy",
+        "build_minimum_real_workflow_proof_bar",
+    ],
     "bijux_proteomics_runtime.workflows.assurance": [
         "CanonicalOperatorPath",
         "WorkflowAssuranceLane",
@@ -16,6 +28,11 @@ _WORKFLOW_EXPORT_GROUPS = {
         "major_workflow_families",
         "simulation_contract_lane_ids",
         "workflow_assurance_lanes",
+    ],
+    "bijux_proteomics_runtime.workflows.handoffs": [
+        "WorkflowOwnerPackage",
+        "WorkflowStageHandoffContract",
+        "build_canonical_workflow_handoff_contracts",
     ],
     "bijux_proteomics_runtime.workflows.paths": [
         "RuntimeReviewableOutputPath",
