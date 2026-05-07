@@ -262,10 +262,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             engine_name="maxquant",
             engine_version="19.0",
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/scientific_invariants.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py",
@@ -289,10 +289,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             engine_name="dia-nn",
             engine_version="2.1.0",
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/quality_sheet.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dia_library_review_package/lifecycle.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py",
@@ -313,10 +313,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
             ),
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/quality_sheet.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/lfq_cohort_review_package/lifecycle.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
@@ -336,10 +336,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
             ),
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/quality_sheet.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/lifecycle.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
@@ -360,10 +360,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-runtime/tests/fixtures/fasta/ptm_sites.fasta",
             ),
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/quality_sheet.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/ptm_localization_review_package/lifecycle.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/lifecycle.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
@@ -385,10 +385,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
             ),
             public_package_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/README.md",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/package_manifest.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/quality_sheet.json",
-                "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/targeted_transition_review_package/lifecycle.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
             ),
             validating_test_paths=(
                 "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",

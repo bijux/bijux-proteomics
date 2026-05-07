@@ -1,126 +1,126 @@
 {
+  "registry_id": "flagship-runtime-run-registry",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/runtime_run_registry.json",
   "entries": [
     {
+      "workflow_family": "dda",
+      "benchmark_id": "benchmark:dda_search_reproducibility",
+      "runtime_package_id": "dda-maxquant-pipeline-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/failure_replay.json",
+      "toolchain_or_import_path": "maxquant:19.0",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:dda_search_reproducibility",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare the primary MaxQuant import path against the paired MSFragger comparator export inside the tracked DDA package.",
         "Preserve target-decoy visibility and explicit protein-rollup caution rather than flattening DDA review into engine-agnostic certainty."
-      ],
-      "runtime_package_id": "dda-maxquant-pipeline-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/stage_lineage.json",
-      "toolchain_or_import_path": "maxquant:19.0",
-      "workflow_family": "dda"
+      ]
     },
     {
+      "workflow_family": "dia",
+      "benchmark_id": "benchmark:dia_library_extraction_consistency",
+      "runtime_package_id": "dia-diann-pipeline-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/failure_replay.json",
+      "toolchain_or_import_path": "dia-nn:2.1.0",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:dia_library_extraction_consistency",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare adapter-normalized outputs against the tracked DIA public package because direct DIA-NN or Spectronaut execution is outside repo scope.",
         "Keep SWATH-style transition semantics aligned with the published DIA method reference."
-      ],
-      "runtime_package_id": "dia-diann-pipeline-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
-      "toolchain_or_import_path": "dia-nn:2.1.0",
-      "workflow_family": "dia"
+      ]
     },
     {
+      "workflow_family": "lfq",
+      "benchmark_id": "benchmark:lfq_quantification_repeatability",
+      "runtime_package_id": "lfq-cohort-review-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/failure_replay.json",
+      "toolchain_or_import_path": "lfq cohort review corpus",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:lfq_quantification_repeatability",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare rollups against the tracked LFQ public package instead of claiming parity with unexecuted external quantification pipelines.",
         "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
         "public comparator-backed claim support is refused",
         "biological grounding remains thin",
         "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
-      ],
-      "runtime_package_id": "lfq-cohort-review-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/stage_lineage.json",
-      "toolchain_or_import_path": "lfq cohort review corpus",
-      "workflow_family": "lfq"
+      ]
     },
     {
+      "workflow_family": "multiplex",
+      "benchmark_id": "benchmark:multiplex_tmtpro_quantification",
+      "runtime_package_id": "multiplex-tmtpro-review-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/failure_replay.json",
+      "toolchain_or_import_path": "multiplex tmtpro review corpus",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:multiplex_tmtpro_quantification",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare reporter handling against the tracked multiplex public package because direct vendor-specific multiplex pipelines are not executed here.",
         "Limit support claims to channel semantics and chemistry caveats, not full external pipeline parity.",
         "public comparator-backed claim support is refused",
         "biological grounding remains thin"
-      ],
-      "runtime_package_id": "multiplex-tmtpro-review-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/stage_lineage.json",
-      "toolchain_or_import_path": "multiplex tmtpro review corpus",
-      "workflow_family": "multiplex"
+      ]
     },
     {
+      "workflow_family": "ptm",
+      "benchmark_id": "benchmark:ptm_site_localization_confidence",
+      "runtime_package_id": "ptm-localization-review-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/failure_replay.json",
+      "toolchain_or_import_path": "ptm localization review corpus",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:ptm_site_localization_confidence",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare localization handling against the checked-in PTM localization fixture because direct rescoring engines are not executed in the repo test path.",
         "Retain Ascore-style ambiguity framing and PSI-MOD grounding in the resulting claims.",
         "public comparator-backed claim support is refused",
         "biological grounding remains thin",
         "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
-      ],
-      "runtime_package_id": "ptm-localization-review-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/stage_lineage.json",
-      "toolchain_or_import_path": "ptm localization review corpus",
-      "workflow_family": "ptm"
+      ]
     },
     {
+      "workflow_family": "targeted",
+      "benchmark_id": "benchmark:targeted_transition_quality_control",
+      "runtime_package_id": "targeted-transition-review-corpus",
+      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json",
+      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json",
+      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json",
+      "toolchain_or_import_path": "targeted transition review corpus",
+      "last_reproduced_on": "2026-05-07",
       "authorized_claim_scope": [
         "externally reproduced scientific behavior within the documented reproduction package",
         "release-facing claims remain limited to the named comparator and transfer boundaries"
       ],
-      "benchmark_id": "benchmark:targeted_transition_quality_control",
-      "bundle_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/run_bundle.json",
-      "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/failure_replay.json",
-      "last_reproduced_on": "2026-05-07",
       "remaining_blockers": [
         "Compare targeted QC handling against the tracked targeted public package and published protein-inference caution rather than claiming direct vendor chromatogram parity.",
         "Keep support claims scoped to transition-level evidence retention and cautious rollup semantics.",
         "public comparator-backed claim support is refused",
         "biological grounding remains thin",
         "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
-      ],
-      "runtime_package_id": "targeted-transition-review-corpus",
-      "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/targeted/stage_lineage.json",
-      "toolchain_or_import_path": "targeted transition review corpus",
-      "workflow_family": "targeted"
+      ]
     }
   ],
-  "note": "The registry records which flagship public runs exist, when they were last reproduced, what runtime path they used, what claims they authorize, and what blockers still limit broader trust.",
-  "registry_id": "flagship-runtime-run-registry"
+  "note": "The registry records which flagship public runs exist, when they were last reproduced, what runtime path they used, what claims they authorize, and what blockers still limit broader trust."
 }

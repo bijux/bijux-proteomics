@@ -1,35 +1,35 @@
 {
-  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/stage_lineage.json",
   "lineage_id": "flagship-stage-lineage:ptm",
-  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/ptm/stage_lineage.json",
+  "workflow_family": "ptm",
   "stages": [
     {
+      "stage_id": "ingest-package-inputs",
+      "owner_package": "bijux-proteomics-runtime",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane",
       "consumed_artifact_ids": [
         "ptm-localization-review-corpus:primary_input",
         "ptm-localization-review-corpus:companion_input:1",
         "ptm-localization-review-corpus:companion_input:2"
       ],
-      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "ptm:runtime:1",
         "ptm:runtime:2"
-      ],
-      "stage_id": "ingest-package-inputs",
-      "summary": "ingest the tracked flagship package inputs into the runtime lane"
+      ]
     },
     {
+      "stage_id": "publish-runtime-review",
+      "owner_package": "bijux-proteomics-runtime",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume",
       "consumed_artifact_ids": [
         "ptm:runtime:1",
         "ptm:runtime:2"
       ],
-      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "ptm:runtime:3",
         "ptm:runtime:4"
-      ],
-      "stage_id": "publish-runtime-review",
-      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
+      ]
     }
   ],
-  "workflow_family": "ptm"
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose."
 }

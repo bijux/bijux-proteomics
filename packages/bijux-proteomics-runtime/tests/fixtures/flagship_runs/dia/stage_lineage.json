@@ -1,39 +1,39 @@
 {
-  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
   "lineage_id": "flagship-stage-lineage:dia",
-  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
+  "workflow_family": "dia",
   "stages": [
     {
+      "stage_id": "ingest-package-inputs",
+      "owner_package": "bijux-proteomics-runtime",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane",
       "consumed_artifact_ids": [
         "dia-diann-pipeline-corpus:primary_input",
         "dia-diann-pipeline-corpus:companion_input:1",
         "dia-diann-pipeline-corpus:companion_input:2"
       ],
-      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "dia:runtime-imported-evidence",
         "dia:runtime-status",
         "dia:runtime-report"
-      ],
-      "stage_id": "ingest-package-inputs",
-      "summary": "ingest the tracked flagship package inputs into the runtime lane"
+      ]
     },
     {
+      "stage_id": "publish-runtime-review",
+      "owner_package": "bijux-proteomics-runtime",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume",
       "consumed_artifact_ids": [
         "dia:runtime-imported-evidence",
         "dia:runtime-status",
         "dia:runtime-report"
       ],
-      "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
         "dia:runtime-replay-contract",
         "dia:runtime-integrity-report",
         "dia:runtime-evidence-bundle",
         "dia:runtime-review-packet"
-      ],
-      "stage_id": "publish-runtime-review",
-      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
+      ]
     }
   ],
-  "workflow_family": "dia"
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose."
 }

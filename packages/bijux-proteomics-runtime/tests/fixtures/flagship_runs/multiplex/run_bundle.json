@@ -1,108 +1,28 @@
 {
-  "artifact_inventory": [
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:public:1",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/README.md",
-      "artifact_role": "public_package_artifact",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "public package anchor for the flagship runtime run"
-    },
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:public:2",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/package_manifest.json",
-      "artifact_role": "public_package_artifact",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "public package anchor for the flagship runtime run"
-    },
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:public:3",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/quality_sheet.json",
-      "artifact_role": "public_package_artifact",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "public package anchor for the flagship runtime run"
-    },
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:public:4",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/multiplex_tmtpro_review_package/lifecycle.json",
-      "artifact_role": "public_package_artifact",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "public package anchor for the flagship runtime run"
-    },
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:primary_input",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
-      "artifact_role": "primary_input",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "primary runtime input consumed by the flagship run"
-    },
-    {
-      "artifact_id": "multiplex-tmtpro-review-corpus:companion_input:1",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
-      "artifact_role": "companion_input",
-      "owner_package": "bijux-proteomics-core",
-      "review_purpose": "companion runtime input needed for the flagship run"
-    },
-    {
-      "artifact_id": "multiplex:runtime:1",
-      "artifact_path": "runtime-generated/channel_matrix.tsv",
-      "artifact_role": "runtime-output",
-      "owner_package": "bijux-proteomics-runtime",
-      "review_purpose": "multiplex.feature_records"
-    },
-    {
-      "artifact_id": "multiplex:runtime:2",
-      "artifact_path": "runtime-generated/channel_policy.json",
-      "artifact_role": "runtime-output",
-      "owner_package": "bijux-proteomics-runtime",
-      "review_purpose": "multiplex.channel_policy"
-    },
-    {
-      "artifact_id": "multiplex:runtime:3",
-      "artifact_path": "runtime-generated/interference_review.json",
-      "artifact_role": "runtime-output",
-      "owner_package": "bijux-proteomics-runtime",
-      "review_purpose": "multiplex.channel_balance_diagnostics"
-    },
-    {
-      "artifact_id": "multiplex:runtime:4",
-      "artifact_path": "runtime-generated/reference_channel_consequences.json",
-      "artifact_role": "runtime-output",
-      "owner_package": "bijux-proteomics-runtime",
-      "review_purpose": "multiplex.review_bundle"
-    },
-    {
-      "artifact_id": "multiplex:runtime:5",
-      "artifact_path": "runtime-generated/review_bundle.json",
-      "artifact_role": "runtime-output",
-      "owner_package": "bijux-proteomics-runtime",
-      "review_purpose": "multiplex.review_bundle"
-    }
-  ],
+  "bundle_id": "flagship-run-bundle:multiplex",
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/run_bundle.json",
-  "authorized_claim_scope": [
-    "externally reproduced scientific behavior within the documented reproduction package",
-    "release-facing claims remain limited to the named comparator and transfer boundaries"
-  ],
+  "workflow_family": "multiplex",
   "benchmark_id": "benchmark:multiplex_tmtpro_quantification",
   "benchmark_package_id": "benchmark_package:multiplex_tmtpro_review_package",
-  "bundle_id": "flagship-run-bundle:multiplex",
-  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/failure_replay.json",
-  "last_reproduced_on": "2026-05-07",
-  "linked_owner_artifact_paths": [
-    "artifacts/knowledge/scientific-reading-packs/multiplex.json",
-    "artifacts/intelligence/recommendation-packets/multiplex.json",
-    "artifacts/lab/flagship-follow-up-packets/minimum_controls.json"
-  ],
-  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
-  "remaining_blockers": [
-    "Compare reporter handling against the tracked multiplex public package because direct vendor-specific multiplex pipelines are not executed here.",
-    "Limit support claims to channel semantics and chemistry caveats, not full external pipeline parity.",
-    "public comparator-backed claim support is refused",
-    "biological grounding remains thin"
-  ],
   "runtime_package_id": "multiplex-tmtpro-review-corpus",
   "runtime_surface": {
+    "surface_id": "flagship-runtime-surface:multiplex",
+    "workflow_family": "multiplex",
+    "runtime_package_id": "multiplex-tmtpro-review-corpus",
+    "run_mode": "raw_executable",
     "canonical_entrypoint": "bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_multiplex_review_path",
+    "toolchain_or_import_path": "multiplex tmtpro review corpus",
+    "input_artifact_ids": [
+      "multiplex-tmtpro-review-corpus:primary_input",
+      "multiplex-tmtpro-review-corpus:companion_input:1"
+    ],
+    "runtime_artifact_ids": [
+      "multiplex:runtime:1",
+      "multiplex:runtime:2",
+      "multiplex:runtime:3",
+      "multiplex:runtime:4",
+      "multiplex:runtime:5"
+    ],
     "execution_summary": [
       "feature_record_count=12",
       "multiplex_group_count=2",
@@ -111,27 +31,107 @@
       "flagged_imbalance_count=2",
       "carrier_effect_channel_count=2"
     ],
-    "input_artifact_ids": [
-      "multiplex-tmtpro-review-corpus:primary_input",
-      "multiplex-tmtpro-review-corpus:companion_input:1"
-    ],
-    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
-    "run_mode": "raw_executable",
-    "runtime_artifact_ids": [
-      "multiplex:runtime:1",
-      "multiplex:runtime:2",
-      "multiplex:runtime:3",
-      "multiplex:runtime:4",
-      "multiplex:runtime:5"
-    ],
-    "runtime_package_id": "multiplex-tmtpro-review-corpus",
-    "surface_id": "flagship-runtime-surface:multiplex",
-    "toolchain_or_import_path": "multiplex tmtpro review corpus",
     "validating_test_paths": [
       "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py"
     ],
-    "workflow_family": "multiplex"
+    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace."
   },
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "remaining_blockers": [
+    "Compare reporter handling against the tracked multiplex public package because direct vendor-specific multiplex pipelines are not executed here.",
+    "Limit support claims to channel semantics and chemistry caveats, not full external pipeline parity.",
+    "public comparator-backed claim support is refused",
+    "biological grounding remains thin"
+  ],
+  "artifact_inventory": [
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:public:1",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "public_package_artifact",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:public:2",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "public_package_artifact",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:public:3",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "public_package_artifact",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:public:4",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "public_package_artifact",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:primary_input",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "primary_input",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "multiplex-tmtpro-review-corpus:companion_input:1",
+      "owner_package": "bijux-proteomics-core",
+      "artifact_role": "companion_input",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "multiplex:runtime:1",
+      "owner_package": "bijux-proteomics-runtime",
+      "artifact_role": "runtime-output",
+      "artifact_path": "runtime-generated/channel_matrix.tsv",
+      "review_purpose": "multiplex.feature_records"
+    },
+    {
+      "artifact_id": "multiplex:runtime:2",
+      "owner_package": "bijux-proteomics-runtime",
+      "artifact_role": "runtime-output",
+      "artifact_path": "runtime-generated/channel_policy.json",
+      "review_purpose": "multiplex.channel_policy"
+    },
+    {
+      "artifact_id": "multiplex:runtime:3",
+      "owner_package": "bijux-proteomics-runtime",
+      "artifact_role": "runtime-output",
+      "artifact_path": "runtime-generated/interference_review.json",
+      "review_purpose": "multiplex.channel_balance_diagnostics"
+    },
+    {
+      "artifact_id": "multiplex:runtime:4",
+      "owner_package": "bijux-proteomics-runtime",
+      "artifact_role": "runtime-output",
+      "artifact_path": "runtime-generated/reference_channel_consequences.json",
+      "review_purpose": "multiplex.review_bundle"
+    },
+    {
+      "artifact_id": "multiplex:runtime:5",
+      "owner_package": "bijux-proteomics-runtime",
+      "artifact_role": "runtime-output",
+      "artifact_path": "runtime-generated/review_bundle.json",
+      "review_purpose": "multiplex.review_bundle"
+    }
+  ],
   "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/stage_lineage.json",
-  "workflow_family": "multiplex"
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/failure_replay.json",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/multiplex.json",
+    "artifacts/intelligence/recommendation-packets/multiplex.json",
+    "artifacts/lab/flagship-follow-up-packets/minimum_controls.json"
+  ],
+  "last_reproduced_on": "2026-05-07",
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder."
 }
