@@ -26,6 +26,9 @@ def test_flagship_lab_follow_up_packet_family_starts_with_reviewable_dda_and_dia
     assert [packet.workflow_family for packet in family.packets] == [
         KnowledgeWorkflowFamily.DDA,
         KnowledgeWorkflowFamily.DIA,
+        KnowledgeWorkflowFamily.LFQ,
+        KnowledgeWorkflowFamily.PTM,
+        KnowledgeWorkflowFamily.TARGETED,
     ]
 
 
@@ -57,3 +60,39 @@ def test_dia_follow_up_packet_marks_exploratory_and_decision_grade_boundaries() 
     assert any("exploratory" in line.lower() for line in packet.exploratory_boundary)
     assert any("decision-grade" in line.lower() for line in packet.decision_grade_boundary)
     assert any("library" in line.lower() for line in packet.expected_failure_modes)
+
+
+def test_lfq_packet_makes_replicate_and_design_weakness_visible() -> None:
+    packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.LFQ)
+
+    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
+    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert any("replicate" in line.lower() for line in packet.design_conditions)
+    assert any("randomized" in line.lower() for line in packet.design_conditions)
+    assert any("missingness" in line.lower() for line in packet.expected_failure_modes)
+    assert any("extra sample" in line.lower() for line in packet.stop_reasons)
+
+
+def test_ptm_packet_keeps_ambiguity_and_targetability_blockers_explicit() -> None:
+    packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.PTM)
+
+    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
+    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert "site_localization_reference" in packet.required_controls
+    assert "unmodified_counterpart_control" in packet.required_controls
+    assert any("ambiguity" in line.lower() for line in packet.expected_failure_modes)
+    assert any("orthogonal" in line.lower() for line in packet.stop_reasons)
+
+
+def test_targeted_packet_keeps_transition_calibration_and_interference_visible() -> (
+    None
+):
+    packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.TARGETED)
+
+    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
+    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert "heavy_reference" in packet.required_controls
+    assert "calibration_standard" in packet.required_controls
+    assert "interference_scout_injection" in packet.required_controls
+    assert any("transition" in line.lower() for line in packet.design_conditions)
+    assert any("interference" in line.lower() for line in packet.expected_failure_modes)

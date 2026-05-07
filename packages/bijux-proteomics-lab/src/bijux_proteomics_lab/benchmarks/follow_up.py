@@ -117,6 +117,9 @@ class _FollowUpBlueprint(JsonModel):
 _PACKET_FAMILIES: tuple[KnowledgeWorkflowFamily, ...] = (
     KnowledgeWorkflowFamily.DDA,
     KnowledgeWorkflowFamily.DIA,
+    KnowledgeWorkflowFamily.LFQ,
+    KnowledgeWorkflowFamily.PTM,
+    KnowledgeWorkflowFamily.TARGETED,
 )
 
 _FOLLOW_UP_BLUEPRINTS: dict[KnowledgeWorkflowFamily, _FollowUpBlueprint] = {
@@ -208,6 +211,142 @@ _FOLLOW_UP_BLUEPRINTS: dict[KnowledgeWorkflowFamily, _FollowUpBlueprint] = {
         ),
         note=(
             "This packet makes DIA follow-up operationally real by distinguishing extraction success from decision-worthy evidence."
+        ),
+    ),
+    KnowledgeWorkflowFamily.LFQ: _FollowUpBlueprint(
+        suggested_assay_strategy=(
+            "Run one LFQ replicate-expansion and batch-bridge follow-up only if the study design can honestly absorb more replicates and preserve predeclared contrasts."
+        ),
+        exploratory_boundary=(
+            "Any LFQ repeat remains exploratory while missingness and normalization fragility are still dominating the contrast.",
+            "Treat apparent effect recovery as provisional until replicate balance and bridge behavior stay stable across the full design.",
+        ),
+        decision_grade_boundary=(
+            "Decision-grade LFQ follow-up requires at least one batch bridge, randomized acquisition order, and enough biological replication to keep the contrast from being single-sample theater.",
+            "The lab packet should not upgrade LFQ if effect size stability still depends on imputation-sensitive rows.",
+        ),
+        extra_controls=("replicate_balance_audit",),
+        design_conditions=(
+            "Add enough biological replicates to make the target contrast interpretable rather than simply less noisy.",
+            "Preserve randomized run order and a batch bridge so normalization drift is measurable rather than guessed.",
+        ),
+        expected_failure_modes=(
+            "MNAR missingness makes the apparent rescue of a contrast look stronger than it is",
+            "batch drift dominates the signal when bridge material is absent or underused",
+        ),
+        proceed_reasons=(
+            "Only proceed when additional material can create a real replicate structure instead of a token rerun.",
+            "The assay is useful only if the team is willing to keep the contrast and normalization plan fixed before the rerun.",
+        ),
+        stop_reasons=(
+            "Do not spend the assay if only one extra sample can be added to a fragile contrast.",
+            "Do not proceed when the run order and bridge design cannot be controlled tightly enough to learn anything new.",
+        ),
+        estimated_relative_cost=5.8,
+        estimated_queue_days=18,
+        confidence_gain_score=0.42,
+        dependency_chain=(
+            "additional biological replicates",
+            "batch bridge material",
+            "prespecified contrast and normalization plan",
+        ),
+        tradeoffs=(
+            "LFQ follow-up can be moderately expensive while still failing to change belief if the replicate design remains weak.",
+            "Confidence gain is capped because missingness and normalization pressure can survive a larger queue.",
+        ),
+        note=(
+            "This packet keeps replicate and design realism visible so LFQ is not promoted by a cosmetic rerun."
+        ),
+    ),
+    KnowledgeWorkflowFamily.PTM: _FollowUpBlueprint(
+        suggested_assay_strategy=(
+            "Run one PTM validation lane only if a site-targetable follow-up can preserve localized fragments, modified-versus-unmodified counterparts, and orthogonal confirmation."
+        ),
+        exploratory_boundary=(
+            "PTM follow-up stays exploratory while site ambiguity, enrichment pressure, or motif storytelling remain unresolved.",
+            "Treat any early phosphosite signal as advisory unless localization and counterpart evidence survive orthogonal review.",
+        ),
+        decision_grade_boundary=(
+            "Decision-grade PTM follow-up requires site-localizing fragments, matched unmodified counterpart evidence, and a validation method that can separate neighboring ambiguous sites.",
+            "Do not claim a decision-grade PTM packet if the lab cannot actually target the localized peptide with durable specificity.",
+        ),
+        extra_controls=("unmodified_counterpart_control",),
+        design_conditions=(
+            "Confirm that the localized peptide can be targeted without collapsing neighboring ambiguous sites into one assay.",
+            "Plan the orthogonal confirmation method before the enrichment run so ambiguity handling is not postponed.",
+        ),
+        expected_failure_modes=(
+            "site ambiguity survives the rerun and leaves the lab with a more expensive version of the same story",
+            "enrichment or motif pressure creates a convincing signal without a targetable site-specific conclusion",
+        ),
+        proceed_reasons=(
+            "Only proceed when the site is targetable enough for a real assay and the orthogonal confirmation path already exists.",
+            "The effort is justified only if counterpart and localization evidence can both move, not just the modified signal alone.",
+        ),
+        stop_reasons=(
+            "Do not proceed when site ambiguity is still the main story.",
+            "Do not spend the assay if the orthogonal confirmation lane is unavailable or biologically non-specific.",
+        ),
+        estimated_relative_cost=8.3,
+        estimated_queue_days=29,
+        confidence_gain_score=0.34,
+        dependency_chain=(
+            "site-targetable localized peptide",
+            "orthogonal site confirmation method",
+            "modified and unmodified counterpart quantification plan",
+        ),
+        tradeoffs=(
+            "PTM follow-up is expensive because ambiguity resolution and orthogonal confirmation are both first-class dependencies.",
+            "Confidence gain stays low when the benchmark review is still thin and comparator-backed support is refused.",
+        ),
+        note=(
+            "This packet stops PTM enthusiasm from outrunning targetability, localization, and orthogonal validation reality."
+        ),
+    ),
+    KnowledgeWorkflowFamily.TARGETED: _FollowUpBlueprint(
+        suggested_assay_strategy=(
+            "Run one targeted transition panel only if heavy references, calibration standards, and interference review are already secured for the prioritized transitions."
+        ),
+        exploratory_boundary=(
+            "A targeted follow-up remains exploratory while transition approval, heavy-light pairing, and interference handling still carry benchmark blockers.",
+            "Treat a clean chromatogram as advisory until calibration and interference consequences are closed across the full panel.",
+        ),
+        decision_grade_boundary=(
+            "Decision-grade targeted work requires approved transitions, heavy references, calibration standards, and interference scans that remain stable across replicates.",
+            "Do not call the packet decision-grade when the transition panel is still optimized around a thin or refused discovery claim.",
+        ),
+        extra_controls=("interference_scout_injection",),
+        design_conditions=(
+            "Lock the transition list before acquisition so assay success is not redefined after the run.",
+            "Include heavy-light pairing and calibration standards in the same queue used for the real sample interpretation.",
+        ),
+        expected_failure_modes=(
+            "coeluting interference produces clean-looking transitions that still misstate the biology",
+            "heavy-light mismatch or calibration drift turns the panel into an operationally neat but scientifically weak artifact",
+        ),
+        proceed_reasons=(
+            "Proceed only when the transition panel, heavy references, and calibration materials already exist as governed dependencies.",
+            "The assay is worth running only if interference handling can falsify the discovery story instead of merely decorating it.",
+        ),
+        stop_reasons=(
+            "Do not proceed when heavy references or calibration standards are missing.",
+            "Do not spend the assay when transition approval is still exploratory or interference handling is unresolved.",
+        ),
+        estimated_relative_cost=6.9,
+        estimated_queue_days=21,
+        confidence_gain_score=0.47,
+        dependency_chain=(
+            "approved transition panel",
+            "heavy reference peptides",
+            "calibration standards",
+            "interference review injection",
+        ),
+        tradeoffs=(
+            "Targeted follow-up can look operationally mature while still inheriting thin biological grounding from the discovery layer.",
+            "Confidence gain depends on interference and calibration discipline, not on the presence of a neat panel alone.",
+        ),
+        note=(
+            "This packet keeps transition, calibration, and interference consequences explicit before the lab spends effort on targeted follow-up."
         ),
     ),
 }
@@ -311,6 +450,6 @@ def build_flagship_lab_follow_up_packet_family() -> FlagshipLabFollowUpPacketFam
             for workflow_family in _PACKET_FAMILIES
         ),
         note=(
-            "This family turns the current flagship benchmark reviews into concrete DDA and DIA lab follow-up packets with visible burden and boundary conditions."
+            "This family turns the current flagship benchmark reviews into concrete DDA, DIA, LFQ, PTM, and targeted lab follow-up packets with visible burden and boundary conditions."
         ),
     )
