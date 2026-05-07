@@ -103,7 +103,14 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     )
     assert capability_claim.support_state is SupportState.ADVISORY
     assert "vendor-library parity" in capability_claim.scientific_limits[0]
-    assert "checked-in Spectronaut-style export" in review.reviewer_summary
+    interpretation_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "biological_interpretation_tier"
+    )
+    assert interpretation_claim.support_state is SupportState.ADVISORY
+    assert "partial DIA support means" in interpretation_claim.scientific_limits[0]
+    assert "biological-interpretation tiers" in review.reviewer_summary
 
 
 def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
@@ -247,5 +254,12 @@ def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible
         for claim in review.claim_summaries
         if claim.claim_id == "vendor_execution_boundary"
     )
+    platform_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "platform_assumption_scope"
+    )
     assert vendor_claim.scientific_limits
+    assert platform_claim.support_state is SupportState.ADVISORY
+    assert "partial targeted support means" in platform_claim.scientific_limits[0]
     assert "Skyline or vendor execution parity" in review.reviewer_summary

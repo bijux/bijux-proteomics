@@ -17,6 +17,8 @@ from bijux_proteomics.dia import (
 from bijux_proteomics.dia.benchmarks import (
     TargetedCalibrationStandardObservation,
     TargetedHeavyLightPairObservation,
+    WorkflowScientificSupportTier,
+    build_dia_workflow_scientific_support_report,
     build_targeted_workflow_benchmark_report,
 )
 from bijux_proteomics.identification import build_review_ready_evidence_bundle
@@ -64,8 +66,10 @@ from bijux_proteomics.review.collaboration import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study.laboratory_plans import (
+    TargetedPlatformAssumptionInput,
     TargetedWorkflowBoundaryInput,
     TargetedWorkflowMethod,
+    build_targeted_platform_support_matrix,
     evaluate_targeted_workflow_boundary,
 )
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
@@ -496,6 +500,30 @@ def build_dia_benchmark_review(
             ),
         )
     )
+    dia_support_report = build_dia_workflow_scientific_support_report(
+        imported_precursor_count=review_bundle.psm_summary.total_psms,
+        expected_precursor_count=review_bundle.psm_summary.total_psms,
+        transition_supported_precursor_count=max(
+            review_bundle.psm_summary.total_psms - capability_matrix.partial_count,
+            0,
+        ),
+        expected_transition_precursor_count=review_bundle.psm_summary.total_psms,
+        protein_group_count=review_bundle.protein_summary.total_proteins,
+        expected_protein_group_count=max(
+            review_bundle.protein_summary.total_proteins + capability_matrix.partial_count,
+            review_bundle.protein_summary.total_proteins,
+            1,
+        ),
+        ion_mobility_observed_count=0,
+        ion_mobility_expected_count=review_bundle.psm_summary.total_psms,
+        library_matched_peptide_count=max(
+            review_bundle.psm_summary.total_psms - capability_matrix.partial_count,
+            0,
+        ),
+        expected_library_peptide_count=review_bundle.psm_summary.total_psms,
+        absent_expected_peptide_count=capability_matrix.partial_count,
+    )
+    tier_lookup = {entry.surface: entry for entry in dia_support_report.entries}
     claim_summaries = (
         BenchmarkReviewClaim(
             claim_id="adapter_normalization",
@@ -517,9 +545,37 @@ def build_dia_benchmark_review(
             evidence_refs=(
                 f"supported={capability_matrix.supported_count}",
                 f"partial={capability_matrix.partial_count}",
+                dia_support_report.partial_support_definition,
             ),
             scientific_limits=(
                 "direct vendor-library parity is outside the checked-in benchmark scope",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="library_conditioned_import_tier",
+            support_state=(
+                SupportState.SUPPORTED
+                if tier_lookup["library_conditioned_import"].support_tier
+                is WorkflowScientificSupportTier.SUPPORTED
+                else SupportState.ADVISORY
+            ),
+            summary="DIA import support is reviewed separately from transition, protein, and biological interpretation support",
+            evidence_refs=(
+                tier_lookup["library_conditioned_import"].support_tier.value,
+                f"observed_fraction={tier_lookup['library_conditioned_import'].observed_fraction:.2f}",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="biological_interpretation_tier",
+            support_state=SupportState.ADVISORY,
+            summary="DIA biological interpretation remains bounded by ion-mobility coverage, library coverage, and absent expected peptides",
+            evidence_refs=(
+                tier_lookup["biological_interpretation"].support_tier.value,
+                f"ion_mobility_fraction={dia_support_report.ion_mobility_observed_fraction:.2f}",
+                f"absent_expected_fraction={dia_support_report.absent_expected_peptide_fraction:.2f}",
+            ),
+            scientific_limits=(
+                dia_support_report.partial_support_definition,
             ),
         ),
         BenchmarkReviewClaim(
@@ -585,7 +641,7 @@ def build_dia_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "DIA benchmark review turns a checked-in Spectronaut-style export into a reviewable "
-            "bundle with explicit capability limits, rather than presenting adapter coverage as full pipeline parity."
+            "bundle with separate import, transition, protein, and biological-interpretation tiers rather than presenting adapter coverage as full pipeline parity."
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -1097,6 +1153,22 @@ def build_targeted_benchmark_review(
             has_instrument_method_template=False,
         )
     )
+    platform_support = build_targeted_platform_support_matrix(
+        (
+            TargetedPlatformAssumptionInput(
+                platform_id="orbitrap-prm",
+                method=TargetedWorkflowMethod.PRM,
+                has_transition_list=True,
+                has_retention_windows=True,
+                has_collision_energy_profile=True,
+                has_instrument_method_template=False,
+                has_heavy_reference=True,
+                has_calibration_standards=True,
+                has_vendor_tuning_profile=False,
+            ),
+        )
+    )
+    platform_entry = platform_support.entries[0]
 
     claim_summaries = (
         BenchmarkReviewClaim(
@@ -1143,6 +1215,23 @@ def build_targeted_benchmark_review(
             scientific_limits=(
                 boundary.refusal_reason
                 or "live vendor execution parity remains outside the checked-in targeted benchmark scope",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="platform_assumption_scope",
+            support_state=(
+                SupportState.SUPPORTED
+                if platform_entry.support_state.value == "supported"
+                else SupportState.ADVISORY
+            ),
+            summary="targeted review names platform and vendor assumptions explicitly instead of leaving follow-up readiness as a generic partial-support story",
+            evidence_refs=(
+                platform_entry.platform_id,
+                platform_entry.support_state.value,
+                *platform_entry.missing_assumptions,
+            ),
+            scientific_limits=(
+                platform_entry.partial_support_definition,
             ),
         ),
     )
@@ -1194,7 +1283,7 @@ def build_targeted_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "Targeted benchmark review keeps chromatogram QC, calibration standards, heavy/light pairing, transition interference, "
-            "and Skyline or vendor execution parity caveats visible instead of inflating the workflow into strong vendor parity."
+            "platform assumption scope, and Skyline or vendor execution parity caveats visible instead of inflating the workflow into strong vendor parity."
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
