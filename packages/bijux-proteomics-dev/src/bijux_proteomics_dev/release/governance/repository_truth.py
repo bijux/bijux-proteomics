@@ -34,6 +34,9 @@ from bijux_proteomics_runtime.workflows.manifest import (
     CANONICAL_WORKFLOW_MANIFEST_PATH,
     validate_canonical_workflow_manifest,
 )
+from bijux_proteomics_runtime.workflows.proof_accounting import (
+    build_runtime_flagship_proof_gate,
+)
 
 __all__ = [
     "RepositoryTruthIssue",
@@ -75,6 +78,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_manifest_issues = validate_canonical_workflow_manifest(repo_root=repo_root)
     scientific_dossier_issues = validate_scientific_release_dossier(repo_root)
     freshness_issues = validate_generated_governance_freshness()
+    runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
     ranking_improvement = compare_ranking_policies_against_benchmark_corpus(
         build_legacy_ranking_policy(),
         build_flagship_ranking_policy(),
@@ -116,6 +120,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"governance-freshness-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in runtime_proof_gate.issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"runtime-proof-gate-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -189,6 +200,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             scientific_release_manifest_path(repo_root).relative_to(repo_root).as_posix(),
             "artifacts/intelligence/ranking-benchmarks/reviewable-ranking-corpus.json",
             "artifacts/intelligence/ranking-benchmarks/flagship-reviewable-ranking.json",
+            "artifacts/runtime/proof-accounting/runtime_proof_map.json",
         ),
         blockers=tuple(blockers),
     )

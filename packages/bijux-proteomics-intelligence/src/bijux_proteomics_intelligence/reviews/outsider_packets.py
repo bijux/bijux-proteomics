@@ -51,6 +51,9 @@ from bijux_proteomics_runtime.workflows.benchmark_runs import (
     build_benchmark_run_specs,
     build_benchmark_runtime_truth_surface,
 )
+from bijux_proteomics_runtime.workflows.proof_accounting import (
+    build_runtime_flagship_proof_gate,
+)
 
 __all__ = [
     "FlagshipOutsiderArtifactLink",
@@ -284,16 +287,19 @@ def _dedupe_links(
 
 def _complete_outsider_surface(
     *,
+    workflow_family: KnowledgeWorkflowFamily,
     manifest: BenchmarkManifest,
     runtime_truth: BenchmarkRuntimeTruthRow | None,
     recommendation: BenchmarkRecommendationPacket,
     lab_packet: FlagshipLabFollowUpPacket,
 ) -> bool:
+    runtime_gate_issues = _runtime_gate_issues(workflow_family)
     return (
         manifest.benchmark_package is not None
         and manifest.evidence_tier is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
         and runtime_truth is not None
         and runtime_truth.run_mode is not BenchmarkRunMode.BLOCKED
+        and not runtime_gate_issues
         and recommendation.disposition is not BenchmarkDisposition.DO_NOT_RECOMMEND
         and lab_packet.posture is not FlagshipLabPacketPosture.NOT_WORTH_ASSAY
     )
@@ -301,6 +307,7 @@ def _complete_outsider_surface(
 
 def _missing_surface_reasons(
     *,
+    workflow_family: KnowledgeWorkflowFamily,
     manifest: BenchmarkManifest,
     review: WorkflowBenchmarkReview,
     reading_pack: WorkflowScientificReadingPack,
@@ -319,6 +326,7 @@ def _missing_surface_reasons(
         reasons.append("no flagship runtime truth row is published for this workflow family yet")
     elif runtime_truth.run_mode is BenchmarkRunMode.BLOCKED:
         reasons.extend(runtime_truth.blocker_notes)
+    reasons.extend(_runtime_gate_issues(workflow_family))
     if review.public_claim_support_state is ComparatorClaimSupportState.REFUSED:
         reasons.append("public comparator-backed claim support is still refused")
     if recommendation.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND:
@@ -352,6 +360,7 @@ def build_flagship_outsider_review_packet(
     runtime_links = _runtime_links(workflow_family, runtime_package_id)
     review_links = _dedupe_links((*benchmark_review_links, *runtime_links))
     complete_surface = _complete_outsider_surface(
+        workflow_family=workflow_family,
         manifest=manifest,
         runtime_truth=runtime_truth,
         recommendation=recommendation,
@@ -419,6 +428,7 @@ def build_flagship_outsider_review_packet(
         validating_tests=validating_tests,
         complete_outsider_surface=complete_surface,
         missing_surface_reasons=_missing_surface_reasons(
+            workflow_family=workflow_family,
             manifest=manifest,
             review=review,
             reading_pack=reading_pack,
@@ -429,6 +439,18 @@ def build_flagship_outsider_review_packet(
         note=(
             "The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration."
         ),
+    )
+
+
+def _runtime_gate_issues(workflow_family: KnowledgeWorkflowFamily) -> tuple[str, ...]:
+    runtime_family = _RUNTIME_TRUTH_BY_FAMILY.get(workflow_family)
+    if runtime_family is None:
+        return ()
+    gate = build_runtime_flagship_proof_gate()
+    return tuple(
+        issue.detail
+        for issue in gate.issues
+        if issue.workflow_family == runtime_family
     )
 
 

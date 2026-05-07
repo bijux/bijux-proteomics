@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import pytest
+
 from bijux_proteomics_intelligence.reviews.outsider_packets import (
     build_flagship_outsider_review_packet,
     build_flagship_outsider_review_packet_family,
@@ -93,3 +97,25 @@ def test_incomplete_outsider_packets_keep_missing_public_proof_explicit() -> Non
         in reason
         for reason in targeted.missing_surface_reasons
     )
+
+
+def test_outsider_packets_refuse_runtime_shortcut_backed_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_intelligence.reviews.outsider_packets.build_runtime_flagship_proof_gate",
+        lambda: SimpleNamespace(
+            issues=(
+                SimpleNamespace(
+                    workflow_family="dda_import",
+                    code="fake-helper-still-present-in-flagship-path",
+                    detail="dda import still depends on a fake helper",
+                ),
+            )
+        ),
+    )
+
+    packet = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.DDA)
+
+    assert packet.complete_outsider_surface is False
+    assert "dda import still depends on a fake helper" in packet.missing_surface_reasons
