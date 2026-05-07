@@ -39,9 +39,25 @@ def test_runtime_proof_map_distinguishes_raw_import_replay_and_simulation_claims
 
     assert claims["sequence_to_digest:review-surface"].proof_class is RuntimeProofClass.RAW_EXECUTION
     assert claims["dda_import:review-surface"].proof_class is RuntimeProofClass.IMPORT_BACKED_EXECUTION
+    assert (
+        claims["dda_generalization_import:review-surface"].proof_class
+        is RuntimeProofClass.IMPORT_BACKED_EXECUTION
+    )
     assert claims["dia_import:review-surface"].proof_class is RuntimeProofClass.RAW_EXECUTION
+    assert (
+        claims["dia_generalization_review:review-surface"].proof_class
+        is RuntimeProofClass.RAW_EXECUTION
+    )
     assert claims["targeted_review:review-surface"].proof_class is RuntimeProofClass.RAW_EXECUTION
+    assert (
+        claims["targeted_generalization_review:review-surface"].proof_class
+        is RuntimeProofClass.RAW_EXECUTION
+    )
     assert claims["dia_import:failure-replay"].proof_class is RuntimeProofClass.REPLAY_BACKED_EXECUTION
+    assert (
+        claims["ptm_generalization_review:failure-replay"].proof_class
+        is RuntimeProofClass.REPLAY_BACKED_EXECUTION
+    )
     assert claims["simulated-external-engine-contract:simulation-contract"].proof_class is RuntimeProofClass.SIMULATION_ONLY
     assert all(
         claim.proof_class is not RuntimeProofClass.SIMULATION_ONLY

@@ -469,11 +469,17 @@ def _flagship_family_id(workflow_family: str) -> str:
     return {
         "sequence_to_digest": "sequence_to_digest",
         "dda_import": "dda",
+        "dda_generalization_import": "dda",
         "dia_import": "dia",
+        "dia_generalization_review": "dia",
         "quant_review": "lfq",
+        "quant_generalization_review": "lfq",
         "multiplex_review": "multiplex",
+        "multiplex_generalization_review": "multiplex",
         "ptm_review": "ptm",
+        "ptm_generalization_review": "ptm",
         "targeted_review": "targeted",
+        "targeted_generalization_review": "targeted",
     }[workflow_family]
 
 
