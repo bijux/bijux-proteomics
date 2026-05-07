@@ -34,6 +34,11 @@ _WORKFLOW_EXPORT_GROUPS = {
         "WorkflowStageHandoffContract",
         "build_canonical_workflow_handoff_contracts",
     ],
+    "bijux_proteomics_runtime.workflows.packets": [
+        "WorkflowPacketSerializationMode",
+        "WorkflowStagePacketBoundaryContract",
+        "build_workflow_stage_packet_boundary_contracts",
+    ],
     "bijux_proteomics_runtime.workflows.paths": [
         "RuntimeReviewableOutputPath",
         "RuntimeSmokeWorkflow",

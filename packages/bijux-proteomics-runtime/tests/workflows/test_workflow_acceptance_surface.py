@@ -73,11 +73,13 @@ from bijux_proteomics_lab.planning import (
 from bijux_proteomics_lab.reconciliation import build_operational_follow_up_path
 from bijux_proteomics_runtime.workflows import (
     WorkflowFailureCategory,
+    WorkflowPacketSerializationMode,
     WorkflowStageAcceptance,
     build_canonical_workflow_handoff_contracts,
     build_flagship_workflow_acceptance_dossier,
     build_flagship_workflow_failure_taxonomy,
     build_minimum_real_workflow_proof_bar,
+    build_workflow_stage_packet_boundary_contracts,
 )
 from bijux_proteomics_runtime.workflows.plans import (
     build_proteomics_workflow_manifest,
@@ -425,14 +427,20 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
         claim_links=cast(dict[str, list[str]], follow_up_fixture.get("claim_links", {})),
     )
 
-    serializable_payloads = (
-        manifest_packet.model_dump(),
-        identification_packet.model_dump(),
-        quant_packet.model_dump(),
-        ptm_packet.model_dump(),
-        knowledge_packet.model_dump(),
-        intelligence_packet.model_dump(),
-        lab_packet.model_dump(),
-        follow_up_packet.model_dump(),
-    )
-    assert all(payload for payload in serializable_payloads)
+    payloads = {
+        "runtime-workflow-manifest": manifest_packet.model_dump(),
+        "core-identification-review": identification_packet.model_dump(),
+        "core-quantification-review": quant_packet.model_dump(),
+        "core-ptm-review": ptm_packet.model_dump(),
+        "knowledge-evidence-review": knowledge_packet.model_dump(),
+        "intelligence-decision-review": intelligence_packet.model_dump(),
+        "lab-review-packet": lab_packet.model_dump(),
+        "lab-operational-follow-up": follow_up_packet.model_dump(),
+    }
+
+    contracts = build_workflow_stage_packet_boundary_contracts()
+    assert {contract.stage_id for contract in contracts} == set(payloads)
+    for contract in contracts:
+        assert contract.serialization_mode is WorkflowPacketSerializationMode.MODEL_DUMP
+        payload = payloads[contract.stage_id]
+        assert set(contract.required_top_level_keys) <= set(payload)
