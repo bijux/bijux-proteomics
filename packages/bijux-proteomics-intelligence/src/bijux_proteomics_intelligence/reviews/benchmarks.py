@@ -58,6 +58,10 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
+    ComparatorClaimSupportState,
+    build_benchmark_comparator_failure_report,
+)
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     ProteomicsComparatorTool,
     build_workflow_comparator_matrix,
@@ -125,6 +129,10 @@ class WorkflowBenchmarkReview(JsonModel):
     comparator_positions: tuple[BenchmarkComparatorPosition, ...] = Field(
         default_factory=tuple
     )
+    public_claim_support_state: ComparatorClaimSupportState
+    comparator_failure_summaries: tuple[str, ...] = Field(default_factory=tuple)
+    improvement_targets: tuple[str, ...] = Field(default_factory=tuple)
+    known_loss_to_established_tool: bool = False
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
@@ -178,6 +186,34 @@ def _build_comparator_positions(
         )
         for status in matrix.entries[0].tool_statuses
     )
+
+
+def _build_public_claim_posture(
+    benchmark_id: str,
+) -> tuple[
+    ComparatorClaimSupportState,
+    tuple[str, ...],
+    tuple[str, ...],
+    bool,
+]:
+    failure_report = build_benchmark_comparator_failure_report(benchmark_id=benchmark_id)
+    if not failure_report.entries:
+        return (ComparatorClaimSupportState.SUPPORTED, (), (), False)
+    if any(
+        entry.public_claim_support_state is ComparatorClaimSupportState.REFUSED
+        for entry in failure_report.entries
+    ):
+        claim_state = ComparatorClaimSupportState.REFUSED
+    else:
+        claim_state = ComparatorClaimSupportState.ADVISORY
+    summaries = tuple(entry.failure_summary for entry in failure_report.entries)
+    improvement_targets = tuple(
+        dict.fromkeys(entry.improvement_target for entry in failure_report.entries)
+    )
+    known_loss = any(
+        entry.known_loss_to_established_tool for entry in failure_report.entries
+    )
+    return (claim_state, summaries, improvement_targets, known_loss)
 
 
 def _build_external_bundle(
@@ -279,6 +315,12 @@ def build_dda_benchmark_review(
         review_bundle
     )
     scientific_limits = (*manifest.comparison_notes,)
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -310,6 +352,10 @@ def build_dda_benchmark_review(
             manifest.benchmark_id
         ),
         comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -433,6 +479,12 @@ def build_dia_benchmark_review(
         *manifest.comparison_notes,
         "DIA review claims stop at checked-in external-engine exports and explicit capability notes.",
     )
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -464,6 +516,10 @@ def build_dia_benchmark_review(
             manifest.benchmark_id
         ),
         comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -604,6 +660,12 @@ def build_ptm_benchmark_review(
         *manifest.comparison_notes,
         "PTM review claims remain constrained by explicit ambiguous-site entries and phospho-focused fixture scope.",
     )
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -635,6 +697,10 @@ def build_ptm_benchmark_review(
             manifest.benchmark_id
         ),
         comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -753,6 +819,12 @@ def build_lfq_benchmark_review(
         *manifest.comparison_notes,
         *quant_review.caveats,
     )
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -784,6 +856,10 @@ def build_lfq_benchmark_review(
             manifest.benchmark_id
         ),
         comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -977,6 +1053,12 @@ def build_multiplex_benchmark_review(
         *manifest.comparison_notes,
         *diagnostics.caveats,
     )
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -1008,6 +1090,10 @@ def build_multiplex_benchmark_review(
             manifest.benchmark_id
         ),
         comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(

@@ -47,6 +47,8 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
     assert review.benchmark_authority_status is BenchmarkAuthorityStatus.ACTIVE
     assert review.benchmark_package_id is not None
     assert review.benchmark_package_artifact_ids
+    assert review.public_claim_support_state.value == "advisory"
+    assert review.comparator_failure_summaries
     assert any(
         position.comparator_tool.value == "msfragger"
         and position.matched_behaviors
@@ -81,6 +83,7 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.DIA
     assert review.benchmark_package_id is not None
+    assert review.public_claim_support_state.value == "advisory"
     assert any(
         position.comparator_tool.value == "spectronaut"
         and position.partial_behaviors
@@ -117,6 +120,8 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.PTM
+    assert review.public_claim_support_state.value == "refused"
+    assert review.improvement_targets
     assert any(
         position.comparator_tool.value == "maxquant"
         and position.refused_behaviors
@@ -148,6 +153,7 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
     assert review.benchmark_package_id is not None
+    assert review.public_claim_support_state.value == "refused"
     assert any(
         position.comparator_tool.value == "maxquant"
         and position.partial_behaviors
@@ -187,6 +193,7 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert review.benchmark_package_id is not None
+    assert review.public_claim_support_state.value == "refused"
     assert any(
         position.comparator_tool.value == "maxquant"
         and position.not_attempted_behaviors
