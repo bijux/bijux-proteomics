@@ -76,6 +76,8 @@ def test_flagship_run_bundles_keep_runtime_and_downstream_artifacts_linked(
         artifact.artifact_role == "runtime-output" for artifact in lfq.artifact_inventory
     )
 
+    assert targeted.runtime_surface.run_mode.value == "raw_executable"
+    assert targeted.runtime_surface.proof_class.value == "raw_execution"
     assert targeted.runtime_surface.toolchain_or_import_path == (
         "targeted transition review corpus"
     )
@@ -108,6 +110,10 @@ def test_cross_family_bundle_and_registry_publish_runtime_review_surfaces(
     assert len(registry.entries) == 6
     assert registry.entries[0].bundle_artifact_path.endswith("dda/run_bundle.json")
     assert registry.entries[0].proof_class.value == "import_backed_execution"
+    assert any(
+        entry.workflow_family == "dia" and entry.proof_class.value == "raw_execution"
+        for entry in registry.entries
+    )
     assert any(
         entry.runtime_package_id == "targeted-transition-review-corpus"
         for entry in registry.entries

@@ -30,11 +30,11 @@ Current strongest flagship runtime classes:
 
 - `sequence_to_digest`: `raw_execution`
 - `dda_import`: `import_backed_execution`
-- `dia_import`: `import_backed_execution`
+- `dia_import`: `raw_execution`
 - `quant_review`: `raw_execution`
 - `multiplex_review`: `raw_execution`
 - `ptm_review`: `raw_execution`
-- `targeted_review`: `import_backed_execution`
+- `targeted_review`: `raw_execution`
 
 The current simulation-only exceptions are explicit and narrow:
 
@@ -59,12 +59,14 @@ named for that family instead of broadening trust by prose:
     tracked DDA spectra-side inputs
 - `dia_import`:
   - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
-  - replace `run_benchmark_dia_import_path` with one raw review path over
-    tracked DIA acquisition-side inputs
+  - `run_benchmark_dia_review_path` already satisfies raw execution for the
+    current flagship DIA package, but vendor-parity authority still remains
+    outside the repository proof boundary
 - `targeted_review`:
   - `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json`
-  - add tracked acquisition-side evidence and promote the runtime lane beyond
-    import-facing QC review
+  - the targeted transition review package already satisfies raw execution for
+    the current flagship targeted lane, but calibration-clean and vendor-parity
+    authority remain bounded
 
 ## Open The Code-Backed Surfaces
 

@@ -30,21 +30,21 @@
     },
     {
       "artifact_id": "lfq-cohort-review-corpus:primary_input",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
       "artifact_role": "primary_input",
       "owner_package": "bijux-proteomics-core",
       "review_purpose": "primary runtime input consumed by the flagship run"
     },
     {
       "artifact_id": "lfq-cohort-review-corpus:companion_input:1",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
       "artifact_role": "companion_input",
       "owner_package": "bijux-proteomics-core",
       "review_purpose": "companion runtime input needed for the flagship run"
     },
     {
       "artifact_id": "lfq-cohort-review-corpus:companion_input:2",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json",
       "artifact_role": "companion_input",
       "owner_package": "bijux-proteomics-core",
       "review_purpose": "companion runtime input needed for the flagship run"
@@ -97,8 +97,6 @@
   "remaining_blockers": [
     "Compare rollups against the tracked LFQ public package instead of claiming parity with unexecuted external quantification pipelines.",
     "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
-    "public comparator-backed claim support is refused",
-    "biological grounding remains thin",
     "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
   ],
   "runtime_package_id": "lfq-cohort-review-corpus",

@@ -23,6 +23,7 @@ from bijux_proteomics_runtime.workflows.benchmark_runs import (
     build_benchmark_runtime_truth_surface,
     run_benchmark_dda_import_path,
     run_benchmark_dia_import_path,
+    run_benchmark_dia_review_path,
     run_benchmark_lfq_review_path,
     run_benchmark_multiplex_review_path,
     run_benchmark_ptm_review_path,
@@ -427,12 +428,27 @@ def _runtime_surface_snapshot(
             manifest=manifest,
         )
     if workflow_family == "dia":
-        manifest = run_benchmark_dia_import_path(base_dir)
-        return _import_runtime_surface_snapshot(
+        if spec.run_mode is BenchmarkRunMode.IMPORT_ONLY:
+            manifest = run_benchmark_dia_import_path(base_dir)
+            return _import_runtime_surface_snapshot(
+                workflow_family=workflow_family,
+                spec=spec,
+                base_dir=base_dir,
+                manifest=manifest,
+            )
+        report = run_benchmark_dia_review_path()
+        return _report_runtime_surface_snapshot(
             workflow_family=workflow_family,
             spec=spec,
-            base_dir=base_dir,
-            manifest=manifest,
+            report_summary=(
+                f"precursor_count={report.precursor_count}",
+                f"peptide_count={report.peptide_count}",
+                f"protein_count={report.protein_count}",
+                f"quantified_precursor_count={report.quantified_precursor_count}",
+                f"qc_missing_intensity_count={report.qc_missing_intensity_count}",
+            ),
+            artifact_paths=report.artifact_paths,
+            evidence_pointers=report.evidence_pointers,
         )
     if workflow_family == "lfq":
         report = run_benchmark_lfq_review_path()
@@ -651,12 +667,8 @@ def _build_failure_replay_artifact(
     runtime_truth: BenchmarkRuntimeTruthRow,
     base_dir: Path,
 ) -> FlagshipRunFailureReplayArtifact:
-    if workflow_family in {"dda", "dia"}:
-        manifest = (
-            run_benchmark_dda_import_path(base_dir)
-            if workflow_family == "dda"
-            else run_benchmark_dia_import_path(base_dir)
-        )
+    if workflow_family == "dda":
+        manifest = run_benchmark_dda_import_path(base_dir)
         failure_bundle = build_benchmark_failure_recovery_bundle(
             base_dir,
             package_id=spec.package_id,

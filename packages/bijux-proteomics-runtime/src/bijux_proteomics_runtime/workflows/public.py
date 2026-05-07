@@ -67,6 +67,7 @@ _WORKFLOW_EXPORT_GROUPS = {
         "build_benchmark_run_specs",
         "build_benchmark_runtime_truth_surface",
         "run_benchmark_dda_import_path",
+        "run_benchmark_dia_review_path",
         "run_benchmark_dia_import_path",
         "run_benchmark_lfq_review_path",
         "run_benchmark_multiplex_review_path",

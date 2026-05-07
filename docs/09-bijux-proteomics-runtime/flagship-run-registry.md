@@ -50,13 +50,13 @@ Per-family artifacts:
 ## Current Runtime Families
 
 | Workflow | Runtime package id | Current lane | Proof class |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | `dda` | `dda-maxquant-pipeline-corpus` | strict import lane over tracked MaxQuant exports | `import_backed_execution` |
-| `dia` | `dia-diann-pipeline-corpus` | strict import lane over tracked DIA-NN exports | `import_backed_execution` |
+| `dia` | `dia-diann-pipeline-corpus` | raw-executable review lane over tracked DIA library-conditioned evidence | `raw_execution` |
 | `lfq` | `lfq-cohort-review-corpus` | raw-executable review lane over tracked feature and design tables | `raw_execution` |
 | `multiplex` | `multiplex-tmtpro-review-corpus` | raw-executable review lane over tracked channel feature and design tables | `raw_execution` |
 | `ptm` | `ptm-localization-review-corpus` | raw-executable review lane over tracked localization, feature, and FASTA evidence | `raw_execution` |
-| `targeted` | `targeted-transition-review-corpus` | strict import-facing review lane over tracked QC and follow-up artifacts | `import_backed_execution` |
+| `targeted` | `targeted-transition-review-corpus` | raw-executable review lane over tracked targeted QC and follow-up artifacts | `raw_execution` |
 
 ## What These Bundles Authorize
 

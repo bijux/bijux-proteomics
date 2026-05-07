@@ -20,10 +20,10 @@ def test_benchmark_run_provenance_report_records_input_and_artifact_digests(
         manifest=manifest,
     )
 
-    assert report.external_engine_name == "dia-nn"
-    assert report.external_engine_version == "2.1.0"
-    assert report.proof_class.value == "import_backed_execution"
-    assert len(report.input_digests) == 3
+    assert report.external_engine_name is None
+    assert report.external_engine_version is None
+    assert report.proof_class.value == "raw_execution"
+    assert len(report.input_digests) == 5
     assert any(
         digest.label == "runtime-import-trace" for digest in report.artifact_digests
     )

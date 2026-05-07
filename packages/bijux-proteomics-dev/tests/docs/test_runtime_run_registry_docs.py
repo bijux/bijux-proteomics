@@ -37,3 +37,5 @@ def test_flagship_run_registry_page_names_checked_runtime_artifacts() -> None:
     assert "multiplex-tmtpro-review-corpus" in text
     assert "ptm-localization-review-corpus" in text
     assert "targeted-transition-review-corpus" in text
+    assert "raw-executable review lane over tracked DIA library-conditioned evidence" in text
+    assert "raw-executable review lane over tracked targeted QC and follow-up artifacts" in text

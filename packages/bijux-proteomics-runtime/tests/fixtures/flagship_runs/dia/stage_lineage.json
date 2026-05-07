@@ -7,29 +7,27 @@
       "consumed_artifact_ids": [
         "dia-diann-pipeline-corpus:primary_input",
         "dia-diann-pipeline-corpus:companion_input:1",
-        "dia-diann-pipeline-corpus:companion_input:2"
+        "dia-diann-pipeline-corpus:companion_input:2",
+        "dia-diann-pipeline-corpus:companion_input:3",
+        "dia-diann-pipeline-corpus:companion_input:4"
       ],
       "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
-        "dia:runtime-imported-evidence",
-        "dia:runtime-status",
-        "dia:runtime-report"
+        "dia:runtime:1",
+        "dia:runtime:2"
       ],
       "stage_id": "ingest-package-inputs",
       "summary": "ingest the tracked flagship package inputs into the runtime lane"
     },
     {
       "consumed_artifact_ids": [
-        "dia:runtime-imported-evidence",
-        "dia:runtime-status",
-        "dia:runtime-report"
+        "dia:runtime:1",
+        "dia:runtime:2"
       ],
       "owner_package": "bijux-proteomics-runtime",
       "produced_artifact_ids": [
-        "dia:runtime-replay-contract",
-        "dia:runtime-integrity-report",
-        "dia:runtime-evidence-bundle",
-        "dia:runtime-review-packet"
+        "dia:runtime:3",
+        "dia:runtime:4"
       ],
       "stage_id": "publish-runtime-review",
       "summary": "publish the reviewable runtime artifacts that downstream owners consume"

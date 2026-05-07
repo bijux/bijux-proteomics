@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
 import hashlib
 import json
@@ -37,10 +38,13 @@ from bijux_proteomics_runtime.workflows.paths import (
 )
 from bijux_proteomics_runtime.workflows.proof_classes import RuntimeProofClass
 from bijux_proteomics_runtime.workflows.runs import (
+    DiaImportWorkflowRunReport,
+    DiaPrecursorQuantInput,
     MultiplexRuntimeWorkflowRunReport,
     PtmRuntimeWorkflowRunReport,
     QuantRuntimeWorkflowRunReport,
     TargetedRuntimeWorkflowRunReport,
+    run_dia_import_workflow_end_to_end,
     run_multiplex_workflow_end_to_end,
     run_ptm_workflow_end_to_end,
     run_quant_workflow_end_to_end,
@@ -282,15 +286,15 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             package_id="dia-diann-pipeline-corpus",
             display_name="dia diann pipeline corpus",
             workflow_family="dia_import",
-            run_mode=BenchmarkRunMode.IMPORT_ONLY,
-            canonical_entrypoint="bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path",
-            primary_input_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
+            run_mode=BenchmarkRunMode.RAW_EXECUTABLE,
+            canonical_entrypoint="bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_dia_review_path",
+            primary_input_path="packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
             companion_input_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_report.tsv",
-                "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_config.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json",
             ),
-            engine_name="dia-nn",
-            engine_version="2.1.0",
             public_package_paths=(
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
@@ -301,7 +305,8 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py",
             ),
             notes=(
-                "runtime imports the tracked DIA-NN export and preserves the external engine identity in review lineage",
+                "runtime executes the tracked DIA package directly from the flagship public package instead of treating DIA as import-only proof",
+                "the raw-executable DIA lane preserves that the tracked package is library-conditioned and intensity-thin rather than inventing chromatogram-side certainty",
             ),
         ),
         BenchmarkRunSpec(
@@ -310,10 +315,10 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             workflow_family="quant_review",
             run_mode=BenchmarkRunMode.RAW_EXECUTABLE,
             canonical_entrypoint="bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_lfq_review_path",
-            primary_input_path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+            primary_input_path="packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
             companion_input_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv",
-                "packages/bijux-proteomics-core/tests/fixtures/quant/quant_reproducibility_manifest.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json",
             ),
             public_package_paths=(
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
@@ -334,9 +339,9 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             workflow_family="multiplex_review",
             run_mode=BenchmarkRunMode.RAW_EXECUTABLE,
             canonical_entrypoint="bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_multiplex_review_path",
-            primary_input_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+            primary_input_path="packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
             companion_input_paths=(
-                "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
             ),
             public_package_paths=(
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
@@ -357,10 +362,11 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             workflow_family="ptm_review",
             run_mode=BenchmarkRunMode.RAW_EXECUTABLE,
             canonical_entrypoint="bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_ptm_review_path",
-            primary_input_path="packages/bijux-proteomics-runtime/tests/fixtures/ptm/localization_results.tsv",
+            primary_input_path="packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
             companion_input_paths=(
-                "packages/bijux-proteomics-runtime/tests/fixtures/ptm/ptm_features.tsv",
-                "packages/bijux-proteomics-runtime/tests/fixtures/fasta/ptm_sites.fasta",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/spectra.mgf",
             ),
             public_package_paths=(
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/README.md",
@@ -379,13 +385,13 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
             package_id="targeted-transition-review-corpus",
             display_name="targeted transition review corpus",
             workflow_family="targeted_review",
-            run_mode=BenchmarkRunMode.IMPORT_ONLY,
+            run_mode=BenchmarkRunMode.RAW_EXECUTABLE,
             canonical_entrypoint="bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_targeted_review_path",
-            primary_input_path="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+            primary_input_path="packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
             companion_input_paths=(
-                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json",
-                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json",
-                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json",
+                "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json",
             ),
             public_package_paths=(
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
@@ -397,7 +403,8 @@ def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
                 "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
             ),
             notes=(
-                "runtime ingests the tracked targeted QC and follow-up artifacts as the strictest current targeted execution lane available inside the repository boundary",
+                "runtime executes the tracked targeted QC and follow-up artifacts directly from the flagship public package",
+                "the raw-executable targeted lane still keeps calibration and interference limits explicit instead of inflating the package into vendor-parity proof",
             ),
         ),
     )
@@ -444,17 +451,26 @@ def run_benchmark_dia_import_path(
     )
 
 
+def run_benchmark_dia_review_path() -> DiaImportWorkflowRunReport:
+    """Execute the flagship DIA review corpus from tracked public-package rows."""
+
+    return run_dia_import_workflow_end_to_end(
+        _load_flagship_dia_precursor_rows(),
+        artifact_root="artifacts/workflows/flagship-dia-review",
+    )
+
+
 def run_benchmark_lfq_review_path() -> QuantRuntimeWorkflowRunReport:
     """Execute the flagship LFQ review corpus inside the runtime layer."""
 
     repo_root = _repo_root()
     features = parse_ms1_feature_table(
         repo_root
-        / "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv"
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv"
     ).accepted_records
     design_entries = parse_experimental_design_table(
         repo_root
-        / "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale.design.tsv"
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv"
     ).accepted_entries
     return run_quant_workflow_end_to_end(
         features,
@@ -469,11 +485,11 @@ def run_benchmark_multiplex_review_path() -> MultiplexRuntimeWorkflowRunReport:
     repo_root = _repo_root()
     features = parse_ms1_feature_table(
         repo_root
-        / "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv"
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv"
     ).accepted_records
     design_entries = parse_experimental_design_table(
         repo_root
-        / "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv"
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv"
     ).accepted_entries
     return run_multiplex_workflow_end_to_end(
         features,
@@ -488,12 +504,12 @@ def run_benchmark_ptm_review_path() -> PtmRuntimeWorkflowRunReport:
     repo_root = _repo_root()
     feature_records = parse_ms1_feature_table(
         repo_root
-        / "packages/bijux-proteomics-runtime/tests/fixtures/ptm/ptm_features.tsv"
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv"
     ).accepted_records
     fasta_report = parse_fasta_document(
         (
             repo_root
-            / "packages/bijux-proteomics-runtime/tests/fixtures/fasta/ptm_sites.fasta"
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta"
         ).read_text(encoding="utf-8"),
         mode=FastaParseMode.STRICT,
     )
@@ -503,7 +519,7 @@ def run_benchmark_ptm_review_path() -> PtmRuntimeWorkflowRunReport:
     }
     return run_ptm_workflow_end_to_end(
         repo_root
-        / "packages/bijux-proteomics-runtime/tests/fixtures/ptm/localization_results.tsv",
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
         protein_sequences=protein_sequences,
         feature_records=feature_records,
         artifact_root="artifacts/workflows/flagship-ptm-review",
@@ -516,18 +532,18 @@ def run_benchmark_targeted_review_path() -> TargetedRuntimeWorkflowRunReport:
     repo_root = _repo_root()
     return run_targeted_workflow_end_to_end(
         repo_root
-        / "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+        / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
         supported_follow_up_payload=_load_json_dict(
             repo_root
-            / "packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json"
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json"
         ),
         failed_follow_up_payload=_load_json_dict(
             repo_root
-            / "packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json"
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json"
         ),
         refused_follow_up_payload=_load_json_dict(
             repo_root
-            / "packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json"
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json"
         ),
         artifact_root="artifacts/workflows/flagship-targeted-review",
     )
@@ -933,6 +949,47 @@ def _run_import_benchmark_path(
     )
 
 
+def _load_flagship_dia_precursor_rows() -> tuple[DiaPrecursorQuantInput, ...]:
+    repo_root = _repo_root()
+    roots = (
+        (
+            repo_root
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+            "spectronaut_primary",
+            "EG.PrecursorId",
+            "PEP.StrippedSequence",
+            "PG.ProteinAccessions",
+        ),
+        (
+            repo_root
+            / "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+            "diann_comparator",
+            "precursor_id",
+            "sequence",
+            "protein_ids",
+        ),
+    )
+    rows: list[DiaPrecursorQuantInput] = []
+    for path, sample_id, precursor_key, peptide_key, protein_key in roots:
+        with path.open(newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle, delimiter="\t"):
+                protein_refs = [
+                    token.strip()
+                    for token in str(row[protein_key]).replace(";", ",").split(",")
+                    if token.strip()
+                ]
+                rows.append(
+                    DiaPrecursorQuantInput(
+                        precursor_id=str(row[precursor_key]).strip(),
+                        peptide=str(row[peptide_key]).strip(),
+                        protein_ref=protein_refs[0] if protein_refs else "unknown_protein",
+                        sample_id=sample_id,
+                        intensity=None,
+                    )
+                )
+    return tuple(rows)
+
+
 def _spec_by_id(package_id: str) -> BenchmarkRunSpec:
     return next(spec for spec in build_benchmark_run_specs() if spec.package_id == package_id)
 
@@ -1134,6 +1191,7 @@ __all__ = [
     "build_benchmark_run_specs",
     "build_benchmark_runtime_truth_surface",
     "run_benchmark_dda_import_path",
+    "run_benchmark_dia_review_path",
     "run_benchmark_dia_import_path",
     "run_benchmark_lfq_review_path",
     "run_benchmark_multiplex_review_path",

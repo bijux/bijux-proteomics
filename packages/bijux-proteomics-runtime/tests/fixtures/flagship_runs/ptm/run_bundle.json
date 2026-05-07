@@ -30,23 +30,30 @@
     },
     {
       "artifact_id": "ptm-localization-review-corpus:primary_input",
-      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/ptm/localization_results.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
       "artifact_role": "primary_input",
-      "owner_package": "bijux-proteomics-runtime",
+      "owner_package": "bijux-proteomics-core",
       "review_purpose": "primary runtime input consumed by the flagship run"
     },
     {
       "artifact_id": "ptm-localization-review-corpus:companion_input:1",
-      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/ptm/ptm_features.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv",
       "artifact_role": "companion_input",
-      "owner_package": "bijux-proteomics-runtime",
+      "owner_package": "bijux-proteomics-core",
       "review_purpose": "companion runtime input needed for the flagship run"
     },
     {
       "artifact_id": "ptm-localization-review-corpus:companion_input:2",
-      "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/fasta/ptm_sites.fasta",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta",
       "artifact_role": "companion_input",
-      "owner_package": "bijux-proteomics-runtime",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "ptm-localization-review-corpus:companion_input:3",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/spectra.mgf",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
       "review_purpose": "companion runtime input needed for the flagship run"
     },
     {
@@ -97,8 +104,7 @@
   "remaining_blockers": [
     "Compare localization handling against the checked-in PTM localization fixture because direct rescoring engines are not executed in the repo test path.",
     "Retain Ascore-style ambiguity framing and PSI-MOD grounding in the resulting claims.",
-    "public comparator-backed claim support is refused",
-    "biological grounding remains thin",
+    "operational burden remains too high for a justified recommendation",
     "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
   ],
   "runtime_package_id": "ptm-localization-review-corpus",
@@ -115,7 +121,8 @@
     "input_artifact_ids": [
       "ptm-localization-review-corpus:primary_input",
       "ptm-localization-review-corpus:companion_input:1",
-      "ptm-localization-review-corpus:companion_input:2"
+      "ptm-localization-review-corpus:companion_input:2",
+      "ptm-localization-review-corpus:companion_input:3"
     ],
     "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
     "proof_class": "raw_execution",

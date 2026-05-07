@@ -37,8 +37,9 @@ def test_runtime_proof_accounting_page_names_proof_classes_and_promotion_paths()
     assert "test_runtime_cli_surface.py" in text
     assert "test_runtime_execution_control_benchmark_surface.py" in text
     assert "run_benchmark_dda_import_path" in text
-    assert "run_benchmark_dia_import_path" in text
-    assert "targeted_transition_review_package/package_manifest.json" in text
+    assert "run_benchmark_dia_review_path" in text
+    assert "already satisfies raw execution" in text
+    assert "targeted transition review package already satisfies raw execution" in text
 
 
 def test_flagship_run_registry_page_names_runtime_proof_classes() -> None:

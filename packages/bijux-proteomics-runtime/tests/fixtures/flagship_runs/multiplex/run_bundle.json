@@ -30,14 +30,14 @@
     },
     {
       "artifact_id": "multiplex-tmtpro-review-corpus:primary_input",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
       "artifact_role": "primary_input",
       "owner_package": "bijux-proteomics-core",
       "review_purpose": "primary runtime input consumed by the flagship run"
     },
     {
       "artifact_id": "multiplex-tmtpro-review-corpus:companion_input:1",
-      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
       "artifact_role": "companion_input",
       "owner_package": "bijux-proteomics-core",
       "review_purpose": "companion runtime input needed for the flagship run"

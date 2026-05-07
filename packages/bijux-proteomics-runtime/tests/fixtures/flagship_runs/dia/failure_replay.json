@@ -2,28 +2,15 @@
   "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/failure_replay.json",
   "cases": [
     {
-      "blocked_artifact_ids": [],
+      "blocked_artifact_ids": [
+        "dia:runtime:4"
+      ],
       "case_id": "dia:execution_failure",
       "failure_kind": "execution_failure",
       "invalidation_reasons": [],
-      "note": "engineering failure keeps preserved runtime artifacts visible while naming which outputs become blocked",
+      "note": "runtime preserves early-stage evidence but blocks later review outputs when execution breaks mid-flight",
       "surfaced_artifact_ids": [
-        "dia:runtime-evidence-bundle",
-        "dia:runtime-artifact-item",
-        "dia:runtime-review-packet",
-        "dia:runtime-reviewable-import-path",
-        "dia:runtime-import-run-bundle",
-        "dia:runtime-import-trace",
-        "dia:runtime-integrity-report",
-        "dia:runtime-preflight-report",
-        "dia:runtime-replay-contract",
-        "dia:runtime-config",
-        "dia:runtime-run-context",
-        "dia:runtime-output",
-        "dia:runtime-plan",
-        "dia:runtime-report",
-        "dia:runtime-status",
-        "dia:runtime-telemetry"
+        "dia:runtime:1"
       ]
     },
     {
@@ -31,45 +18,29 @@
       "case_id": "dia:scientific_invalidation",
       "failure_kind": "scientific_invalidation",
       "invalidation_reasons": [
-        "input_changed"
+        "scientific_limits_remain"
       ],
-      "note": "scientific invalidation is recorded separately from filesystem corruption so reviewers can distinguish wrong assumptions from broken execution",
+      "note": "runtime still records the run, but the review posture is downgraded when the scientific assumptions or claim boundaries fail.",
       "surfaced_artifact_ids": [
-        "dia:runtime-evidence-bundle",
-        "dia:runtime-artifact-item",
-        "dia:runtime-review-packet",
-        "dia:runtime-reviewable-import-path",
-        "dia:runtime-import-run-bundle",
-        "dia:runtime-import-trace",
-        "dia:runtime-integrity-report",
-        "dia:runtime-preflight-report",
-        "dia:runtime-replay-contract",
-        "dia:runtime-config",
-        "dia:runtime-run-context",
-        "dia:runtime-output",
-        "dia:runtime-plan",
-        "dia:runtime-report",
-        "dia:runtime-status",
-        "dia:runtime-telemetry"
+        "dia:runtime:2"
       ]
     },
     {
       "blocked_artifact_ids": [
-        "dia:runtime-evidence-bundle",
-        "dia:runtime-review-packet"
+        "dia:runtime:3"
       ],
-      "case_id": "dia:structurally_incomplete_import",
-      "failure_kind": "structurally_incomplete_import",
+      "case_id": "dia:structurally_incomplete_input",
+      "failure_kind": "structurally_incomplete_input",
       "invalidation_reasons": [
-        "structurally_incomplete_imported_artifact"
+        "required_input_fields_missing"
       ],
-      "note": "if imported result tables are structurally incomplete, runtime keeps the import trace but blocks downstream review and handoff outputs",
+      "note": "runtime should name structurally incomplete inputs directly before downstream interpretation leaves the workflow boundary.",
       "surfaced_artifact_ids": [
-        "dia:runtime-imported-evidence"
+        "dia:primary_input"
       ]
     }
   ],
-  "note": "This artifact demonstrates how runtime distinguishes execution failure, scientific invalidation, and structurally incomplete imports on the flagship import lanes.",
+  "note": "This artifact demonstrates how runtime records execution failure, scientific invalidation, and structurally incomplete inputs on the flagship review lanes.",
   "replay_id": "flagship-failure-replay:dia",
   "workflow_family": "dia"
 }

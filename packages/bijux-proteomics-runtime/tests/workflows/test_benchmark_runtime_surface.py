@@ -8,6 +8,7 @@ from bijux_proteomics_runtime.workflows import (
     build_benchmark_runtime_truth_surface,
     run_benchmark_dda_import_path,
     run_benchmark_dia_import_path,
+    run_benchmark_dia_review_path,
     run_benchmark_lfq_review_path,
     run_benchmark_multiplex_review_path,
     run_benchmark_ptm_review_path,
@@ -36,7 +37,7 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
         )
         for path in specs["dda-maxquant-pipeline-corpus"].public_package_paths
     )
-    assert specs["dia-diann-pipeline-corpus"].engine_version == "2.1.0"
+    assert specs["dia-diann-pipeline-corpus"].run_mode.value == "raw_executable"
     assert any(
         path.endswith(
             "benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json"
@@ -46,7 +47,7 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
     assert specs["lfq-cohort-review-corpus"].run_mode.value == "raw_executable"
     assert specs["multiplex-tmtpro-review-corpus"].workflow_family == "multiplex_review"
     assert specs["ptm-localization-review-corpus"].workflow_family == "ptm_review"
-    assert specs["targeted-transition-review-corpus"].run_mode.value == "import_only"
+    assert specs["targeted-transition-review-corpus"].run_mode.value == "raw_executable"
 
 
 def test_run_benchmark_sequence_path_executes_real_runtime_path(tmp_path: Path) -> None:
@@ -77,7 +78,16 @@ def test_run_benchmark_import_paths_ingest_real_comparator_tables(
     assert '"row_count": 3' in dda_payload
     assert '"scan_number"' in dda_payload
     assert '"row_count": 3' in dia_payload
-    assert '"precursor_id"' in dia_payload
+    assert '"EG.PrecursorId"' in dia_payload
+
+
+def test_run_benchmark_dia_review_path_executes_raw_executable_dia_lane() -> None:
+    report = run_benchmark_dia_review_path()
+
+    assert report.precursor_count == 6
+    assert report.peptide_count >= 3
+    assert report.protein_count >= 3
+    assert report.qc_missing_intensity_count == 6
 
 
 def test_runtime_wrappers_cover_flagship_lfq_multiplex_ptm_and_targeted() -> None:
@@ -100,7 +110,8 @@ def test_benchmark_runtime_truth_surface_tracks_all_flagship_run_families() -> N
     assert rows["dda_import"].externally_cross_checked is True
     assert rows["dda_import"].proof_class.value == "import_backed_execution"
     assert rows["dia_import"].artifact_browser_ready is True
+    assert rows["dia_import"].run_mode.value == "raw_executable"
     assert rows["quant_review"].run_mode.value == "raw_executable"
     assert rows["multiplex_review"].run_mode.value == "raw_executable"
     assert rows["ptm_review"].run_mode.value == "raw_executable"
-    assert rows["targeted_review"].run_mode.value == "import_only"
+    assert rows["targeted_review"].run_mode.value == "raw_executable"
