@@ -5,9 +5,45 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+
+
+class WorkflowScientificSupportTier(StrEnum):
+    """Scientifically meaningful support tier for one workflow surface."""
+
+    SUPPORTED = "supported"
+    PARTIAL = "partial"
+    REFUSED = "refused"
+
+
+class DiaWorkflowSupportTierEntry(JsonModel):
+    """One DIA support surface with explicit tier and threshold accounting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    support_tier: WorkflowScientificSupportTier
+    observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    supported_threshold: float = Field(..., ge=0.0, le=1.0)
+    partial_threshold: float = Field(..., ge=0.0, le=1.0)
+    detail: str = Field(..., min_length=1)
+
+
+class DiaWorkflowScientificSupportReport(JsonModel):
+    """Tiered DIA workflow support report over import, transitions, protein, and interpretation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[DiaWorkflowSupportTierEntry, ...] = Field(default_factory=tuple)
+    ion_mobility_observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    library_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
+    absent_expected_peptide_fraction: float = Field(..., ge=0.0, le=1.0)
+    partial_support_definition: str = Field(..., min_length=1)
+    ready_for_biological_interpretation: bool
 
 
 class TargetedCalibrationStandardObservation(JsonModel):
@@ -45,8 +81,154 @@ class TargetedWorkflowBenchmarkReport(JsonModel):
     complete_heavy_light_pair_count: int = Field(..., ge=0)
     missing_heavy_light_pair_count: int = Field(..., ge=0)
     interference_flag_count: int = Field(..., ge=0)
+    support_tier: WorkflowScientificSupportTier
+    partial_support_definition: str = Field(..., min_length=1)
     ready_for_transition_handoff: bool
     note: str = Field(..., min_length=1)
+
+
+def _fraction(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return min(1.0, max(0.0, numerator / denominator))
+
+
+def _tier_from_fraction(
+    *,
+    fraction: float,
+    supported_threshold: float,
+    partial_threshold: float,
+) -> WorkflowScientificSupportTier:
+    if fraction >= supported_threshold:
+        return WorkflowScientificSupportTier.SUPPORTED
+    if fraction >= partial_threshold:
+        return WorkflowScientificSupportTier.PARTIAL
+    return WorkflowScientificSupportTier.REFUSED
+
+
+def build_dia_workflow_scientific_support_report(
+    *,
+    imported_precursor_count: int,
+    expected_precursor_count: int,
+    transition_supported_precursor_count: int,
+    expected_transition_precursor_count: int,
+    protein_group_count: int,
+    expected_protein_group_count: int,
+    ion_mobility_observed_count: int,
+    ion_mobility_expected_count: int,
+    library_matched_peptide_count: int,
+    expected_library_peptide_count: int,
+    absent_expected_peptide_count: int,
+) -> DiaWorkflowScientificSupportReport:
+    """Score DIA support tiers with explicit realism pressure and partial-support rules."""
+
+    import_fraction = _fraction(imported_precursor_count, expected_precursor_count)
+    transition_fraction = _fraction(
+        transition_supported_precursor_count,
+        expected_transition_precursor_count,
+    )
+    protein_fraction = _fraction(protein_group_count, expected_protein_group_count)
+    ion_mobility_fraction = _fraction(
+        ion_mobility_observed_count,
+        ion_mobility_expected_count,
+    )
+    library_coverage_fraction = _fraction(
+        library_matched_peptide_count,
+        expected_library_peptide_count,
+    )
+    absent_expected_fraction = _fraction(
+        absent_expected_peptide_count,
+        expected_library_peptide_count,
+    )
+
+    library_tier = _tier_from_fraction(
+        fraction=min(import_fraction, library_coverage_fraction),
+        supported_threshold=0.9,
+        partial_threshold=0.7,
+    )
+    transition_tier = _tier_from_fraction(
+        fraction=transition_fraction,
+        supported_threshold=0.85,
+        partial_threshold=0.6,
+    )
+    protein_tier = _tier_from_fraction(
+        fraction=min(protein_fraction, library_coverage_fraction),
+        supported_threshold=0.8,
+        partial_threshold=0.5,
+    )
+    interpretation_signal = min(
+        library_coverage_fraction,
+        ion_mobility_fraction if ion_mobility_expected_count > 0 else 1.0,
+        1.0 - absent_expected_fraction,
+    )
+    interpretation_tier = _tier_from_fraction(
+        fraction=interpretation_signal,
+        supported_threshold=0.8,
+        partial_threshold=0.55,
+    )
+    if (
+        library_tier is WorkflowScientificSupportTier.REFUSED
+        or transition_tier is WorkflowScientificSupportTier.REFUSED
+        or protein_tier is WorkflowScientificSupportTier.REFUSED
+    ):
+        interpretation_tier = WorkflowScientificSupportTier.REFUSED
+
+    entries = (
+        DiaWorkflowSupportTierEntry(
+            surface="library_conditioned_import",
+            support_tier=library_tier,
+            observed_fraction=min(import_fraction, library_coverage_fraction),
+            supported_threshold=0.9,
+            partial_threshold=0.7,
+            detail=(
+                "import support is bounded by both precursor import success and peptide coverage against the expected library scope"
+            ),
+        ),
+        DiaWorkflowSupportTierEntry(
+            surface="transition_semantics",
+            support_tier=transition_tier,
+            observed_fraction=transition_fraction,
+            supported_threshold=0.85,
+            partial_threshold=0.6,
+            detail=(
+                "transition semantics stay reviewable only when most expected precursors retain explicit fragment-linked support"
+            ),
+        ),
+        DiaWorkflowSupportTierEntry(
+            surface="protein_level_evidence",
+            support_tier=protein_tier,
+            observed_fraction=min(protein_fraction, library_coverage_fraction),
+            supported_threshold=0.8,
+            partial_threshold=0.5,
+            detail=(
+                "protein-level evidence is downgraded whenever library coverage collapses even if imported precursors still look healthy"
+            ),
+        ),
+        DiaWorkflowSupportTierEntry(
+            surface="biological_interpretation",
+            support_tier=interpretation_tier,
+            observed_fraction=interpretation_signal,
+            supported_threshold=0.8,
+            partial_threshold=0.55,
+            detail=(
+                "biological interpretation is only strong when library coverage, peptide presence, and ion-mobility evidence all stay above bounded thresholds"
+            ),
+        ),
+    )
+    return DiaWorkflowScientificSupportReport(
+        entries=entries,
+        ion_mobility_observed_fraction=ion_mobility_fraction,
+        library_coverage_fraction=library_coverage_fraction,
+        absent_expected_peptide_fraction=absent_expected_fraction,
+        partial_support_definition=(
+            "partial DIA support means imported evidence remains reviewable, but one or more realism pressures "
+            "such as incomplete library coverage, weak transition retention, missing ion-mobility evidence, or absent expected peptides "
+            "still block strong biological interpretation"
+        ),
+        ready_for_biological_interpretation=(
+            interpretation_tier is WorkflowScientificSupportTier.SUPPORTED
+        ),
+    )
 
 
 def build_targeted_workflow_benchmark_report(
@@ -75,12 +257,24 @@ def build_targeted_workflow_benchmark_report(
         and bool(calibration_observations)
         and bool(heavy_light_pairs)
     )
+    support_tier = (
+        WorkflowScientificSupportTier.SUPPORTED
+        if ready
+        else WorkflowScientificSupportTier.PARTIAL
+        if bool(calibration_observations) and bool(heavy_light_pairs)
+        else WorkflowScientificSupportTier.REFUSED
+    )
     return TargetedWorkflowBenchmarkReport(
         calibration_supported_count=calibration_supported,
         calibration_failed_count=calibration_failed,
         complete_heavy_light_pair_count=complete_pairs,
         missing_heavy_light_pair_count=missing_pairs,
         interference_flag_count=interference_flag_count,
+        support_tier=support_tier,
+        partial_support_definition=(
+            "partial targeted support means the workflow keeps chromatogram, calibration, or heavy/light evidence reviewable, "
+            "but missing pairs, failed standards, or interference still block confident transition handoff"
+        ),
         ready_for_transition_handoff=ready,
         note=(
             "targeted workflow clears calibration, heavy/light pairing, and interference pressure"

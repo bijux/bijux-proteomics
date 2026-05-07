@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics.dia.benchmarks import (
     TargetedCalibrationStandardObservation,
     TargetedHeavyLightPairObservation,
+    WorkflowScientificSupportTier,
     build_targeted_workflow_benchmark_report,
 )
 
@@ -54,4 +55,6 @@ def test_targeted_workflow_benchmark_report_surfaces_calibration_pairing_and_int
     assert report.complete_heavy_light_pair_count == 1
     assert report.missing_heavy_light_pair_count == 1
     assert report.interference_flag_count == 1
+    assert report.support_tier is WorkflowScientificSupportTier.PARTIAL
+    assert "partial targeted support means" in report.partial_support_definition
     assert report.ready_for_transition_handoff is False
