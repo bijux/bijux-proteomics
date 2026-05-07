@@ -19,6 +19,8 @@ def test_comparator_confrontation_report_currently_covers_dda_and_dia() -> None:
     assert {entry.workflow_family for entry in report.entries} == {
         KnowledgeWorkflowFamily.DDA,
         KnowledgeWorkflowFamily.DIA,
+        KnowledgeWorkflowFamily.LFQ,
+        KnowledgeWorkflowFamily.MULTIPLEX,
     }
 
 
@@ -55,3 +57,36 @@ def test_dia_comparator_confrontation_keeps_missingness_behavior_explicit() -> N
     assert missingness.outcome is ComparatorConfrontationOutcome.REPO_WEAKER
     assert "missing expected peptides" in missingness.repository_position.lower()
     assert confrontation.artifact_refs
+
+
+def test_lfq_comparator_confrontation_keeps_normalization_differential_and_loss_axes() -> (
+    None
+):
+    confrontation = build_workflow_comparator_confrontation(KnowledgeWorkflowFamily.LFQ)
+
+    assert {finding.axis for finding in confrontation.findings} == {
+        "normalization behavior",
+        "differential interpretation",
+        "evidence-loss behavior",
+    }
+    assert any(
+        finding.outcome is ComparatorConfrontationOutcome.REPO_STRICTER
+        for finding in confrontation.findings
+    )
+
+
+def test_multiplex_comparator_confrontation_keeps_blocked_channel_path_visible() -> (
+    None
+):
+    confrontation = build_workflow_comparator_confrontation(
+        KnowledgeWorkflowFamily.MULTIPLEX
+    )
+
+    blocked = next(
+        finding
+        for finding in confrontation.findings
+        if finding.axis == "channel-level evidence"
+    )
+
+    assert blocked.outcome is ComparatorConfrontationOutcome.BLOCKED
+    assert "blocked" in blocked.scientific_difference.lower()

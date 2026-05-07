@@ -186,9 +186,109 @@ def _build_dia_confrontation() -> WorkflowComparatorConfrontation:
     )
 
 
+def _build_lfq_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.LFQ)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.LFQ
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:lfq",
+        workflow_family=KnowledgeWorkflowFamily.LFQ,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.MAXQUANT,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:lfq:normalization",
+                axis="normalization behavior",
+                outcome=ComparatorConfrontationOutcome.ALIGNED,
+                repository_position="The repository preserves the imported LFQ summary structure and keeps normalization posture review-visible.",
+                comparator_position="The established LFQ workflow emits the evidence table that anchors the imported normalization and abundance review.",
+                scientific_difference="There is no current normalization disagreement inside the imported evidence boundary.",
+                consequence_for_review="Review-grade LFQ normalization claims can stay aligned while the benchmark remains import-shaped.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:lfq:differential",
+                axis="differential interpretation",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository keeps study-design scope, missingness, and batch posture visible before a differential result becomes stronger biology.",
+                comparator_position="The external LFQ workflow can present differential summaries without the same governed downgrade chain around contrast scope.",
+                scientific_difference="The repository is stricter about not letting tidy differential outputs outrun the benchmarked contrast and replicate structure.",
+                consequence_for_review="LFQ differential packets stay more conservative about what abundance biology has actually been earned.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:lfq:evidence_loss",
+                axis="evidence-loss behavior",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository can explain evidence-loss and missingness pressure, but still lacks a flagship public cohort package that makes those losses hurt more realistically.",
+                comparator_position="The established LFQ workflow owns the original evidence table and broader algorithmic handling that generated the imported abundance summary.",
+                scientific_difference="The repository still lacks a harder public comparison on how evidence loss and cohort heterogeneity change the final abundance claim.",
+                consequence_for_review="LFQ trust remains bounded to imported-review semantics rather than broader cohort-grade quant parity.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository can confront an established LFQ workflow on imported normalization and bounded differential review, but it still loses on harder public-cohort evidence-loss realism."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Move LFQ comparison onto a flagship public cohort package so missingness, batch drift, and evidence-loss pressure become public comparator substance instead of tidy imported review."
+        ),
+    )
+
+
+def _build_multiplex_confrontation() -> WorkflowComparatorConfrontation:
+    manifest = get_benchmark_manifest_for_family(KnowledgeWorkflowFamily.MULTIPLEX)
+    comparator_paths = list_workflow_comparator_paths(
+        workflow_family=KnowledgeWorkflowFamily.MULTIPLEX
+    )
+    return WorkflowComparatorConfrontation(
+        confrontation_id="comparator_confrontation:multiplex",
+        workflow_family=KnowledgeWorkflowFamily.MULTIPLEX,
+        benchmark_id=manifest.benchmark_id,
+        comparator_tool=ProteomicsComparatorTool.MAXQUANT,
+        findings=(
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:multiplex:channel_level",
+                axis="channel-level evidence",
+                outcome=ComparatorConfrontationOutcome.BLOCKED,
+                repository_position="The repository keeps reporter-channel semantics and chemistry caveats explicit, but it does not yet have a real external multiplex comparator path.",
+                comparator_position="An established multiplex workflow would own the vendor-grade channel extraction and chemistry-specific behavior that the repository still lacks.",
+                scientific_difference="There is no real shipped external multiplex confrontation yet; channel-level parity remains explicitly blocked.",
+                consequence_for_review="Any multiplex comparison claim must stay honest about being blocked rather than partially satisfied.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:multiplex:protein_level",
+                axis="protein-level evidence",
+                outcome=ComparatorConfrontationOutcome.REPO_STRICTER,
+                repository_position="The repository keeps channel chemistry, reference dependence, and ratio-compression warnings attached to any protein-facing summary.",
+                comparator_position="An established multiplex workflow can still emit strong protein summaries even when the reporter chemistry burden remains hard to see from the final table alone.",
+                scientific_difference="The repository is stronger at stopping channel-level caveats from disappearing during protein rollup.",
+                consequence_for_review="Protein-facing multiplex conclusions remain visibly coupled to channel-level fragility.",
+            ),
+            ComparatorConfrontationFinding(
+                finding_id="comparator_confrontation:multiplex:ratio_compression_and_interference",
+                axis="ratio compression and interference",
+                outcome=ComparatorConfrontationOutcome.REPO_WEAKER,
+                repository_position="The repository names ratio-compression and interference risk, but it does not yet confront them on a harder external comparator package.",
+                comparator_position="A real external multiplex workflow would pressure the chemistry burden with vendor-grade outputs and interference-heavy public data.",
+                scientific_difference="The repository still lacks a public external confrontation on the chemistry burden that most threatens multiplex trust.",
+                consequence_for_review="Multiplex authority remains review-grade and blocked from stronger chemistry claims until the external confrontation exists.",
+            ),
+        ),
+        overall_conclusion=(
+            "The repository is stronger at keeping multiplex chemistry caveats visible, but the actual external multiplex confrontation is still blocked and that missing comparison remains a major weakness."
+        ),
+        artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
+        next_escalation=(
+            "Add a real public multiplex comparator path with channel-heavy outputs so the blocked channel-level confrontation becomes a shipped comparison instead of a declared absence."
+        ),
+    )
+
+
 _SUPPORTED_BUILDERS = {
     KnowledgeWorkflowFamily.DDA: _build_dda_confrontation,
     KnowledgeWorkflowFamily.DIA: _build_dia_confrontation,
+    KnowledgeWorkflowFamily.LFQ: _build_lfq_confrontation,
+    KnowledgeWorkflowFamily.MULTIPLEX: _build_multiplex_confrontation,
 }
 
 
