@@ -28,12 +28,28 @@ def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
     assert tuple(sheet.workflow_family for sheet in sheets) == (
         KnowledgeWorkflowFamily.DDA,
         KnowledgeWorkflowFamily.DIA,
+        KnowledgeWorkflowFamily.LFQ,
+        KnowledgeWorkflowFamily.MULTIPLEX,
     )
-    assert all(sheet.acceptance_passed is True for sheet in sheets)
+    assert all(
+        sheet.acceptance_passed is True
+        for sheet in sheets
+        if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
+    )
+    assert build_flagship_acceptance_sheet(
+        KnowledgeWorkflowFamily.MULTIPLEX
+    ).acceptance_passed is False
     assert all(
         sheet.earned_release_language
         is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
         for sheet in sheets
+        if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
+    )
+    assert all(
+        sheet.earned_release_language
+        is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+        for sheet in sheets
+        if sheet.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     )
 
 
@@ -57,9 +73,32 @@ def test_dia_acceptance_sheet_keeps_library_and_absent_expected_thresholds_expli
     assert criteria["dia_quantitative_coherence"].observed_value == "0.33"
 
 
+def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_explicit() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.LFQ)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.claim_ahead_of_evidence is False
+    assert criteria["lfq_missingness_burden"].observed_value == "2"
+    assert criteria["lfq_normalization_drift"].observed_value == "decision_grade"
+    assert criteria["lfq_differential_reproducibility"].observed_value == "24"
+
+
+def test_multiplex_acceptance_sheet_fails_and_keeps_internal_support_only_honest() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.MULTIPLEX)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.acceptance_passed is False
+    assert sheet.claim_ahead_of_evidence is False
+    assert sheet.earned_release_language is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+    assert criteria["multiplex_interference"].observed_value == "2"
+    assert criteria["multiplex_channel_dropout"].observed_value == "1"
+    assert criteria["multiplex_ratio_compression"].observed_value == "2"
+    assert criteria["multiplex_downstream_review_promotion"].observed_value == "refused"
+
+
 def test_published_acceptance_json_matches_live_surface() -> None:
     for sheet in list_flagship_acceptance_sheets():
         payload = json.loads((REPO_ROOT / sheet.artifact_path).read_text(encoding="utf-8"))
         assert payload["sheet_id"] == sheet.sheet_id
         assert payload["workflow_family"] == sheet.workflow_family.value
-        assert payload["acceptance_passed"] is True
+        assert payload["acceptance_passed"] is sheet.acceptance_passed

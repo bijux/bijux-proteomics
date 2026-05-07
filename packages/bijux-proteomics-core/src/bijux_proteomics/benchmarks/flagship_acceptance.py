@@ -25,6 +25,8 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     WorkflowBenchmarkReview,
     build_dda_benchmark_review,
     build_dia_benchmark_review,
+    build_lfq_benchmark_review,
+    build_multiplex_benchmark_review,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
@@ -48,6 +50,8 @@ _ASSET_ROOT = "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptan
 _SUPPORTED_FAMILIES: tuple[KnowledgeWorkflowFamily, ...] = (
     KnowledgeWorkflowFamily.DDA,
     KnowledgeWorkflowFamily.DIA,
+    KnowledgeWorkflowFamily.LFQ,
+    KnowledgeWorkflowFamily.MULTIPLEX,
 )
 
 
@@ -119,6 +123,8 @@ def _reviews() -> dict[KnowledgeWorkflowFamily, WorkflowBenchmarkReview]:
         for review in (
             build_dda_benchmark_review(),
             build_dia_benchmark_review(),
+            build_lfq_benchmark_review(),
+            build_multiplex_benchmark_review(),
         )
     }
 
@@ -150,6 +156,8 @@ def build_flagship_acceptance_sheet(
     builders = {
         KnowledgeWorkflowFamily.DDA: _build_dda_acceptance_sheet,
         KnowledgeWorkflowFamily.DIA: _build_dia_acceptance_sheet,
+        KnowledgeWorkflowFamily.LFQ: _build_lfq_acceptance_sheet,
+        KnowledgeWorkflowFamily.MULTIPLEX: _build_multiplex_acceptance_sheet,
     }
     try:
         return builders[workflow_family]()
@@ -351,6 +359,187 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
     )
 
 
+def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
+    workflow_family = KnowledgeWorkflowFamily.LFQ
+    review = _reviews()[workflow_family]
+    criteria = (
+        FlagshipAcceptanceCriterion(
+            criterion_id="lfq_missingness_burden",
+            dimension="missingness burden",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=str(len(review.scientific_limits)),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="2",
+            passed=len(review.scientific_limits) <= 2,
+            evidence_paths=(
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+                "packages/bijux-proteomics-core/tests/quantification/test_missingness_profile_surface.py",
+            ),
+            note="LFQ trust stays bounded to the current flagship package only while missingness and QC caveats remain no broader than the present checked review limits.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="lfq_normalization_drift",
+            dimension="normalization drift",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value="decision_grade",
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="decision_grade",
+            passed=_claim_support_state(review, "decision_grade_boundary") == "supported",
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/quantification/test_effect_size_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="LFQ acceptance keeps normalization drift tied to the current decision-readiness surface rather than allowing abundance tables to claim stability on raw row count alone.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="lfq_differential_reproducibility",
+            dimension="differential reproducibility",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "feature_ingestion", "accepted_records"),
+            required_relation=AcceptanceRelation.AT_LEAST,
+            required_value="24",
+            passed=_claim_metric_float(review, "feature_ingestion", "accepted_records") >= 24.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the review packet names.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="lfq_comparator_divergence",
+            dimension="comparator divergence",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value=review.public_claim_support_state.value,
+            required_relation=AcceptanceRelation.ONE_OF,
+            required_value="advisory|supported",
+            passed=review.public_claim_support_state in {
+                ComparatorClaimSupportState.ADVISORY,
+                ComparatorClaimSupportState.SUPPORTED,
+            },
+            evidence_paths=(
+                "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="LFQ public trust is blocked the moment comparator posture falls to refused, because that would mean quantitative interpretation is outrunning the shipped external confrontation surface.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="lfq_recommendation_promotion",
+            dimension="recommendation promotion",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value=f"{review.reviewer_grounding_state.value}:{review.ready_for_release_review}".lower(),
+            required_relation=AcceptanceRelation.ONE_OF,
+            required_value="review_grade:true|decision_grade:true",
+            passed=review.ready_for_release_review
+            and review.reviewer_grounding_state
+            in {ReviewerGroundingState.REVIEW_GRADE, ReviewerGroundingState.DECISION_GRADE},
+            evidence_paths=(
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="LFQ recommendation surfaces can only be regenerated as trusted while the benchmark packet remains releasable and still grounded above thin abundance prose.",
+        ),
+    )
+    return _sheet_from_criteria(
+        workflow_family=workflow_family,
+        review=review,
+        criteria=criteria,
+        blocked_claims=(
+            "do not promote LFQ to external execution parity",
+            "do not treat one stable cohort package as proof of broad quantitative transfer",
+        ),
+    )
+
+
+def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
+    workflow_family = KnowledgeWorkflowFamily.MULTIPLEX
+    review = _reviews()[workflow_family]
+    perturbation = _perturbations()[workflow_family.value]
+    criteria = (
+        FlagshipAcceptanceCriterion(
+            criterion_id="multiplex_interference",
+            dimension="interference",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "channel_balance_caveats", "flagged_imbalance_count"),
+            required_relation=AcceptanceRelation.AT_MOST,
+            required_value="1",
+            passed=_claim_metric_float(review, "channel_balance_caveats", "flagged_imbalance_count") <= 1.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Multiplex trust would require interference pressure to stay at or below one flagged imbalance, which the current flagship package does not earn.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="multiplex_channel_dropout",
+            dimension="channel dropout",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "channel_manifest", "missing_channels"),
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="0",
+            passed=_claim_metric_float(review, "channel_manifest", "missing_channels") == 0.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="A multiplex package with missing reporter channels stays below trust because channel dropout makes even well-shaped ratios too fragile for stronger public language.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="multiplex_reference_channel_fragility",
+            dimension="reference-channel fragility",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_claim_metric(review, "channel_balance_caveats", "missing_channel_count"),
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="0",
+            passed=_claim_metric_float(review, "channel_balance_caveats", "missing_channel_count") == 0.0,
+            evidence_paths=(
+                "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="Reference-channel trust is intentionally strict: any missing channel count keeps multiplex below outsider-facing authority because the bridge/reference story is already brittle.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="multiplex_ratio_compression",
+            dimension="ratio compression",
+            observed_kind=AcceptanceObservedKind.INTEGER,
+            observed_value=_metric_value(perturbation, "materially_compressed_ratio_count"),
+            required_relation=AcceptanceRelation.EXACTLY,
+            required_value="0",
+            passed=_metric_float(perturbation, "materially_compressed_ratio_count") == 0.0,
+            evidence_paths=(
+                perturbation.artifact_path,
+                "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py",
+            ),
+            note="The multiplex challenge corpus currently shows material ratio compression, so outsider trust would be dishonest even if the base package looks tidy.",
+        ),
+        FlagshipAcceptanceCriterion(
+            criterion_id="multiplex_downstream_review_promotion",
+            dimension="downstream review promotion",
+            observed_kind=AcceptanceObservedKind.STATE,
+            observed_value=review.public_claim_support_state.value,
+            required_relation=AcceptanceRelation.ONE_OF,
+            required_value="advisory|supported",
+            passed=review.public_claim_support_state in {
+                ComparatorClaimSupportState.ADVISORY,
+                ComparatorClaimSupportState.SUPPORTED,
+            },
+            evidence_paths=(
+                "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+                "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+            ),
+            note="The current multiplex package remains internal-support only because downstream review promotion is still refused once comparator and chemistry caveats are carried honestly.",
+        ),
+    )
+    return _sheet_from_criteria(
+        workflow_family=workflow_family,
+        review=review,
+        criteria=criteria,
+        blocked_claims=(
+            "do not publish multiplex as outsider-auditable while channel dropout and compression remain open",
+            "do not treat reporter-channel summaries as broad biological authority",
+        ),
+    )
+
+
 def _sheet_from_criteria(
     *,
     workflow_family: KnowledgeWorkflowFamily,
@@ -432,6 +621,11 @@ def _claim_metric_float(
     metric_key: str,
 ) -> float:
     return float(_claim_metric(review, claim_id, metric_key))
+
+
+def _claim_support_state(review: WorkflowBenchmarkReview, claim_id: str) -> str:
+    claim = next(claim for claim in review.claim_summaries if claim.claim_id == claim_id)
+    return claim.support_state.value
 
 
 def _metric_value(report: PerturbationReactionReport, metric_id: str) -> str:

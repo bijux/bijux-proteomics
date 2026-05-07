@@ -1,0 +1,88 @@
+{
+  "acceptance_passed": false,
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/multiplex_acceptance_sheet.json",
+  "benchmark_id": "benchmark:multiplex_tmtpro_quantification",
+  "benchmark_package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "blocked_claims": [
+    "do not publish multiplex as outsider-auditable while channel dropout and compression remain open",
+    "do not treat reporter-channel summaries as broad biological authority"
+  ],
+  "claim_ahead_of_evidence": false,
+  "criteria": [
+    {
+      "criterion_id": "multiplex_interference",
+      "dimension": "interference",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Multiplex trust would require interference pressure to stay at or below one flagged imbalance, which the current flagship package does not earn.",
+      "observed_kind": "integer",
+      "observed_value": "2",
+      "passed": false,
+      "required_relation": "at_most",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "multiplex_channel_dropout",
+      "dimension": "channel dropout",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "A multiplex package with missing reporter channels stays below trust because channel dropout makes even well-shaped ratios too fragile for stronger public language.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": false,
+      "required_relation": "exactly",
+      "required_value": "0"
+    },
+    {
+      "criterion_id": "multiplex_reference_channel_fragility",
+      "dimension": "reference-channel fragility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "Reference-channel trust is intentionally strict: any missing channel count keeps multiplex below outsider-facing authority because the bridge/reference story is already brittle.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": false,
+      "required_relation": "exactly",
+      "required_value": "0"
+    },
+    {
+      "criterion_id": "multiplex_ratio_compression",
+      "dimension": "ratio compression",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+        "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py"
+      ],
+      "note": "The multiplex challenge corpus currently shows material ratio compression, so outsider trust would be dishonest even if the base package looks tidy.",
+      "observed_kind": "integer",
+      "observed_value": "2",
+      "passed": false,
+      "required_relation": "exactly",
+      "required_value": "0"
+    },
+    {
+      "criterion_id": "multiplex_downstream_review_promotion",
+      "dimension": "downstream review promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "The current multiplex package remains internal-support only because downstream review promotion is still refused once comparator and chemistry caveats are carried honestly.",
+      "observed_kind": "state",
+      "observed_value": "refused",
+      "passed": false,
+      "required_relation": "one_of",
+      "required_value": "advisory|supported"
+    }
+  ],
+  "earned_release_language": "internal_support_only",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "public_release_language": "internal_support_only",
+  "sheet_id": "flagship-acceptance:multiplex",
+  "workflow_family": "multiplex"
+}
