@@ -20,8 +20,10 @@ def test_package_readme_maturity_report_tracks_current_overclaim_pressure() -> N
     assert len(report.entries) == 8
     assert by_package["bijux-proteomics-runtime"].proof_depth_count >= 1
     assert by_package["bijux-proteomics-core"].maturity_claim_count == 0
+    assert by_package["bijux-proteomics-core"].completion_claim_count == 0
     assert by_package["bijux-proteomics-runtime"].maturity_claim_count == 0
     assert not any(entry.maturity_outpaces_owner_logic for entry in report.entries)
+    assert not any(entry.completion_claims_while_not_ready for entry in report.entries)
 
 
 def test_package_readme_maturity_release_guard_has_no_failures() -> None:

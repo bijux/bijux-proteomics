@@ -43,6 +43,11 @@ MATURITY_TOKENS = (
 MATURITY_PATTERNS = tuple(
     re.compile(rf"\b{re.escape(token)}\b", re.IGNORECASE) for token in MATURITY_TOKENS
 )
+COMPLETION_PATTERNS = (
+    re.compile(r"\bcomplete\b", re.IGNORECASE),
+    re.compile(r"\bend-to-end\b", re.IGNORECASE),
+    re.compile(r"\bfull scientific coverage\b", re.IGNORECASE),
+)
 
 
 @dataclass(frozen=True)
@@ -51,10 +56,12 @@ class PackageReadmeMaturityEntry:
 
     distribution_name: str
     maturity_claim_count: int
+    completion_claim_count: int
     owned_value_bullet_count: int
     proof_depth_count: int
     unresolved_debt_count: int
     maturity_outpaces_owner_logic: bool
+    completion_claims_while_not_ready: bool
 
 
 @dataclass(frozen=True)
@@ -62,6 +69,7 @@ class PackageReadmeMaturityGuard:
     """Release-blocking baseline for README maturity overclaim."""
 
     max_total_maturity_outpaces_owner_logic_count: int
+    max_total_completion_claims_while_not_ready_count: int
 
 
 @dataclass(frozen=True)
@@ -93,19 +101,27 @@ def build_package_readme_maturity_report() -> PackageReadmeMaturityReport:
         maturity_claim_count = sum(
             len(pattern.findall(readme_text)) for pattern in MATURITY_PATTERNS
         )
+        completion_claim_count = sum(
+            len(pattern.findall(readme_text)) for pattern in COMPLETION_PATTERNS
+        )
         scorecard_entry = scorecard[package_name]
         unresolved_debt_count = len(release_dossiers[package_name].unresolved_debt_ids)
         maturity_outpaces_owner_logic = maturity_claim_count > 0 and (
             unresolved_debt_count > 0 or not scorecard_entry.architectural_ready
         )
+        completion_claims_while_not_ready = completion_claim_count > 0 and (
+            not scorecard_entry.architectural_ready
+        )
         entries.append(
             PackageReadmeMaturityEntry(
                 distribution_name=package_name,
                 maturity_claim_count=maturity_claim_count,
+                completion_claim_count=completion_claim_count,
                 owned_value_bullet_count=len(owned_entry.owned_value_bullets),
                 proof_depth_count=scorecard_entry.proof_depth_count,
                 unresolved_debt_count=unresolved_debt_count,
                 maturity_outpaces_owner_logic=maturity_outpaces_owner_logic,
+                completion_claims_while_not_ready=completion_claims_while_not_ready,
             )
         )
     return PackageReadmeMaturityReport(
@@ -113,7 +129,10 @@ def build_package_readme_maturity_report() -> PackageReadmeMaturityReport:
         guard=PackageReadmeMaturityGuard(
             max_total_maturity_outpaces_owner_logic_count=sum(
                 entry.maturity_outpaces_owner_logic for entry in entries
-            )
+            ),
+            max_total_completion_claims_while_not_ready_count=sum(
+                entry.completion_claims_while_not_ready for entry in entries
+            ),
         ),
     )
 
@@ -131,8 +150,33 @@ def validate_package_readme_maturity(
         total_overclaim_count
         <= report.guard.max_total_maturity_outpaces_owner_logic_count
     ):
+        pass
+    else:
+        failures = [
+            "README maturity overclaim grew beyond the governed owner-logic baseline"
+        ]
+        total_completion_claim_count = sum(
+            entry.completion_claims_while_not_ready for entry in report.entries
+        )
+        if (
+            total_completion_claim_count
+            > report.guard.max_total_completion_claims_while_not_ready_count
+        ):
+            failures.append(
+                "package completion claims grew while architectural-ready status is still false"
+            )
+        return tuple(failures)
+    total_completion_claim_count = sum(
+        entry.completion_claims_while_not_ready for entry in report.entries
+    )
+    if (
+        total_completion_claim_count
+        <= report.guard.max_total_completion_claims_while_not_ready_count
+    ):
         return ()
-    return ("README maturity overclaim grew beyond the governed owner-logic baseline",)
+    return (
+        "package completion claims grew while architectural-ready status is still false",
+    )
 
 
 def _toml_text(report: PackageReadmeMaturityReport) -> str:
@@ -143,6 +187,8 @@ def _toml_text(report: PackageReadmeMaturityReport) -> str:
         "[guard]",
         "max_total_maturity_outpaces_owner_logic_count = "
         f"{report.guard.max_total_maturity_outpaces_owner_logic_count}",
+        "max_total_completion_claims_while_not_ready_count = "
+        f"{report.guard.max_total_completion_claims_while_not_ready_count}",
         "",
     ]
     for entry in report.entries:
@@ -151,11 +197,14 @@ def _toml_text(report: PackageReadmeMaturityReport) -> str:
                 "[[package]]",
                 f'distribution_name = "{entry.distribution_name}"',
                 f"maturity_claim_count = {entry.maturity_claim_count}",
+                f"completion_claim_count = {entry.completion_claim_count}",
                 f"owned_value_bullet_count = {entry.owned_value_bullet_count}",
                 f"proof_depth_count = {entry.proof_depth_count}",
                 f"unresolved_debt_count = {entry.unresolved_debt_count}",
                 "maturity_outpaces_owner_logic = "
                 f"{str(entry.maturity_outpaces_owner_logic).lower()}",
+                "completion_claims_while_not_ready = "
+                f"{str(entry.completion_claims_while_not_ready).lower()}",
                 "",
             ]
         )
