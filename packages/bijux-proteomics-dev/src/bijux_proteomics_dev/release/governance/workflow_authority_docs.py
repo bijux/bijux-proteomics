@@ -3,6 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics.benchmarks.workflow_generalization import (
+    build_workflow_generalization_reports,
+    count_public_packages_for_family,
+)
 from bijux_proteomics_intelligence.reviews.workflow_authority import (
     WorkflowAuthorityKind,
     build_workflow_authority_matrix,
@@ -31,6 +35,10 @@ def validate_workflow_authority_docs(
     """Fail when release-facing docs overstate workflow authority."""
 
     matrix = build_workflow_authority_matrix()
+    generalization_reports = {
+        report.workflow_family: report
+        for report in build_workflow_generalization_reports()
+    }
     foundation_root = repo_root / "docs" / "01-bijux-proteomics" / "foundation"
     readme_text = (repo_root / "README.md").read_text(encoding="utf-8")
     release_text = (foundation_root / "flagship-release-candidate.md").read_text(
@@ -89,6 +97,30 @@ def validate_workflow_authority_docs(
                     detail=f"{workflow_family.value} is outsider-auditable in the matrix but its trust page is missing",
                 )
             )
+            continue
+        trust_text = trust_doc.read_text(encoding="utf-8")
+        if count_public_packages_for_family(workflow_family.value) < 2:
+            issues.append(
+                WorkflowAuthorityDocIssue(
+                    code="outsider-family-lacks-second-public-package",
+                    detail=f"{workflow_family.value} still has family-level trust language but fewer than two tracked public packages",
+                )
+            )
+        report = generalization_reports.get(workflow_family.value)
+        if report is None:
+            issues.append(
+                WorkflowAuthorityDocIssue(
+                    code="outsider-family-lacks-generalization-report",
+                    detail=f"{workflow_family.value} still has family-level trust language but no published cross-package generalization report",
+                )
+            )
+        elif report.artifact_path not in trust_text:
+            issues.append(
+                WorkflowAuthorityDocIssue(
+                    code="trust-page-missing-generalization-link",
+                    detail=f"{workflow_family.value} trust page does not link to its published cross-package generalization report",
+                )
+            )
     for workflow_family in internal_support:
         trust_doc = foundation_root / f"why-trust-{workflow_family.value}.md"
         if trust_doc.exists():
@@ -106,6 +138,17 @@ def validate_workflow_authority_docs(
                     detail=f"{workflow_family.value} is internal-support only in the matrix but its authority boundary page is missing",
                 )
             )
+            continue
+        report = generalization_reports.get(workflow_family.value)
+        if report is not None:
+            boundary_text = boundary_doc.read_text(encoding="utf-8")
+            if report.artifact_path not in boundary_text:
+                issues.append(
+                    WorkflowAuthorityDocIssue(
+                        code="boundary-page-missing-generalization-link",
+                        detail=f"{workflow_family.value} authority boundary page does not link to its published cross-package generalization report",
+                    )
+                )
     return tuple(issues)
 
 
