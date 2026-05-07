@@ -6,20 +6,32 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    BenchmarkManifest,
     DEFAULT_BENCHMARK_MANIFESTS,
+    BenchmarkManifest,
+    BenchmarkPackageArtifact,
+    BenchmarkPackageArtifactKind,
+    BenchmarkReproductionStep,
     KnowledgeWorkflowFamily,
+    WorkflowBenchmarkPackage,
+)
+from bijux_proteomics_knowledge.references.workflows.comparators import (
+    WorkflowComparatorMatrixEntry,
+    WorkflowComparatorMatrixReport,
+    WorkflowComparatorPath,
+    build_workflow_comparator_matrix,
+    get_workflow_comparator_path,
+    list_workflow_comparator_paths,
+)
+from bijux_proteomics_knowledge.references.workflows.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+    WorkflowNarrative,
+    WorkflowNarrativeKind,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkRegistryEntry,
     BenchmarkRegistryReport,
     build_benchmark_registry,
     build_benchmark_registry_entry,
-)
-from bijux_proteomics_knowledge.references.workflows.narratives import (
-    DEFAULT_WORKFLOW_NARRATIVES,
-    WorkflowNarrative,
-    WorkflowNarrativeKind,
 )
 
 
@@ -48,6 +60,15 @@ def get_benchmark_manifest(benchmark_id: str) -> BenchmarkManifest | None:
         ),
         None,
     )
+
+
+def get_benchmark_package(benchmark_id: str) -> WorkflowBenchmarkPackage | None:
+    """Return the promoted benchmark package for one benchmark when available."""
+
+    manifest = get_benchmark_manifest(benchmark_id)
+    if manifest is None:
+        return None
+    return manifest.benchmark_package
 
 
 def list_benchmark_registry_entries(
@@ -96,12 +117,23 @@ def get_workflow_narrative(narrative_id: str) -> WorkflowNarrative | None:
 
 
 __all__ = [
+    "BenchmarkPackageArtifact",
+    "BenchmarkPackageArtifactKind",
+    "BenchmarkReproductionStep",
     "get_benchmark_manifest",
+    "get_benchmark_package",
     "get_benchmark_registry_entry",
+    "get_workflow_comparator_path",
     "get_workflow_narrative",
+    "list_workflow_comparator_paths",
+    "build_workflow_comparator_matrix",
     "list_benchmark_registry_entries",
     "list_benchmark_manifests",
     "list_workflow_narratives",
     "BenchmarkRegistryEntry",
     "BenchmarkRegistryReport",
+    "WorkflowBenchmarkPackage",
+    "WorkflowComparatorMatrixEntry",
+    "WorkflowComparatorMatrixReport",
+    "WorkflowComparatorPath",
 ]
