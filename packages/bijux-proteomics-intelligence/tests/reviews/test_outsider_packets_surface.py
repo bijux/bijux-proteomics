@@ -34,7 +34,7 @@ def test_dda_outsider_packet_is_complete_and_links_to_shipped_public_evidence() 
     assert packet.benchmark_package_id == "benchmark_package:dda_reviewable_run"
     assert any(
         link.repo_relative_path.endswith(
-            "public_benchmark_packages/dda_reviewable_run/package_manifest.json"
+            "benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json"
         )
         for link in packet.primary_data_links
     )

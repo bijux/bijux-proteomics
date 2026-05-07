@@ -165,7 +165,7 @@ def test_dda_manifest_now_points_to_public_package_artifacts() -> None:
 
     assert manifest.evidence_tier is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
     assert manifest.dataset_locator.endswith(
-        "public_benchmark_packages/dda_reviewable_run/package_manifest.json"
+        "benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json"
     )
     assert manifest.benchmark_package is not None
     assert not any(
