@@ -44,6 +44,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/repository_truth.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
 - `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
 - `configs/package-governance/canonical-workflow-manifest.toml`
 - `configs/package-governance/scientific-release-workflows.toml`
@@ -96,6 +97,16 @@ the checked-in declaration that release policy depends on.
 Use `build_repository_truth_report()` when the question is stronger than
 package publication and benchmark scope: it answers whether the repository may
 honestly speak in `reference-grade` or `elite` language at all.
+
+That repository truth now includes the runtime flagship proof gate. If the
+strongest current runtime lane for a workflow family still depends on a fake
+helper anywhere in its claimed flagship path, the family must not count toward
+outsider-auditable or release-candidate authority.
+
+When the question is specifically whether a runtime lane is raw,
+import-backed, replay-backed, or simulation-only, open
+`docs/09-bijux-proteomics-runtime/runtime-proof-accounting.md` before
+generalizing from runtime success.
 
 That report should not be the first stop for workflow trust. First open the
 flagship package, runtime lane, comparator surface, and validating tests. Then
