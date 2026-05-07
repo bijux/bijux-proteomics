@@ -8,11 +8,12 @@ from __future__ import annotations
 from enum import StrEnum
 import hashlib
 import json
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.identification import (
+from bijux_proteomics.identification.contracts import (
     ConfidenceLabel,
     ParsimonyVariant,
     PsmRecord,
@@ -33,8 +34,14 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.review.inference_packets import (
     InferenceDisagreementReviewEntry as InferenceDisagreementReviewEntry,
+)
+from bijux_proteomics.review.inference_packets import (
     InferenceDisagreementReviewPacket as InferenceDisagreementReviewPacket,
+)
+from bijux_proteomics.review.inference_packets import (
     InferenceDisagreementSeverity as InferenceDisagreementSeverity,
+)
+from bijux_proteomics.review.inference_packets import (
     build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -203,6 +210,8 @@ class EmpiricalScoreCalibrationBin(JsonModel):
     mixed_count: int = Field(..., ge=0)
     unknown_count: int = Field(..., ge=0)
     decoy_fraction: float = Field(..., ge=0.0)
+    decoy_fraction_interval_low: float = Field(..., ge=0.0, le=1.0)
+    decoy_fraction_interval_high: float = Field(..., ge=0.0, le=1.0)
 
 
 class EmpiricalScoreCalibrationReport(JsonModel):
@@ -217,7 +226,38 @@ class EmpiricalScoreCalibrationReport(JsonModel):
     top_fraction: float = Field(..., ge=0.01, le=1.0)
     top_fraction_target_share: float = Field(..., ge=0.0, le=1.0)
     top_fraction_decoy_share: float = Field(..., ge=0.0, le=1.0)
+    top_fraction_decoy_interval_low: float = Field(..., ge=0.0, le=1.0)
+    top_fraction_decoy_interval_high: float = Field(..., ge=0.0, le=1.0)
+    top_fraction_decoy_interval_width: float = Field(..., ge=0.0, le=1.0)
     advisory: str = Field(..., min_length=1)
+
+
+def _wilson_interval(
+    success_count: int,
+    total_count: int,
+    *,
+    z_score: float = 1.96,
+) -> tuple[float, float]:
+    if total_count <= 0:
+        return (0.0, 1.0)
+    proportion = success_count / total_count
+    z_squared = z_score * z_score
+    denominator = 1.0 + (z_squared / total_count)
+    center = (
+        proportion
+        + (z_squared / (2.0 * total_count))
+    ) / denominator
+    margin = (
+        z_score
+        * math.sqrt(
+            (
+                (proportion * (1.0 - proportion) / total_count)
+                + (z_squared / (4.0 * total_count * total_count))
+            )
+            / denominator
+        )
+    )
+    return (max(0.0, center - margin), min(1.0, center + margin))
 
 
 def build_empirical_score_calibration_report(
@@ -249,6 +289,8 @@ def build_empirical_score_calibration_report(
         unknown_count = sum(label is TargetDecoyLabel.UNKNOWN for label, _ in bucket)
         total_count = len(bucket)
         bins.append(
+            # Wilson intervals make calibration uncertainty quantitative instead of
+            # leaving decoy fractions as point estimates only.
             EmpiricalScoreCalibrationBin(
                 bin_index=index,
                 lower_bound=(index - 1) / bin_count,
@@ -259,6 +301,14 @@ def build_empirical_score_calibration_report(
                 mixed_count=mixed_count,
                 unknown_count=unknown_count,
                 decoy_fraction=decoy_count / total_count if total_count else 0.0,
+                decoy_fraction_interval_low=_wilson_interval(
+                    decoy_count,
+                    total_count,
+                )[0],
+                decoy_fraction_interval_high=_wilson_interval(
+                    decoy_count,
+                    total_count,
+                )[1],
             )
         )
     top_count = max(1, int(total * top_fraction)) if total else 0
@@ -269,6 +319,7 @@ def build_empirical_score_calibration_report(
     top_decoys = sum(
         entry.target_decoy_label is TargetDecoyLabel.DECOY for entry in top_ranked
     )
+    top_decoy_interval = _wilson_interval(top_decoys, len(top_ranked))
     if not top_ranked:
         advisory = "no records are available for empirical calibration"
     elif top_decoys == 0:
@@ -283,7 +334,154 @@ def build_empirical_score_calibration_report(
         top_fraction=top_fraction,
         top_fraction_target_share=top_targets / len(top_ranked) if top_ranked else 0.0,
         top_fraction_decoy_share=top_decoys / len(top_ranked) if top_ranked else 0.0,
+        top_fraction_decoy_interval_low=top_decoy_interval[0],
+        top_fraction_decoy_interval_high=top_decoy_interval[1],
+        top_fraction_decoy_interval_width=round(
+            top_decoy_interval[1] - top_decoy_interval[0],
+            4,
+        ),
         advisory=advisory,
+    )
+
+
+class EntrapmentEvaluationReport(JsonModel):
+    """Quantitative entrapment summary for calibration scrutiny."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entrapment_reference_count: int = Field(..., ge=0)
+    matched_record_count: int = Field(..., ge=0)
+    accepted_record_count: int = Field(..., ge=0)
+    accepted_entrapment_count: int = Field(..., ge=0)
+    accepted_entrapment_fraction: float = Field(..., ge=0.0, le=1.0)
+    accepted_entrapment_interval_low: float = Field(..., ge=0.0, le=1.0)
+    accepted_entrapment_interval_high: float = Field(..., ge=0.0, le=1.0)
+    note: str = Field(..., min_length=1)
+
+
+def build_entrapment_evaluation_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    entrapment_protein_refs: tuple[str, ...],
+    accepted_q_value_threshold: float = 0.01,
+) -> EntrapmentEvaluationReport:
+    """Quantify entrapment hits instead of treating entrapment as prose-only support."""
+    entrapment_set = {protein_ref.strip() for protein_ref in entrapment_protein_refs}
+    matched_records = tuple(
+        record
+        for record in records
+        if entrapment_set.intersection(record.protein_refs)
+    )
+    accepted_records = tuple(
+        record
+        for record in records
+        if record.q_value is not None and record.q_value <= accepted_q_value_threshold
+    )
+    accepted_entrapment_count = sum(
+        bool(entrapment_set.intersection(record.protein_refs))
+        for record in accepted_records
+    )
+    interval = _wilson_interval(accepted_entrapment_count, len(accepted_records))
+    note = (
+        "accepted evidence includes entrapment-matched proteins and the calibration threshold should be reviewed"
+        if accepted_entrapment_count > 0
+        else "no accepted evidence matched the entrapment set under the requested threshold"
+    )
+    return EntrapmentEvaluationReport(
+        entrapment_reference_count=len(entrapment_set),
+        matched_record_count=len(matched_records),
+        accepted_record_count=len(accepted_records),
+        accepted_entrapment_count=accepted_entrapment_count,
+        accepted_entrapment_fraction=(
+            accepted_entrapment_count / len(accepted_records)
+            if accepted_records
+            else 0.0
+        ),
+        accepted_entrapment_interval_low=interval[0],
+        accepted_entrapment_interval_high=interval[1],
+        note=note,
+    )
+
+
+class FdrStressScenarioKind(StrEnum):
+    """Stress scenarios that can expose over-trusted FDR summaries."""
+
+    CLASS_IMBALANCED = "class_imbalanced"
+    LOW_DECOY = "low_decoy"
+    NO_DECOY = "no_decoy"
+
+
+class FdrStressTrustState(StrEnum):
+    """Trust posture for an FDR summary under stress."""
+
+    FRAGILE = "fragile"
+    REFUSED = "refused"
+    TRUSTWORTHY = "trustworthy"
+
+
+class FdrStressCaseReport(JsonModel):
+    """Quantitative stress-case report for one target-decoy scenario."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_kind: FdrStressScenarioKind
+    total_record_count: int = Field(..., ge=0)
+    accepted_record_count: int = Field(..., ge=0)
+    accepted_decoy_count: int = Field(..., ge=0)
+    accepted_decoy_fraction: float = Field(..., ge=0.0, le=1.0)
+    accepted_decoy_interval_low: float = Field(..., ge=0.0, le=1.0)
+    accepted_decoy_interval_high: float = Field(..., ge=0.0, le=1.0)
+    trust_state: FdrStressTrustState
+    note: str = Field(..., min_length=1)
+
+
+def build_fdr_stress_case_report(
+    records: tuple[PsmRecord, ...],
+    *,
+    scenario_kind: FdrStressScenarioKind,
+    accepted_q_value_threshold: float = 0.01,
+    low_decoy_cutoff: int = 2,
+) -> FdrStressCaseReport:
+    """Quantify whether stressed FDR conditions are trustworthy, fragile, or refused."""
+    accepted_records = tuple(
+        record
+        for record in records
+        if record.q_value is not None and record.q_value <= accepted_q_value_threshold
+    )
+    accepted_decoy_count = sum(
+        record.target_decoy_label is TargetDecoyLabel.DECOY for record in accepted_records
+    )
+    total_decoy_count = sum(
+        record.target_decoy_label is TargetDecoyLabel.DECOY for record in records
+    )
+    interval = _wilson_interval(accepted_decoy_count, len(accepted_records))
+    if total_decoy_count == 0:
+        trust_state = FdrStressTrustState.REFUSED
+        note = "FDR trust is refused because no decoy evidence exists for the stressed scenario"
+    elif scenario_kind is FdrStressScenarioKind.NO_DECOY:
+        trust_state = FdrStressTrustState.REFUSED
+        note = "FDR trust is refused because the scenario is explicitly no-decoy"
+    elif total_decoy_count <= low_decoy_cutoff:
+        trust_state = FdrStressTrustState.FRAGILE
+        note = "FDR trust is fragile because too few decoys constrain the accepted-set estimate poorly"
+    elif scenario_kind is FdrStressScenarioKind.CLASS_IMBALANCED and interval[1] > 0.2:
+        trust_state = FdrStressTrustState.FRAGILE
+        note = "FDR trust is fragile because class imbalance keeps accepted-set decoy uncertainty wide"
+    else:
+        trust_state = FdrStressTrustState.TRUSTWORTHY
+        note = "FDR summary stays quantitatively bounded under the stressed scenario"
+    return FdrStressCaseReport(
+        scenario_kind=scenario_kind,
+        total_record_count=len(records),
+        accepted_record_count=len(accepted_records),
+        accepted_decoy_count=accepted_decoy_count,
+        accepted_decoy_fraction=(
+            accepted_decoy_count / len(accepted_records) if accepted_records else 0.0
+        ),
+        accepted_decoy_interval_low=interval[0],
+        accepted_decoy_interval_high=interval[1],
+        trust_state=trust_state,
+        note=note,
     )
 
 

@@ -6,6 +6,6 @@
 from __future__ import annotations
 
 from bijux_proteomics.identification.calibration_drift import *  # noqa: F401,F403
-from bijux_proteomics.identification.contracts import *  # noqa: F401,F403
 from bijux_proteomics.identification.confidence import *  # noqa: F401,F403
+from bijux_proteomics.identification.contracts import *  # noqa: F401,F403
 from bijux_proteomics.identification.search_adapters import *  # noqa: F401,F403
