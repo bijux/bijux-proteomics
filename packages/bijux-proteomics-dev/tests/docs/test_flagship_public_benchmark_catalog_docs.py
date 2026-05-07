@@ -33,4 +33,10 @@ def test_flagship_public_benchmark_catalog_doc_names_machine_readable_package_su
     assert "artifact inventory" in text
     assert "quality posture" in text
     assert "lifecycle posture" in text
-    assert "public_benchmark_packages" in text
+    assert "benchmark-assets/flagship-public-packages" in text
+
+
+def test_flagship_public_benchmark_catalog_doc_points_to_asset_root_handbook() -> None:
+    text = _read_doc()
+
+    assert "Flagship Benchmark Assets" in text
