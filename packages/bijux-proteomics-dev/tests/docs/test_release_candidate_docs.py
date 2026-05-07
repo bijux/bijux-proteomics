@@ -1,0 +1,36 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
+
+
+def _read_foundation_doc(name: str) -> str:
+    return (
+        REPO_ROOT
+        / "docs"
+        / "01-bijux-proteomics"
+        / "foundation"
+        / name
+    ).read_text(encoding="utf-8")
+
+
+def test_release_candidate_page_names_current_auditable_and_blocked_families() -> None:
+    text = _read_foundation_doc("flagship-release-candidate.md")
+
+    assert "flagship-release-candidate-bundle" in text
+    assert "outsider-auditable workflow families: `dda`" in text
+    assert "blocked workflow families: `dia`, `lfq`, `ptm`, `targeted`" in text
+
+
+def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
+    text = _read_foundation_doc("elite-readiness-scorecard.md")
+
+    assert "| `dda` | `0.77` | yes | no |" in text
+    assert "repository-wide elite" in text
+    assert "language remains blocked" in text
+    assert "It does not count files, documents, governance volume" in text

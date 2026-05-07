@@ -85,6 +85,8 @@ For `dda`, the release conversation should now point directly to:
 - `benchmark_package:dda_reviewable_run`
 - `dda-maxquant-pipeline-corpus`
 - `comparator_path:msfragger_imported_dda_review`
+- `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
+- `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
 
 Use `build_scientific_release_dossier()` when you need the live code-backed
 index, and review
@@ -99,6 +101,14 @@ That report should not be the first stop for workflow trust. First open the
 flagship package, runtime lane, comparator surface, and validating tests. Then
 use repository truth to decide how far the repository may generalize from those
 artifacts.
+
+The current repository-wide language boundary is stricter than the DDA proof
+itself:
+
+- one outsider-auditable DDA family exists
+- repository-wide elite language is still blocked
+- the scorecard for that boundary lives in
+  `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
 
 Use `validate_generated_governance_freshness()` before release to make sure
 the generated governance reports under `configs/package-governance/` are still

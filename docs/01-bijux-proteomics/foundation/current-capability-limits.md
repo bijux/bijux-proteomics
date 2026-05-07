@@ -18,9 +18,8 @@ scope drift differently.
 
 ## Repository-Wide Limits
 
-- there is still no single end-to-end proteomics workflow that runs from
-  sequence intake through evidence review, advancement decisions, and
-  wet-lab follow-up with one gold-standard proof bundle
+- there is now one outsider-auditable DDA workflow family, but there is still
+  no broad cross-family proteomics proof set that survives the same standard
 - several workflow families are benchmark-backed at the reviewed-artifact level
   without being raw-to-result reproducible inside this repository
 - release-facing benchmark discipline is stronger than before, but some
@@ -40,9 +39,9 @@ scope drift differently.
 
 ## Execution Limits
 
-- runtime end-to-end proof is still stronger for governed replay and reviewable
-  artifacts than for one flagship scientific workflow that spans the whole
-  package family
+- runtime end-to-end proof is now real for one DDA outsider-auditable family,
+  but most workflow families still stop at blocked or thinner runtime truth
+  rows
 - compatibility remains intentionally visible through `agentic-proteins`; the
   migration is controlled, but the compatibility bridge still exists
 - provider and execution realism still depend on a narrower set of validated

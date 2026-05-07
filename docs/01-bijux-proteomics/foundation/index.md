@@ -55,6 +55,12 @@ This section should move a reader from system-level confusion to a package-level
   when a reviewer needs a hard yes-or-no gate.
 - Open [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
   when the question is what one real workflow family can currently prove.
+- Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  when the question is which workflow family a skeptical outsider can audit
+  today.
+- Open [Elite Readiness Scorecard](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/elite-readiness-scorecard/)
+  when the question is whether repository language is outrunning public
+  evidence.
 
 ## Section Pages
 
@@ -68,6 +74,8 @@ This section should move a reader from system-level confusion to a package-level
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
 - [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
 - [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
+- [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- [Elite Readiness Scorecard](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/elite-readiness-scorecard/)
 
 ## What This Section Settles
 

@@ -69,6 +69,12 @@ Current reviewer anchors for that story:
   `packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py`
   `packages/bijux-proteomics-knowledge/tests/references/test_references_benchmarks.py`
 
+Current outsider-facing review pages for that story:
+
+- `docs/01-bijux-proteomics/foundation/why-trust-dda.md`
+- `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
+- `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+
 ## Claim Taxonomy
 
 Workflow-facing claims in this repository should stay in one of four tiers:
