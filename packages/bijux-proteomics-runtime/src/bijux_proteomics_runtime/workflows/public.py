@@ -6,6 +6,17 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
+    "bijux_proteomics_runtime.workflows.assurance": [
+        "CanonicalOperatorPath",
+        "WorkflowAssuranceLane",
+        "WorkflowAssuranceMatrixRow",
+        "WorkflowAssuranceTier",
+        "build_canonical_operator_path",
+        "build_workflow_assurance_matrix",
+        "major_workflow_families",
+        "simulation_contract_lane_ids",
+        "workflow_assurance_lanes",
+    ],
     "bijux_proteomics_runtime.workflows.paths": [
         "RuntimeReviewableOutputPath",
         "RuntimeSmokeWorkflow",

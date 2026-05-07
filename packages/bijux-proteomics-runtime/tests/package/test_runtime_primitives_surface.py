@@ -2,7 +2,11 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import (
     hash_payload as foundation_hash_payload,
+)
+from bijux_proteomics_foundation import (
     hash_text as foundation_hash_text,
+)
+from bijux_proteomics_foundation import (
     to_canonical_json,
 )
 from bijux_proteomics_runtime.support.primitives import (
@@ -79,6 +83,16 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
         "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path"
         in PUBLIC_ENTRYPOINTS
     )
+
+
+def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
+    from bijux_proteomics_runtime.workflows import (
+        build_canonical_operator_path,
+        build_workflow_assurance_matrix,
+    )
+
+    assert build_canonical_operator_path().path_id == "runtime-sequence-review-operator-path"
+    assert build_workflow_assurance_matrix()
 
 
 def test_runtime_surface_area_uses_runtime_extension_points() -> None:

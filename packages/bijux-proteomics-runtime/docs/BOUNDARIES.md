@@ -101,7 +101,7 @@ Compatibility package modules are forwarding-only surfaces in strict mode.
 ## Escalation signals
 
 - if a change introduces a new operator entrypoint, provider binding surface, or
-  replay-aware execution contract, it should start here before compat forwards it
+  execution-product contract, it should start here before compat forwards it
 - if a proposed runtime change requires new schema, lifecycle, evidence,
   ranking, or lab meaning, escalate it back to the owning lower package first
 - if a lower-layer package needs to import runtime to express its own domain

@@ -44,6 +44,13 @@ parsing private workspace layout.
 - owner fixtures: `tests/fixtures/execution/container_review_path.json`, `tests/fixtures/execution/scheduler_review_path.json`, `tests/fixtures/execution/sequence_review_path.json`
 - contract: local, container, scheduler, and import launch surfaces publish stable review-safe bundles and manifests
 
+## Workflow assurance
+
+- owner code: `src/bijux_proteomics_runtime/workflows/assurance.py`, `src/bijux_proteomics_runtime/workflows/runs.py`
+- owner tests: `tests/workflows/test_workflow_assurance_surface.py`, `tests/workflows/test_runtime_operator_path_surface.py`, `tests/workflows/test_runtime_simulated_external_engine_surface.py`
+- owner fixtures: `tests/fixtures/first_useful_run/`, `tests/fixtures/production_run/`, `tests/fixtures/ptm/`
+- contract: runtime separates canonical operator execution, tracked real-input corpora, external normalization packs, and simulation contracts so review language cannot overclaim fake proof
+
 ## Decision and failure lineage
 
 - owner code: `src/bijux_proteomics_runtime/runs/replay_decisions.py`, `src/bijux_proteomics_runtime/runs/execution_decisions.py`, `src/bijux_proteomics_runtime/runs/failure_reports.py`, `src/bijux_proteomics_runtime/runs/recovery.py`

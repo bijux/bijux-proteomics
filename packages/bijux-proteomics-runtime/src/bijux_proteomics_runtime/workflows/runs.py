@@ -17,8 +17,8 @@ from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.sequences.digestion import digest_protein_records
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.spectra import MgfParseReport, parse_mgf
 from bijux_proteomics.ptm import (
     build_ptm_motif_windows,
     build_ptm_site_table,
@@ -37,7 +37,7 @@ from bijux_proteomics.sequences.core import (
     generate_decoy_records,
     parse_fasta_document,
 )
-from bijux_proteomics.io.spectra import MgfParseReport, parse_mgf
+from bijux_proteomics.sequences.digestion import digest_protein_records
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -242,34 +242,34 @@ class LabHandoffWorkflowRunReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class FakeExternalToolKind(StrEnum):
-    """Deterministic fake tool families used for contract testing."""
+class SimulatedExternalToolKind(StrEnum):
+    """Deterministic simulated tool families used for contract testing."""
 
     SEARCH = "search"
     QUANT = "quant"
     QC = "qc"
 
 
-class FakeExternalToolRunEntry(JsonModel):
-    """One deterministic fake-tool execution entry."""
+class SimulatedExternalToolRunEntry(JsonModel):
+    """One deterministic simulated-tool execution entry."""
 
     model_config = ConfigDict(extra="forbid")
 
-    tool_kind: FakeExternalToolKind
+    tool_kind: SimulatedExternalToolKind
     command: str = Field(..., min_length=1)
     exit_code: int
     artifact_path: str = Field(..., min_length=1)
     stdout: str = Field(..., min_length=1)
 
 
-class FakeExternalEngineHarnessReport(JsonModel):
-    """Deterministic fake external-engine harness execution report."""
+class SimulatedExternalEngineHarnessReport(JsonModel):
+    """Deterministic simulated external-engine harness execution report."""
 
     model_config = ConfigDict(extra="forbid")
 
     run_id: str = Field(..., min_length=1)
     deterministic: bool
-    entries: tuple[FakeExternalToolRunEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[SimulatedExternalToolRunEntry, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
 
 
@@ -925,19 +925,19 @@ def run_lab_handoff_workflow_end_to_end(
     )
 
 
-def build_fake_external_engine_harness(
+def build_simulated_external_engine_harness(
     *,
     run_id: str,
-    tool_kinds: tuple[FakeExternalToolKind, ...] = (
-        FakeExternalToolKind.SEARCH,
-        FakeExternalToolKind.QUANT,
-        FakeExternalToolKind.QC,
+    tool_kinds: tuple[SimulatedExternalToolKind, ...] = (
+        SimulatedExternalToolKind.SEARCH,
+        SimulatedExternalToolKind.QUANT,
+        SimulatedExternalToolKind.QC,
     ),
     seed: int = 17,
-    artifact_root: str = "artifacts/workflows/fake-engine-harness",
-) -> FakeExternalEngineHarnessReport:
-    """Run deterministic fake search/quant/qc tool surfaces for runtime contract testing."""
-    entries: list[FakeExternalToolRunEntry] = []
+    artifact_root: str = "artifacts/workflows/simulated-external-engine-harness",
+) -> SimulatedExternalEngineHarnessReport:
+    """Run deterministic simulated search, quant, and QC surfaces for contract testing."""
+    entries: list[SimulatedExternalToolRunEntry] = []
     for index, tool_kind in enumerate(tool_kinds):
         token = _stable_runtime_key(
             {
@@ -948,23 +948,23 @@ def build_fake_external_engine_harness(
             }
         )[:16]
         entries.append(
-            FakeExternalToolRunEntry(
+            SimulatedExternalToolRunEntry(
                 tool_kind=tool_kind,
-                command=f"fake-{tool_kind.value}-tool --seed {seed} --token {token}",
+                command=f"simulate-{tool_kind.value}-tool --seed {seed} --token {token}",
                 exit_code=0,
                 artifact_path=f"{artifact_root}/{tool_kind.value}-{token}.json",
-                stdout=f"{tool_kind.value} tool completed deterministically with token {token}",
+                stdout=f"{tool_kind.value} simulation completed deterministically with token {token}",
             )
         )
     key = _stable_runtime_key(
         {
-            "workflow": "fake-engine-harness",
+            "workflow": "simulated-external-engine-harness",
             "run_id": run_id,
             "seed": seed,
             "entries": [entry.to_dict() for entry in entries],
         }
     )
-    return FakeExternalEngineHarnessReport(
+    return SimulatedExternalEngineHarnessReport(
         run_id=run_id,
         deterministic=True,
         entries=tuple(entries),

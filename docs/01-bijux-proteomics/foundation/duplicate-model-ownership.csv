@@ -461,9 +461,9 @@ FailureAnalysisAgentOutput,bijux-proteomics-runtime,bijux_proteomics_runtime/exe
 FailureClass,bijux-proteomics-lab,bijux_proteomics_lab/outcomes/observations.py,strenum
 FailureRecoveryArtifact,bijux-proteomics-runtime,bijux_proteomics_runtime/runs/recovery.py,jsonmodel
 FailureType,bijux-proteomics-runtime,bijux_proteomics_runtime/support/primitives/failures.py,strenum
-FakeExternalEngineHarnessReport,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,jsonmodel
-FakeExternalToolKind,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,strenum
-FakeExternalToolRunEntry,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,jsonmodel
+SimulatedExternalEngineHarnessReport,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,jsonmodel
+SimulatedExternalToolKind,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,strenum
+SimulatedExternalToolRunEntry,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,jsonmodel
 FamilyCapacity,bijux-proteomics-lab,bijux_proteomics_lab/planning/scheduling.py,jsonmodel
 FastaDeduplicationReport,bijux-proteomics-core,bijux_proteomics/sequences/core.py,jsonmodel
 FastaFilterReport,bijux-proteomics-core,bijux_proteomics/sequences/core.py,jsonmodel

@@ -63,7 +63,7 @@ flowchart TD
 - `api/` owns FastAPI assembly, request logging, `api/routes/`, and `api/v1/endpoints/`
 - `api/cli.py` owns the canonical CLI contract and operator-safe command output
 - `runs/` owns run identity, run config, preflight, recovery, decisions, lineage, bundles, and typed execution context
-- `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, and reviewable path manifests
+- `workflows/` owns workflow planning, reproducibility, smoke workflow catalogs, reviewable path manifests, and execution assurance ledgers
 - `providers/` owns provider cataloging, capability gates, selection, metadata, and execution environment contracts
 - `execution/agents/` and `execution/` own runtime-local planning, coordination, engine, graph, and tool support
 - `state/` owns replayable state, history, and review-safe persistence contracts

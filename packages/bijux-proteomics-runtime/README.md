@@ -294,7 +294,7 @@ result = OperationResult.success(
 ## Source guide
 
 - [`src/bijux_proteomics_runtime/runs`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs) for typed run contracts, canonical run operations, and execution ownership
-- [`src/bijux_proteomics_runtime/workflows`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows) for workflow planning, reproducibility, and reviewable path manifests
+- [`src/bijux_proteomics_runtime/workflows`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows) for workflow planning, reproducibility, reviewable path manifests, and execution assurance ledgers
 - [`src/bijux_proteomics_runtime/governance/charter.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py) for the machine-readable execution charter and module audit
 - [`src/bijux_proteomics_runtime/api/cli.py`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py) for CLI contracts
 - [`src/bijux_proteomics_runtime/api`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api) for HTTP entrypoints
