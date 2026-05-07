@@ -484,16 +484,6 @@ def build_dda_benchmark_review(
         benchmark_manifest=manifest,
         public_claim_support_state=public_claim_support_state,
     )
-    (
-        reviewer_grounding_state,
-        reviewer_grounding_limits,
-        curated_reference_context,
-        decision_grade_criteria,
-    ) = _build_grounding_payload(
-        workflow_family=manifest.workflow_family,
-        benchmark_manifest=manifest,
-        public_claim_support_state=public_claim_support_state,
-    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
