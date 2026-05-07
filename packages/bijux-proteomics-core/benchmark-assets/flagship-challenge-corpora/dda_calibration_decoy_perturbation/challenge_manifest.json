@@ -1,0 +1,16 @@
+{
+  "challenge_id": "dda-calibration-decoy-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/evidence/perturbed_maxquant_pipeline_export.tsv"
+  ],
+  "note": "This perturbation corpus worsens calibration and decoy behavior enough to show that DDA review claims must collapse back to refusal or stronger downgrade.",
+  "perturbation_axes": [
+    "accepted-target loss",
+    "accepted-decoy intrusion",
+    "contaminant promotion"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+  "workflow_family": "dda"
+}

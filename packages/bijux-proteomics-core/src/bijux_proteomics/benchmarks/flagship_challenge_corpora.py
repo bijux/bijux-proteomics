@@ -5,8 +5,9 @@
 
 from __future__ import annotations
 
-import json
+import csv
 from enum import StrEnum
+import json
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -14,6 +15,12 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.benchmarks.workflow_generalization import (
     WorkflowGeneralizationReport,
     build_workflow_generalization_reports,
+)
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import parse_ms1_feature_table
+from bijux_proteomics.quantification.benchmarks import (
+    build_effect_size_stability_benchmark_report,
+    build_quant_missingness_robustness_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -37,6 +44,14 @@ class HoldoutOutcomeState(StrEnum):
     MISS = "miss"
     OVERCONFIDENT = "overconfident"
     UNDERCONFIDENT = "underconfident"
+
+
+class PerturbationReactionState(StrEnum):
+    """How one benchmark surface reacts under a stronger perturbation corpus."""
+
+    SURVIVES = "survives"
+    WEAKENS = "weakens"
+    COLLAPSES = "collapses"
 
 
 class HoldoutOutcomeFinding(JsonModel):
@@ -64,6 +79,35 @@ class BlindedHoldoutReport(JsonModel):
     frozen_surface_paths: tuple[str, ...] = Field(default_factory=tuple)
     withheld_truth_count: int = Field(..., ge=0)
     findings: tuple[HoldoutOutcomeFinding, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class PerturbationMetricDelta(JsonModel):
+    """One measurable before-versus-after change for a perturbation corpus."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metric_id: str = Field(..., min_length=1)
+    baseline_value: float
+    perturbed_value: float
+    delta: float
+    interpretation: str = Field(..., min_length=1)
+
+
+class PerturbationReactionReport(JsonModel):
+    """One adversarial perturbation report over a flagship workflow family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    challenge_id: str = Field(..., min_length=1)
+    workflow_family: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    perturbation_axes: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_paths: tuple[str, ...] = Field(default_factory=tuple)
+    workflow_reaction: PerturbationReactionState
+    comparator_reaction: PerturbationReactionState
+    review_reaction: PerturbationReactionState
+    metric_deltas: tuple[PerturbationMetricDelta, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -140,7 +184,18 @@ def _blinded_holdout_root(workflow_family: str) -> str:
     return flagship_challenge_root(f"{workflow_family}_blinded_holdout")
 
 
-def _holdout_findings(report: WorkflowGeneralizationReport) -> tuple[HoldoutOutcomeFinding, ...]:
+def _perturbation_root(challenge_dir_name: str) -> str:
+    return flagship_challenge_root(challenge_dir_name)
+
+
+def _read_tsv_rows(repo_relative_path: str) -> list[dict[str, str]]:
+    with (_repo_root() / repo_relative_path).open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle, delimiter="\t"))
+
+
+def _holdout_findings(
+    report: WorkflowGeneralizationReport,
+) -> tuple[HoldoutOutcomeFinding, ...]:
     findings: list[HoldoutOutcomeFinding] = []
     for finding in report.findings:
         if finding.state == "survives":
@@ -209,10 +264,293 @@ def build_blinded_holdout_reports() -> tuple[BlindedHoldoutReport, ...]:
     )
 
 
+def _accepted_dda_counts(repo_relative_path: str) -> tuple[int, int, int]:
+    accepted_target_count = 0
+    accepted_decoy_count = 0
+    accepted_contaminant_count = 0
+    for row in _read_tsv_rows(repo_relative_path):
+        if float(row["pep_value"]) > 0.01:
+            continue
+        proteins = row["leading_proteins"].strip()
+        is_decoy = row["reverse_flag"].strip() == "+"
+        is_contaminant = proteins.startswith("CON__")
+        if is_decoy:
+            accepted_decoy_count += 1
+        elif is_contaminant:
+            accepted_contaminant_count += 1
+        else:
+            accepted_target_count += 1
+    return accepted_target_count, accepted_decoy_count, accepted_contaminant_count
+
+
+def _accepted_dia_precursors(repo_relative_path: str) -> tuple[int, set[str]]:
+    accepted = {
+        row["Stripped.Sequence"].strip()
+        for row in _read_tsv_rows(repo_relative_path)
+        if int(row["Decoy"]) == 0 and float(row["Q.Value"]) <= 0.01
+    }
+    return len(accepted), accepted
+
+
+def _spectronaut_peptides(repo_relative_path: str) -> set[str]:
+    return {
+        row["stripped_sequence"].strip()
+        for row in _read_tsv_rows(repo_relative_path)
+        if row["decoy_flag"].strip().lower() == "false"
+    }
+
+
+def _count_missing_values(summary_report) -> int:
+    return sum(
+        entry.zero_count + entry.not_observed_count + entry.filtered_count
+        for entry in summary_report.entries
+    )
+
+
+def _build_dda_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("dda_calibration_decoy_perturbation")
+    baseline_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dda_reviewable_run/primary/maxquant_pipeline_export.tsv"
+    )
+    perturbed_path = f"{challenge_root}/evidence/perturbed_maxquant_pipeline_export.tsv"
+    baseline_targets, baseline_decoys, baseline_contaminants = _accepted_dda_counts(
+        baseline_path
+    )
+    perturbed_targets, perturbed_decoys, perturbed_contaminants = _accepted_dda_counts(
+        perturbed_path
+    )
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_targets < baseline_targets and perturbed_decoys > baseline_decoys
+        else PerturbationReactionState.WEAKENS
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_contaminants > baseline_contaminants or perturbed_decoys > 0
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.WEAKENS
+        if workflow_reaction is not PerturbationReactionState.SURVIVES
+        else PerturbationReactionState.SURVIVES
+    )
+    return PerturbationReactionReport(
+        challenge_id="dda-calibration-decoy-perturbation",
+        workflow_family="dda",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "accepted-target loss",
+            "accepted-decoy intrusion",
+            "contaminant promotion",
+        ),
+        evidence_paths=(baseline_path, perturbed_path),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="accepted_target_count",
+                baseline_value=float(baseline_targets),
+                perturbed_value=float(perturbed_targets),
+                delta=float(perturbed_targets - baseline_targets),
+                interpretation="Fewer clean accepted targets means the DDA workflow loses stable identification support.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="accepted_decoy_count",
+                baseline_value=float(baseline_decoys),
+                perturbed_value=float(perturbed_decoys),
+                delta=float(perturbed_decoys - baseline_decoys),
+                interpretation="Accepted decoys force target-decoy and calibration claims back into downgrade territory.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="accepted_contaminant_count",
+                baseline_value=float(baseline_contaminants),
+                perturbed_value=float(perturbed_contaminants),
+                delta=float(perturbed_contaminants - baseline_contaminants),
+                interpretation="Contaminant promotion makes protein-facing review less trustworthy under the perturbation corpus.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus worsens calibration and decoy behavior enough to show that DDA review claims must collapse back to refusal or stronger downgrade."
+        ),
+    )
+
+
+def _build_dia_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("dia_library_dropout_perturbation")
+    baseline_primary = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dia_matrix_shift_review_package/primary/diann_report.tsv"
+    )
+    baseline_comparator = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv"
+    )
+    perturbed_primary = f"{challenge_root}/evidence/perturbed_diann_report.tsv"
+    perturbed_comparator = (
+        f"{challenge_root}/evidence/perturbed_spectronaut_pipeline_export.tsv"
+    )
+    baseline_count, baseline_peptides = _accepted_dia_precursors(baseline_primary)
+    perturbed_count, perturbed_peptides = _accepted_dia_precursors(perturbed_primary)
+    baseline_overlap = len(baseline_peptides & _spectronaut_peptides(baseline_comparator))
+    perturbed_overlap = len(
+        perturbed_peptides & _spectronaut_peptides(perturbed_comparator)
+    )
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_count == 0
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if perturbed_overlap == 0
+        else PerturbationReactionState.WEAKENS
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if workflow_reaction is PerturbationReactionState.COLLAPSES
+        and comparator_reaction is PerturbationReactionState.COLLAPSES
+        else PerturbationReactionState.WEAKENS
+    )
+    return PerturbationReactionReport(
+        challenge_id="dia-library-dropout-perturbation",
+        workflow_family="dia",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "accepted-precursor dropout",
+            "shared-peptide loss",
+            "library-conditioned comparator shrinkage",
+        ),
+        evidence_paths=(
+            baseline_primary,
+            baseline_comparator,
+            perturbed_primary,
+            perturbed_comparator,
+        ),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="accepted_precursor_count",
+                baseline_value=float(baseline_count),
+                perturbed_value=float(perturbed_count),
+                delta=float(perturbed_count - baseline_count),
+                interpretation="The perturbed DIA corpus loses accepted precursor support and becomes less reviewable.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="shared_peptide_overlap",
+                baseline_value=float(baseline_overlap),
+                perturbed_value=float(perturbed_overlap),
+                delta=float(perturbed_overlap - baseline_overlap),
+                interpretation="The comparator overlap shrinks when the perturbation removes library-conditioned peptide continuity.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus worsens library-conditioned evidence enough to show where current DIA review posture collapses rather than merely weakens."
+        ),
+    )
+
+
+def _build_lfq_perturbation_report() -> PerturbationReactionReport:
+    challenge_root = _perturbation_root("lfq_missingness_drift_perturbation")
+    baseline_feature_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv"
+    )
+    design_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "lfq_cohort_review_package/evidence/study_scale.design.tsv"
+    )
+    perturbed_feature_path = f"{challenge_root}/evidence/perturbed_study_scale_ms1_features.tsv"
+    design_entries = parse_experimental_design_table(_repo_root() / design_path).accepted_entries
+    baseline_records = parse_ms1_feature_table(_repo_root() / baseline_feature_path).accepted_records
+    perturbed_records = parse_ms1_feature_table(
+        _repo_root() / perturbed_feature_path
+    ).accepted_records
+    baseline_robustness = build_quant_missingness_robustness_report(
+        baseline_records,
+        design_entries=design_entries,
+    )
+    perturbed_robustness = build_quant_missingness_robustness_report(
+        perturbed_records,
+        design_entries=design_entries,
+    )
+    stability = build_effect_size_stability_benchmark_report(
+        baseline_records,
+        perturbed_records,
+        design_entries=design_entries,
+        condition_a="control",
+        condition_b="treatment",
+    )
+    workflow_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if not perturbed_robustness.robust_for_interpretation
+        and stability.overlap_fraction < 0.5
+        else PerturbationReactionState.WEAKENS
+    )
+    comparator_reaction = (
+        PerturbationReactionState.WEAKENS
+        if stability.overlap_fraction < 1.0
+        else PerturbationReactionState.SURVIVES
+    )
+    review_reaction = (
+        PerturbationReactionState.COLLAPSES
+        if not stability.stable_top_rank
+        else PerturbationReactionState.WEAKENS
+    )
+    baseline_missing = _count_missing_values(baseline_robustness.missing_value_summary)
+    perturbed_missing = _count_missing_values(perturbed_robustness.missing_value_summary)
+    return PerturbationReactionReport(
+        challenge_id="lfq-missingness-drift-perturbation",
+        workflow_family="lfq",
+        artifact_path=_report_path(challenge_root, ChallengeKind.PERTURBATION),
+        perturbation_axes=(
+            "missing-value inflation",
+            "batch-drift pressure",
+            "differential narrative reshuffle",
+        ),
+        evidence_paths=(baseline_feature_path, design_path, perturbed_feature_path),
+        workflow_reaction=workflow_reaction,
+        comparator_reaction=comparator_reaction,
+        review_reaction=review_reaction,
+        metric_deltas=(
+            PerturbationMetricDelta(
+                metric_id="missing_value_count",
+                baseline_value=float(baseline_missing),
+                perturbed_value=float(perturbed_missing),
+                delta=float(perturbed_missing - baseline_missing),
+                interpretation="Higher missing-value burden forces LFQ interpretation back toward bounded, downgrade-heavy claims.",
+            ),
+            PerturbationMetricDelta(
+                metric_id="top_entity_overlap_fraction",
+                baseline_value=1.0,
+                perturbed_value=stability.overlap_fraction,
+                delta=stability.overlap_fraction - 1.0,
+                interpretation="The overlap fraction records whether the main LFQ differential story survives the perturbation corpus.",
+            ),
+        ),
+        note=(
+            "This perturbation corpus worsens missingness and batch drift enough to reveal whether LFQ effect-direction language remains stable or reshuffles under pressure."
+        ),
+    )
+
+
+def build_perturbation_reports() -> tuple[PerturbationReactionReport, ...]:
+    """Return the currently shipped perturbation reports."""
+
+    return (
+        _build_dda_perturbation_report(),
+        _build_dia_perturbation_report(),
+        _build_lfq_perturbation_report(),
+    )
+
+
 def build_flagship_challenge_registry() -> FlagshipChallengeRegistry:
     """Return the registry for flagship challenge-corpus assets."""
 
-    entries = tuple(
+    entries = [
         FlagshipChallengeEntry(
             challenge_id=report.challenge_id,
             workflow_family=report.workflow_family,
@@ -226,11 +564,26 @@ def build_flagship_challenge_registry() -> FlagshipChallengeRegistry:
             ),
         )
         for report in build_blinded_holdout_reports()
+    ]
+    entries.extend(
+        FlagshipChallengeEntry(
+            challenge_id=report.challenge_id,
+            workflow_family=report.workflow_family,
+            challenge_kind=ChallengeKind.PERTURBATION,
+            challenge_root=report.artifact_path.rsplit("/", 1)[0],
+            manifest_path=_manifest_path(report.artifact_path.rsplit("/", 1)[0]),
+            report_path=report.artifact_path,
+            note=(
+                "This challenge root keeps the perturbed corpus and the measured workflow reaction together "
+                "under a durable product-owned path."
+            ),
+        )
+        for report in build_perturbation_reports()
     )
     return FlagshipChallengeRegistry(
         registry_id="flagship-challenge-registry",
         artifact_path=_REGISTRY_PATH,
-        entries=entries,
+        entries=tuple(entries),
         note=(
             "The flagship challenge registry keeps blinded holdouts and adversarial perturbation "
             "corpora visible as product evidence instead of test-only sidecars."
@@ -245,8 +598,12 @@ __all__ = [
     "FlagshipChallengeRegistry",
     "HoldoutOutcomeFinding",
     "HoldoutOutcomeState",
+    "PerturbationMetricDelta",
+    "PerturbationReactionReport",
+    "PerturbationReactionState",
     "build_blinded_holdout_reports",
     "build_flagship_challenge_registry",
+    "build_perturbation_reports",
     "flagship_challenge_registry_path",
     "flagship_challenge_root",
 ]

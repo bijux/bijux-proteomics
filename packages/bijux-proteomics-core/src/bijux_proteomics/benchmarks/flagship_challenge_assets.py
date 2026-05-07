@@ -6,12 +6,15 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import json
 from pathlib import Path
 
 from bijux_proteomics.benchmarks.flagship_challenge_corpora import (
     ChallengeKind,
     build_blinded_holdout_reports,
     build_flagship_challenge_registry,
+    build_perturbation_reports,
     flagship_challenge_registry_path,
 )
 
@@ -31,9 +34,22 @@ def _write_text(repo_relative_path: str, content: str) -> None:
 
 
 def _write_json(repo_relative_path: str, payload: object) -> None:
-    import json
-
     _write_text(repo_relative_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
+
+
+def _read_tsv_rows(repo_relative_path: str) -> list[dict[str, str]]:
+    with (_repo_root() / repo_relative_path).open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle, delimiter="\t"))
+
+
+def _write_tsv(repo_relative_path: str, rows: list[dict[str, str]]) -> None:
+    path = _repo_root() / repo_relative_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = list(rows[0]) if rows else []
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 def _holdout_readme(report) -> str:
@@ -52,16 +68,104 @@ def _holdout_readme(report) -> str:
     ) + "\n"
 
 
+def _perturbation_readme(report) -> str:
+    return "\n".join(
+        (
+            f"# {report.workflow_family.upper()} Perturbation Corpus",
+            "",
+            "This challenge root keeps the perturbed evidence files and the measured",
+            "workflow, comparator, and review reactions together.",
+            "",
+            f"- challenge id: `{report.challenge_id}`",
+            f"- revealed report: `{report.artifact_path}`",
+        )
+    ) + "\n"
+
+
+def _refresh_dda_dia_lfq_perturbation_assets() -> tuple[str, ...]:
+    written: list[str] = []
+
+    dda_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dda_reviewable_run/primary/maxquant_pipeline_export.tsv"
+    )
+    dda_rows[0]["pep_value"] = "0.0120"
+    dda_rows[1]["pep_value"] = "0.0180"
+    dda_rows[2]["pep_value"] = "0.0090"
+    dda_rows.append(
+        {
+            "scan_number": "mq-pipe-corpus-1004",
+            "sequence_with_mods": "CONTPEP",
+            "precursor_charge": "2",
+            "score_value": "77.0",
+            "leading_proteins": "CON__P00001",
+            "reverse_flag": "",
+            "pep_value": "0.0080",
+        }
+    )
+    dda_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "dda_calibration_decoy_perturbation/evidence/perturbed_maxquant_pipeline_export.tsv"
+    )
+    _write_tsv(dda_path, dda_rows)
+    written.append(dda_path)
+
+    dia_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dia_matrix_shift_review_package/primary/diann_report.tsv"
+    )
+    dia_rows[0]["Q.Value"] = "0.045"
+    dia_rows[0]["Protein.Ids"] = "P12345;Q33333"
+    dia_rows[1]["Q.Value"] = "0.020"
+    dia_primary_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "dia_library_dropout_perturbation/evidence/perturbed_diann_report.tsv"
+    )
+    _write_tsv(dia_primary_path, dia_rows)
+    written.append(dia_primary_path)
+
+    spectronaut_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv"
+    )
+    spectronaut_rows[0]["stripped_sequence"] = "SHIFTEDPEP"
+    spectronaut_rows[0]["protein_accessions"] = "P77777"
+    dia_comparator_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "dia_library_dropout_perturbation/evidence/perturbed_spectronaut_pipeline_export.tsv"
+    )
+    _write_tsv(dia_comparator_path, spectronaut_rows)
+    written.append(dia_comparator_path)
+
+    lfq_rows = _read_tsv_rows(
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        "lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv"
+    )
+    for row in lfq_rows:
+        if row["sample_id"].startswith("T") and row["peptide"] == "CPEPTIDE":
+            row["intensity"] = ""
+            row["missing_reason"] = "batch_drift"
+        elif row["sample_id"].startswith("T") and row["peptide"] == "APEPTIDE":
+            row["intensity"] = str(round(float(row["intensity"]) * 0.45, 2))
+        elif row["sample_id"] in {"C3", "C4"} and row["peptide"] == "BPEPTIDE":
+            row["intensity"] = ""
+            row["missing_reason"] = "low_signal"
+    lfq_path = (
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/"
+        "lfq_missingness_drift_perturbation/evidence/perturbed_study_scale_ms1_features.tsv"
+    )
+    _write_tsv(lfq_path, lfq_rows)
+    written.append(lfq_path)
+
+    return tuple(written)
+
+
 def refresh_flagship_challenge_assets() -> tuple[str, ...]:
-    """Write checked blinded holdout assets to the product-owned challenge root."""
+    """Write checked challenge assets to the product-owned challenge root."""
 
     written: list[str] = []
     for report in build_blinded_holdout_reports():
-        challenge_root = next(
-            entry.challenge_root
-            for entry in build_flagship_challenge_registry().entries
-            if entry.challenge_id == report.challenge_id
-        )
+        challenge_root = report.artifact_path.rsplit("/", 1)[0]
         manifest_path = f"{challenge_root}/challenge_manifest.json"
         readme_path = f"{challenge_root}/README.md"
         _write_json(
@@ -80,6 +184,29 @@ def refresh_flagship_challenge_assets() -> tuple[str, ...]:
         _write_json(report.artifact_path, report.model_dump(mode="json"))
         _write_text(readme_path, _holdout_readme(report))
         written.extend((manifest_path, report.artifact_path, readme_path))
+
+    written.extend(_refresh_dda_dia_lfq_perturbation_assets())
+
+    for report in build_perturbation_reports():
+        challenge_root = report.artifact_path.rsplit("/", 1)[0]
+        manifest_path = f"{challenge_root}/challenge_manifest.json"
+        readme_path = f"{challenge_root}/README.md"
+        _write_json(
+            manifest_path,
+            {
+                "challenge_id": report.challenge_id,
+                "challenge_kind": ChallengeKind.PERTURBATION.value,
+                "workflow_family": report.workflow_family,
+                "perturbation_axes": list(report.perturbation_axes),
+                "evidence_paths": list(report.evidence_paths),
+                "revealed_report_path": report.artifact_path,
+                "note": report.note,
+            },
+        )
+        _write_json(report.artifact_path, report.model_dump(mode="json"))
+        _write_text(readme_path, _perturbation_readme(report))
+        written.extend((manifest_path, report.artifact_path, readme_path))
+
     registry = build_flagship_challenge_registry()
     _write_json(flagship_challenge_registry_path(), registry.model_dump(mode="json"))
     written.append(flagship_challenge_registry_path())

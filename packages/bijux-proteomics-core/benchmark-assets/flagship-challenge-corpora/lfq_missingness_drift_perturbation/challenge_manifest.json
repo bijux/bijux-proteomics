@@ -1,0 +1,17 @@
+{
+  "challenge_id": "lfq-missingness-drift-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/evidence/perturbed_study_scale_ms1_features.tsv"
+  ],
+  "note": "This perturbation corpus worsens missingness and batch drift enough to reveal whether LFQ effect-direction language remains stable or reshuffles under pressure.",
+  "perturbation_axes": [
+    "missing-value inflation",
+    "batch-drift pressure",
+    "differential narrative reshuffle"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+  "workflow_family": "lfq"
+}

@@ -1,0 +1,35 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+  "challenge_id": "lfq-missingness-drift-perturbation",
+  "comparator_reaction": "survives",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/evidence/perturbed_study_scale_ms1_features.tsv"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 0.0,
+      "delta": 6.0,
+      "interpretation": "Higher missing-value burden forces LFQ interpretation back toward bounded, downgrade-heavy claims.",
+      "metric_id": "missing_value_count",
+      "perturbed_value": 6.0
+    },
+    {
+      "baseline_value": 1.0,
+      "delta": 0.0,
+      "interpretation": "The overlap fraction records whether the main LFQ differential story survives the perturbation corpus.",
+      "metric_id": "top_entity_overlap_fraction",
+      "perturbed_value": 1.0
+    }
+  ],
+  "note": "This perturbation corpus worsens missingness and batch drift enough to reveal whether LFQ effect-direction language remains stable or reshuffles under pressure.",
+  "perturbation_axes": [
+    "missing-value inflation",
+    "batch-drift pressure",
+    "differential narrative reshuffle"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "lfq",
+  "workflow_reaction": "weakens"
+}
