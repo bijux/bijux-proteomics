@@ -197,6 +197,19 @@ class BenchmarkExecutionCostReport(JsonModel):
     critical_bottlenecks: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class BenchmarkPortabilityCheck(JsonModel):
+    """Portability result across two runtime environments."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    primary_run_id: str = Field(..., min_length=1)
+    secondary_run_id: str = Field(..., min_length=1)
+    semantic_signature_match: bool
+    environment_specific_differences: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def build_benchmark_run_specs() -> tuple[BenchmarkRunSpec, ...]:
     """Return the runtime-owned flagship benchmark packages."""
     return (
@@ -637,6 +650,45 @@ def build_benchmark_execution_cost_report(
     )
 
 
+def build_benchmark_portability_check(
+    primary_base_dir: Path,
+    *,
+    package_id: str,
+    primary_manifest: RuntimeReviewableOutputPath,
+    secondary_base_dir: Path,
+    secondary_manifest: RuntimeReviewableOutputPath,
+    primary_artifacts_dir: Path | None = None,
+    secondary_artifacts_dir: Path | None = None,
+) -> BenchmarkPortabilityCheck:
+    """Check that benchmark semantics survive execution in another environment."""
+    primary_workspace = RunWorkspace.for_run(
+        primary_base_dir,
+        primary_manifest.run_id,
+        artifacts_root_override=primary_artifacts_dir,
+    )
+    secondary_workspace = RunWorkspace.for_run(
+        secondary_base_dir,
+        secondary_manifest.run_id,
+        artifacts_root_override=secondary_artifacts_dir,
+    )
+    primary_signature = _semantic_signature(primary_workspace, primary_manifest)
+    secondary_signature = _semantic_signature(secondary_workspace, secondary_manifest)
+    return BenchmarkPortabilityCheck(
+        package_id=package_id,
+        primary_run_id=primary_manifest.run_id,
+        secondary_run_id=secondary_manifest.run_id,
+        semantic_signature_match=primary_signature == secondary_signature,
+        environment_specific_differences=(
+            "run_id",
+            "environment.environment_id",
+            "run_summary.artifacts_dir",
+        ),
+        notes=(
+            "portability checks compare runtime semantics separately from environment-bound identifiers that are expected to drift across machines",
+        ),
+    )
+
+
 def _run_import_benchmark_path(
     base_dir: Path,
     *,
@@ -801,6 +853,29 @@ def _dict_items(payload: object) -> tuple[tuple[str, object], ...]:
     return tuple((str(key), value) for key, value in payload.items())
 
 
+def _semantic_signature(
+    workspace: RunWorkspace,
+    manifest: RuntimeReviewableOutputPath,
+) -> str:
+    run_context = RunContextContract.load_json(workspace.run_context_path)
+    summary = _load_json_dict(workspace.run_summary_path)
+    signature_payload: dict[str, Any] = {
+        "command": manifest.command,
+        "workflow_family": manifest.workflow_family,
+        "import_only": manifest.import_only,
+        "provider_name": run_context.provider_name,
+        "dataset_fingerprint": run_context.dataset.dataset_fingerprint,
+        "outcome": summary["outcome"],
+        "tool_status": summary["tool_status"],
+    }
+    if manifest.import_trace_path is not None:
+        imported_payload = _load_json_dict(
+            workspace.artifact_items_dir / "imported_evidence.json"
+        )
+        signature_payload["imported_payload"] = imported_payload.get("payload")
+    return _stable_fingerprint(signature_payload)
+
+
 __all__ = [
     "BenchmarkArtifactBrowser",
     "BenchmarkArtifactEntry",
@@ -808,6 +883,7 @@ __all__ = [
     "BenchmarkDigestRecord",
     "BenchmarkExecutionCostReport",
     "BenchmarkFailureRecoveryBundle",
+    "BenchmarkPortabilityCheck",
     "BenchmarkReplayAudit",
     "BenchmarkReplayDecision",
     "BenchmarkRunMode",
@@ -817,6 +893,7 @@ __all__ = [
     "build_benchmark_artifact_browser",
     "build_benchmark_execution_cost_report",
     "build_benchmark_failure_recovery_bundle",
+    "build_benchmark_portability_check",
     "build_benchmark_replay_audit",
     "build_benchmark_run_provenance_report",
     "build_benchmark_run_specs",
