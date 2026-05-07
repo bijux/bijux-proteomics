@@ -13,10 +13,12 @@ from bijux_proteomics.identification.confidence import (
     compare_protein_inference_strategies,
 )
 from bijux_proteomics.identification.search_adapters import (
+    SearchAdapterConformanceReport,
     SearchAdapterFieldAccounting,
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
     SearchResultFamily,
+    build_search_adapter_conformance_report,
     build_search_adapter_field_accounting,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -58,6 +60,30 @@ class ProteinInferenceEngineDisagreementDossier(JsonModel):
     adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
     entries: tuple[ProteinInferenceDisagreementEntry, ...] = Field(default_factory=tuple)
     material_disagreement_count: int = Field(..., ge=0)
+
+
+class SearchAdapterParityCheck(JsonModel):
+    """One release-relevant parity criterion over adapter normalization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    passed: bool
+    detail: str = Field(..., min_length=1)
+
+
+class SearchAdapterParityReport(JsonModel):
+    """Serious acceptance criteria for adapter parity and release claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    adapter_kind: SearchAdapterKind
+    result_family: SearchResultFamily
+    information_loss: SearchAdapterInformationLossReport
+    conformance: SearchAdapterConformanceReport
+    checks: tuple[SearchAdapterParityCheck, ...] = Field(default_factory=tuple)
+    release_acceptable: bool
+    failing_criteria: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def _material_columns(report: SearchAdapterNormalizationReport) -> set[str]:
@@ -149,4 +175,66 @@ def build_protein_inference_engine_disagreement_dossier(
         ),
         entries=tuple(entries),
         material_disagreement_count=sum(1 for entry in entries if entry.material),
+    )
+
+
+def build_search_adapter_parity_report(
+    normalization_report: SearchAdapterNormalizationReport,
+) -> SearchAdapterParityReport:
+    """Evaluate whether a normalized adapter surface meets serious parity criteria."""
+
+    information_loss = build_search_adapter_information_loss_report(
+        normalization_report
+    )
+    conformance = build_search_adapter_conformance_report(normalization_report)
+    field_roles = set(information_loss.field_accounting.mapped_field_roles)
+    checks = (
+        SearchAdapterParityCheck(
+            code="imported_semantics",
+            passed=(
+                len(normalization_report.normalized_records) > 0
+                and {"spectrum_id", "peptide", "charge", "score"} <= field_roles
+            ),
+            detail=(
+                "normalized output preserves spectrum identity, peptide identity, charge, and comparable score semantics"
+            ),
+        ),
+        SearchAdapterParityCheck(
+            code="loss_accounting",
+            passed=information_loss.acceptable_for_identification_claims,
+            detail=(
+                "field accounting discloses adapter loss and no material identification columns are missing"
+            ),
+        ),
+        SearchAdapterParityCheck(
+            code="confidence_normalization",
+            passed=(
+                conformance.fdr_audit_trail is not None
+                and conformance.calibration_plot is not None
+                and conformance.passes
+            ),
+            detail=(
+                "adapter parity requires conformance, FDR audit output, and calibration evidence instead of raw score import only"
+            ),
+        ),
+        SearchAdapterParityCheck(
+            code="failure_disclosure",
+            passed=(
+                conformance.rejected_rows == 0
+                or bool(conformance.rejection_issue_counts)
+            ),
+            detail=(
+                "adapter parity requires machine-readable disclosure for rejected rows and malformed inputs"
+            ),
+        ),
+    )
+    failing_criteria = tuple(check.code for check in checks if not check.passed)
+    return SearchAdapterParityReport(
+        adapter_kind=normalization_report.adapter_manifest.adapter_kind,
+        result_family=normalization_report.adapter_manifest.result_family,
+        information_loss=information_loss,
+        conformance=conformance,
+        checks=checks,
+        release_acceptable=not failing_criteria,
+        failing_criteria=failing_criteria,
     )
