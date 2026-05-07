@@ -102,6 +102,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "handoffs/risk.py",
             "benchmarks/claims.py",
             "benchmarks/follow_up.py",
+            "benchmarks/learning.py",
             "benchmarks/rehearsals.py",
         ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
@@ -173,6 +174,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.HANDOFF_PACKETS,
         ),
         reason="Flagship benchmark follow-up packets turn review posture into concrete lab-facing controls, boundary conditions, and burden tradeoffs.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/learning.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Benchmark learning artifacts keep requested-versus-observed follow-up loops visible instead of flattening them into generic success stories.",
     ),
     LabModuleAuditEntry(
         module_path="benchmarks/rehearsals.py",
