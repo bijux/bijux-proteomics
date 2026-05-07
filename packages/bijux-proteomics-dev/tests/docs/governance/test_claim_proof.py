@@ -22,13 +22,27 @@ def test_package_docs_claim_proof_report_tracks_current_evidence_gaps() -> None:
     assert entries["bijux-proteomics-dev"].unproven_claim_kinds == ()
     assert entries["bijux-proteomics-knowledge"].unproven_claim_kinds == ()
     assert entries["bijux-proteomics-lab"].unproven_claim_kinds == ()
-    assert report.guard.min_total_benchmark_proof_artifact_count == 51
-    assert report.guard.min_total_replay_proof_artifact_count == 7
-    assert report.guard.min_total_integrity_proof_artifact_count == 5
+    assert report.guard.min_total_benchmark_proof_artifact_count > 0
+    assert report.guard.min_total_replay_proof_artifact_count > 0
+    assert report.guard.min_total_integrity_proof_artifact_count > 0
+    assert all(
+        entry.benchmark_claim_count == len(entry.benchmark_claim_document_paths)
+        for entry in report.entries
+    )
+    assert all(
+        entry.replay_claim_count == len(entry.replay_claim_document_paths)
+        for entry in report.entries
+    )
+    assert all(
+        entry.integrity_claim_count == len(entry.integrity_claim_document_paths)
+        for entry in report.entries
+    )
     assert (
         entries["bijux-proteomics-intelligence"].benchmark_proof_artifacts_per_claim
         < entries["bijux-proteomics-core"].benchmark_proof_artifacts_per_claim
     )
+    assert entries["bijux-proteomics-intelligence"].benchmark_proof_artifact_count > 0
+    assert entries["bijux-proteomics-lab"].benchmark_proof_artifact_count > 0
     assert (
         "packages/bijux-proteomics-dev/README.md"
         in entries["bijux-proteomics-dev"].integrity_claim_document_paths

@@ -115,43 +115,40 @@ def build_package_docs_claim_proof_report() -> PackageDocsClaimProofReport:
     for package_name in workspace_package_names():
         docs_paths = package_docs(package_name)
         test_paths = test_modules(package_name)
-        docs_text = "\n".join(
-            path.read_text(encoding="utf-8").lower() for path in docs_paths
-        )
-        benchmark_claim_count = docs_text.count("benchmark")
-        benchmark_proof_artifact_count = _proof_artifact_count(
-            package_name,
-            MONITORED_CLAIM_PROOF_FAMILIES["benchmark"],
-        )
-        replay_claim_count = docs_text.count("replay")
-        replay_proof_artifact_count = _proof_artifact_count(
-            package_name,
-            MONITORED_CLAIM_PROOF_FAMILIES["replay"],
-        )
-        integrity_claim_count = docs_text.count("integrity")
-        integrity_proof_artifact_count = _proof_artifact_count(
-            package_name,
-            MONITORED_CLAIM_PROOF_FAMILIES["integrity"],
-        )
         benchmark_claim_document_paths = _claim_document_paths(
             docs_paths,
             MONITORED_CLAIM_PROOF_FAMILIES["benchmark"],
         )
-        benchmark_proof_artifact_paths = _matching_repo_relative_paths(
-            test_paths,
+        benchmark_claim_count = len(benchmark_claim_document_paths)
+        benchmark_proof_artifact_count = _proof_artifact_count(
+            package_name,
             MONITORED_CLAIM_PROOF_FAMILIES["benchmark"],
         )
         replay_claim_document_paths = _claim_document_paths(
             docs_paths,
             MONITORED_CLAIM_PROOF_FAMILIES["replay"],
         )
-        replay_proof_artifact_paths = _matching_repo_relative_paths(
-            test_paths,
+        replay_claim_count = len(replay_claim_document_paths)
+        replay_proof_artifact_count = _proof_artifact_count(
+            package_name,
             MONITORED_CLAIM_PROOF_FAMILIES["replay"],
         )
         integrity_claim_document_paths = _claim_document_paths(
             docs_paths,
             MONITORED_CLAIM_PROOF_FAMILIES["integrity"],
+        )
+        integrity_claim_count = len(integrity_claim_document_paths)
+        integrity_proof_artifact_count = _proof_artifact_count(
+            package_name,
+            MONITORED_CLAIM_PROOF_FAMILIES["integrity"],
+        )
+        benchmark_proof_artifact_paths = _matching_repo_relative_paths(
+            test_paths,
+            MONITORED_CLAIM_PROOF_FAMILIES["benchmark"],
+        )
+        replay_proof_artifact_paths = _matching_repo_relative_paths(
+            test_paths,
+            MONITORED_CLAIM_PROOF_FAMILIES["replay"],
         )
         integrity_proof_artifact_paths = _matching_repo_relative_paths(
             test_paths,
