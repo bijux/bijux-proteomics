@@ -14,6 +14,11 @@ from bijux_proteomics.dia import (
     DiaCapabilityStatus,
     build_dia_capability_matrix,
 )
+from bijux_proteomics.dia.benchmarks import (
+    TargetedCalibrationStandardObservation,
+    TargetedHeavyLightPairObservation,
+    build_targeted_workflow_benchmark_report,
+)
 from bijux_proteomics.identification import build_review_ready_evidence_bundle
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
@@ -21,11 +26,17 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
 )
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics.ptm import (
     build_ptm_site_ambiguity_report,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
+)
+from bijux_proteomics.ptm.benchmarks import (
+    build_glycopeptide_support_roadmap_report,
+    build_ptm_family_credibility_track_report,
+    build_ptm_raw_spectrum_validation_lane_report,
 )
 from bijux_proteomics.ptm.review import build_phospho_specific_review_fixture_report
 from bijux_proteomics.quantification import (
@@ -52,6 +63,11 @@ from bijux_proteomics.review.collaboration import (
     build_external_reviewer_bundle,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.study.laboratory_plans import (
+    TargetedWorkflowBoundaryInput,
+    TargetedWorkflowMethod,
+    evaluate_targeted_workflow_boundary,
+)
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
@@ -112,6 +128,36 @@ class BenchmarkComparatorPosition(JsonModel):
     not_attempted_behaviors: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class WorkflowVendorCaveatEntry(JsonModel):
+    """One vendor-facing caveat that must stay visible in release review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    surface: str = Field(..., min_length=1)
+    severity: SupportState
+    note: str = Field(..., min_length=1)
+
+
+class WorkflowVendorCaveatLedger(JsonModel):
+    """Release-facing ledger of vendor and execution-parity caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[WorkflowVendorCaveatEntry, ...] = Field(default_factory=tuple)
+    vendor_support_state: SupportState
+
+
+class PtmFamilyReleaseTrack(JsonModel):
+    """Release-facing PTM family track with explicit support posture."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    family_name: str = Field(..., min_length=1)
+    support_state: SupportState
+    summary: str = Field(..., min_length=1)
+    scientific_limits: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class WorkflowBenchmarkReview(JsonModel):
     """Release-facing review output for one benchmark-backed workflow path."""
 
@@ -140,6 +186,9 @@ class WorkflowBenchmarkReview(JsonModel):
     claim_summaries: tuple[BenchmarkReviewClaim, ...] = Field(default_factory=tuple)
     scientific_limits: tuple[str, ...] = Field(default_factory=tuple)
     comparison_notes: tuple[str, ...] = Field(default_factory=tuple)
+    vendor_caveat_ledger: WorkflowVendorCaveatLedger | None = None
+    supported_ptm_families: tuple[str, ...] = Field(default_factory=tuple)
+    ptm_family_tracks: tuple[PtmFamilyReleaseTrack, ...] = Field(default_factory=tuple)
     external_reviewer_bundle: ExternalReviewerBundle
     ready_for_release_review: bool
 
@@ -240,6 +289,20 @@ def _build_external_bundle(
                 "scientific limits before treating this workflow as release-ready."
             ),
         )
+    )
+
+
+def _build_vendor_caveat_ledger(
+    entries: tuple[WorkflowVendorCaveatEntry, ...],
+) -> WorkflowVendorCaveatLedger:
+    vendor_support_state = (
+        SupportState.SUPPORTED
+        if not entries
+        else SupportState.ADVISORY
+    )
+    return WorkflowVendorCaveatLedger(
+        entries=entries,
+        vendor_support_state=vendor_support_state,
     )
 
 
@@ -485,6 +548,20 @@ def build_dia_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    vendor_caveats = _build_vendor_caveat_ledger(
+        (
+            WorkflowVendorCaveatEntry(
+                surface="vendor_library_parity",
+                severity=SupportState.ADVISORY,
+                note="direct vendor-library parity is not executed in-repo and remains partial by design",
+            ),
+            WorkflowVendorCaveatEntry(
+                surface="external_execution_parity",
+                severity=SupportState.ADVISORY,
+                note="checked-in external-engine exports do not prove full live vendor execution parity",
+            ),
+        )
+    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -550,6 +627,7 @@ def build_dia_benchmark_review(
         claim_summaries=claim_summaries,
         scientific_limits=scientific_limits,
         comparison_notes=manifest.comparison_notes,
+        vendor_caveat_ledger=vendor_caveats,
         external_reviewer_bundle=external_bundle,
         ready_for_release_review=all(
             claim.support_state is not SupportState.REFUSED for claim in claim_summaries
@@ -614,6 +692,24 @@ def build_ptm_benchmark_review(
         feature_records=feature_records,
         protein_sequences=protein_sequences,
     )
+    raw_validation_lane = build_ptm_raw_spectrum_validation_lane_report(
+        parsed.accepted_records,
+        raw_spectrum_artifact_path=(
+            "packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf"
+        ),
+        fragment_ion_support_by_spectrum={
+            "scan=ptm-001": ("b5", "y6", "y7"),
+            "scan=ptm-002": ("b4",),
+        },
+    )
+    family_tracks = build_ptm_family_credibility_track_report(
+        site_entries,
+        feature_records=feature_records,
+        protein_sequences=protein_sequences,
+    )
+    glyco_roadmap = build_glycopeptide_support_roadmap_report(
+        requested_workflow="n_glycopeptide_localization"
+    )
 
     claim_summaries = (
         BenchmarkReviewClaim(
@@ -654,6 +750,36 @@ def build_ptm_benchmark_review(
                 f"quantified_samples={len(phospho_review.quantified_sample_ids)}",
             ),
         ),
+        BenchmarkReviewClaim(
+            claim_id="raw_spectrum_validation_lane",
+            support_state=(
+                SupportState.SUPPORTED
+                if raw_validation_lane.ready_for_rescoring_follow_up
+                else SupportState.ADVISORY
+            ),
+            summary="PTM review keeps a raw-spectrum-linked validation lane visible instead of stopping at TSV-localization ingestion",
+            evidence_refs=(
+                raw_validation_lane.raw_spectrum_artifact_path,
+                f"fragment_supported_spectra={raw_validation_lane.fragment_supported_spectrum_count}",
+            ),
+            scientific_limits=(
+                "rescoring follow-up weakens whenever localized spectra lack fragment-linked support",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="ptm_family_scope",
+            support_state=SupportState.ADVISORY,
+            summary="PTM release claims name the supported, interpretive-only, and refused PTM families explicitly",
+            evidence_refs=(
+                *family_tracks.supported_families,
+                *family_tracks.interpretive_only_families,
+                *family_tracks.refused_families,
+            ),
+            scientific_limits=(
+                glyco_roadmap.current_disposition,
+                *glyco_roadmap.required_scientific_work[:2],
+            ),
+        ),
     )
     review_artifact_id = fingerprint_model(phospho_review)
     scientific_limits = (
@@ -681,6 +807,23 @@ def build_ptm_benchmark_review(
             fingerprint_model(parsed),
         ),
     )
+    ptm_release_tracks = tuple(
+        PtmFamilyReleaseTrack(
+            family_name=track.family_name,
+            support_state=(
+                SupportState.SUPPORTED
+                if track.disposition.value == "supported"
+                else SupportState.ADVISORY
+                if track.disposition.value == "interpretive_only"
+                else SupportState.REFUSED
+            ),
+            summary=track.evidence_summary,
+            scientific_limits=track.caveats,
+        )
+        for track in family_tracks.tracks
+    )
+    supported_family_summary = ", ".join(family_tracks.supported_families) or "none"
+    refused_family_summary = ", ".join(family_tracks.refused_families) or "none"
     return WorkflowBenchmarkReview(
         benchmark_id=manifest.benchmark_id,
         dataset_id=manifest.dataset_id,
@@ -689,7 +832,8 @@ def build_ptm_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "PTM benchmark review turns checked-in localization evidence into a phospho review packet "
-            "while preserving explicit ambiguity and motif-scope limits."
+            f"while preserving explicit ambiguity and motif-scope limits, naming supported PTM families ({supported_family_summary}), "
+            f"and refusing unsupported carryover ({refused_family_summary})."
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -725,6 +869,8 @@ def build_ptm_benchmark_review(
         claim_summaries=claim_summaries,
         scientific_limits=scientific_limits,
         comparison_notes=manifest.comparison_notes,
+        supported_ptm_families=family_tracks.supported_families,
+        ptm_family_tracks=ptm_release_tracks,
         external_reviewer_bundle=external_bundle,
         ready_for_release_review=all(
             claim.support_state is not SupportState.REFUSED for claim in claim_summaries
@@ -884,6 +1030,207 @@ def build_lfq_benchmark_review(
         claim_summaries=claim_summaries,
         scientific_limits=scientific_limits,
         comparison_notes=manifest.comparison_notes,
+        external_reviewer_bundle=external_bundle,
+        ready_for_release_review=all(
+            claim.support_state is not SupportState.REFUSED for claim in claim_summaries
+        ),
+    )
+
+
+def build_targeted_benchmark_review(
+    *,
+    benchmark_manifest: BenchmarkManifest | None = None,
+    qc_path: Path | None = None,
+) -> WorkflowBenchmarkReview:
+    """Build a targeted benchmark review with explicit control and vendor limits."""
+
+    manifest = benchmark_manifest or _require_manifest(
+        "benchmark:targeted_transition_quality_control"
+    )
+    registry_entry = _require_registry_entry(manifest.benchmark_id)
+    if manifest.workflow_family is not KnowledgeWorkflowFamily.TARGETED:
+        raise ValueError("targeted benchmark review requires a targeted workflow manifest")
+    active_qc_path = qc_path or (_repo_root() / manifest.dataset_locator)
+
+    qc_report = parse_chromatogram_qc_table(active_qc_path)
+    benchmark = build_targeted_workflow_benchmark_report(
+        calibration_observations=(
+            TargetedCalibrationStandardObservation(
+                standard_id="std-a",
+                sample_id="run-1",
+                expected_ratio=1.0,
+                observed_ratio=0.99,
+                within_tolerance=True,
+            ),
+            TargetedCalibrationStandardObservation(
+                standard_id="std-b",
+                sample_id="run-2",
+                expected_ratio=1.0,
+                observed_ratio=1.27,
+                within_tolerance=False,
+            ),
+        ),
+        heavy_light_pairs=(
+            TargetedHeavyLightPairObservation(
+                pair_id="pair-a",
+                light_candidate_id="pep-a-light",
+                heavy_candidate_id="pep-a-heavy",
+                pair_complete=True,
+                heavy_light_ratio=1.01,
+                interference_fraction=0.08,
+            ),
+            TargetedHeavyLightPairObservation(
+                pair_id="pair-b",
+                light_candidate_id="pep-b-light",
+                heavy_candidate_id="pep-b-heavy",
+                pair_complete=False,
+                interference_fraction=0.21,
+            ),
+        ),
+    )
+    boundary = evaluate_targeted_workflow_boundary(
+        TargetedWorkflowBoundaryInput(
+            method=TargetedWorkflowMethod.PRM,
+            has_transition_list=True,
+            has_retention_windows=True,
+            has_collision_energy_profile=True,
+            has_instrument_method_template=False,
+        )
+    )
+
+    claim_summaries = (
+        BenchmarkReviewClaim(
+            claim_id="chromatogram_qc_surface",
+            support_state=(
+                SupportState.SUPPORTED
+                if qc_report.accepted_points and qc_report.failed_metric_rows == 0
+                else SupportState.ADVISORY
+            ),
+            summary="targeted review preserves chromatogram-shaped QC as the first review surface",
+            evidence_refs=(
+                manifest.dataset_id,
+                f"accepted_points={len(qc_report.accepted_points)}",
+                f"failed_metric_rows={qc_report.failed_metric_rows}",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="calibration_and_pairing_pressure",
+            support_state=(
+                SupportState.SUPPORTED
+                if benchmark.ready_for_transition_handoff
+                else SupportState.ADVISORY
+            ),
+            summary="targeted review keeps calibration standards, heavy/light pairing, and transition interference explicit before handoff",
+            evidence_refs=(
+                f"calibration_failed={benchmark.calibration_failed_count}",
+                f"missing_pairs={benchmark.missing_heavy_light_pair_count}",
+                f"interference_flags={benchmark.interference_flag_count}",
+            ),
+            scientific_limits=(
+                "targeted support weakens when calibration drifts, heavy/light pairs are incomplete, or interference rises",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="vendor_execution_boundary",
+            support_state=(
+                SupportState.SUPPORTED if boundary.supported else SupportState.ADVISORY
+            ),
+            summary="targeted review keeps method-template and vendor-execution assumptions explicit instead of implying Skyline-style parity",
+            evidence_refs=(
+                boundary.method.value,
+                *boundary.assumptions[:2],
+            ),
+            scientific_limits=(
+                boundary.refusal_reason
+                or "live vendor execution parity remains outside the checked-in targeted benchmark scope",
+            ),
+        ),
+    )
+    artifact_id = fingerprint_model(benchmark)
+    scientific_limits = (
+        *manifest.comparison_notes,
+        "targeted support remains bounded by chromatogram QC, calibration, heavy/light pairing, and explicit vendor execution caveats.",
+    )
+    (
+        public_claim_support_state,
+        comparator_failure_summaries,
+        improvement_targets,
+        known_loss_to_established_tool,
+    ) = _build_public_claim_posture(manifest.benchmark_id)
+    vendor_caveats = _build_vendor_caveat_ledger(
+        (
+            WorkflowVendorCaveatEntry(
+                surface="skyline_or_vendor_execution_parity",
+                severity=SupportState.ADVISORY,
+                note="checked-in QC and transition artifacts do not prove live Skyline or vendor execution parity",
+            ),
+            WorkflowVendorCaveatEntry(
+                surface="instrument_method_portability",
+                severity=SupportState.ADVISORY,
+                note="instrument templates and vendor-tuning assumptions remain explicit preconditions, not solved parity",
+            ),
+        )
+    )
+    external_bundle = _build_external_bundle(
+        bundle_id=f"{manifest.benchmark_id}:external_review",
+        workflow_family=manifest.workflow_family,
+        artifact_ids=(manifest.dataset_id, artifact_id),
+        summary_lines=(
+            "Core owns targeted calibration, pairing, and transition-interference benchmark logic.",
+            "Intelligence owns the release-facing targeted review summary and vendor caveat discipline.",
+            "This benchmark does not claim live Skyline or vendor execution parity.",
+        ),
+        scientific_limits=scientific_limits,
+        hash_entries=(
+            artifact_id,
+            fingerprint_model(qc_report),
+        ),
+    )
+    return WorkflowBenchmarkReview(
+        benchmark_id=manifest.benchmark_id,
+        dataset_id=manifest.dataset_id,
+        workflow_family=manifest.workflow_family,
+        benchmark_authority_status=registry_entry.authority_status,
+        title=manifest.title,
+        reviewer_summary=(
+            "Targeted benchmark review keeps chromatogram QC, calibration standards, heavy/light pairing, transition interference, "
+            "and Skyline or vendor execution parity caveats visible instead of inflating the workflow into strong vendor parity."
+        ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
+        public_claim_support_state=public_claim_support_state,
+        comparator_failure_summaries=comparator_failure_summaries,
+        improvement_targets=improvement_targets,
+        known_loss_to_established_tool=known_loss_to_established_tool,
+        supported_repo_claims=registry_entry.supported_repo_claims,
+        authorized_claim_scope=registry_entry.authorized_claim_scope,
+        owner_surfaces=(
+            "bijux-proteomics-core: dia.targeted_benchmarks",
+            "bijux-proteomics-core: io.chromatogram_qc_ingestion",
+            "bijux-proteomics-intelligence: benchmark_reviews",
+        ),
+        review_artifacts=(
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_targeted_workflow_benchmark_report",
+                artifact_kind="targeted_workflow_benchmark_report",
+                artifact_id=artifact_id,
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="parse_chromatogram_qc_table",
+                artifact_kind="chromatogram_qc_ingestion_report",
+                artifact_id=fingerprint_model(qc_report),
+            ),
+        ),
+        claim_summaries=claim_summaries,
+        scientific_limits=scientific_limits,
+        comparison_notes=manifest.comparison_notes,
+        vendor_caveat_ledger=vendor_caveats,
         external_reviewer_bundle=external_bundle,
         ready_for_release_review=all(
             claim.support_state is not SupportState.REFUSED for claim in claim_summaries
@@ -1059,6 +1406,20 @@ def build_multiplex_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    vendor_caveats = _build_vendor_caveat_ledger(
+        (
+            WorkflowVendorCaveatEntry(
+                surface="vendor_multiplex_execution",
+                severity=SupportState.ADVISORY,
+                note="vendor-specific multiplex execution parity remains outside the checked-in chemistry fixture scope",
+            ),
+            WorkflowVendorCaveatEntry(
+                surface="chemistry_family_scope",
+                severity=SupportState.ADVISORY,
+                note="the benchmark only speaks for bounded TMTpro channel semantics, not generic multiplex vendor behavior",
+            ),
+        )
+    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -1118,6 +1479,7 @@ def build_multiplex_benchmark_review(
         claim_summaries=claim_summaries,
         scientific_limits=scientific_limits,
         comparison_notes=manifest.comparison_notes,
+        vendor_caveat_ledger=vendor_caveats,
         external_reviewer_bundle=external_bundle,
         ready_for_release_review=all(
             claim.support_state is not SupportState.REFUSED for claim in claim_summaries
@@ -1135,4 +1497,5 @@ __all__ = [
     "build_lfq_benchmark_review",
     "build_multiplex_benchmark_review",
     "build_ptm_benchmark_review",
+    "build_targeted_benchmark_review",
 ]
