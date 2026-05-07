@@ -10,7 +10,6 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
-
 from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
 from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
@@ -70,6 +69,27 @@ class ReferenceDisagreementReport(JsonModel):
 
     workflow_family: KnowledgeWorkflowFamily
     entries: tuple[ReferenceDisagreementEntry, ...] = Field(default_factory=tuple)
+
+
+class WorkflowContradictionStressEntry(JsonModel):
+    """One downgrade scenario when benchmark and literature positions diverge."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    benchmark_id: str = Field(..., min_length=1)
+    literature_group_id: str = Field(..., min_length=1)
+    expected_grounding_state: str = Field(..., min_length=1)
+    downgrade_reason: str = Field(..., min_length=1)
+
+
+class WorkflowContradictionStressSuite(JsonModel):
+    """Reviewable contradiction scenarios for one workflow family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    entries: tuple[WorkflowContradictionStressEntry, ...] = Field(default_factory=tuple)
 
 
 def _briefing(workflow_family: KnowledgeWorkflowFamily) -> WorkflowReferenceBriefing:
@@ -168,11 +188,39 @@ def build_reference_disagreement_report(
     )
 
 
+def build_workflow_contradiction_stress_suite(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowContradictionStressSuite:
+    """Build downgrade scenarios for benchmark-versus-literature disagreement."""
+
+    disagreement_report = build_reference_disagreement_report(workflow_family)
+    entries = tuple(
+        WorkflowContradictionStressEntry(
+            scenario_id=(
+                f"{workflow_family.value}:{entry.literature_group_id}:"
+                f"{index + 1}"
+            ),
+            benchmark_id=entry.benchmark_id,
+            literature_group_id=entry.literature_group_id,
+            expected_grounding_state="bounded_by_contradiction",
+            downgrade_reason=entry.downgrade_reason,
+        )
+        for index, entry in enumerate(disagreement_report.entries)
+    )
+    return WorkflowContradictionStressSuite(
+        workflow_family=workflow_family,
+        entries=entries,
+    )
+
+
 __all__ = [
     "CriticalClaimProvenanceLine",
     "ReferenceDisagreementEntry",
     "ReferenceDisagreementReport",
     "ReferenceDisagreementSeverity",
+    "WorkflowContradictionStressEntry",
+    "WorkflowContradictionStressSuite",
     "build_critical_claim_provenance_lines",
     "build_reference_disagreement_report",
+    "build_workflow_contradiction_stress_suite",
 ]
