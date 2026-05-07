@@ -3,8 +3,11 @@ from __future__ import annotations
 from pathlib import Path
 import tomllib
 
+from bijux_proteomics_dev.governance.foundation.root_api_policy import (
+    run,
+    validate_foundation_root_api_policy,
+)
 import bijux_proteomics_foundation
-
 
 REPO_ROOT = next(
     parent
@@ -26,6 +29,10 @@ FOUNDATION_ROOT_API_POLICY = (
 
 def _policy() -> dict[str, object]:
     return tomllib.loads(FOUNDATION_ROOT_API_POLICY.read_text(encoding="utf-8"))
+
+
+def test_foundation_root_api_policy_is_up_to_date() -> None:
+    assert run(check=True) == 0
 
 
 def test_foundation_root_api_matches_curated_policy() -> None:
@@ -62,3 +69,7 @@ def test_foundation_root_api_excludes_removed_convenience_exports() -> None:
     }
 
     assert removed.isdisjoint(bijux_proteomics_foundation.__all__)
+
+
+def test_foundation_root_api_policy_has_no_validation_failures() -> None:
+    assert validate_foundation_root_api_policy() == ()

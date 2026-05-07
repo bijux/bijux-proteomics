@@ -1,4 +1,5 @@
 # Generated foundation root API policy.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.root_api_policy
 
 [budget]
 max_public_symbols = 15
@@ -7,74 +8,74 @@ max_init_lines = 45
 [[symbol]]
 name = "AssayId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "lab and core packages share assay identifiers directly from the foundation root."
+rationale = "stable assay identity must be shareable across all downstream packages"
 
 [[symbol]]
 name = "BatchId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "lab workflow ownership reuses batch identifiers across multiple public modules."
+rationale = "batch identity is a cross-package primitive rather than package-local business logic"
 
 [[symbol]]
 name = "CandidateId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "intelligence contracts use candidate identifiers as a shared stable type."
+rationale = "candidate identity must remain uniform across runtime, intelligence, and lab surfaces"
 
 [[symbol]]
 name = "ClaimId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "knowledge and lab packages both consume claim identifiers from the canonical shared layer."
+rationale = "claim identity is a shared review primitive and not owned by one downstream package"
 
 [[symbol]]
 name = "DocumentSchema"
 owner_module = "bijux_proteomics_foundation.serialization.document_schema"
-rationale = "document metadata is the most reused foundation contract across the full package suite."
+rationale = "document provenance and schema envelopes are foundation-level contracts"
 
 [[symbol]]
 name = "EvidenceId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "core and knowledge share evidence identifiers in public contracts."
+rationale = "evidence identity must stay stable across core, knowledge, intelligence, and lab packages"
 
 [[symbol]]
 name = "fingerprint_model"
 owner_module = "bijux_proteomics_foundation.serialization.json_contracts"
-rationale = "multiple downstream packages fingerprint model instances directly without rebuilding helper logic."
+rationale = "model fingerprints are a repository-wide serialization primitive"
 
 [[symbol]]
 name = "GateId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "review-gate identifiers stay shared across core and lab packages."
+rationale = "gate identity is a shared lifecycle primitive used by review and execution packages"
 
 [[symbol]]
 name = "hash_model"
 owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
-rationale = "foundation exposes one model-hash helper for downstream artifacts that already carry JsonModel contracts."
+rationale = "stable hashing is a kernel primitive for provenance and replay contracts"
 
 [[symbol]]
 name = "hash_payload"
 owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
-rationale = "runtime, intelligence, and lab surfaces reuse payload hashing as a shared primitive."
+rationale = "payload hashing is needed by multiple packages for artifact integrity and replay"
 
 [[symbol]]
 name = "hash_text"
 owner_module = "bijux_proteomics_foundation.serialization.stable_hashes"
-rationale = "runtime and intelligence use stable text hashing directly from the foundation root."
+rationale = "text hashing is a minimal canonical helper that does not encode product logic"
 
 [[symbol]]
 name = "JsonModel"
 owner_module = "bijux_proteomics_foundation.serialization.json_contracts"
-rationale = "JsonModel remains the central shared base class consumed by every real product package."
+rationale = "the shared JSON model base is a cross-package contract primitive"
 
 [[symbol]]
 name = "ProgramId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "program identifiers are shared across core, intelligence, and lab package boundaries."
+rationale = "program identity must not fork across domain, runtime, and lab package boundaries"
 
 [[symbol]]
 name = "TargetId"
 owner_module = "bijux_proteomics_foundation.identity.identifiers"
-rationale = "target identifiers appear across core, intelligence, and knowledge surfaces."
+rationale = "target identity is a universal domain primitive across the repository"
 
 [[symbol]]
 name = "to_canonical_json"
 owner_module = "bijux_proteomics_foundation.serialization.canonical_json"
-rationale = "stable canonical serialization remains a shared downstream-facing primitive."
+rationale = "canonical JSON serialization is a kernel-level interoperability primitive"
