@@ -29,6 +29,9 @@ def test_build_benchmark_registry_entry_carries_dataset_shape_and_claims() -> No
     assert entry.comparator_path_ids == manifest.comparator_path_ids
     assert entry.supported_repo_claims == manifest.supported_repo_claims
     assert entry.realism_limits == manifest.fixture_realism_limits
+    assert entry.interpretation_context_lines
+    assert entry.decision_grade_definition
+    assert entry.decision_grade_criteria
 
 
 def test_assess_benchmark_authority_marks_stale_fixture_reports_review_due() -> None:
@@ -40,6 +43,7 @@ def test_assess_benchmark_authority_marks_stale_fixture_reports_review_due() -> 
 
     assert authority.authority_status is BenchmarkAuthorityStatus.REVIEW_DUE
     assert authority.blocking_reasons
+    assert authority.decision_grade_criteria
 
 
 def test_assess_benchmark_authority_retirements_are_explicit() -> None:
@@ -55,3 +59,4 @@ def test_assess_benchmark_authority_retirements_are_explicit() -> None:
 
     assert authority.authority_status is BenchmarkAuthorityStatus.RETIRED
     assert "adapter support widened" in authority.blocking_reasons[0]
+    assert authority.interpretation_context_lines

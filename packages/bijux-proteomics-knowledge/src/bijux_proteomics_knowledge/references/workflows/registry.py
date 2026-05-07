@@ -18,6 +18,9 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
+)
 
 
 class BenchmarkAuthorityStatus(StrEnum):
@@ -42,6 +45,9 @@ class BenchmarkAuthorityAssessment(JsonModel):
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     blocking_reasons: tuple[str, ...] = Field(default_factory=tuple)
     realism_limits: tuple[str, ...] = Field(default_factory=tuple)
+    interpretation_context_lines: tuple[str, ...] = Field(default_factory=tuple)
+    decision_grade_definition: str = Field(..., min_length=1)
+    decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class BenchmarkRegistryEntry(JsonModel):
@@ -71,6 +77,9 @@ class BenchmarkRegistryEntry(JsonModel):
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     realism_limits: tuple[str, ...] = Field(default_factory=tuple)
     blocking_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    interpretation_context_lines: tuple[str, ...] = Field(default_factory=tuple)
+    decision_grade_definition: str = Field(..., min_length=1)
+    decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class BenchmarkRegistryReport(JsonModel):
@@ -114,6 +123,7 @@ def assess_benchmark_authority(
     """Assess whether a benchmark may still back scientific release claims."""
 
     today = reviewed_on or date.today()
+    briefing = build_workflow_reference_briefing(manifest.workflow_family)
     age_days = max(0, (today - manifest.last_reviewed_on).days)
     blocking_reasons: list[str] = []
     authority_status = BenchmarkAuthorityStatus.ACTIVE
@@ -144,6 +154,14 @@ def assess_benchmark_authority(
         authorized_claim_scope=_authorized_scope_for_tier(manifest.evidence_tier),
         blocking_reasons=tuple(dict.fromkeys(blocking_reasons)),
         realism_limits=manifest.fixture_realism_limits,
+        interpretation_context_lines=briefing.interpretation_context_lines,
+        decision_grade_definition=(
+            briefing.decision_grade_framework.decision_grade_definition
+        ),
+        decision_grade_criteria=tuple(
+            criterion.summary
+            for criterion in briefing.decision_grade_framework.criteria
+        ),
     )
 
 
@@ -186,6 +204,9 @@ def build_benchmark_registry_entry(
         authorized_claim_scope=authority.authorized_claim_scope,
         realism_limits=authority.realism_limits,
         blocking_reasons=authority.blocking_reasons,
+        interpretation_context_lines=authority.interpretation_context_lines,
+        decision_grade_definition=authority.decision_grade_definition,
+        decision_grade_criteria=authority.decision_grade_criteria,
     )
 
 
