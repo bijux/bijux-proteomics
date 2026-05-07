@@ -4,11 +4,15 @@
 from __future__ import annotations
 
 from bijux_proteomics.study.qc_benchmarks import (
+    QcContaminationPropagationObservation,
     QcControlCoverageObservation,
     QcDecisionOutcomeObservation,
+    QcDriftObservation,
     QcPromotionBlockObservation,
+    build_qc_contamination_propagation_report,
     build_qc_control_coverage_report,
     build_qc_decision_validity_benchmark_report,
+    build_qc_drift_benchmark_report,
     build_qc_promotion_block_report,
 )
 
@@ -107,3 +111,58 @@ def test_build_qc_promotion_block_report_rejects_annotation_only_failures() -> N
     assert report.failed_qc_blocked_count == 1
     assert report.annotation_only_failure_count == 1
     assert report.ready_for_decision_promotion is False
+
+
+def test_build_qc_contamination_propagation_report_links_burden_to_consequence() -> (
+    None
+):
+    report = build_qc_contamination_propagation_report(
+        (
+            QcContaminationPropagationObservation(
+                run_id="run-a",
+                contaminant_psm_fraction=0.18,
+                identification_rate_drop_fraction=0.22,
+                quant_distortion_fraction=0.31,
+                interpretation_advisory_triggered=True,
+            ),
+            QcContaminationPropagationObservation(
+                run_id="run-b",
+                contaminant_psm_fraction=0.12,
+                identification_rate_drop_fraction=0.16,
+                quant_distortion_fraction=0.18,
+                interpretation_advisory_triggered=True,
+            ),
+        )
+    )
+
+    assert report.high_burden_count == 2
+    assert report.propagated_consequence_count == 2
+    assert report.unresolved_high_burden_count == 0
+    assert report.contamination_is_scientifically_material is True
+
+
+def test_build_qc_drift_benchmark_report_requires_dual_drift_blocking() -> None:
+    report = build_qc_drift_benchmark_report(
+        (
+            QcDriftObservation(
+                run_id="run-a",
+                batch_id="batch-1",
+                run_level_drift_score=1.2,
+                batch_level_drift_score=1.1,
+                promotion_blocked=True,
+            ),
+            QcDriftObservation(
+                run_id="run-b",
+                batch_id="batch-1",
+                run_level_drift_score=1.4,
+                batch_level_drift_score=1.3,
+                promotion_blocked=False,
+            ),
+        )
+    )
+
+    assert report.run_level_drift_count == 2
+    assert report.batch_level_drift_count == 2
+    assert report.dual_drift_count == 2
+    assert report.unblocked_dual_drift_count == 1
+    assert report.ready_for_cohort_interpretation is False

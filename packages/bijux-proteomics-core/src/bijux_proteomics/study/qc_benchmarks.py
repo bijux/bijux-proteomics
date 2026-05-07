@@ -95,6 +95,55 @@ class QcPromotionBlockReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class QcContaminationPropagationObservation(JsonModel):
+    """One run-level observation linking contamination burden to downstream consequence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
+    identification_rate_drop_fraction: float = Field(..., ge=0.0, le=1.0)
+    quant_distortion_fraction: float = Field(..., ge=0.0, le=1.0)
+    interpretation_advisory_triggered: bool
+
+
+class QcContaminationPropagationReport(JsonModel):
+    """Benchmark whether contamination burden propagates into scientific consequences."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    high_burden_count: int = Field(..., ge=0)
+    propagated_consequence_count: int = Field(..., ge=0)
+    unresolved_high_burden_count: int = Field(..., ge=0)
+    contamination_is_scientifically_material: bool
+    note: str = Field(..., min_length=1)
+
+
+class QcDriftObservation(JsonModel):
+    """One run-level and batch-level drift observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_id: str = Field(..., min_length=1)
+    batch_id: str = Field(..., min_length=1)
+    run_level_drift_score: float = Field(..., ge=0.0)
+    batch_level_drift_score: float = Field(..., ge=0.0)
+    promotion_blocked: bool
+
+
+class QcDriftBenchmarkReport(JsonModel):
+    """Benchmark simultaneous run-level and cohort-level drift pressure."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_level_drift_count: int = Field(..., ge=0)
+    batch_level_drift_count: int = Field(..., ge=0)
+    dual_drift_count: int = Field(..., ge=0)
+    unblocked_dual_drift_count: int = Field(..., ge=0)
+    ready_for_cohort_interpretation: bool
+    note: str = Field(..., min_length=1)
+
+
 def _fraction(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
@@ -205,5 +254,82 @@ def build_qc_promotion_block_report(
             "failed QC blocks downstream decision promotion rather than becoming annotation-only"
             if ready
             else "one or more failed-QC runs still slipped into decision promotion as annotation-only warnings"
+        ),
+    )
+
+
+def build_qc_contamination_propagation_report(
+    observations: tuple[QcContaminationPropagationObservation, ...],
+    *,
+    high_burden_threshold: float = 0.1,
+    identification_drop_threshold: float = 0.15,
+    quant_distortion_threshold: float = 0.2,
+) -> QcContaminationPropagationReport:
+    """Benchmark whether contamination burden changes identification, quant, and interpretation posture."""
+
+    high_burden_count = 0
+    propagated_consequence_count = 0
+    unresolved_high_burden_count = 0
+    for observation in observations:
+        high_burden = observation.contaminant_psm_fraction >= high_burden_threshold
+        propagated = (
+            observation.identification_rate_drop_fraction >= identification_drop_threshold
+            or observation.quant_distortion_fraction >= quant_distortion_threshold
+            or observation.interpretation_advisory_triggered
+        )
+        if high_burden:
+            high_burden_count += 1
+            if propagated:
+                propagated_consequence_count += 1
+            else:
+                unresolved_high_burden_count += 1
+    material = high_burden_count > 0 and unresolved_high_burden_count == 0
+    return QcContaminationPropagationReport(
+        high_burden_count=high_burden_count,
+        propagated_consequence_count=propagated_consequence_count,
+        unresolved_high_burden_count=unresolved_high_burden_count,
+        contamination_is_scientifically_material=material,
+        note=(
+            "contaminant burden propagates into identification, quantification, or interpretation posture instead of staying a cosmetic QC number"
+            if material
+            else "one or more high-contamination cases failed to change downstream scientific posture"
+        ),
+    )
+
+
+def build_qc_drift_benchmark_report(
+    observations: tuple[QcDriftObservation, ...],
+    *,
+    run_level_threshold: float = 1.0,
+    batch_level_threshold: float = 1.0,
+) -> QcDriftBenchmarkReport:
+    """Benchmark simultaneous run-level and batch-level drift pressure."""
+
+    run_level_drift_count = 0
+    batch_level_drift_count = 0
+    dual_drift_count = 0
+    unblocked_dual_drift_count = 0
+    for observation in observations:
+        run_drift = observation.run_level_drift_score >= run_level_threshold
+        batch_drift = observation.batch_level_drift_score >= batch_level_threshold
+        if run_drift:
+            run_level_drift_count += 1
+        if batch_drift:
+            batch_level_drift_count += 1
+        if run_drift and batch_drift:
+            dual_drift_count += 1
+            if not observation.promotion_blocked:
+                unblocked_dual_drift_count += 1
+    ready = dual_drift_count == 0 or unblocked_dual_drift_count == 0
+    return QcDriftBenchmarkReport(
+        run_level_drift_count=run_level_drift_count,
+        batch_level_drift_count=batch_level_drift_count,
+        dual_drift_count=dual_drift_count,
+        unblocked_dual_drift_count=unblocked_dual_drift_count,
+        ready_for_cohort_interpretation=ready,
+        note=(
+            "run-level and batch-level drift are jointly contained before cohort interpretation"
+            if ready
+            else "dual drift remains scientifically dangerous because at least one affected run still escaped promotion blocking"
         ),
     )
