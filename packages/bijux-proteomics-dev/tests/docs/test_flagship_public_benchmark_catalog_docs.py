@@ -40,3 +40,9 @@ def test_flagship_public_benchmark_catalog_doc_points_to_asset_root_handbook() -
     text = _read_doc()
 
     assert "Flagship Benchmark Assets" in text
+
+
+def test_flagship_public_benchmark_catalog_doc_keeps_multiplex_internal_support_explicit() -> None:
+    text = _read_doc()
+
+    assert "internal-support family" in text

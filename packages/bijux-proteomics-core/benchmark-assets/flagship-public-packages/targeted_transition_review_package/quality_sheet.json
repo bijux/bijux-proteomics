@@ -1,20 +1,20 @@
 {
-  "comparator_state": "public comparator-backed claim support is refused",
-  "current_readiness": "public_package_ready_import_runtime_and_comparator_blocked",
+  "comparator_state": "bounded Skyline-class comparator confrontation is shipped",
+  "current_readiness": "outsider_auditable_calibration_bounded",
   "exact_blockers": [
-    "runtime still stops at import-backed targeted review",
-    "no comparator-backed targeted claim support"
+    "vendor-parity and calibration-clean authority are still outside the current proof boundary",
+    "targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty"
   ],
   "exact_strengths": [
     "approved, failed, and refused targeted consequences are all public package artifacts",
     "transition-level QC remains the primary tracked evidence surface",
-    "runtime now preserves a reviewable import-only targeted path"
+    "the flagship runtime lane now executes the tracked targeted review package directly"
   ],
-  "lab_consequence_state": "lab packet family exists but current posture remains not worth the assay",
-  "note": "Targeted now has a real public package and import-backed runtime lane, but raw-executable and comparator closure still trail the package surface.",
+  "lab_consequence_state": "lab packet exists and remains exploratory-only",
+  "note": "Targeted package substance, runtime execution, and outsider review are real now, but calibration, interference, and vendor-parity limits still bound the authority it earns.",
   "package_id": "flagship_public_package:targeted_transition_review_package",
   "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
   "raw_identity_state": "transition QC and approved/failed/refused consequence packet snapshots are tracked",
-  "runtime_state": "reviewable import-only runtime lane exists",
+  "runtime_state": "reviewable raw-executable runtime lane exists",
   "workflow_family": "targeted"
 }

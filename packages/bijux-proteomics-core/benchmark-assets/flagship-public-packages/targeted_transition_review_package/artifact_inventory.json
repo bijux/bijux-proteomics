@@ -24,7 +24,7 @@
       "note": "The targeted artifact inventory keeps QC tables and approved/failed/refused follow-up packets together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "e19e7480dd39a459b6fa37e14a36312ec05d3393cf86863cd2ab81f568de0148",
+      "sha256": "1d670ecc550d233a38224f482888e3cd36effc78ed0bc5fc18c200da0aa310f5",
       "spectra_count": null
     },
     {

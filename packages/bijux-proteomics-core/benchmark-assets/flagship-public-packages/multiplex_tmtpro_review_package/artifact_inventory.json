@@ -24,7 +24,7 @@
       "note": "The multiplex artifact inventory keeps channel evidence, design metadata, and digest checks visible.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "28b47e6b0dace5ba552e979616f7b3af1713dce7655c25bdb60ae05138624a68",
+      "sha256": "c0ecfacfab9958b7a2db960c0fa56ca9f33f235a47dcdedbac19a39cab46921c",
       "spectra_count": null
     },
     {

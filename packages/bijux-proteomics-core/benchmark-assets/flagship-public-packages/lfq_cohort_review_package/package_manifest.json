@@ -3,7 +3,7 @@
   "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
   "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/citation_manifest.json",
   "claim_scope": "LFQ credibility is now anchored in a public cohort-style package with feature, design, and reproducibility surfaces instead of a tidy closed matrix story.",
-  "comparator_availability": "external comparator confrontation exists but decision-grade claim support is still refused",
+  "comparator_availability": "bounded external comparator confrontation is shipped",
   "expected_review_artifacts": [
     "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
     "artifacts/workflows/reviewable-proteomics/runtime/missingness_profile.json",
@@ -11,7 +11,7 @@
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
-  "note": "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-auditable LFQ authority still depends on stronger comparator and generalization closure.",
+  "note": "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but generalization beyond the current cohort package remains explicitly limited.",
   "package_id": "flagship_public_package:lfq_cohort_review_package",
   "package_label": "Flagship public LFQ cohort review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",

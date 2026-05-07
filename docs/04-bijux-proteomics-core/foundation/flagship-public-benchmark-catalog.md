@@ -73,6 +73,9 @@ it expose, and what authority still stays blocked?
 - comparator parity for every package
 - decision-grade scientific support across the whole catalog
 
+`multiplex` stays an internal-support family even though it already has a real
+public package and raw-executable runtime lane.
+
 ## First Proof Check
 
 - `packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_public_packages.py`

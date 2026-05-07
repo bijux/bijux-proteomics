@@ -982,7 +982,7 @@ def build_flagship_dia_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         public_dataset_identity=(
             "tracked Spectronaut-style and DIA-NN-style exported-result snapshots with explicit library-conditioned settings and confrontation scope"
         ),
-        runtime_availability="import_only runtime lane exists and remains library-conditioned",
+        runtime_availability="raw-executable runtime lane exists and remains library-conditioned",
         comparator_availability="Spectronaut-versus-DIA-NN confrontation is shipped",
         source_assets=_dia_assets(),
         expected_review_artifacts=(
@@ -1000,7 +1000,7 @@ def build_flagship_dia_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "DIA credibility is now anchored in a public package with paired exported-result surfaces, explicit library assumptions, and confrontation context instead of a hidden mini-study contract."
         ),
         note=(
-            "This package is real and inspectable, but it still stops at library-conditioned import review rather than chromatogram-level vendor parity."
+            "This package is real and inspectable, and the runtime lane now executes it directly, but its authority still stops at library-conditioned review rather than chromatogram-level vendor parity."
         ),
     )
 
@@ -1027,7 +1027,7 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "tracked study-scale feature and cohort-design snapshots with explicit missingness and repeatability boundaries"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
-        comparator_availability="external comparator confrontation exists but decision-grade claim support is still refused",
+        comparator_availability="bounded external comparator confrontation is shipped",
         source_assets=_lfq_assets(),
         expected_review_artifacts=(
             "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
@@ -1044,7 +1044,7 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "LFQ credibility is now anchored in a public cohort-style package with feature, design, and reproducibility surfaces instead of a tidy closed matrix story."
         ),
         note=(
-            "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-auditable LFQ authority still depends on stronger comparator and generalization closure."
+            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but generalization beyond the current cohort package remains explicitly limited."
         ),
     )
 
@@ -1071,7 +1071,7 @@ def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchma
             "tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
-        comparator_availability="external confrontation exists, but runtime-linked outsider proof is absent",
+        comparator_availability="external confrontation exists, but public authority is intentionally limited to internal support",
         source_assets=_multiplex_assets(),
         expected_review_artifacts=(
             "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
@@ -1087,7 +1087,7 @@ def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchma
             "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape."
         ),
         note=(
-            "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-facing multiplex consequence and trust closure still lag behind the chemistry surface."
+            "This package now has a product-owned asset root and a raw-executable runtime lane, but it remains an internal-support family until lab consequence and outsider review surfaces exist."
         ),
     )
 
@@ -1114,7 +1114,7 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "tracked localization, PTM feature, raw-spectrum, and sequence-context snapshots with explicit ambiguity limits"
         ),
         runtime_availability="raw-executable runtime lane exists and is reviewable",
-        comparator_availability="public comparator-backed claim support is still refused",
+        comparator_availability="bounded external comparator confrontation is shipped",
         source_assets=_ptm_assets(),
         expected_review_artifacts=(
             "artifacts/workflows/reviewable-proteomics/runtime/ptm_localization_report.json",
@@ -1131,7 +1131,7 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
             "PTM credibility is now anchored in a public localization review package with raw-spectrum and feature context instead of a hidden fixture-only contract."
         ),
         note=(
-            "This package now has a product-owned asset root and a raw-executable runtime lane, but comparator-backed and outsider-auditable PTM authority remain blocked."
+            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but ambiguity, occupancy, and lab-targeting limits remain in force."
         ),
     )
 
@@ -1157,8 +1157,8 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
         public_dataset_identity=(
             "tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots"
         ),
-        runtime_availability="import-only runtime lane exists and is reviewable",
-        comparator_availability="public comparator-backed claim support is still refused",
+        runtime_availability="raw-executable runtime lane exists and is reviewable",
+        comparator_availability="bounded Skyline-class comparator confrontation is shipped",
         source_assets=_targeted_assets(),
         expected_review_artifacts=(
             "artifacts/workflows/reviewable-proteomics/lab/follow_up_packet.json",
@@ -1174,7 +1174,7 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
             "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture."
         ),
         note=(
-            "This package now has a product-owned asset root and a reviewable import-only runtime lane, but raw-executable and comparator-backed targeted authority still trail the package surface."
+            "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but calibration, interference, and vendor-parity limits remain explicit."
         ),
     )
 
@@ -1248,19 +1248,20 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             workflow_family="dia",
             quality_path=_quality_path(_package_root("dia_library_review_package")),
             raw_identity_state="library-conditioned exported-result snapshots are tracked",
-            runtime_state="reviewable import-only runtime lane exists",
+            runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="Spectronaut-versus-DIA-NN confrontation is shipped",
             lab_consequence_state="lab packet exists but remains exploratory-only",
-            current_readiness="public_package_ready_but_library_conditioned",
+            current_readiness="outsider_auditable_library_conditioned_raw_execution",
             exact_strengths=(
                 "paired DIA exported-result surfaces make library assumptions inspectable",
                 "runtime and comparator identity are both visible from tracked files",
+                "the flagship runtime lane now executes the tracked DIA package directly",
             ),
             exact_blockers=(
                 "no chromatogram-level vendor parity",
                 "library incompleteness and absent-peptide consequences still block broader biological confidence",
             ),
-            note="DIA now has a real public package, but it still stops at library-conditioned import review.",
+            note="DIA now has a real public package and a raw-executable runtime lane, but its authority still stops at library-conditioned review.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:lfq_cohort_review_package",
@@ -1268,19 +1269,20 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             quality_path=_quality_path(_package_root("lfq_cohort_review_package")),
             raw_identity_state="study-scale cohort-like feature and design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
-            comparator_state="confrontation exists but release-facing claim support remains refused",
-            lab_consequence_state="current lab packet says not worth the assay",
-            current_readiness="public_package_and_runtime_ready_comparator_blocked",
+            comparator_state="bounded external confrontation is shipped",
+            lab_consequence_state="lab packet exists and remains exploratory-only",
+            current_readiness="outsider_auditable_but_generalization_bounded",
             exact_strengths=(
                 "cohort design and missingness evidence are public and inspectable",
                 "repeatability boundary is visible instead of implied",
                 "runtime now executes the tracked LFQ cohort review path",
+                "outsider review now survives with explicit advisory rather than refused comparator posture",
             ),
             exact_blockers=(
                 "no stronger public truth package for accuracy beyond repeatability",
-                "outsider-auditable LFQ authority still lacks stronger comparator and generalization closure",
+                "generalization beyond the current cohort package remains explicitly bounded",
             ),
-            note="LFQ package substance and runtime execution are both real now, but decision-grade outsider trust still remains behind them.",
+            note="LFQ package substance, runtime execution, and outsider review are all real now, but decision-grade and multi-cohort authority remain behind them.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:multiplex_tmtpro_review_package",
@@ -1288,9 +1290,9 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             quality_path=_quality_path(_package_root("multiplex_tmtpro_review_package")),
             raw_identity_state="TMTpro feature and channel-design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
-            comparator_state="external confrontation exists but outsider release proof is still thinner than DDA",
+            comparator_state="external confrontation exists but public authority stays internal-support only",
             lab_consequence_state="no multiplex lab consequence packet is shipped",
-            current_readiness="public_package_and_runtime_ready_lab_blocked",
+            current_readiness="internal_support_only_not_outsider_auditable",
             exact_strengths=(
                 "reporter-channel and pooled-reference roles are explicit in tracked files",
                 "ratio-compression and missing-channel pressure are public package concerns rather than hidden caveats",
@@ -1298,9 +1300,9 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             ),
             exact_blockers=(
                 "no multiplex lab packet or outsider review packet family",
-                "no explicit public outsider trust surface for multiplex yet",
+                "multiplex authority is intentionally kept out of the outsider-facing flagship set",
             ),
-            note="Multiplex now has a real public package and runtime lane, but downstream consequence and outsider trust layers still lag behind it.",
+            note="Multiplex has real package, runtime, and comparator substance, but it remains an internal-support family rather than an outsider-facing flagship family.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:ptm_localization_review_package",
@@ -1308,39 +1310,40 @@ def build_flagship_public_package_quality_sheets() -> tuple[
             quality_path=_quality_path(_package_root("ptm_localization_review_package")),
             raw_identity_state="localization, feature, raw-spectrum, and FASTA snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
-            comparator_state="public comparator-backed claim support is refused",
-            lab_consequence_state="current lab packet says not worth the assay",
-            current_readiness="public_package_and_runtime_ready_comparator_blocked",
+            comparator_state="bounded external confrontation is shipped",
+            lab_consequence_state="lab packet exists and remains exploratory-only",
+            current_readiness="outsider_auditable_ambiguity_bounded",
             exact_strengths=(
                 "localization ambiguity and raw-spectrum context are public",
                 "occupancy and targetability limits are inspectable from tracked files",
                 "runtime now executes the tracked PTM localization review path",
+                "outsider review now survives with advisory comparator posture and explicit ambiguity limits",
             ),
             exact_blockers=(
-                "no comparator-backed public claim support",
-                "outsider-auditable PTM authority still lacks stronger targetability and generalization closure",
+                "occupancy and regulatory interpretation still remain narrower than localization evidence",
+                "PTM follow-up remains exploratory and bounded by ambiguity-aware consequence planning",
             ),
-            note="PTM now has a real public package and runtime lane, but comparator and outsider-trust closure remain blocking gaps.",
+            note="PTM package substance, runtime execution, and outsider review are real now, but decision-grade PTM promotion remains blocked by ambiguity-aware consequence limits.",
         ),
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:targeted_transition_review_package",
             workflow_family="targeted",
             quality_path=_quality_path(_package_root("targeted_transition_review_package")),
             raw_identity_state="transition QC and approved/failed/refused consequence packet snapshots are tracked",
-            runtime_state="reviewable import-only runtime lane exists",
-            comparator_state="public comparator-backed claim support is refused",
-            lab_consequence_state="lab packet family exists but current posture remains not worth the assay",
-            current_readiness="public_package_ready_import_runtime_and_comparator_blocked",
+            runtime_state="reviewable raw-executable runtime lane exists",
+            comparator_state="bounded Skyline-class comparator confrontation is shipped",
+            lab_consequence_state="lab packet exists and remains exploratory-only",
+            current_readiness="outsider_auditable_calibration_bounded",
             exact_strengths=(
                 "approved, failed, and refused targeted consequences are all public package artifacts",
                 "transition-level QC remains the primary tracked evidence surface",
-                "runtime now preserves a reviewable import-only targeted path",
+                "the flagship runtime lane now executes the tracked targeted review package directly",
             ),
             exact_blockers=(
-                "runtime still stops at import-backed targeted review",
-                "no comparator-backed targeted claim support",
+                "vendor-parity and calibration-clean authority are still outside the current proof boundary",
+                "targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty",
             ),
-            note="Targeted now has a real public package and import-backed runtime lane, but raw-executable and comparator closure still trail the package surface.",
+            note="Targeted package substance, runtime execution, and outsider review are real now, but calibration, interference, and vendor-parity limits still bound the authority it earns.",
         ),
     )
 

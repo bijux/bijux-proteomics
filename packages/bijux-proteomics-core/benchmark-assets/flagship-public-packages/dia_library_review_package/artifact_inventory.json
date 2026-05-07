@@ -24,7 +24,7 @@
       "note": "The DIA artifact inventory keeps digests, row counts, and dependency edges explicit.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "41a8e03a0d01456d564b8d9e014652f953cb00f56e0e331be28e917e8d8a744a",
+      "sha256": "23b938320743141b4b0720e1a1575bd8ba32e25664e9c702985228581ac43c06",
       "spectra_count": null
     },
     {

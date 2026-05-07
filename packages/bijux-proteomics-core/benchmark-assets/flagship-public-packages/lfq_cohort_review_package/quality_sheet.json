@@ -1,17 +1,18 @@
 {
-  "comparator_state": "confrontation exists but release-facing claim support remains refused",
-  "current_readiness": "public_package_and_runtime_ready_comparator_blocked",
+  "comparator_state": "bounded external confrontation is shipped",
+  "current_readiness": "outsider_auditable_but_generalization_bounded",
   "exact_blockers": [
     "no stronger public truth package for accuracy beyond repeatability",
-    "outsider-auditable LFQ authority still lacks stronger comparator and generalization closure"
+    "generalization beyond the current cohort package remains explicitly bounded"
   ],
   "exact_strengths": [
     "cohort design and missingness evidence are public and inspectable",
     "repeatability boundary is visible instead of implied",
-    "runtime now executes the tracked LFQ cohort review path"
+    "runtime now executes the tracked LFQ cohort review path",
+    "outsider review now survives with explicit advisory rather than refused comparator posture"
   ],
-  "lab_consequence_state": "current lab packet says not worth the assay",
-  "note": "LFQ package substance and runtime execution are both real now, but decision-grade outsider trust still remains behind them.",
+  "lab_consequence_state": "lab packet exists and remains exploratory-only",
+  "note": "LFQ package substance, runtime execution, and outsider review are all real now, but decision-grade and multi-cohort authority remain behind them.",
   "package_id": "flagship_public_package:lfq_cohort_review_package",
   "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
   "raw_identity_state": "study-scale cohort-like feature and design snapshots are tracked",

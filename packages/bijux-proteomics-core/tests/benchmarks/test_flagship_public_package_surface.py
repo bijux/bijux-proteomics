@@ -145,14 +145,11 @@ def test_public_package_quality_sheets_name_exact_strengths_and_blockers() -> No
 
     assert len(sheets) == 6
     assert sheets["dda"].current_readiness == "outsider_auditable_but_not_live_rerun_parity"
-    assert sheets["dia"].runtime_state == "reviewable import-only runtime lane exists"
+    assert sheets["dia"].runtime_state == "reviewable raw-executable runtime lane exists"
     assert sheets["lfq"].runtime_state == "reviewable raw-executable runtime lane exists"
     assert sheets["multiplex"].lab_consequence_state == "no multiplex lab consequence packet is shipped"
-    assert sheets["ptm"].comparator_state == "public comparator-backed claim support is refused"
-    assert (
-        sheets["targeted"].current_readiness
-        == "public_package_ready_import_runtime_and_comparator_blocked"
-    )
+    assert sheets["ptm"].comparator_state == "bounded external confrontation is shipped"
+    assert sheets["targeted"].current_readiness == "outsider_auditable_calibration_bounded"
 
 
 def test_public_package_lifecycle_records_keep_refresh_and_retirement_visible() -> None:

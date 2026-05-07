@@ -24,7 +24,7 @@
       "note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "2868d07c5a7f0c6c2ffa8dc7fd957086553ca7425c1b286ad4ed9c062b9f7657",
+      "sha256": "8882ebdfab86171eb65b2e43d6f439f5b9c4379fa04a8ed17116a4453ba16e83",
       "spectra_count": null
     },
     {

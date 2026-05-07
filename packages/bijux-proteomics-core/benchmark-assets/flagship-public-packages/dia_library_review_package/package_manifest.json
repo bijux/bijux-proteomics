@@ -11,7 +11,7 @@
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
-  "note": "This package is real and inspectable, but it still stops at library-conditioned import review rather than chromatogram-level vendor parity.",
+  "note": "This package is real and inspectable, and the runtime lane now executes it directly, but its authority still stops at library-conditioned review rather than chromatogram-level vendor parity.",
   "package_id": "flagship_public_package:dia_library_review_package",
   "package_label": "Flagship public DIA library review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package",
@@ -19,7 +19,7 @@
   "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
   "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/rebuild_instructions.md",
   "replaced_proof_surface": "curated_fixture_bundle:dia_library_extraction_bundle",
-  "runtime_availability": "import_only runtime lane exists and remains library-conditioned",
+  "runtime_availability": "raw-executable runtime lane exists and remains library-conditioned",
   "scientific_pressures": [
     "library incompleteness",
     "transition semantics drift",

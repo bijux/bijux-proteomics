@@ -24,7 +24,7 @@
       "note": "The PTM artifact inventory keeps localization, occupancy, raw-spectrum, and FASTA context visible together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "8b8f66f60caa7083aa164c41ea5a1bc8ab461d1d2e834226c9978c7bf52de8fd",
+      "sha256": "655b3afeb2e62bfccc8fd3f6a6e575fb9a8bdae2496bc717711003a8c5f3020b",
       "spectra_count": null
     },
     {

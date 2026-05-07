@@ -3,14 +3,14 @@
   "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
   "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/citation_manifest.json",
   "claim_scope": "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape.",
-  "comparator_availability": "external confrontation exists, but runtime-linked outsider proof is absent",
+  "comparator_availability": "external confrontation exists, but public authority is intentionally limited to internal support",
   "expected_review_artifacts": [
     "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
     "artifacts/workflows/reviewable-proteomics/core/quant_review_packet.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
-  "note": "This package now has a product-owned asset root and a raw-executable runtime lane, but outsider-facing multiplex consequence and trust closure still lag behind the chemistry surface.",
+  "note": "This package now has a product-owned asset root and a raw-executable runtime lane, but it remains an internal-support family until lab consequence and outsider review surfaces exist.",
   "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
   "package_label": "Flagship public multiplex TMTpro review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",

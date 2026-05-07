@@ -3,14 +3,14 @@
   "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
   "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
   "claim_scope": "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture.",
-  "comparator_availability": "public comparator-backed claim support is still refused",
+  "comparator_availability": "bounded Skyline-class comparator confrontation is shipped",
   "expected_review_artifacts": [
     "artifacts/workflows/reviewable-proteomics/lab/follow_up_packet.json",
     "artifacts/workflows/reviewable-proteomics/core/targeted_qc_review.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
-  "note": "This package now has a product-owned asset root and a reviewable import-only runtime lane, but raw-executable and comparator-backed targeted authority still trail the package surface.",
+  "note": "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but calibration, interference, and vendor-parity limits remain explicit.",
   "package_id": "flagship_public_package:targeted_transition_review_package",
   "package_label": "Flagship public targeted transition review package",
   "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package",
@@ -18,7 +18,7 @@
   "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
   "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
   "replaced_proof_surface": "closed_fixture_bundle:targeted_transition_control_bundle",
-  "runtime_availability": "import-only runtime lane exists and is reviewable",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
   "scientific_pressures": [
     "transition reproducibility",
     "calibration absence",

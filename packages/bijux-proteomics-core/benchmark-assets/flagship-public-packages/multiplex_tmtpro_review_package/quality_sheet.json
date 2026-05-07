@@ -1,9 +1,9 @@
 {
-  "comparator_state": "external confrontation exists but outsider release proof is still thinner than DDA",
-  "current_readiness": "public_package_and_runtime_ready_lab_blocked",
+  "comparator_state": "external confrontation exists but public authority stays internal-support only",
+  "current_readiness": "internal_support_only_not_outsider_auditable",
   "exact_blockers": [
     "no multiplex lab packet or outsider review packet family",
-    "no explicit public outsider trust surface for multiplex yet"
+    "multiplex authority is intentionally kept out of the outsider-facing flagship set"
   ],
   "exact_strengths": [
     "reporter-channel and pooled-reference roles are explicit in tracked files",
@@ -11,7 +11,7 @@
     "runtime now executes the tracked multiplex review path"
   ],
   "lab_consequence_state": "no multiplex lab consequence packet is shipped",
-  "note": "Multiplex now has a real public package and runtime lane, but downstream consequence and outsider trust layers still lag behind it.",
+  "note": "Multiplex has real package, runtime, and comparator substance, but it remains an internal-support family rather than an outsider-facing flagship family.",
   "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
   "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
   "raw_identity_state": "TMTpro feature and channel-design snapshots are tracked",
