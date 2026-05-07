@@ -9,6 +9,7 @@ from importlib import import_module
 from typing import Any
 
 _JUDGMENT_MODULES = (
+    "bijux_proteomics_intelligence.judgment.benchmark_decisions",
     "bijux_proteomics_intelligence.judgment.canonical_reviews",
     "bijux_proteomics_intelligence.judgment.paths",
     "bijux_proteomics_intelligence.judgment.policies",
