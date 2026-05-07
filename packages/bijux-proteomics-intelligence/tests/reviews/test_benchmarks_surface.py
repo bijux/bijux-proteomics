@@ -57,6 +57,9 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
     )
     assert review.supported_repo_claims
     assert review.ready_for_release_review is True
+    assert review.curated_reference_context
+    assert review.decision_grade_criteria
+    assert review.minimum_controls_required
     assert "bijux-proteomics-intelligence: benchmark_reviews" in review.owner_surfaces
     assert any(
         claim.claim_id == "target_decoy_semantics"
@@ -111,6 +114,7 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert interpretation_claim.support_state is SupportState.ADVISORY
     assert "partial DIA support means" in interpretation_claim.scientific_limits[0]
     assert "biological-interpretation tiers" in review.reviewer_summary
+    assert review.reviewer_grounding_state.value == "review_grade"
 
 
 def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
@@ -145,6 +149,8 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
     assert "ambiguity" in review.reviewer_summary
     assert review.supported_ptm_families == ("acetylation", "ubiquitin_remnant")
     assert any(track.family_name == "glyco_adjacent" for track in review.ptm_family_tracks)
+    assert review.curated_reference_context
+    assert review.decision_grade_criteria
 
 
 def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() -> None:
@@ -185,6 +191,7 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert decision_boundary_claim.evidence_refs
     assert review.external_reviewer_bundle.evidence_pointer_ids
     assert "missingness" in review.reviewer_summary
+    assert review.reviewer_grounding_state.value == "thin"
 
 
 def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> None:
@@ -227,6 +234,7 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
     assert "missing-channel" in review.reviewer_summary
     assert review.vendor_caveat_ledger is not None
     assert review.vendor_caveat_ledger.vendor_support_state is SupportState.ADVISORY
+    assert review.reviewer_grounding_state.value == "thin"
 
 
 def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible() -> (
@@ -262,4 +270,21 @@ def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible
     assert vendor_claim.scientific_limits
     assert platform_claim.support_state is SupportState.ADVISORY
     assert "partial targeted support means" in platform_claim.scientific_limits[0]
+    raw_to_reviewed_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "raw_to_reviewed_bundle"
+    )
+    assert raw_to_reviewed_claim.support_state is SupportState.ADVISORY
+    assert review.minimum_controls_required == (
+        "blank",
+        "heavy_reference",
+        "calibration_standard",
+    )
+    assert review.reviewer_grounding_state.value == "thin"
+    assert any(
+        artifact.artifact_kind == "targeted_raw_to_reviewed_bundle_report"
+        for artifact in review.review_artifacts
+    )
     assert "Skyline or vendor execution parity" in review.reviewer_summary
+    assert "biological grounding remains thin" in review.reviewer_summary

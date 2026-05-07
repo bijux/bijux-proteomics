@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -16,9 +17,12 @@ from bijux_proteomics.dia import (
 )
 from bijux_proteomics.dia.benchmarks import (
     TargetedCalibrationStandardObservation,
+    TargetedHandoffHonestyObservation,
     TargetedHeavyLightPairObservation,
+    TargetedOutcomeReconciliationObservation,
     WorkflowScientificSupportTier,
     build_dia_workflow_scientific_support_report,
+    build_targeted_raw_to_reviewed_bundle_report,
     build_targeted_workflow_benchmark_report,
 )
 from bijux_proteomics.identification import build_review_ready_evidence_bundle
@@ -72,11 +76,17 @@ from bijux_proteomics.study.laboratory_plans import (
     build_targeted_platform_support_matrix,
     evaluate_targeted_workflow_boundary,
 )
+from bijux_proteomics.study.qc_benchmarks import (
+    build_workflow_minimum_control_report,
+)
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
 from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
 )
 from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
     ComparatorClaimSupportState,
@@ -162,6 +172,14 @@ class PtmFamilyReleaseTrack(JsonModel):
     scientific_limits: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class ReviewerGroundingState(StrEnum):
+    """How strong the biological grounding is in a release-facing review summary."""
+
+    DECISION_GRADE = "decision_grade"
+    REVIEW_GRADE = "review_grade"
+    THIN = "thin"
+
+
 class WorkflowBenchmarkReview(JsonModel):
     """Release-facing review output for one benchmark-backed workflow path."""
 
@@ -183,6 +201,11 @@ class WorkflowBenchmarkReview(JsonModel):
     comparator_failure_summaries: tuple[str, ...] = Field(default_factory=tuple)
     improvement_targets: tuple[str, ...] = Field(default_factory=tuple)
     known_loss_to_established_tool: bool = False
+    reviewer_grounding_state: ReviewerGroundingState
+    reviewer_grounding_limits: tuple[str, ...] = Field(default_factory=tuple)
+    curated_reference_context: tuple[str, ...] = Field(default_factory=tuple)
+    decision_grade_criteria: tuple[str, ...] = Field(default_factory=tuple)
+    minimum_controls_required: tuple[str, ...] = Field(default_factory=tuple)
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
@@ -310,6 +333,69 @@ def _build_vendor_caveat_ledger(
     )
 
 
+def _workflow_minimum_controls(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> tuple[str, ...]:
+    report = build_workflow_minimum_control_report()
+    entry = next(
+        item
+        for item in report.entries
+        if item.workflow_family == workflow_family.value
+    )
+    return entry.minimum_controls
+
+
+def _build_grounding_payload(
+    *,
+    workflow_family: KnowledgeWorkflowFamily,
+    benchmark_manifest: BenchmarkManifest,
+    public_claim_support_state: ComparatorClaimSupportState,
+) -> tuple[
+    ReviewerGroundingState,
+    tuple[str, ...],
+    tuple[str, ...],
+    tuple[str, ...],
+]:
+    briefing = build_workflow_reference_briefing(workflow_family)
+    criteria = tuple(
+        criterion.summary for criterion in briefing.decision_grade_framework.criteria
+    )
+    limits = tuple(
+        dict.fromkeys(
+            (
+                *briefing.scope_limit_notes[:2],
+                briefing.decision_grade_framework.decision_grade_definition,
+            )
+        )
+    )
+    if (
+        public_claim_support_state is ComparatorClaimSupportState.SUPPORTED
+        and benchmark_manifest.evidence_tier.value
+        in {"public_truth_set", "external_reproduction_package"}
+    ):
+        grounding_state = ReviewerGroundingState.DECISION_GRADE
+    elif public_claim_support_state is ComparatorClaimSupportState.REFUSED:
+        grounding_state = ReviewerGroundingState.THIN
+    else:
+        grounding_state = ReviewerGroundingState.REVIEW_GRADE
+    return (
+        grounding_state,
+        limits,
+        briefing.interpretation_context_lines,
+        criteria,
+    )
+
+
+def _grounding_summary_phrase(
+    grounding_state: ReviewerGroundingState,
+) -> str:
+    if grounding_state is ReviewerGroundingState.DECISION_GRADE:
+        return "biological grounding is strong enough to defend decision-grade review scope."
+    if grounding_state is ReviewerGroundingState.REVIEW_GRADE:
+        return "biological grounding stays review-grade and explicitly bounded by benchmark and literature scope."
+    return "biological grounding remains thin and cannot be hidden behind tidy benchmark prose."
+
+
 def build_dda_benchmark_review(
     *,
     benchmark_manifest: BenchmarkManifest | None = None,
@@ -388,6 +474,26 @@ def build_dda_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -411,7 +517,8 @@ def build_dda_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "DDA benchmark review preserves external-engine normalization, target-decoy posture, "
-            "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun."
+            "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun; "
+            f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -423,6 +530,11 @@ def build_dda_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -604,6 +716,16 @@ def build_dia_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -641,7 +763,8 @@ def build_dia_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "DIA benchmark review turns a checked-in Spectronaut-style export into a reviewable "
-            "bundle with separate import, transition, protein, and biological-interpretation tiers rather than presenting adapter coverage as full pipeline parity."
+            "bundle with separate import, transition, protein, and biological-interpretation tiers rather than presenting adapter coverage as full pipeline parity; "
+            f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -653,6 +776,11 @@ def build_dia_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -848,6 +976,16 @@ def build_ptm_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -889,7 +1027,7 @@ def build_ptm_benchmark_review(
         reviewer_summary=(
             "PTM benchmark review turns checked-in localization evidence into a phospho review packet "
             f"while preserving explicit ambiguity and motif-scope limits, naming supported PTM families ({supported_family_summary}), "
-            f"and refusing unsupported carryover ({refused_family_summary})."
+            f"and refusing unsupported carryover ({refused_family_summary}); {_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -901,6 +1039,11 @@ def build_ptm_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1027,6 +1170,16 @@ def build_lfq_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     external_bundle = _build_external_bundle(
         bundle_id=f"{manifest.benchmark_id}:external_review",
         workflow_family=manifest.workflow_family,
@@ -1050,7 +1203,8 @@ def build_lfq_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "LFQ benchmark review turns checked-in feature evidence into a reviewable quant bundle "
-            "with missingness, QC, rollup limits, and decision-grade boundaries kept explicit."
+            "with missingness, QC, rollup limits, and decision-grade boundaries kept explicit; "
+            f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -1062,6 +1216,11 @@ def build_lfq_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1169,6 +1328,40 @@ def build_targeted_benchmark_review(
         )
     )
     platform_entry = platform_support.entries[0]
+    targeted_bundle = build_targeted_raw_to_reviewed_bundle_report(
+        chromatogram_failed_metric_rows=qc_report.failed_metric_rows,
+        benchmark_report=benchmark,
+        handoff_observations=(
+            TargetedHandoffHonestyObservation(
+                handoff_id="supported_targeted_follow_up",
+                claimed_transition_ready=True,
+                calibration_failures_visible=True,
+                interference_failures_visible=True,
+                control_gaps_visible=True,
+            ),
+            TargetedHandoffHonestyObservation(
+                handoff_id="failed_targeted_transition_follow_up",
+                claimed_transition_ready=True,
+                calibration_failures_visible=False,
+                interference_failures_visible=True,
+                control_gaps_visible=False,
+            ),
+        ),
+        outcome_observations=(
+            TargetedOutcomeReconciliationObservation(
+                handoff_id="supported_targeted_follow_up",
+                observed_transition_failure=False,
+                reconciliation_recorded=True,
+                corrective_action_visible=True,
+            ),
+            TargetedOutcomeReconciliationObservation(
+                handoff_id="failed_targeted_transition_follow_up",
+                observed_transition_failure=True,
+                reconciliation_recorded=True,
+                corrective_action_visible=True,
+            ),
+        ),
+    )
 
     claim_summaries = (
         BenchmarkReviewClaim(
@@ -1200,6 +1393,23 @@ def build_targeted_benchmark_review(
             ),
             scientific_limits=(
                 "targeted support weakens when calibration drifts, heavy/light pairs are incomplete, or interference rises",
+            ),
+        ),
+        BenchmarkReviewClaim(
+            claim_id="raw_to_reviewed_bundle",
+            support_state=(
+                SupportState.SUPPORTED
+                if targeted_bundle.ready_for_reviewed_handoff
+                else SupportState.ADVISORY
+            ),
+            summary="targeted review links chromatogram QC, handoff honesty, and observed outcome reconciliation instead of stopping at tidy assay packets",
+            evidence_refs=(
+                f"honest_handoffs={targeted_bundle.honest_handoff_count}",
+                f"inflated_handoffs={targeted_bundle.inflated_handoff_count}",
+                f"unreconciled_outcomes={targeted_bundle.unreconciled_outcome_count}",
+            ),
+            scientific_limits=(
+                targeted_bundle.note,
             ),
         ),
         BenchmarkReviewClaim(
@@ -1246,6 +1456,16 @@ def build_targeted_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -1268,11 +1488,13 @@ def build_targeted_benchmark_review(
             "Core owns targeted calibration, pairing, and transition-interference benchmark logic.",
             "Intelligence owns the release-facing targeted review summary and vendor caveat discipline.",
             "This benchmark does not claim live Skyline or vendor execution parity.",
+            "Handoff honesty and observed outcome reconciliation are part of the targeted review bundle.",
         ),
         scientific_limits=scientific_limits,
         hash_entries=(
             artifact_id,
             fingerprint_model(qc_report),
+            fingerprint_model(targeted_bundle),
         ),
     )
     return WorkflowBenchmarkReview(
@@ -1283,7 +1505,8 @@ def build_targeted_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "Targeted benchmark review keeps chromatogram QC, calibration standards, heavy/light pairing, transition interference, "
-            "platform assumption scope, and Skyline or vendor execution parity caveats visible instead of inflating the workflow into strong vendor parity."
+            "platform assumption scope, raw-to-reviewed handoff reconciliation, and Skyline or vendor execution parity caveats visible instead of inflating the workflow into strong vendor parity; "
+            f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -1295,6 +1518,11 @@ def build_targeted_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -1314,6 +1542,12 @@ def build_targeted_benchmark_review(
                 surface_name="parse_chromatogram_qc_table",
                 artifact_kind="chromatogram_qc_ingestion_report",
                 artifact_id=fingerprint_model(qc_report),
+            ),
+            BenchmarkReviewArtifact(
+                owner_package="bijux-proteomics-core",
+                surface_name="build_targeted_raw_to_reviewed_bundle_report",
+                artifact_kind="targeted_raw_to_reviewed_bundle_report",
+                artifact_id=fingerprint_model(targeted_bundle),
             ),
         ),
         claim_summaries=claim_summaries,
@@ -1495,6 +1729,16 @@ def build_multiplex_benchmark_review(
         improvement_targets,
         known_loss_to_established_tool,
     ) = _build_public_claim_posture(manifest.benchmark_id)
+    (
+        reviewer_grounding_state,
+        reviewer_grounding_limits,
+        curated_reference_context,
+        decision_grade_criteria,
+    ) = _build_grounding_payload(
+        workflow_family=manifest.workflow_family,
+        benchmark_manifest=manifest,
+        public_claim_support_state=public_claim_support_state,
+    )
     vendor_caveats = _build_vendor_caveat_ledger(
         (
             WorkflowVendorCaveatEntry(
@@ -1532,7 +1776,8 @@ def build_multiplex_benchmark_review(
         title=manifest.title,
         reviewer_summary=(
             "Multiplex benchmark review turns checked-in reporter evidence into a reviewable "
-            "channel manifest with explicit missing-channel, imbalance, chemistry caveats, and decision-grade boundaries."
+            "channel manifest with explicit missing-channel, imbalance, chemistry caveats, and decision-grade boundaries; "
+            f"{_grounding_summary_phrase(reviewer_grounding_state)}"
         ),
         benchmark_package_id=registry_entry.benchmark_package_id,
         benchmark_package_summary=registry_entry.benchmark_package_summary,
@@ -1544,6 +1789,11 @@ def build_multiplex_benchmark_review(
         comparator_failure_summaries=comparator_failure_summaries,
         improvement_targets=improvement_targets,
         known_loss_to_established_tool=known_loss_to_established_tool,
+        reviewer_grounding_state=reviewer_grounding_state,
+        reviewer_grounding_limits=reviewer_grounding_limits,
+        curated_reference_context=curated_reference_context,
+        decision_grade_criteria=decision_grade_criteria,
+        minimum_controls_required=_workflow_minimum_controls(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
