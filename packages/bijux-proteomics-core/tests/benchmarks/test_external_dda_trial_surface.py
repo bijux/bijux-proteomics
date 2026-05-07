@@ -15,7 +15,7 @@ def test_build_external_strong_user_dda_trial_report_tracks_precise_issues() -> 
         ExternalDdaTrialInput(
             trial_id="trial-dda-01",
             external_user_id="ext-user-a",
-            dataset_id="dda-mini-01",
+            dataset_id="public_benchmark_package:dda_reviewable_run",
             executed_steps=("dda-import", "qc", "evidence", "review"),
             issues=(
                 TrialIssueEntry(
