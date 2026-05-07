@@ -10,10 +10,6 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.quantification.readiness import (
-    QuantDecisionReadinessReport,
-    build_quant_decision_readiness_report,
-)
 from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
@@ -26,6 +22,7 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
+    apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_based_quant_bundle,
@@ -37,6 +34,10 @@ from bijux_proteomics.quantification import (
     build_replicate_correlation_report,
     normalize_label_free_table,
     summarize_missing_values,
+)
+from bijux_proteomics.quantification.readiness import (
+    QuantDecisionReadinessReport,
+    build_quant_decision_readiness_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -551,6 +552,35 @@ class DifferentialAbundanceDesignValidationReport(JsonModel):
     issues: tuple[DifferentialAbundanceDesignIssue, ...] = Field(default_factory=tuple)
 
 
+class MultipleTestingScopeBenchmarkStatus(StrEnum):
+    """Support posture for one multiple-testing scope benchmark."""
+
+    REFUSED = "refused"
+    SUPPORTED = "supported"
+
+
+class MultipleTestingScopeBenchmarkEntry(JsonModel):
+    """Strict benchmark result for one multiple-testing scope."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scope: str = Field(..., min_length=1)
+    status: MultipleTestingScopeBenchmarkStatus
+    adjusted_p_values_complete: bool
+    adjusted_p_values_monotonic: bool
+    evidence_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+class MultipleTestingScopeBenchmarkReport(JsonModel):
+    """Benchmark report over supported and refused multiple-testing scopes."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[MultipleTestingScopeBenchmarkEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 def validate_differential_abundance_design_context(
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
@@ -668,6 +698,78 @@ def validate_differential_abundance_design_context(
         condition_replicates=condition_replicates,
         issues=tuple(issues),
     )
+
+
+def build_multiple_testing_scope_benchmark_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    condition_a: str,
+    condition_b: str,
+    scopes: tuple[str, ...] = (
+        "global_per_analysis",
+        "per_contrast",
+        "hierarchical",
+    ),
+) -> MultipleTestingScopeBenchmarkReport:
+    """Benchmark which multiple-testing scopes are actually supported today."""
+    entries: list[MultipleTestingScopeBenchmarkEntry] = []
+    da_report = build_differential_abundance_report(
+        table,
+        design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+    )
+    bh_report = apply_benjamini_hochberg(da_report)
+    adjusted_values = [
+        entry.adjusted_p_value for entry in bh_report.entries if entry.adjusted_p_value is not None
+    ]
+    monotonic = all(
+        left <= right
+        for left, right in zip(adjusted_values, adjusted_values[1:], strict=False)
+    )
+    for scope in scopes:
+        validation = validate_differential_abundance_design_context(
+            design_entries,
+            contrasts=((condition_a, condition_b),),
+            multiple_testing_scope=scope,
+        )
+        if scope == "hierarchical":
+            entries.append(
+                MultipleTestingScopeBenchmarkEntry(
+                    scope=scope,
+                    status=MultipleTestingScopeBenchmarkStatus.REFUSED,
+                    adjusted_p_values_complete=False,
+                    adjusted_p_values_monotonic=False,
+                    evidence_count=len(bh_report.entries),
+                    note="hierarchical multiple-testing support is still refused because no hierarchical correction engine is implemented",
+                )
+            )
+            continue
+        entries.append(
+            MultipleTestingScopeBenchmarkEntry(
+                scope=scope,
+                status=(
+                    MultipleTestingScopeBenchmarkStatus.SUPPORTED
+                    if validation.valid
+                    else MultipleTestingScopeBenchmarkStatus.REFUSED
+                ),
+                adjusted_p_values_complete=all(
+                    entry.adjusted_p_value is not None for entry in bh_report.entries
+                ),
+                adjusted_p_values_monotonic=monotonic,
+                evidence_count=len(bh_report.entries),
+                note=(
+                    "benjamini-hochberg-corrected report remains complete and monotonic under the current one-contrast benchmark surface"
+                    if validation.valid
+                    else "design validation failed before a supported multiple-testing benchmark could be claimed"
+                ),
+            )
+        )
+    note = (
+        "multiple-testing benchmark distinguishes supported report-wide correction from explicitly refused hierarchical scope"
+    )
+    return MultipleTestingScopeBenchmarkReport(entries=tuple(entries), note=note)
 
 
 class EffectSizeFirstDaEntry(JsonModel):
