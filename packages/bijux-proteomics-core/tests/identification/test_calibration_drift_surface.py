@@ -4,9 +4,11 @@
 from __future__ import annotations
 
 from bijux_proteomics.identification import (
+    CalibrationReleaseAlertSeverity,
     PsmRecord,
     TargetDecoyLabel,
     build_calibration_drift_report,
+    build_calibration_release_gate_report,
 )
 
 
@@ -116,6 +118,7 @@ def test_calibration_drift_report_flags_stable_counts_with_worse_decoy_pressure(
     assert report.acceptance.previous_accepted_count == 2
     assert report.acceptance.current_accepted_count == 2
     assert report.acceptance.accepted_decoy_fraction_delta > 0.0
+    assert report.top_fraction_decoy_delta > 0.0
     assert report.calibration_regression_detected is True
     assert any(
         "accepted record counts stayed stable" in reason
@@ -135,4 +138,22 @@ def test_calibration_drift_report_stays_quiet_when_snapshots_match() -> None:
 
     assert report.distribution_shift_score == 0.0
     assert report.acceptance.accepted_decoy_fraction_delta == 0.0
+    assert report.top_fraction_decoy_delta == 0.0
     assert report.calibration_regression_detected is False
+
+
+def test_calibration_release_gate_blocks_flagship_regressions() -> None:
+    drift = build_calibration_drift_report(
+        _previous_records(),
+        _current_records(),
+        score_orientation="higher_better",
+        bin_count=4,
+        top_fraction=0.5,
+        accepted_q_value_threshold=0.01,
+    )
+
+    gate = build_calibration_release_gate_report((("dda-flagship", drift),))
+
+    assert gate.release_blocked is True
+    assert len(gate.alerts) == 1
+    assert gate.alerts[0].severity is CalibrationReleaseAlertSeverity.BLOCKING

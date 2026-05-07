@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
@@ -83,8 +85,39 @@ class CalibrationDriftReport(JsonModel):
     bin_deltas: tuple[CalibrationDriftBinDelta, ...] = Field(default_factory=tuple)
     acceptance: CalibrationAcceptanceComparison
     distribution_shift_score: float = Field(..., ge=0.0)
+    top_fraction_decoy_delta: float
     calibration_regression_detected: bool
     regression_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class CalibrationReleaseAlertSeverity(StrEnum):
+    """Severity for release-facing calibration alerts."""
+
+    BLOCKING = "blocking"
+    WARNING = "warning"
+
+
+class CalibrationReleaseAlert(JsonModel):
+    """One release-facing alert derived from a calibration drift report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_label: str = Field(..., min_length=1)
+    severity: CalibrationReleaseAlertSeverity
+    distribution_shift_score: float = Field(..., ge=0.0)
+    accepted_decoy_fraction_delta: float
+    top_fraction_decoy_delta: float
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class CalibrationReleaseGateReport(JsonModel):
+    """Release gate over one or more flagship calibration drift reports."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    alerts: tuple[CalibrationReleaseAlert, ...] = Field(default_factory=tuple)
+    release_blocked: bool
     note: str = Field(..., min_length=1)
 
 
@@ -94,7 +127,9 @@ def _accepted_records(
     accepted_q_value_threshold: float,
 ) -> tuple[PsmRecord, ...]:
     return tuple(
-        record for record in records if record.q_value <= accepted_q_value_threshold
+        record
+        for record in records
+        if record.q_value is not None and record.q_value <= accepted_q_value_threshold
     )
 
 
@@ -279,8 +314,58 @@ def build_calibration_drift_report(
         bin_deltas=bin_deltas,
         acceptance=acceptance,
         distribution_shift_score=distribution_shift_score,
+        top_fraction_decoy_delta=top_fraction_decoy_delta,
         calibration_regression_detected=calibration_regression_detected,
         regression_reasons=tuple(regression_reasons),
+        note=note,
+    )
+
+
+def build_calibration_release_gate_report(
+    reports: tuple[tuple[str, CalibrationDriftReport], ...],
+    *,
+    blocking_distribution_shift: float = 0.1,
+    blocking_decoy_fraction_delta: float = 0.05,
+) -> CalibrationReleaseGateReport:
+    """Turn calibration drift into explicit release-blocking or warning alerts."""
+    alerts: list[CalibrationReleaseAlert] = []
+    for workflow_label, report in reports:
+        if not report.calibration_regression_detected:
+            continue
+        severity = (
+            CalibrationReleaseAlertSeverity.BLOCKING
+            if (
+                report.distribution_shift_score > blocking_distribution_shift
+                or report.acceptance.accepted_decoy_fraction_delta
+                > blocking_decoy_fraction_delta
+            )
+            else CalibrationReleaseAlertSeverity.WARNING
+        )
+        alerts.append(
+            CalibrationReleaseAlert(
+                workflow_label=workflow_label,
+                severity=severity,
+                distribution_shift_score=report.distribution_shift_score,
+                accepted_decoy_fraction_delta=(
+                    report.acceptance.accepted_decoy_fraction_delta
+                ),
+                top_fraction_decoy_delta=report.top_fraction_decoy_delta,
+                reasons=report.regression_reasons,
+            )
+        )
+    release_blocked = any(
+        alert.severity is CalibrationReleaseAlertSeverity.BLOCKING for alert in alerts
+    )
+    note = (
+        "release is blocked because one or more flagship calibration reports exceeded justified drift tolerances"
+        if release_blocked
+        else "release gate recorded calibration warnings only"
+        if alerts
+        else "release gate found no calibration drift alerts"
+    )
+    return CalibrationReleaseGateReport(
+        alerts=tuple(alerts),
+        release_blocked=release_blocked,
         note=note,
     )
 
@@ -288,8 +373,12 @@ def build_calibration_drift_report(
 __all__ = [
     "CalibrationAcceptanceComparison",
     "CalibrationDriftBinDelta",
+    "CalibrationReleaseAlert",
+    "CalibrationReleaseAlertSeverity",
+    "CalibrationReleaseGateReport",
     "CalibrationSnapshotBin",
     "CalibrationDriftReport",
     "EmpiricalCalibrationSnapshot",
     "build_calibration_drift_report",
+    "build_calibration_release_gate_report",
 ]
