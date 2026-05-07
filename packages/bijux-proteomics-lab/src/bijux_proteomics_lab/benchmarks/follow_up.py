@@ -28,11 +28,17 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 
 __all__ = [
     "FlagshipAssayBurdenProfile",
+    "FlagshipAssayBurdenReport",
+    "FlagshipAssayBurdenReportEntry",
     "FlagshipLabFollowUpPacket",
     "FlagshipLabFollowUpPacketFamily",
     "FlagshipLabPacketPosture",
+    "FlagshipNotWorthAssayEntry",
+    "FlagshipNotWorthAssayReport",
+    "build_flagship_assay_burden_report",
     "build_flagship_lab_follow_up_packet",
     "build_flagship_lab_follow_up_packet_family",
+    "build_flagship_not_worth_assay_report",
 ]
 
 
@@ -90,6 +96,53 @@ class FlagshipLabFollowUpPacketFamily(JsonModel):
     family_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
     packets: tuple[FlagshipLabFollowUpPacket, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAssayBurdenReportEntry(JsonModel):
+    """One ranked burden row across flagship lab follow-up packets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_id: str = Field(..., min_length=1)
+    posture: FlagshipLabPacketPosture
+    burden_profile: FlagshipAssayBurdenProfile
+    queue_posture: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipAssayBurdenReport(JsonModel):
+    """Aggregate assay burden surface for flagship lab follow-up work."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    report_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipAssayBurdenReportEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipNotWorthAssayEntry(JsonModel):
+    """One interesting-but-not-justified assay escalation entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: KnowledgeWorkflowFamily
+    benchmark_id: str = Field(..., min_length=1)
+    blocker_summary: tuple[str, ...] = Field(default_factory=tuple)
+    burden_tradeoffs: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class FlagshipNotWorthAssayReport(JsonModel):
+    """Explicit refusal surface for assays that still are not worth running."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    report_id: str = Field(..., min_length=1)
+    artifact_path: str = Field(..., min_length=1)
+    entries: tuple[FlagshipNotWorthAssayEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -451,5 +504,72 @@ def build_flagship_lab_follow_up_packet_family() -> FlagshipLabFollowUpPacketFam
         ),
         note=(
             "This family turns the current flagship benchmark reviews into concrete DDA, DIA, LFQ, PTM, and targeted lab follow-up packets with visible burden and boundary conditions."
+        ),
+    )
+
+
+def build_flagship_assay_burden_report() -> FlagshipAssayBurdenReport:
+    """Build a ranked burden report across flagship lab follow-up packets."""
+
+    entries: list[FlagshipAssayBurdenReportEntry] = []
+    for packet in build_flagship_lab_follow_up_packet_family().packets:
+        queue_posture = (
+            "reserve_controlled_queue_slot"
+            if packet.posture is FlagshipLabPacketPosture.EXPLORATORY_ONLY
+            else "do_not_queue_until_blockers_close"
+        )
+        entries.append(
+            FlagshipAssayBurdenReportEntry(
+                workflow_family=packet.workflow_family,
+                benchmark_id=packet.benchmark_id,
+                posture=packet.posture,
+                burden_profile=packet.burden_profile,
+                queue_posture=queue_posture,
+                note=(
+                    "This row keeps cost, queue, dependency, and confidence tradeoffs visible at the same layer where the lab decides whether to allocate effort."
+                ),
+            )
+        )
+    ranked_entries = tuple(
+        sorted(
+            entries,
+            key=lambda entry: (
+                -entry.burden_profile.estimated_relative_cost,
+                -entry.burden_profile.estimated_queue_days,
+            ),
+        )
+    )
+    return FlagshipAssayBurdenReport(
+        report_id="flagship-assay-burden-report",
+        artifact_path="artifacts/lab/flagship-follow-up-packets/burden_report.json",
+        entries=ranked_entries,
+        note=(
+            "This report ranks flagship follow-up work by visible assay burden instead of letting queue pressure hide inside packet prose."
+        ),
+    )
+
+
+def build_flagship_not_worth_assay_report() -> FlagshipNotWorthAssayReport:
+    """Build the explicit interesting-but-not-justified assay report."""
+
+    entries = tuple(
+        FlagshipNotWorthAssayEntry(
+            workflow_family=packet.workflow_family,
+            benchmark_id=packet.benchmark_id,
+            blocker_summary=packet.stop_reasons[:3],
+            burden_tradeoffs=packet.burden_profile.tradeoffs,
+            note=(
+                "The workflow remains scientifically interesting, but the current packet still says the assay is not worth spending until named blockers close."
+            ),
+        )
+        for packet in build_flagship_lab_follow_up_packet_family().packets
+        if packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    )
+    return FlagshipNotWorthAssayReport(
+        report_id="flagship-not-worth-assay-report",
+        artifact_path="artifacts/lab/flagship-follow-up-packets/not_worth_assay.json",
+        entries=entries,
+        note=(
+            "This report makes refusal visible when a benchmark path is still too weak, ambiguous, or expensive to justify action."
         ),
     )

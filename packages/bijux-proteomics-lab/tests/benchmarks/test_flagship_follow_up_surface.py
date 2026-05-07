@@ -11,8 +11,10 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 )
 from bijux_proteomics_lab.benchmarks import (
     FlagshipLabPacketPosture,
+    build_flagship_assay_burden_report,
     build_flagship_lab_follow_up_packet,
     build_flagship_lab_follow_up_packet_family,
+    build_flagship_not_worth_assay_report,
 )
 
 
@@ -96,3 +98,26 @@ def test_targeted_packet_keeps_transition_calibration_and_interference_visible()
     assert "interference_scout_injection" in packet.required_controls
     assert any("transition" in line.lower() for line in packet.design_conditions)
     assert any("interference" in line.lower() for line in packet.expected_failure_modes)
+
+
+def test_flagship_assay_burden_report_ranks_high_burden_work_before_queueing() -> None:
+    report = build_flagship_assay_burden_report()
+
+    assert report.report_id == "flagship-assay-burden-report"
+    assert report.artifact_path.startswith("artifacts/")
+    assert report.entries[0].workflow_family is KnowledgeWorkflowFamily.PTM
+    assert report.entries[0].queue_posture == "do_not_queue_until_blockers_close"
+    assert report.entries[-1].workflow_family is KnowledgeWorkflowFamily.DDA
+
+
+def test_not_worth_assay_report_lists_interesting_but_blocked_workflows() -> None:
+    report = build_flagship_not_worth_assay_report()
+
+    assert report.report_id == "flagship-not-worth-assay-report"
+    assert {entry.workflow_family for entry in report.entries} == {
+        KnowledgeWorkflowFamily.LFQ,
+        KnowledgeWorkflowFamily.PTM,
+        KnowledgeWorkflowFamily.TARGETED,
+    }
+    assert all(entry.blocker_summary for entry in report.entries)
+    assert all(entry.burden_tradeoffs for entry in report.entries)
