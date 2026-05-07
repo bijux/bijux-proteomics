@@ -210,7 +210,10 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert review.external_reviewer_bundle.evidence_pointer_ids
     assert "missingness" in review.reviewer_summary
     assert review.reviewer_grounding_state.value == "thin"
-    assert review.scientific_release_packet.graduation_state.value == "blocked"
+    assert (
+        review.scientific_release_packet.graduation_state.value
+        == "promising_infrastructure"
+    )
 
 
 def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> None:

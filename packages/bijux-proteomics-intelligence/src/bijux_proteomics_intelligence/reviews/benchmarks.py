@@ -404,6 +404,28 @@ def _resolve_primary_pipeline_export(manifest: BenchmarkManifest) -> Path:
     return _repo_root() / primary_artifact.repo_relative_path
 
 
+def _resolve_package_artifact_path(
+    manifest: BenchmarkManifest,
+    *artifact_kinds: BenchmarkPackageArtifactKind,
+) -> Path:
+    """Resolve the first tracked benchmark package artifact for one kind set."""
+
+    package = manifest.benchmark_package
+    if package is None:
+        return _repo_root() / manifest.dataset_locator
+    artifact = next(
+        (
+            item
+            for item in package.package_artifacts
+            if item.artifact_kind in artifact_kinds
+        ),
+        None,
+    )
+    if artifact is None:
+        return _repo_root() / manifest.dataset_locator
+    return _repo_root() / artifact.repo_relative_path
+
+
 def _build_grounding_payload(
     *,
     workflow_family: KnowledgeWorkflowFamily,
@@ -635,7 +657,11 @@ def build_dia_benchmark_review(
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.DIA:
         raise ValueError("DIA benchmark review requires a DIA workflow manifest")
-    result_path = source_path or (_repo_root() / manifest.dataset_locator)
+    result_path = source_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.RESULTS_TABLE,
+        BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT,
+    )
     normalization = normalize_search_results_with_adapter(
         source_path=result_path,
         adapter_kind=SearchAdapterKind.SPECTRONAUT,
@@ -892,26 +918,17 @@ def build_ptm_benchmark_review(
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.PTM:
         raise ValueError("PTM benchmark review requires a PTM workflow manifest")
-    active_localization_path = localization_path or (
-        _repo_root() / manifest.dataset_locator
+    active_localization_path = localization_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.RESULTS_TABLE,
     )
-    active_feature_path = feature_path or (
-        _repo_root()
-        / "packages"
-        / "bijux-proteomics-core"
-        / "tests"
-        / "fixtures"
-        / "ptm"
-        / "ptm_features.tsv"
+    active_feature_path = feature_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.FEATURE_TABLE,
     )
-    active_fasta_path = protein_fasta_path or (
-        _repo_root()
-        / "packages"
-        / "bijux-proteomics-core"
-        / "tests"
-        / "fixtures"
-        / "fasta"
-        / "ptm_sites.fasta"
+    active_fasta_path = protein_fasta_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.PROTEIN_FASTA,
     )
 
     parsed = parse_ptm_localization_tsv(active_localization_path)
@@ -1151,15 +1168,13 @@ def build_lfq_benchmark_review(
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.LFQ:
         raise ValueError("LFQ benchmark review requires an LFQ workflow manifest")
-    active_feature_path = feature_path or (_repo_root() / manifest.dataset_locator)
-    active_design_path = design_path or (
-        _repo_root()
-        / "packages"
-        / "bijux-proteomics-core"
-        / "tests"
-        / "fixtures"
-        / "quant"
-        / "study_scale.design.tsv"
+    active_feature_path = feature_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.FEATURE_TABLE,
+    )
+    active_design_path = design_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.DESIGN_TABLE,
     )
 
     feature_report = parse_ms1_feature_table(active_feature_path)
@@ -1327,7 +1342,10 @@ def build_targeted_benchmark_review(
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.TARGETED:
         raise ValueError("targeted benchmark review requires a targeted workflow manifest")
-    active_qc_path = qc_path or (_repo_root() / manifest.dataset_locator)
+    active_qc_path = qc_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.TARGETED_QC_TABLE,
+    )
 
     qc_report = parse_chromatogram_qc_table(active_qc_path)
     benchmark = build_targeted_workflow_benchmark_report(
@@ -1684,15 +1702,13 @@ def build_multiplex_benchmark_review(
         raise ValueError(
             "multiplex benchmark review requires a multiplex workflow manifest"
         )
-    active_feature_path = feature_path or (_repo_root() / manifest.dataset_locator)
-    active_design_path = design_path or (
-        _repo_root()
-        / "packages"
-        / "bijux-proteomics-core"
-        / "tests"
-        / "fixtures"
-        / "quant"
-        / "multiplex.design.tsv"
+    active_feature_path = feature_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.FEATURE_TABLE,
+    )
+    active_design_path = design_path or _resolve_package_artifact_path(
+        manifest,
+        BenchmarkPackageArtifactKind.DESIGN_TABLE,
     )
 
     feature_report = parse_ms1_feature_table(active_feature_path)

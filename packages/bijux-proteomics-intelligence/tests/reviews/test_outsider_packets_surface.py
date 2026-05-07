@@ -51,14 +51,28 @@ def test_dda_outsider_packet_is_complete_and_links_to_shipped_public_evidence() 
     assert "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py" in packet.validating_tests
 
 
-def test_non_dda_outsider_packets_keep_missing_public_proof_explicit() -> None:
+def test_dia_outsider_packet_is_complete_but_keeps_library_and_execution_limits_visible() -> None:
     dia = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.DIA)
+
+    assert dia.complete_outsider_surface is True
+    assert dia.runtime_package_id == "dia-diann-pipeline-corpus"
+    assert dia.runtime_run_mode.value == "import_only"
+    assert dia.public_claim_support_state.value == "advisory"
+    assert any(
+        "external execution parity" in reason
+        for reason in dia.missing_surface_reasons
+    )
+    assert any(
+        "outside the repository proof boundary" in reason
+        for reason in dia.missing_surface_reasons
+    )
+
+
+def test_incomplete_outsider_packets_keep_missing_public_proof_explicit() -> None:
     lfq = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.LFQ)
     ptm = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.PTM)
     targeted = build_flagship_outsider_review_packet(KnowledgeWorkflowFamily.TARGETED)
 
-    assert dia.complete_outsider_surface is False
-    assert any("curated_mini_study" in reason for reason in dia.missing_surface_reasons)
     assert lfq.runtime_run_mode.value == "blocked"
     assert any("no flagship runtime benchmark path is wired" in reason for reason in lfq.missing_surface_reasons)
     assert ptm.public_claim_support_state.value == "refused"

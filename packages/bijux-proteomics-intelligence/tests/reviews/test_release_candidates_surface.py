@@ -31,7 +31,6 @@ def test_flagship_workflow_distrust_pages_cover_only_incomplete_families() -> No
     pages = build_flagship_workflow_distrust_pages()
 
     assert {page.workflow_family for page in pages} == {
-        KnowledgeWorkflowFamily.DIA,
         KnowledgeWorkflowFamily.LFQ,
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
@@ -47,10 +46,11 @@ def test_release_candidate_bundle_names_current_outsider_auditable_family() -> N
     assert bundle.strongest_workflow_family is KnowledgeWorkflowFamily.DDA
     assert bundle.outsider_auditable_workflow_families == (
         KnowledgeWorkflowFamily.DDA,
+        KnowledgeWorkflowFamily.DIA,
     )
-    assert KnowledgeWorkflowFamily.DIA in bundle.blocked_workflow_families
+    assert KnowledgeWorkflowFamily.DIA not in bundle.blocked_workflow_families
     assert "docs/01-bijux-proteomics/foundation/why-trust-dda.md" in bundle.trust_page_paths
-    assert "docs/01-bijux-proteomics/foundation/why-not-trust-dia-yet.md" in bundle.distrust_page_paths
+    assert "docs/01-bijux-proteomics/foundation/why-trust-dia.md" in bundle.trust_page_paths
 
 
 def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_language_blocked() -> None:
@@ -61,5 +61,6 @@ def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_lan
     assert "governance" not in " ".join(scorecard.scoring_basis).lower()
     assert "doc-count" in scorecard.note
     assert entries[KnowledgeWorkflowFamily.DDA].outsider_auditable_surface is True
-    assert entries[KnowledgeWorkflowFamily.DDA].overall_score > entries[KnowledgeWorkflowFamily.DIA].overall_score
+    assert entries[KnowledgeWorkflowFamily.DIA].outsider_auditable_surface is True
+    assert entries[KnowledgeWorkflowFamily.DDA].overall_score >= entries[KnowledgeWorkflowFamily.DIA].overall_score
     assert entries[KnowledgeWorkflowFamily.PTM].elite_language_allowed is False
