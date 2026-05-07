@@ -13,7 +13,10 @@ from bijux_proteomics_runtime.providers.builtin.heuristic import (
     HeuristicStructureProvider,
 )
 from bijux_proteomics_runtime.providers.contracts import (
+    ProviderArtifactGuarantees,
     ProviderCapabilities,
+    ProviderExecutionContract,
+    ProviderFailureGuarantees,
     ProviderMetadata,
 )
 
@@ -41,6 +44,114 @@ PROVIDER_CAPABILITIES = {
     ),
     "api_openprotein_alphafold": ProviderCapabilities(
         supports_gpu=False, supports_cpu=True, cpu_fallback_allowed=True
+    ),
+}
+
+PROVIDER_EXECUTION_CONTRACTS = {
+    "heuristic_proxy": ProviderExecutionContract(
+        cooperative_cancellation=False,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("mean_plddt",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=("BAD_INPUT",),
+            malformed_input_code="BAD_INPUT",
+        ),
+        notes="CPU-safe heuristic provider used for deterministic contract proof.",
+    ),
+    "local_esmfold": ProviderExecutionContract(
+        cooperative_cancellation=False,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("mean_plddt",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=(
+                "BAD_INPUT",
+                "TIMEOUT",
+                "MODEL_LOAD_ERROR",
+                "NO_OUTPUT",
+                "INVALID_OUTPUT_SHAPE",
+            ),
+            partial_output_code="NO_OUTPUT",
+            malformed_input_code="BAD_INPUT",
+            corrupted_artifact_code="INVALID_OUTPUT_SHAPE",
+        ),
+        notes="Real local validation exists, plus CPU fallback contract proof.",
+    ),
+    "local_rosettafold": ProviderExecutionContract(
+        cooperative_cancellation=False,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("mean_plddt",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=(
+                "BAD_INPUT",
+                "TIMEOUT",
+                "NO_OUTPUT",
+                "INVALID_OUTPUT_SHAPE",
+                "MODEL_LOAD_ERROR",
+            ),
+            partial_output_code="NO_OUTPUT",
+            malformed_input_code="BAD_INPUT",
+            corrupted_artifact_code="INVALID_OUTPUT_SHAPE",
+        ),
+        notes="GPU-only local validation with explicit malformed-output and timeout paths.",
+    ),
+    "api_colabfold": ProviderExecutionContract(
+        cooperative_cancellation=True,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("job_id",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=(
+                "TIMEOUT",
+                "AUTH_ERROR",
+                "INPUT_TOO_LARGE",
+                "REMOTE_ERROR",
+                "NO_OUTPUT",
+                "INVALID_OUTPUT_SHAPE",
+            ),
+            cancellation_code="TIMEOUT",
+            partial_output_code="NO_OUTPUT",
+            corrupted_artifact_code="INVALID_OUTPUT_SHAPE",
+        ),
+        notes="Remote validation lane is real but dependency- and network-gated.",
+    ),
+    "api_openprotein_esmfold": ProviderExecutionContract(
+        cooperative_cancellation=True,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("job",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=("TIMEOUT", "AUTH_ERROR", "REMOTE_ERROR", "NO_OUTPUT"),
+            cancellation_code="TIMEOUT",
+            partial_output_code="NO_OUTPUT",
+        ),
+        notes="Remote OpenProtein validation is real but environment-gated.",
+    ),
+    "api_openprotein_alphafold": ProviderExecutionContract(
+        cooperative_cancellation=True,
+        artifact_guarantees=ProviderArtifactGuarantees(
+            pdb_text_required=True,
+            raw_payload_required=True,
+            required_raw_keys=("job",),
+        ),
+        failure_guarantees=ProviderFailureGuarantees(
+            expected_error_codes=("TIMEOUT", "AUTH_ERROR", "REMOTE_ERROR", "NO_OUTPUT"),
+            cancellation_code="TIMEOUT",
+            partial_output_code="NO_OUTPUT",
+        ),
+        notes="Remote OpenProtein validation is real but environment-gated.",
     ),
 }
 
@@ -110,4 +221,9 @@ def provider_requirements(name: str) -> list[str]:
     return errors
 
 
-__all__ = ["PROVIDER_CAPABILITIES", "provider_metadata", "provider_requirements"]
+__all__ = [
+    "PROVIDER_CAPABILITIES",
+    "PROVIDER_EXECUTION_CONTRACTS",
+    "provider_metadata",
+    "provider_requirements",
+]
