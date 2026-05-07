@@ -6,11 +6,17 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import hashlib
+import json
 from pathlib import Path
+from typing import Any
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_runtime.runs.contracts import RunContextContract
+from bijux_proteomics_runtime.runs.replay import ReplayContract
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from bijux_proteomics_runtime.workflows.assurance import build_workflow_assurance_matrix
 from bijux_proteomics_runtime.workflows.paths import (
     RuntimeReviewableOutputPath,
@@ -57,6 +63,35 @@ class BenchmarkRuntimeTruthRow(JsonModel):
     externally_cross_checked: bool
     artifact_browser_ready: bool
     blocker_notes: tuple[str, ...] = Field(default_factory=tuple)
+    notes: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkArtifactEntry(JsonModel):
+    """Human-readable artifact row for runtime benchmark inspection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_kind: str = Field(..., min_length=1)
+    path: str = Field(..., min_length=1)
+    sha256: str = Field(..., min_length=64, max_length=64)
+    summary: str = Field(..., min_length=1)
+    preview_lines: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class BenchmarkArtifactBrowser(JsonModel):
+    """Reviewable benchmark artifact browser for one runtime run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    package_id: str = Field(..., min_length=1)
+    run_id: str = Field(..., min_length=1)
+    command: str = Field(..., min_length=1)
+    workflow_family: str = Field(..., min_length=1)
+    parameter_choices: tuple[str, ...] = Field(default_factory=tuple)
+    input_artifacts: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
+    imported_results: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
+    review_outputs: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
+    handoff_outputs: tuple[BenchmarkArtifactEntry, ...] = Field(default_factory=tuple)
     notes: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -211,6 +246,82 @@ def build_benchmark_runtime_truth_surface() -> tuple[BenchmarkRuntimeTruthRow, .
     return tuple(rows)
 
 
+def build_benchmark_artifact_browser(
+    base_dir: Path,
+    *,
+    package_id: str,
+    manifest: RuntimeReviewableOutputPath,
+    artifacts_dir: Path | None = None,
+) -> BenchmarkArtifactBrowser:
+    """Build one human-readable artifact browser for a runtime benchmark run."""
+    spec = _spec_by_id(package_id)
+    workspace = RunWorkspace.for_run(
+        base_dir,
+        manifest.run_id,
+        artifacts_root_override=artifacts_dir,
+    )
+    run_context = RunContextContract.load_json(workspace.run_context_path)
+    replay_contract = ReplayContract.load_json(workspace.replay_contract_path)
+    input_paths = (_repo_root() / spec.primary_input_path,) + tuple(
+        _repo_root() / path for path in spec.companion_input_paths
+    )
+    imported_results = ()
+    handoff_outputs: list[BenchmarkArtifactEntry] = []
+    if manifest.import_trace_path is not None:
+        imported_payload = _load_json_dict(
+            workspace.artifact_items_dir / "imported_evidence.json"
+        )
+        imported_results = (
+            _summarize_imported_payload(
+                path=workspace.artifact_items_dir / "imported_evidence.json",
+                imported_payload=imported_payload,
+            ),
+        )
+        for path, artifact_kind in (
+            (workspace.artifact_items_dir / "evidence_bundle.json", "runtime-evidence-bundle"),
+            (workspace.artifact_items_dir / "review_packet.json", "runtime-review-packet"),
+        ):
+            if path.exists():
+                handoff_outputs.append(
+                    BenchmarkArtifactEntry(
+                        artifact_kind=artifact_kind,
+                        path=str(path),
+                        sha256=_sha256(path),
+                        summary=f"{artifact_kind} stays downstream-readable from the runtime import lane",
+                        preview_lines=_preview_for_json(path),
+                    )
+                )
+    return BenchmarkArtifactBrowser(
+        package_id=package_id,
+        run_id=manifest.run_id,
+        command=manifest.command,
+        workflow_family=manifest.workflow_family,
+        parameter_choices=(
+            f"provider_name={run_context.provider_name}",
+            f"command={run_context.workflow.command}",
+            f"config_fingerprint={run_context.config_fingerprint}",
+            f"parameter_fingerprint={replay_contract.parameter_fingerprint}",
+            f"tool_fingerprint={replay_contract.tool_fingerprint}",
+        ),
+        input_artifacts=tuple(_summarize_source_path(path) for path in input_paths),
+        imported_results=imported_results,
+        review_outputs=tuple(
+            _summarize_runtime_output(path, artifact_kind)
+            for path, artifact_kind in (
+                (workspace.run_summary_path, "runtime-status"),
+                (workspace.report_path, "runtime-report"),
+                (workspace.replay_contract_path, "runtime-replay-contract"),
+                (workspace.integrity_report_path, "runtime-integrity-report"),
+            )
+            if path.exists()
+        ),
+        handoff_outputs=tuple(handoff_outputs),
+        notes=(
+            "artifact browser surfaces reviewable runtime files without requiring a human to open raw run JSON by hand",
+        ),
+    )
+
+
 def _run_import_benchmark_path(
     base_dir: Path,
     *,
@@ -248,10 +359,91 @@ def _sequence_from_fasta(path: Path) -> str:
     )
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _load_json_dict(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise TypeError(f"expected JSON object at {path}")
+    return payload
+
+
+def _preview_for_json(path: Path, *, limit: int = 3) -> tuple[str, ...]:
+    payload = _load_json_dict(path)
+    return tuple(
+        f"{key}={json.dumps(value, sort_keys=True)}"
+        for key, value in list(payload.items())[:limit]
+    )
+
+
+def _summarize_source_path(path: Path) -> BenchmarkArtifactEntry:
+    preview = path.read_text(encoding="utf-8").splitlines()[:3]
+    return BenchmarkArtifactEntry(
+        artifact_kind="benchmark-source-input",
+        path=str(path),
+        sha256=_sha256(path),
+        summary=f"tracked benchmark source input {path.name}",
+        preview_lines=tuple(preview),
+    )
+
+
+def _summarize_imported_payload(
+    *,
+    path: Path,
+    imported_payload: dict[str, Any],
+) -> BenchmarkArtifactEntry:
+    payload = imported_payload.get("payload", {})
+    preview_lines: list[str] = []
+    if isinstance(payload, dict) and "rows" in payload:
+        columns = payload.get("columns", ())
+        row_count = payload.get("row_count", 0)
+        preview_lines.append(
+            f"columns={','.join(str(column) for column in columns)}"
+        )
+        preview_lines.append(f"row_count={row_count}")
+        rows = payload.get("rows", [])
+        if isinstance(rows, list) and rows:
+            first = rows[0]
+            if isinstance(first, dict):
+                preview_lines.append(
+                    ",".join(f"{key}={value}" for key, value in list(first.items())[:4])
+                )
+        summary = f"imported tabular comparator payload with {row_count} rows"
+    else:
+        preview_lines.extend(_preview_for_json(path))
+        summary = "imported json comparator payload"
+    return BenchmarkArtifactEntry(
+        artifact_kind="runtime-imported-evidence",
+        path=str(path),
+        sha256=_sha256(path),
+        summary=summary,
+        preview_lines=tuple(preview_lines),
+    )
+
+
+def _summarize_runtime_output(path: Path, artifact_kind: str) -> BenchmarkArtifactEntry:
+    if path.suffix == ".json":
+        preview = _preview_for_json(path)
+    else:
+        preview = tuple(path.read_text(encoding="utf-8").splitlines()[:3])
+    return BenchmarkArtifactEntry(
+        artifact_kind=artifact_kind,
+        path=str(path),
+        sha256=_sha256(path),
+        summary=f"runtime review output {path.name}",
+        preview_lines=preview,
+    )
+
+
 __all__ = [
+    "BenchmarkArtifactBrowser",
+    "BenchmarkArtifactEntry",
     "BenchmarkRunMode",
     "BenchmarkRunSpec",
     "BenchmarkRuntimeTruthRow",
+    "build_benchmark_artifact_browser",
     "build_benchmark_run_specs",
     "build_benchmark_runtime_truth_surface",
     "run_benchmark_dda_import_path",

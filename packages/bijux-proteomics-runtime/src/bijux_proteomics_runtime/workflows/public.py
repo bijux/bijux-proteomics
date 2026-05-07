@@ -45,9 +45,12 @@ _WORKFLOW_EXPORT_GROUPS = {
         "workflow_assurance_lanes",
     ],
     "bijux_proteomics_runtime.workflows.benchmark_runs": [
+        "BenchmarkArtifactBrowser",
+        "BenchmarkArtifactEntry",
         "BenchmarkRunMode",
         "BenchmarkRunSpec",
         "BenchmarkRuntimeTruthRow",
+        "build_benchmark_artifact_browser",
         "build_benchmark_run_specs",
         "build_benchmark_runtime_truth_surface",
         "run_benchmark_dda_import_path",
