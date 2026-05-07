@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from bijux_proteomics.benchmarks.flagship_acceptance import (
+    AcceptanceReleaseLanguage,
+    build_flagship_acceptance_sheet,
+    list_flagship_acceptance_sheets,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
+
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
+
+
+def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
+    sheets = list_flagship_acceptance_sheets()
+
+    assert tuple(sheet.workflow_family for sheet in sheets) == (
+        KnowledgeWorkflowFamily.DDA,
+        KnowledgeWorkflowFamily.DIA,
+    )
+    assert all(sheet.acceptance_passed is True for sheet in sheets)
+    assert all(
+        sheet.earned_release_language
+        is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
+        for sheet in sheets
+    )
+
+
+def test_dda_acceptance_sheet_keeps_decoy_and_comparator_thresholds_explicit() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.DDA)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.claim_ahead_of_evidence is False
+    assert criteria["dda_search_coverage"].observed_value == "2"
+    assert criteria["dda_calibration_sanity"].observed_value == "1"
+    assert criteria["dda_comparator_divergence_tolerance"].observed_value == "advisory"
+
+
+def test_dia_acceptance_sheet_keeps_library_and_absent_expected_thresholds_explicit() -> None:
+    sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.DIA)
+    criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
+
+    assert sheet.claim_ahead_of_evidence is False
+    assert criteria["dia_library_dependence"].observed_value == "0.67"
+    assert criteria["dia_peptide_evidence_coverage"].observed_value == "4"
+    assert criteria["dia_quantitative_coherence"].observed_value == "0.33"
+
+
+def test_published_acceptance_json_matches_live_surface() -> None:
+    for sheet in list_flagship_acceptance_sheets():
+        payload = json.loads((REPO_ROOT / sheet.artifact_path).read_text(encoding="utf-8"))
+        assert payload["sheet_id"] == sheet.sheet_id
+        assert payload["workflow_family"] == sheet.workflow_family.value
+        assert payload["acceptance_passed"] is True
