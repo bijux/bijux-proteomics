@@ -87,7 +87,7 @@ It owns:
 
 - `src/bijux_proteomics_dev/quality` for repository quality and migration checks
 - `src/bijux_proteomics_dev/security` for security and dependency policy gates
-- `src/bijux_proteomics_dev/api` for OpenAPI drift and freeze checks
+- `src/bijux_proteomics_dev/governance/contracts` for OpenAPI drift and freeze checks
 - `src/bijux_proteomics_dev/release` for release-readiness validation
 - `src/bijux_proteomics_dev/docs` for documentation integrity and publication checks
 - `src/bijux_proteomics_dev/tools` for maintainers-only operational helpers

@@ -122,7 +122,7 @@ It does not define runtime product APIs or proteomics domain behavior.
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
 - [`src/bijux_proteomics_dev/security`](src/bijux_proteomics_dev/security) for security gates
-- [`src/bijux_proteomics_dev/api`](src/bijux_proteomics_dev/api) for OpenAPI and schema checks
+- [`src/bijux_proteomics_dev/governance/contracts`](src/bijux_proteomics_dev/governance/contracts) for OpenAPI and schema checks
 - [`src/bijux_proteomics_dev/release`](src/bijux_proteomics_dev/release) for release support
   including `build_scientific_release_dossier()` and the checked-in
   `configs/package-governance/scientific-release-workflows.toml` manifest

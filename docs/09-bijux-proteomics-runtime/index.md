@@ -65,9 +65,9 @@ flowchart LR
 
 ## First Proof Check
 
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/interfaces/cli.py`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/`, `providers/`, and `validation/`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/`, `providers/`, and `state/`
 - `packages/bijux-proteomics-runtime/tests`
 
 ## Migration References
