@@ -13,6 +13,7 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     build_lfq_benchmark_review,
     build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
+    build_targeted_benchmark_review,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
@@ -135,6 +136,8 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
     assert ambiguity_claim.support_state is SupportState.ADVISORY
     assert "ambiguous site groups" in ambiguity_claim.scientific_limits[0]
     assert "ambiguity" in review.reviewer_summary
+    assert review.supported_ptm_families == ("acetylation", "ubiquitin_remnant")
+    assert any(track.family_name == "glyco_adjacent" for track in review.ptm_family_tracks)
 
 
 def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() -> None:
@@ -215,3 +218,34 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
     assert decision_boundary_claim.evidence_refs
     assert "chemistry caveats" in channel_claim.scientific_limits[0]
     assert "missing-channel" in review.reviewer_summary
+    assert review.vendor_caveat_ledger is not None
+    assert review.vendor_caveat_ledger.vendor_support_state is SupportState.ADVISORY
+
+
+def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible() -> (
+    None
+):
+    review = build_targeted_benchmark_review(
+        qc_path=(
+            _repo_root()
+            / "packages"
+            / "bijux-proteomics-core"
+            / "tests"
+            / "fixtures"
+            / "formats"
+            / "targeted_benchmark_qc.tsv"
+        )
+    )
+
+    assert isinstance(review, WorkflowBenchmarkReview)
+    assert review.workflow_family is KnowledgeWorkflowFamily.TARGETED
+    assert review.public_claim_support_state.value == "refused"
+    assert review.vendor_caveat_ledger is not None
+    assert review.vendor_caveat_ledger.vendor_support_state is SupportState.ADVISORY
+    vendor_claim = next(
+        claim
+        for claim in review.claim_summaries
+        if claim.claim_id == "vendor_execution_boundary"
+    )
+    assert vendor_claim.scientific_limits
+    assert "Skyline or vendor execution parity" in review.reviewer_summary
