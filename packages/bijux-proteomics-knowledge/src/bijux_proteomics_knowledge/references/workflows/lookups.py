@@ -14,6 +14,13 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
     WorkflowBenchmarkPackage,
 )
+from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
+    BenchmarkComparatorFailureEntry,
+    BenchmarkComparatorFailureReport,
+    ComparatorClaimSupportState,
+    ComparatorFailureSeverity,
+    build_benchmark_comparator_failure_report,
+)
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     WorkflowComparatorMatrixEntry,
     WorkflowComparatorMatrixReport,
@@ -71,6 +78,26 @@ def get_benchmark_package(benchmark_id: str) -> WorkflowBenchmarkPackage | None:
     return manifest.benchmark_package
 
 
+def list_benchmark_comparator_failures(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[BenchmarkComparatorFailureEntry, ...]:
+    """Return benchmark comparator failures filtered by workflow family."""
+
+    return build_benchmark_comparator_failure_report(
+        workflow_family=workflow_family
+    ).entries
+
+
+def get_benchmark_comparator_failure(
+    benchmark_id: str,
+) -> BenchmarkComparatorFailureEntry | None:
+    """Return one benchmark comparator failure dossier by benchmark identifier."""
+
+    report = build_benchmark_comparator_failure_report(benchmark_id=benchmark_id)
+    return report.entries[0] if report.entries else None
+
+
 def list_benchmark_registry_entries(
     *, workflow_family: KnowledgeWorkflowFamily | None = None
 ) -> tuple[BenchmarkRegistryEntry, ...]:
@@ -120,11 +147,18 @@ __all__ = [
     "BenchmarkPackageArtifact",
     "BenchmarkPackageArtifactKind",
     "BenchmarkReproductionStep",
+    "BenchmarkComparatorFailureEntry",
+    "BenchmarkComparatorFailureReport",
+    "ComparatorClaimSupportState",
+    "ComparatorFailureSeverity",
+    "build_benchmark_comparator_failure_report",
+    "get_benchmark_comparator_failure",
     "get_benchmark_manifest",
     "get_benchmark_package",
     "get_benchmark_registry_entry",
     "get_workflow_comparator_path",
     "get_workflow_narrative",
+    "list_benchmark_comparator_failures",
     "list_workflow_comparator_paths",
     "build_workflow_comparator_matrix",
     "list_benchmark_registry_entries",

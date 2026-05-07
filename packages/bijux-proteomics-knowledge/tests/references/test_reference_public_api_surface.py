@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.references import (
+    BenchmarkComparatorFailureReport,
     BenchmarkManifest,
     BenchmarkRegistryEntry,
     KnowledgeOntologyDomain,
@@ -12,6 +13,7 @@ from bijux_proteomics_knowledge.references import (
     WorkflowBenchmarkPackage,
     WorkflowComparatorMatrixReport,
     WorkflowReferenceBriefing,
+    build_benchmark_comparator_failure_report,
     build_workflow_comparator_matrix,
     build_workflow_reference_briefing,
     get_benchmark_manifest,
@@ -28,6 +30,9 @@ def test_knowledge_references_root_exposes_curated_reference_anchors() -> None:
     registry_entry = get_benchmark_registry_entry(
         "benchmark:dia_library_extraction_consistency"
     )
+    comparator_failures = build_benchmark_comparator_failure_report(
+        workflow_family=KnowledgeWorkflowFamily.DIA
+    )
     comparator_matrix = build_workflow_comparator_matrix(
         workflow_family=KnowledgeWorkflowFamily.DIA
     )
@@ -37,5 +42,6 @@ def test_knowledge_references_root_exposes_curated_reference_anchors() -> None:
     assert isinstance(manifest, BenchmarkManifest)
     assert isinstance(package, WorkflowBenchmarkPackage)
     assert isinstance(registry_entry, BenchmarkRegistryEntry)
+    assert isinstance(comparator_failures, BenchmarkComparatorFailureReport)
     assert isinstance(comparator_matrix, WorkflowComparatorMatrixReport)
     assert isinstance(mapping, KnowledgeOntologyMapping)

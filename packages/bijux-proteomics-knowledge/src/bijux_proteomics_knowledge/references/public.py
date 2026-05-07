@@ -29,6 +29,13 @@ from bijux_proteomics_knowledge.references.workflows.briefings import (
     WorkflowReferenceBriefing,
     build_workflow_reference_briefing,
 )
+from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
+    BenchmarkComparatorFailureEntry,
+    BenchmarkComparatorFailureReport,
+    ComparatorClaimSupportState,
+    ComparatorFailureSeverity,
+    build_benchmark_comparator_failure_report,
+)
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     ProteomicsComparatorTool,
     WorkflowComparatorMatrixEntry,
@@ -40,9 +47,11 @@ from bijux_proteomics_knowledge.references.workflows.comparators import (
     list_workflow_comparator_paths,
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
+    get_benchmark_comparator_failure,
     get_benchmark_manifest,
     get_benchmark_package,
     get_benchmark_registry_entry,
+    list_benchmark_comparator_failures,
     list_benchmark_registry_entries,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
@@ -57,6 +66,8 @@ from bijux_proteomics_knowledge.references.workflows.registry import (
 __all__ = [
     "BenchmarkAuthorityAssessment",
     "BenchmarkAuthorityStatus",
+    "BenchmarkComparatorFailureEntry",
+    "BenchmarkComparatorFailureReport",
     "BenchmarkEvidenceTier",
     "BenchmarkManifest",
     "BenchmarkPackageArtifact",
@@ -64,6 +75,8 @@ __all__ = [
     "BenchmarkReproductionStep",
     "BenchmarkRegistryEntry",
     "BenchmarkRegistryReport",
+    "ComparatorClaimSupportState",
+    "ComparatorFailureSeverity",
     "KnowledgeOntologyDomain",
     "KnowledgeOntologyMapping",
     "KnowledgeWorkflowFamily",
@@ -78,12 +91,15 @@ __all__ = [
     "WorkflowReferenceBriefing",
     "assess_benchmark_authority",
     "build_benchmark_registry",
+    "build_benchmark_comparator_failure_report",
     "build_workflow_comparator_matrix",
     "build_workflow_reference_briefing",
+    "get_benchmark_comparator_failure",
     "get_benchmark_manifest",
     "get_benchmark_package",
     "get_benchmark_registry_entry",
     "get_workflow_comparator_path",
+    "list_benchmark_comparator_failures",
     "list_benchmark_registry_entries",
     "list_workflow_comparator_paths",
     "resolve_ontology_mapping",
