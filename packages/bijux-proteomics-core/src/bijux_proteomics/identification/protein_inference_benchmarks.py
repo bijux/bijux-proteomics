@@ -99,6 +99,64 @@ class ProteinInferenceBenchmarkSuiteReport(JsonModel):
     scenario_count: int = Field(..., ge=0)
 
 
+class PickedGroupBenchmarkPressure(StrEnum):
+    """Scenario families required before picked-group claims can travel."""
+
+    DECOY_PAIRED_GROUPS = "decoy_paired_groups"
+    SHARED_PEPTIDE_GROUPS = "shared_peptide_groups"
+    ISOFORM_COLLISIONS = "isoform_collisions"
+    CONTAMINANT_GROUP_PRESSURE = "contaminant_group_pressure"
+
+
+class PickedGroupFdrBenchmarkScenarioPlan(JsonModel):
+    """One required benchmark scenario for a future picked-group FDR claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    scenario_id: str = Field(..., min_length=1)
+    pressure: PickedGroupBenchmarkPressure
+    scientific_question: str = Field(..., min_length=1)
+    blocked_claim: str = Field(..., min_length=1)
+
+
+class PickedGroupFdrBenchmarkPlan(JsonModel):
+    """Explicit benchmark plan for picked-group FDR support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_ready: bool
+    current_state: str = Field(..., min_length=1)
+    required_scenarios: tuple[PickedGroupFdrBenchmarkScenarioPlan, ...] = Field(
+        default_factory=tuple
+    )
+    blocked_by: tuple[str, ...] = Field(default_factory=tuple)
+    next_artifacts: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class WorkflowTrustCriterionResult(JsonModel):
+    """One criterion inside a workflow-claim trust rubric."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    criterion_id: str = Field(..., min_length=1)
+    passed: bool
+    detail: str = Field(..., min_length=1)
+
+
+class IdentificationWorkflowClaimReview(JsonModel):
+    """Trust-rubric review for promoting an identification workflow claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    accepted: bool
+    trust_score: float = Field(..., ge=0.0, le=1.0)
+    precision_floor: float = Field(..., ge=0.0, le=1.0)
+    recall_floor: float = Field(..., ge=0.0, le=1.0)
+    criteria: tuple[WorkflowTrustCriterionResult, ...] = Field(default_factory=tuple)
+    refusal_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
 def _wilson_interval(successes: int, total: int, *, z: float = 1.96) -> tuple[float, float]:
     if total <= 0:
         return (0.0, 0.0)
@@ -247,4 +305,136 @@ def build_protein_inference_benchmark_suite(
         if recall_lower_bounds
         else 0.0,
         scenario_count=len(reports),
+    )
+
+
+def build_picked_group_fdr_benchmark_plan() -> PickedGroupFdrBenchmarkPlan:
+    """Declare the minimum benchmark program required before picked-group claims travel."""
+
+    return PickedGroupFdrBenchmarkPlan(
+        claim_ready=False,
+        current_state=(
+            "picked protein competition exists, but picked-group FDR remains unclaimed "
+            "until grouped competition is benchmarked under real pressure families"
+        ),
+        required_scenarios=(
+            PickedGroupFdrBenchmarkScenarioPlan(
+                scenario_id="picked-group-decoy-pairs",
+                pressure=PickedGroupBenchmarkPressure.DECOY_PAIRED_GROUPS,
+                scientific_question=(
+                    "Do grouped target and decoy families pair deterministically when a shared evidence set spans multiple protein groups?"
+                ),
+                blocked_claim="picked-group FDR support",
+            ),
+            PickedGroupFdrBenchmarkScenarioPlan(
+                scenario_id="picked-group-shared-peptides",
+                pressure=PickedGroupBenchmarkPressure.SHARED_PEPTIDE_GROUPS,
+                scientific_question=(
+                    "Does grouped competition avoid promoting absent proteins that borrow only shared-peptide support?"
+                ),
+                blocked_claim="shared-peptide-safe picked-group inference",
+            ),
+            PickedGroupFdrBenchmarkScenarioPlan(
+                scenario_id="picked-group-isoform-collisions",
+                pressure=PickedGroupBenchmarkPressure.ISOFORM_COLLISIONS,
+                scientific_question=(
+                    "Do isoform-family collisions stay explicit instead of collapsing into one overstated group winner?"
+                ),
+                blocked_claim="isoform-safe picked-group inference",
+            ),
+            PickedGroupFdrBenchmarkScenarioPlan(
+                scenario_id="picked-group-contaminants",
+                pressure=PickedGroupBenchmarkPressure.CONTAMINANT_GROUP_PRESSURE,
+                scientific_question=(
+                    "Can contaminant-heavy groups be rejected without suppressing biologically supported target groups?"
+                ),
+                blocked_claim="contaminant-aware picked-group promotion",
+            ),
+        ),
+        blocked_by=(
+            "group-level target-decoy competition is not benchmarked yet",
+            "no truth-scored group fixtures currently cover isoform and contaminant pressure together",
+            "workflow claims would outrun evidence if picked-group support were promoted today",
+        ),
+        next_artifacts=(
+            "grouped_truth_fixture_manifest.json",
+            "picked_group_benchmark_report.json",
+            "picked_group_disagreement_dossier.json",
+        ),
+    )
+
+
+def build_identification_workflow_claim_review(
+    *,
+    workflow_id: str,
+    benchmark_suite: ProteinInferenceBenchmarkSuiteReport,
+    material_loss_count: int = 0,
+    engine_disagreement_count: int = 0,
+    contaminant_risk: bool = False,
+    calibration_release_blocked: bool = False,
+) -> IdentificationWorkflowClaimReview:
+    """Require a workflow claim to pass a scientific trust rubric before promotion."""
+
+    scenario_kinds = set(benchmark_suite.scenario_kinds)
+    criteria = (
+        WorkflowTrustCriterionResult(
+            criterion_id="shared-peptide-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.SHARED_PEPTIDE_HEAVY
+            in scenario_kinds,
+            detail="shared-peptide-heavy truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="isoform-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY in scenario_kinds,
+            detail="isoform-heavy truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="precision-lower-bound-supported",
+            passed=benchmark_suite.worst_precision_lower_bound >= 0.5,
+            detail=(
+                "worst strategy precision lower bound is "
+                f"{benchmark_suite.worst_precision_lower_bound:.2f}"
+            ),
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="recall-lower-bound-supported",
+            passed=benchmark_suite.worst_recall_lower_bound >= 0.3,
+            detail=(
+                "worst strategy recall lower bound is "
+                f"{benchmark_suite.worst_recall_lower_bound:.2f}"
+            ),
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="material-adapter-loss-absent",
+            passed=material_loss_count == 0,
+            detail=f"material adapter-loss count is {material_loss_count}",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="engine-disagreement-contained",
+            passed=engine_disagreement_count == 0,
+            detail=f"material engine-disagreement count is {engine_disagreement_count}",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="contaminant-risk-contained",
+            passed=not contaminant_risk,
+            detail="contaminant-driven protein promotion is not unresolved",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="calibration-not-release-blocked",
+            passed=not calibration_release_blocked,
+            detail="calibration release gate is not blocked",
+        ),
+    )
+    refusal_reasons = tuple(
+        criterion.criterion_id for criterion in criteria if not criterion.passed
+    )
+    passed_count = sum(1 for criterion in criteria if criterion.passed)
+    return IdentificationWorkflowClaimReview(
+        workflow_id=workflow_id,
+        accepted=not refusal_reasons,
+        trust_score=passed_count / len(criteria),
+        precision_floor=benchmark_suite.worst_precision_lower_bound,
+        recall_floor=benchmark_suite.worst_recall_lower_bound,
+        criteria=criteria,
+        refusal_reasons=refusal_reasons,
     )

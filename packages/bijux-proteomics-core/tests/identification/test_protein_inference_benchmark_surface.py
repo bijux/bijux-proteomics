@@ -6,8 +6,11 @@ from __future__ import annotations
 from bijux_proteomics.identification.confidence import ProteinInferenceStrategyKind
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.protein_inference_benchmarks import (
+    IdentificationWorkflowClaimReview,
     ProteinInferenceBenchmarkScenario,
     ProteinInferenceBenchmarkScenarioKind,
+    build_identification_workflow_claim_review,
+    build_picked_group_fdr_benchmark_plan,
     build_protein_inference_benchmark_report,
     build_protein_inference_benchmark_suite,
 )
@@ -158,3 +161,28 @@ def test_protein_inference_benchmark_suite_tracks_false_negative_pressure() -> N
     assert ProteinInferenceStrategyKind.PICKED in suite.covered_strategy_kinds
     assert suite.worst_precision_lower_bound <= 1.0
     assert suite.worst_recall_lower_bound < 1.0
+
+
+def test_picked_group_fdr_benchmark_plan_stays_explicitly_unclaimed() -> None:
+    plan = build_picked_group_fdr_benchmark_plan()
+
+    assert plan.claim_ready is False
+    assert len(plan.required_scenarios) == 4
+    assert "picked-group FDR" in plan.required_scenarios[0].blocked_claim
+
+
+def test_identification_workflow_claim_review_refuses_unproven_workflows() -> None:
+    suite = build_protein_inference_benchmark_suite((_shared_peptide_heavy_scenario(),))
+
+    review: IdentificationWorkflowClaimReview = build_identification_workflow_claim_review(
+        workflow_id="dda-identification",
+        benchmark_suite=suite,
+        material_loss_count=1,
+        engine_disagreement_count=1,
+        contaminant_risk=True,
+        calibration_release_blocked=True,
+    )
+
+    assert review.accepted is False
+    assert "isoform-pressure-covered" in review.refusal_reasons
+    assert "material-adapter-loss-absent" in review.refusal_reasons
