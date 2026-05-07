@@ -7,12 +7,16 @@ from bijux_proteomics_knowledge.references import (
     BenchmarkComparatorFailureReport,
     BenchmarkManifest,
     BenchmarkRegistryEntry,
+    ComparatorPositionReport,
     KnowledgeDeficitSeverity,
     KnowledgeOntologyDomain,
     KnowledgeOntologyMapping,
     KnowledgeWorkflowFamily,
     WorkflowBenchmarkPackage,
+    WorkflowComparatorConfrontation,
     WorkflowComparatorMatrixReport,
+    WorkflowComparatorRegressionReport,
+    WorkflowComparatorScorecard,
     WorkflowContradictionDossier,
     WorkflowEvidenceSufficiencyRubric,
     WorkflowLiteratureMatrix,
@@ -24,6 +28,10 @@ from bijux_proteomics_knowledge.references import (
     get_benchmark_manifest,
     get_benchmark_package,
     get_benchmark_registry_entry,
+    get_comparator_position_report,
+    get_workflow_comparator_confrontation,
+    get_workflow_comparator_regression_report,
+    get_workflow_comparator_scorecard,
     get_workflow_contradiction_dossier,
     get_workflow_evidence_sufficiency_rubric,
     get_workflow_knowledge_deficit_report,
@@ -43,9 +51,17 @@ def test_knowledge_references_root_exposes_curated_reference_anchors() -> None:
     comparator_failures = build_benchmark_comparator_failure_report(
         workflow_family=KnowledgeWorkflowFamily.DIA
     )
+    comparator_confrontation = get_workflow_comparator_confrontation(
+        KnowledgeWorkflowFamily.DIA
+    )
     comparator_matrix = build_workflow_comparator_matrix(
         workflow_family=KnowledgeWorkflowFamily.DIA
     )
+    comparator_scorecard = get_workflow_comparator_scorecard(
+        KnowledgeWorkflowFamily.DIA
+    )
+    comparator_positions = get_comparator_position_report()
+    comparator_regressions = get_workflow_comparator_regression_report()
     literature_matrix = get_workflow_literature_matrix(KnowledgeWorkflowFamily.DIA)
     contradiction_dossier = get_workflow_contradiction_dossier(
         KnowledgeWorkflowFamily.DIA
@@ -64,7 +80,11 @@ def test_knowledge_references_root_exposes_curated_reference_anchors() -> None:
     assert isinstance(package, WorkflowBenchmarkPackage)
     assert isinstance(registry_entry, BenchmarkRegistryEntry)
     assert isinstance(comparator_failures, BenchmarkComparatorFailureReport)
+    assert isinstance(comparator_confrontation, WorkflowComparatorConfrontation)
     assert isinstance(comparator_matrix, WorkflowComparatorMatrixReport)
+    assert isinstance(comparator_scorecard, WorkflowComparatorScorecard)
+    assert isinstance(comparator_positions, ComparatorPositionReport)
+    assert isinstance(comparator_regressions, WorkflowComparatorRegressionReport)
     assert isinstance(literature_matrix, WorkflowLiteratureMatrix)
     assert isinstance(contradiction_dossier, WorkflowContradictionDossier)
     assert isinstance(sufficiency_rubric, WorkflowEvidenceSufficiencyRubric)

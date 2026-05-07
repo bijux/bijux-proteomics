@@ -14,12 +14,36 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
     WorkflowBenchmarkPackage,
 )
+from bijux_proteomics_knowledge.references.workflows.comparator_confrontations import (
+    WorkflowComparatorConfrontation,
+    WorkflowComparatorConfrontationReport,
+    build_workflow_comparator_confrontation,
+    build_workflow_comparator_confrontation_report,
+)
 from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
     BenchmarkComparatorFailureEntry,
     BenchmarkComparatorFailureReport,
     ComparatorClaimSupportState,
     ComparatorFailureSeverity,
     build_benchmark_comparator_failure_report,
+)
+from bijux_proteomics_knowledge.references.workflows.comparator_positions import (
+    ComparatorPositionEntry,
+    ComparatorPositionKind,
+    ComparatorPositionReport,
+    build_comparator_position_report,
+)
+from bijux_proteomics_knowledge.references.workflows.comparator_regressions import (
+    ComparatorRegressionStatus,
+    WorkflowComparatorRegressionEntry,
+    WorkflowComparatorRegressionReport,
+    build_workflow_comparator_regression_report,
+)
+from bijux_proteomics_knowledge.references.workflows.comparator_scorecards import (
+    WorkflowComparatorScorecard,
+    WorkflowComparatorScorecardReport,
+    build_workflow_comparator_scorecard,
+    build_workflow_comparator_scorecard_report,
 )
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     WorkflowComparatorMatrixEntry,
@@ -121,6 +145,63 @@ def get_benchmark_comparator_failure(
 
     report = build_benchmark_comparator_failure_report(benchmark_id=benchmark_id)
     return report.entries[0] if report.entries else None
+
+
+def list_workflow_comparator_confrontations(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowComparatorConfrontation, ...]:
+    """Return explicit workflow-family comparator confrontations."""
+
+    return build_workflow_comparator_confrontation_report(
+        workflow_family=workflow_family
+    ).entries
+
+
+def get_workflow_comparator_confrontation(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowComparatorConfrontation:
+    """Return the comparator confrontation for one workflow family."""
+
+    return build_workflow_comparator_confrontation(workflow_family)
+
+
+def list_workflow_comparator_scorecards() -> tuple[WorkflowComparatorScorecard, ...]:
+    """Return workflow-family comparator scorecards."""
+
+    return build_workflow_comparator_scorecard_report().entries
+
+
+def get_workflow_comparator_scorecard(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowComparatorScorecard:
+    """Return the comparator scorecard for one workflow family."""
+
+    return build_workflow_comparator_scorecard(workflow_family)
+
+
+def list_comparator_positions(
+    *,
+    kind: ComparatorPositionKind | None = None,
+) -> tuple[ComparatorPositionEntry, ...]:
+    """Return known comparator wins and losses, optionally filtered by kind."""
+
+    entries = build_comparator_position_report().entries
+    if kind is None:
+        return entries
+    return tuple(entry for entry in entries if entry.kind is kind)
+
+
+def get_comparator_position_report() -> ComparatorPositionReport:
+    """Return the report of known comparator wins and losses."""
+
+    return build_comparator_position_report()
+
+
+def get_workflow_comparator_regression_report() -> WorkflowComparatorRegressionReport:
+    """Return the workflow-family comparator regression baseline report."""
+
+    return build_workflow_comparator_regression_report()
 
 
 def list_benchmark_registry_entries(
@@ -271,20 +352,32 @@ __all__ = [
     "BenchmarkComparatorFailureReport",
     "ComparatorClaimSupportState",
     "ComparatorFailureSeverity",
+    "ComparatorPositionEntry",
+    "ComparatorPositionKind",
+    "ComparatorPositionReport",
+    "ComparatorRegressionStatus",
     "build_benchmark_comparator_failure_report",
+    "build_comparator_position_report",
     "get_benchmark_comparator_failure",
     "get_benchmark_manifest",
     "get_benchmark_package",
     "get_benchmark_registry_entry",
+    "get_comparator_position_report",
+    "get_workflow_comparator_confrontation",
     "get_workflow_contradiction_dossier",
     "get_workflow_comparator_path",
+    "get_workflow_comparator_regression_report",
+    "get_workflow_comparator_scorecard",
     "get_workflow_evidence_sufficiency_rubric",
     "get_workflow_knowledge_deficit_report",
     "get_workflow_literature_matrix",
     "get_workflow_narrative",
     "get_workflow_scientific_reading_pack",
     "list_benchmark_comparator_failures",
+    "list_comparator_positions",
+    "list_workflow_comparator_confrontations",
     "list_workflow_comparator_paths",
+    "list_workflow_comparator_scorecards",
     "build_workflow_comparator_matrix",
     "list_benchmark_registry_entries",
     "list_benchmark_manifests",
@@ -297,10 +390,16 @@ __all__ = [
     "BenchmarkRegistryEntry",
     "BenchmarkRegistryReport",
     "WorkflowBenchmarkPackage",
+    "WorkflowComparatorConfrontation",
+    "WorkflowComparatorConfrontationReport",
     "WorkflowContradictionDossier",
     "WorkflowComparatorMatrixEntry",
     "WorkflowComparatorMatrixReport",
     "WorkflowComparatorPath",
+    "WorkflowComparatorRegressionEntry",
+    "WorkflowComparatorRegressionReport",
+    "WorkflowComparatorScorecard",
+    "WorkflowComparatorScorecardReport",
     "WorkflowEvidenceSufficiencyRubric",
     "WorkflowKnowledgeDeficitReport",
     "WorkflowLiteratureMatrix",
