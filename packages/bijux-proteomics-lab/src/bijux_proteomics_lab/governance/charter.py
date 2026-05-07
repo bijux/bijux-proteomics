@@ -101,6 +101,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "handoffs/ptm.py",
             "handoffs/risk.py",
             "benchmarks/claims.py",
+            "benchmarks/follow_up.py",
             "benchmarks/rehearsals.py",
         ),
         release_blocker="Lab cannot ship if handoff packets lose protocol controls, caveats, or artifact integrity.",
@@ -113,6 +114,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "outcomes/feedback.py",
             "readiness/operations.py",
             "handoffs/risk.py",
+            "reconciliation/canonical_follow_up.py",
             "reconciliation/follow_up.py",
         ),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
@@ -162,6 +164,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
             LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
         ),
         reason="Targeted benchmark claims keep benchmark support posture tied to exact discovery, handoff, cache, and observed-feedback evidence.",
+    ),
+    LabModuleAuditEntry(
+        module_path="benchmarks/follow_up.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.ASSAY_PLANNING,
+            LabCharterCapability.HANDOFF_PACKETS,
+        ),
+        reason="Flagship benchmark follow-up packets turn review posture into concrete lab-facing controls, boundary conditions, and burden tradeoffs.",
     ),
     LabModuleAuditEntry(
         module_path="benchmarks/rehearsals.py",
@@ -315,6 +326,12 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         module_path="reconciliation/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The reconciliation band re-exports follow-up owners under the durable reconciliation namespace.",
+    ),
+    LabModuleAuditEntry(
+        module_path="reconciliation/canonical_follow_up.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
+        reason="Canonical follow-up packets keep cross-package outcome consequences explicit instead of letting them dissolve into generic summaries.",
     ),
     LabModuleAuditEntry(
         module_path="reconciliation/follow_up.py",
