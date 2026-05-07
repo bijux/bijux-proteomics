@@ -43,5 +43,21 @@ def test_workflow_evidence_sufficiency_rubric_keeps_current_authorized_tier_boun
     assert rubric.current_authorized_tier in {
         WorkflowEvidenceTrustTier.BENCHMARK_BACKED,
         WorkflowEvidenceTrustTier.EXTERNALLY_CROSS_CHECKED,
+        WorkflowEvidenceTrustTier.DECISION_GRADE,
     }
     assert "release wording" in rubric.note.lower()
+
+
+def test_dda_evidence_sufficiency_rubric_no_longer_demands_mini_study_replacement() -> (
+    None
+):
+    rubric = build_workflow_evidence_sufficiency_rubric(KnowledgeWorkflowFamily.DDA)
+
+    benchmark_backed = next(
+        check
+        for check in rubric.checks
+        if check.tier is WorkflowEvidenceTrustTier.BENCHMARK_BACKED
+    )
+
+    assert benchmark_backed.satisfied is True
+    assert benchmark_backed.missing_requirements == ()

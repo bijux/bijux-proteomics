@@ -43,6 +43,9 @@ class BenchmarkEvidenceTier(StrEnum):
 class BenchmarkPackageArtifactKind(StrEnum):
     """Artifact roles inside a reproducible benchmark package."""
 
+    ARTIFACT_INVENTORY = "artifact_inventory"
+    BENCHMARK_MANIFEST = "benchmark_manifest"
+    BENCHMARK_README = "benchmark_readme"
     DESIGN_TABLE = "design_table"
     EXPECTATION_LEDGER = "expectation_ledger"
     EXTERNAL_PIPELINE_EXPORT = "external_pipeline_export"
@@ -53,7 +56,9 @@ class BenchmarkPackageArtifactKind(StrEnum):
     RAW_SPECTRA = "raw_spectra"
     RESULTS_TABLE = "results_table"
     RUNTIME_POLICY = "runtime_policy"
+    SCIENTIFIC_INVARIANT_LEDGER = "scientific_invariant_ledger"
     SEARCH_SETTINGS = "search_settings"
+    WARNING_DEMONSTRATION_LEDGER = "warning_demonstration_ledger"
     TARGETED_QC_TABLE = "targeted_qc_table"
 
 
@@ -196,139 +201,181 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
     BenchmarkManifest(
         benchmark_id="benchmark:dda_search_reproducibility",
         workflow_family=KnowledgeWorkflowFamily.DDA,
-        title="DDA search reproducibility benchmark",
-        scientific_focus="Peptide-spectrum match reproducibility across search adapter inputs.",
-        evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
-        dataset_id="dataset:msfragger_search_adapter_fixture",
-        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_results.tsv",
+        title="DDA reviewable public benchmark package",
+        scientific_focus="Bounded DDA review over a primary MaxQuant import path with explicit MSFragger comparator pressure.",
+        evidence_tier=BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
+        dataset_id="dataset:dda_reviewable_run_package",
+        dataset_locator="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json",
         organism="human",
-        sample_complexity="single-engine adapter export with bounded peptide and protease diversity",
+        sample_complexity="one raw-like spectrum, one primary MaxQuant pipeline export, one MSFragger comparator export, and explicit warning ledgers",
         label_strategy="label-free",
         sample_count=1,
         replicate_count=1,
         acquisition_mode="data-dependent acquisition",
         truth_surfaces=(
             "target-decoy confidence scope",
-            "adapter-normalized peptide identity",
-            "reviewed-proteome mapping",
+            "loss-free adapter normalization across the shipped DDA imports",
+            "cross-engine protein-rollup warning pressure",
         ),
-        success_metric="Stable peptide and protein identification counts after adapter normalization.",
-        result_claim="Adapter-normalized DDA evidence should preserve target-decoy semantics and reviewed-proteome mapping.",
+        success_metric="The primary MaxQuant export stays parity-acceptable while the MSFragger comparator keeps protein-rollup disagreement explicit.",
+        result_claim="The public DDA package can support bounded peptide-facing review, explicit target-decoy visibility, and explicit cross-engine protein-rollup caution.",
         cross_check_status=BenchmarkCrossCheckStatus.EXTERNAL_OUTPUT_COMPARISON,
-        cross_check_note="The manifest is checked against a pinned MSFragger export, but the repository still does not rerun the external engine.",
+        cross_check_note="The package is cross-checked against both MaxQuant and MSFragger pipeline exports, but still does not claim in-repo live-engine rerun parity.",
         primary_citation_ids=(
             "citation:target_decoy_2007",
+            "citation:protein_inference_2012",
             "citation:uniprot_2025",
         ),
         corpus_ids=(
             "corpus:search_adapter_fixture_suite",
             "corpus:target_decoy_method_reference",
         ),
-        benchmark_rationale="The suite compares multiple DDA search outputs, so the manifest must preserve both identification confidence framing and reference-proteome mapping.",
+        benchmark_rationale="The DDA family now has enough tracked substance to make the benchmark itself a public package instead of a structure-only fixture story, so the manifest centers on inspectable files and cross-engine drift.",
         version_trace=(
-            "The benchmark is pinned to the checked-in MSFragger export and the current reference-corpus links reviewed on 2026-05-05.",
+            "The benchmark was promoted onto the tracked DDA reviewable package and its paired comparator export on 2026-05-07.",
         ),
         retrieval_trace=(
-            "Dataset paths and linked reference corpora were re-verified on 2026-05-05 before the benchmark contract was refreshed.",
+            "The tracked DDA package files, comparator exports, and citation anchors were re-verified on 2026-05-07 before the benchmark contract was refreshed.",
         ),
-        dataset_license_and_reuse_note="The checked-in adapter fixture is reused as internal benchmark evidence inside this repository and does not imply redistribution rights for external search-engine outputs beyond the test fixture snapshot.",
+        dataset_license_and_reuse_note="The tracked DDA package reuses checked-in raw-like and imported-result snapshots as governed benchmark evidence and does not imply redistribution rights for any broader external-engine dataset outside those snapshots.",
         instrument_profiles=("Orbitrap", "Q Exactive-class DDA"),
         reproduction_requirements=(
-            "Normalize search-engine exports through the core adapter fixture corpus.",
-            "Validate peptide-spectrum match confidence with target-decoy-oriented outputs.",
-            "Map identified proteins against curated UniProt-reviewed records.",
+            "Inspect the tracked package manifest, artifact inventory, and README before relying on summary prose.",
+            "Replay adapter normalization on the shipped MaxQuant and MSFragger pipeline exports.",
+            "Check the warning demonstration ledger before promoting any protein-facing DDA claim.",
         ),
         benchmark_package=WorkflowBenchmarkPackage(
-            package_id="benchmark_package:dda_msfragger_reproduction_bundle",
-            package_summary="DDA benchmark package combines raw-like spectra, a pinned search export, fixture manifest, and expected workflow outputs so adapter review can be replayed from spectra-shaped inputs to review-ready evidence without pretending the engine rerun happens in-repo.",
-            promotion_goal="Promote the DDA benchmark from a checked-in export review into a reproducible raw-to-result package with explicit engine-outside-repo boundaries.",
+            package_id="benchmark_package:dda_reviewable_run",
+            package_summary="The DDA benchmark package is now a tracked public package with a human README, machine manifest, artifact inventory, scientific invariants, warning demonstrations, raw-like spectra, and paired MaxQuant and MSFragger exports.",
+            promotion_goal="Keep DDA authority anchored in outsider-readable files and concrete warning pressure instead of structure-only benchmark objects.",
             realism_pressures=(
-                "raw-spectrum-to-result replay pressure through spectra, FASTA, and pinned result snapshots",
-                "production-like fixture governance with expected workflow outputs and QC policy references",
+                "paired primary-versus-comparator DDA export pressure at the protein rollup layer",
+                "raw-like spectrum and explicit expectation-ledger pressure instead of export-only narration",
             ),
             transparent_assumptions=(
-                "engine execution remains outside repo scope even though spectra and search settings are pinned here",
-                "result review authority is limited to the checked-in MSFragger export rather than raw-spectrum scoring parity",
+                "the package proves bounded imported-result review, not in-repo live-engine rerun parity",
+                "the warning ledger is strong enough to demonstrate protein-rollup drift but not broad production-cohort transfer",
             ),
             governed_output_surfaces=(
                 "identification.search_adapters",
                 "identification.review_ready_evidence_bundle",
+                "identification.search_adapter_loss",
             ),
             package_artifacts=(
                 BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:raw_spectra",
+                    artifact_id="dda_reviewable_run:package_readme",
+                    artifact_kind=BenchmarkPackageArtifactKind.BENCHMARK_README,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/README.md",
+                    note="Human-readable entrypoint that explains exactly what the DDA package can and cannot support.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:package_manifest",
+                    artifact_kind=BenchmarkPackageArtifactKind.BENCHMARK_MANIFEST,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/package_manifest.json",
+                    note="Machine-readable DDA package summary with citations, runtime linkage, and review artifact paths.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:artifact_inventory",
+                    artifact_kind=BenchmarkPackageArtifactKind.ARTIFACT_INVENTORY,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/artifact_inventory.json",
+                    note="Artifact inventory with digests and reviewer notes for every tracked DDA evidence file.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:scientific_invariants",
+                    artifact_kind=BenchmarkPackageArtifactKind.SCIENTIFIC_INVARIANT_LEDGER,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/scientific_invariants.json",
+                    note="Numeric DDA invariants earned by the public package rather than by benchmark shape alone.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:warning_demonstrations",
+                    artifact_kind=BenchmarkPackageArtifactKind.WARNING_DEMONSTRATION_LEDGER,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/public_benchmark_packages/dda_reviewable_run/warning_demonstrations.json",
+                    note="Concrete warning demonstrations that keep protein-facing DDA caution public and inspectable.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:raw_spectra",
                     artifact_kind=BenchmarkPackageArtifactKind.RAW_SPECTRA,
                     repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/spectra.mgf",
-                    note="Pinned spectra-shaped input that keeps the benchmark anchored to a raw-like acquisition surface.",
+                    note="Raw-like spectrum that keeps the benchmark anchored to inspectable fragment evidence.",
                 ),
                 BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:protein_fasta",
-                    artifact_kind=BenchmarkPackageArtifactKind.PROTEIN_FASTA,
-                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/proteins.fasta",
-                    note="Reviewed proteome snapshot for bounded replay against the pinned result bundle.",
+                    artifact_id="dda_reviewable_run:design_table",
+                    artifact_kind=BenchmarkPackageArtifactKind.DESIGN_TABLE,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
+                    note="Design table that preserves batch, instrument, and engine context for the reviewable run.",
                 ),
                 BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:fixture_manifest",
-                    artifact_kind=BenchmarkPackageArtifactKind.FIXTURE_MANIFEST,
-                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/fixture_manifest.json",
-                    note="Fixture-level checksum ledger that keeps replay inputs explicit.",
-                ),
-                BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:results_table",
-                    artifact_kind=BenchmarkPackageArtifactKind.RESULTS_TABLE,
-                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_results.tsv",
-                    note="Pinned MSFragger result table used for adapter-normalized review comparison.",
-                ),
-                BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:search_settings",
-                    artifact_kind=BenchmarkPackageArtifactKind.SEARCH_SETTINGS,
-                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger.params",
-                    note="Search parameter snapshot that makes external-engine assumptions explicit.",
-                ),
-                BenchmarkPackageArtifact(
-                    artifact_id="dda_msfragger_bundle:expectation_ledger",
+                    artifact_id="dda_reviewable_run:expectation_ledger",
                     artifact_kind=BenchmarkPackageArtifactKind.EXPECTATION_LEDGER,
                     repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/production_run/workflow_end_to_end_expectations.json",
-                    note="Expected workflow outputs that keep raw-to-review replay scoped and reviewable.",
+                    note="Expectation ledger that keeps runtime and review outputs explicit.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:maxquant_export",
+                    artifact_kind=BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
+                    note="Primary imported DDA result set that anchors the runtime reviewable run.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:maxquant_settings",
+                    artifact_kind=BenchmarkPackageArtifactKind.SEARCH_SETTINGS,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_settings.txt",
+                    note="Primary search settings snapshot that exposes enzyme, tolerances, and decoy prefix assumptions.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:msfragger_export",
+                    artifact_kind=BenchmarkPackageArtifactKind.EXTERNAL_PIPELINE_EXPORT,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
+                    note="Comparator imported DDA result set that demonstrates protein-rollup drift in public files.",
+                ),
+                BenchmarkPackageArtifact(
+                    artifact_id="dda_reviewable_run:msfragger_settings",
+                    artifact_kind=BenchmarkPackageArtifactKind.SEARCH_SETTINGS,
+                    repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger.params",
+                    note="Comparator search settings snapshot that keeps alternate engine assumptions inspectable.",
                 ),
             ),
             reproduction_steps=(
                 BenchmarkReproductionStep(
-                    step_id="inspect_fixture_inputs",
-                    summary="Verify the governed spectra, FASTA, and fixture ledger before treating the package as a valid replay surface.",
+                    step_id="inspect_public_package",
+                    summary="Open the public package README, manifest, and artifact inventory before relying on narrative summaries.",
                     artifact_ids=(
-                        "dda_msfragger_bundle:raw_spectra",
-                        "dda_msfragger_bundle:protein_fasta",
-                        "dda_msfragger_bundle:fixture_manifest",
+                        "dda_reviewable_run:package_readme",
+                        "dda_reviewable_run:package_manifest",
+                        "dda_reviewable_run:artifact_inventory",
                     ),
                     expected_outputs=(
-                        "input hashes and bounded replay scope remain explicit",
-                        "raw-like acquisition surface is pinned before review claims are made",
+                        "package scope and exact tracked evidence files stay explicit",
+                        "artifact digests and reviewer notes are visible before any scientific claim is promoted",
                     ),
                 ),
                 BenchmarkReproductionStep(
-                    step_id="compare_external_engine_export",
-                    summary="Replay adapter normalization against the pinned MSFragger result table and its search settings snapshot.",
+                    step_id="replay_primary_import_review",
+                    summary="Replay the primary DDA import review against the tracked MaxQuant export, settings, raw-like spectrum, design table, and expectation ledger.",
                     artifact_ids=(
-                        "dda_msfragger_bundle:results_table",
-                        "dda_msfragger_bundle:search_settings",
+                        "dda_reviewable_run:raw_spectra",
+                        "dda_reviewable_run:design_table",
+                        "dda_reviewable_run:expectation_ledger",
+                        "dda_reviewable_run:maxquant_export",
+                        "dda_reviewable_run:maxquant_settings",
                     ),
-                    outside_repo_execution=True,
                     expected_outputs=(
                         "target-decoy semantics remain visible after adapter normalization",
-                        "reviewed-proteome mapping stays grounded in the pinned result snapshot",
+                        "the runtime-linked DDA review path stays bounded to the tracked import package",
                     ),
                 ),
                 BenchmarkReproductionStep(
-                    step_id="check_review_ready_expectations",
-                    summary="Cross-check review-ready evidence against the production-like expectation ledger instead of stopping at parser success.",
+                    step_id="demonstrate_comparator_warning_pressure",
+                    summary="Compare the primary and comparator DDA exports against the invariant and warning ledgers before making any protein-facing interpretation stronger.",
                     artifact_ids=(
-                        "dda_msfragger_bundle:results_table",
-                        "dda_msfragger_bundle:expectation_ledger",
+                        "dda_reviewable_run:maxquant_export",
+                        "dda_reviewable_run:msfragger_export",
+                        "dda_reviewable_run:scientific_invariants",
+                        "dda_reviewable_run:warning_demonstrations",
                     ),
                     expected_outputs=(
-                        "review-ready evidence bundle stays inside the documented workflow surface",
-                        "raw-to-result benchmark package proves bounded replay rather than generic engine parity",
+                        "adapter parity and loss-free import remain explicit for both DDA engines",
+                        "protein-rollup disagreement stays demonstrated in public files rather than hidden inside review prose",
                     ),
                 ),
             ),
@@ -338,24 +385,24 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             "comparator_path:maxquant_evidence_import_contracts",
         ),
         comparison_notes=(
-            "Compare normalized outputs against the checked-in MSFragger export rather than rerunning external engines in-repo.",
-            "Preserve target-decoy and reviewed-proteome expectations from the published identification framing.",
+            "Compare the primary MaxQuant import path against the paired MSFragger comparator export inside the tracked DDA package.",
+            "Preserve target-decoy visibility and explicit protein-rollup caution rather than flattening DDA review into engine-agnostic certainty.",
         ),
         exclusion_notes=(
-            "Excludes direct search-engine reruns and any claim about raw-spectrum scoring parity outside the checked-in adapter fixture corpus.",
-            "Excludes non-tryptic and protease-mixed export behavior that is not represented in the benchmark fixture suite.",
+            "Excludes direct search-engine reruns and any claim about raw-spectrum scoring parity beyond the tracked imported-result package.",
+            "Excludes broad production-cohort DDA behavior that is not represented in the one-run public package.",
         ),
         weakness_notes=(
-            "The checked-in export is cleaner and narrower than many production search result bundles.",
-            "Protein rollup caution remains indirect because the benchmark surface is adapter-shaped rather than cohort-scale.",
+            "The tracked DDA package is still smaller and cleaner than a production multi-run search corpus.",
+            "The package demonstrates protein-rollup drift directly, but it still does not prove live-engine calibration parity.",
         ),
         fixture_realism_limits=(
-            "The checked-in adapter export is cleaner and more uniform than mixed-engine production search bundles.",
-            "The fixture lacks the cohort heterogeneity needed for broader protein-list trust claims.",
+            "The public package is still a one-run imported-result surface rather than a broader cohort-grade DDA benchmark.",
+            "The package demonstrates cross-engine drift but does not yet replace live-engine rerun proof.",
         ),
         failure_mode_notes=(
-            "Target-decoy columns can be normalized while semantic scope is still misread at peptide versus protein levels.",
-            "Reviewed-proteome identifiers can appear stable even when protease comparability quietly drifts.",
+            "Target-decoy visibility can stay intact while protein-facing interpretation still drifts across comparator engines.",
+            "Imported-result parity can look strong even when live-engine calibration behavior remains unproven.",
         ),
         expected_failure_conditions=(
             "Adapter normalization drops or misreads decoy labels.",

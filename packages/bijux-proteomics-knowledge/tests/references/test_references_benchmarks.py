@@ -154,3 +154,20 @@ def test_benchmark_registry_reports_exact_claim_scope_and_bounded_authority() ->
                 "bounded workflow semantics" in line
                 for line in entry.authorized_claim_scope
             )
+
+
+def test_dda_manifest_now_points_to_public_package_artifacts() -> None:
+    manifest = next(
+        entry
+        for entry in DEFAULT_BENCHMARK_MANIFESTS
+        if entry.workflow_family is KnowledgeWorkflowFamily.DDA
+    )
+
+    assert manifest.evidence_tier is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
+    assert manifest.dataset_locator.endswith(
+        "public_benchmark_packages/dda_reviewable_run/package_manifest.json"
+    )
+    assert manifest.benchmark_package is not None
+    assert not any(
+        step.outside_repo_execution for step in manifest.benchmark_package.reproduction_steps
+    )

@@ -36,3 +36,9 @@ def test_workflow_knowledge_deficit_report_marks_targeted_gap_as_release_blockin
 
     assert report.highest_severity is KnowledgeDeficitSeverity.RELEASE_BLOCKING
     assert any("Skyline" in item.closure_condition or "comparator" in item.closure_condition for item in report.comparator_gaps)
+
+
+def test_dda_knowledge_deficit_report_no_longer_claims_curated_mini_study_gap() -> None:
+    report = build_workflow_knowledge_deficit_report(KnowledgeWorkflowFamily.DDA)
+
+    assert report.public_data_gaps == ()

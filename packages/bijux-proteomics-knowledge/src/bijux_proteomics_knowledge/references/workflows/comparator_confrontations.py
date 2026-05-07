@@ -119,11 +119,11 @@ def _build_dda_confrontation() -> WorkflowComparatorConfrontation:
             ),
         ),
         overall_conclusion=(
-            "The repository confronts the established DDA workflow honestly: peptide import semantics and bounded protein review survive, but live-engine calibration parity still belongs to the comparator."
+            "The repository now ships a real DDA public package with paired comparator evidence: peptide import semantics, target-decoy visibility, and protein-rollup drift are public, but live-engine calibration parity still belongs to the comparator."
         ),
         artifact_refs=tuple(path.comparator_path_id for path in comparator_paths),
         next_escalation=(
-            "Add a real public DDA package with harder raw-data identity and a stronger live-engine confrontation so the DDA comparison moves beyond pinned-export review."
+            "Add live-engine DDA rerun parity or a stronger multi-run public comparison so the current public package no longer stops at imported-result confrontation."
         ),
     )
 
