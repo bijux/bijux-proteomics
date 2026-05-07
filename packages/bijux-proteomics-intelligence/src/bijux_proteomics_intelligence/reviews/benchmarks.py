@@ -9,11 +9,6 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.collaboration import (
-    ExternalReviewerBundle,
-    ExternalReviewerBundleInput,
-    build_external_reviewer_bundle,
-)
 from bijux_proteomics.dia import (
     DiaCapabilityMatrixEntry,
     DiaCapabilityStatus,
@@ -42,14 +37,19 @@ from bijux_proteomics.quantification import (
     QuantDecisionReadinessState,
     QuantEntityLevel,
     QuantRollupMethod,
-    build_quant_decision_readiness_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
+    build_quant_decision_readiness_report,
     parse_ms1_feature_table,
 )
 from bijux_proteomics.quantification.review import (
     build_multiplex_channel_balance_diagnostics_report,
     build_quant_review_bundle,
+)
+from bijux_proteomics.review.collaboration import (
+    ExternalReviewerBundle,
+    ExternalReviewerBundleInput,
+    build_external_reviewer_bundle,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import JsonModel, fingerprint_model
@@ -58,8 +58,13 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.comparators import (
+    ProteomicsComparatorTool,
+    build_workflow_comparator_matrix,
+)
 from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_manifest,
+    get_benchmark_package,
     get_benchmark_registry_entry,
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
@@ -90,6 +95,19 @@ class BenchmarkReviewArtifact(JsonModel):
     artifact_id: str = Field(..., min_length=1)
 
 
+class BenchmarkComparatorPosition(JsonModel):
+    """Exact comparator-tool posture carried into benchmark reviews."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    comparator_tool: ProteomicsComparatorTool
+    comparator_path_ids: tuple[str, ...] = Field(default_factory=tuple)
+    matched_behaviors: tuple[str, ...] = Field(default_factory=tuple)
+    partial_behaviors: tuple[str, ...] = Field(default_factory=tuple)
+    refused_behaviors: tuple[str, ...] = Field(default_factory=tuple)
+    not_attempted_behaviors: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class WorkflowBenchmarkReview(JsonModel):
     """Release-facing review output for one benchmark-backed workflow path."""
 
@@ -101,6 +119,12 @@ class WorkflowBenchmarkReview(JsonModel):
     benchmark_authority_status: BenchmarkAuthorityStatus
     title: str = Field(..., min_length=1)
     reviewer_summary: str = Field(..., min_length=1)
+    benchmark_package_id: str | None = None
+    benchmark_package_summary: str | None = None
+    benchmark_package_artifact_ids: tuple[str, ...] = Field(default_factory=tuple)
+    comparator_positions: tuple[BenchmarkComparatorPosition, ...] = Field(
+        default_factory=tuple
+    )
     supported_repo_claims: tuple[str, ...] = Field(default_factory=tuple)
     authorized_claim_scope: tuple[str, ...] = Field(default_factory=tuple)
     owner_surfaces: tuple[str, ...] = Field(default_factory=tuple)
@@ -128,6 +152,32 @@ def _require_registry_entry(benchmark_id: str):
     if entry is None:
         raise ValueError(f"unknown benchmark registry entry: {benchmark_id}")
     return entry
+
+
+def _benchmark_package_artifact_ids(benchmark_id: str) -> tuple[str, ...]:
+    package = get_benchmark_package(benchmark_id)
+    if package is None:
+        return ()
+    return tuple(artifact.artifact_id for artifact in package.package_artifacts)
+
+
+def _build_comparator_positions(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> tuple[BenchmarkComparatorPosition, ...]:
+    matrix = build_workflow_comparator_matrix(workflow_family=workflow_family)
+    if not matrix.entries:
+        return ()
+    return tuple(
+        BenchmarkComparatorPosition(
+            comparator_tool=status.comparator_tool,
+            comparator_path_ids=status.comparator_path_ids,
+            matched_behaviors=status.matched_behaviors,
+            partial_behaviors=status.partial_behaviors,
+            refused_behaviors=status.refused_behaviors,
+            not_attempted_behaviors=status.not_attempted_behaviors,
+        )
+        for status in matrix.entries[0].tool_statuses
+    )
 
 
 def _build_external_bundle(
@@ -254,6 +304,12 @@ def build_dda_benchmark_review(
             "DDA benchmark review preserves external-engine normalization, target-decoy posture, "
             "and protein-level reviewability for the checked-in MSFragger fixture without pretending it is a full engine rerun."
         ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -402,6 +458,12 @@ def build_dia_benchmark_review(
             "DIA benchmark review turns a checked-in Spectronaut-style export into a reviewable "
             "bundle with explicit capability limits, rather than presenting adapter coverage as full pipeline parity."
         ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -567,6 +629,12 @@ def build_ptm_benchmark_review(
             "PTM benchmark review turns checked-in localization evidence into a phospho review packet "
             "while preserving explicit ambiguity and motif-scope limits."
         ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -710,6 +778,12 @@ def build_lfq_benchmark_review(
             "LFQ benchmark review turns checked-in feature evidence into a reviewable quant bundle "
             "with missingness, QC, rollup limits, and decision-grade boundaries kept explicit."
         ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -928,6 +1002,12 @@ def build_multiplex_benchmark_review(
             "Multiplex benchmark review turns checked-in reporter evidence into a reviewable "
             "channel manifest with explicit missing-channel, imbalance, chemistry caveats, and decision-grade boundaries."
         ),
+        benchmark_package_id=registry_entry.benchmark_package_id,
+        benchmark_package_summary=registry_entry.benchmark_package_summary,
+        benchmark_package_artifact_ids=_benchmark_package_artifact_ids(
+            manifest.benchmark_id
+        ),
+        comparator_positions=_build_comparator_positions(manifest.workflow_family),
         supported_repo_claims=registry_entry.supported_repo_claims,
         authorized_claim_scope=registry_entry.authorized_claim_scope,
         owner_surfaces=(
@@ -960,6 +1040,7 @@ def build_multiplex_benchmark_review(
 
 
 __all__ = [
+    "BenchmarkComparatorPosition",
     "BenchmarkReviewArtifact",
     "BenchmarkReviewClaim",
     "WorkflowBenchmarkReview",

@@ -14,11 +14,11 @@ from bijux_proteomics_intelligence.reviews.benchmarks import (
     build_multiplex_benchmark_review,
     build_ptm_benchmark_review,
 )
-from bijux_proteomics_knowledge.references.workflows.registry import (
-    BenchmarkAuthorityStatus,
-)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.registry import (
+    BenchmarkAuthorityStatus,
 )
 
 
@@ -45,6 +45,13 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.DDA
     assert review.benchmark_authority_status is BenchmarkAuthorityStatus.ACTIVE
+    assert review.benchmark_package_id is not None
+    assert review.benchmark_package_artifact_ids
+    assert any(
+        position.comparator_tool.value == "msfragger"
+        and position.matched_behaviors
+        for position in review.comparator_positions
+    )
     assert review.supported_repo_claims
     assert review.ready_for_release_review is True
     assert "bijux-proteomics-intelligence: benchmark_reviews" in review.owner_surfaces
@@ -73,6 +80,17 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.DIA
+    assert review.benchmark_package_id is not None
+    assert any(
+        position.comparator_tool.value == "spectronaut"
+        and position.partial_behaviors
+        for position in review.comparator_positions
+    )
+    assert any(
+        position.comparator_tool.value == "diann"
+        and position.matched_behaviors
+        for position in review.comparator_positions
+    )
     assert review.ready_for_release_review is True
     capability_claim = next(
         claim
@@ -99,6 +117,11 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.PTM
+    assert any(
+        position.comparator_tool.value == "maxquant"
+        and position.refused_behaviors
+        for position in review.comparator_positions
+    )
     ambiguity_claim = next(
         claim
         for claim in review.claim_summaries
@@ -124,6 +147,12 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
+    assert review.benchmark_package_id is not None
+    assert any(
+        position.comparator_tool.value == "maxquant"
+        and position.partial_behaviors
+        for position in review.comparator_positions
+    )
     assert review.ready_for_release_review is True
     assert review.authorized_claim_scope
     lfq_limit_claim = next(
@@ -157,6 +186,12 @@ def test_build_multiplex_benchmark_review_keeps_channel_caveats_explicit() -> No
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
+    assert review.benchmark_package_id is not None
+    assert any(
+        position.comparator_tool.value == "maxquant"
+        and position.not_attempted_behaviors
+        for position in review.comparator_positions
+    )
     assert review.ready_for_release_review is True
     assert review.supported_repo_claims
     channel_claim = next(
