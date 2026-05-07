@@ -1,0 +1,16 @@
+{
+  "challenge_id": "dda-blinded-holdout",
+  "challenge_kind": "blinded_holdout",
+  "frozen_surface_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+    "artifacts/workflows/generalization-dda/runtime/review_packet.json",
+    "artifacts/workflows/generalization-dda/runtime/evidence_bundle.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json"
+  ],
+  "holdout_package_id": "public_companion_package:dda_cross_engine_review_package",
+  "note": "This blinded holdout report freezes the main reviewer-facing package surfaces first and only then reveals whether the hidden family-transfer findings still support the same workflow posture.",
+  "primary_package_id": "flagship_public_package:dda_reviewable_run",
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+  "workflow_family": "dda"
+}

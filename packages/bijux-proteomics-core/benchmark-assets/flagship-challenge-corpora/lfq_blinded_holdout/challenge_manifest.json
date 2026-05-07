@@ -1,0 +1,19 @@
+{
+  "challenge_id": "lfq-blinded-holdout",
+  "challenge_kind": "blinded_holdout",
+  "frozen_surface_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json",
+    "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
+    "artifacts/workflows/reviewable-proteomics/runtime/missingness_profile.json",
+    "artifacts/workflows/reviewable-proteomics/runtime/differential_report.json",
+    "artifacts/workflows/generalization-lfq/runtime/quant_bundle.json",
+    "artifacts/workflows/generalization-lfq/runtime/differential_report.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json"
+  ],
+  "holdout_package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+  "note": "This blinded holdout report freezes the main reviewer-facing package surfaces first and only then reveals whether the hidden family-transfer findings still support the same workflow posture.",
+  "primary_package_id": "flagship_public_package:lfq_cohort_review_package",
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+  "workflow_family": "lfq"
+}

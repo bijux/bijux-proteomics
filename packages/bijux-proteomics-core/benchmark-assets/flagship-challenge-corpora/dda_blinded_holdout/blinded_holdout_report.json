@@ -1,0 +1,40 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+  "challenge_id": "dda-blinded-holdout",
+  "findings": [
+    {
+      "claim_id": "target-decoy-semantics",
+      "frozen_surface_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json"
+      ],
+      "hidden_truth_summary": "Target-decoy-facing import normalization still survives the second DDA package.",
+      "note": "the frozen benchmark and review surfaces stayed within the withheld claim boundary",
+      "revealed_outcome": "hit"
+    },
+    {
+      "claim_id": "protein-rollup-stability",
+      "frozen_surface_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json"
+      ],
+      "hidden_truth_summary": "Protein-rollup caution remains necessary and becomes slightly harsher under the companion engine pairing.",
+      "note": "the hidden reveal showed that the frozen family claim was broader than the holdout package justifies",
+      "revealed_outcome": "overconfident"
+    }
+  ],
+  "frozen_surface_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+    "artifacts/workflows/generalization-dda/runtime/review_packet.json",
+    "artifacts/workflows/generalization-dda/runtime/evidence_bundle.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/cross_package_generalization.json"
+  ],
+  "holdout_package_id": "public_companion_package:dda_cross_engine_review_package",
+  "note": "This blinded holdout report freezes the main reviewer-facing package surfaces first and only then reveals whether the hidden family-transfer findings still support the same workflow posture.",
+  "primary_package_id": "flagship_public_package:dda_reviewable_run",
+  "withheld_truth_count": 2,
+  "workflow_family": "dda"
+}

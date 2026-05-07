@@ -1,0 +1,43 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+  "challenge_id": "dia-blinded-holdout",
+  "findings": [
+    {
+      "claim_id": "library-conditioned-precursor-review",
+      "frozen_surface_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json"
+      ],
+      "hidden_truth_summary": "Library-conditioned precursor review survives across both DIA public packages.",
+      "note": "the frozen benchmark and review surfaces stayed within the withheld claim boundary",
+      "revealed_outcome": "hit"
+    },
+    {
+      "claim_id": "protein-absence-overreach",
+      "frozen_surface_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json"
+      ],
+      "hidden_truth_summary": "Protein-level absence language becomes weaker on the companion package and must stay downgrade-heavy.",
+      "note": "the hidden reveal showed that the frozen family claim was broader than the holdout package justifies",
+      "revealed_outcome": "overconfident"
+    }
+  ],
+  "frozen_surface_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+    "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
+    "artifacts/workflows/reviewable-proteomics/runtime/evidence_bundle.json",
+    "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json",
+    "artifacts/workflows/generalization-dia/runtime/review_packet.json",
+    "artifacts/workflows/generalization-dia/runtime/evidence_bundle.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/cross_package_generalization.json"
+  ],
+  "holdout_package_id": "public_companion_package:dia_matrix_shift_review_package",
+  "note": "This blinded holdout report freezes the main reviewer-facing package surfaces first and only then reveals whether the hidden family-transfer findings still support the same workflow posture.",
+  "primary_package_id": "flagship_public_package:dia_library_review_package",
+  "withheld_truth_count": 2,
+  "workflow_family": "dia"
+}
