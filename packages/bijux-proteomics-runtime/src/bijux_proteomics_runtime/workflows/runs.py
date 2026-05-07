@@ -17,7 +17,11 @@ from typing import Any, Protocol
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    ExperimentalDesignSampleRole,
+)
+from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics.io.spectra import MgfParseReport, parse_mgf
 from bijux_proteomics.ptm import (
     build_ptm_motif_windows,
@@ -29,8 +33,22 @@ from bijux_proteomics.ptm.review import (
     build_ptm_lab_validation_packet,
     build_ptm_occupancy_counterpart_report,
 )
-from bijux_proteomics.quantification import Ms1FeatureRecord
-from bijux_proteomics.quantification.review import build_quant_review_bundle
+from bijux_proteomics.quantification import (
+    LabelBasedChannelPolicyEntry,
+    LabelBasedChannelRole,
+    LabelBasedQuantPolicy,
+    MissingChannelPolicy,
+    Ms1FeatureRecord,
+    MultiplexNormalizationPolicy,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_label_based_quant_bundle,
+    build_label_free_intensity_table,
+)
+from bijux_proteomics.quantification.review import (
+    build_multiplex_channel_balance_diagnostics_report,
+    build_quant_review_bundle,
+)
 from bijux_proteomics.sequences.core import (
     DecoyGenerationMode,
     FastaParseMode,
@@ -186,6 +204,48 @@ class PtmRuntimeWorkflowRunReport(JsonModel):
     occupancy_entry_count: int = Field(..., ge=0)
     lab_packet_target_count: int = Field(..., ge=0)
     unresolved_risk_count: int = Field(..., ge=0)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class MultiplexRuntimeWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for multiplex quant execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    feature_record_count: int = Field(..., ge=0)
+    multiplex_group_count: int = Field(..., ge=0)
+    channel_count: int = Field(..., ge=0)
+    reference_channel_count: int = Field(..., ge=0)
+    missing_channel_count: int = Field(..., ge=0)
+    flagged_imbalance_count: int = Field(..., ge=0)
+    carrier_effect_channel_count: int = Field(..., ge=0)
+    review_bundle_hash: str = Field(..., min_length=1)
+    artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
+    replay_cache_key: str = Field(..., min_length=64, max_length=64)
+    steps: tuple[RuntimeWorkflowStepRecord, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class TargetedRuntimeWorkflowRunReport(JsonModel):
+    """End-to-end runtime report for targeted benchmark execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_id: str = Field(..., min_length=1)
+    status: RuntimeWorkflowStatus
+    qc_point_count: int = Field(..., ge=0)
+    approved_transition_count: int = Field(..., ge=0)
+    exploratory_transition_count: int = Field(..., ge=0)
+    refused_transition_count: int = Field(..., ge=0)
+    blocked_follow_up_count: int = Field(..., ge=0)
+    observed_outcome_count: int = Field(..., ge=0)
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
     replay_cache_key: str = Field(..., min_length=64, max_length=64)
@@ -356,6 +416,54 @@ def _normalize_stream(value: str | bytes | None) -> str:
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return value
+
+
+def _multiplex_channel_role(
+    entry: ExperimentalDesignEntry,
+) -> LabelBasedChannelRole:
+    if entry.sample_role is ExperimentalDesignSampleRole.POOLED_REFERENCE:
+        return LabelBasedChannelRole.REFERENCE
+    if entry.sample_role is ExperimentalDesignSampleRole.QC_BRIDGE:
+        return LabelBasedChannelRole.QC_BRIDGE
+    return LabelBasedChannelRole.SAMPLE
+
+
+def _build_label_policy(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> LabelBasedQuantPolicy:
+    channel_entries = tuple(
+        LabelBasedChannelPolicyEntry(
+            multiplex_group=entry.multiplex_group or "",
+            multiplex_channel=entry.multiplex_channel or "",
+            channel_role=_multiplex_channel_role(entry),
+        )
+        for entry in design_entries
+        if entry.multiplex_group and entry.multiplex_channel
+    )
+    return LabelBasedQuantPolicy(
+        channel_entries=channel_entries,
+        missing_channel_policy=MissingChannelPolicy.ERROR,
+    )
+
+
+def _count_transition_ids(payload: dict[str, Any], key: str) -> int:
+    transition_review = payload.get("transition_review")
+    if not isinstance(transition_review, dict):
+        return 0
+    transition_ids = transition_review.get(key, ())
+    if not isinstance(transition_ids, list):
+        return 0
+    return len(transition_ids)
+
+
+def _count_assay_outcomes(payload: dict[str, Any]) -> int:
+    outcome = payload.get("outcome")
+    if not isinstance(outcome, dict):
+        return 0
+    assay_outcomes = outcome.get("assay_outcomes", ())
+    if not isinstance(assay_outcomes, list):
+        return 0
+    return len(assay_outcomes)
 
 
 def run_sequence_to_digest_workflow_end_to_end(
@@ -772,6 +880,223 @@ def run_ptm_workflow_end_to_end(
             ),
         ),
         note="workflow completed PTM localization, occupancy, motif, and lab validation packet surfaces",
+    )
+
+
+def run_multiplex_workflow_end_to_end(
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    artifact_root: str = "artifacts/workflows/multiplex-runtime",
+) -> MultiplexRuntimeWorkflowRunReport:
+    """Execute multiplex runtime flow: channel policy -> diagnostics -> review bundle."""
+
+    quant_table = build_label_free_intensity_table(
+        feature_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    quant_policy = _build_label_policy(design_entries)
+    diagnostics = build_multiplex_channel_balance_diagnostics_report(
+        quant_table,
+        design_entries=design_entries,
+        quant_policy=quant_policy,
+        normalization_policy=MultiplexNormalizationPolicy(),
+    )
+    bundle = build_label_based_quant_bundle(
+        quant_table,
+        design_entries=design_entries,
+        policy=quant_policy,
+    )
+    review_bundle = build_quant_review_bundle(
+        feature_records,
+        design_entries=design_entries,
+    )
+    multiplex_groups = {
+        entry.multiplex_group for entry in design_entries if entry.multiplex_group
+    }
+    reference_channel_count = sum(
+        1
+        for channel in bundle.channels
+        if channel.channel_role is LabelBasedChannelRole.REFERENCE
+    )
+    key = _stable_runtime_key(
+        {
+            "workflow": "multiplex-runtime",
+            "feature_count": len(feature_records),
+            "channel_count": len(bundle.channels),
+            "missing_channel_count": len(bundle.missing_channels),
+            "flagged_imbalance_count": diagnostics.flagged_imbalance_count,
+            "review_bundle_hash": review_bundle.artifact_bundle_hash,
+        }
+    )
+    return MultiplexRuntimeWorkflowRunReport(
+        workflow_id="multiplex-runtime",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        feature_record_count=len(feature_records),
+        multiplex_group_count=len(multiplex_groups),
+        channel_count=len(bundle.channels),
+        reference_channel_count=reference_channel_count,
+        missing_channel_count=len(bundle.missing_channels),
+        flagged_imbalance_count=diagnostics.flagged_imbalance_count,
+        carrier_effect_channel_count=diagnostics.carrier_effect_channel_count,
+        review_bundle_hash=review_bundle.artifact_bundle_hash or "missing",
+        artifact_paths=(
+            f"{artifact_root}/channel_matrix.tsv",
+            f"{artifact_root}/channel_policy.json",
+            f"{artifact_root}/interference_review.json",
+            f"{artifact_root}/reference_channel_consequences.json",
+            f"{artifact_root}/review_bundle.json",
+        ),
+        evidence_pointers=(
+            "multiplex.feature_records",
+            "multiplex.channel_policy",
+            "multiplex.channel_balance_diagnostics",
+            "multiplex.review_bundle",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="build-channel-matrix",
+                description="build multiplex protein-level matrix from tracked feature records",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(feature_records),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="apply-channel-policy",
+                description="apply explicit multiplex channel policy over tracked design entries",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(bundle.channels),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="review-channel-pressure",
+                description="surface missing channels, carrier pressure, and flagged imbalance before biological rollup",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=(
+                    diagnostics.flagged_imbalance_count
+                    + diagnostics.missing_channel_count
+                    + diagnostics.carrier_effect_channel_count
+                ),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="assemble-review-bundle",
+                description="assemble multiplex review outputs with explicit downgrade pressure",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(review_bundle.evidence_pointers),
+            ),
+        ),
+        note=(
+            "workflow completed multiplex channel policy, interference-facing diagnostics, reference-channel consequences, and integrated review surfaces"
+        ),
+    )
+
+
+def run_targeted_workflow_end_to_end(
+    targeted_qc_path: Path,
+    *,
+    supported_follow_up_payload: dict[str, Any],
+    failed_follow_up_payload: dict[str, Any],
+    refused_follow_up_payload: dict[str, Any],
+    artifact_root: str = "artifacts/workflows/targeted-runtime",
+) -> TargetedRuntimeWorkflowRunReport:
+    """Execute targeted runtime flow from QC to follow-up consequence surfaces."""
+
+    qc_report = parse_chromatogram_qc_table(targeted_qc_path)
+    approved_transition_count = _count_transition_ids(
+        supported_follow_up_payload,
+        "approved_transition_ids",
+    )
+    exploratory_transition_count = sum(
+        _count_transition_ids(payload, "exploratory_transition_ids")
+        for payload in (
+            supported_follow_up_payload,
+            failed_follow_up_payload,
+            refused_follow_up_payload,
+        )
+    )
+    refused_transition_count = sum(
+        _count_transition_ids(payload, "refused_transition_ids")
+        for payload in (
+            supported_follow_up_payload,
+            failed_follow_up_payload,
+            refused_follow_up_payload,
+        )
+    )
+    blocked_follow_up_count = sum(
+        1
+        for payload in (failed_follow_up_payload, refused_follow_up_payload)
+        if isinstance(payload.get("workflow_readiness_summary"), dict)
+    )
+    observed_outcome_count = _count_assay_outcomes(supported_follow_up_payload)
+    key = _stable_runtime_key(
+        {
+            "workflow": "targeted-runtime",
+            "qc_path": str(targeted_qc_path),
+            "qc_point_count": len(qc_report.accepted_points),
+            "approved_transition_count": approved_transition_count,
+            "exploratory_transition_count": exploratory_transition_count,
+            "refused_transition_count": refused_transition_count,
+            "blocked_follow_up_count": blocked_follow_up_count,
+            "observed_outcome_count": observed_outcome_count,
+        }
+    )
+    return TargetedRuntimeWorkflowRunReport(
+        workflow_id="targeted-runtime",
+        status=RuntimeWorkflowStatus.COMPLETED,
+        qc_point_count=len(qc_report.accepted_points),
+        approved_transition_count=approved_transition_count,
+        exploratory_transition_count=exploratory_transition_count,
+        refused_transition_count=refused_transition_count,
+        blocked_follow_up_count=blocked_follow_up_count,
+        observed_outcome_count=observed_outcome_count,
+        artifact_paths=(
+            f"{artifact_root}/chromatogram_qc.json",
+            f"{artifact_root}/transition_review.json",
+            f"{artifact_root}/calibration_readout.json",
+            f"{artifact_root}/interference_review.json",
+            f"{artifact_root}/follow_up_consequences.json",
+        ),
+        evidence_pointers=(
+            "targeted.chromatogram_qc",
+            "targeted.transition_review",
+            "targeted.calibration_readout",
+            "targeted.interference_review",
+            "targeted.follow_up_consequences",
+        ),
+        replay_cache_key=key,
+        steps=(
+            RuntimeWorkflowStepRecord(
+                step_id="ingest-chromatogram-qc",
+                description="ingest targeted chromatogram QC rows as the calibration-facing runtime surface",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=len(qc_report.accepted_points),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="review-transitions",
+                description="carry approved, exploratory, and refused transition states into runtime review",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=(
+                    approved_transition_count
+                    + exploratory_transition_count
+                    + refused_transition_count
+                ),
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="surface-interference-pressure",
+                description="keep blocked and refused targeted follow-up paths visible as interference-facing or readiness-facing pressure",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=blocked_follow_up_count,
+            ),
+            RuntimeWorkflowStepRecord(
+                step_id="publish-follow-up-consequences",
+                description="publish the observed targeted follow-up outcomes that remain usable downstream",
+                status=RuntimeWorkflowStatus.COMPLETED,
+                output_count=observed_outcome_count,
+            ),
+        ),
+        note=(
+            "workflow completed targeted QC, transition review, calibration-facing traces, interference-facing pressure, and follow-up consequence surfaces"
+        ),
     )
 
 

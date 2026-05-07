@@ -68,7 +68,9 @@ def major_workflow_families() -> tuple[str, ...]:
         "dda_import",
         "dia_import",
         "quant_review",
+        "multiplex_review",
         "ptm_review",
+        "targeted_review",
     )
 
 
@@ -220,6 +222,46 @@ def workflow_assurance_lanes() -> tuple[WorkflowAssuranceLane, ...]:
             command_hint="PTM localization fixtures keep runtime PTM review grounded in tracked evidence tables",
         ),
         WorkflowAssuranceLane(
+            lane_id="multiplex-tmtpro-corpus",
+            workflow_family="multiplex_review",
+            assurance_tier=WorkflowAssuranceTier.REAL_INPUT_CORPUS,
+            canonical_entrypoint="bijux_proteomics_runtime.workflows.runs.MultiplexRuntimeWorkflowRunReport",
+            repo_relative_fixture_paths=(
+                "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+                "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex.design.tsv",
+            ),
+            validating_test_paths=(
+                "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
+            ),
+            expected_surfaces=(
+                "channel-policy",
+                "channel-balance-diagnostics",
+                "reference-channel-consequences",
+            ),
+            command_hint="multiplex runtime bundles keep TMTpro channel pressure grounded in tracked feature and design tables",
+        ),
+        WorkflowAssuranceLane(
+            lane_id="targeted-transition-review-corpus",
+            workflow_family="targeted_review",
+            assurance_tier=WorkflowAssuranceTier.REAL_INPUT_CORPUS,
+            canonical_entrypoint="bijux_proteomics_runtime.workflows.runs.TargetedRuntimeWorkflowRunReport",
+            repo_relative_fixture_paths=(
+                "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/supported_targeted_follow_up.json",
+                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/failed_targeted_transition_follow_up.json",
+                "packages/bijux-proteomics-lab/tests/fixtures/handoffs/refused_targeted_follow_up.json",
+            ),
+            validating_test_paths=(
+                "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py",
+            ),
+            expected_surfaces=(
+                "chromatogram-qc-ingestion",
+                "transition-review",
+                "follow-up-consequences",
+            ),
+            command_hint="targeted runtime bundles keep QC, transition, and follow-up pressure grounded in tracked review artifacts",
+        ),
+        WorkflowAssuranceLane(
             lane_id="simulated-external-engine-contract",
             workflow_family="external_engine_simulation",
             assurance_tier=WorkflowAssuranceTier.SIMULATION_CONTRACT,
@@ -290,7 +332,15 @@ def build_workflow_assurance_matrix() -> tuple[WorkflowAssuranceMatrixRow, ...]:
             notes = (
                 "simulation contract rows are explicit so they cannot be mistaken for real workflow validation",
             )
-        elif workflow_family not in {"sequence_to_digest", "dda_import", "dia_import", "quant_review", "ptm_review"}:
+        elif workflow_family not in {
+            "sequence_to_digest",
+            "dda_import",
+            "dia_import",
+            "quant_review",
+            "multiplex_review",
+            "ptm_review",
+            "targeted_review",
+        }:
             notes = (
                 "downstream review and lab handoff surfaces are governed elsewhere and are not counted as major scientific workflow families here",
             )

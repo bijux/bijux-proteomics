@@ -8,7 +8,11 @@ from bijux_proteomics_runtime.workflows import (
     build_benchmark_runtime_truth_surface,
     run_benchmark_dda_import_path,
     run_benchmark_dia_import_path,
+    run_benchmark_lfq_review_path,
+    run_benchmark_multiplex_review_path,
+    run_benchmark_ptm_review_path,
     run_benchmark_sequence_path,
+    run_benchmark_targeted_review_path,
 )
 
 
@@ -19,6 +23,10 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
         "sequence-first-useful-corpus",
         "dda-maxquant-pipeline-corpus",
         "dia-diann-pipeline-corpus",
+        "lfq-cohort-review-corpus",
+        "multiplex-tmtpro-review-corpus",
+        "ptm-localization-review-corpus",
+        "targeted-transition-review-corpus",
     )
     assert specs["sequence-first-useful-corpus"].run_mode.value == "raw_executable"
     assert specs["dda-maxquant-pipeline-corpus"].engine_name == "maxquant"
@@ -31,6 +39,10 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
         path.endswith("public_benchmark_packages/dia_library_review_package/package_manifest.json")
         for path in specs["dia-diann-pipeline-corpus"].public_package_paths
     )
+    assert specs["lfq-cohort-review-corpus"].run_mode.value == "raw_executable"
+    assert specs["multiplex-tmtpro-review-corpus"].workflow_family == "multiplex_review"
+    assert specs["ptm-localization-review-corpus"].workflow_family == "ptm_review"
+    assert specs["targeted-transition-review-corpus"].run_mode.value == "import_only"
 
 
 def test_run_benchmark_sequence_path_executes_real_runtime_path(tmp_path: Path) -> None:
@@ -64,11 +76,25 @@ def test_run_benchmark_import_paths_ingest_real_comparator_tables(
     assert '"precursor_id"' in dia_payload
 
 
-def test_benchmark_runtime_truth_surface_stays_honest_about_blocked_families() -> None:
+def test_runtime_wrappers_cover_flagship_lfq_multiplex_ptm_and_targeted() -> None:
+    lfq = run_benchmark_lfq_review_path()
+    multiplex = run_benchmark_multiplex_review_path()
+    ptm = run_benchmark_ptm_review_path()
+    targeted = run_benchmark_targeted_review_path()
+
+    assert lfq.condition_count == 2
+    assert multiplex.channel_count >= 1
+    assert ptm.mapped_site_count >= 1
+    assert targeted.qc_point_count >= 1
+
+
+def test_benchmark_runtime_truth_surface_tracks_all_flagship_run_families() -> None:
     rows = {row.workflow_family: row for row in build_benchmark_runtime_truth_surface()}
 
     assert rows["sequence_to_digest"].run_mode.value == "raw_executable"
     assert rows["dda_import"].externally_cross_checked is True
     assert rows["dia_import"].artifact_browser_ready is True
-    assert rows["quant_review"].run_mode.value == "blocked"
-    assert rows["ptm_review"].run_mode.value == "blocked"
+    assert rows["quant_review"].run_mode.value == "raw_executable"
+    assert rows["multiplex_review"].run_mode.value == "raw_executable"
+    assert rows["ptm_review"].run_mode.value == "raw_executable"
+    assert rows["targeted_review"].run_mode.value == "import_only"
