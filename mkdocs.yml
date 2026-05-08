@@ -264,6 +264,8 @@ nav:
           - Repository Fit: 05-bijux-proteomics-intelligence/foundation/repository-fit.md
           - Capability Map: 05-bijux-proteomics-intelligence/foundation/capability-map.md
           - Domain Language: 05-bijux-proteomics-intelligence/foundation/domain-language.md
+          - Workflow Recommendation Challenges: 05-bijux-proteomics-intelligence/foundation/workflow-recommendation-challenges.md
+          - Workflow Recommendation Confidence: 05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md
           - Lifecycle Overview: 05-bijux-proteomics-intelligence/foundation/lifecycle-overview.md
           - Dependencies and Adjacencies: 05-bijux-proteomics-intelligence/foundation/dependencies-and-adjacencies.md
           - Change Principles: 05-bijux-proteomics-intelligence/foundation/change-principles.md
