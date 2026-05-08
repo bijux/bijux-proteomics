@@ -86,3 +86,22 @@ def test_non_dda_trust_pages_keep_bounded_posture_visible() -> None:
     assert "public claim support is `advisory`" in targeted
     assert "raw_executable" in targeted
     assert "`0.87`" in targeted
+
+
+def test_trust_and_boundary_pages_link_to_claim_grounding_and_literature_audits() -> (
+    None
+):
+    docs = (
+        "why-trust-dda.md",
+        "why-trust-dia.md",
+        "why-trust-lfq.md",
+        "why-trust-ptm.md",
+        "why-trust-targeted.md",
+        "multiplex-authority-boundary.md",
+    )
+
+    for name in docs:
+        text = _read_doc(name)
+        assert "Evidence Grounding" in text
+        assert "workflow-claim-grounding" in text
+        assert "workflow-literature-audits" in text

@@ -66,3 +66,10 @@ convenient package.
   under the companion engine pairing
 - protein-facing claims stay downgrade-heavy because the comparator package
   demonstrates cross-engine rollup drift directly
+
+## Evidence Grounding
+
+- sentence grounding and unsupported-claim review:
+  [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
+- citation freshness, bibliography export, and gap audits:
+  [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)

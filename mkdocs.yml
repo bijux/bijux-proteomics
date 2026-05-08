@@ -321,6 +321,8 @@ nav:
           - Repository Fit: 06-bijux-proteomics-knowledge/foundation/repository-fit.md
           - Capability Map: 06-bijux-proteomics-knowledge/foundation/capability-map.md
           - Domain Language: 06-bijux-proteomics-knowledge/foundation/domain-language.md
+          - Workflow Claim Grounding: 06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md
+          - Workflow Literature Audits: 06-bijux-proteomics-knowledge/foundation/workflow-literature-audits.md
           - Lifecycle Overview: 06-bijux-proteomics-knowledge/foundation/lifecycle-overview.md
           - Dependencies and Adjacencies: 06-bijux-proteomics-knowledge/foundation/dependencies-and-adjacencies.md
           - Change Principles: 06-bijux-proteomics-knowledge/foundation/change-principles.md
