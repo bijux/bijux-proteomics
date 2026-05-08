@@ -69,6 +69,10 @@ def test_repository_truth_report_blocks_fake_backed_runtime_authority(
         lambda repo_root: (),
     )
     monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_claim_grounding",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.validate_generated_governance_freshness",
         lambda: (),
     )
@@ -137,6 +141,10 @@ def test_repository_truth_report_blocks_workflow_authority_doc_drift(
         ),
     )
     monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_claim_grounding",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.validate_generated_governance_freshness",
         lambda: (),
     )
@@ -189,6 +197,10 @@ def test_repository_truth_report_blocks_acceptance_claim_drift(
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_authority_docs",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_claim_grounding",
         lambda repo_root: (),
     )
     monkeypatch.setattr(

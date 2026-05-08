@@ -31,6 +31,9 @@ from bijux_proteomics_dev.release.governance.scientific_readiness import (
 from bijux_proteomics_dev.release.governance.workflow_authority_docs import (
     validate_workflow_authority_docs,
 )
+from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
+    validate_workflow_claim_grounding,
+)
 from bijux_proteomics_intelligence.candidates.ranking_benchmarks import (
     build_flagship_ranking_policy,
     build_legacy_ranking_policy,
@@ -84,6 +87,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_manifest_issues = validate_canonical_workflow_manifest(repo_root=repo_root)
     scientific_dossier_issues = validate_scientific_release_dossier(repo_root)
     workflow_authority_doc_issues = validate_workflow_authority_docs(repo_root)
+    workflow_claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
     freshness_issues = validate_generated_governance_freshness()
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
     acceptance_dashboard = build_flagship_acceptance_dashboard()
@@ -128,6 +132,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"workflow-authority-docs-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in workflow_claim_grounding_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"workflow-claim-grounding-{issue.code}",
                 detail=issue.detail,
             )
         )
