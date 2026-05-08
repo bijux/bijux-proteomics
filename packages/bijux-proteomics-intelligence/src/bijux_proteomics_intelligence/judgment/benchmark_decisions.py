@@ -12,4 +12,5 @@ from bijux_proteomics_intelligence.judgment.benchmark_counterfactuals import *  
 from bijux_proteomics_intelligence.judgment.benchmark_packets import *  # noqa: F403
 from bijux_proteomics_intelligence.judgment.benchmark_policies import *  # noqa: F403
 from bijux_proteomics_intelligence.judgment.benchmark_quality import *  # noqa: F403
+from bijux_proteomics_intelligence.judgment.benchmark_regret import *  # noqa: F403
 from bijux_proteomics_intelligence.judgment.benchmark_sensitivity import *  # noqa: F403
