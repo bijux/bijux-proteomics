@@ -45,6 +45,14 @@ from bijux_proteomics_knowledge.references.workflows.comparator_scorecards impor
     build_workflow_comparator_scorecard,
     build_workflow_comparator_scorecard_report,
 )
+from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
+    WorkflowClaimCitationTable,
+    WorkflowUnsupportedClaimLedger,
+    build_workflow_claim_citation_table,
+    build_workflow_unsupported_claim_ledger,
+    list_workflow_claim_citation_tables,
+    list_workflow_unsupported_claim_ledgers,
+)
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     WorkflowComparatorMatrixEntry,
     WorkflowComparatorMatrixReport,
@@ -58,6 +66,11 @@ from bijux_proteomics_knowledge.references.workflows.contradiction_dossiers impo
     build_workflow_contradiction_dossier,
     list_workflow_contradiction_dossiers,
 )
+from bijux_proteomics_knowledge.references.workflows.contradiction_triage import (
+    WorkflowContradictionTriageReport,
+    build_workflow_contradiction_triage_report,
+    list_workflow_contradiction_triage_reports,
+)
 from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import (
     WorkflowEvidenceSufficiencyRubric,
     build_workflow_evidence_sufficiency_rubric,
@@ -67,6 +80,18 @@ from bijux_proteomics_knowledge.references.workflows.knowledge_deficits import (
     WorkflowKnowledgeDeficitReport,
     build_workflow_knowledge_deficit_report,
     list_workflow_knowledge_deficit_reports,
+)
+from bijux_proteomics_knowledge.references.workflows.literature_audits import (
+    BenchmarkLiteratureGapMatrix,
+    ComparatorLiteratureGapMatrix,
+    WorkflowBibliographyExport,
+    WorkflowLiteratureFreshnessAudit,
+    build_benchmark_literature_gap_matrix,
+    build_comparator_literature_gap_matrix,
+    build_workflow_bibliography_export,
+    build_workflow_literature_freshness_audit,
+    list_workflow_bibliography_exports,
+    list_workflow_literature_freshness_audits,
 )
 from bijux_proteomics_knowledge.references.workflows.literature_matrices import (
     WorkflowLiteratureMatrix,
@@ -268,6 +293,25 @@ def get_workflow_literature_matrix(
     return build_workflow_literature_matrix(workflow_family)
 
 
+def list_workflow_claim_citation_tables_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowClaimCitationTable, ...]:
+    """Return workflow-family claim citation tables."""
+
+    if workflow_family is None:
+        return list_workflow_claim_citation_tables()
+    return (build_workflow_claim_citation_table(workflow_family),)
+
+
+def get_workflow_claim_citation_table(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowClaimCitationTable:
+    """Return the workflow-family claim citation table."""
+
+    return build_workflow_claim_citation_table(workflow_family)
+
+
 def list_workflow_contradiction_dossiers_lookup(
     *,
     workflow_family: KnowledgeWorkflowFamily | None = None,
@@ -285,6 +329,25 @@ def get_workflow_contradiction_dossier(
     """Return the contradiction dossier for one workflow family."""
 
     return build_workflow_contradiction_dossier(workflow_family)
+
+
+def list_workflow_contradiction_triage_reports_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowContradictionTriageReport, ...]:
+    """Return contradiction triage reports with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_contradiction_triage_reports()
+    return (build_workflow_contradiction_triage_report(workflow_family),)
+
+
+def get_workflow_contradiction_triage_report(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowContradictionTriageReport:
+    """Return the contradiction triage report for one workflow family."""
+
+    return build_workflow_contradiction_triage_report(workflow_family)
 
 
 def list_workflow_evidence_sufficiency_rubrics_lookup(
@@ -325,6 +388,75 @@ def get_workflow_knowledge_deficit_report(
     return build_workflow_knowledge_deficit_report(workflow_family)
 
 
+def list_workflow_unsupported_claim_ledgers_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowUnsupportedClaimLedger, ...]:
+    """Return unsupported-claim ledgers with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_unsupported_claim_ledgers()
+    return (build_workflow_unsupported_claim_ledger(workflow_family),)
+
+
+def get_workflow_unsupported_claim_ledger(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowUnsupportedClaimLedger:
+    """Return the workflow-family unsupported-claim ledger."""
+
+    return build_workflow_unsupported_claim_ledger(workflow_family)
+
+
+def list_workflow_literature_freshness_audits_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowLiteratureFreshnessAudit, ...]:
+    """Return literature freshness audits with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_literature_freshness_audits()
+    return (build_workflow_literature_freshness_audit(workflow_family),)
+
+
+def get_workflow_literature_freshness_audit(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowLiteratureFreshnessAudit:
+    """Return the workflow-family literature freshness audit."""
+
+    return build_workflow_literature_freshness_audit(workflow_family)
+
+
+def list_workflow_bibliography_exports_lookup(
+    *,
+    workflow_family: KnowledgeWorkflowFamily | None = None,
+) -> tuple[WorkflowBibliographyExport, ...]:
+    """Return bibliography exports with optional family filtering."""
+
+    if workflow_family is None:
+        return list_workflow_bibliography_exports()
+    return (build_workflow_bibliography_export(workflow_family),)
+
+
+def get_workflow_bibliography_export(
+    workflow_family: KnowledgeWorkflowFamily,
+) -> WorkflowBibliographyExport:
+    """Return the workflow-family bibliography export."""
+
+    return build_workflow_bibliography_export(workflow_family)
+
+
+def get_benchmark_literature_gap_matrix() -> BenchmarkLiteratureGapMatrix:
+    """Return the cross-family benchmark-versus-literature gap matrix."""
+
+    return build_benchmark_literature_gap_matrix()
+
+
+def get_comparator_literature_gap_matrix() -> ComparatorLiteratureGapMatrix:
+    """Return the cross-family comparator-versus-literature gap matrix."""
+
+    return build_comparator_literature_gap_matrix()
+
+
 def list_workflow_scientific_reading_packs_lookup(
     *,
     workflow_family: KnowledgeWorkflowFamily | None = None,
@@ -350,31 +482,46 @@ __all__ = [
     "BenchmarkReproductionStep",
     "BenchmarkComparatorFailureEntry",
     "BenchmarkComparatorFailureReport",
+    "BenchmarkLiteratureGapMatrix",
+    "ComparatorLiteratureGapMatrix",
     "ComparatorClaimSupportState",
     "ComparatorFailureSeverity",
     "ComparatorPositionEntry",
     "ComparatorPositionKind",
     "ComparatorPositionReport",
     "ComparatorRegressionStatus",
+    "WorkflowBibliographyExport",
+    "WorkflowClaimCitationTable",
     "build_benchmark_comparator_failure_report",
+    "build_benchmark_literature_gap_matrix",
     "build_comparator_position_report",
+    "build_comparator_literature_gap_matrix",
     "get_benchmark_comparator_failure",
     "get_benchmark_manifest",
     "get_benchmark_package",
+    "get_benchmark_literature_gap_matrix",
     "get_benchmark_registry_entry",
     "get_comparator_position_report",
+    "get_comparator_literature_gap_matrix",
+    "get_workflow_bibliography_export",
+    "get_workflow_claim_citation_table",
     "get_workflow_comparator_confrontation",
     "get_workflow_contradiction_dossier",
+    "get_workflow_contradiction_triage_report",
     "get_workflow_comparator_path",
     "get_workflow_comparator_regression_report",
     "get_workflow_comparator_scorecard",
     "get_workflow_evidence_sufficiency_rubric",
     "get_workflow_knowledge_deficit_report",
+    "get_workflow_literature_freshness_audit",
     "get_workflow_literature_matrix",
     "get_workflow_narrative",
     "get_workflow_scientific_reading_pack",
+    "get_workflow_unsupported_claim_ledger",
     "list_benchmark_comparator_failures",
     "list_comparator_positions",
+    "list_workflow_bibliography_exports_lookup",
+    "list_workflow_claim_citation_tables_lookup",
     "list_workflow_comparator_confrontations",
     "list_workflow_comparator_paths",
     "list_workflow_comparator_scorecards",
@@ -382,17 +529,21 @@ __all__ = [
     "list_benchmark_registry_entries",
     "list_benchmark_manifests",
     "list_workflow_contradiction_dossiers_lookup",
+    "list_workflow_contradiction_triage_reports_lookup",
     "list_workflow_evidence_sufficiency_rubrics_lookup",
     "list_workflow_knowledge_deficit_reports_lookup",
+    "list_workflow_literature_freshness_audits_lookup",
     "list_workflow_literature_matrices_lookup",
     "list_workflow_narratives",
     "list_workflow_scientific_reading_packs_lookup",
+    "list_workflow_unsupported_claim_ledgers_lookup",
     "BenchmarkRegistryEntry",
     "BenchmarkRegistryReport",
     "WorkflowBenchmarkPackage",
     "WorkflowComparatorConfrontation",
     "WorkflowComparatorConfrontationReport",
     "WorkflowContradictionDossier",
+    "WorkflowContradictionTriageReport",
     "WorkflowComparatorMatrixEntry",
     "WorkflowComparatorMatrixReport",
     "WorkflowComparatorPath",
@@ -402,6 +553,8 @@ __all__ = [
     "WorkflowComparatorScorecardReport",
     "WorkflowEvidenceSufficiencyRubric",
     "WorkflowKnowledgeDeficitReport",
+    "WorkflowLiteratureFreshnessAudit",
     "WorkflowLiteratureMatrix",
     "WorkflowScientificReadingPack",
+    "WorkflowUnsupportedClaimLedger",
 ]
