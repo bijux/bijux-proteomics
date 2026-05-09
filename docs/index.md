@@ -9,20 +9,45 @@ last_reviewed: 2026-04-26
 
 # Bijux Proteomics
 
-`bijux-proteomics` is a modular proteomics system. It does not hide its ideas
-inside one large package. It separates shared meaning, durable program rules,
-evidence state, decision policy, lab execution, and runtime control so each
-kind of responsibility can stay legible.
+`bijux-proteomics` is a bounded proteomics product for benchmark-backed
+execution, scientific review, recommendation posture, and lab consequence.
 
-The point of this split is not packaging for its own sake. The point is to make
-serious scientific and operational work reviewable: what the system means,
-what it knows, how it decides, how it runs, and how it touches the lab are not
-the same question and should not collapse into the same code story.
+The package split exists so those steps stay reviewable. Shared contracts,
+scientific meaning, runtime execution, evidence memory, recommendation posture,
+and assay consequence do not own the same truth and should not collapse into
+one vague surface.
 
-That does not mean the full scientific workflow already exists. Today the
-repository is strongest where contracts, package boundaries, and reviewable
-domain surfaces are concerned. The end-to-end proteomics workflow story still
-needs more explicit stage blueprints and clearer current-scope boundaries.
+## Product Scope
+
+- end-to-end product chain:
+  [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- package roles, import boundaries, and handoff owners:
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- current hostile-review blockers:
+  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+
+## Current Credible Workflow Families
+
+Outsider-auditable today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+
+Internal-support-only today: `multiplex`.
+
+The shortest hard-evidence route is:
+
+- [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+- [Independent rerun dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
+- [External review kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
+
+## Forbidden Claims
+
+- no broad proteomics workflow coverage claim beyond the checked workflow families
+- no release-ready, reference-grade, elite, or product-grade wording
+- no stronger lab confidence than the downstream evidence chain supports
+
+See
+[Current capability limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
+for the live limit list.
 
 <!-- bijux-proteomics-badges:generated:start -->
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
@@ -61,118 +86,32 @@ needs more explicit stage blueprints and clearer current-scope boundaries.
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-```mermaid
-flowchart LR
-    foundation["foundation<br/>shared meaning<br/>schemas, ids, migrations"]
-    core["core<br/>durable program rules<br/>gates, lifecycle, workflows"]
-    knowledge["knowledge<br/>evidence state<br/>claims, confidence, contradictions"]
-    intelligence["intelligence<br/>decision policy<br/>ranking, scenarios, explanations"]
-    lab["lab<br/>assay-facing loop<br/>plans, outcomes, promotion"]
-    runtime["runtime<br/>execution control<br/>operators, providers, replay"]
-    legacy["agentic-proteins<br/>legacy bridge"]
-    maintain["maintain<br/>repo health<br/>docs, checks, release, policy"]
+## Reader Paths
 
-    foundation --> core
-    foundation --> knowledge
-    foundation --> intelligence
-    core --> intelligence
-    core --> runtime
-    knowledge --> intelligence
-    intelligence --> lab
-    lab --> knowledge
-    runtime --> lab
-    legacy -. migrate .-> runtime
-    maintain -. verifies .-> foundation
-    maintain -. verifies .-> core
-    maintain -. verifies .-> knowledge
-    maintain -. verifies .-> intelligence
-    maintain -. verifies .-> lab
-    maintain -. verifies .-> runtime
-```
-
-## What Makes This Repository Worth Reading
-
-- it treats proteomics work as a system with distinct layers of truth, policy,
-  execution, and experiment
-- it keeps evidence and recommendation separate, so a ranking is never allowed
-  to masquerade as raw fact
-- it keeps runtime and lab behavior separate, so orchestration and assay action
-  can evolve without erasing their seam
-- it keeps the migration from `agentic-proteins` visible instead of pretending
-  the transition never happened
-
-## Current Limit
-
-The current repository now proves one narrow canonical workflow family,
-`reviewable-proteomics`, but it does not yet prove broad proteomics workflow
-coverage across every scientific family.
-
-The live repository-wide limit list is
-[Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/).
-
-## Start Here
-
-- Open the [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
-  when the question is about the system as a whole and not yet about one
-  package.
-- Open the [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
-  when the question is what the repository still needs beyond the current
-  canonical workflow family.
-- Open the [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
-  when the question is what one checked end-to-end workflow really covers today.
-- Open the [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
-  when the question is what this repository still refuses, only partially
-  supports, or cannot yet prove scientifically.
-- Open one product handbook when you already know where the real idea lives:
-  evidence, decisions, lab work, execution, or shared contracts.
-- Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
-  when the question is how the repository keeps itself honest.
+- Scientist:
+  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- Operator:
+  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+- Maintainer:
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 
 ## Package Family At A Glance
 
-The live publishable shape is six real product packages plus one compatibility
-bridge:
-
 | Package | Owns |
 | --- | --- |
-| `bijux-proteomics-foundation` | shared schema compatibility, identifiers, and deterministic serialization |
-| `bijux-proteomics-core` | program definitions, lifecycle contracts, and gate semantics |
-| `bijux-proteomics-knowledge` | evidence records, claims, confidence, and contradiction state |
-| `bijux-proteomics-intelligence` | scoring, ranking, scenario evaluation, and explanations |
-| `bijux-proteomics-lab` | assay planning, outcome capture, and lab-facing loop control |
-| `bijux-proteomics-runtime` | execution, replay, provider integration, and operator entrypoints |
-| `agentic-proteins` | explicit compatibility bridge for legacy imports and checked migration-off paths |
-
-<code>bijux-proteomics-runtime</code> governs execution and replay.
-<code>agentic-proteins</code> preserves compatibility entrypoints.
-
-## Reading Paths
-
-- If you want the architecture story first:
-  [Repository Handbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/)
-  then
-  [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
-  then
-  [Core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-- If you want the scientific reasoning story first:
-  [Knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-  then
-  [Intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  then
-  [Lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-- If you want the operational story first:
-  [Runtime Handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  then
-  [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
-  then
-  [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
+| `bijux-proteomics-foundation` | shared contracts, identifiers, and deterministic serialization |
+| `bijux-proteomics-core` | benchmark assets, durable scientific contracts, and workflow requests |
+| `bijux-proteomics-runtime` | execution, provider binding, deterministic replay, and operator entrypoints |
+| `bijux-proteomics-knowledge` | scientific memory, provenance, contradiction handling, and review state |
+| `bijux-proteomics-intelligence` | recommendation posture, ranking sensitivity, and refusal behavior |
+| `bijux-proteomics-lab` | assay consequence planning, readiness, and observed outcomes |
+| `agentic-proteins` | legacy compatibility bridge for runtime entrypoints and imports |
 
 ## First Proof Check
 
-- `packages/` for the package split this page is explaining
-- `mkdocs.yml` for the published navigation spine
-- package tests, schema artifacts, and workflows once one package clearly owns
-  the claim
+- `docs/01-bijux-proteomics/foundation/product-architecture.md`
+- `docs/01-bijux-proteomics/foundation/cross-package-ownership.md`
+- `configs/package-governance/release-readiness-matrix.toml`
 
 ## Boundary
 
