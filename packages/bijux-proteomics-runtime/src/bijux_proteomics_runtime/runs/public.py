@@ -31,10 +31,25 @@ _RUN_EXPORT_GROUPS = {
         "RunStatus",
         "VersionInfo",
     ],
+    "bijux_proteomics_runtime.runs.analysis": [
+        "RunAnalysis",
+        "ToolStats",
+    ],
+    "bijux_proteomics_runtime.runs.logging": [
+        "NoopStructuredLogger",
+        "StructuredLogger",
+    ],
     "bijux_proteomics_runtime.runs.request": ["RunRequest"],
     "bijux_proteomics_runtime.runs.manager": [
         "RunManager",
         "run_flow",
+    ],
+    "bijux_proteomics_runtime.runs.telemetry": [
+        "TelemetryClient",
+        "TelemetrySample",
+    ],
+    "bijux_proteomics_runtime.runs.tool_reliability": [
+        "ToolReliabilityTracker",
     ],
     "bijux_proteomics_runtime.runs.operations": [
         "build_runtime_run_config",

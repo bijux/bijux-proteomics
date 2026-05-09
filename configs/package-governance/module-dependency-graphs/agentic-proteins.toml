@@ -325,8 +325,8 @@ outgoing_workspace_modules = ["bijux_proteomics.review.structure_reports", "biju
 
 [[module]]
 module_name = "agentic_proteins.orchestration"
-outgoing_internal_modules = ["agentic_proteins.orchestration.bridge_contracts"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.graph_validation", "bijux_proteomics_runtime.runs.analysis", "bijux_proteomics_runtime.runs.logging", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.runs.telemetry", "bijux_proteomics_runtime.runs.tool_reliability"]
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.execution", "bijux_proteomics_runtime.governance.compatibility_bridges", "bijux_proteomics_runtime.runs"]
 
 [[module]]
 module_name = "agentic_proteins.orchestration.analysis"
@@ -341,7 +341,7 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.artifacts"]
 [[module]]
 module_name = "agentic_proteins.orchestration.bridge_contracts"
 outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime.governance.compatibility_bridges"]
 
 [[module]]
 module_name = "agentic_proteins.orchestration.compiler"

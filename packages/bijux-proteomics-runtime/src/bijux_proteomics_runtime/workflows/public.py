@@ -184,6 +184,8 @@ _WORKFLOW_EXPORT_GROUPS = {
         "WorkflowStepProvenanceReport",
         "WorkflowStepReplayDisposition",
         "WorkflowStreamingMode",
+        "build_proteomics_workflow_runtime_bundle",
+        "build_workflow_runtime_validation_report",
     ],
     "bijux_proteomics_runtime.workflows.reproducibility": [
         "RuntimeWorkflowBlueprint",

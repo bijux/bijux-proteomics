@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.workflows.plans import (
+from bijux_proteomics_runtime.workflows import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,

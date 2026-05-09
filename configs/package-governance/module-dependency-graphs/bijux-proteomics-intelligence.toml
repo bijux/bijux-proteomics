@@ -286,12 +286,12 @@ outgoing_workspace_modules = ["bijux_proteomics.review.collaboration", "bijux_pr
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.independent_reruns"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_runtime.workflows.benchmark_runs"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_runtime.workflows"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.outsider_packets"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_intelligence.reviews.benchmarks"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.proof_accounting"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_runtime.workflows"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.pathways"
@@ -306,9 +306,9 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_k
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.release_candidates"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_intelligence.reviews.external_review_kits", "bijux_proteomics_intelligence.reviews.independent_reruns", "bijux_proteomics_intelligence.reviews.outsider_packets", "bijux_proteomics_intelligence.reviews.workflow_authority"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.evidence_sufficiency", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_runtime.workflows.benchmark_runs"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.evidence_sufficiency", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_runtime.workflows"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.reviews.workflow_authority"
 outgoing_internal_modules = ["bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_intelligence.reviews.outsider_packets"]
-outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_runtime.workflows.benchmark_runs"]
+outgoing_workspace_modules = ["bijux_proteomics.benchmarks.flagship_acceptance", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_runtime.workflows"]

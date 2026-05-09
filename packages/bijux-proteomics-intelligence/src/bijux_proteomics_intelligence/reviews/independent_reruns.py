@@ -13,7 +13,7 @@ from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_runtime.workflows.benchmark_runs import (
+from bijux_proteomics_runtime.workflows import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
     BenchmarkRuntimeTruthRow,

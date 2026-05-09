@@ -391,12 +391,12 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics.interfaces.execution.runtime_adapter"
 outgoing_internal_modules = ["bijux_proteomics.interfaces.execution.backend"]
-outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.runs"]
 
 [[module]]
 module_name = "bijux_proteomics.interfaces.runtime_plans"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows.plans"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.workflows"]
 
 [[module]]
 module_name = "bijux_proteomics.io"

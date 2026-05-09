@@ -42,7 +42,7 @@ from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import
     build_workflow_evidence_sufficiency_rubric,
 )
 from bijux_proteomics_lab.benchmarks.follow_up import FlagshipLabPacketPosture
-from bijux_proteomics_runtime.workflows.benchmark_runs import BenchmarkRunMode
+from bijux_proteomics_runtime.workflows import BenchmarkRunMode
 
 __all__ = [
     "EliteReadinessScorecard",

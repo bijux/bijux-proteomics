@@ -18,8 +18,7 @@ class AgenticProteinsBackend:
 
     def execute(self, request: ExecutionRequest) -> dict[str, Any]:
         """Execute a core request through the runtime RunManager entrypoint."""
-        from bijux_proteomics_runtime.runs.manager import RunManager
-        from bijux_proteomics_runtime.runs.run_config import RunConfig
+        from bijux_proteomics_runtime.runs import RunConfig, RunManager
 
         config = RunConfig(
             loop_max_iterations=request.rounds,

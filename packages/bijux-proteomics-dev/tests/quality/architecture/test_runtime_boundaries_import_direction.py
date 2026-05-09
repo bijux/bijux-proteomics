@@ -25,8 +25,7 @@ def test_runtime_boundary_policy_loads_expected_import_roots() -> None:
     assert policy.runtime_imports.allowed_imports_by_consumer[
         "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/execution/runtime_adapter.py"
     ] == (
-        "bijux_proteomics_runtime.runs.manager",
-        "bijux_proteomics_runtime.runs.run_config",
+        "bijux_proteomics_runtime.runs",
     )
 
 

@@ -48,7 +48,7 @@ from bijux_proteomics_lab.benchmarks.outcome_dossiers import (
     build_flagship_assay_worth_ledger,
     build_flagship_follow_up_outcome_dossier_family,
 )
-from bijux_proteomics_runtime.workflows.benchmark_runs import (
+from bijux_proteomics_runtime.workflows import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
     BenchmarkRuntimeTruthRow,

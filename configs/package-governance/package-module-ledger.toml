@@ -4,8 +4,8 @@
 [guard]
 min_owner_logic_module_count = 510
 max_compatibility_surface_count = 0
-max_import_glue_module_count = 227
-max_dead_weight_module_count = 4
+max_import_glue_module_count = 228
+max_dead_weight_module_count = 5
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -525,7 +525,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/__in
 module_import_path = "agentic_proteins.orchestration"
 module_kind = "import_glue"
 public_definition_count = 0
-workspace_import_root_count = 2
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -547,9 +547,9 @@ workspace_import_root_count = 1
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/bridge_contracts.py"
 module_import_path = "agentic_proteins.orchestration.bridge_contracts"
-module_kind = "owner_logic"
-public_definition_count = 4
-workspace_import_root_count = 0
+module_kind = "import_glue"
+public_definition_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -10905,6 +10905,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/public.py"
+module_import_path = "bijux_proteomics_runtime.execution.public"
+module_kind = "dead_weight"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/schemas.py"
 module_import_path = "bijux_proteomics_runtime.execution.schemas"
 module_kind = "owner_logic"
@@ -10982,6 +10990,14 @@ module_import_path = "bijux_proteomics_runtime.governance.charter"
 module_kind = "owner_logic"
 public_definition_count = 7
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/compatibility_bridges.py"
+module_import_path = "bijux_proteomics_runtime.governance.compatibility_bridges"
+module_kind = "owner_logic"
+public_definition_count = 4
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"

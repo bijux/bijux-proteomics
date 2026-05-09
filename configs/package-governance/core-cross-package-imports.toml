@@ -2,27 +2,27 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.core.cross_package_imports
 
 [guard]
-max_runtime_edges = 3
-max_intelligence_edges = 0
+max_runtime_edges = 2
+max_intelligence_edges = 1
 max_lab_edges = 1
 max_total_edges = 4
 
 [[import]]
-importer_module_path = "interfaces/execution/runtime_adapter.py"
-owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runs.manager"
-imported_symbols = ["RunManager"]
+importer_module_path = "benchmarks/flagship_acceptance.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews.benchmarks"
+imported_symbols = ["ReviewerGroundingState", "WorkflowBenchmarkReview", "build_dda_benchmark_review", "build_dia_benchmark_review", "build_lfq_benchmark_review", "build_multiplex_benchmark_review", "build_ptm_benchmark_review", "build_targeted_benchmark_review"]
 
 [[import]]
 importer_module_path = "interfaces/execution/runtime_adapter.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.runs.run_config"
-imported_symbols = ["RunConfig"]
+imported_module_name = "bijux_proteomics_runtime.runs"
+imported_symbols = ["RunConfig", "RunManager"]
 
 [[import]]
 importer_module_path = "interfaces/runtime_plans.py"
 owner_distribution = "bijux-proteomics-runtime"
-imported_module_name = "bijux_proteomics_runtime.workflows.plans"
+imported_module_name = "bijux_proteomics_runtime.workflows"
 imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
 
 [[import]]

@@ -150,7 +150,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.execution"
-outgoing_internal_modules = ["bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_internal_modules = ["bijux_proteomics_runtime.execution.public", "bijux_proteomics_runtime.support.primitives.stability"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -324,6 +324,11 @@ outgoing_internal_modules = ["bijux_proteomics_runtime.state.schemas", "bijux_pr
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_runtime.execution.public"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_runtime.execution.schemas"
 outgoing_internal_modules = ["bijux_proteomics_runtime.support.primitives.execution", "bijux_proteomics_runtime.support.primitives.tooling"]
 outgoing_workspace_modules = []
@@ -372,6 +377,11 @@ outgoing_workspace_modules = []
 module_name = "bijux_proteomics_runtime.governance.charter"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.governance.compatibility_bridges"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_runtime.providers"

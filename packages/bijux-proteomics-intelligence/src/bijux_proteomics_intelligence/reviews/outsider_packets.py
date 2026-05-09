@@ -56,16 +56,14 @@ from bijux_proteomics_lab.benchmarks.outcome_dossiers import (
     build_flagship_assay_worth_ledger,
     build_flagship_follow_up_outcome_dossier_family,
 )
-from bijux_proteomics_runtime.workflows.benchmark_runs import (
+from bijux_proteomics_runtime.workflows import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
     BenchmarkRuntimeTruthRow,
     build_benchmark_run_specs,
     build_benchmark_runtime_truth_surface,
 )
-from bijux_proteomics_runtime.workflows.proof_accounting import (
-    build_runtime_flagship_proof_gate,
-)
+from bijux_proteomics_runtime.workflows import build_runtime_flagship_proof_gate
 
 __all__ = [
     "FlagshipOutsiderArtifactLink",
