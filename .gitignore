@@ -7,6 +7,8 @@
 .venv-esm/
 .coverage
 .coverage.*
+**/.coverage
+**/.coverage.*
 .python-version
 .mypy_cache/
 .pytest_cache/
@@ -20,6 +22,7 @@ site/
 build/
 dist/
 htmlcov/
+**/coverage.xml
 node_modules/
 *.egg-info/
 pip-wheel-metadata/

@@ -128,6 +128,8 @@ maintaining the workspace rather than for end-user installation.
 - `make api` to validate all OpenAPI contracts in `apis/*/v1`
 - `make api-freeze` to enforce frozen OpenAPI payloads and schema digests
 - `make openapi-drift` to catch breaking schema changes without version bumps
+- `make quality-artifact-governance` to enforce artifact roots, drift audit, and
+  package-root hygiene
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
@@ -159,6 +161,9 @@ not silent drift from the other `bijux-g3` repos.
 
 - transient local outputs belong under `artifacts/`, not as durable root-level
   cache directories
+- `make quality-artifact-governance` is the fastest root check when you want to
+  catch cache spillover, package-local artifact drift, or wrong storage
+  locations before broader verification
 - the shared root environment lives at `artifacts/root/check-venv/`
 - the MkDocs site builds to `artifacts/root/docs/site/`
 - the root convenience paths `.venv`, `.tox`, `.hypothesis`, and `.benchmarks`

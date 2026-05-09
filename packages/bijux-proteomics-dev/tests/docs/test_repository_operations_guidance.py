@@ -13,6 +13,7 @@ def test_root_readme_documents_local_artifact_contract() -> None:
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
 
     assert "transient local outputs belong under `artifacts/`" in readme
+    assert "`make quality-artifact-governance`" in readme
     assert "`artifacts/root/check-venv/`" in readme
     assert "`artifacts/root/docs/site/`" in readme
     assert "`.venv`, `.tox`, `.hypothesis`, and `.benchmarks`" in readme
