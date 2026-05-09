@@ -31,16 +31,8 @@ def test_workflow_public_scrutiny_blocks_unready_external_review_kit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.build_public_artifact_index",
-        lambda: SimpleNamespace(entries=tuple(SimpleNamespace(entry_id=f"entry-{index}") for index in range(17))),
-    )
-    monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.build_trust_break_page",
-        lambda: SimpleNamespace(entries=(SimpleNamespace(entry_id="break-1"),)),
-    )
-    monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.build_trust_next_page",
-        lambda: SimpleNamespace(entries=(SimpleNamespace(entry_id="next-1"),)),
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_public_artifact_governance",
+        lambda: (),
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.build_workflow_external_review_kit_family",
@@ -80,3 +72,24 @@ def test_workflow_public_scrutiny_blocks_banned_release_language(
     assert any(
         issue.code == "banned-strong-release-language" for issue in issues
     )
+
+
+def test_workflow_public_scrutiny_blocks_artifact_role_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.workflow_public_scrutiny.validate_public_artifact_governance",
+        lambda: (
+            SimpleNamespace(
+                code="public-artifact-count-growth",
+                detail="public artifact count grew beyond the governed budget",
+            ),
+        ),
+    )
+
+    issues = validate_workflow_public_scrutiny(REPO_ROOT)
+
+    assert WorkflowPublicScrutinyIssue(
+        code="public-artifact-count-growth",
+        detail="public artifact count grew beyond the governed budget",
+    ) in issues

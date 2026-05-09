@@ -3,19 +3,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_intelligence.reviews.external_review_kits import (
-    build_workflow_external_review_kit_family,
-)
-from bijux_proteomics_intelligence.reviews.public_scrutiny import (
-    build_public_artifact_index,
-    build_trust_break_page,
-    build_trust_next_page,
-)
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     validate_black_box_benchmark_language,
 )
+from bijux_proteomics_dev.release.governance.public_artifact_governance import (
+    validate_public_artifact_governance,
+)
 from bijux_proteomics_dev.release.governance.public_language import (
     validate_public_language,
+)
+from bijux_proteomics_intelligence.reviews.external_review_kits import (
+    build_workflow_external_review_kit_family,
 )
 
 __all__ = [
@@ -56,41 +54,9 @@ def validate_workflow_public_scrutiny(
     """Validate public scrutiny surfaces and stronger release language boundaries."""
 
     issues: list[WorkflowPublicScrutinyIssue] = []
-    index = build_public_artifact_index()
-    break_page = build_trust_break_page()
-    next_page = build_trust_next_page()
     kit_family = build_workflow_external_review_kit_family()
-
-    if len(index.entries) < 17:
-        issues.append(
-            WorkflowPublicScrutinyIssue(
-                code="public-artifact-index-too-thin",
-                detail=(
-                    "public artifact index is thinner than the current flagship outsider surface requires"
-                ),
-            )
-        )
-    if len({entry.entry_id for entry in index.entries}) != len(index.entries):
-        issues.append(
-            WorkflowPublicScrutinyIssue(
-                code="public-artifact-index-duplicate-entry-id",
-                detail="public artifact index contains duplicate entry identifiers",
-            )
-        )
-    if not break_page.entries:
-        issues.append(
-            WorkflowPublicScrutinyIssue(
-                code="trust-break-page-empty",
-                detail="the trust-break page must name concrete fragility conditions",
-            )
-        )
-    if not next_page.entries:
-        issues.append(
-            WorkflowPublicScrutinyIssue(
-                code="trust-next-page-empty",
-                detail="the trust-next page must name concrete strengthening paths",
-            )
-        )
+    for issue in validate_public_artifact_governance():
+        issues.append(WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail))
     for kit in kit_family.kits:
         if not kit.standalone_verifier_report.verified:
             issues.append(

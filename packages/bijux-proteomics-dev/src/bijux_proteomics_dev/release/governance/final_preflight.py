@@ -31,6 +31,9 @@ from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     validate_package_family_readiness,
 )
+from bijux_proteomics_dev.release.governance.public_artifact_governance import (
+    run as run_public_artifact_governance,
+)
 from bijux_proteomics_dev.release.governance.readme_truth import (
     validate_readme_truth,
 )
@@ -161,6 +164,10 @@ def _docs_stage(repo_root: Path) -> FinalPreflightStage:
         *_freshness_issue(
             "bijux_proteomics_dev.release.governance.public_language",
             run_public_language(check=True),
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.public_artifact_governance",
+            run_public_artifact_governance(check=True),
         ),
     ]
     return FinalPreflightStage(

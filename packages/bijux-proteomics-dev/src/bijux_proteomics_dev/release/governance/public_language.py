@@ -209,6 +209,7 @@ def _target_paths(repo_root: Path) -> tuple[Path, ...]:
             "release-narrowing-protocol.md",
             "hostile-review-kit.md",
             "public-artifact-index.md",
+            "public-artifact-role-matrix.md",
             "independent-rerun-dossiers.md",
             "external-review-kits.md",
             "workflow-claim-limits.md",
