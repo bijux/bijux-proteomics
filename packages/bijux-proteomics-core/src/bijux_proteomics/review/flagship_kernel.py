@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Flagship scientific-kernel reports over the canonical reviewable workflow."""
+"""Flagship scientific-kernel reports over the bounded workflow chain."""
 
 from __future__ import annotations
 
@@ -42,8 +42,8 @@ class ScientificCoverageBoundaryEntry(JsonModel):
     blocking_for_broad_claims: bool
 
 
-class CanonicalScientificKernelReport(JsonModel):
-    """Scientific-kernel report for the flagship reviewable workflow family."""
+class FlagshipScientificKernelReport(JsonModel):
+    """Scientific-kernel report for the bounded flagship workflow family."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -63,12 +63,12 @@ class CanonicalScientificKernelReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def build_canonical_scientific_kernel_report(
+def build_flagship_scientific_kernel_report(
     snapshot: WorkflowScientificSnapshot,
     *,
-    artifact_path: str = "artifacts/workflows/canonical-reviewable-proteomics/core/scientific_kernel.json",
-    flagship_family_id: str = "reviewable-proteomics",
-) -> CanonicalScientificKernelReport:
+    artifact_path: str = "artifacts/workflows/flagship-workflow-chain/core/scientific_kernel.json",
+    flagship_family_id: str = "flagship-workflows",
+) -> FlagshipScientificKernelReport:
     """Build the narrow scientific-kernel report for the flagship workflow family."""
 
     if not artifact_path.startswith("artifacts/"):
@@ -116,7 +116,7 @@ def build_canonical_scientific_kernel_report(
     )
     blocked_reasons = list(dict.fromkeys(blocked_reasons))
 
-    return CanonicalScientificKernelReport(
+    return FlagshipScientificKernelReport(
         workflow_id=snapshot.workflow_id,
         flagship_family_id=flagship_family_id,
         artifact_path=artifact_path,
@@ -127,7 +127,7 @@ def build_canonical_scientific_kernel_report(
         kernel_ready=not blocked_reasons,
         blocked_reasons=tuple(blocked_reasons),
         note=(
-            "The canonical scientific kernel proves one narrow reviewable workflow family. "
+            "The flagship scientific kernel proves one narrow workflow family. "
             "Broad coverage claims remain blocked while glycopeptide, library-search, and "
             "external-engine behavior stay at explicit boundary scope."
         ),

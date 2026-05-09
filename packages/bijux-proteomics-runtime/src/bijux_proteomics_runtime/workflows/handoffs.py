@@ -33,7 +33,7 @@ class WorkflowStageHandoffContract:
     notes: tuple[str, ...] = ()
 
 
-def build_canonical_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffContract, ...]:
+def build_flagship_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffContract, ...]:
     """Return the governed stage-to-stage handoff graph for the flagship workflow."""
 
     return (

@@ -34,7 +34,7 @@ class WorkflowAssuranceLane:
 
 
 @dataclass(frozen=True)
-class CanonicalOperatorPath:
+class FlagshipOperatorPath:
     """One undeniable runtime-owned operator execution path."""
 
     path_id: str
@@ -74,10 +74,10 @@ def major_workflow_families() -> tuple[str, ...]:
     )
 
 
-def build_canonical_operator_path() -> CanonicalOperatorPath:
+def build_flagship_operator_path() -> FlagshipOperatorPath:
     """Return the runtime-owned operator path that must stay undeniable."""
 
-    return CanonicalOperatorPath(
+    return FlagshipOperatorPath(
         path_id="runtime-sequence-review-operator-path",
         workflow_family="sequence_to_digest",
         entrypoint="bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path",
@@ -110,11 +110,11 @@ def workflow_assurance_lanes() -> tuple[WorkflowAssuranceLane, ...]:
             workflow_family="sequence_to_digest",
             assurance_tier=WorkflowAssuranceTier.CANONICAL_OPERATOR_EXECUTION,
             canonical_entrypoint="bijux_proteomics_runtime.workflows.paths.run_reviewable_sequence_path",
-            repo_relative_fixture_paths=build_canonical_operator_path().repo_relative_input_paths,
-            validating_test_paths=build_canonical_operator_path().validating_test_paths,
-            expected_surfaces=build_canonical_operator_path().required_artifact_kinds,
+            repo_relative_fixture_paths=build_flagship_operator_path().repo_relative_input_paths,
+            validating_test_paths=build_flagship_operator_path().validating_test_paths,
+            expected_surfaces=build_flagship_operator_path().required_artifact_kinds,
             command_hint="run the focused runtime operator path surface test to exercise the canonical execution lane",
-            notes=build_canonical_operator_path().notes,
+            notes=build_flagship_operator_path().notes,
         ),
         WorkflowAssuranceLane(
             lane_id="sequence-first-useful-corpus",
@@ -286,7 +286,7 @@ def workflow_assurance_lanes() -> tuple[WorkflowAssuranceLane, ...]:
 def build_workflow_assurance_matrix() -> tuple[WorkflowAssuranceMatrixRow, ...]:
     """Return workflow-family assurance posture over real, external, and simulated lanes."""
 
-    canonical_operator_path = build_canonical_operator_path()
+    canonical_operator_path = build_flagship_operator_path()
     lanes_by_family: dict[str, list[WorkflowAssuranceLane]] = {}
     for lane in workflow_assurance_lanes():
         lanes_by_family.setdefault(lane.workflow_family, []).append(lane)
@@ -375,11 +375,11 @@ def simulation_contract_lane_ids() -> tuple[str, ...]:
 
 
 __all__ = [
-    "CanonicalOperatorPath",
+    "FlagshipOperatorPath",
     "WorkflowAssuranceLane",
     "WorkflowAssuranceMatrixRow",
     "WorkflowAssuranceTier",
-    "build_canonical_operator_path",
+    "build_flagship_operator_path",
     "build_workflow_assurance_matrix",
     "major_workflow_families",
     "simulation_contract_lane_ids",

@@ -3,17 +3,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.canonical_kernel import (
+from bijux_proteomics.review.flagship_kernel import (
     ScientificCoverageBoundaryState,
-    build_canonical_scientific_kernel_report,
+    build_flagship_scientific_kernel_report,
 )
 from bijux_proteomics.review.scientific_story import WorkflowScientificSnapshot
 
 
-def test_build_canonical_scientific_kernel_report_exposes_narrow_scope_boundaries() -> (
+def test_build_flagship_scientific_kernel_report_exposes_narrow_scope_boundaries() -> (
     None
 ):
-    report = build_canonical_scientific_kernel_report(
+    report = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-a",
             digested_peptide_count=18,
@@ -39,11 +39,11 @@ def test_build_canonical_scientific_kernel_report_exposes_narrow_scope_boundarie
         "library_search_support": ScientificCoverageBoundaryState.BOUNDARY_ONLY,
         "external_engine_behavior": ScientificCoverageBoundaryState.BOUNDARY_ONLY,
     }
-    assert "narrow reviewable workflow family" in report.note
+    assert "narrow workflow family" in report.note
 
 
-def test_build_canonical_scientific_kernel_report_collects_blocking_reasons() -> None:
-    report = build_canonical_scientific_kernel_report(
+def test_build_flagship_scientific_kernel_report_collects_blocking_reasons() -> None:
+    report = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-b",
             digested_peptide_count=0,

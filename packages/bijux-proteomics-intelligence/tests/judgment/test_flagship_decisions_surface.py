@@ -3,23 +3,23 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.canonical_kernel import (
-    build_canonical_scientific_kernel_report,
+from bijux_proteomics.review.flagship_kernel import (
+    build_flagship_scientific_kernel_report,
 )
 from bijux_proteomics.review.scientific_story import WorkflowScientificSnapshot
-from bijux_proteomics_intelligence.judgment.canonical_reviews import (
-    CanonicalDecisionState,
+from bijux_proteomics_intelligence.judgment.flagship_decisions import (
+    FlagshipDecisionState,
     build_flagship_decision_review,
 )
-from bijux_proteomics_knowledge.reviews.workflow_packets import (
-    build_canonical_evidence_review_packet,
+from bijux_proteomics_knowledge.reviews.flagship_evidence import (
+    build_flagship_evidence_decision_brief,
 )
 
 
 def test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean() -> (
     None
 ):
-    kernel = build_canonical_scientific_kernel_report(
+    kernel = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-a",
             digested_peptide_count=18,
@@ -35,10 +35,10 @@ def test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_cl
             external_engine_disagreement_count=0,
         )
     )
-    packet = build_canonical_evidence_review_packet(
+    packet = build_flagship_evidence_decision_brief(
         workflow_id="flagship-a",
-        artifact_path="artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
-        evidence_pointers=("knowledge.review_packet",),
+        artifact_path="artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
+        evidence_pointers=("knowledge.decision_brief",),
         accepted_claim_count=2,
         contested_claim_count=0,
     )
@@ -46,12 +46,12 @@ def test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_cl
     review = build_flagship_decision_review(packet, kernel)
 
     assert review.flagship is True
-    assert review.decision_state is CanonicalDecisionState.READY_FOR_LAB
+    assert review.decision_state is FlagshipDecisionState.READY_FOR_LAB
     assert review.follow_up_required is False
 
 
 def test_build_flagship_decision_review_keeps_downgrade_chain_visible() -> None:
-    kernel = build_canonical_scientific_kernel_report(
+    kernel = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-b",
             digested_peptide_count=0,
@@ -66,16 +66,16 @@ def test_build_flagship_decision_review_keeps_downgrade_chain_visible() -> None:
             external_engine_disagreement_count=0,
         )
     )
-    packet = build_canonical_evidence_review_packet(
+    packet = build_flagship_evidence_decision_brief(
         workflow_id="flagship-b",
-        artifact_path="artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
-        evidence_pointers=("knowledge.review_packet",),
+        artifact_path="artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
+        evidence_pointers=("knowledge.decision_brief",),
         accepted_claim_count=1,
         contested_claim_count=2,
     )
 
     review = build_flagship_decision_review(packet, kernel)
 
-    assert review.decision_state is CanonicalDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
+    assert review.decision_state is FlagshipDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
     assert "empty_digestion_space" in review.downgrade_chain
     assert "evidence review still contains contested claims" in review.downgrade_chain

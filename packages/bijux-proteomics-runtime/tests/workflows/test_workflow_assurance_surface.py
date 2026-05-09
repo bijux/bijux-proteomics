@@ -7,7 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics_runtime.workflows.assurance import (
     WorkflowAssuranceTier,
-    build_canonical_operator_path,
+    build_flagship_operator_path,
     build_workflow_assurance_matrix,
     major_workflow_families,
     simulation_contract_lane_ids,
@@ -45,8 +45,8 @@ def test_major_workflow_families_have_non_simulation_assurance() -> None:
         assert row.real_lane_ids or row.external_compatibility_pack_ids
 
 
-def test_canonical_operator_path_is_runtime_owned_and_artifact_backed() -> None:
-    path = build_canonical_operator_path()
+def test_flagship_operator_path_is_runtime_owned_and_artifact_backed() -> None:
+    path = build_flagship_operator_path()
 
     assert path.workflow_family == "sequence_to_digest"
     assert path.entrypoint.endswith("run_reviewable_sequence_path")

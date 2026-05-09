@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.canonical_kernel import *  # noqa: F401,F403
+from bijux_proteomics.review.flagship_kernel import *  # noqa: F401,F403
 from bijux_proteomics.review.collaboration import *  # noqa: F401,F403
 from bijux_proteomics.review.contracts import *  # noqa: F401,F403
 from bijux_proteomics.review.inference_packets import *  # noqa: F401,F403

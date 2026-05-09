@@ -7,30 +7,30 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import parse_ms1_feature_table
-from bijux_proteomics.review.canonical_kernel import (
-    build_canonical_scientific_kernel_report,
+from bijux_proteomics.review.flagship_kernel import (
+    build_flagship_scientific_kernel_report,
 )
 from bijux_proteomics.review.scientific_story import WorkflowScientificSnapshot
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics_intelligence.judgment.canonical_reviews import (
+from bijux_proteomics_intelligence.judgment.flagship_decisions import (
     build_flagship_decision_review,
 )
-from bijux_proteomics_knowledge.reviews.workflow_packets import (
-    build_canonical_evidence_review_packet,
+from bijux_proteomics_knowledge.reviews.flagship_evidence import (
+    build_flagship_evidence_decision_brief,
 )
 from bijux_proteomics_lab.handoffs.ptm import (
     PtmLabAssayRisk,
     PtmLabValidationPacket,
     PtmLabValidationTargetEntry,
 )
-from bijux_proteomics_lab.reconciliation.canonical_follow_up import (
-    build_canonical_workflow_follow_up_packet,
+from bijux_proteomics_lab.reconciliation.flagship_follow_up import (
+    build_flagship_workflow_follow_up_packet,
 )
-from bijux_proteomics_runtime.workflows.canonical import (
-    CanonicalWorkflowStage,
-    build_canonical_workflow_proof_bundle,
-    compare_canonical_workflow_proof_bundles,
-    evaluate_canonical_workflow_breakage,
+from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
+    FlagshipWorkflowStage,
+    build_flagship_workflow_chain,
+    compare_flagship_workflow_chains,
+    evaluate_flagship_workflow_breakage,
 )
 from bijux_proteomics_runtime.workflows.runs import (
     DdaSearchHitInput,
@@ -141,7 +141,7 @@ END IONS
         protein_sequences=_protein_sequences(),
         feature_records=features,
     )
-    scientific_kernel = build_canonical_scientific_kernel_report(
+    scientific_kernel = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-a",
             digested_peptide_count=sequence.target_peptide_count,
@@ -173,9 +173,9 @@ END IONS
             ),
         )
     )
-    evidence_review = build_canonical_evidence_review_packet(
+    evidence_review = build_flagship_evidence_decision_brief(
         workflow_id="flagship-a",
-        artifact_path="artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
+        artifact_path="artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
         evidence_pointers=knowledge.evidence_pointers,
         accepted_claim_count=knowledge.accepted_claim_count,
         contested_claim_count=knowledge.contested_claim_count,
@@ -195,13 +195,13 @@ END IONS
         unresolved_risk_count=0,
     )
     lab_handoff = run_lab_handoff_workflow_end_to_end(lab_packet)
-    follow_up = build_canonical_workflow_follow_up_packet(
+    follow_up = build_flagship_workflow_follow_up_packet(
         decision_review,
         planned_assay_count=lab_handoff.planned_assay_count,
         export_file_count=lab_handoff.export_file_count,
         unresolved_risk_count=lab_handoff.unresolved_risk_count,
     )
-    return build_canonical_workflow_proof_bundle(
+    return build_flagship_workflow_chain(
         sequence_report=sequence,
         dda_report=dda,
         quant_report=quant,
@@ -214,28 +214,28 @@ END IONS
     )
 
 
-def test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages() -> None:
+def test_build_flagship_workflow_chain_tracks_all_owner_stages() -> None:
     bundle = _build_bundle()
 
     assert bundle.proof_complete is True
-    assert {stage.stage for stage in bundle.stages} == set(CanonicalWorkflowStage)
-    assert bundle.scope_dossier.approved_workflow_families == ("reviewable-proteomics",)
+    assert {stage.stage for stage in bundle.stages} == set(FlagshipWorkflowStage)
+    assert bundle.scope_dossier.approved_workflow_families == ("flagship-workflows",)
     assert all(claim.artifact_path.startswith("artifacts/") for claim in bundle.artifact_claims)
 
 
-def test_compare_canonical_workflow_proof_bundles_is_deterministic_for_same_inputs() -> (
+def test_compare_flagship_workflow_chains_is_deterministic_for_same_inputs() -> (
     None
 ):
     first = _build_bundle()
     second = _build_bundle()
 
-    report = compare_canonical_workflow_proof_bundles(first, second)
+    report = compare_flagship_workflow_chains(first, second)
 
     assert report.equivalent is True
     assert report.changed_fields == ()
 
 
-def test_evaluate_canonical_workflow_breakage_detects_missing_follow_up_and_bad_paths() -> (
+def test_evaluate_flagship_workflow_breakage_detects_missing_follow_up_and_bad_paths() -> (
     None
 ):
     bundle = _build_bundle()
@@ -244,7 +244,7 @@ def test_evaluate_canonical_workflow_breakage_detects_missing_follow_up_and_bad_
             "stages": tuple(
                 stage
                 for stage in bundle.stages
-                if stage.stage is not CanonicalWorkflowStage.FOLLOW_UP
+                if stage.stage is not FlagshipWorkflowStage.FOLLOW_UP
             ),
             "artifact_claims": (
                 bundle.artifact_claims[0].model_copy(
@@ -255,7 +255,7 @@ def test_evaluate_canonical_workflow_breakage_detects_missing_follow_up_and_bad_
         }
     )
 
-    report = evaluate_canonical_workflow_breakage(broken)
+    report = evaluate_flagship_workflow_breakage(broken)
 
     assert report.valid is False
     assert {finding.code for finding in report.findings} == {

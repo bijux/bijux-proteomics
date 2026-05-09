@@ -86,7 +86,7 @@ def build_flagship_workflow_acceptance_dossier() -> WorkflowAcceptanceDossier:
     """Return the current acceptance posture for the flagship workflow stages."""
 
     return WorkflowAcceptanceDossier(
-        workflow_family="flagship-reviewable-proteomics",
+        workflow_family="flagship-workflows",
         stages=(
             WorkflowStageAcceptance(
                 stage_id="runtime-workflow-manifest",
@@ -270,7 +270,7 @@ def build_flagship_workflow_failure_taxonomy() -> WorkflowFailureTaxonomy:
         ),
     )
     return WorkflowFailureTaxonomy(
-        workflow_family="flagship-reviewable-proteomics",
+        workflow_family="flagship-workflows",
         entries=entries,
     )
 
@@ -279,13 +279,13 @@ def build_minimum_real_workflow_proof_bar() -> WorkflowProofBar:
     """Return the minimum proof bar for a workflow that deserves a real claim."""
 
     return WorkflowProofBar(
-        workflow_family="flagship-reviewable-proteomics",
+        workflow_family="flagship-workflows",
         requirements=(
             WorkflowProofRequirement(
                 requirement_id="reproducible-run",
                 requirement_label="one reproducible run path exists and stays replay-auditable",
                 validating_surface_refs=(
-                    "bijux_proteomics_runtime.workflows.assurance.build_canonical_operator_path",
+                    "bijux_proteomics_runtime.workflows.assurance.build_flagship_operator_path",
                     "bijux_proteomics_runtime.workflows.plans.build_workflow_replay_proof_report",
                 ),
                 validating_test_paths=(

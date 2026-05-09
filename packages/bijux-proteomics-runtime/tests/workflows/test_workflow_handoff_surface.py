@@ -7,7 +7,7 @@ from importlib import import_module
 
 from bijux_proteomics_runtime.workflows import (
     WorkflowOwnerPackage,
-    build_canonical_workflow_handoff_contracts,
+    build_flagship_workflow_handoff_contracts,
 )
 
 
@@ -17,8 +17,8 @@ def _resolve_surface(ref: str) -> object:
     return getattr(module, attribute_name)
 
 
-def test_canonical_workflow_handoff_contracts_form_a_closed_stage_graph() -> None:
-    contracts = build_canonical_workflow_handoff_contracts()
+def test_flagship_workflow_handoff_contracts_form_a_closed_stage_graph() -> None:
+    contracts = build_flagship_workflow_handoff_contracts()
 
     assert contracts
     stage_ids = {contract.stage_id for contract in contracts}
@@ -38,8 +38,8 @@ def test_canonical_workflow_handoff_contracts_form_a_closed_stage_graph() -> Non
         assert contract.required_artifact_kinds
 
 
-def test_canonical_workflow_handoff_contracts_resolve_real_owner_surfaces() -> None:
-    contracts = build_canonical_workflow_handoff_contracts()
+def test_flagship_workflow_handoff_contracts_resolve_real_owner_surfaces() -> None:
+    contracts = build_flagship_workflow_handoff_contracts()
 
     assert {contract.owner_package for contract in contracts} == {
         WorkflowOwnerPackage.RUNTIME,

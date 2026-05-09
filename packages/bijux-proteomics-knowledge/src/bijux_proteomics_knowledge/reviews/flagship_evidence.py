@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Workflow-scoped decision briefs for canonical evidence proof."""
+"""Workflow-scoped decision briefs for the flagship evidence chain."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ class WorkflowClaimTier(StrEnum):
     FUTURE_WORK = "future_work"
 
 
-class CanonicalEvidenceReviewPacket(JsonModel):
-    """Evidence-decision brief for the canonical reviewable workflow family."""
+class FlagshipEvidenceDecisionBrief(JsonModel):
+    """Evidence decision brief for the flagship workflow chain."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -38,7 +38,7 @@ class CanonicalEvidenceReviewPacket(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def build_canonical_evidence_review_packet(
+def build_flagship_evidence_decision_brief(
     *,
     workflow_id: str,
     artifact_path: str,
@@ -46,17 +46,17 @@ def build_canonical_evidence_review_packet(
     accepted_claim_count: int,
     contested_claim_count: int,
     claim_tier: WorkflowClaimTier = WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
-    flagship_family_id: str = "reviewable-proteomics",
+    flagship_family_id: str = "flagship-workflows",
     limitation_notes: tuple[str, ...] = (),
-) -> CanonicalEvidenceReviewPacket:
-    """Build the evidence-decision brief for the canonical workflow proof set."""
+) -> FlagshipEvidenceDecisionBrief:
+    """Build the evidence decision brief for the flagship workflow chain."""
 
     if not artifact_path.startswith("artifacts/"):
         raise ValueError("artifact_path must live under artifacts/")
     review_complete = bool(evidence_pointers) and (
         accepted_claim_count + contested_claim_count
     ) > 0
-    return CanonicalEvidenceReviewPacket(
+    return FlagshipEvidenceDecisionBrief(
         workflow_id=workflow_id,
         flagship_family_id=flagship_family_id,
         claim_tier=claim_tier,
@@ -67,7 +67,7 @@ def build_canonical_evidence_review_packet(
         limitation_notes=limitation_notes,
         review_complete=review_complete,
         note=(
-            "The canonical evidence-decision brief uses the repository claim taxonomy "
-            "so users can distinguish reviewable workflow proof from benchmark-only or future-work claims."
+            "The flagship evidence decision brief uses the repository claim taxonomy "
+            "so users can distinguish the checked workflow chain from benchmark-only or future-work claims."
         ),
     )

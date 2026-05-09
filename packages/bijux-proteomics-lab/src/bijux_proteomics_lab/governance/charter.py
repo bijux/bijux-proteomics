@@ -115,7 +115,7 @@ DEFAULT_LAB_CHARTER: tuple[LabCharterEntry, ...] = (
             "outcomes/feedback.py",
             "readiness/operations.py",
             "handoffs/risk.py",
-            "reconciliation/canonical_follow_up.py",
+            "reconciliation/flagship_follow_up.py",
             "reconciliation/follow_up.py",
         ),
         release_blocker="Lab cannot ship if observed outcomes cannot reconcile back into operational follow-up and feedback loops.",
@@ -338,7 +338,7 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="The reconciliation band re-exports follow-up owners under the durable reconciliation namespace.",
     ),
     LabModuleAuditEntry(
-        module_path="reconciliation/canonical_follow_up.py",
+        module_path="reconciliation/flagship_follow_up.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,),
         reason="Canonical follow-up packets keep cross-package outcome consequences explicit instead of letting them dissolve into generic summaries.",

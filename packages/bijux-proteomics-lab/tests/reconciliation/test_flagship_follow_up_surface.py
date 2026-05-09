@@ -3,23 +3,23 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.review.canonical_kernel import (
-    build_canonical_scientific_kernel_report,
+from bijux_proteomics.review.flagship_kernel import (
+    build_flagship_scientific_kernel_report,
 )
 from bijux_proteomics.review.scientific_story import WorkflowScientificSnapshot
-from bijux_proteomics_intelligence.judgment.canonical_reviews import (
+from bijux_proteomics_intelligence.judgment.flagship_decisions import (
     build_flagship_decision_review,
 )
-from bijux_proteomics_knowledge.reviews.workflow_packets import (
-    build_canonical_evidence_review_packet,
+from bijux_proteomics_knowledge.reviews.flagship_evidence import (
+    build_flagship_evidence_decision_brief,
 )
-from bijux_proteomics_lab.reconciliation.canonical_follow_up import (
-    build_canonical_workflow_follow_up_packet,
+from bijux_proteomics_lab.reconciliation.flagship_follow_up import (
+    build_flagship_workflow_follow_up_packet,
 )
 
 
-def test_build_canonical_workflow_follow_up_packet_marks_ready_progression() -> None:
-    kernel = build_canonical_scientific_kernel_report(
+def test_build_flagship_workflow_follow_up_packet_marks_ready_progression() -> None:
+    kernel = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-a",
             digested_peptide_count=18,
@@ -35,16 +35,16 @@ def test_build_canonical_workflow_follow_up_packet_marks_ready_progression() -> 
             external_engine_disagreement_count=0,
         )
     )
-    evidence = build_canonical_evidence_review_packet(
+    evidence = build_flagship_evidence_decision_brief(
         workflow_id="flagship-a",
-        artifact_path="artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
-        evidence_pointers=("knowledge.review_packet",),
+        artifact_path="artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
+        evidence_pointers=("knowledge.decision_brief",),
         accepted_claim_count=2,
         contested_claim_count=0,
     )
     review = build_flagship_decision_review(evidence, kernel)
 
-    packet = build_canonical_workflow_follow_up_packet(
+    packet = build_flagship_workflow_follow_up_packet(
         review,
         planned_assay_count=2,
         export_file_count=3,
@@ -55,8 +55,8 @@ def test_build_canonical_workflow_follow_up_packet_marks_ready_progression() -> 
     assert packet.actions[0].action_id == "carry-plan-forward"
 
 
-def test_build_canonical_workflow_follow_up_packet_keeps_blockers_visible() -> None:
-    kernel = build_canonical_scientific_kernel_report(
+def test_build_flagship_workflow_follow_up_packet_keeps_blockers_visible() -> None:
+    kernel = build_flagship_scientific_kernel_report(
         WorkflowScientificSnapshot(
             workflow_id="flagship-b",
             digested_peptide_count=0,
@@ -71,16 +71,16 @@ def test_build_canonical_workflow_follow_up_packet_keeps_blockers_visible() -> N
             external_engine_disagreement_count=0,
         )
     )
-    evidence = build_canonical_evidence_review_packet(
+    evidence = build_flagship_evidence_decision_brief(
         workflow_id="flagship-b",
-        artifact_path="artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
-        evidence_pointers=("knowledge.review_packet",),
+        artifact_path="artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
+        evidence_pointers=("knowledge.decision_brief",),
         accepted_claim_count=1,
         contested_claim_count=1,
     )
     review = build_flagship_decision_review(evidence, kernel)
 
-    packet = build_canonical_workflow_follow_up_packet(
+    packet = build_flagship_workflow_follow_up_packet(
         review,
         planned_assay_count=1,
         export_file_count=3,

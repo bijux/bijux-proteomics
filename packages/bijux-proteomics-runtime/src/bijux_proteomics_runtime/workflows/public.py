@@ -6,20 +6,20 @@ from importlib import import_module
 from typing import Any
 
 _WORKFLOW_EXPORT_GROUPS = {
-    "bijux_proteomics_runtime.workflows.canonical": [
-        "CanonicalWorkflowBreakageFinding",
-        "CanonicalWorkflowBreakageReport",
-        "CanonicalWorkflowDeterminismReport",
-        "CanonicalWorkflowProofBundle",
-        "CanonicalWorkflowScopeDossier",
-        "CanonicalWorkflowStage",
-        "CanonicalWorkflowStageProof",
+    "bijux_proteomics_runtime.workflows.flagship_workflow_chain": [
+        "FlagshipWorkflowBreakageFinding",
+        "FlagshipWorkflowBreakageReport",
+        "FlagshipWorkflowDeterminismReport",
+        "FlagshipWorkflowChain",
+        "FlagshipWorkflowScopeDossier",
+        "FlagshipWorkflowStage",
+        "FlagshipWorkflowStageProof",
         "WorkflowArtifactClaim",
         "WorkflowClaimKind",
-        "build_canonical_workflow_proof_bundle",
+        "build_flagship_workflow_chain",
         "build_flagship_workflow_scope_dossier",
-        "compare_canonical_workflow_proof_bundles",
-        "evaluate_canonical_workflow_breakage",
+        "compare_flagship_workflow_chains",
+        "evaluate_flagship_workflow_breakage",
     ],
     "bijux_proteomics_runtime.workflows.acceptance": [
         "WorkflowAcceptanceDossier",
@@ -34,11 +34,11 @@ _WORKFLOW_EXPORT_GROUPS = {
         "build_minimum_real_workflow_proof_bar",
     ],
     "bijux_proteomics_runtime.workflows.assurance": [
-        "CanonicalOperatorPath",
+        "FlagshipOperatorPath",
         "WorkflowAssuranceLane",
         "WorkflowAssuranceMatrixRow",
         "WorkflowAssuranceTier",
-        "build_canonical_operator_path",
+        "build_flagship_operator_path",
         "build_workflow_assurance_matrix",
         "major_workflow_families",
         "simulation_contract_lane_ids",
@@ -138,15 +138,15 @@ _WORKFLOW_EXPORT_GROUPS = {
     "bijux_proteomics_runtime.workflows.handoffs": [
         "WorkflowOwnerPackage",
         "WorkflowStageHandoffContract",
-        "build_canonical_workflow_handoff_contracts",
+        "build_flagship_workflow_handoff_contracts",
     ],
-    "bijux_proteomics_runtime.workflows.manifest": [
-        "CANONICAL_WORKFLOW_MANIFEST_PATH",
-        "CanonicalWorkflowManifest",
-        "CanonicalWorkflowManifestIssue",
-        "CanonicalWorkflowManifestStageEntry",
-        "build_canonical_workflow_manifest",
-        "validate_canonical_workflow_manifest",
+    "bijux_proteomics_runtime.workflows.flagship_workflow_manifest": [
+        "FLAGSHIP_WORKFLOW_MANIFEST_PATH",
+        "FlagshipWorkflowManifest",
+        "FlagshipWorkflowManifestIssue",
+        "FlagshipWorkflowManifestStageEntry",
+        "build_flagship_workflow_manifest",
+        "validate_flagship_workflow_manifest",
     ],
     "bijux_proteomics_runtime.workflows.packets": [
         "WorkflowPacketSerializationMode",

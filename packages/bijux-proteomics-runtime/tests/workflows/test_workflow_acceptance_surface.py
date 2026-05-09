@@ -75,7 +75,7 @@ from bijux_proteomics_runtime.workflows import (
     WorkflowFailureCategory,
     WorkflowPacketSerializationMode,
     WorkflowStageAcceptance,
-    build_canonical_workflow_handoff_contracts,
+    build_flagship_workflow_handoff_contracts,
     build_flagship_workflow_acceptance_dossier,
     build_flagship_workflow_failure_taxonomy,
     build_minimum_real_workflow_proof_bar,
@@ -230,10 +230,10 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
 def test_flagship_workflow_acceptance_dossier_distinguishes_real_proof_axes() -> None:
     dossier = build_flagship_workflow_acceptance_dossier()
 
-    assert dossier.workflow_family == "flagship-reviewable-proteomics"
+    assert dossier.workflow_family == "flagship-workflows"
     stage_ids = {stage.stage_id for stage in dossier.stages}
     assert stage_ids == {
-        contract.stage_id for contract in build_canonical_workflow_handoff_contracts()
+        contract.stage_id for contract in build_flagship_workflow_handoff_contracts()
     }
     manifest_stage = next(
         stage for stage in dossier.stages if stage.stage_id == "runtime-workflow-manifest"
@@ -257,7 +257,7 @@ def test_flagship_workflow_acceptance_dossier_distinguishes_real_proof_axes() ->
 def test_flagship_workflow_failure_taxonomy_separates_scientific_and_engineering_breakage() -> None:
     taxonomy = build_flagship_workflow_failure_taxonomy()
 
-    assert taxonomy.workflow_family == "flagship-reviewable-proteomics"
+    assert taxonomy.workflow_family == "flagship-workflows"
     categories = {entry.category for entry in taxonomy.entries}
     assert WorkflowFailureCategory.ENGINEERING_BREAKAGE in categories
     assert WorkflowFailureCategory.SCIENTIFIC_INCOMPLETENESS in categories

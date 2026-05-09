@@ -5,5 +5,5 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_lab.reconciliation.canonical_follow_up import *  # noqa: F401,F403
+from bijux_proteomics_lab.reconciliation.flagship_follow_up import *  # noqa: F401,F403
 from bijux_proteomics_lab.reconciliation.follow_up import *  # noqa: F401,F403

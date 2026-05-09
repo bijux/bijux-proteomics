@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Canonical workflow proof surfaces for the flagship reviewable proteomics family."""
+"""Flagship workflow-chain surfaces for the bounded workflow family."""
 
 from __future__ import annotations
 
@@ -11,17 +11,17 @@ import json
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.canonical_kernel import CanonicalScientificKernelReport
+from bijux_proteomics.review.flagship_kernel import FlagshipScientificKernelReport
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_intelligence.judgment.canonical_reviews import (
-    CanonicalDecisionReview,
+from bijux_proteomics_intelligence.judgment.flagship_decisions import (
+    FlagshipDecisionReview,
 )
-from bijux_proteomics_knowledge.reviews.workflow_packets import (
-    CanonicalEvidenceReviewPacket,
+from bijux_proteomics_knowledge.reviews.flagship_evidence import (
+    FlagshipEvidenceDecisionBrief,
     WorkflowClaimTier,
 )
-from bijux_proteomics_lab.reconciliation.canonical_follow_up import (
-    CanonicalWorkflowFollowUpPacket,
+from bijux_proteomics_lab.reconciliation.flagship_follow_up import (
+    FlagshipWorkflowFollowUpPacket,
 )
 from bijux_proteomics_runtime.workflows.runs import (
     DdaImportWorkflowRunReport,
@@ -32,8 +32,8 @@ from bijux_proteomics_runtime.workflows.runs import (
 )
 
 
-class CanonicalWorkflowStage(StrEnum):
-    """Owner-visible stages in the canonical workflow proof set."""
+class FlagshipWorkflowStage(StrEnum):
+    """Owner-visible stages in the flagship workflow proof set."""
 
     SEQUENCE_INTAKE = "sequence_intake"
     SEARCH_AND_CONFIDENCE = "search_and_confidence"
@@ -54,12 +54,12 @@ class WorkflowClaimKind(StrEnum):
     INTEGRITY = "integrity"
 
 
-class CanonicalWorkflowStageProof(JsonModel):
-    """One reviewed stage in the canonical workflow proof set."""
+class FlagshipWorkflowStageProof(JsonModel):
+    """One reviewed stage in the flagship workflow proof set."""
 
     model_config = ConfigDict(extra="forbid")
 
-    stage: CanonicalWorkflowStage
+    stage: FlagshipWorkflowStage
     owner_package: str = Field(..., min_length=1)
     artifact_paths: tuple[str, ...] = Field(default_factory=tuple)
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
@@ -80,8 +80,8 @@ class WorkflowArtifactClaim(JsonModel):
     rationale: str = Field(..., min_length=1)
 
 
-class CanonicalWorkflowScopeDossier(JsonModel):
-    """Scope dossier that keeps the flagship workflow family explicit and narrow."""
+class FlagshipWorkflowScopeDossier(JsonModel):
+    """Scope dossier that keeps the flagship workflow chain explicit and narrow."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -93,22 +93,22 @@ class CanonicalWorkflowScopeDossier(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class CanonicalWorkflowProofBundle(JsonModel):
-    """Canonical end-to-end proof set for the flagship workflow family."""
+class FlagshipWorkflowChain(JsonModel):
+    """End-to-end evidence chain for the bounded flagship workflow surface."""
 
     model_config = ConfigDict(extra="forbid")
 
     workflow_id: str = Field(..., min_length=1)
-    scope_dossier: CanonicalWorkflowScopeDossier
-    stages: tuple[CanonicalWorkflowStageProof, ...] = Field(default_factory=tuple)
+    scope_dossier: FlagshipWorkflowScopeDossier
+    stages: tuple[FlagshipWorkflowStageProof, ...] = Field(default_factory=tuple)
     artifact_claims: tuple[WorkflowArtifactClaim, ...] = Field(default_factory=tuple)
     proof_digest: str = Field(..., min_length=64, max_length=64)
     proof_complete: bool
     note: str = Field(..., min_length=1)
 
 
-class CanonicalWorkflowDeterminismReport(JsonModel):
-    """Deterministic comparison across two canonical workflow proof bundles."""
+class FlagshipWorkflowDeterminismReport(JsonModel):
+    """Deterministic comparison across two flagship workflow proof bundles."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -118,8 +118,8 @@ class CanonicalWorkflowDeterminismReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-class CanonicalWorkflowBreakageFinding(JsonModel):
-    """One structural breakage in the canonical workflow proof set."""
+class FlagshipWorkflowBreakageFinding(JsonModel):
+    """One structural breakage in the flagship workflow proof set."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -128,14 +128,14 @@ class CanonicalWorkflowBreakageFinding(JsonModel):
     blocking: bool
 
 
-class CanonicalWorkflowBreakageReport(JsonModel):
-    """Structural integrity report for canonical workflow proof bundles."""
+class FlagshipWorkflowBreakageReport(JsonModel):
+    """Structural integrity report for flagship workflow proof bundles."""
 
     model_config = ConfigDict(extra="forbid")
 
     workflow_id: str = Field(..., min_length=1)
     valid: bool
-    findings: tuple[CanonicalWorkflowBreakageFinding, ...] = Field(default_factory=tuple)
+    findings: tuple[FlagshipWorkflowBreakageFinding, ...] = Field(default_factory=tuple)
 
 
 def _stable_sha256(payload: object) -> str:
@@ -144,12 +144,12 @@ def _stable_sha256(payload: object) -> str:
     ).hexdigest()
 
 
-def build_flagship_workflow_scope_dossier() -> CanonicalWorkflowScopeDossier:
-    """Define the one workflow family currently allowed to speak as canonical."""
+def build_flagship_workflow_scope_dossier() -> FlagshipWorkflowScopeDossier:
+    """Define the one bounded workflow family this chain may describe directly."""
 
-    return CanonicalWorkflowScopeDossier(
-        flagship_family_id="reviewable-proteomics",
-        approved_workflow_families=("reviewable-proteomics",),
+    return FlagshipWorkflowScopeDossier(
+        flagship_family_id="flagship-workflows",
+        approved_workflow_families=("flagship-workflows",),
         future_only_workflow_families=(
             "glycopeptide-review",
             "library-search-review",
@@ -163,25 +163,25 @@ def build_flagship_workflow_scope_dossier() -> CanonicalWorkflowScopeDossier:
             WorkflowClaimTier.FUTURE_WORK,
         ),
         note=(
-            "Only the reviewable-proteomics family may use canonical workflow prose. "
-            "All broader workflow families remain future-only until they have their own checked proof sets."
+            "Only the flagship-workflows family may use one-family workflow language. "
+            "All broader workflow families remain future-only until they have their own checked evidence chains."
         ),
     )
 
 
 def _stage_artifact_claims(
-    stages: tuple[CanonicalWorkflowStageProof, ...],
+    stages: tuple[FlagshipWorkflowStageProof, ...],
 ) -> tuple[WorkflowArtifactClaim, ...]:
     validating_tests = {
-        CanonicalWorkflowStage.SEQUENCE_INTAKE: "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
-        CanonicalWorkflowStage.SEARCH_AND_CONFIDENCE: "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
-        CanonicalWorkflowStage.QUANTIFICATION: "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
-        CanonicalWorkflowStage.PTM_REVIEW: "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
-        CanonicalWorkflowStage.SCIENTIFIC_KERNEL: "packages/bijux-proteomics-core/tests/review/test_canonical_scientific_kernel_surface.py::test_build_canonical_scientific_kernel_report_exposes_narrow_scope_boundaries",
-        CanonicalWorkflowStage.EVIDENCE_REVIEW: "packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py::test_build_canonical_evidence_review_packet_preserves_claim_tier_and_artifact_path",
-        CanonicalWorkflowStage.DECISION_REVIEW: "packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean",
-        CanonicalWorkflowStage.LAB_HANDOFF: "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
-        CanonicalWorkflowStage.FOLLOW_UP: "packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py::test_build_canonical_workflow_follow_up_packet_marks_ready_progression",
+        FlagshipWorkflowStage.SEQUENCE_INTAKE: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
+        FlagshipWorkflowStage.SEARCH_AND_CONFIDENCE: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
+        FlagshipWorkflowStage.QUANTIFICATION: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
+        FlagshipWorkflowStage.PTM_REVIEW: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
+        FlagshipWorkflowStage.SCIENTIFIC_KERNEL: "packages/bijux-proteomics-core/tests/review/test_flagship_scientific_kernel_surface.py::test_build_flagship_scientific_kernel_report_exposes_narrow_scope_boundaries",
+        FlagshipWorkflowStage.EVIDENCE_REVIEW: "packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py::test_build_flagship_evidence_decision_brief_preserves_claim_tier_and_artifact_path",
+        FlagshipWorkflowStage.DECISION_REVIEW: "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean",
+        FlagshipWorkflowStage.LAB_HANDOFF: "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
+        FlagshipWorkflowStage.FOLLOW_UP: "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
     }
     claims: list[WorkflowArtifactClaim] = []
     for stage in stages:
@@ -194,27 +194,27 @@ def _stage_artifact_claims(
                     owner_package=stage.owner_package,
                     artifact_path=artifact_path,
                     validating_test_id=validating_tests[stage.stage],
-                    rationale=f"{stage.stage.value} keeps one checked artifact path for the canonical workflow proof set",
+                    rationale=f"{stage.stage.value} keeps one checked artifact path for the flagship workflow chain",
                 )
             )
     claims.extend(
         (
             WorkflowArtifactClaim(
-                claim_id="canonical-workflow-replay-proof",
+                claim_id="flagship-workflow-replay-evidence",
                 claim_kind=WorkflowClaimKind.REPLAY,
                 claim_tier=WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
                 owner_package="bijux-proteomics-runtime",
-                artifact_path="artifacts/workflows/canonical-reviewable-proteomics/replay/determinism_report.json",
-                validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_compare_canonical_workflow_proof_bundles_is_deterministic_for_same_inputs",
+                artifact_path="artifacts/workflows/flagship-workflow-chain/replay/determinism_report.json",
+                validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_compare_flagship_workflow_chains_is_deterministic_for_same_inputs",
                 rationale="the flagship workflow must prove deterministic regeneration under the same inputs",
             ),
             WorkflowArtifactClaim(
-                claim_id="canonical-workflow-integrity-proof",
+                claim_id="flagship-workflow-integrity-evidence",
                 claim_kind=WorkflowClaimKind.INTEGRITY,
                 claim_tier=WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
                 owner_package="bijux-proteomics-runtime",
-                artifact_path="artifacts/workflows/canonical-reviewable-proteomics/integrity/breakage_report.json",
-                validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_evaluate_canonical_workflow_breakage_detects_missing_follow_up_and_bad_paths",
+                artifact_path="artifacts/workflows/flagship-workflow-chain/integrity/breakage_report.json",
+                validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_evaluate_flagship_workflow_breakage_detects_missing_follow_up_and_bad_paths",
                 rationale="the flagship workflow must fail visibly when artifact paths or owner stages break",
             ),
         )
@@ -225,8 +225,8 @@ def _stage_artifact_claims(
 def _bundle_payload(
     *,
     workflow_id: str,
-    scope_dossier: CanonicalWorkflowScopeDossier,
-    stages: tuple[CanonicalWorkflowStageProof, ...],
+    scope_dossier: FlagshipWorkflowScopeDossier,
+    stages: tuple[FlagshipWorkflowStageProof, ...],
     artifact_claims: tuple[WorkflowArtifactClaim, ...],
     proof_complete: bool,
     note: str,
@@ -241,53 +241,53 @@ def _bundle_payload(
     }
 
 
-def build_canonical_workflow_proof_bundle(
+def build_flagship_workflow_chain(
     *,
     sequence_report: SequenceToDigestWorkflowRunReport,
     dda_report: DdaImportWorkflowRunReport,
     quant_report: QuantRuntimeWorkflowRunReport,
     ptm_report: PtmRuntimeWorkflowRunReport,
-    scientific_kernel: CanonicalScientificKernelReport,
-    evidence_review: CanonicalEvidenceReviewPacket,
-    decision_review: CanonicalDecisionReview,
+    scientific_kernel: FlagshipScientificKernelReport,
+    evidence_review: FlagshipEvidenceDecisionBrief,
+    decision_review: FlagshipDecisionReview,
     lab_handoff: LabHandoffWorkflowRunReport,
-    follow_up: CanonicalWorkflowFollowUpPacket,
-) -> CanonicalWorkflowProofBundle:
-    """Assemble the canonical workflow proof set across real owner packages."""
+    follow_up: FlagshipWorkflowFollowUpPacket,
+) -> FlagshipWorkflowChain:
+    """Assemble the flagship workflow chain across real owner packages."""
 
-    workflow_id = "canonical-reviewable-proteomics"
+    workflow_id = "flagship-workflow-chain"
     scope_dossier = build_flagship_workflow_scope_dossier()
     stages = (
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.SEQUENCE_INTAKE,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.SEQUENCE_INTAKE,
             owner_package="bijux-proteomics-runtime",
             artifact_paths=sequence_report.artifact_paths,
             evidence_pointers=sequence_report.evidence_pointers,
             note=sequence_report.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.SEARCH_AND_CONFIDENCE,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.SEARCH_AND_CONFIDENCE,
             owner_package="bijux-proteomics-runtime",
             artifact_paths=dda_report.artifact_paths,
             evidence_pointers=dda_report.evidence_pointers,
             note=dda_report.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.QUANTIFICATION,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.QUANTIFICATION,
             owner_package="bijux-proteomics-runtime",
             artifact_paths=quant_report.artifact_paths,
             evidence_pointers=quant_report.evidence_pointers,
             note=quant_report.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.PTM_REVIEW,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.PTM_REVIEW,
             owner_package="bijux-proteomics-runtime",
             artifact_paths=ptm_report.artifact_paths,
             evidence_pointers=ptm_report.evidence_pointers,
             note=ptm_report.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.SCIENTIFIC_KERNEL,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.SCIENTIFIC_KERNEL,
             owner_package="bijux-proteomics-core",
             artifact_paths=(scientific_kernel.artifact_path,),
             evidence_pointers=(
@@ -297,32 +297,32 @@ def build_canonical_workflow_proof_bundle(
             ),
             note=scientific_kernel.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.EVIDENCE_REVIEW,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.EVIDENCE_REVIEW,
             owner_package="bijux-proteomics-knowledge",
             artifact_paths=(evidence_review.artifact_path,),
             evidence_pointers=evidence_review.evidence_pointers,
             note=evidence_review.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.DECISION_REVIEW,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.DECISION_REVIEW,
             owner_package="bijux-proteomics-intelligence",
             artifact_paths=(decision_review.artifact_path,),
             evidence_pointers=("intelligence.flagship.decision_review",),
             note=decision_review.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.LAB_HANDOFF,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.LAB_HANDOFF,
             owner_package="bijux-proteomics-runtime",
             artifact_paths=lab_handoff.artifact_paths,
             evidence_pointers=lab_handoff.evidence_pointers,
             note=lab_handoff.note,
         ),
-        CanonicalWorkflowStageProof(
-            stage=CanonicalWorkflowStage.FOLLOW_UP,
+        FlagshipWorkflowStageProof(
+            stage=FlagshipWorkflowStage.FOLLOW_UP,
             owner_package="bijux-proteomics-lab",
             artifact_paths=(follow_up.artifact_path, follow_up.next_cycle_artifact_path),
-            evidence_pointers=("lab.canonical.follow_up", "lab.canonical.next_cycle"),
+            evidence_pointers=("lab.flagship.follow_up", "lab.flagship.next_cycle"),
             note=follow_up.note,
         ),
     )
@@ -333,7 +333,7 @@ def build_canonical_workflow_proof_bundle(
         for artifact_path in stage.artifact_paths
     )
     note = (
-        "This bundle is the one checked canonical workflow family. It proves a narrow "
+        "This bundle is the one checked flagship workflow chain. It proves a narrow "
         "sequence-to-review-to-follow-up story and refuses to stand in for broader workflow coverage."
     )
     payload = _bundle_payload(
@@ -344,7 +344,7 @@ def build_canonical_workflow_proof_bundle(
         proof_complete=proof_complete,
         note=note,
     )
-    return CanonicalWorkflowProofBundle(
+    return FlagshipWorkflowChain(
         workflow_id=workflow_id,
         scope_dossier=scope_dossier,
         stages=stages,
@@ -355,11 +355,11 @@ def build_canonical_workflow_proof_bundle(
     )
 
 
-def compare_canonical_workflow_proof_bundles(
-    baseline: CanonicalWorkflowProofBundle,
-    candidate: CanonicalWorkflowProofBundle,
-) -> CanonicalWorkflowDeterminismReport:
-    """Compare two canonical workflow proof bundles deterministically."""
+def compare_flagship_workflow_chains(
+    baseline: FlagshipWorkflowChain,
+    candidate: FlagshipWorkflowChain,
+) -> FlagshipWorkflowDeterminismReport:
+    """Compare two flagship workflow proof bundles deterministically."""
 
     changed_fields: list[str] = []
     if baseline.scope_dossier != candidate.scope_dossier:
@@ -373,39 +373,39 @@ def compare_canonical_workflow_proof_bundles(
     if baseline.note != candidate.note:
         changed_fields.append("note")
 
-    return CanonicalWorkflowDeterminismReport(
+    return FlagshipWorkflowDeterminismReport(
         workflow_id=baseline.workflow_id,
         equivalent=not changed_fields,
         changed_fields=tuple(changed_fields),
         note=(
-            "Equivalent bundles may be described as deterministic re-generation for the flagship workflow family."
+            "Equivalent bundles may be described as deterministic regeneration for the flagship workflow chain."
             if not changed_fields
-            else "The canonical proof bundle changed across repeated builds."
+            else "The flagship workflow chain changed across repeated builds."
         ),
     )
 
 
-def evaluate_canonical_workflow_breakage(
-    bundle: CanonicalWorkflowProofBundle,
-) -> CanonicalWorkflowBreakageReport:
-    """Detect structural breakage in the canonical workflow proof set."""
+def evaluate_flagship_workflow_breakage(
+    bundle: FlagshipWorkflowChain,
+) -> FlagshipWorkflowBreakageReport:
+    """Detect structural breakage in the flagship workflow proof set."""
 
-    findings: list[CanonicalWorkflowBreakageFinding] = []
-    required_stages = set(CanonicalWorkflowStage)
+    findings: list[FlagshipWorkflowBreakageFinding] = []
+    required_stages = set(FlagshipWorkflowStage)
     observed_stages = {stage.stage for stage in bundle.stages}
     missing_stages = sorted(stage.value for stage in required_stages - observed_stages)
     if missing_stages:
         findings.append(
-            CanonicalWorkflowBreakageFinding(
+            FlagshipWorkflowBreakageFinding(
                 code="missing_owner_stage",
-                message="missing canonical owner stages: " + ", ".join(missing_stages),
+                message="missing flagship owner stages: " + ", ".join(missing_stages),
                 blocking=True,
             )
         )
     for claim in bundle.artifact_claims:
         if not claim.artifact_path.startswith("artifacts/"):
             findings.append(
-                CanonicalWorkflowBreakageFinding(
+                FlagshipWorkflowBreakageFinding(
                     code="artifact_path_outside_artifacts",
                     message=f"claim {claim.claim_id} points outside artifacts/",
                     blocking=True,
@@ -413,7 +413,7 @@ def evaluate_canonical_workflow_breakage(
             )
         if "::" not in claim.validating_test_id:
             findings.append(
-                CanonicalWorkflowBreakageFinding(
+                FlagshipWorkflowBreakageFinding(
                     code="missing_validating_test",
                     message=f"claim {claim.claim_id} has no pytest node id",
                     blocking=True,
@@ -422,21 +422,21 @@ def evaluate_canonical_workflow_breakage(
     claim_kinds = {claim.claim_kind for claim in bundle.artifact_claims}
     if WorkflowClaimKind.REPLAY not in claim_kinds:
         findings.append(
-            CanonicalWorkflowBreakageFinding(
+            FlagshipWorkflowBreakageFinding(
                 code="missing_replay_claim",
-                message="canonical workflow proof set no longer carries a replay claim",
+                message="flagship workflow proof set no longer carries a replay claim",
                 blocking=True,
             )
         )
     if WorkflowClaimKind.INTEGRITY not in claim_kinds:
         findings.append(
-            CanonicalWorkflowBreakageFinding(
+            FlagshipWorkflowBreakageFinding(
                 code="missing_integrity_claim",
-                message="canonical workflow proof set no longer carries an integrity claim",
+                message="flagship workflow proof set no longer carries an integrity claim",
                 blocking=True,
             )
         )
-    return CanonicalWorkflowBreakageReport(
+    return FlagshipWorkflowBreakageReport(
         workflow_id=bundle.workflow_id,
         valid=not findings,
         findings=tuple(findings),

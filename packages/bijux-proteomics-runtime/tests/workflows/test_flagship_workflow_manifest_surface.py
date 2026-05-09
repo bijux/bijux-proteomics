@@ -5,15 +5,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.workflows.canonical import CanonicalWorkflowStage
-from bijux_proteomics_runtime.workflows.manifest import (
-    CANONICAL_WORKFLOW_MANIFEST_PATH,
-    build_canonical_workflow_manifest,
+from bijux_proteomics_runtime.workflows.flagship_workflow_chain import FlagshipWorkflowStage
+from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
+    FLAGSHIP_WORKFLOW_MANIFEST_PATH,
+    build_flagship_workflow_manifest,
     run,
-    validate_canonical_workflow_manifest,
+    validate_flagship_workflow_manifest,
 )
 
-from .test_canonical_workflow_surface import _build_bundle
+from .test_flagship_workflow_chain_surface import _build_bundle
 
 REPO_ROOT = next(
     parent
@@ -22,19 +22,19 @@ REPO_ROOT = next(
 )
 
 
-def test_canonical_workflow_manifest_is_up_to_date() -> None:
+def test_flagship_workflow_manifest_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
-def test_canonical_workflow_manifest_matches_checked_bundle_shape() -> None:
-    manifest = build_canonical_workflow_manifest()
+def test_flagship_workflow_manifest_matches_checked_bundle_shape() -> None:
+    manifest = build_flagship_workflow_manifest()
     bundle = _build_bundle()
 
     manifest_stage_map = {entry.stage: entry for entry in manifest.stages}
     bundle_stage_map = {stage.stage: stage for stage in bundle.stages}
 
-    assert CANONICAL_WORKFLOW_MANIFEST_PATH.exists()
-    assert tuple(manifest_stage_map) == tuple(CanonicalWorkflowStage)
+    assert FLAGSHIP_WORKFLOW_MANIFEST_PATH.exists()
+    assert tuple(manifest_stage_map) == tuple(FlagshipWorkflowStage)
     assert set(manifest.owner_packages) == {
         "bijux-proteomics-runtime",
         "bijux-proteomics-core",
@@ -42,12 +42,12 @@ def test_canonical_workflow_manifest_matches_checked_bundle_shape() -> None:
         "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",
     }
-    for stage in CanonicalWorkflowStage:
+    for stage in FlagshipWorkflowStage:
         assert manifest_stage_map[stage].owner_package == bundle_stage_map[stage].owner_package
         assert manifest_stage_map[stage].artifact_paths == bundle_stage_map[stage].artifact_paths
 
 
-def test_canonical_workflow_manifest_refuses_fake_only_shortcuts() -> None:
-    issues = validate_canonical_workflow_manifest(repo_root=REPO_ROOT)
+def test_flagship_workflow_manifest_refuses_fake_only_shortcuts() -> None:
+    issues = validate_flagship_workflow_manifest(repo_root=REPO_ROOT)
 
     assert issues == ()

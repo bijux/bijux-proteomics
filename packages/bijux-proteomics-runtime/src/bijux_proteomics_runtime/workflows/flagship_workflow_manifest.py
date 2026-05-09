@@ -1,4 +1,4 @@
-"""Checked manifest for the one workflow family the repository can currently defend."""
+"""Checked manifest for the flagship workflow chain the repository can defend."""
 
 from __future__ import annotations
 
@@ -7,20 +7,20 @@ from dataclasses import dataclass
 from pathlib import Path
 import tomllib
 
-from bijux_proteomics_runtime.workflows.canonical import (
-    CanonicalWorkflowStage,
+from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
+    FlagshipWorkflowStage,
     WorkflowClaimTier,
     build_flagship_workflow_scope_dossier,
 )
 
 __all__ = [
-    "CANONICAL_WORKFLOW_MANIFEST_PATH",
-    "CanonicalWorkflowManifest",
-    "CanonicalWorkflowManifestIssue",
-    "CanonicalWorkflowManifestStageEntry",
-    "build_canonical_workflow_manifest",
+    "FLAGSHIP_WORKFLOW_MANIFEST_PATH",
+    "FlagshipWorkflowManifest",
+    "FlagshipWorkflowManifestIssue",
+    "FlagshipWorkflowManifestStageEntry",
+    "build_flagship_workflow_manifest",
     "run",
-    "validate_canonical_workflow_manifest",
+    "validate_flagship_workflow_manifest",
 ]
 
 
@@ -29,16 +29,16 @@ REPO_ROOT = next(
     for parent in Path(__file__).resolve().parents
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
-CANONICAL_WORKFLOW_MANIFEST_PATH = (
-    REPO_ROOT / "configs" / "package-governance" / "canonical-workflow-manifest.toml"
+FLAGSHIP_WORKFLOW_MANIFEST_PATH = (
+    REPO_ROOT / "configs" / "package-governance" / "flagship-workflow-manifest.toml"
 )
 
 
 @dataclass(frozen=True)
-class CanonicalWorkflowManifestStageEntry:
-    """One owner stage in the checked canonical workflow manifest."""
+class FlagshipWorkflowManifestStageEntry:
+    """One owner stage in the checked flagship workflow manifest."""
 
-    stage: CanonicalWorkflowStage
+    stage: FlagshipWorkflowStage
     owner_package: str
     source_path: str
     test_path: str
@@ -48,8 +48,8 @@ class CanonicalWorkflowManifestStageEntry:
 
 
 @dataclass(frozen=True)
-class CanonicalWorkflowManifest:
-    """Checked manifest for the one canonical workflow family."""
+class FlagshipWorkflowManifest:
+    """Checked manifest for the flagship workflow chain."""
 
     workflow_id: str
     flagship_family_id: str
@@ -58,26 +58,26 @@ class CanonicalWorkflowManifest:
     docs_path: str
     owner_packages: tuple[str, ...]
     claim_taxonomy: tuple[str, ...]
-    stages: tuple[CanonicalWorkflowManifestStageEntry, ...]
+    stages: tuple[FlagshipWorkflowManifestStageEntry, ...]
 
 
 @dataclass(frozen=True)
-class CanonicalWorkflowManifestIssue:
-    """One manifest issue that blocks canonical workflow truth claims."""
+class FlagshipWorkflowManifestIssue:
+    """One manifest issue that blocks flagship workflow truth claims."""
 
     code: str
     detail: str
 
 
-def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
-    """Build the checked manifest for the one canonical workflow family."""
+def build_flagship_workflow_manifest() -> FlagshipWorkflowManifest:
+    """Build the checked manifest for the flagship workflow chain."""
 
     dossier = build_flagship_workflow_scope_dossier()
-    return CanonicalWorkflowManifest(
-        workflow_id="canonical-reviewable-proteomics",
+    return FlagshipWorkflowManifest(
+        workflow_id="flagship-workflow-chain",
         flagship_family_id=dossier.flagship_family_id,
-        builder_module="bijux_proteomics_runtime.workflows.canonical",
-        builder_symbol="build_canonical_workflow_proof_bundle",
+        builder_module="bijux_proteomics_runtime.workflows.flagship_workflow_chain",
+        builder_symbol="build_flagship_workflow_chain",
         docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
         owner_packages=(
             "bijux-proteomics-runtime",
@@ -88,11 +88,11 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
         ),
         claim_taxonomy=tuple(tier.value for tier in dossier.claim_taxonomy),
         stages=(
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.SEQUENCE_INTAKE,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.SEQUENCE_INTAKE,
                 owner_package="bijux-proteomics-runtime",
                 source_path="packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py",
-                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py",
+                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py",
                 docs_path="packages/bijux-proteomics-runtime/README.md",
                 artifact_paths=(
                     "artifacts/workflows/sequence-to-digest/targets.fasta",
@@ -100,14 +100,14 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                     "artifacts/workflows/sequence-to-digest/peptides.tsv",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
+                    "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.SEARCH_AND_CONFIDENCE,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.SEARCH_AND_CONFIDENCE,
                 owner_package="bijux-proteomics-runtime",
                 source_path="packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py",
-                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py",
+                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py",
                 docs_path="packages/bijux-proteomics-runtime/README.md",
                 artifact_paths=(
                     "artifacts/workflows/dda-import/spectra.mgf",
@@ -116,14 +116,14 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                     "artifacts/workflows/dda-import/qc_report.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
+                    "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.QUANTIFICATION,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.QUANTIFICATION,
                 owner_package="bijux-proteomics-runtime",
                 source_path="packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py",
-                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py",
+                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py",
                 docs_path="packages/bijux-proteomics-runtime/README.md",
                 artifact_paths=(
                     "artifacts/workflows/quant-runtime/matrix.tsv",
@@ -132,14 +132,14 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                     "artifacts/workflows/quant-runtime/review_bundle.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
+                    "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.PTM_REVIEW,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.PTM_REVIEW,
                 owner_package="bijux-proteomics-runtime",
                 source_path="packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py",
-                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py",
+                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py",
                 docs_path="packages/bijux-proteomics-runtime/README.md",
                 artifact_paths=(
                     "artifacts/workflows/ptm-runtime/ptm_sites.tsv",
@@ -148,54 +148,54 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                     "artifacts/workflows/ptm-runtime/ptm_lab_packet.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
+                    "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.SCIENTIFIC_KERNEL,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.SCIENTIFIC_KERNEL,
                 owner_package="bijux-proteomics-core",
-                source_path="packages/bijux-proteomics-core/src/bijux_proteomics/review/canonical_kernel.py",
-                test_path="packages/bijux-proteomics-core/tests/review/test_canonical_scientific_kernel_surface.py",
+                source_path="packages/bijux-proteomics-core/src/bijux_proteomics/review/flagship_kernel.py",
+                test_path="packages/bijux-proteomics-core/tests/review/test_flagship_scientific_kernel_surface.py",
                 docs_path="packages/bijux-proteomics-core/README.md",
                 artifact_paths=(
-                    "artifacts/workflows/canonical-reviewable-proteomics/core/scientific_kernel.json",
+                    "artifacts/workflows/flagship-workflow-chain/core/scientific_kernel.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-core/tests/review/test_canonical_scientific_kernel_surface.py::test_build_canonical_scientific_kernel_report_exposes_narrow_scope_boundaries",
+                    "packages/bijux-proteomics-core/tests/review/test_flagship_scientific_kernel_surface.py::test_build_flagship_scientific_kernel_report_exposes_narrow_scope_boundaries",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.EVIDENCE_REVIEW,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.EVIDENCE_REVIEW,
                 owner_package="bijux-proteomics-knowledge",
-                source_path="packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/workflow_packets.py",
-                test_path="packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py",
+                source_path="packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/flagship_evidence.py",
+                test_path="packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py",
                 docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
-                    "artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
+                    "artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py::test_build_canonical_evidence_review_packet_preserves_claim_tier_and_artifact_path",
+                    "packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py::test_build_flagship_evidence_decision_brief_preserves_claim_tier_and_artifact_path",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.DECISION_REVIEW,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.DECISION_REVIEW,
                 owner_package="bijux-proteomics-intelligence",
-                source_path="packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/canonical_reviews.py",
-                test_path="packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py",
+                source_path="packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/flagship_decisions.py",
+                test_path="packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py",
                 docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
-                    "artifacts/workflows/canonical-reviewable-proteomics/intelligence/decision_review.json",
+                    "artifacts/workflows/flagship-workflow-chain/intelligence/decision_review.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean",
-                    "packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py::test_build_flagship_decision_review_keeps_downgrade_chain_visible",
+                    "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean",
+                    "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_keeps_downgrade_chain_visible",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.LAB_HANDOFF,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.LAB_HANDOFF,
                 owner_package="bijux-proteomics-runtime",
                 source_path="packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py",
-                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py",
+                test_path="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py",
                 docs_path="packages/bijux-proteomics-runtime/README.md",
                 artifact_paths=(
                     "artifacts/workflows/lab-handoff/assay_plan.tsv",
@@ -203,21 +203,21 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                     "artifacts/workflows/lab-handoff/unresolved_risk_report.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-runtime/tests/workflows/test_canonical_workflow_surface.py::test_build_canonical_workflow_proof_bundle_tracks_all_owner_stages",
+                    "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages",
                 ),
             ),
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage.FOLLOW_UP,
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage.FOLLOW_UP,
                 owner_package="bijux-proteomics-lab",
-                source_path="packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/canonical_follow_up.py",
-                test_path="packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py",
+                source_path="packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/flagship_follow_up.py",
+                test_path="packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py",
                 docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
-                    "artifacts/workflows/canonical-reviewable-proteomics/lab/follow_up_packet.json",
-                    "artifacts/workflows/canonical-reviewable-proteomics/lab/next_cycle_packet.json",
+                    "artifacts/workflows/flagship-workflow-chain/lab/follow_up_packet.json",
+                    "artifacts/workflows/flagship-workflow-chain/lab/next_cycle_packet.json",
                 ),
                 validating_test_ids=(
-                    "packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py::test_build_canonical_workflow_follow_up_packet_marks_ready_progression",
+                    "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression",
                 ),
             ),
         ),
@@ -228,10 +228,10 @@ def _render_tuple(values: tuple[str, ...]) -> str:
     return ", ".join(f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values)
 
 
-def _toml_text(manifest: CanonicalWorkflowManifest) -> str:
+def _toml_text(manifest: FlagshipWorkflowManifest) -> str:
     lines = [
-        "# Generated canonical workflow manifest.",
-        "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_runtime.workflows.manifest",
+        "# Generated flagship workflow manifest.",
+        "# Regenerate with: ./.venv/bin/python -m bijux_proteomics_runtime.workflows.flagship_workflow_manifest",
         "",
         "[workflow]",
         f'workflow_id = "{manifest.workflow_id}"',
@@ -260,20 +260,20 @@ def _toml_text(manifest: CanonicalWorkflowManifest) -> str:
     return "\n".join(lines)
 
 
-def _is_up_to_date(manifest: CanonicalWorkflowManifest) -> bool:
-    if not CANONICAL_WORKFLOW_MANIFEST_PATH.exists():
+def _is_up_to_date(manifest: FlagshipWorkflowManifest) -> bool:
+    if not FLAGSHIP_WORKFLOW_MANIFEST_PATH.exists():
         return False
-    return CANONICAL_WORKFLOW_MANIFEST_PATH.read_text(encoding="utf-8") == _toml_text(
+    return FLAGSHIP_WORKFLOW_MANIFEST_PATH.read_text(encoding="utf-8") == _toml_text(
         manifest
     )
 
 
 def _load_manifest(
-    path: Path = CANONICAL_WORKFLOW_MANIFEST_PATH,
-) -> CanonicalWorkflowManifest:
+    path: Path = FLAGSHIP_WORKFLOW_MANIFEST_PATH,
+) -> FlagshipWorkflowManifest:
     raw = tomllib.loads(path.read_text(encoding="utf-8"))
     workflow = raw["workflow"]
-    return CanonicalWorkflowManifest(
+    return FlagshipWorkflowManifest(
         workflow_id=str(workflow["workflow_id"]),
         flagship_family_id=str(workflow["flagship_family_id"]),
         builder_module=str(workflow["builder_module"]),
@@ -282,8 +282,8 @@ def _load_manifest(
         owner_packages=tuple(str(value) for value in workflow["owner_packages"]),
         claim_taxonomy=tuple(str(value) for value in workflow["claim_taxonomy"]),
         stages=tuple(
-            CanonicalWorkflowManifestStageEntry(
-                stage=CanonicalWorkflowStage(str(item["stage"])),
+            FlagshipWorkflowManifestStageEntry(
+                stage=FlagshipWorkflowStage(str(item["stage"])),
                 owner_package=str(item["owner_package"]),
                 source_path=str(item["source_path"]),
                 test_path=str(item["test_path"]),
@@ -298,19 +298,19 @@ def _load_manifest(
     )
 
 
-def validate_canonical_workflow_manifest(
-    manifest: CanonicalWorkflowManifest | None = None,
+def validate_flagship_workflow_manifest(
+    manifest: FlagshipWorkflowManifest | None = None,
     repo_root: Path = REPO_ROOT,
-) -> tuple[CanonicalWorkflowManifestIssue, ...]:
-    """Validate the checked canonical workflow manifest against live repository truth."""
+) -> tuple[FlagshipWorkflowManifestIssue, ...]:
+    """Validate the checked flagship workflow manifest against live repository truth."""
 
     manifest = manifest or _load_manifest()
-    issues: list[CanonicalWorkflowManifestIssue] = []
-    if manifest.workflow_id != "canonical-reviewable-proteomics":
+    issues: list[FlagshipWorkflowManifestIssue] = []
+    if manifest.workflow_id != "flagship-workflow-chain":
         issues.append(
-            CanonicalWorkflowManifestIssue(
+            FlagshipWorkflowManifestIssue(
                 code="unexpected-workflow-id",
-                detail=f"canonical workflow manifest must keep workflow_id=canonical-reviewable-proteomics, got {manifest.workflow_id}",
+                detail=f"flagship workflow manifest must keep workflow_id=flagship-workflow-chain, got {manifest.workflow_id}",
             )
         )
     if set(manifest.claim_taxonomy) != {
@@ -320,24 +320,24 @@ def validate_canonical_workflow_manifest(
         WorkflowClaimTier.FUTURE_WORK.value,
     }:
         issues.append(
-            CanonicalWorkflowManifestIssue(
+            FlagshipWorkflowManifestIssue(
                 code="claim-taxonomy-drift",
-                detail="canonical workflow manifest no longer carries the governed claim taxonomy",
+                detail="flagship workflow manifest no longer carries the governed claim taxonomy",
             )
         )
-    if tuple(stage.stage for stage in manifest.stages) != tuple(CanonicalWorkflowStage):
+    if tuple(stage.stage for stage in manifest.stages) != tuple(FlagshipWorkflowStage):
         issues.append(
-            CanonicalWorkflowManifestIssue(
+            FlagshipWorkflowManifestIssue(
                 code="stage-set-drift",
-                detail="canonical workflow manifest no longer covers the exact stage set",
+                detail="flagship workflow manifest no longer covers the exact stage set",
             )
         )
     for required_owner in manifest.owner_packages:
         if required_owner not in {stage.owner_package for stage in manifest.stages}:
             issues.append(
-                CanonicalWorkflowManifestIssue(
+                FlagshipWorkflowManifestIssue(
                     code="missing-owner-stage",
-                    detail=f"canonical workflow manifest no longer covers owner package {required_owner}",
+                    detail=f"flagship workflow manifest no longer covers owner package {required_owner}",
                 )
             )
     for stage in manifest.stages:
@@ -348,7 +348,7 @@ def validate_canonical_workflow_manifest(
         ):
             if not (repo_root / relative_path).exists():
                 issues.append(
-                    CanonicalWorkflowManifestIssue(
+                    FlagshipWorkflowManifestIssue(
                         code=f"missing-{path_label}-path",
                         detail=f"{stage.stage.value} is missing {path_label} path {relative_path}",
                     )
@@ -356,14 +356,14 @@ def validate_canonical_workflow_manifest(
         for artifact_path in stage.artifact_paths:
             if not artifact_path.startswith("artifacts/"):
                 issues.append(
-                    CanonicalWorkflowManifestIssue(
+                    FlagshipWorkflowManifestIssue(
                         code="artifact-path-outside-artifacts",
                         detail=f"{stage.stage.value} points outside artifacts/: {artifact_path}",
                     )
                 )
             if any(token in artifact_path for token in ("simulated", "fake", "_fake")):
                 issues.append(
-                    CanonicalWorkflowManifestIssue(
+                    FlagshipWorkflowManifestIssue(
                         code="fake-shortcut-artifact-path",
                         detail=f"{stage.stage.value} still references a fake or simulated artifact path: {artifact_path}",
                     )
@@ -371,14 +371,14 @@ def validate_canonical_workflow_manifest(
         for node_id in stage.validating_test_ids:
             if "::" not in node_id:
                 issues.append(
-                    CanonicalWorkflowManifestIssue(
+                    FlagshipWorkflowManifestIssue(
                         code="invalid-pytest-node-id",
                         detail=f"{stage.stage.value} validating test is not a pytest node id: {node_id}",
                     )
                 )
             if any(token in node_id for token in ("simulated", "fake", "_fake_run_flow")):
                 issues.append(
-                    CanonicalWorkflowManifestIssue(
+                    FlagshipWorkflowManifestIssue(
                         code="fake-shortcut-validating-test",
                         detail=f"{stage.stage.value} validating test still depends on a fake-only shortcut: {node_id}",
                     )
@@ -387,31 +387,31 @@ def validate_canonical_workflow_manifest(
 
 
 def run(check: bool = False) -> int:
-    manifest = build_canonical_workflow_manifest()
-    issues = validate_canonical_workflow_manifest(manifest)
+    manifest = build_flagship_workflow_manifest()
+    issues = validate_flagship_workflow_manifest(manifest)
     if issues:
         for issue in issues:
             print(f"{issue.code}: {issue.detail}")
         return 1
     if check:
         if _is_up_to_date(manifest):
-            print("canonical workflow manifest is up to date")
+            print("flagship workflow manifest is up to date")
             return 0
-        print("canonical workflow manifest is stale; regenerate it")
+        print("flagship workflow manifest is stale; regenerate it")
         return 1
-    CANONICAL_WORKFLOW_MANIFEST_PATH.write_text(_toml_text(manifest), encoding="utf-8")
-    print("generated canonical workflow manifest")
+    FLAGSHIP_WORKFLOW_MANIFEST_PATH.write_text(_toml_text(manifest), encoding="utf-8")
+    print("generated flagship workflow manifest")
     return 0
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Generate or validate the canonical workflow manifest."
+        description="Generate or validate the flagship workflow manifest."
     )
     parser.add_argument(
         "--check",
         action="store_true",
-        help="Fail if the canonical workflow manifest is stale.",
+        help="Fail if the flagship workflow manifest is stale.",
     )
     args = parser.parse_args()
     raise SystemExit(run(check=args.check))

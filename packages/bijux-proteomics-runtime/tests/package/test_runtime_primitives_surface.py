@@ -87,11 +87,11 @@ def test_runtime_surface_area_uses_reviewable_runtime_paths() -> None:
 
 def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
     from bijux_proteomics_runtime.workflows import (
-        build_canonical_operator_path,
+        build_flagship_operator_path,
         build_workflow_assurance_matrix,
     )
 
-    assert build_canonical_operator_path().path_id == "runtime-sequence-review-operator-path"
+    assert build_flagship_operator_path().path_id == "runtime-sequence-review-operator-path"
     assert build_workflow_assurance_matrix()
 
 

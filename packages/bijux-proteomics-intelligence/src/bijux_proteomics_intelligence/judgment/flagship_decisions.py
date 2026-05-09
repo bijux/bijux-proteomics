@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Decision-review surfaces for the canonical workflow family."""
+"""Decision surfaces for the flagship workflow chain."""
 
 from __future__ import annotations
 
@@ -9,15 +9,15 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.review.canonical_kernel import CanonicalScientificKernelReport
+from bijux_proteomics.review.flagship_kernel import FlagshipScientificKernelReport
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.reviews.workflow_packets import (
-    CanonicalEvidenceReviewPacket,
+from bijux_proteomics_knowledge.reviews.flagship_evidence import (
+    FlagshipEvidenceDecisionBrief,
     WorkflowClaimTier,
 )
 
 
-class CanonicalDecisionState(StrEnum):
+class FlagshipDecisionState(StrEnum):
     """Decision posture for the flagship workflow family."""
 
     READY_FOR_LAB = "ready_for_lab"
@@ -25,7 +25,7 @@ class CanonicalDecisionState(StrEnum):
     HOLD_FOR_SCIENTIFIC_CONFLICT = "hold_for_scientific_conflict"
 
 
-class CanonicalDecisionReview(JsonModel):
+class FlagshipDecisionReview(JsonModel):
     """Decision-decision brief for the flagship workflow family."""
 
     model_config = ConfigDict(extra="forbid")
@@ -35,7 +35,7 @@ class CanonicalDecisionReview(JsonModel):
     flagship: bool
     claim_tier: WorkflowClaimTier
     artifact_path: str = Field(..., min_length=1)
-    decision_state: CanonicalDecisionState
+    decision_state: FlagshipDecisionState
     downgrade_chain: tuple[str, ...] = Field(default_factory=tuple)
     ranking_rationale: tuple[str, ...] = Field(default_factory=tuple)
     follow_up_required: bool
@@ -43,11 +43,11 @@ class CanonicalDecisionReview(JsonModel):
 
 
 def build_flagship_decision_review(
-    evidence_review: CanonicalEvidenceReviewPacket,
-    scientific_kernel: CanonicalScientificKernelReport,
+    evidence_review: FlagshipEvidenceDecisionBrief,
+    scientific_kernel: FlagshipScientificKernelReport,
     *,
-    artifact_path: str = "artifacts/workflows/canonical-reviewable-proteomics/intelligence/decision_review.json",
-) -> CanonicalDecisionReview:
+    artifact_path: str = "artifacts/workflows/flagship-workflow-chain/intelligence/decision_review.json",
+) -> FlagshipDecisionReview:
     """Build the flagship decision review without flattening downgrade reasons."""
 
     if not artifact_path.startswith("artifacts/"):
@@ -71,14 +71,14 @@ def build_flagship_decision_review(
         ranking_rationale.append("scientific kernel still has blocking reasons")
 
     if scientific_kernel.blocked_reasons:
-        decision_state = CanonicalDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
+        decision_state = FlagshipDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
     elif evidence_review.contested_claim_count > 0 or not evidence_review.review_complete:
-        decision_state = CanonicalDecisionState.HOLD_FOR_EVIDENCE
+        decision_state = FlagshipDecisionState.HOLD_FOR_EVIDENCE
     else:
-        decision_state = CanonicalDecisionState.READY_FOR_LAB
+        decision_state = FlagshipDecisionState.READY_FOR_LAB
         ranking_rationale.append("no contested claims or blocking kernel conflicts remain")
 
-    return CanonicalDecisionReview(
+    return FlagshipDecisionReview(
         workflow_id=evidence_review.workflow_id,
         workflow_family_id=evidence_review.flagship_family_id,
         flagship=True,
@@ -87,9 +87,9 @@ def build_flagship_decision_review(
         decision_state=decision_state,
         downgrade_chain=tuple(dict.fromkeys(downgrade_chain)),
         ranking_rationale=tuple(ranking_rationale),
-        follow_up_required=decision_state is not CanonicalDecisionState.READY_FOR_LAB,
+        follow_up_required=decision_state is not FlagshipDecisionState.READY_FOR_LAB,
         note=(
-            "The flagship decision review keeps downgrade chains explicit so one canonical "
+            "The flagship decision review keeps downgrade chains explicit so one "
             "workflow family does not get mistaken for broad ranking coverage."
         ),
     )
