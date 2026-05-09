@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-05-09
 ---
 
 # Bijux Proteomics
@@ -12,19 +12,17 @@ last_reviewed: 2026-04-26
 `bijux-proteomics` is a bounded proteomics product for benchmark-backed
 execution, scientific review, recommendation posture, and lab consequence.
 
-The package split exists so those steps stay reviewable. Shared contracts,
-scientific meaning, runtime execution, evidence memory, recommendation posture,
-and assay consequence do not own the same truth and should not collapse into
-one vague surface.
+The package split exists so those steps stay reviewable, but the reader should
+not have to learn the package tree before they can learn the product.
 
 ## Product Scope
 
-- end-to-end product chain:
-  [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
-- package roles, import boundaries, and handoff owners:
-  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
-- current hostile-review blockers:
-  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+- repository-level route:
+  [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- end-to-end lifecycle:
+  [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- owner map and handoff boundaries:
+  [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 
 ## Current Credible Workflow Families
 
@@ -32,12 +30,12 @@ Outsider-auditable today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 
 Internal-support-only today: `multiplex`.
 
-The shortest hard-evidence route is:
+The shortest hostile-review route is:
 
 - [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
-- [Independent rerun dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
-- [External review kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
+- [Workflow families](https://bijux.io/bijux-proteomics/workflow-families/)
+- [Execution](https://bijux.io/bijux-proteomics/execution/)
+- [Decision support](https://bijux.io/bijux-proteomics/decision-support/)
 
 ## Forbidden Claims
 
@@ -89,11 +87,21 @@ for the live limit list.
 ## Reader Paths
 
 - Scientist:
-  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
 - Operator:
-  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
 - Maintainer:
-  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+
+## Reader-First Sections
+
+- [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+- [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+- [Execution](https://bijux.io/bijux-proteomics/execution/)
+- [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+- [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+- [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
+- [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
 
 ## Package Family At A Glance
 
@@ -107,13 +115,8 @@ for the live limit list.
 | `bijux-proteomics-lab` | assay consequence planning, readiness, and observed outcomes |
 | `agentic-proteins` | legacy compatibility bridge for runtime entrypoints and imports |
 
-## First Proof Check
-
-- `docs/01-bijux-proteomics/foundation/product-architecture.md`
-- `docs/01-bijux-proteomics/foundation/cross-package-ownership.md`
-- `configs/package-governance/release-readiness-matrix.toml`
-
 ## Boundary
 
-This page should make the system feel coherent before the reader sees code. It
-should not try to replace the owning handbooks for package-level detail.
+This page should give the reader one useful next question in one hop. It
+should not make numbered package routes do the first job that a product home
+page should do itself.

@@ -39,11 +39,17 @@ def test_docs_home_routes_scientist_operator_and_maintainer_in_one_hop() -> None
     assert "## Current Credible Workflow Families" in docs_home
     assert "## Forbidden Claims" in docs_home
     assert "## Reader Paths" in docs_home
+    assert "## Reader-First Sections" in docs_home
     assert (
-        "Product architecture" in docs_home
-        and "Cross-package ownership" in docs_home
-        and "Release readiness matrix" in docs_home
+        "Product Overview" in docs_home
+        and "Product Architecture" in docs_home
+        and "Cross-Package Ownership" in docs_home
     )
     assert "Scientist:" in docs_home
     assert "Operator:" in docs_home
     assert "Maintainer:" in docs_home
+    assert "Scientist Journey" in docs_home
+    assert "Operator Rerun Journey" in docs_home
+    assert "Maintainer Safe Change" in docs_home
+    assert "Workflow Families" in docs_home
+    assert "Decision Support" in docs_home
