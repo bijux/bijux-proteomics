@@ -37,6 +37,9 @@ readiness, handoff honesty, and observed-outcome reconciliation. It turns
 scientific intent into executable work only when queue pressure, material
 limits, controls, provenance, and operator-facing caveats stay explicit.
 
+Within the suite, lab owns assay consequence planning, readiness, and observed
+outcomes.
+
 Use this package when the question is whether a follow-up is feasible, safe to
 hand off, and traceable after execution. Its success criteria are operational
 honesty, feasibility, and traceability rather than analytical enthusiasm.
@@ -217,6 +220,8 @@ execution orchestration or runtime policy.
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)

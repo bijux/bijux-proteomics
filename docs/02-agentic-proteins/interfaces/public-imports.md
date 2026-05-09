@@ -21,6 +21,10 @@ The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compat
 - `agentic_proteins.execution`, `state`, `providers`, `tools`, and `agents`
   only where callers still depend on those compatibility shapes
 
+Public imports in this package are compatibility forwarding, not a second
+runtime API. The [Compatibility Contract](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/compatibility-contract/)
+defines the ceiling.
+
 ## First Proof Check
 
 - `src/agentic_proteins/interfaces/cli.py`

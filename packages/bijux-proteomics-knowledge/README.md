@@ -37,6 +37,9 @@ provenance. It preserves evidence, claims, resolution history, and grounded
 workflow references as selective, reviewable memory instead of as generic
 context.
 
+Within the suite, knowledge owns scientific memory, provenance, contradiction
+handling, and review state.
+
 Use this package when you need auditable scientific memory, explicit
 provenance, contradiction-aware evidence reasoning, and grounded workflow
 briefings that downstream packages can consume without re-curating locally.
@@ -195,6 +198,8 @@ scientific memory with provenance:
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)

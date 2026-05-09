@@ -36,6 +36,9 @@
 family, including canonical JSON behavior, deterministic hashing, document
 fingerprints, and compatibility contracts for persisted scientific records.
 
+Within the suite, foundation owns shared contracts, identifiers, and
+deterministic serialization.
+
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
@@ -250,6 +253,8 @@ result = OperationResult.success(
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)

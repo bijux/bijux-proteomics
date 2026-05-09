@@ -38,6 +38,9 @@ assemble review packets, summarize cautious interpretation posture, and carry
 learning pressure forward without claiming scientific truth, runtime
 orchestration, or lab execution authority.
 
+Within the suite, intelligence owns recommendation posture, ranking
+sensitivity, and refusal behavior.
+
 The package root is curated on purpose. Import exact owner modules such as
 `candidates.ranking`, `judgment.paths`, `posture.evidence`,
 `interpretation.runs`, and `reviews.benchmarks` instead of treating the
@@ -243,6 +246,8 @@ runtime transport, or lab scheduling.
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)

@@ -37,6 +37,9 @@ this repository. It owns the domain models, evidence normalization,
 uncertainty-aware review artifacts, and workflow contracts that the surrounding
 packages consume.
 
+Within the suite, core owns benchmark assets, durable scientific contracts, and
+workflow requests.
+
 Use this package when the change defines scientific meaning that should remain
 true before runtime execution, knowledge curation, intelligence judgment, or
 lab operations are layered on top.
@@ -642,6 +645,8 @@ judgment, and operations outward to runtime, knowledge, intelligence, and lab.
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)

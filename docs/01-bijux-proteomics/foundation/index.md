@@ -45,16 +45,18 @@ This section should move a reader from system-level confusion to a package-level
 
 ## Start With
 
-- Open [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
-  for the shortest explanation of the full package chain.
-- Open [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
-  when the question is which package should own the work.
+- Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  for the shortest explanation of the end-to-end product chain.
+- Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  when the question is which package should own the work, import, or artifact.
 - Open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
   when a change crosses root and package boundaries.
 - Open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
   when a reviewer needs a hard yes-or-no gate.
 - Open [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
   when the question is what one real workflow family can currently prove.
+- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  when the question is whether public wording currently outruns hard evidence.
 - Open [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
   when the question is which workflow family a skeptical outsider can audit
   today.
@@ -67,10 +69,12 @@ This section should move a reader from system-level confusion to a package-level
 
 ## Section Pages
 
+- [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
 - [Platform Overview](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/platform-overview/)
 - [Repository Scope](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-scope/)
 - [Workspace Layout](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workspace-layout/)
 - [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
+- [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
 - [Domain Language](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/domain-language/)
 - [Documentation System](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/documentation-system/)

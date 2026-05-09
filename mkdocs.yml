@@ -57,10 +57,12 @@ nav:
       - Repository Handbook: 01-bijux-proteomics/index.md
       - Foundation:
           - Foundation: 01-bijux-proteomics/foundation/index.md
+          - Product Architecture: 01-bijux-proteomics/foundation/product-architecture.md
           - Platform Overview: 01-bijux-proteomics/foundation/platform-overview.md
           - Repository Scope: 01-bijux-proteomics/foundation/repository-scope.md
           - Workspace Layout: 01-bijux-proteomics/foundation/workspace-layout.md
           - Package Map: 01-bijux-proteomics/foundation/package-map.md
+          - Cross-Package Ownership: 01-bijux-proteomics/foundation/cross-package-ownership.md
           - Ownership Model: 01-bijux-proteomics/foundation/ownership-model.md
           - Domain Language: 01-bijux-proteomics/foundation/domain-language.md
           - Documentation System: 01-bijux-proteomics/foundation/documentation-system.md
@@ -88,6 +90,7 @@ nav:
       - Foundation:
           - Foundation: 02-agentic-proteins/foundation/index.md
           - Package Overview: 02-agentic-proteins/foundation/package-overview.md
+          - Compatibility Contract: 02-agentic-proteins/foundation/compatibility-contract.md
           - Scope and Non-Goals: 02-agentic-proteins/foundation/scope-and-non-goals.md
           - Ownership Boundary: 02-agentic-proteins/foundation/ownership-boundary.md
           - Repository Fit: 02-agentic-proteins/foundation/repository-fit.md

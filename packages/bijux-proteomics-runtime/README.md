@@ -36,6 +36,9 @@
 deterministic replay, and operator-facing orchestration surfaces in
 `bijux-proteomics`.
 
+Within the suite, runtime owns execution, provider binding, deterministic
+replay, and operator entrypoints.
+
 Use this package when you need supported CLI, HTTP API, provider wiring,
 runtime state handling, and replay-safe orchestration for canonical
 `bijux-proteomics` execution.
@@ -305,6 +308,8 @@ result = OperationResult.success(
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Public surfaces dossier](docs/PUBLIC-SURFACES.md)
 - [Route ownership dossier](docs/ROUTE-OWNERSHIP.md)
 - [Provider ownership dossier](docs/PROVIDER-OWNERSHIP.md)

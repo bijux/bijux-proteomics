@@ -32,7 +32,7 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`agentic-proteins` is a strict compatibility bridge.
+`agentic-proteins` is a legacy compatibility bridge for runtime entrypoints and imports.
 
 Canonical runtime ownership is `bijux-proteomics-runtime`.
 
@@ -165,5 +165,7 @@ from agentic_proteins.interfaces.cli import cli
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Compatibility package docs](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
