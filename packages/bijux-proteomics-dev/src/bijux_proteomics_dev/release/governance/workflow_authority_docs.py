@@ -77,14 +77,14 @@ def validate_workflow_authority_docs(
             issues.append(
                 WorkflowAuthorityDocIssue(
                     code="missing-outsider-authority-line",
-                    detail=f"{label} does not match the outsider-auditable workflow family set from the workflow authority matrix",
+                    detail=f"{label} does not match the outsider-auditable workflow family set from the workflow claim-limits page",
                 )
             )
         if internal_line not in text:
             issues.append(
                 WorkflowAuthorityDocIssue(
                     code="missing-internal-support-line",
-                    detail=f"{label} does not match the internal-support workflow family set from the workflow authority matrix",
+                    detail=f"{label} does not match the internal-support workflow family set from the workflow claim-limits page",
                 )
             )
 

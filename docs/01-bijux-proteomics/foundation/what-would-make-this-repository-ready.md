@@ -60,5 +60,4 @@ These blockers show where package maturity or cross-package release coverage sti
 
 These blockers show where public wording, routing, or scrutiny surfaces drift away from the evidence they are supposed to defend.
 
-- `missing-outsider-authority-line`: README.md does not match the outsider-auditable workflow family set from the workflow authority matrix
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded

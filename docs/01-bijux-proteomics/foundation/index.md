@@ -51,6 +51,8 @@ This section should move a reader from system-level confusion to a package-level
   when the question is which package should own the work, import, or artifact.
 - Open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
   when a change crosses root and package boundaries.
+- Open [Public Language Glossary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-language-glossary/)
+  when the question is which release-facing terms are still allowed and which old phrases were retired.
 - Open [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
   when a reviewer needs a hard yes-or-no gate.
 - Open [What One Workflow Family Supports Today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
@@ -88,6 +90,7 @@ This section should move a reader from system-level confusion to a package-level
 - [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
 - [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
+- [Public Language Glossary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-language-glossary/)
 - [Domain Language](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/domain-language/)
 - [Documentation System](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/documentation-system/)
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)

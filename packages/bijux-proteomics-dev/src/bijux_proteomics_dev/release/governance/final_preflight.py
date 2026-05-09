@@ -34,6 +34,9 @@ from bijux_proteomics_dev.release.governance.package_family_readiness import (
 from bijux_proteomics_dev.release.governance.readme_truth import (
     validate_readme_truth,
 )
+from bijux_proteomics_dev.release.governance.public_language import (
+    run as run_public_language,
+)
 from bijux_proteomics_dev.release.governance.release_narrowing_protocol import (
     run as run_release_narrowing_protocol,
 )
@@ -154,6 +157,10 @@ def _docs_stage(repo_root: Path) -> FinalPreflightStage:
         *_freshness_issue(
             "bijux_proteomics_dev.release.governance.release_narrowing_protocol",
             run_release_narrowing_protocol(check=True),
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.public_language",
+            run_public_language(check=True),
         ),
     ]
     return FinalPreflightStage(

@@ -14,6 +14,9 @@ from bijux_proteomics_intelligence.reviews.public_scrutiny import (
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     validate_black_box_benchmark_language,
 )
+from bijux_proteomics_dev.release.governance.public_language import (
+    validate_public_language,
+)
 
 __all__ = [
     "WorkflowPublicScrutinyIssue",
@@ -120,6 +123,10 @@ def validate_workflow_public_scrutiny(
                     )
                 )
     for issue in validate_black_box_benchmark_language():
+        issues.append(
+            WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail)
+        )
+    for issue in validate_public_language(repo_root):
         issues.append(
             WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail)
         )

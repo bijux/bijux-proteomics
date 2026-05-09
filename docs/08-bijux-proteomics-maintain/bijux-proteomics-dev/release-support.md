@@ -139,6 +139,9 @@ current outsider packet:
 - repository-wide elite language is still blocked
 - the scorecard for that boundary lives in
   `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+- the workflow-family limit pages now live in
+  `docs/01-bijux-proteomics/foundation/workflow-claim-limits.md` and
+  `docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md`
 - the paired scrutiny pages for that boundary now live in
   `docs/01-bijux-proteomics/foundation/what-breaks-elite-trust.md` and
   `docs/01-bijux-proteomics/foundation/what-earns-elite-trust-next.md`
@@ -148,6 +151,10 @@ current outsider packet:
 Use `validate_generated_governance_freshness()` before release to make sure
 the generated governance reports under `configs/package-governance/` are still
 fresh instead of silently stale.
+
+Use `validate_public_language()` when the question is whether root docs,
+package READMEs, foundation pages, and release-support surfaces have slipped
+back into retired public language after the last cleanup.
 
 Use `validate_workflow_public_scrutiny()` when the question is whether the
 external review kits, artifact index, trust-boundary pages, and stronger

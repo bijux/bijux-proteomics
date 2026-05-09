@@ -23,6 +23,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "build_scientific_release_dossier()",
         "build_repository_truth_report()",
         "validate_generated_governance_freshness()",
+        "validate_public_language()",
         "workflow_lab_consequence.py",
         "workflow_public_scrutiny.py",
         "validate_ssot_readiness()",

@@ -78,7 +78,6 @@ Evidence paths:
 - `docs/01-bijux-proteomics/foundation/release-readiness-matrix.md`
 
 Current blockers:
-- `missing-outsider-authority-line`: README.md does not match the outsider-auditable workflow family set from the workflow authority matrix
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
 
 ## Package-boundary stability
