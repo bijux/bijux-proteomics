@@ -56,6 +56,12 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
     assert bundle.workflow_authority_matrix_path.endswith("workflow_authority_matrix.json")
     assert "flagship_follow_up_outcome:dda" in bundle.lab_outcome_dossier_ids
     assert "flagship_follow_up_outcome:targeted" in bundle.lab_outcome_dossier_ids
+    assert "independent_rerun:dda" in bundle.independent_rerun_dossier_ids
+    assert "independent_rerun:targeted" in bundle.independent_rerun_dossier_ids
+    assert any(
+        path.endswith("dda_independent_rerun_dossier.json")
+        for path in bundle.independent_rerun_dossier_paths
+    )
     assert "docs/01-bijux-proteomics/foundation/why-trust-dda.md" in bundle.trust_page_paths
     assert "docs/01-bijux-proteomics/foundation/why-trust-dia.md" in bundle.trust_page_paths
 
