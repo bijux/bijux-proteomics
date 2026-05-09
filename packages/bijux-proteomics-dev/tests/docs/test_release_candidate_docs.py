@@ -31,6 +31,9 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
     assert "family_stability_scorecard.json" in text
     assert "paired public benchmark packages" in text
     assert "requested-versus-observed outcome dossier" in text
+    assert "independent rerun dossiers" in text
+    assert "external review kits" in text
+    assert "public artifact index" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:

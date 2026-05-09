@@ -24,6 +24,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "build_repository_truth_report()",
         "validate_generated_governance_freshness()",
         "workflow_lab_consequence.py",
+        "workflow_public_scrutiny.py",
         "validate_ssot_readiness()",
         "canonical-workflow-manifest.toml",
         "scientific-release-workflows.toml",
@@ -51,6 +52,10 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "runtime-proof-accounting.md" in text
     assert "flagship-release-candidate.md" in text
     assert "elite-readiness-scorecard.md" in text
+    assert "what-breaks-elite-trust.md" in text
+    assert "what-earns-elite-trust-next.md" in text
+    assert "public-artifact-index.md" in text
+    assert "validate_workflow_public_scrutiny()" in text
 
 
 def test_readmes_point_reviewers_to_benchmark_backed_scope() -> None:

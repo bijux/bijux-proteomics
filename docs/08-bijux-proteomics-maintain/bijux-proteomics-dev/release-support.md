@@ -43,6 +43,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/publication_guard.py`
 - `src/bijux_proteomics_dev/release/governance/repository_truth.py`
 - `src/bijux_proteomics_dev/release/governance/workflow_lab_consequence.py`
+- `src/bijux_proteomics_dev/release/governance/workflow_public_scrutiny.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
@@ -130,10 +131,19 @@ current outsider packet:
 - repository-wide elite language is still blocked
 - the scorecard for that boundary lives in
   `docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md`
+- the paired scrutiny pages for that boundary now live in
+  `docs/01-bijux-proteomics/foundation/what-breaks-elite-trust.md` and
+  `docs/01-bijux-proteomics/foundation/what-earns-elite-trust-next.md`
+- the public opening-order registry now lives in
+  `docs/01-bijux-proteomics/foundation/public-artifact-index.md`
 
 Use `validate_generated_governance_freshness()` before release to make sure
 the generated governance reports under `configs/package-governance/` are still
 fresh instead of silently stale.
+
+Use `validate_workflow_public_scrutiny()` when the question is whether the
+external review kits, artifact index, trust-boundary pages, and stronger
+release language are still aligned.
 
 Use `validate_ssot_readiness()` when the question is whether public symbol
 ownership, duplicate model ownership, compatibility-bridge posture, and

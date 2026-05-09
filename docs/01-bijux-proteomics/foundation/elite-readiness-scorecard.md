@@ -55,3 +55,7 @@ Repository-wide elite language remains blocked.
 
 If a release note, README, or package page sounds more advanced than this
 scorecard, the wording is wrong until the shipped evidence moves first.
+
+When that question becomes more specific than a table can answer, open the
+independent rerun dossiers, external review kits, public artifact index, and
+the two trust-boundary pages before widening any language by hand.

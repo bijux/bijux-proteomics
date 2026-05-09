@@ -57,6 +57,16 @@ The current non-negotiable gaps are collected in
 so releases, handbook pages, and package claims can point to one exact
 repository-scoped limits surface instead of drifting independently.
 
+The strongest outsider-readable opening order now also lives in the foundation
+handbook:
+
+- [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- [Independent rerun dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
+- [External review kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
+- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+- [What breaks elite trust](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-breaks-elite-trust/)
+- [What earns elite trust next](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-earns-elite-trust-next/)
+
 The repository also does **not** yet claim `reference-grade` or `elite`
 posture by its own release-truth standard. One canonical workflow is now
 checked and reviewable, but reopened completion claims, architectural-ready
