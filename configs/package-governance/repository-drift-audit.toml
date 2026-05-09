@@ -1,0 +1,22 @@
+# Generated repository drift audit.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit
+
+[[entry]]
+audit_id = "package-governance-mirrors"
+purpose = "Package roots must not grow their own copies of repository-wide governance directories."
+offending_paths = []
+
+[[entry]]
+audit_id = "benchmark-root-duplicates"
+purpose = "Benchmark asset roots belong to core so asset lineage keeps one durable owner."
+offending_paths = []
+
+[[entry]]
+audit_id = "singleton-doc-duplicates"
+purpose = "Repository-wide handbook pages should not be mirrored under package docs."
+offending_paths = []
+
+[[entry]]
+audit_id = "package-local-artifacts"
+purpose = "Package-local `artifacts/` roots blur publishable source and transient state."
+offending_paths = []

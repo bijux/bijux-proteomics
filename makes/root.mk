@@ -65,7 +65,8 @@ quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
 
 quality-artifact-governance: root-check-env ## Enforce artifact roots and repository file ownership
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
-	@$(DEV_RUN) -c "from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import validate_package_root_hygiene; import sys; issues = validate_package_root_hygiene(); [print(f'{issue.code}: {issue.detail}') for issue in issues]; raise SystemExit(1 if issues else 0)"
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
 
 quality-runtime-boundaries: root-check-env ## Enforce runtime boundary contracts
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_boundaries

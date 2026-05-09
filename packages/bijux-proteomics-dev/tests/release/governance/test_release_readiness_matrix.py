@@ -23,6 +23,7 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
         "benchmark-asset-quality",
         "docs-clarity",
         "package-boundary-stability",
+        "artifact-hygiene",
         "consequence-realism",
     )
     assert not all(category.ready for category in matrix.categories)
@@ -33,6 +34,10 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
     assert (
         "configs/package-governance/repository-product-shape.toml"
         in by_id["package-boundary-stability"].evidence_paths
+    )
+    assert (
+        "configs/package-governance/repository-drift-audit.toml"
+        in by_id["artifact-hygiene"].evidence_paths
     )
 
 

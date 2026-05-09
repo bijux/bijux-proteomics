@@ -18,6 +18,12 @@ from bijux_proteomics_dev.governance.package_shape.package_scorecard import (
     PACKAGE_SCORECARD_PATH,
     build_package_scorecard_report,
 )
+from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import (
+    validate_package_root_hygiene,
+)
+from bijux_proteomics_dev.quality.artifacts.repository_drift_audit import (
+    validate_repository_drift_audit,
+)
 from bijux_proteomics_dev.release.governance.generated_governance_freshness import (
     validate_generated_governance_freshness,
 )
@@ -106,6 +112,8 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_lab_consequence_issues = validate_workflow_lab_consequence()
     workflow_public_scrutiny_issues = validate_workflow_public_scrutiny(repo_root)
     freshness_issues = validate_generated_governance_freshness()
+    package_hygiene_issues = validate_package_root_hygiene(repo_root)
+    drift_audit_issues = validate_repository_drift_audit(repo_root)
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
     acceptance_dashboard = build_flagship_acceptance_dashboard()
     ranking_improvement = compare_ranking_policies_against_benchmark_corpus(
@@ -187,6 +195,20 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"governance-freshness-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in package_hygiene_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"artifact-hygiene-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in drift_audit_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"artifact-drift-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -275,7 +297,9 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             PACKAGE_SCORECARD_PATH.relative_to(repo_root).as_posix(),
             PACKAGE_REOPENED_COMPLETION_CLAIMS_PATH.relative_to(repo_root).as_posix(),
             PACKAGE_README_MATURITY_PATH.relative_to(repo_root).as_posix(),
-            scientific_release_manifest_path(repo_root).relative_to(repo_root).as_posix(),
+            scientific_release_manifest_path(repo_root)
+            .relative_to(repo_root)
+            .as_posix(),
             "artifacts/intelligence/ranking-benchmarks/reviewable-ranking-corpus.json",
             "artifacts/intelligence/ranking-benchmarks/flagship-reviewable-ranking.json",
             "artifacts/runtime/proof-accounting/runtime_proof_map.json",
@@ -295,7 +319,10 @@ def validate_repository_truth_report(
 
     report = build_repository_truth_report(repo_root)
     issues: list[RepositoryTruthIssue] = []
-    if report.reference_grade_claim_allowed and not report.canonical_workflow_undeniable:
+    if (
+        report.reference_grade_claim_allowed
+        and not report.canonical_workflow_undeniable
+    ):
         issues.append(
             RepositoryTruthIssue(
                 code="reference-grade-without-undeniable-workflow",

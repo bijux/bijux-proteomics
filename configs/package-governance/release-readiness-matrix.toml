@@ -47,6 +47,15 @@ blocker_codes = ["", "", ""]
 blocker_details = ["", "", ""]
 
 [[category]]
+category_id = "artifact-hygiene"
+title = "Artifact hygiene"
+ready = true
+rationale = "A repository that still leaks caches, package-local artifacts, or duplicate owner surfaces on disk is not ready for stronger release language."
+evidence_paths = ["configs/package-governance/repository-file-ownership.toml", "configs/package-governance/repository-drift-audit.toml", "docs/01-bijux-proteomics/operations/artifact-governance.md", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
 category_id = "consequence-realism"
 title = "Consequence realism"
 ready = true

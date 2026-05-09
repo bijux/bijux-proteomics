@@ -11,6 +11,12 @@ from bijux_proteomics_dev.governance.foundation.package_boundary_coherence impor
     validate_package_boundary_coherence,
 )
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
+from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import (
+    validate_package_root_hygiene,
+)
+from bijux_proteomics_dev.quality.artifacts.repository_drift_audit import (
+    validate_repository_drift_audit,
+)
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     package_family_readiness_manifest_path,
     validate_package_family_readiness,
@@ -119,10 +125,14 @@ def _category(
     )
 
 
-def build_release_readiness_matrix(repo_root: Path = REPO_ROOT) -> ReleaseReadinessMatrix:
+def build_release_readiness_matrix(
+    repo_root: Path = REPO_ROOT,
+) -> ReleaseReadinessMatrix:
     """Build the repository hostile-review readiness matrix."""
 
-    canonical_workflow_issues = validate_canonical_workflow_manifest(repo_root=repo_root)
+    canonical_workflow_issues = validate_canonical_workflow_manifest(
+        repo_root=repo_root
+    )
     family_readiness_issues = validate_package_family_readiness(repo_root)
     scientific_release_issues = validate_scientific_release_dossier(repo_root)
     claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
@@ -130,6 +140,8 @@ def build_release_readiness_matrix(repo_root: Path = REPO_ROOT) -> ReleaseReadin
     public_scrutiny_issues = validate_workflow_public_scrutiny(repo_root)
     dependency_policy_issues = validate_package_dependency_policy()
     boundary_coherence_issues = validate_package_boundary_coherence(repo_root)
+    package_hygiene_issues = validate_package_root_hygiene(repo_root)
+    drift_audit_issues = validate_repository_drift_audit(repo_root)
     intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     lab_consequence_issues = validate_workflow_lab_consequence()
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
@@ -214,6 +226,21 @@ def build_release_readiness_matrix(repo_root: Path = REPO_ROOT) -> ReleaseReadin
             issues=(*dependency_policy_issues, *boundary_coherence_issues),
         ),
         _category(
+            category_id="artifact-hygiene",
+            title="Artifact hygiene",
+            rationale=(
+                "A repository that still leaks caches, package-local artifacts, or "
+                "duplicate owner surfaces on disk is not ready for stronger release language."
+            ),
+            evidence_paths=(
+                "configs/package-governance/repository-file-ownership.toml",
+                "configs/package-governance/repository-drift-audit.toml",
+                "docs/01-bijux-proteomics/operations/artifact-governance.md",
+                "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py",
+            ),
+            issues=(*package_hygiene_issues, *drift_audit_issues),
+        ),
+        _category(
             category_id="consequence-realism",
             title="Consequence realism",
             rationale=(
@@ -244,6 +271,7 @@ def validate_release_readiness_matrix(
         "benchmark-asset-quality",
         "docs-clarity",
         "package-boundary-stability",
+        "artifact-hygiene",
         "consequence-realism",
     }
     seen_categories = {category.category_id for category in matrix.categories}

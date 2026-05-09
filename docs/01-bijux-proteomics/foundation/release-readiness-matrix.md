@@ -28,6 +28,7 @@ validators so the root wording cannot drift ahead of the actual repository.
 | Benchmark asset quality | Are benchmark-backed claims grounded by the release dossier and workflow claim checks? | scientific release manifest, benchmark asset docs, claim grounding checks |
 | Docs clarity | Do root docs route readers to real evidence without stronger trust language than the evidence supports? | README, docs home, product architecture, cross-package ownership |
 | Package-boundary stability | Do dependency directions, public imports, and package README routing still describe the same owner model? | package dependency policy, repository product shape, cross-package ownership |
+| Artifact hygiene | Does the repo stay free of cache spillover, package-local artifact roots, and duplicate owner surfaces on disk? | repository file ownership matrix, drift audit, artifact governance |
 | Consequence realism | Does recommendation posture stay behind the weakest downstream lab consequence boundary? | intelligence confidence docs, lab docs, capability limits |
 
 ## Current Use

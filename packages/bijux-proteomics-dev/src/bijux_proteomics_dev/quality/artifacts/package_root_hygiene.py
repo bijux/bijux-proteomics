@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import argparse
+
 from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
-from bijux_proteomics_dev.governance.support.workspace_inventory import workspace_package_names
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_package_names,
+)
 from bijux_proteomics_dev.tools.cache_hygiene import find_forbidden_cache_dirs
 
 __all__ = [
@@ -12,6 +16,7 @@ __all__ = [
     "PackageRootHygieneIssue",
     "PackageRootHygieneReportEntry",
     "build_package_root_hygiene_report",
+    "run",
     "validate_package_root_hygiene",
 ]
 
@@ -47,9 +52,7 @@ def _package_names(repo_root: Path) -> tuple[str, ...]:
     if repo_root == REPO_ROOT:
         return workspace_package_names()
     packages_dir = repo_root / "packages"
-    return tuple(
-        sorted(path.name for path in packages_dir.iterdir() if path.is_dir())
-    )
+    return tuple(sorted(path.name for path in packages_dir.iterdir() if path.is_dir()))
 
 
 def build_package_root_hygiene_report(
@@ -109,3 +112,22 @@ def validate_package_root_hygiene(
                 )
             )
     return tuple(sorted(issues, key=lambda issue: (issue.code, issue.detail)))
+
+
+def run(repo_root: Path = REPO_ROOT) -> int:
+    """Print package-root hygiene issues and return a process status."""
+
+    issues = validate_package_root_hygiene(repo_root)
+    if not issues:
+        print("package root hygiene is clean")
+        return 0
+    for issue in issues:
+        print(f"{issue.code}: {issue.detail}")
+    return 1
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Validate package-root hygiene for publishable packages."
+    )
+    raise SystemExit(run())
