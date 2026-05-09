@@ -17,8 +17,14 @@ REPO_ROOT = next(
 )
 
 
-def test_workflow_public_scrutiny_real_repo_has_no_surface_consistency_failures() -> None:
-    assert validate_workflow_public_scrutiny(REPO_ROOT) == ()
+def test_workflow_public_scrutiny_real_repo_keeps_black_box_language_gap_visible() -> (
+    None
+):
+    issues = validate_workflow_public_scrutiny(REPO_ROOT)
+
+    assert any(
+        issue.code == "black-box-language-outruns-rerun-evidence" for issue in issues
+    )
 
 
 def test_workflow_public_scrutiny_blocks_unready_external_review_kit(

@@ -24,8 +24,15 @@ from bijux_proteomics_intelligence.reviews.independent_reruns import (
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_runtime.workflows.benchmark_runs import BenchmarkRunSpec
+from bijux_proteomics_runtime.workflows.benchmark_runs import (
+    BenchmarkRunMode,
+    BenchmarkRunSpec,
+)
 
+from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
+    build_benchmark_asset_audit,
+    build_benchmark_licensing_matrix,
+)
 from bijux_proteomics_dev.release.governance.benchmark_review_support import (
     LAST_REVIEWED,
     BenchmarkPackageBundle,
@@ -40,16 +47,22 @@ from bijux_proteomics_dev.release.governance.benchmark_review_support import (
 __all__ = [
     "BENCHMARK_COMPARABILITY_MATRIX_PATH",
     "BENCHMARK_RERUN_KITS_PATH",
+    "BLACK_BOX_BENCHMARK_DASHBOARD_PATH",
+    "BenchmarkBlackBoxDashboardRow",
+    "BenchmarkBlackBoxIssue",
     "BenchmarkComparabilityRow",
     "BenchmarkRerunKitEntry",
+    "build_black_box_benchmark_dashboard",
     "build_benchmark_comparability_matrix",
     "build_benchmark_rerun_kits",
     "run",
+    "validate_black_box_benchmark_language",
 ]
 
 
 BENCHMARK_RERUN_KITS_PATH = RUNTIME_DIR / "benchmark-rerun-kits.md"
 BENCHMARK_COMPARABILITY_MATRIX_PATH = RUNTIME_DIR / "benchmark-comparability-matrix.md"
+BLACK_BOX_BENCHMARK_DASHBOARD_PATH = RUNTIME_DIR / "black-box-benchmark-dashboard.md"
 
 
 @dataclass(frozen=True)
@@ -87,6 +100,28 @@ class BenchmarkComparabilityRow:
     collapsed_claim_count: int
     report_path: str
     comparison_notes: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BenchmarkBlackBoxDashboardRow:
+    """One workflow-family row in the black-box benchmark dashboard."""
+
+    workflow_family: KnowledgeWorkflowFamily
+    requested_language: str
+    allowed_language: str
+    primary_run_mode: str
+    companion_run_mode: str
+    drift_status: str
+    artifact_completeness: str
+    remaining_blockers: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BenchmarkBlackBoxIssue:
+    """One mismatch between black-box benchmark evidence and public language."""
+
+    code: str
+    detail: str
 
 
 def _kit_maps() -> tuple[
@@ -248,6 +283,113 @@ def build_benchmark_comparability_matrix() -> tuple[BenchmarkComparabilityRow, .
     return tuple(rows)
 
 
+def _language_rank(language: str) -> int:
+    ranks = {
+        "internal_support_only": 0,
+        "review_grade_bounded": 1,
+        "outsider_auditable_bounded": 2,
+    }
+    return ranks[language]
+
+
+def _narrow_language(current: str, fallback: str) -> str:
+    if _language_rank(fallback) < _language_rank(current):
+        return fallback
+    return current
+
+
+def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow, ...]:
+    """Return the black-box benchmark dashboard across workflow families."""
+
+    audit_by_id = {entry.package_id: entry for entry in build_benchmark_asset_audit()}
+    licensing_by_id = {
+        entry.package_id: entry for entry in build_benchmark_licensing_matrix()
+    }
+    rerun_kits = {entry.workflow_family: entry for entry in build_benchmark_rerun_kits()}
+    comparability = {
+        entry.workflow_family: entry for entry in build_benchmark_comparability_matrix()
+    }
+
+    rows: list[BenchmarkBlackBoxDashboardRow] = []
+    for workflow_family in sorted(rerun_kits, key=family_order):
+        rerun_kit = rerun_kits[workflow_family]
+        comparison = comparability[workflow_family]
+        requested_language = rerun_kit.public_release_language
+        allowed_language = requested_language
+        remaining_blockers: list[str] = []
+
+        if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
+            allowed_language = "internal_support_only"
+        if rerun_kit.primary_spec.run_mode is not BenchmarkRunMode.RAW_EXECUTABLE:
+            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            remaining_blockers.append(
+                "primary flagship lane is still not raw-executable in the runtime layer"
+            )
+        if rerun_kit.companion_spec.run_mode is not BenchmarkRunMode.RAW_EXECUTABLE:
+            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            remaining_blockers.append(
+                "companion generalization lane is still not raw-executable in the runtime layer"
+            )
+        if (
+            requested_language != "internal_support_only"
+            and rerun_kit.independent_rerun_path is None
+        ):
+            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            remaining_blockers.append(
+                "no published independent rerun dossier currently backs the family"
+            )
+        if (
+            requested_language != "internal_support_only"
+            and rerun_kit.external_review_kit_path is None
+        ):
+            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            remaining_blockers.append(
+                "no published external review kit currently backs the family"
+            )
+
+        primary_audit = audit_by_id[
+            next(
+                bundle.package_id
+                for bundle in iter_benchmark_package_bundles()
+                if bundle.workflow_family is workflow_family
+                and bundle.package_role == "primary"
+            )
+        ]
+        primary_license = licensing_by_id[primary_audit.package_id]
+        artifact_completeness = "complete"
+        if not primary_audit.support_files_present or not primary_audit.source_rows:
+            artifact_completeness = "incomplete"
+            remaining_blockers.append(
+                "primary flagship asset audit is missing support files or copied source rows"
+            )
+        if not primary_license.source_license_notes:
+            artifact_completeness = "incomplete"
+            remaining_blockers.append(
+                "primary flagship licensing story is still too thin to defend redistribution"
+            )
+
+        drift_status = comparison.family_stability_label
+        if comparison.collapsed_claim_count:
+            remaining_blockers.append(
+                f"{comparison.collapsed_claim_count} cross-package claim(s) collapse under the companion rerun path"
+            )
+        rows.append(
+            BenchmarkBlackBoxDashboardRow(
+                workflow_family=workflow_family,
+                requested_language=requested_language,
+                allowed_language=allowed_language,
+                primary_run_mode=rerun_kit.primary_spec.run_mode.value,
+                companion_run_mode=rerun_kit.companion_spec.run_mode.value,
+                drift_status=drift_status,
+                artifact_completeness=artifact_completeness,
+                remaining_blockers=tuple(
+                    dict.fromkeys([*remaining_blockers, *rerun_kit.remaining_limits[:2]])
+                ),
+            )
+        )
+    return tuple(rows)
+
+
 def _render_rerun_kits(entries: tuple[BenchmarkRerunKitEntry, ...]) -> str:
     lines = [
         "---",
@@ -353,6 +495,61 @@ def _render_comparability_matrix(rows: tuple[BenchmarkComparabilityRow, ...]) ->
     return "\n".join(lines)
 
 
+def _render_black_box_dashboard(
+    rows: tuple[BenchmarkBlackBoxDashboardRow, ...],
+) -> str:
+    lines = [
+        "---",
+        "title: Black-Box Benchmark Dashboard",
+        "audience: mixed",
+        "type: explanation",
+        "status: canonical",
+        "owner: bijux-proteomics-runtime",
+        f"last_reviewed: {LAST_REVIEWED}",
+        "---",
+        "",
+        "# Black-Box Benchmark Dashboard",
+        "",
+        "This dashboard states what the runtime and public benchmark evidence can defend without maintainer narration. It lists every workflow family by current public language, black-box-allowed language, run mode, drift visibility, artifact completeness, and remaining rerun blockers.",
+        "",
+        "| workflow family | requested language | allowed language | primary run mode | companion run mode | drift status | artifact completeness |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            "| "
+            f"`{row.workflow_family.value}` | `{row.requested_language}` | "
+            f"`{row.allowed_language}` | `{row.primary_run_mode}` | "
+            f"`{row.companion_run_mode}` | `{row.drift_status}` | "
+            f"`{row.artifact_completeness}` |"
+        )
+    lines.extend(["", "## Remaining Independent-Rerun Blockers", ""])
+    for row in rows:
+        lines.extend([f"### `{row.workflow_family.value}`", ""])
+        for blocker in row.remaining_blockers:
+            lines.append(f"- {blocker}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def validate_black_box_benchmark_language() -> tuple[BenchmarkBlackBoxIssue, ...]:
+    """Fail when public workflow language outruns black-box benchmark evidence."""
+
+    issues: list[BenchmarkBlackBoxIssue] = []
+    for row in build_black_box_benchmark_dashboard():
+        if _language_rank(row.allowed_language) < _language_rank(row.requested_language):
+            issues.append(
+                BenchmarkBlackBoxIssue(
+                    code="black-box-language-outruns-rerun-evidence",
+                    detail=(
+                        f"{row.workflow_family.value} still requests {row.requested_language} "
+                        f"but the black-box benchmark dashboard only defends {row.allowed_language}"
+                    ),
+                )
+            )
+    return tuple(issues)
+
+
 def _write_text(path: Path, text: str) -> int:
     rendered = text.rstrip() + "\n"
     if path.exists() and path.read_text(encoding="utf-8") == rendered:
@@ -368,6 +565,9 @@ def run(*, check: bool = False) -> int:
         BENCHMARK_RERUN_KITS_PATH: _render_rerun_kits(build_benchmark_rerun_kits()),
         BENCHMARK_COMPARABILITY_MATRIX_PATH: _render_comparability_matrix(
             build_benchmark_comparability_matrix()
+        ),
+        BLACK_BOX_BENCHMARK_DASHBOARD_PATH: _render_black_box_dashboard(
+            build_black_box_benchmark_dashboard()
         ),
     }
     changed = 0

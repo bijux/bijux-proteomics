@@ -11,8 +11,23 @@ last_reviewed: 2026-05-09
 
 This page is generated from the current release-readiness matrix. It exists so blocked release bars stay visible in plain language and cannot be softened manually.
 
-- blocked release bars: 3
+- blocked release bars: 5
 - source of truth: `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/release_readiness_matrix.py`
+
+## Black-box rerunability
+
+A hostile reviewer should be able to start from the flagship runtime lane and see whether rerun evidence is strong enough without maintainers narrating around missing artifacts.
+
+Evidence paths:
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
+- `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
+- `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- `docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md`
+- `docs/01-bijux-proteomics/foundation/public-artifact-index.md`
+- `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
+
+Current blockers:
+- `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
 
 ## Benchmark asset quality
 
@@ -53,6 +68,7 @@ Evidence paths:
 
 Current blockers:
 - `missing-outsider-authority-line`: README.md does not match the outsider-auditable workflow family set from the workflow authority matrix
+- `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
 
 ## Package-boundary stability
 
@@ -67,3 +83,16 @@ Current blockers:
 - `release-contract-failure`: bijux-proteomics-core imports disallowed package edges: bijux-proteomics-knowledge
 - `release-contract-failure`: bijux-proteomics-intelligence imports disallowed package edges: bijux-proteomics-lab, bijux-proteomics-runtime
 - `release-contract-failure`: bijux-proteomics-runtime imports disallowed package edges: bijux-proteomics-knowledge, bijux-proteomics-lab
+
+## Artifact hygiene
+
+A repository that still leaks caches, package-local artifacts, or duplicate owner surfaces on disk is not ready for stronger release language.
+
+Evidence paths:
+- `configs/package-governance/repository-file-ownership.toml`
+- `configs/package-governance/repository-drift-audit.toml`
+- `docs/01-bijux-proteomics/operations/artifact-governance.md`
+- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py`
+
+Current blockers:
+- `package-cache-spillover`: bijux-proteomics-dev still contains forbidden cache state at packages/bijux-proteomics-dev/.pytest_cache

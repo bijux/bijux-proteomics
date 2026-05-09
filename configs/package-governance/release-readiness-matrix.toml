@@ -13,11 +13,11 @@ blocker_details = []
 [[category]]
 category_id = "black-box-rerunability"
 title = "Black-box rerunability"
-ready = true
+ready = false
 rationale = "A hostile reviewer should be able to start from the flagship runtime lane and see whether rerun evidence is strong enough without maintainers narrating around missing artifacts."
-evidence_paths = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py", "docs/01-bijux-proteomics/foundation/public-artifact-index.md", "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md"]
-blocker_codes = []
-blocker_details = []
+evidence_paths = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py", "docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md", "docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md", "docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md", "docs/01-bijux-proteomics/foundation/public-artifact-index.md", "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md"]
+blocker_codes = ["black-box-language-outruns-rerun-evidence"]
+blocker_details = ["dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
 
 [[category]]
 category_id = "benchmark-asset-quality"
@@ -34,8 +34,8 @@ title = "Docs clarity"
 ready = false
 rationale = "Root and handbook wording must route readers to the right evidence without stronger trust language than the current docs surfaces can honestly defend."
 evidence_paths = ["README.md", "docs/index.md", "docs/01-bijux-proteomics/foundation/product-architecture.md", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md", "docs/01-bijux-proteomics/foundation/release-readiness-matrix.md"]
-blocker_codes = ["missing-outsider-authority-line"]
-blocker_details = ["README.md does not match the outsider-auditable workflow family set from the workflow authority matrix"]
+blocker_codes = ["missing-outsider-authority-line", "black-box-language-outruns-rerun-evidence"]
+blocker_details = ["README.md does not match the outsider-auditable workflow family set from the workflow authority matrix", "dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
 
 [[category]]
 category_id = "package-boundary-stability"
@@ -49,11 +49,11 @@ blocker_details = ["bijux-proteomics-core imports disallowed package edges: biju
 [[category]]
 category_id = "artifact-hygiene"
 title = "Artifact hygiene"
-ready = true
+ready = false
 rationale = "A repository that still leaks caches, package-local artifacts, or duplicate owner surfaces on disk is not ready for stronger release language."
 evidence_paths = ["configs/package-governance/repository-file-ownership.toml", "configs/package-governance/repository-drift-audit.toml", "docs/01-bijux-proteomics/operations/artifact-governance.md", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py"]
-blocker_codes = []
-blocker_details = []
+blocker_codes = ["package-cache-spillover"]
+blocker_details = ["bijux-proteomics-dev still contains forbidden cache state at packages/bijux-proteomics-dev/.pytest_cache"]
 
 [[category]]
 category_id = "consequence-realism"

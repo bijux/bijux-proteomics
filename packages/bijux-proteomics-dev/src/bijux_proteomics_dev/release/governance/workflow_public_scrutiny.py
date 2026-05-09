@@ -11,6 +11,9 @@ from bijux_proteomics_intelligence.reviews.public_scrutiny import (
     build_trust_break_page,
     build_trust_next_page,
 )
+from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
+    validate_black_box_benchmark_language,
+)
 
 __all__ = [
     "WorkflowPublicScrutinyIssue",
@@ -116,4 +119,8 @@ def validate_workflow_public_scrutiny(
                         ),
                     )
                 )
+    for issue in validate_black_box_benchmark_language():
+        issues.append(
+            WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail)
+        )
     return tuple(issues)

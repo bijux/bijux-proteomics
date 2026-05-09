@@ -17,6 +17,7 @@ This page is generated from the current release matrix, acceptance dashboard, an
 
 These blockers keep the repository from claiming cleaner release posture because tracked artifacts, runtime evidence, or generated evidence are still not strong enough.
 
+- `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/__init__.py still imports compatibility modules instead of canonical owners: agentic_proteins.orchestration.bridge_contracts
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/bridge_contracts.py is classified as canonical instead of wrapper or dead
 - `ssot-readiness-blocked`: scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/bridge_contracts.py still defines local compatibility logic: BridgeSurfaceContract, CompatibilityRetirementBudget, list_bridge_surface_contracts, build_bridge_retirement_budget
@@ -32,6 +33,7 @@ These blockers keep the repository from claiming cleaner release posture because
 - `outsider-packet-claim-missing`: lfq outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.
 - `trust-surface-claim-missing`: multiplex trust surface is missing the grounded claim text: It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider review packet and a dedicated lab consequence packet.
 - `outsider-packet-claim-missing`: targeted outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.
+- `package-cache-spillover`: bijux-proteomics-dev still contains forbidden cache state at packages/bijux-proteomics-dev/.pytest_cache
 
 ## Workflow-family gaps
 
@@ -57,3 +59,4 @@ These blockers show where package maturity or cross-package release coverage sti
 These blockers show where public wording, routing, or scrutiny surfaces drift away from the evidence they are supposed to defend.
 
 - `missing-outsider-authority-line`: README.md does not match the outsider-auditable workflow family set from the workflow authority matrix
+- `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded

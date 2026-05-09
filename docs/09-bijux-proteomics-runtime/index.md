@@ -49,6 +49,7 @@ flowchart LR
 - open [Flagship Run Registry](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/flagship-run-registry/) when the question is which public benchmark runs are actually checked and what claims they authorize
 - open [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/) when the question is how to reopen a workflow family from its primary and companion package roots without maintainer narration
 - open [Benchmark Comparability Matrix](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-comparability-matrix/) when the question is whether a workflow sentence survives both the flagship package and the companion generalization package
+- open [Black-Box Benchmark Dashboard](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/black-box-benchmark-dashboard/) when the question is whether current public workflow language is actually supported by the live rerun evidence
 - open [Runtime Proof Accounting](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-proof-accounting/) when the question is whether a runtime claim is raw, import-backed, replay-backed, or simulation-only
 - open [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/) when the question is whether a legacy module still belongs in runtime ownership
 - open the lower package handbooks when the disputed behavior is really domain, evidence, recommendation, or lab meaning

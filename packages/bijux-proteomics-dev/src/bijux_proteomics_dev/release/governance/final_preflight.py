@@ -20,6 +20,14 @@ from bijux_proteomics_dev.quality.artifacts.repository_drift_audit import (
 from bijux_proteomics_dev.release.governance.hostile_review_pages import (
     run as run_hostile_review_pages,
 )
+from bijux_proteomics_dev.release.governance.benchmark_flagship_status import (
+    run as run_benchmark_flagship_status,
+    validate_benchmark_flagship_promotion,
+)
+from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
+    run as run_benchmark_rerun_governance,
+    validate_black_box_benchmark_language,
+)
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     validate_package_family_readiness,
 )
@@ -184,6 +192,14 @@ def _benchmark_assets_stage(repo_root: Path) -> FinalPreflightStage:
             validate_workflow_claim_grounding(repo_root),
             default_code="workflow-claim-grounding",
         ),
+        *_normalize_issues(
+            validate_benchmark_flagship_promotion(),
+            default_code="benchmark-flagship-promotion",
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.benchmark_flagship_status",
+            run_benchmark_flagship_status(check=True),
+        ),
     ]
     return FinalPreflightStage(
         stage_id="benchmark-assets",
@@ -201,6 +217,14 @@ def _runtime_reproducibility_stage(repo_root: Path) -> FinalPreflightStage:
         *_normalize_issues(
             build_runtime_flagship_proof_gate().issues,
             default_code="runtime-proof-gate",
+        ),
+        *_normalize_issues(
+            validate_black_box_benchmark_language(),
+            default_code="black-box-benchmark-language",
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.benchmark_rerun_governance",
+            run_benchmark_rerun_governance(check=True),
         ),
     ]
     return FinalPreflightStage(

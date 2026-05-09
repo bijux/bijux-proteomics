@@ -21,6 +21,9 @@ from bijux_proteomics_dev.release.governance.package_family_readiness import (
     package_family_readiness_manifest_path,
     validate_package_family_readiness,
 )
+from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
+    validate_black_box_benchmark_language,
+)
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     scientific_release_manifest_path,
     validate_scientific_release_dossier,
@@ -149,6 +152,7 @@ def build_release_readiness_matrix(
     intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     lab_consequence_issues = validate_workflow_lab_consequence()
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
+    black_box_language_issues = validate_black_box_benchmark_language()
 
     categories = (
         _category(
@@ -177,10 +181,13 @@ def build_release_readiness_matrix(
             ),
             evidence_paths=(
                 "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py",
+                "docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md",
+                "docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md",
+                "docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md",
                 "docs/01-bijux-proteomics/foundation/public-artifact-index.md",
                 "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
             ),
-            issues=tuple(runtime_proof_gate.issues),
+            issues=(*runtime_proof_gate.issues, *black_box_language_issues),
         ),
         _category(
             category_id="benchmark-asset-quality",
