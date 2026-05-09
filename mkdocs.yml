@@ -97,6 +97,8 @@ nav:
       - Workflow Claim Limits: 01-bijux-proteomics/foundation/workflow-claim-limits.md
   - Decision Support:
       - Decision Support: decision-support/index.md
+      - Workflow Consequence Maps: decision-support/workflow-consequence-maps.md
+      - What Changed The Recommendation: decision-support/what-changed-the-recommendation.md
       - Public Artifact Index: 01-bijux-proteomics/foundation/public-artifact-index.md
       - Public Artifact Role Matrix: 01-bijux-proteomics/foundation/public-artifact-role-matrix.md
       - Workflow Claim Grounding: 06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding.md
@@ -106,6 +108,8 @@ nav:
       - Release Narrowing Protocol: 01-bijux-proteomics/foundation/release-narrowing-protocol.md
   - Lab Consequence:
       - Lab Consequence: lab-consequence/index.md
+      - Outcome Learning Loops: lab-consequence/outcome-learning-loops.md
+      - Workflow Refusal Handbook: lab-consequence/workflow-refusal-handbook.md
       - bijux-proteomics-lab: 07-bijux-proteomics-lab/index.md
       - Current Capability Limits: 01-bijux-proteomics/foundation/current-capability-limits.md
       - Why This Repository Is Not Ready Yet: 01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet.md

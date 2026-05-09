@@ -55,3 +55,19 @@ These surfaces make stronger intelligence authority expensive.
 If the package wants to sound more certain in public, it now has to survive the
 blinded challenge results, the counterfactual collapses, and the regret ledger
 without hiding where the current recommendation posture still breaks.
+
+## Combined Consequence Route
+
+This page is not the full consequence chain by itself.
+
+Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+when the recommendation needs to be read beside contradiction pressure and lab
+burden on one shared route.
+
+Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+when the real question is which evidence loss or observed outcome moved the
+call.
+
+LFQ, PTM, and targeted still stop at bounded recommendation posture once the
+full downstream consequence chain is included. None of them earns a
+decision-grade recommendation sentence today.

@@ -53,6 +53,8 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
     scientist = _read("docs/workflow-families/scientist-journey.md")
     operator = _read("docs/execution/operator-rerun-journey.md")
     maintainer = _read("docs/maintenance/maintainer-safe-change.md")
+    decision_support = _read("docs/decision-support/index.md")
+    lab_consequence = _read("docs/lab-consequence/index.md")
 
     assert "Workflow Claim Grounding" in scientist
     assert "Workflow Recommendation Confidence" in scientist
@@ -68,6 +70,11 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
     assert "Release Support" in maintainer
     assert "Testing And Validation" in maintainer
     assert "Release Readiness Matrix" in maintainer
+
+    assert "Workflow Consequence Maps" in decision_support
+    assert "What Changed The Recommendation" in decision_support
+    assert "Outcome Learning Loops" in lab_consequence
+    assert "Workflow Refusal Handbook" in lab_consequence
 
 
 def test_package_index_pages_hand_off_shared_routes_before_local_routes() -> None:

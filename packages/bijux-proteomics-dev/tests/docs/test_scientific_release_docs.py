@@ -25,6 +25,8 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "validate_generated_governance_freshness()",
         "validate_public_language()",
         "workflow_lab_consequence.py",
+        "workflow_consequence_chain.py",
+        "workflow_consequence_docs.py",
         "workflow_public_scrutiny.py",
         "validate_ssot_readiness()",
         "canonical-workflow-manifest.toml",
@@ -50,6 +52,11 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "comparator_path:msfragger_imported_dda_review" in text
     assert "runtime flagship rerun gate" in text
     assert "lab-consequence gate" in text
+    assert "validate_workflow_consequence_coherence()" in text
+    assert "workflow-consequence-maps.md" in text
+    assert "what-changed-the-recommendation.md" in text
+    assert "outcome-learning-loops.md" in text
+    assert "workflow-refusal-handbook.md" in text
     assert "runtime-execution-boundary.md" in text
     assert "black-box-run-verification.md" in text
     assert "raw-versus-import-execution.md" in text

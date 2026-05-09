@@ -15,6 +15,12 @@ surface justifies that belief.
 
 ## Start Here
 
+- Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the disagreement is already about the full chain from contradiction
+  pressure to recommendation posture to assay burden.
+- Open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the next reviewer question is which evidence axis or observed outcome
+  actually moved the call.
 - Open [Workflow Claim Grounding](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-claim-grounding/)
   when the disagreement starts from grounded claim support.
 - Open [Workflow Literature Audits](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/workflow-literature-audits/)
@@ -27,6 +33,10 @@ surface justifies that belief.
 
 ## Decision Questions
 
+- Which workflow family still survives as one combined consequence chain instead
+  of three separate package stories?
+- Which evidence axis or observed follow-up outcome actually changed the current
+  recommendation?
 - Which evidence is grounded but still contradicted?
 - Which family sentence is benchmark-backed yet still narrowed by runtime or
   consequence pressure?

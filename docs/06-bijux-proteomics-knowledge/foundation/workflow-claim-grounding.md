@@ -52,3 +52,11 @@ Sentence grounding belongs in the same owner because it is still evidence truth
 work:
 the job is to show exactly what public wording is supported, what is merely
 bounded, and what still needs stronger proof.
+
+## Combined Consequence Route
+
+This page names the scientific sentence support.
+
+Open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+when the next question is how contradiction pressure changes the allowed
+recommendation and assay posture instead of just the sentence itself.

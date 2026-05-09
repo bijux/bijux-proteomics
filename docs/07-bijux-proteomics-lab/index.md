@@ -50,6 +50,12 @@ flowchart LR
 - Use [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
   when the question is still about downstream assay burden, refusal, or outcome
   pressure rather than one lab-owner module.
+- Use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+  when the question is how observed outcomes should tighten or weaken the next
+  recommendation.
+- Use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the question is whether the honest next action is to stop, rerun,
+  narrow, or refuse.
 - Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
   when the disagreement is still about recommendation posture rather than
   execution reality.

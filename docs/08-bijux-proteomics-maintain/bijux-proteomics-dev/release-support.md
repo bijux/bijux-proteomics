@@ -43,6 +43,8 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/publication_guard.py`
 - `src/bijux_proteomics_dev/release/governance/repository_truth.py`
 - `src/bijux_proteomics_dev/release/governance/workflow_lab_consequence.py`
+- `src/bijux_proteomics_dev/release/governance/workflow_consequence_chain.py`
+- `src/bijux_proteomics_dev/release/governance/workflow_consequence_docs.py`
 - `src/bijux_proteomics_dev/release/governance/workflow_public_scrutiny.py`
 - `src/bijux_proteomics_dev/release/governance/hostile_review_pages.py`
 - `src/bijux_proteomics_dev/release/governance/release_narrowing_protocol.py`
@@ -117,6 +119,19 @@ must not be called lab-consequential unless the authority surface points to one
 shipped requested-versus-observed outcome dossier and one assay-worth-it ledger
 row for that same family.
 
+That consequence realism now also depends on one shared consequence chain
+across knowledge, intelligence, and lab. If those owners disagree on the
+current strongest allowed posture, or if the shared consequence docs drift from
+the live package surfaces, stronger recommendation language must stop.
+
+Open these consequence routes before widening recommendation or assay-facing
+language:
+
+- `docs/decision-support/workflow-consequence-maps.md`
+- `docs/decision-support/what-changed-the-recommendation.md`
+- `docs/lab-consequence/outcome-learning-loops.md`
+- `docs/lab-consequence/workflow-refusal-handbook.md`
+
 When the question is specifically how a runtime lane should be reopened,
 challenged, or refused, open these runtime-owned boundary surfaces before
 generalizing from runtime success:
@@ -158,6 +173,10 @@ back into retired public language after the last cleanup.
 Use `validate_workflow_public_scrutiny()` when the question is whether the
 external review kits, artifact index, artifact-role matrix, and stronger
 release language are still aligned.
+
+Use `validate_workflow_consequence_coherence()` when the question is whether
+knowledge contradiction pressure, intelligence recommendation posture, and lab
+consequence still agree on the same strongest allowed family sentence.
 
 Use `bijux_proteomics_dev.release.governance.hostile_review_pages` when the
 question is whether the repository-wide hostile review kit and the blocker

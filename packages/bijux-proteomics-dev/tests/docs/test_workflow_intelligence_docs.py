@@ -40,3 +40,6 @@ def test_workflow_recommendation_confidence_doc_points_to_audit_bundle() -> None
     assert "workflow_underconfidence_audit.json" in text
     assert "recommendation_regret_ledger.json" in text
     assert "targeted currently carries the strongest overconfidence score at `0.67`" in text
+    assert "Workflow Consequence Maps" in text
+    assert "What Changed The Recommendation" in text
+    assert "LFQ, PTM, and targeted still stop at bounded recommendation posture" in text
