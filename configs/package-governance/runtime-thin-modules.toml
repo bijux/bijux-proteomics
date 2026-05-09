@@ -104,7 +104,7 @@ namespace_initializer = true
 
 [[thin_module]]
 module_path = "providers/__init__.py"
-line_count = 33
+line_count = 45
 namespace_initializer = true
 
 [[thin_module]]

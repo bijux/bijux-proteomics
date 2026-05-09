@@ -8,8 +8,8 @@ from pathlib import Path
 import tomllib
 
 from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
+    FlagshipWorkflowClaimTier,
     FlagshipWorkflowStage,
-    WorkflowClaimTier,
     build_flagship_workflow_scope_dossier,
 )
 
@@ -314,10 +314,10 @@ def validate_flagship_workflow_manifest(
             )
         )
     if set(manifest.claim_taxonomy) != {
-        WorkflowClaimTier.OWNED_CONTRACT.value,
-        WorkflowClaimTier.BENCHMARK_BACKED_BEHAVIOR.value,
-        WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW.value,
-        WorkflowClaimTier.FUTURE_WORK.value,
+        FlagshipWorkflowClaimTier.OWNED_CONTRACT.value,
+        FlagshipWorkflowClaimTier.BENCHMARK_BACKED_BEHAVIOR.value,
+        FlagshipWorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW.value,
+        FlagshipWorkflowClaimTier.FUTURE_WORK.value,
     }:
         issues.append(
             FlagshipWorkflowManifestIssue(

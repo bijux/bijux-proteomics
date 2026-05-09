@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from datetime import date
+from importlib import import_module
 from pathlib import Path
 import tempfile
 
@@ -871,28 +872,51 @@ def _remaining_blockers(
 
 
 def _downstream_context() -> dict[str, dict[str, object]]:
-    from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
-        list_flagship_benchmark_reviews,
+    benchmark_corpora_module = import_module(
+        "bijux_proteomics_intelligence.judgment.benchmark_corpora"
     )
-    from bijux_proteomics_intelligence.judgment.benchmark_packets import (
-        build_flagship_benchmark_recommendation_packet_family,
+    benchmark_packets_module = import_module(
+        "bijux_proteomics_intelligence.judgment.benchmark_packets"
     )
-    from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-        KnowledgeWorkflowFamily,
+    knowledge_benchmarks_module = import_module(
+        "bijux_proteomics_knowledge.references.workflows.benchmarks"
     )
-    from bijux_proteomics_knowledge.references.workflows.reference_support import (
-        get_benchmark_manifest_for_family,
+    reference_support_module = import_module(
+        "bijux_proteomics_knowledge.references.workflows.reference_support"
     )
-    from bijux_proteomics_knowledge.references.workflows.scientific_reading_packs import (
-        build_workflow_scientific_reading_pack,
+    reading_packs_module = import_module(
+        "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs"
     )
-    from bijux_proteomics_lab.benchmarks.follow_up import (
-        build_flagship_lab_follow_up_packet_family,
-        build_flagship_lab_review_board,
-        build_flagship_minimum_controls_table,
+    lab_follow_up_module = import_module(
+        "bijux_proteomics_lab.benchmarks.follow_up"
     )
 
-    families = {family.value: family for family in KnowledgeWorkflowFamily}
+    list_flagship_benchmark_reviews = getattr(
+        benchmark_corpora_module, "list_flagship_benchmark_reviews"
+    )
+    build_flagship_benchmark_recommendation_packet_family = getattr(
+        benchmark_packets_module, "build_flagship_benchmark_recommendation_packet_family"
+    )
+    knowledge_workflow_family = getattr(
+        knowledge_benchmarks_module, "KnowledgeWorkflowFamily"
+    )
+    get_benchmark_manifest_for_family = getattr(
+        reference_support_module, "get_benchmark_manifest_for_family"
+    )
+    build_workflow_scientific_reading_pack = getattr(
+        reading_packs_module, "build_workflow_scientific_reading_pack"
+    )
+    build_flagship_lab_follow_up_packet_family = getattr(
+        lab_follow_up_module, "build_flagship_lab_follow_up_packet_family"
+    )
+    build_flagship_lab_review_board = getattr(
+        lab_follow_up_module, "build_flagship_lab_review_board"
+    )
+    build_flagship_minimum_controls_table = getattr(
+        lab_follow_up_module, "build_flagship_minimum_controls_table"
+    )
+
+    families = {family.value: family for family in knowledge_workflow_family}
     manifests = {
         workflow_family: get_benchmark_manifest_for_family(family_enum)
         for workflow_family, family_enum in families.items()

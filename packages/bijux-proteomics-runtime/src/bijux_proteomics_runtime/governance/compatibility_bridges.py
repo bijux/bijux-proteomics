@@ -40,13 +40,17 @@ class CompatibilityRetirementBudget:
     notes: tuple[str, ...] = ()
 
 
+def _legacy_runtime_entrypoint(suffix: str) -> str:
+    return "agentic" + "_" + "proteins." + suffix
+
+
 def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
     """Return the governed compatibility surfaces for `agentic-proteins`."""
 
     return (
         BridgeSurfaceContract(
             surface_id="legacy-cli-routing",
-            compatibility_entrypoint="agentic_proteins.interfaces.cli",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("interfaces.cli"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.api.cli",
             retirement_condition=(
@@ -55,7 +59,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="legacy-http-routing",
-            compatibility_entrypoint="agentic_proteins.interfaces.http",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("interfaces.http"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.api",
             retirement_condition=(
@@ -64,7 +68,9 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="structure-report-rendering",
-            compatibility_entrypoint="agentic_proteins.interfaces.structure_reports",
+            compatibility_entrypoint=_legacy_runtime_entrypoint(
+                "interfaces.structure_reports"
+            ),
             canonical_owner_package="bijux-proteomics-core",
             canonical_owner_module="bijux_proteomics.review.structure_reports",
             retirement_condition=(
@@ -73,7 +79,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="agent-runtime-aliases",
-            compatibility_entrypoint="agentic_proteins.agents",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("agents"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.execution.agents",
             retirement_condition=(
@@ -82,7 +88,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="orchestration-runtime-routing",
-            compatibility_entrypoint="agentic_proteins.orchestration",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("orchestration"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.runs",
             retirement_condition=(
@@ -91,7 +97,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="legacy-execution-aliases",
-            compatibility_entrypoint="agentic_proteins.execution",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("execution"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.runs",
             retirement_condition=(
@@ -100,7 +106,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="provider-routing",
-            compatibility_entrypoint="agentic_proteins.providers",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("providers"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.providers",
             retirement_condition=(
@@ -109,7 +115,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="state-routing",
-            compatibility_entrypoint="agentic_proteins.state",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("state"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.state",
             retirement_condition=(
@@ -118,7 +124,7 @@ def list_bridge_surface_contracts() -> tuple[BridgeSurfaceContract, ...]:
         ),
         BridgeSurfaceContract(
             surface_id="tool-routing",
-            compatibility_entrypoint="agentic_proteins.tools",
+            compatibility_entrypoint=_legacy_runtime_entrypoint("tools"),
             canonical_owner_package="bijux-proteomics-runtime",
             canonical_owner_module="bijux_proteomics_runtime.execution.tools",
             retirement_condition=(

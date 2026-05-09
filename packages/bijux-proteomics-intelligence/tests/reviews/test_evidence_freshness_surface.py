@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics_intelligence.reviews.boards import (
-    EvidenceFreshnessState,
+    ReviewEvidenceFreshnessState,
     build_evidence_freshness_report,
 )
 
@@ -17,6 +17,9 @@ def test_build_evidence_freshness_report_flags_stale_and_superseded_entries() ->
     )
 
     by_id = {entry.evidence_id: entry for entry in report.entries}
-    assert by_id["ev-fresh"].freshness_state is EvidenceFreshnessState.FRESH
-    assert by_id["ev-old"].freshness_state is EvidenceFreshnessState.SUPERSEDED
+    assert by_id["ev-fresh"].freshness_state is ReviewEvidenceFreshnessState.FRESH
+    assert (
+        by_id["ev-old"].freshness_state
+        is ReviewEvidenceFreshnessState.SUPERSEDED
+    )
     assert by_id["ev-old"].requires_review is True

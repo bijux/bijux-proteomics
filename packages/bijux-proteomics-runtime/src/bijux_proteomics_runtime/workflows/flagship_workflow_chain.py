@@ -8,6 +8,7 @@ from __future__ import annotations
 from enum import StrEnum
 import hashlib
 import json
+from typing import Protocol
 
 from pydantic import ConfigDict, Field
 
@@ -16,13 +17,6 @@ from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.judgment.flagship_decisions import (
     FlagshipDecisionReview,
 )
-from bijux_proteomics_knowledge.reviews.flagship_evidence import (
-    FlagshipEvidenceDecisionBrief,
-    WorkflowClaimTier,
-)
-from bijux_proteomics_lab.reconciliation.flagship_follow_up import (
-    FlagshipWorkflowFollowUpPacket,
-)
 from bijux_proteomics_runtime.workflows.runs import (
     DdaImportWorkflowRunReport,
     LabHandoffWorkflowRunReport,
@@ -30,6 +24,18 @@ from bijux_proteomics_runtime.workflows.runs import (
     QuantRuntimeWorkflowRunReport,
     SequenceToDigestWorkflowRunReport,
 )
+
+
+class _FlagshipEvidenceDecisionBriefLike(Protocol):
+    artifact_path: str
+    evidence_pointers: tuple[str, ...]
+    note: str
+
+
+class _FlagshipWorkflowFollowUpPacketLike(Protocol):
+    artifact_path: str
+    next_cycle_artifact_path: str
+    note: str
 
 
 class FlagshipWorkflowStage(StrEnum):
@@ -54,6 +60,15 @@ class WorkflowClaimKind(StrEnum):
     INTEGRITY = "integrity"
 
 
+class FlagshipWorkflowClaimTier(StrEnum):
+    """Runtime-owned claim tiers for the flagship workflow chain."""
+
+    OWNED_CONTRACT = "owned_contract"
+    BENCHMARK_BACKED_BEHAVIOR = "benchmark_backed_behavior"
+    RUNTIME_PROVEN_WORKFLOW = "runtime_proven_workflow"
+    FUTURE_WORK = "future_work"
+
+
 class FlagshipWorkflowStageProof(JsonModel):
     """One reviewed stage in the flagship workflow proof set."""
 
@@ -73,7 +88,7 @@ class WorkflowArtifactClaim(JsonModel):
 
     claim_id: str = Field(..., min_length=1)
     claim_kind: WorkflowClaimKind
-    claim_tier: WorkflowClaimTier
+    claim_tier: FlagshipWorkflowClaimTier
     owner_package: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
     validating_test_id: str = Field(..., min_length=1)
@@ -89,7 +104,7 @@ class FlagshipWorkflowScopeDossier(JsonModel):
     approved_workflow_families: tuple[str, ...] = Field(default_factory=tuple)
     future_only_workflow_families: tuple[str, ...] = Field(default_factory=tuple)
     example_workflow_prose_scope: str = Field(..., min_length=1)
-    claim_taxonomy: tuple[WorkflowClaimTier, ...] = Field(default_factory=tuple)
+    claim_taxonomy: tuple[FlagshipWorkflowClaimTier, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -157,10 +172,10 @@ def build_flagship_workflow_scope_dossier() -> FlagshipWorkflowScopeDossier:
         ),
         example_workflow_prose_scope="flagship_only",
         claim_taxonomy=(
-            WorkflowClaimTier.OWNED_CONTRACT,
-            WorkflowClaimTier.BENCHMARK_BACKED_BEHAVIOR,
-            WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
-            WorkflowClaimTier.FUTURE_WORK,
+            FlagshipWorkflowClaimTier.OWNED_CONTRACT,
+            FlagshipWorkflowClaimTier.BENCHMARK_BACKED_BEHAVIOR,
+            FlagshipWorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
+            FlagshipWorkflowClaimTier.FUTURE_WORK,
         ),
         note=(
             "Only the flagship-workflows family may use one-family workflow language. "
@@ -190,7 +205,7 @@ def _stage_artifact_claims(
                 WorkflowArtifactClaim(
                     claim_id=f"{stage.stage.value}-artifact-{index}",
                     claim_kind=WorkflowClaimKind.WORKFLOW,
-                    claim_tier=WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
+                    claim_tier=FlagshipWorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
                     owner_package=stage.owner_package,
                     artifact_path=artifact_path,
                     validating_test_id=validating_tests[stage.stage],
@@ -202,7 +217,7 @@ def _stage_artifact_claims(
             WorkflowArtifactClaim(
                 claim_id="flagship-workflow-replay-evidence",
                 claim_kind=WorkflowClaimKind.REPLAY,
-                claim_tier=WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
+                claim_tier=FlagshipWorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
                 owner_package="bijux-proteomics-runtime",
                 artifact_path="artifacts/workflows/flagship-workflow-chain/replay/determinism_report.json",
                 validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_compare_flagship_workflow_chains_is_deterministic_for_same_inputs",
@@ -211,7 +226,7 @@ def _stage_artifact_claims(
             WorkflowArtifactClaim(
                 claim_id="flagship-workflow-integrity-evidence",
                 claim_kind=WorkflowClaimKind.INTEGRITY,
-                claim_tier=WorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
+                claim_tier=FlagshipWorkflowClaimTier.RUNTIME_PROVEN_WORKFLOW,
                 owner_package="bijux-proteomics-runtime",
                 artifact_path="artifacts/workflows/flagship-workflow-chain/integrity/breakage_report.json",
                 validating_test_id="packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_evaluate_flagship_workflow_breakage_detects_missing_follow_up_and_bad_paths",
@@ -248,10 +263,10 @@ def build_flagship_workflow_chain(
     quant_report: QuantRuntimeWorkflowRunReport,
     ptm_report: PtmRuntimeWorkflowRunReport,
     scientific_kernel: FlagshipScientificKernelReport,
-    evidence_review: FlagshipEvidenceDecisionBrief,
+    evidence_review: _FlagshipEvidenceDecisionBriefLike,
     decision_review: FlagshipDecisionReview,
     lab_handoff: LabHandoffWorkflowRunReport,
-    follow_up: FlagshipWorkflowFollowUpPacket,
+    follow_up: _FlagshipWorkflowFollowUpPacketLike,
 ) -> FlagshipWorkflowChain:
     """Assemble the flagship workflow chain across real owner packages."""
 

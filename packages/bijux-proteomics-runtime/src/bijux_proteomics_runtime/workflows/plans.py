@@ -794,8 +794,8 @@ class WorkflowReplayProofEntry(JsonModel):
     rationale: str = Field(..., min_length=1)
 
 
-class WorkflowReplayProofReport(JsonModel):
-    """Proof report showing whether a replay or rerun changed workflow outputs."""
+class WorkflowReplayComparisonReport(JsonModel):
+    """Comparison report showing whether a replay or rerun changed workflow outputs."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -887,7 +887,7 @@ class WorkflowRerunComparisonArtifact(JsonModel):
     subject_id: str = Field(..., min_length=1)
     previous_archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
     current_archive_bundle_sha256: str = Field(..., min_length=64, max_length=64)
-    replay_proof: WorkflowReplayProofReport
+    replay_proof: WorkflowReplayComparisonReport
     changed_surfaces: tuple[str, ...] = Field(default_factory=tuple)
     stable_surfaces: tuple[str, ...] = Field(default_factory=tuple)
     drifted_artifacts: tuple[RerunArtifactDriftEntry, ...] = Field(
@@ -3005,7 +3005,7 @@ def build_workflow_runtime_validation_report(
 def build_workflow_replay_proof_report(
     previous_export: WorkflowRuntimeExportBundle,
     current_export: WorkflowRuntimeExportBundle,
-) -> WorkflowReplayProofReport:
+) -> WorkflowReplayComparisonReport:
     """Compare two workflow exports and explain whether rerun surfaces changed."""
     if previous_export.workflow_id != current_export.workflow_id:
         raise ValueError("workflow exports must share a workflow_id")
@@ -3055,7 +3055,7 @@ def build_workflow_replay_proof_report(
         )
         for surface, previous_sha256, current_sha256, description in comparisons
     )
-    payload = WorkflowReplayProofReport(
+    payload = WorkflowReplayComparisonReport(
         document_schema=_build_document_schema("workflow_replay_proof_report"),
         workflow_id=previous_export.workflow_id,
         equivalent=not any(entry.changed for entry in entries),

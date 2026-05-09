@@ -109,8 +109,8 @@ def run_review_board_workflow(
     )
 
 
-class EvidenceFreshnessState(StrEnum):
-    """Evidence freshness states used to detect stale or superseded inputs."""
+class ReviewEvidenceFreshnessState(StrEnum):
+    """Review-board freshness states used to detect stale or superseded inputs."""
 
     FRESH = "fresh"
     STALE = "stale"
@@ -123,7 +123,7 @@ class EvidenceFreshnessEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_id: str = Field(..., min_length=1)
-    freshness_state: EvidenceFreshnessState
+    freshness_state: ReviewEvidenceFreshnessState
     age_days: int = Field(..., ge=0)
     superseded_by: str | None = None
     requires_review: bool
@@ -152,17 +152,17 @@ def build_evidence_freshness_report(
         superseded_by = superseded_edges.get(evidence_id)
 
         if superseded_by:
-            state = EvidenceFreshnessState.SUPERSEDED
+            state = ReviewEvidenceFreshnessState.SUPERSEDED
             requires_review = True
             reason = f"evidence superseded by {superseded_by}"
         elif age_days >= stale_after_days:
-            state = EvidenceFreshnessState.STALE
+            state = ReviewEvidenceFreshnessState.STALE
             requires_review = True
             reason = (
                 f"evidence age {age_days}d exceeds stale threshold {stale_after_days}d"
             )
         else:
-            state = EvidenceFreshnessState.FRESH
+            state = ReviewEvidenceFreshnessState.FRESH
             requires_review = False
             reason = "evidence freshness is within policy threshold"
 
