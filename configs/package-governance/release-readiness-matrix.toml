@@ -1,0 +1,56 @@
+# Generated release readiness matrix.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.release.governance.release_readiness_matrix
+
+[[category]]
+category_id = "workflow-family-product-evidence"
+title = "Workflow-family product evidence"
+ready = true
+rationale = "The root promise must be anchored in one checked workflow manifest plus declared package-family readiness evidence."
+evidence_paths = ["configs/package-governance/canonical-workflow-manifest.toml", "configs/package-governance/release-families.toml", "docs/01-bijux-proteomics/foundation/product-architecture.md"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "black-box-rerunability"
+title = "Black-box rerunability"
+ready = true
+rationale = "A hostile reviewer should be able to start from the flagship runtime lane and see whether rerun evidence is strong enough without maintainers narrating around missing artifacts."
+evidence_paths = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py", "docs/01-bijux-proteomics/foundation/public-artifact-index.md", "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "benchmark-asset-quality"
+title = "Benchmark asset quality"
+ready = false
+rationale = "Release claims must stay behind the benchmark asset coverage, grounding, and scientific release evidence actually checked in."
+evidence_paths = ["configs/package-governance/scientific-release-workflows.toml", "docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md", "docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md"]
+blocker_codes = ["ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "ssot-readiness-blocked", "outsider-packet-claim-missing", "outsider-packet-claim-missing", "outsider-packet-claim-missing", "outsider-packet-claim-missing", "trust-surface-claim-missing", "outsider-packet-claim-missing"]
+blocker_details = ["scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/__init__.py still imports compatibility modules instead of canonical owners: agentic_proteins.orchestration.bridge_contracts", "scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/bridge_contracts.py is classified as canonical instead of wrapper or dead", "scientific release dossier is blocked until SSOT readiness is clean: compatibility-bridge: orchestration/bridge_contracts.py still defines local compatibility logic: BridgeSurfaceContract, CompatibilityRetirementBudget, list_bridge_surface_contracts, build_bridge_retirement_budget", "scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'EvidenceFreshnessState' is owned by multiple canonical packages: bijux-proteomics-intelligence:bijux_proteomics_intelligence/reviews/boards.py, bijux-proteomics-knowledge:bijux_proteomics_knowledge/memory/models/evidence.py", "scientific release dossier is blocked until SSOT readiness is clean: duplicate-model-ownership: structured model 'WorkflowReplayProofReport' is owned by multiple canonical packages: bijux-proteomics-knowledge:bijux_proteomics_knowledge/references/workflows/replay_proof.py, bijux-proteomics-runtime:bijux_proteomics_runtime/workflows/plans.py", "scientific release dossier is blocked until SSOT readiness is clean: package-substance: agentic-proteins exposes 111 wrapper modules across 117 source modules", "scientific release dossier is blocked until SSOT readiness is clean: package-substance: orchestration/__init__.py still imports compatibility modules instead of canonical owners: agentic_proteins.orchestration.bridge_contracts", "scientific release dossier is blocked until SSOT readiness is clean: package-substance: orchestration/bridge_contracts.py is classified as canonical instead of wrapper or dead", "scientific release dossier is blocked until SSOT readiness is clean: package-substance: orchestration/bridge_contracts.py still defines local compatibility logic: BridgeSurfaceContract, CompatibilityRetirementBudget, list_bridge_surface_contracts, build_bridge_retirement_budget", "dda outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.", "dia outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.", "ptm outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.", "lfq outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration.", "multiplex trust surface is missing the grounded claim text: It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider review packet and a dedicated lab consequence packet.", "targeted outsider packet is missing the grounded claim text: The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration."]
+
+[[category]]
+category_id = "docs-clarity"
+title = "Docs clarity"
+ready = false
+rationale = "Root and handbook wording must route readers to the right evidence without stronger trust language than the current docs surfaces can honestly defend."
+evidence_paths = ["README.md", "docs/index.md", "docs/01-bijux-proteomics/foundation/product-architecture.md", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md", "docs/01-bijux-proteomics/foundation/release-readiness-matrix.md"]
+blocker_codes = ["missing-outsider-authority-line"]
+blocker_details = ["README.md does not match the outsider-auditable workflow family set from the workflow authority matrix"]
+
+[[category]]
+category_id = "package-boundary-stability"
+title = "Package-boundary stability"
+ready = false
+rationale = "Import directions, public surfaces, and README routing must continue to describe the same ownership model."
+evidence_paths = ["configs/package-governance/package-dependency-policy.toml", "configs/package-governance/repository-product-shape.toml", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md"]
+blocker_codes = ["", "", ""]
+blocker_details = ["", "", ""]
+
+[[category]]
+category_id = "consequence-realism"
+title = "Consequence realism"
+ready = true
+rationale = "Recommendation posture must not outrun the downstream lab consequence and refusal surfaces that inherit that claim."
+evidence_paths = ["docs/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md", "docs/07-bijux-proteomics-lab/index.md", "docs/01-bijux-proteomics/foundation/current-capability-limits.md"]
+blocker_codes = []
+blocker_details = []
