@@ -101,6 +101,7 @@ class FlagshipReleaseCandidateBundle(JsonModel):
     scientific_reading_pack_ids: tuple[str, ...] = Field(default_factory=tuple)
     recommendation_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
     lab_packet_ids: tuple[str, ...] = Field(default_factory=tuple)
+    lab_outcome_dossier_ids: tuple[str, ...] = Field(default_factory=tuple)
     workflow_authority_matrix_path: str = Field(..., min_length=1)
     trust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
     distrust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
@@ -169,6 +170,11 @@ def build_flagship_workflow_trust_pages() -> tuple[FlagshipWorkflowTrustPage, ..
             f"public claim support is {packet.public_claim_support_state.value}",
             f"recommendation posture is {packet.recommendation_disposition.value}",
             f"lab posture is {packet.lab_posture.value}",
+            f"outcome dossier basis is {packet.lab_outcome_basis.value}",
+            (
+                "shipped outcome revised the recommendation to "
+                f"{packet.outcome_recommendation_disposition.value}"
+            ),
         ]
         if packet.runtime_package_id is not None and packet.runtime_run_mode is not None:
             trust_reasons.append(
@@ -254,11 +260,14 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
             packet.recommendation_packet_id for packet in packets
         ),
         lab_packet_ids=tuple(packet.lab_packet_id for packet in packets),
+        lab_outcome_dossier_ids=tuple(
+            packet.lab_outcome_dossier_id for packet in packets
+        ),
         workflow_authority_matrix_path=matrix.artifact_path,
         trust_page_paths=tuple(page.doc_path for page in trust_pages),
         distrust_page_paths=tuple(page.doc_path for page in distrust_pages),
         note=(
-            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, comparator pressure, knowledge dossier, recommendation packet, and lab packet into one outsider-auditable review surface while naming multiplex separately as internal support only."
+            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, comparator pressure, knowledge dossier, recommendation packet, planned lab packet, and requested-versus-observed outcome dossier into one outsider-auditable review surface while naming multiplex separately as internal support only."
         ),
     )
 

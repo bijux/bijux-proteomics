@@ -54,6 +54,8 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
     )
     assert bundle.blocked_workflow_families == ()
     assert bundle.workflow_authority_matrix_path.endswith("workflow_authority_matrix.json")
+    assert "flagship_follow_up_outcome:dda" in bundle.lab_outcome_dossier_ids
+    assert "flagship_follow_up_outcome:targeted" in bundle.lab_outcome_dossier_ids
     assert "docs/01-bijux-proteomics/foundation/why-trust-dda.md" in bundle.trust_page_paths
     assert "docs/01-bijux-proteomics/foundation/why-trust-dia.md" in bundle.trust_page_paths
 
@@ -96,6 +98,11 @@ def test_workflow_authority_matrix_covers_all_six_workflow_families() -> None:
         cell
         for cell in rows[KnowledgeWorkflowFamily.TARGETED].cells
         if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
+    ).earned is True
+    assert next(
+        cell
+        for cell in rows[KnowledgeWorkflowFamily.PTM].cells
+        if cell.authority_kind == WorkflowAuthorityKind.LAB_CONSEQUENTIAL
     ).earned is True
     assert next(
         cell

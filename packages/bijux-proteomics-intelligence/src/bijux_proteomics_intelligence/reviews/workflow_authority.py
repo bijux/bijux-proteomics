@@ -42,6 +42,12 @@ from bijux_proteomics_lab.benchmarks.follow_up import (
     FlagshipLabFollowUpPacket,
     build_flagship_lab_follow_up_packet_family,
 )
+from bijux_proteomics_lab.benchmarks.outcome_dossiers import (
+    FlagshipAssayWorthLedgerEntry,
+    FlagshipFollowUpOutcomeDossier,
+    build_flagship_assay_worth_ledger,
+    build_flagship_follow_up_outcome_dossier_family,
+)
 from bijux_proteomics_runtime.workflows.benchmark_runs import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
@@ -141,6 +147,22 @@ def _lab_packets() -> dict[KnowledgeWorkflowFamily, FlagshipLabFollowUpPacket]:
 
 
 @lru_cache(maxsize=1)
+def _lab_outcome_dossiers() -> dict[
+    KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier
+]:
+    family = build_flagship_follow_up_outcome_dossier_family()
+    return {dossier.workflow_family: dossier for dossier in family.dossiers}
+
+
+@lru_cache(maxsize=1)
+def _worth_ledger_entries() -> dict[
+    KnowledgeWorkflowFamily, FlagshipAssayWorthLedgerEntry
+]:
+    ledger = build_flagship_assay_worth_ledger()
+    return {entry.workflow_family: entry for entry in ledger.entries}
+
+
+@lru_cache(maxsize=1)
 def _runtime_rows() -> dict[str, BenchmarkRuntimeTruthRow]:
     return {row.workflow_family: row for row in build_benchmark_runtime_truth_surface()}
 
@@ -172,6 +194,8 @@ def _build_row(workflow_family: KnowledgeWorkflowFamily) -> WorkflowAuthorityRow
     review = _reviews()[workflow_family]
     outsider_packet = _outsider_packets().get(workflow_family)
     lab_packet = _lab_packets().get(workflow_family)
+    outcome_dossier = _lab_outcome_dossiers().get(workflow_family)
+    worth_entry = _worth_ledger_entries().get(workflow_family)
     runtime_row = _runtime_row_for_family(workflow_family)
     runtime_spec = (
         _runtime_specs()[runtime_row.package_id]
@@ -188,6 +212,8 @@ def _build_row(workflow_family: KnowledgeWorkflowFamily) -> WorkflowAuthorityRow
         review=review,
         outsider_packet=outsider_packet,
         lab_packet=lab_packet,
+        outcome_dossier=outcome_dossier,
+        worth_entry=worth_entry,
     )
     return WorkflowAuthorityRow(
         workflow_family=workflow_family,
@@ -209,6 +235,8 @@ def _build_row(workflow_family: KnowledgeWorkflowFamily) -> WorkflowAuthorityRow
             _lab_consequential_cell(
                 workflow_family=workflow_family,
                 lab_packet=lab_packet,
+                outcome_dossier=outcome_dossier,
+                worth_entry=worth_entry,
             ),
         ),
         blocked_claims=blocked_claims,
@@ -334,24 +362,37 @@ def _lab_consequential_cell(
     *,
     workflow_family: KnowledgeWorkflowFamily,
     lab_packet: FlagshipLabFollowUpPacket | None,
+    outcome_dossier: FlagshipFollowUpOutcomeDossier | None,
+    worth_entry: FlagshipAssayWorthLedgerEntry | None,
 ) -> WorkflowAuthorityCell:
-    earned = lab_packet is not None
+    earned = (
+        lab_packet is not None
+        and outcome_dossier is not None
+        and worth_entry is not None
+    )
     artifact_paths = ()
-    if (
-        workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
-        or lab_packet is not None
-    ):
-        artifact_paths = (
-            "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/follow_up.py",
+    if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX or earned:
+        artifact_paths = tuple(
+            dict.fromkeys(
+                path
+                for path in (
+                    "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/follow_up.py",
+                    outcome_dossier.artifact_path if outcome_dossier is not None else "",
+                    build_flagship_assay_worth_ledger().artifact_path
+                    if worth_entry is not None
+                    else "",
+                )
+                if path
+            )
         )
     return WorkflowAuthorityCell(
         authority_kind=WorkflowAuthorityKind.LAB_CONSEQUENTIAL,
         earned=earned,
         artifact_paths=artifact_paths,
         note=(
-            "The lab consequence surface is earned when a dedicated flagship lab packet exists, even if it remains exploratory-only."
+            "The lab consequence surface is earned only when a dedicated flagship lab packet, one shipped requested-versus-observed dossier, and one assay-worth-it ledger row all exist together."
             if earned
-            else "This workflow still lacks a dedicated lab consequence packet and therefore cannot claim lab-consequential public authority."
+            else "This workflow still lacks the shipped outcome dossier and assay-worth-it evidence required for lab-consequential public authority."
         ),
     )
 
@@ -362,6 +403,8 @@ def _blocked_claims(
     review: WorkflowBenchmarkReview,
     outsider_packet: FlagshipOutsiderReviewPacket | None,
     lab_packet: FlagshipLabFollowUpPacket | None,
+    outcome_dossier: FlagshipFollowUpOutcomeDossier | None,
+    worth_entry: FlagshipAssayWorthLedgerEntry | None,
 ) -> tuple[str, ...]:
     blocked = list(review.scientific_limits[:4])
     blocked.extend(review.reviewer_grounding_limits[:2])
@@ -369,9 +412,15 @@ def _blocked_claims(
         blocked.extend(outsider_packet.known_limits[:3])
     if lab_packet is not None:
         blocked.extend(lab_packet.stop_reasons[:2])
+    if outcome_dossier is None:
+        blocked.append(
+            "no shipped requested-versus-observed lab outcome dossier exists yet"
+        )
+    if worth_entry is None:
+        blocked.append("no shipped assay-worth-it ledger row exists yet")
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
         blocked.append(
-            "multiplex does not ride with outsider-auditable flagship families until a dedicated lab consequence packet and outsider review packet are both shipped"
+            "multiplex does not ride with outsider-auditable flagship families until a dedicated lab outcome dossier, assay-worth-it ledger row, and outsider review packet are all shipped"
         )
     return tuple(dict.fromkeys(blocked))
 

@@ -52,6 +52,8 @@ def test_dda_outsider_packet_is_complete_and_links_to_shipped_public_evidence() 
         "cross-engine" in context or "MSFragger" in context
         for context in packet.comparator_context
     )
+    assert packet.lab_outcome_dossier_id == "flagship_follow_up_outcome:dda"
+    assert packet.assay_worth_it is True
     assert "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py" in packet.validating_tests
 
 
@@ -62,6 +64,8 @@ def test_dia_outsider_packet_is_complete_but_keeps_library_limits_visible() -> N
     assert dia.runtime_package_id == "dia-diann-pipeline-corpus"
     assert dia.runtime_run_mode.value == "raw_executable"
     assert dia.public_claim_support_state.value == "advisory"
+    assert dia.outcome_recommendation_disposition.value == "do_not_recommend"
+    assert dia.assay_worth_it is False
     assert any(
         "outside the repository proof boundary" in reason
         for reason in dia.missing_surface_reasons
@@ -92,6 +96,9 @@ def test_lfq_ptm_and_targeted_outsider_packets_are_bounded_but_complete() -> Non
     assert targeted.complete_outsider_surface is True
     assert targeted.runtime_run_mode.value == "raw_executable"
     assert targeted.public_claim_support_state.value == "advisory"
+    assert targeted.lab_outcome_dossier_id == "flagship_follow_up_outcome:targeted"
+    assert targeted.outcome_recommendation_disposition.value == "recommend_with_downgrade"
+    assert targeted.assay_worth_it is True
     assert any(
         "external execution parity" in reason
         for reason in targeted.missing_surface_reasons

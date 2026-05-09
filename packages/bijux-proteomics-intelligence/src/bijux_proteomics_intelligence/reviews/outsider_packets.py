@@ -49,6 +49,13 @@ from bijux_proteomics_lab.benchmarks.follow_up import (
     FlagshipLabPacketPosture,
     build_flagship_lab_follow_up_packet_family,
 )
+from bijux_proteomics_lab.benchmarks.outcome_dossiers import (
+    FlagshipAssayWorthLedgerEntry,
+    FlagshipFollowUpOutcomeBasis,
+    FlagshipFollowUpOutcomeDossier,
+    build_flagship_assay_worth_ledger,
+    build_flagship_follow_up_outcome_dossier_family,
+)
 from bijux_proteomics_runtime.workflows.benchmark_runs import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
@@ -113,10 +120,14 @@ class FlagshipOutsiderReviewPacket(JsonModel):
     scientific_reading_pack_id: str = Field(..., min_length=1)
     recommendation_packet_id: str = Field(..., min_length=1)
     lab_packet_id: str = Field(..., min_length=1)
+    lab_outcome_dossier_id: str = Field(..., min_length=1)
+    lab_outcome_basis: FlagshipFollowUpOutcomeBasis
     public_claim_support_state: ComparatorClaimSupportState
     reviewer_grounding_state: ReviewerGroundingState
     recommendation_disposition: BenchmarkDisposition
+    outcome_recommendation_disposition: BenchmarkDisposition
     lab_posture: FlagshipLabPacketPosture
+    assay_worth_it: bool
     exact_claims: tuple[str, ...] = Field(default_factory=tuple)
     primary_data_links: tuple[FlagshipOutsiderArtifactLink, ...] = Field(
         default_factory=tuple
@@ -170,6 +181,22 @@ def _recommendation_packets_by_family() -> dict[KnowledgeWorkflowFamily, Benchma
 def _lab_packets_by_family() -> dict[KnowledgeWorkflowFamily, FlagshipLabFollowUpPacket]:
     family = build_flagship_lab_follow_up_packet_family()
     return {packet.workflow_family: packet for packet in family.packets}
+
+
+@lru_cache(maxsize=1)
+def _lab_outcome_dossiers_by_family() -> dict[
+    KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier
+]:
+    family = build_flagship_follow_up_outcome_dossier_family()
+    return {dossier.workflow_family: dossier for dossier in family.dossiers}
+
+
+@lru_cache(maxsize=1)
+def _worth_ledger_entries_by_family() -> dict[
+    KnowledgeWorkflowFamily, FlagshipAssayWorthLedgerEntry
+]:
+    ledger = build_flagship_assay_worth_ledger()
+    return {entry.workflow_family: entry for entry in ledger.entries}
 
 
 @lru_cache(maxsize=1)
@@ -298,6 +325,8 @@ def _complete_outsider_surface(
     runtime_truth: BenchmarkRuntimeTruthRow | None,
     recommendation: BenchmarkRecommendationPacket,
     lab_packet: FlagshipLabFollowUpPacket,
+    outcome_dossier: FlagshipFollowUpOutcomeDossier | None,
+    worth_entry: FlagshipAssayWorthLedgerEntry | None,
 ) -> bool:
     runtime_gate_issues = _runtime_gate_issues(workflow_family)
     return (
@@ -311,6 +340,8 @@ def _complete_outsider_surface(
         and not acceptance_sheet.claim_ahead_of_evidence
         and recommendation.disposition is not BenchmarkDisposition.DO_NOT_RECOMMEND
         and lab_packet.posture is not FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+        and outcome_dossier is not None
+        and worth_entry is not None
     )
 
 
@@ -324,6 +355,8 @@ def _missing_surface_reasons(
     runtime_truth: BenchmarkRuntimeTruthRow | None,
     recommendation: BenchmarkRecommendationPacket,
     lab_packet: FlagshipLabFollowUpPacket,
+    outcome_dossier: FlagshipFollowUpOutcomeDossier | None,
+    worth_entry: FlagshipAssayWorthLedgerEntry | None,
 ) -> tuple[str, ...]:
     reasons: list[str] = []
     if manifest.benchmark_package is None:
@@ -352,6 +385,14 @@ def _missing_surface_reasons(
         reasons.extend(recommendation.blocker_set or ("the current benchmark recommendation posture is refusal",))
     if lab_packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY:
         reasons.extend(lab_packet.stop_reasons)
+    if outcome_dossier is None:
+        reasons.append(
+            "no shipped requested-versus-observed lab outcome dossier exists for this workflow family yet"
+        )
+    if worth_entry is None:
+        reasons.append(
+            "no shipped assay-worth-it ledger row exists for this workflow family yet"
+        )
     for gap_group in (
         reading_pack.deficit_report.public_data_gaps,
         reading_pack.deficit_report.comparator_gaps,
@@ -372,13 +413,36 @@ def build_flagship_outsider_review_packet(
     reading_pack = _reading_packs_by_family()[workflow_family]
     recommendation = _recommendation_packets_by_family()[workflow_family]
     lab_packet = _lab_packets_by_family()[workflow_family]
+    outcome_dossier = _lab_outcome_dossiers_by_family().get(workflow_family)
+    worth_entry = _worth_ledger_entries_by_family().get(workflow_family)
     runtime_truth = _runtime_truth_row(workflow_family)
     runtime_package_id = runtime_truth.package_id if runtime_truth is not None else None
     benchmark_data_links, benchmark_review_links = _benchmark_links(
         workflow_family, manifest
     )
     runtime_links = _runtime_links(workflow_family, runtime_package_id)
-    review_links = _dedupe_links((*benchmark_review_links, *runtime_links))
+    extra_review_links: tuple[FlagshipOutsiderArtifactLink, ...] = ()
+    if outcome_dossier is not None:
+        extra_review_links += (
+            FlagshipOutsiderArtifactLink(
+                link_id=f"{workflow_family.value}:lab-outcome-dossier",
+                owner_package="bijux-proteomics-lab",
+                repo_relative_path=outcome_dossier.artifact_path,
+                why_open_this="The requested-versus-observed dossier shows what the flagship follow-up loop actually delivered.",
+            ),
+        )
+    if worth_entry is not None:
+        extra_review_links += (
+            FlagshipOutsiderArtifactLink(
+                link_id=f"{workflow_family.value}:assay-worth-ledger",
+                owner_package="bijux-proteomics-lab",
+                repo_relative_path=build_flagship_assay_worth_ledger().artifact_path,
+                why_open_this="The assay-worth ledger scores whether the shipped follow-up loop repaid cost, time, and decision pressure.",
+            ),
+        )
+    review_links = _dedupe_links(
+        (*benchmark_review_links, *runtime_links, *extra_review_links)
+    )
     complete_surface = _complete_outsider_surface(
         workflow_family=workflow_family,
         acceptance_sheet=acceptance_sheet,
@@ -386,6 +450,8 @@ def build_flagship_outsider_review_packet(
         runtime_truth=runtime_truth,
         recommendation=recommendation,
         lab_packet=lab_packet,
+        outcome_dossier=outcome_dossier,
+        worth_entry=worth_entry,
     )
     known_limits = tuple(
         dict.fromkeys(
@@ -406,6 +472,7 @@ def build_flagship_outsider_review_packet(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_recommendation_packet_surface.py",
                 "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
+                "packages/bijux-proteomics-lab/tests/benchmarks/test_outcome_dossiers_surface.py",
             )
         )
     )
@@ -421,10 +488,26 @@ def build_flagship_outsider_review_packet(
         scientific_reading_pack_id=reading_pack.pack_id,
         recommendation_packet_id=recommendation.packet_id,
         lab_packet_id=lab_packet.packet_id,
+        lab_outcome_dossier_id=(
+            outcome_dossier.dossier_id
+            if outcome_dossier is not None
+            else f"missing_lab_outcome:{workflow_family.value}"
+        ),
+        lab_outcome_basis=(
+            outcome_dossier.outcome_basis
+            if outcome_dossier is not None
+            else FlagshipFollowUpOutcomeBasis.BENCHMARK_SIMULATED
+        ),
         public_claim_support_state=review.public_claim_support_state,
         reviewer_grounding_state=review.reviewer_grounding_state,
         recommendation_disposition=recommendation.disposition,
+        outcome_recommendation_disposition=(
+            outcome_dossier.revised_recommendation_disposition
+            if outcome_dossier is not None
+            else recommendation.disposition
+        ),
         lab_posture=lab_packet.posture,
+        assay_worth_it=worth_entry.worth_it if worth_entry is not None else False,
         exact_claims=review.supported_repo_claims,
         primary_data_links=_dedupe_links((*benchmark_data_links, *runtime_links)),
         review_artifact_links=review_links,
@@ -443,7 +526,8 @@ def build_flagship_outsider_review_packet(
             "inspect the primary data links before trusting any summary prose",
             f"read {reading_pack.pack_id} to see literature and contradiction context",
             f"check {recommendation.packet_id} for recommendation posture and downgrade chain",
-            f"finish with {lab_packet.packet_id} to see whether the evidence is worth operational follow-up",
+            f"check {lab_packet.packet_id} for the planned assay boundary",
+            f"finish with {outcome_dossier.dossier_id if outcome_dossier is not None else 'the missing lab outcome dossier'} to see whether the evidence was actually worth operational follow-up",
         ),
         known_limits=known_limits,
         validating_tests=validating_tests,
@@ -457,9 +541,11 @@ def build_flagship_outsider_review_packet(
             runtime_truth=runtime_truth,
             recommendation=recommendation,
             lab_packet=lab_packet,
+            outcome_dossier=outcome_dossier,
+            worth_entry=worth_entry,
         ),
         note=(
-            "The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, and lab consequence without maintainer narration."
+            "The outsider packet exists to let a skeptical reviewer inspect the current flagship workflow posture from tracked files, runtime evidence, scientific reading, recommendation logic, planned assay boundaries, and shipped requested-versus-observed lab consequence without maintainer narration."
         ),
     )
 
