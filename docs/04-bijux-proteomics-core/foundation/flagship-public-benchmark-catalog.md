@@ -124,3 +124,15 @@ freshness report, or obsolescence audit for these package roots.
 Open [Flagship Challenge Corpus Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog/)
 when you need the blinded holdouts and perturbation roots that deliberately try
 to break the claims these package roots would otherwise make too comfortably.
+
+## Next Routes
+
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the question becomes which family currently deserves stronger public
+  language.
+- Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+  when the question becomes how these package roots turn into rerun lanes and
+  checked runtime artifacts.
+- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+  when the question becomes whether grounding, recommendation posture, or
+  release language outruns the package story.

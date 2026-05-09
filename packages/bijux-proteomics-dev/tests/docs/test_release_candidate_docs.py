@@ -41,6 +41,9 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
     assert "What Would Make This Repository Ready" in text
     assert "stable coexistence map" in text
     assert "stable language-demotion rule set" in text
+    assert "Open [Workflow Families]" in text
+    assert "Open [Execution]" in text
+    assert "Open [Decision Support]" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:

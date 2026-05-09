@@ -34,6 +34,9 @@ def test_runtime_benchmark_rerun_docs_name_primary_and_companion_paths() -> None
     assert "allowed language" in dashboard
     assert "review_grade_bounded" in dashboard
     assert "internal_support_only" in dashboard
+    assert "Open [Workflow Families]" in dashboard
+    assert "Open [Benchmark Assets]" in dashboard
+    assert "Open [Decision Support]" in dashboard
 
 
 def test_runtime_index_links_to_rerun_and_comparability_surfaces() -> None:

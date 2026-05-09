@@ -83,6 +83,14 @@ bundle.
 The release narrowing protocol is the stable language-demotion rule set for the
 bundle.
 
+Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+when the right next question is family comparison instead of bundle inventory.
+Open [Execution](https://bijux.io/bijux-proteomics/execution/)
+when the right next question is rerunability instead of bundle language.
+Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+when the right next question is grounding, recommendation posture, or artifact
+role overlap.
+
 ## Honest Reading
 
 - `dda` survives one full outsider packet:

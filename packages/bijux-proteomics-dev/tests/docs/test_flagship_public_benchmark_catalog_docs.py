@@ -42,6 +42,10 @@ def test_flagship_public_benchmark_catalog_doc_points_to_asset_root_handbook() -
     text = _read_doc()
 
     assert "Flagship Benchmark Assets" in text
+    assert "Flagship Challenge Corpus Catalog" in text
+    assert "Open [Workflow Families]" in text
+    assert "Open [Execution]" in text
+    assert "Open [Decision Support]" in text
 
 
 def test_flagship_public_benchmark_catalog_doc_keeps_multiplex_internal_support_explicit() -> None:
