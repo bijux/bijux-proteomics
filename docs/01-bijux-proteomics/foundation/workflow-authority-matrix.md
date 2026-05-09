@@ -39,10 +39,17 @@ published cross-package generalization report. The current scorecard lives at
 - `externally cross-checked` means public comparator posture is at least
   advisory rather than refused
 - `outsider-auditable` means the benchmark package, runtime lane, scientific
-  reading, recommendation packet, lab packet, and the family generalization
-  report can be opened together by a skeptical reviewer
-- `lab-consequential` means a dedicated flagship lab packet exists, even when
-  the packet still keeps the family exploratory-only
+  reading, recommendation packet, planned lab packet, requested-versus-observed
+  outcome dossier, and the family generalization report can be opened together
+  by a skeptical reviewer
+- `lab-consequential` means a dedicated flagship lab packet, one shipped
+  requested-versus-observed outcome dossier, and one assay-worth-it ledger row
+  all exist together
+
+The current lab-consequence evidence is still benchmark-simulated rather than
+live wet-lab release proof. It earns bounded consequence language because the
+requested-versus-observed loop is now explicit, not because the repository has
+already closed real laboratory deployment risk.
 
 ## Family Transfer Evidence
 

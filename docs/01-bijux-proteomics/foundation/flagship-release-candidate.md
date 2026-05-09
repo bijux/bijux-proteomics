@@ -58,11 +58,12 @@ convenient flagship package.
 
 - `dda` survives one full outsider packet:
   two public packages, one family-transfer report, runtime lane, comparator
-  pressure, scientific reading, recommendation packet, and lab packet
+  pressure, scientific reading, recommendation packet, planned lab packet, and
+  one requested-versus-observed outcome dossier
 - `dia`, `lfq`, `ptm`, and `targeted` now also survive full outsider packets,
   but each authority stays bounded by advisory comparator posture, the measured
   drift recorded in its family-transfer report, external execution limits, or
-  exploratory lab consequence
+  benchmark-simulated requested-versus-observed lab consequence
 - `multiplex` has real package and runtime substance, but it is intentionally
   narrowed to internal support only because its companion stress package still
   collapses outsider-facing trust in the published family-transfer report

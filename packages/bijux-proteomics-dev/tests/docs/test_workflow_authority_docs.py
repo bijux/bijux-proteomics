@@ -30,6 +30,8 @@ def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets(
     assert "Internal-support-only workflow families today: `multiplex`." in text
     assert "family_stability_scorecard.json" in text
     assert "two public benchmark packages plus one" in text
+    assert "requested-versus-observed outcome dossier" in text
+    assert "assay-worth-it ledger row" in text
 
 
 def test_multiplex_boundary_doc_keeps_internal_support_limit_explicit() -> None:
@@ -40,3 +42,4 @@ def test_multiplex_boundary_doc_keeps_internal_support_limit_explicit() -> None:
     assert "outsider-auditable flagship family" in text
     assert "multiplex_channel_stress_review_package/cross_package_generalization.json" in text
     assert "fragile_transfer" in text
+    assert "requested-versus-observed outcome dossier" in text

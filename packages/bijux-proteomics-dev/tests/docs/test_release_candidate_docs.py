@@ -30,6 +30,7 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
     assert "internal-support-only workflow families: `multiplex`" in text
     assert "family_stability_scorecard.json" in text
     assert "paired public benchmark packages" in text
+    assert "requested-versus-observed outcome dossier" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
@@ -43,3 +44,4 @@ def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:
     assert "repository-wide elite" in text
     assert "language remains blocked" in text
     assert "It does not count files, documents, governance volume" in text
+    assert "lab-facing outcome dossiers and assay-worth-it ledgers" in text

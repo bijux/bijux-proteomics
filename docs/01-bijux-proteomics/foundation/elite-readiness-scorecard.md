@@ -20,7 +20,7 @@ It does not count files, documents, governance volume, or maintenance theater.
 - external comparator confrontation
 - curated knowledge sufficiency
 - benchmark-backed recommendation posture
-- lab-facing consequence packets
+- lab-facing outcome dossiers and assay-worth-it ledgers
 
 ## Current Scores
 
@@ -37,14 +37,14 @@ It does not count files, documents, governance volume, or maintenance theater.
 Five outsider-auditable families now exist in a bounded sense, but
 repository-wide elite language remains blocked until more than one flagship
 family survives the same standard with supported comparator posture, stronger
-grounding, and more than exploratory lab consequence authority.
+grounding, and more than benchmark-simulated lab consequence authority.
 
 Repository-wide elite language remains blocked.
 
 ## Why The Repository Is Still Blocked
 
-- DDA still carries advisory comparator-backed claim support and exploratory
-  follow-up posture
+- DDA still carries advisory comparator-backed claim support and only one
+  benchmark-simulated consequence loop
 - DIA, LFQ, PTM, and targeted are outsider-auditable now, but they still rely
   on advisory public claim support and bounded execution or generalization
   language
