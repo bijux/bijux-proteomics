@@ -130,6 +130,7 @@ maintaining the workspace rather than for end-user installation.
 - `make openapi-drift` to catch breaking schema changes without version bumps
 - `make quality-artifact-governance` to enforce artifact roots, drift audit, and
   package-root hygiene
+- `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
@@ -186,7 +187,8 @@ Recommended release order:
 1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
 2. Run `make lint test quality security`.
 3. Run `make quality-runtime-migration-validation`.
-4. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
+4. Run `make release-preflight`.
+5. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
 
 ## Repository Boundaries
 

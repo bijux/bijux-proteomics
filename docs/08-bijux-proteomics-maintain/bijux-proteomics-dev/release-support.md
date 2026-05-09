@@ -46,6 +46,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/workflow_public_scrutiny.py`
 - `src/bijux_proteomics_dev/release/governance/hostile_review_pages.py`
 - `src/bijux_proteomics_dev/release/governance/release_narrowing_protocol.py`
+- `src/bijux_proteomics_dev/release/governance/final_preflight.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
@@ -155,6 +156,11 @@ prose.
 Use `bijux_proteomics_dev.release.governance.release_narrowing_protocol` when
 the question is whether workflow-family language should already be narrower
 than the strongest public sentence.
+
+Use `make release-preflight` when the question is whether the minimum hostile
+review gates across docs, package boundaries, benchmark assets, runtime
+reproducibility, consequence coherence, and artifact hygiene still survive in
+one exact order.
 
 Use `validate_ssot_readiness()` when the question is whether public symbol
 ownership, duplicate model ownership, compatibility-bridge posture, and

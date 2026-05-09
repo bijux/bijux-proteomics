@@ -74,5 +74,7 @@ def test_existing_release_pages_link_to_public_scrutiny_surfaces() -> None:
     assert "workflow_public_scrutiny.py" in release_support
     assert "hostile_review_pages.py" in release_support
     assert "release_narrowing_protocol.py" in release_support
+    assert "final_preflight.py" in release_support
+    assert "make release-preflight" in release_support
     assert "validate_workflow_public_scrutiny()" in release_support
     assert "Public artifact index" in readme

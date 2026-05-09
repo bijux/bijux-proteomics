@@ -38,7 +38,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance security-dependency-allowlist \
+	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py
 
 check: lock-check lint test quality security docs api build sbom ## Run the full repository verification flow
@@ -67,6 +67,9 @@ quality-artifact-governance: root-check-env ## Enforce artifact roots and reposi
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
+
+release-preflight: root-check-env ## Run the hostile-review release preflight in exact stage order
+	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.final_preflight
 
 quality-runtime-boundaries: root-check-env ## Enforce runtime boundary contracts
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_boundaries
