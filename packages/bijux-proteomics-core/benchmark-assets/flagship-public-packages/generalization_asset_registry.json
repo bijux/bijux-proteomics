@@ -60,6 +60,7 @@
           "license_note": "The local file is a tracked snapshot; the public check targets the project page rather than a binary download.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv",
           "public_reference_url": "https://uwpr.github.io/Comet/",
+          "public_source_name": "Comet DDA companion export snapshot",
           "source_id": "dda-companion:comet",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv",
           "why_it_matters": "Comet supplies a different primary import dialect for DDA family generalization."
@@ -69,6 +70,7 @@
           "license_note": "The local file is a tracked snapshot; the public check targets the documentation site.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv",
           "public_reference_url": "https://sage-docs.vercel.app/",
+          "public_source_name": "Sage DDA companion comparator snapshot",
           "source_id": "dda-companion:sage",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv",
           "why_it_matters": "Sage supplies the comparator dialect for the DDA family generalization pair."
@@ -130,6 +132,7 @@
           "license_note": "The local file is a tracked snapshot; the public check targets the project repository.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
           "public_reference_url": "https://github.com/vdemichev/DiaNN",
+          "public_source_name": "DIA-NN companion report snapshot",
           "source_id": "dia-companion:diann",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/diann_report.tsv",
           "why_it_matters": "DIA-NN supplies the primary exported-result surface for the DIA companion package."
@@ -139,6 +142,7 @@
           "license_note": "The local file is a tracked snapshot; the public check targets the product page.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
           "public_reference_url": "https://biognosys.com/software/spectronaut/",
+          "public_source_name": "Spectronaut companion comparator snapshot",
           "source_id": "dia-companion:spectronaut",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/spectronaut_pipeline_export.tsv",
           "why_it_matters": "Spectronaut supplies the comparator exported-result surface for the DIA companion package."
@@ -193,6 +197,7 @@
           "license_note": "This tracked file is a repository-owned snapshot.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
           "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Sparse-cohort LFQ feature snapshot",
           "source_id": "lfq-companion:edge-case-features",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv",
           "why_it_matters": "The edge-case feature table supplies a sparser LFQ cohort shape for generalization pressure."
@@ -241,6 +246,7 @@
           "license_note": "This tracked file is a repository-owned derived snapshot.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv",
           "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Channel-stress multiplex feature snapshot",
           "source_id": "multiplex-companion:stress-features",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
           "why_it_matters": "The stress feature table is derived from the tracked multiplex fixture to expose stronger imbalance."
@@ -289,6 +295,7 @@
           "license_note": "This tracked file is a repository-owned derived snapshot.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
           "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "PTM ambiguity-stress localization snapshot",
           "source_id": "ptm-companion:localization",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
           "why_it_matters": "The PTM ambiguity stress table is derived from the tracked localization fixture."
@@ -337,6 +344,7 @@
           "license_note": "This tracked file is a repository-owned derived snapshot.",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv",
           "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Targeted carryover QC snapshot",
           "source_id": "targeted-companion:qc",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
           "why_it_matters": "The carryover stress QC table is derived from the tracked targeted QC fixture."

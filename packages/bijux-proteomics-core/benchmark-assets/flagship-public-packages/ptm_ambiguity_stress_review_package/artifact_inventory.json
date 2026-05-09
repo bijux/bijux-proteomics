@@ -42,7 +42,7 @@
       "note": "The source locator manifest shows where PTM ambiguity-stress evidence came from.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/source_locator_manifest.json",
       "row_count": 4,
-      "sha256": "6fad64023c1c5bb8ae66b779d7bbc1bb7104e62090a446b7a318a949137cdcdd",
+      "sha256": "575749a33e004b8b0dac12240511626b03d309c86adbf9dd245ce0d4140d983e",
       "spectra_count": null
     },
     {

@@ -15,7 +15,7 @@
       "note": "The LFQ manifest is the machine-readable anchor for the study-scale public review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "776e40b90f4b297da243cb9b0433be3529bb4d4035e5b6b5c980998cc0ece5f7",
+      "sha256": "e434b00595d2a8c0f09e920ea1d803219c16f673321e4015b2ecf617e017a48d",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "8882ebdfab86171eb65b2e43d6f439f5b9c4379fa04a8ed17116a4453ba16e83",
+      "sha256": "23d85cc22a0a99f462c64ec4cca8aa29b8bb9f5aeb1a72539a267dcf30f52718",
       "spectra_count": null
     },
     {
@@ -33,7 +33,7 @@
       "note": "The LFQ quality sheet states clearly that package substance is ahead of runtime and comparator closure.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
       "row_count": null,
-      "sha256": "994aeaeb8073cf886b71ffa786099e77b71ec2d18755055757fc1e49cd89fdf4",
+      "sha256": "67763a2d60a68c236d7bbd31da4b2f61934dd78645b1a23509f45d7438307dac",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest makes the copied LFQ cohort snapshots and public method references rebuildable.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "8009d271d346f56f68524a9d10eaa19a76c5af25fa25f0d991dd60640593a297",
+      "sha256": "0732b9206162967e05ca04fd55d4336d9fd9cfde2de31b303ca680230670f95f",
       "spectra_count": null
     },
     {

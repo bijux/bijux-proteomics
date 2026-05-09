@@ -13,7 +13,8 @@ The `multiplex` family now has a two-root lineage instead of one convenient pack
 
 ## Family Contract
 
-- benchmark id: `benchmark:multiplex_tmtpro_quantification`
+- benchmark title: Multiplex TMTpro public benchmark package
+- public dataset identity: tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package`
@@ -24,14 +25,14 @@ The `multiplex` family now has a two-root lineage instead of one convenient pack
 
 ### primary flagship package
 
-- `multiplex:tmtpro_reference` copies `packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv`
+- TMTpro multiplex feature table snapshot copies `packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv`
 - checksum: `54ef1f14ff94f9bbfdb4430e940b641ac3d6c31e13d3f71c8566c5dd1b63f48b`
 - public reference: `https://www.thermofisher.com/order/catalog/product/A44520`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `multiplex-companion:stress-features` copies `packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv`
+- Channel-stress multiplex feature snapshot copies `packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv`
 - checksum: `90ae2afd5143403218c04d40c8976c3ffa2fefa0833ea99c65cff7bdf7d1271c`
 - public reference: `https://github.com/bijux/bijux-proteomics`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

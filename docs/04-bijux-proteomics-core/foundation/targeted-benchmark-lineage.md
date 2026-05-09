@@ -13,7 +13,8 @@ The `targeted` family now has a two-root lineage instead of one convenient packa
 
 ## Family Contract
 
-- benchmark id: `benchmark:targeted_transition_quality_control`
+- benchmark title: Targeted transition public benchmark package
+- public dataset identity: tracked chromatogram-shaped QC table plus approved, failed, and refused follow-up packet snapshots
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package`
@@ -24,14 +25,14 @@ The `targeted` family now has a two-root lineage instead of one convenient packa
 
 ### primary flagship package
 
-- `targeted:guideline_reference` copies `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv`
+- Targeted QC evidence snapshot copies `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv`
 - checksum: `6a723089259103a443ca23360c62d49d9acacda1e2e266244a8cf4d1ca509418`
 - public reference: `https://pubmed.ncbi.nlm.nih.gov/21423193/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `targeted-companion:qc` copies `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv`
+- Targeted carryover QC snapshot copies `packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv`
 - checksum: `fafc32570937de937657c9ffb00545950824aca43512d767fa3c1ca29b007eb8`
 - public reference: `https://github.com/bijux/bijux-proteomics`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "lfq-companion:edge-case-features",
+      "public_source_name": "Sparse-cohort LFQ feature snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv",
       "public_reference_url": "https://github.com/bijux/bijux-proteomics",

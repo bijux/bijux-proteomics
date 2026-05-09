@@ -13,7 +13,8 @@ The `dda` family now has a two-root lineage instead of one convenient package st
 
 ## Family Contract
 
-- benchmark id: `benchmark:dda_search_reproducibility`
+- benchmark title: DDA reviewable public benchmark package
+- public dataset identity: tracked raw-like spectrum plus paired MaxQuant and MSFragger exported-result snapshots inside one outsider-readable DDA package
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run`
@@ -24,26 +25,26 @@ The `dda` family now has a two-root lineage instead of one convenient package st
 
 ### primary flagship package
 
-- `dda:maxquant_reference` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv`
+- MaxQuant DDA export snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv`
 - checksum: `e4e83e3d45817dded49899f201b5933ac30dfd61355a1246f111549afc82f427`
 - public reference: `https://www.maxquant.org/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
-- `dda:msfragger_reference` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv`
+- MSFragger comparator export snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv`
 - checksum: `fb6fbbb6d104dda343db8eb0d084904f246e477661278610346168a7db9c1e24`
 - public reference: `https://msfragger.nesvilab.org/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
-- `dda:reference_proteome` copies `packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv`
+- UniProt reference proteome design context copies `packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv`
 - checksum: `59a5f9786b825bca78ab9e046a07de06baf76ba484b6cd3acb3a64b0ba013c0d`
 - public reference: `https://www.uniprot.org`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `dda-companion:comet` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv`
+- Comet DDA companion export snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv`
 - checksum: `a6703d9c661db306f31ebe597d84a6af95f1edb4cc693476fc13ad2e85776f8e`
 - public reference: `https://uwpr.github.io/Comet/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`
-- `dda-companion:sage` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv`
+- Sage DDA companion comparator snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv`
 - checksum: `a8d6bdc68faf5287b4084a9ff40dfe0fd4cf4ab9c116aff5a9284051ec6039ce`
 - public reference: `https://sage-docs.vercel.app/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

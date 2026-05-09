@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "dda:maxquant_reference",
+      "public_source_name": "MaxQuant DDA export snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
       "public_reference_url": "https://www.maxquant.org/",
@@ -14,6 +15,7 @@
     },
     {
       "source_id": "dda:msfragger_reference",
+      "public_source_name": "MSFragger comparator export snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
       "public_reference_url": "https://msfragger.nesvilab.org/",
@@ -23,6 +25,7 @@
     },
     {
       "source_id": "dda:reference_proteome",
+      "public_source_name": "UniProt reference proteome design context",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
       "public_reference_url": "https://www.uniprot.org",

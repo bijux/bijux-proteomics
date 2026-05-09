@@ -42,7 +42,7 @@
       "note": "The source locator manifest shows where the multiplex stress-package evidence came from.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/source_locator_manifest.json",
       "row_count": 4,
-      "sha256": "e6a94a61221828479ff0c2eb2733510cd6fed6339a86157fae6eb796f3e07108",
+      "sha256": "9f9ce55c030e43b4284b0260e736aa7a92ba9e79b9693f58032156d980362886",
       "spectra_count": null
     },
     {

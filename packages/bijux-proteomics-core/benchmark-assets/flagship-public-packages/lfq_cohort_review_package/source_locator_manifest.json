@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "lfq:normalization_reference",
+      "public_source_name": "Study-scale LFQ feature table snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
       "public_reference_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",

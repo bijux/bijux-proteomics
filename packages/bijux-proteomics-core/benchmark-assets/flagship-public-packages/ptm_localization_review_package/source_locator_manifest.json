@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "ptm:ascore_reference",
+      "public_source_name": "PTM localization result snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
       "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",

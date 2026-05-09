@@ -1,7 +1,7 @@
 {
   "report_id": "flagship-asset-refresh-report",
   "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/freshness_report.json",
-  "checked_on": "2026-05-07T13:39:18.835096Z",
+  "checked_on": "2026-05-09T10:04:23.670647Z",
   "entries": [
     {
       "package_id": "flagship_public_package:dda_reviewable_run",

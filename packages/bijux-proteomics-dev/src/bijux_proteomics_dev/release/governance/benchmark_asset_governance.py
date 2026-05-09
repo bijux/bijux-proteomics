@@ -70,6 +70,7 @@ class BenchmarkAssetSourceAudit:
     """One outsider-readable source trail inside a public benchmark package."""
 
     source_id: str
+    public_source_name: str
     public_reference_url: str
     upstream_repo_source_path: str
     local_artifact_path: str
@@ -89,6 +90,8 @@ class BenchmarkAssetAuditEntry:
     package_label: str
     package_root: str
     benchmark_id: str
+    benchmark_title: str
+    public_dataset_identity: str
     evidence_tier: BenchmarkEvidenceTier
     source_locator_manifest_path: str
     citation_manifest_path: str
@@ -156,6 +159,7 @@ def _source_rows(bundle: BenchmarkPackageBundle) -> tuple[BenchmarkAssetSourceAu
         rows.append(
             BenchmarkAssetSourceAudit(
                 source_id=source.source_id,
+                public_source_name=source.public_source_name,
                 public_reference_url=source.public_reference_url,
                 upstream_repo_source_path=source.upstream_repo_source_path,
                 local_artifact_path=source.local_artifact_path,
@@ -194,6 +198,8 @@ def build_benchmark_asset_audit() -> tuple[BenchmarkAssetAuditEntry, ...]:
                 package_label=bundle.package_label,
                 package_root=bundle.package_root,
                 benchmark_id=bundle.benchmark_manifest.benchmark_id,
+                benchmark_title=bundle.benchmark_manifest.title,
+                public_dataset_identity=bundle.public_dataset_identity,
                 evidence_tier=bundle.benchmark_manifest.evidence_tier,
                 source_locator_manifest_path=bundle.source_locator_manifest_path,
                 citation_manifest_path=bundle.citation_manifest_path,
@@ -341,7 +347,8 @@ def _render_asset_audit(entries: tuple[BenchmarkAssetAuditEntry, ...]) -> str:
                 "",
                 f"- package id: `{entry.package_id}`",
                 f"- package role: {entry.package_role}",
-                f"- benchmark id: `{entry.benchmark_id}`",
+                f"- benchmark title: {entry.benchmark_title}",
+                f"- public dataset identity: {entry.public_dataset_identity}",
                 f"- evidence tier: `{entry.evidence_tier.value}`",
                 f"- package root: `{entry.package_root}`",
                 f"- source locator manifest: `{entry.source_locator_manifest_path}`",
@@ -353,14 +360,14 @@ def _render_asset_audit(entries: tuple[BenchmarkAssetAuditEntry, ...]) -> str:
                 f"- derived quality sheet: `{entry.quality_sheet_path}`",
                 f"- derived lifecycle record: `{entry.lifecycle_record_path}`",
                 "",
-                "| source id | copied path | sha256 | tracked upstream source | rebuild command |",
+                "| source name | copied path | sha256 | tracked upstream source | rebuild command |",
                 "| --- | --- | --- | --- | --- |",
             ]
         )
         for source in entry.source_rows:
             lines.append(
                 "| "
-                f"`{source.source_id}` | `{source.local_artifact_path}` | "
+                f"{source.public_source_name} | `{source.local_artifact_path}` | "
                 f"`{source.local_sha256}` | `{source.upstream_repo_source_path}` | "
                 f"`{source.rebuild_command}` |"
             )
@@ -409,7 +416,8 @@ def _render_lineage_doc(
         "",
         "## Family Contract",
         "",
-        f"- benchmark id: `{primary.benchmark_id}`",
+        f"- benchmark title: {primary.benchmark_title}",
+        f"- public dataset identity: {primary.public_dataset_identity}",
         f"- dataset locator: `{primary.package_manifest_path}`",
         f"- evidence tier: `{primary.evidence_tier.value}`",
         f"- primary package root: `{primary.package_root}`",
@@ -429,7 +437,7 @@ def _render_lineage_doc(
         for source in entry.source_rows:
             lines.extend(
                 [
-                    f"- `{source.source_id}` copies `{source.upstream_repo_source_path}` into `{source.local_artifact_path}`",
+                    f"- {source.public_source_name} copies `{source.upstream_repo_source_path}` into `{source.local_artifact_path}`",
                     f"- checksum: `{source.local_sha256}`",
                     f"- public reference: `{source.public_reference_url}`",
                     f"- rebuild command: `{source.rebuild_command}`",

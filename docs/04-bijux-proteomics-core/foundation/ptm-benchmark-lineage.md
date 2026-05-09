@@ -13,7 +13,8 @@ The `ptm` family now has a two-root lineage instead of one convenient package st
 
 ## Family Contract
 
-- benchmark id: `benchmark:ptm_site_localization_confidence`
+- benchmark title: PTM localization public benchmark package
+- public dataset identity: tracked localization, PTM feature, raw-spectrum, and sequence-context snapshots with explicit ambiguity limits
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package`
@@ -24,14 +25,14 @@ The `ptm` family now has a two-root lineage instead of one convenient package st
 
 ### primary flagship package
 
-- `ptm:ascore_reference` copies `packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv`
+- PTM localization result snapshot copies `packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv`
 - checksum: `a711e01b793af64df1c24802a661a53eb8c88a7d5abee2b66cd7fab89cc054d1`
 - public reference: `https://pubmed.ncbi.nlm.nih.gov/16964243/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `ptm-companion:localization` copies `packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv`
+- PTM ambiguity-stress localization snapshot copies `packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv`
 - checksum: `f85243b0a4a3332e52671a60ce6f397202d9aa7ec1f15a6abf57a436a55d2150`
 - public reference: `https://github.com/bijux/bijux-proteomics`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

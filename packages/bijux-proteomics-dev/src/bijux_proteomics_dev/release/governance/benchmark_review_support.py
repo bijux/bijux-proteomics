@@ -115,6 +115,7 @@ class BenchmarkPackageBundle:
     generated_boundary_path: str
     rebuild_instructions_path: str
     rebuild_command: str
+    public_dataset_identity: str
     claim_scope: str
     runtime_availability: str
     comparator_availability: str
@@ -202,6 +203,7 @@ def _primary_bundle_map() -> dict[str, BenchmarkPackageBundle]:
             generated_boundary_path=package.generated_boundary_path,
             rebuild_instructions_path=package.rebuild_instructions_path,
             rebuild_command=_PRIMARY_REFRESH_COMMAND,
+            public_dataset_identity=package.public_dataset_identity,
             claim_scope=package.claim_scope,
             runtime_availability=package.runtime_availability,
             comparator_availability=package.comparator_availability,
@@ -255,6 +257,7 @@ def _companion_bundle_map() -> dict[str, BenchmarkPackageBundle]:
             generated_boundary_path=package.generated_boundary_path,
             rebuild_instructions_path=package.rebuild_instructions_path,
             rebuild_command=_COMPANION_REFRESH_COMMAND,
+            public_dataset_identity=package.public_dataset_identity,
             claim_scope=package.claim_scope,
             runtime_availability=package.runtime_availability,
             comparator_availability=package.comparator_availability,

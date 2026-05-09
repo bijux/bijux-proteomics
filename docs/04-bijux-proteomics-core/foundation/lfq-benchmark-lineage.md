@@ -13,7 +13,8 @@ The `lfq` family now has a two-root lineage instead of one convenient package st
 
 ## Family Contract
 
-- benchmark id: `benchmark:lfq_quantification_repeatability`
+- benchmark title: LFQ cohort review public benchmark package
+- public dataset identity: tracked study-scale feature and cohort-design snapshots with explicit missingness and repeatability boundaries
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package`
@@ -24,14 +25,14 @@ The `lfq` family now has a two-root lineage instead of one convenient package st
 
 ### primary flagship package
 
-- `lfq:normalization_reference` copies `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`
+- Study-scale LFQ feature table snapshot copies `packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv`
 - checksum: `22e2541ac72bf39edd22f0c67993de86d0929bc7fb30bf0a3093fb3b5e90d0b2`
 - public reference: `https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `lfq-companion:edge-case-features` copies `packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv`
+- Sparse-cohort LFQ feature snapshot copies `packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv`
 - checksum: `1708c1183e64212dfc5fbe0d25d017683278f0062be49fa4c922b5feb8de92f8`
 - public reference: `https://github.com/bijux/bijux-proteomics`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

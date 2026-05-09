@@ -42,7 +42,7 @@
       "note": "The source locator manifest shows where the DIA companion exports came from.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/source_locator_manifest.json",
       "row_count": 4,
-      "sha256": "1b4d94ab1c1697e1903c0713d9f6f65af2bb51a031c9d6f71caef81b64eab9bd",
+      "sha256": "28658c49938d714f23ff01a995383fdae50d369e58bf2ec8e3f221ae75197ce0",
       "spectra_count": null
     },
     {

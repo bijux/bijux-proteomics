@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "multiplex-companion:stress-features",
+      "public_source_name": "Channel-stress multiplex feature snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
       "public_reference_url": "https://github.com/bijux/bijux-proteomics",

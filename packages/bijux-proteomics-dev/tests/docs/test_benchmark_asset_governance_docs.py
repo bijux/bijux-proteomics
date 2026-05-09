@@ -26,6 +26,10 @@ def test_benchmark_asset_audit_doc_covers_all_public_roots() -> None:
     assert "targeted_carryover_review_package" in text
     assert "workflow_generalization_assets refresh" in text
     assert "flagship_asset_maintenance refresh" in text
+    assert "benchmark title:" in text
+    assert "MaxQuant DDA export snapshot" in text
+    assert "source name" in text
+    assert "source id |" not in text
 
 
 def test_family_lineage_docs_and_core_indexes_link_to_audit_surfaces() -> None:

@@ -43,6 +43,7 @@ class FlagshipRemoteSource(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_id: str = Field(..., min_length=1)
+    public_source_name: str = Field(..., min_length=1)
     local_artifact_path: str = Field(..., min_length=1)
     upstream_repo_source_path: str = Field(..., min_length=1)
     public_reference_url: str = Field(..., min_length=1)
@@ -232,6 +233,7 @@ def _rebuild_instructions_path(package_dir_name: str) -> str:
 def _remote_source(
     *,
     source_id: str,
+    public_source_name: str,
     package_dir_name: str,
     local_relative: str,
     upstream_repo_source_path: str,
@@ -242,6 +244,7 @@ def _remote_source(
 ) -> FlagshipRemoteSource:
     return FlagshipRemoteSource(
         source_id=source_id,
+        public_source_name=public_source_name,
         local_artifact_path=f"{flagship_asset_root(package_dir_name)}/{local_relative}",
         upstream_repo_source_path=upstream_repo_source_path,
         public_reference_url=public_reference_url,
@@ -304,6 +307,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="dda:maxquant_reference",
+                    public_source_name="MaxQuant DDA export snapshot",
                     package_dir_name="dda_reviewable_run",
                     local_relative="primary/maxquant_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
@@ -314,6 +318,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
                 ),
                 _remote_source(
                     source_id="dda:msfragger_reference",
+                    public_source_name="MSFragger comparator export snapshot",
                     package_dir_name="dda_reviewable_run",
                     local_relative="comparator/msfragger_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
@@ -324,6 +329,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
                 ),
                 _remote_source(
                     source_id="dda:reference_proteome",
+                    public_source_name="UniProt reference proteome design context",
                     package_dir_name="dda_reviewable_run",
                     local_relative="evidence/design.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
@@ -404,6 +410,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="dia:spectronaut_reference",
+                    public_source_name="Spectronaut DIA report snapshot",
                     package_dir_name="dia_library_review_package",
                     local_relative="primary/spectronaut_report.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
@@ -414,6 +421,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
                 ),
                 _remote_source(
                     source_id="dia:diann_reference",
+                    public_source_name="DIA-NN comparator export snapshot",
                     package_dir_name="dia_library_review_package",
                     local_relative="comparator/diann_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
@@ -479,6 +487,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="lfq:normalization_reference",
+                    public_source_name="Study-scale LFQ feature table snapshot",
                     package_dir_name="lfq_cohort_review_package",
                     local_relative="evidence/study_scale_ms1_features.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
@@ -537,6 +546,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="multiplex:tmtpro_reference",
+                    public_source_name="TMTpro multiplex feature table snapshot",
                     package_dir_name="multiplex_tmtpro_review_package",
                     local_relative="evidence/multiplex_ms1_features.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
@@ -595,6 +605,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="ptm:ascore_reference",
+                    public_source_name="PTM localization result snapshot",
                     package_dir_name="ptm_localization_review_package",
                     local_relative="evidence/localization_results.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
@@ -654,6 +665,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             remote_sources=(
                 _remote_source(
                     source_id="targeted:guideline_reference",
+                    public_source_name="Targeted QC evidence snapshot",
                     package_dir_name="targeted_transition_review_package",
                     local_relative="evidence/targeted_benchmark_qc.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",

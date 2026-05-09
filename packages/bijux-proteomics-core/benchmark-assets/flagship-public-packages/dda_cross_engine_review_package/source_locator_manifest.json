@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "dda-companion:comet",
+      "public_source_name": "Comet DDA companion export snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv",
       "public_reference_url": "https://uwpr.github.io/Comet/",
@@ -14,6 +15,7 @@
     },
     {
       "source_id": "dda-companion:sage",
+      "public_source_name": "Sage DDA companion comparator snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv",
       "public_reference_url": "https://sage-docs.vercel.app/",

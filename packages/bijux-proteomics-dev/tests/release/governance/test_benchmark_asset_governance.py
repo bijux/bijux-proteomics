@@ -25,8 +25,12 @@ def test_benchmark_asset_audit_covers_primary_and_companion_roots() -> None:
     )
     assert all(entry.support_files_present for entry in entries)
     assert all(entry.source_rows for entry in entries)
+    assert all(entry.benchmark_title for entry in entries)
+    assert all(entry.public_dataset_identity for entry in entries)
     assert all(
-        source.local_sha256 and source.upstream_repo_source_path
+        source.public_source_name
+        and source.local_sha256
+        and source.upstream_repo_source_path
         for entry in entries
         for source in entry.source_rows
     )

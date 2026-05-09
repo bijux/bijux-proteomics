@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "ptm-companion:localization",
+      "public_source_name": "PTM ambiguity-stress localization snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
       "public_reference_url": "https://github.com/bijux/bijux-proteomics",

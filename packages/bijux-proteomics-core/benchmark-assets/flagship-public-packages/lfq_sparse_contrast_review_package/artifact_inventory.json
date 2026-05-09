@@ -42,7 +42,7 @@
       "note": "The source locator manifest shows where the LFQ companion evidence came from.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/source_locator_manifest.json",
       "row_count": 4,
-      "sha256": "acf1785ba9506825519aa2f8ab531ff472cbce3252ec1a76f0699d3ccded7efc",
+      "sha256": "855c2037b3612204eced0d9d6aedf3a9cb8a6cd3f665f5c414c6d8eda01e999a",
       "spectra_count": null
     },
     {

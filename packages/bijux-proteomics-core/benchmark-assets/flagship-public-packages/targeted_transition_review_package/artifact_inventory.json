@@ -15,7 +15,7 @@
       "note": "The targeted manifest is the machine-readable anchor for the transition-control review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "a708b5e8fb6c58c78cdedca1b8c1fd3e65e4c5f0520f2b15622db43a88a6145b",
+      "sha256": "e4ec3628dbeef775f9f7254314aea18f27ba5a88b2cb61fe9234bbd59d4abcce",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The targeted artifact inventory keeps QC tables and approved/failed/refused follow-up packets together.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "1d670ecc550d233a38224f482888e3cd36effc78ed0bc5fc18c200da0aa310f5",
+      "sha256": "f19212e0e5c1c2424d357a97896c333fc203d7e595889c80b3e82c146d85e136",
       "spectra_count": null
     },
     {
@@ -33,7 +33,7 @@
       "note": "The targeted quality sheet says directly that package evidence is ahead of runtime execution and comparator closure.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
       "row_count": null,
-      "sha256": "d58c31076f1dd53cb0c14a2187d593698938bd525e7c64bfd2547a1c5f6ba5e9",
+      "sha256": "02100d3139139be0e57f9e845a49f2c6cf63985ed6f3703aeaad4b742556a632",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest keeps copied targeted QC evidence and public assay references rebuildable.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "071a350601a4f0d0b5ec7eed623686b0013bb23801643f6a80f401831095931c",
+      "sha256": "28232317f0ae184ce1eeef122982a3d96f43b237d8814b7ed6cac7696d09efe2",
       "spectra_count": null
     },
     {

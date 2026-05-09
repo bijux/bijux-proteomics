@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "multiplex:tmtpro_reference",
+      "public_source_name": "TMTpro multiplex feature table snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
       "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",

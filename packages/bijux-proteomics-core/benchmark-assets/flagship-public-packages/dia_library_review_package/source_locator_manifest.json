@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "dia:spectronaut_reference",
+      "public_source_name": "Spectronaut DIA report snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
       "public_reference_url": "https://biognosys.com/software/spectronaut/",
@@ -14,6 +15,7 @@
     },
     {
       "source_id": "dia:diann_reference",
+      "public_source_name": "DIA-NN comparator export snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
       "public_reference_url": "https://github.com/vdemichev/DiaNN",

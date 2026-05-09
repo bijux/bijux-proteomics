@@ -13,7 +13,8 @@ The `dia` family now has a two-root lineage instead of one convenient package st
 
 ## Family Contract
 
-- benchmark id: `benchmark:dia_library_extraction_consistency`
+- benchmark title: DIA library review public benchmark package
+- public dataset identity: tracked Spectronaut-style and DIA-NN-style exported-result snapshots with explicit library-conditioned settings and confrontation scope
 - dataset locator: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json`
 - evidence tier: `external_reproduction_package`
 - primary package root: `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package`
@@ -24,22 +25,22 @@ The `dia` family now has a two-root lineage instead of one convenient package st
 
 ### primary flagship package
 
-- `dia:spectronaut_reference` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`
+- Spectronaut DIA report snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv`
 - checksum: `60b2d626e92541abbd2462a293117af63829cc0c96a41077fa9408dfac3609df`
 - public reference: `https://biognosys.com/software/spectronaut/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
-- `dia:diann_reference` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`
+- DIA-NN comparator export snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv`
 - checksum: `4d8e06e9ac5f9d57e861c70e47199149d5cdaddf1738bd90026d463672c9a9d6`
 - public reference: `https://github.com/vdemichev/DiaNN`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh`
 
 ### companion generalization package
 
-- `dia-companion:diann` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/diann_report.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv`
+- DIA-NN companion report snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/diann_report.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv`
 - checksum: `14e14b95d9cf889f0d2cf847a2fce4666942c51c65ef19d6192a0fd8d09fc3b5`
 - public reference: `https://github.com/vdemichev/DiaNN`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`
-- `dia-companion:spectronaut` copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/spectronaut_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv`
+- Spectronaut companion comparator snapshot copies `packages/bijux-proteomics-core/tests/fixtures/search_adapters/spectronaut_pipeline_export.tsv` into `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv`
 - checksum: `fa4407b18e7c004a0c96fb0e72544c0c142007acc4fcdb4ccb13bf201e4b6068`
 - public reference: `https://biognosys.com/software/spectronaut/`
 - rebuild command: `uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh`

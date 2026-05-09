@@ -5,6 +5,7 @@
   "remote_sources": [
     {
       "source_id": "targeted:guideline_reference",
+      "public_source_name": "Targeted QC evidence snapshot",
       "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
       "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
       "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",

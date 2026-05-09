@@ -18,6 +18,7 @@
       "remote_sources": [
         {
           "source_id": "dda:maxquant_reference",
+          "public_source_name": "MaxQuant DDA export snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
           "public_reference_url": "https://www.maxquant.org/",
@@ -27,6 +28,7 @@
         },
         {
           "source_id": "dda:msfragger_reference",
+          "public_source_name": "MSFragger comparator export snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
           "public_reference_url": "https://msfragger.nesvilab.org/",
@@ -36,6 +38,7 @@
         },
         {
           "source_id": "dda:reference_proteome",
+          "public_source_name": "UniProt reference proteome design context",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
           "public_reference_url": "https://www.uniprot.org",
@@ -104,6 +107,7 @@
       "remote_sources": [
         {
           "source_id": "dia:spectronaut_reference",
+          "public_source_name": "Spectronaut DIA report snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
           "public_reference_url": "https://biognosys.com/software/spectronaut/",
@@ -113,6 +117,7 @@
         },
         {
           "source_id": "dia:diann_reference",
+          "public_source_name": "DIA-NN comparator export snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
           "public_reference_url": "https://github.com/vdemichev/DiaNN",
@@ -168,6 +173,7 @@
       "remote_sources": [
         {
           "source_id": "lfq:normalization_reference",
+          "public_source_name": "Study-scale LFQ feature table snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
           "public_reference_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
@@ -216,6 +222,7 @@
       "remote_sources": [
         {
           "source_id": "multiplex:tmtpro_reference",
+          "public_source_name": "TMTpro multiplex feature table snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
           "public_reference_url": "https://www.thermofisher.com/order/catalog/product/A44520",
@@ -264,6 +271,7 @@
       "remote_sources": [
         {
           "source_id": "ptm:ascore_reference",
+          "public_source_name": "PTM localization result snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
           "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/16964243/",
@@ -312,6 +320,7 @@
       "remote_sources": [
         {
           "source_id": "targeted:guideline_reference",
+          "public_source_name": "Targeted QC evidence snapshot",
           "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
           "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
           "public_reference_url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",

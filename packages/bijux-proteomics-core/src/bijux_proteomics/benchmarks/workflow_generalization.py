@@ -273,6 +273,7 @@ def _asset(
 def _remote_source(
     *,
     source_id: str,
+    public_source_name: str,
     package_root: str,
     local_relative: str,
     upstream_repo_source_path: str,
@@ -283,6 +284,7 @@ def _remote_source(
 ) -> FlagshipRemoteSource:
     return FlagshipRemoteSource(
         source_id=source_id,
+        public_source_name=public_source_name,
         local_artifact_path=f"{package_root}/{local_relative}",
         upstream_repo_source_path=upstream_repo_source_path,
         public_reference_url=public_reference_url,
@@ -1235,6 +1237,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="dda-companion:comet",
+                    public_source_name="Comet DDA companion export snapshot",
                     package_root=_package_root("dda_cross_engine_review_package"),
                     local_relative="primary/comet_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv",
@@ -1245,6 +1248,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
                 ),
                 _remote_source(
                     source_id="dda-companion:sage",
+                    public_source_name="Sage DDA companion comparator snapshot",
                     package_root=_package_root("dda_cross_engine_review_package"),
                     local_relative="comparator/sage_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv",
@@ -1319,6 +1323,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="dia-companion:diann",
+                    public_source_name="DIA-NN companion report snapshot",
                     package_root=_package_root("dia_matrix_shift_review_package"),
                     local_relative="primary/diann_report.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapters/diann_report.tsv",
@@ -1329,6 +1334,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
                 ),
                 _remote_source(
                     source_id="dia-companion:spectronaut",
+                    public_source_name="Spectronaut companion comparator snapshot",
                     package_root=_package_root("dia_matrix_shift_review_package"),
                     local_relative="comparator/spectronaut_pipeline_export.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/search_adapters/spectronaut_pipeline_export.tsv",
@@ -1397,6 +1403,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="lfq-companion:edge-case-features",
+                    public_source_name="Sparse-cohort LFQ feature snapshot",
                     package_root=_package_root("lfq_sparse_contrast_review_package"),
                     local_relative="evidence/edge_case_ms1_features.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv",
@@ -1459,6 +1466,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="multiplex-companion:stress-features",
+                    public_source_name="Channel-stress multiplex feature snapshot",
                     package_root=_package_root("multiplex_channel_stress_review_package"),
                     local_relative="evidence/multiplex_channel_stress_ms1_features.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
@@ -1515,6 +1523,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="ptm-companion:localization",
+                    public_source_name="PTM ambiguity-stress localization snapshot",
                     package_root=_package_root("ptm_ambiguity_stress_review_package"),
                     local_relative="evidence/localization_results.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
@@ -1571,6 +1580,7 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             remote_sources=(
                 _remote_source(
                     source_id="targeted-companion:qc",
+                    public_source_name="Targeted carryover QC snapshot",
                     package_root=_package_root("targeted_carryover_review_package"),
                     local_relative="evidence/targeted_benchmark_qc.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",

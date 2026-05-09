@@ -15,7 +15,7 @@
       "note": "The multiplex manifest is the machine-readable entrypoint for the TMTpro stress package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "f2efb9b2dec3a9ae420561be70313523aaa9cf51beb8b943333905afde65a121",
+      "sha256": "ecaab4b5afc9e010415e46437b94038ca389bb155df53d895cc13eb8a9a2f214",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The multiplex artifact inventory keeps channel evidence, design metadata, and digest checks visible.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "c0ecfacfab9958b7a2db960c0fa56ca9f33f235a47dcdedbac19a39cab46921c",
+      "sha256": "ca652163b3b698ced0a1475a6b6b47318378c00a8729c1a107c2f51965c56a7c",
       "spectra_count": null
     },
     {
@@ -33,7 +33,7 @@
       "note": "The multiplex quality sheet makes the package\u2019s chemistry strength and runtime weakness visible at a glance.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
       "row_count": null,
-      "sha256": "3565aebe6d1989143595e514429bdec4b2fda58e59db22ade978903a114992ca",
+      "sha256": "43f3f94ae806608f8a561ad5a1e29c0fe4376cc3e917d3cc263c33c7086dd761",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest keeps copied multiplex evidence and chemistry references rebuildable.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "1942c836028d5e9327032f0f4e5ed226554169ac1a8f9d324036be4223e08c44",
+      "sha256": "360e774b64d1ca328cc97fd7878d89fdd491dbe59089ed8ad15486c7f8a88ca2",
       "spectra_count": null
     },
     {

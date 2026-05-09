@@ -15,7 +15,7 @@
       "note": "The DIA manifest is the machine-readable entrypoint for the flagship library-conditioned review package.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
       "row_count": null,
-      "sha256": "caf248b86e8a573e3e7643185fc69cf9606df4bc220fcb8db46a498a134fac4f",
+      "sha256": "2afdd0e0d5b6a8d2758db0c4593cff7344d9524662be2404196713bd679f2610",
       "spectra_count": null
     },
     {
@@ -24,7 +24,7 @@
       "note": "The DIA artifact inventory keeps digests, row counts, and dependency edges explicit.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
       "row_count": null,
-      "sha256": "23b938320743141b4b0720e1a1575bd8ba32e25664e9c702985228581ac43c06",
+      "sha256": "18bc39b9460de9a0753376ae2807b3d63dede724093b1570d9fca973a9ecda4a",
       "spectra_count": null
     },
     {
@@ -33,7 +33,7 @@
       "note": "The DIA quality sheet says plainly that the public package is import-backed and library-conditioned.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
       "row_count": null,
-      "sha256": "4a97c4e3c5ffe4339c86bdea907088c58dac01f7bd8c7317e3b307bfd7346e65",
+      "sha256": "7abf2e34e550b3bb97b69d4c8b1e39d4de7666a645e209730762ca66d89361b3",
       "spectra_count": null
     },
     {
@@ -51,7 +51,7 @@
       "note": "The source locator manifest keeps copied DIA snapshots and public tool pages tied together in one rebuildable surface.",
       "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/source_locator_manifest.json",
       "row_count": null,
-      "sha256": "7a65029f1c255762f519ecad2833c6e858ea06d44f568d6de41afd39cef2ccec",
+      "sha256": "ad53cf5d4a15268026c3c4c9a9c16a30148459e71d0171a66d7ef3615bfe73e6",
       "spectra_count": null
     },
     {
