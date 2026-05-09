@@ -40,10 +40,18 @@ from bijux_proteomics_dev.release.governance.workflow_intelligence_confidence im
 from bijux_proteomics_dev.release.governance.workflow_lab_consequence import (
     validate_workflow_lab_consequence,
 )
+from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
+    validate_workflow_public_scrutiny,
+)
 from bijux_proteomics_intelligence.candidates.ranking_benchmarks import (
     build_flagship_ranking_policy,
     build_legacy_ranking_policy,
     compare_ranking_policies_against_benchmark_corpus,
+)
+from bijux_proteomics_intelligence.reviews.public_scrutiny import (
+    build_public_artifact_index,
+    build_trust_break_page,
+    build_trust_next_page,
 )
 from bijux_proteomics_runtime.workflows.manifest import (
     CANONICAL_WORKFLOW_MANIFEST_PATH,
@@ -96,6 +104,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
     workflow_intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     workflow_lab_consequence_issues = validate_workflow_lab_consequence()
+    workflow_public_scrutiny_issues = validate_workflow_public_scrutiny(repo_root)
     freshness_issues = validate_generated_governance_freshness()
     runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
     acceptance_dashboard = build_flagship_acceptance_dashboard()
@@ -103,6 +112,9 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         build_legacy_ranking_policy(),
         build_flagship_ranking_policy(),
     )
+    public_artifact_index = build_public_artifact_index()
+    trust_break_page = build_trust_break_page()
+    trust_next_page = build_trust_next_page()
 
     architecturally_ready_package_count = sum(
         entry.architectural_ready for entry in scorecard.entries
@@ -161,6 +173,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"workflow-lab-consequence-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in workflow_public_scrutiny_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"workflow-public-scrutiny-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -261,6 +280,9 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             "artifacts/intelligence/ranking-benchmarks/flagship-reviewable-ranking.json",
             "artifacts/runtime/proof-accounting/runtime_proof_map.json",
             acceptance_dashboard.artifact_path,
+            public_artifact_index.artifact_path,
+            trust_break_page.doc_path,
+            trust_next_page.doc_path,
         ),
         blockers=tuple(blockers),
     )
