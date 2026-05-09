@@ -17,7 +17,7 @@ dead_symbols = ["MigrationRegistry", "SchemaEvolutionAssessment", "SchemaMigrati
 
 [[surface]]
 module_name = "bijux_proteomics_foundation.identity.identifiers"
-consumer_count = 4
+consumer_count = 3
 exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "CycleId", "EvidenceId", "ExperimentId", "GateId", "IdentifierKind", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "PromotionId", "ProteinId", "PtmId", "ReviewId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier", "ensure_identifier_kind"]
 live_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ensure_identifier_kind"]
 dead_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "EvidenceId", "ExperimentId", "GateId", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "ProteinId", "PtmId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier"]

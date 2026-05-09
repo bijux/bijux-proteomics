@@ -135,8 +135,8 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_lab.planning.assays"
-outgoing_internal_modules = ["bijux_proteomics_lab.outcomes"]
-outgoing_workspace_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.program_spec", "bijux_proteomics.workflow.blueprint", "bijux_proteomics_foundation", "bijux_proteomics_foundation.identity.identifiers", "bijux_proteomics_knowledge.memory.models.evidence"]
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics.domain.assays", "bijux_proteomics.domain.program_spec", "bijux_proteomics.workflow.blueprint", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.evidence"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.planning.next_cycle"
@@ -175,13 +175,13 @@ outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_pro
 
 [[module]]
 module_name = "bijux_proteomics_lab.reconciliation"
-outgoing_internal_modules = ["bijux_proteomics_lab.reconciliation.canonical_follow_up", "bijux_proteomics_lab.reconciliation.follow_up"]
+outgoing_internal_modules = ["bijux_proteomics_lab.reconciliation.flagship_follow_up", "bijux_proteomics_lab.reconciliation.follow_up"]
 outgoing_workspace_modules = []
 
 [[module]]
-module_name = "bijux_proteomics_lab.reconciliation.canonical_follow_up"
+module_name = "bijux_proteomics_lab.reconciliation.flagship_follow_up"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.canonical_reviews"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.flagship_decisions"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.reconciliation.follow_up"

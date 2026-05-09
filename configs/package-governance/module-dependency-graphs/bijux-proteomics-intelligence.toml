@@ -184,9 +184,9 @@ outgoing_internal_modules = ["bijux_proteomics_intelligence.judgment.benchmark_c
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
-module_name = "bijux_proteomics_intelligence.judgment.canonical_reviews"
+module_name = "bijux_proteomics_intelligence.judgment.flagship_decisions"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.review.canonical_kernel", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.reviews.workflow_packets"]
+outgoing_workspace_modules = ["bijux_proteomics.review.flagship_kernel", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.reviews.flagship_evidence"]
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.judgment.paths"

@@ -470,13 +470,8 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.review"
-outgoing_internal_modules = ["bijux_proteomics.review.canonical_kernel", "bijux_proteomics.review.collaboration", "bijux_proteomics.review.contracts", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story", "bijux_proteomics.review.structure_reports"]
+outgoing_internal_modules = ["bijux_proteomics.review.collaboration", "bijux_proteomics.review.contracts", "bijux_proteomics.review.flagship_kernel", "bijux_proteomics.review.inference_packets", "bijux_proteomics.review.protein_family_graphs", "bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story", "bijux_proteomics.review.structure_reports"]
 outgoing_workspace_modules = []
-
-[[module]]
-module_name = "bijux_proteomics.review.canonical_kernel"
-outgoing_internal_modules = ["bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics.review.collaboration"
@@ -486,6 +481,11 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics.review.contracts"
 outgoing_internal_modules = ["bijux_proteomics.review.inference_packets"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics.review.flagship_kernel"
+outgoing_internal_modules = ["bijux_proteomics.review.scientific_conflicts", "bijux_proteomics.review.scientific_story"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]

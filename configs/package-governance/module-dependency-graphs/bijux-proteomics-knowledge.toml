@@ -260,7 +260,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_co
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.reviews"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.decision_briefs", "bijux_proteomics_knowledge.reviews.explanations", "bijux_proteomics_knowledge.reviews.provenance", "bijux_proteomics_knowledge.reviews.trends", "bijux_proteomics_knowledge.reviews.workflow_packets"]
+outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.decision_briefs", "bijux_proteomics_knowledge.reviews.explanations", "bijux_proteomics_knowledge.reviews.flagship_evidence", "bijux_proteomics_knowledge.reviews.provenance", "bijux_proteomics_knowledge.reviews.trends"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -274,6 +274,11 @@ outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.integrity.graph"
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
+module_name = "bijux_proteomics_knowledge.reviews.flagship_evidence"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
 module_name = "bijux_proteomics_knowledge.reviews.provenance"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.memory.models.claims", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.briefings"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_contracts"]
@@ -281,9 +286,4 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_co
 [[module]]
 module_name = "bijux_proteomics_knowledge.reviews.trends"
 outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.decision_briefs"]
-outgoing_workspace_modules = ["bijux_proteomics_foundation"]
-
-[[module]]
-module_name = "bijux_proteomics_knowledge.reviews.workflow_packets"
-outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
