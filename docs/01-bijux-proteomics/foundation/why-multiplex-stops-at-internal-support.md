@@ -1,5 +1,5 @@
 ---
-title: Multiplex Authority Boundary
+title: Why Multiplex Stops At Internal Support
 audience: mixed
 type: explanation
 status: canonical
@@ -7,7 +7,7 @@ owner: bijux-proteomics-docs
 last_reviewed: 2026-05-07
 ---
 
-# Multiplex Authority Boundary
+# Why Multiplex Stops At Internal Support
 
 ## Internal Support Only
 

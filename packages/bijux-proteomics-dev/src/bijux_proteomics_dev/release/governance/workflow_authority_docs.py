@@ -44,7 +44,7 @@ def validate_workflow_authority_docs(
     release_text = (foundation_root / "flagship-release-candidate.md").read_text(
         encoding="utf-8"
     )
-    matrix_text = (foundation_root / "workflow-authority-matrix.md").read_text(
+    matrix_text = (foundation_root / "workflow-claim-limits.md").read_text(
         encoding="utf-8"
     )
 
@@ -71,7 +71,7 @@ def validate_workflow_authority_docs(
     for label, text in (
         ("README.md", readme_text),
         ("docs/01-bijux-proteomics/foundation/flagship-release-candidate.md", release_text),
-        ("docs/01-bijux-proteomics/foundation/workflow-authority-matrix.md", matrix_text),
+        ("docs/01-bijux-proteomics/foundation/workflow-claim-limits.md", matrix_text),
     ):
         if outsider_line not in text:
             issues.append(
@@ -130,12 +130,15 @@ def validate_workflow_authority_docs(
                     detail=f"{workflow_family.value} is internal-support only in the matrix but still has a trust page",
                 )
             )
-        boundary_doc = foundation_root / f"{workflow_family.value}-authority-boundary.md"
+        boundary_doc = (
+            foundation_root
+            / f"why-{workflow_family.value}-stops-at-internal-support.md"
+        )
         if not boundary_doc.is_file():
             issues.append(
                 WorkflowAuthorityDocIssue(
-                    code="missing-authority-boundary-page",
-                    detail=f"{workflow_family.value} is internal-support only in the matrix but its authority boundary page is missing",
+                    code="missing-internal-support-limit-page",
+                    detail=f"{workflow_family.value} is internal-support only in the matrix but its internal-support limit page is missing",
                 )
             )
             continue
@@ -145,8 +148,8 @@ def validate_workflow_authority_docs(
             if report.artifact_path not in boundary_text:
                 issues.append(
                     WorkflowAuthorityDocIssue(
-                        code="boundary-page-missing-generalization-link",
-                        detail=f"{workflow_family.value} authority boundary page does not link to its published cross-package generalization report",
+                        code="internal-support-limit-page-missing-generalization-link",
+                        detail=f"{workflow_family.value} internal-support limit page does not link to its published cross-package generalization report",
                     )
                 )
     return tuple(issues)

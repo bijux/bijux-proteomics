@@ -20,9 +20,9 @@ def _read_doc(name: str) -> str:
 
 
 def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets() -> None:
-    text = _read_doc("workflow-authority-matrix.md")
+    text = _read_doc("workflow-claim-limits.md")
 
-    assert "# Workflow Authority Matrix" in text
+    assert "# Workflow Claim Limits" in text
     assert (
         "Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`."
         in text
@@ -35,9 +35,9 @@ def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets(
 
 
 def test_multiplex_boundary_doc_keeps_internal_support_limit_explicit() -> None:
-    text = _read_doc("multiplex-authority-boundary.md")
+    text = _read_doc("why-multiplex-stops-at-internal-support.md")
 
-    assert "# Multiplex Authority Boundary" in text
+    assert "# Why Multiplex Stops At Internal Support" in text
     assert "Internal Support Only" in text
     assert "outsider-auditable flagship family" in text
     assert "multiplex_channel_stress_review_package/cross_package_generalization.json" in text

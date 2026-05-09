@@ -97,7 +97,7 @@ def test_trust_and_boundary_pages_link_to_claim_grounding_and_literature_audits(
         "why-trust-lfq.md",
         "why-trust-ptm.md",
         "why-trust-targeted.md",
-        "multiplex-authority-boundary.md",
+        "why-multiplex-stops-at-internal-support.md",
     )
 
     for name in docs:

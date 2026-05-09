@@ -1,5 +1,5 @@
 ---
-title: Canonical Workflow Proof
+title: What One Workflow Family Supports Today
 audience: mixed
 type: explanation
 status: canonical
@@ -7,7 +7,7 @@ owner: bijux-proteomics-docs
 last_reviewed: 2026-05-07
 ---
 
-# Canonical Workflow Proof
+# What One Workflow Family Supports Today
 
 `bijux-proteomics` now has one checked canonical workflow family:
 `reviewable-proteomics`.
@@ -20,8 +20,8 @@ proteomics workflow coverage.
 
 ## Open First
 
-The strongest shipped proof path currently starts with the DDA public package,
-not with a governance report.
+The strongest shipped evidence path currently starts with the DDA public
+package, not with a governance report.
 
 Open these files first:
 
@@ -33,7 +33,7 @@ Open these files first:
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py`
 - `packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/workflows/comparator_confrontations.py`
 
-Those files show the actual current DDA proof surface:
+Those files show the actual current DDA support surface:
 
 - one raw-like spectrum
 - one primary MaxQuant import lane
@@ -44,8 +44,8 @@ Those files show the actual current DDA proof surface:
 
 ## What Exists Now
 
-The current canonical proof set proves one narrow workflow story, and the DDA
-public package is the clearest outsider-readable entrypoint into it:
+The current checked workflow surface supports one narrow workflow story, and
+the DDA public package is the clearest outsider-readable entrypoint into it:
 
 - runtime-owned sequence, search/confidence, quantification, PTM, and lab
   handoff artifacts
@@ -84,10 +84,9 @@ Workflow-facing claims in this repository should stay in one of four tiers:
 - `runtime_proven_workflow`
 - `future_work`
 
-The canonical workflow proof set is the place where `runtime_proven_workflow`
-claims are allowed. If a workflow family does not have a checked proof set with
-artifact paths and validating tests, it should stay in `benchmark_backed_behavior`
-or `future_work`.
+This page is where `runtime_proven_workflow` claims are allowed. If a workflow
+family does not have a checked artifact-backed surface with validating tests,
+it should stay in `benchmark_backed_behavior` or `future_work`.
 
 ## What This Does Not Mean
 
@@ -120,6 +119,7 @@ It will come from stronger flagship evidence:
 
 ## Boundary
 
-Only `reviewable-proteomics` may be described with canonical workflow prose.
+Only `reviewable-proteomics` may be described with this one-workflow-family
+sentence.
 Every other workflow family remains future-only until it has its own
 artifact-backed proof surface.

@@ -138,7 +138,7 @@ def _ref(ref_id: str, evidence_kind: ClaimEvidenceKind, note: str) -> ClaimEvide
 
 def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
-        return "docs/01-bijux-proteomics/foundation/multiplex-authority-boundary.md"
+        return "docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md"
     return (
         "docs/01-bijux-proteomics/foundation/"
         f"why-trust-{workflow_family.value}.md"
@@ -183,7 +183,7 @@ _DOC_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                     "The outsider packet is the shipped end-to-end audit surface.",
                 ),
                 _ref(
-                    "docs/01-bijux-proteomics/foundation/workflow-authority-matrix.md",
+                    "docs/01-bijux-proteomics/foundation/workflow-claim-limits.md",
                     ClaimEvidenceKind.GOVERNANCE,
                     "The workflow authority matrix is the current release-facing authority declaration.",
                 ),
@@ -338,7 +338,7 @@ _DOC_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                     "The outsider packet is the current public DIA audit packet.",
                 ),
                 _ref(
-                    "docs/01-bijux-proteomics/foundation/workflow-authority-matrix.md",
+                    "docs/01-bijux-proteomics/foundation/workflow-claim-limits.md",
                     ClaimEvidenceKind.GOVERNANCE,
                     "The workflow authority matrix publishes the bounded outsider authority call.",
                 ),

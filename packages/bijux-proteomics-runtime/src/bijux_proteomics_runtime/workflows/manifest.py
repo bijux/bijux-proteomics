@@ -1,4 +1,4 @@
-"""Checked manifest for the canonical reviewable proteomics workflow."""
+"""Checked manifest for the one workflow family the repository can currently defend."""
 
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
         flagship_family_id=dossier.flagship_family_id,
         builder_module="bijux_proteomics_runtime.workflows.canonical",
         builder_symbol="build_canonical_workflow_proof_bundle",
-        docs_path="docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md",
+        docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
         owner_packages=(
             "bijux-proteomics-runtime",
             "bijux-proteomics-core",
@@ -169,7 +169,7 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                 owner_package="bijux-proteomics-knowledge",
                 source_path="packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/workflow_packets.py",
                 test_path="packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py",
-                docs_path="docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md",
+                docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
                     "artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json",
                 ),
@@ -182,7 +182,7 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                 owner_package="bijux-proteomics-intelligence",
                 source_path="packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/canonical_reviews.py",
                 test_path="packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py",
-                docs_path="docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md",
+                docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
                     "artifacts/workflows/canonical-reviewable-proteomics/intelligence/decision_review.json",
                 ),
@@ -211,7 +211,7 @@ def build_canonical_workflow_manifest() -> CanonicalWorkflowManifest:
                 owner_package="bijux-proteomics-lab",
                 source_path="packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/canonical_follow_up.py",
                 test_path="packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py",
-                docs_path="docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md",
+                docs_path="docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md",
                 artifact_paths=(
                     "artifacts/workflows/canonical-reviewable-proteomics/lab/follow_up_packet.json",
                     "artifacts/workflows/canonical-reviewable-proteomics/lab/next_cycle_packet.json",

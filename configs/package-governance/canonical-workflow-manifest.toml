@@ -6,7 +6,7 @@ workflow_id = "canonical-reviewable-proteomics"
 flagship_family_id = "reviewable-proteomics"
 builder_module = "bijux_proteomics_runtime.workflows.canonical"
 builder_symbol = "build_canonical_workflow_proof_bundle"
-docs_path = "docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
 owner_packages = ["bijux-proteomics-runtime", "bijux-proteomics-core", "bijux-proteomics-knowledge", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
 claim_taxonomy = ["owned_contract", "benchmark_backed_behavior", "runtime_proven_workflow", "future_work"]
 
@@ -60,7 +60,7 @@ stage = "evidence_review"
 owner_package = "bijux-proteomics-knowledge"
 source_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/workflow_packets.py"
 test_path = "packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py"
-docs_path = "docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
 artifact_paths = ["artifacts/workflows/canonical-reviewable-proteomics/knowledge/review_packet.json"]
 validating_test_ids = ["packages/bijux-proteomics-knowledge/tests/reviews/test_workflow_packets_surface.py::test_build_canonical_evidence_review_packet_preserves_claim_tier_and_artifact_path"]
 
@@ -69,7 +69,7 @@ stage = "decision_review"
 owner_package = "bijux-proteomics-intelligence"
 source_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/canonical_reviews.py"
 test_path = "packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py"
-docs_path = "docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
 artifact_paths = ["artifacts/workflows/canonical-reviewable-proteomics/intelligence/decision_review.json"]
 validating_test_ids = ["packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean", "packages/bijux-proteomics-intelligence/tests/judgment/test_canonical_reviews_surface.py::test_build_flagship_decision_review_keeps_downgrade_chain_visible"]
 
@@ -87,6 +87,6 @@ stage = "follow_up"
 owner_package = "bijux-proteomics-lab"
 source_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/canonical_follow_up.py"
 test_path = "packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py"
-docs_path = "docs/01-bijux-proteomics/foundation/canonical-workflow-proof.md"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
 artifact_paths = ["artifacts/workflows/canonical-reviewable-proteomics/lab/follow_up_packet.json", "artifacts/workflows/canonical-reviewable-proteomics/lab/next_cycle_packet.json"]
 validating_test_ids = ["packages/bijux-proteomics-lab/tests/reconciliation/test_canonical_follow_up_surface.py::test_build_canonical_workflow_follow_up_packet_marks_ready_progression"]

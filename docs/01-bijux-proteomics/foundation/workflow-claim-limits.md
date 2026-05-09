@@ -1,5 +1,5 @@
 ---
-title: Workflow Authority Matrix
+title: Workflow Claim Limits
 audience: mixed
 type: explanation
 status: canonical
@@ -7,9 +7,9 @@ owner: bijux-proteomics-docs
 last_reviewed: 2026-05-07
 ---
 
-# Workflow Authority Matrix
+# Workflow Claim Limits
 
-This page is the release-facing authority source of truth for the flagship
+This page is the release-facing claim-limit source of truth for the flagship
 workflow families.
 
 Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
@@ -19,7 +19,7 @@ Family-level trust now requires two public benchmark packages plus one
 published cross-package generalization report. The current scorecard lives at
 `packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/family_stability_scorecard.json`.
 
-## Current Authority
+## Current Limits
 
 | Workflow | Internal benchmark-backed | Raw-executable | Externally cross-checked | Outsider-auditable | Lab-consequential | Public language |
 | --- | :---: | :---: | :---: | :---: | :---: | --- |

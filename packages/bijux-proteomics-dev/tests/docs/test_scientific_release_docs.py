@@ -55,6 +55,8 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "runtime-rerun-refusals.md" in text
     assert "flagship-release-candidate.md" in text
     assert "elite-readiness-scorecard.md" in text
+    assert "workflow-claim-limits.md" in text
+    assert "why-multiplex-stops-at-internal-support.md" in text
     assert "what-breaks-elite-trust.md" in text
     assert "what-earns-elite-trust-next.md" in text
     assert "public-artifact-index.md" in text

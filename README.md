@@ -25,15 +25,14 @@ The product shape is explicit:
 
 ## Current Credible Workflow Families
 
-Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`,
-`targeted`.
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
 
 Internal-support-only workflow families today: `multiplex`.
 
 Hard evidence starts with these checked surfaces:
 
 - [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
-- [Canonical workflow proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
+- [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
 - [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
 - [Independent rerun dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
 - [External review kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)

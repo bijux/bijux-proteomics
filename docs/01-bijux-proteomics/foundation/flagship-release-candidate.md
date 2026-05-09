@@ -62,9 +62,9 @@ convenient flagship package.
   - [Why Trust LFQ](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-lfq/)
   - [Why Trust PTM](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-ptm/)
   - [Why Trust Targeted](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-trust-targeted/)
-- authority boundary pages:
-  - [Multiplex Authority Boundary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/multiplex-authority-boundary/)
-  - [Workflow Authority Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-authority-matrix/)
+- workflow claim-limit pages:
+  - [Why Multiplex Stops At Internal Support](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support/)
+  - [Workflow Claim Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-claim-limits/)
 - public scrutiny pages:
   - [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/)
   - [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
