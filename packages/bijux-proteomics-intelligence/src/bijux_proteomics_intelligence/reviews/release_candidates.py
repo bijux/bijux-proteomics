@@ -14,6 +14,10 @@ from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     BenchmarkDisposition,
 )
 from bijux_proteomics_intelligence.reviews.benchmarks import ReviewerGroundingState
+from bijux_proteomics_intelligence.reviews.external_review_kits import (
+    WorkflowExternalReviewKit,
+    build_workflow_external_review_kit_family,
+)
 from bijux_proteomics_intelligence.reviews.independent_reruns import (
     WorkflowIndependentRerunDossier,
     build_workflow_independent_rerun_dossier_family,
@@ -108,6 +112,8 @@ class FlagshipReleaseCandidateBundle(JsonModel):
     lab_outcome_dossier_ids: tuple[str, ...] = Field(default_factory=tuple)
     independent_rerun_dossier_ids: tuple[str, ...] = Field(default_factory=tuple)
     independent_rerun_dossier_paths: tuple[str, ...] = Field(default_factory=tuple)
+    external_review_kit_ids: tuple[str, ...] = Field(default_factory=tuple)
+    external_review_kit_paths: tuple[str, ...] = Field(default_factory=tuple)
     workflow_authority_matrix_path: str = Field(..., min_length=1)
     trust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
     distrust_page_paths: tuple[str, ...] = Field(default_factory=tuple)
@@ -158,6 +164,12 @@ def _independent_rerun_dossiers() -> dict[
 ]:
     family = build_workflow_independent_rerun_dossier_family()
     return {dossier.workflow_family: dossier for dossier in family.dossiers}
+
+
+@lru_cache(maxsize=1)
+def _external_review_kits() -> dict[KnowledgeWorkflowFamily, WorkflowExternalReviewKit]:
+    family = build_workflow_external_review_kit_family()
+    return {kit.workflow_family: kit for kit in family.kits}
 
 
 def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
@@ -241,6 +253,7 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
     trust_pages = build_flagship_workflow_trust_pages()
     distrust_pages = build_flagship_workflow_distrust_pages()
     rerun_dossiers = tuple(_independent_rerun_dossiers().values())
+    review_kits = tuple(_external_review_kits().values())
     strongest = next(
         packet.workflow_family for packet in packets if packet.complete_outsider_surface
     )
@@ -284,11 +297,13 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
         independent_rerun_dossier_paths=tuple(
             dossier.artifact_path for dossier in rerun_dossiers
         ),
+        external_review_kit_ids=tuple(kit.kit_id for kit in review_kits),
+        external_review_kit_paths=tuple(kit.artifact_path for kit in review_kits),
         workflow_authority_matrix_path=matrix.artifact_path,
         trust_page_paths=tuple(page.doc_path for page in trust_pages),
         distrust_page_paths=tuple(page.doc_path for page in distrust_pages),
         note=(
-            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, companion rerun dossier, comparator pressure, knowledge dossier, recommendation packet, planned lab packet, and requested-versus-observed outcome dossier into one outsider-auditable review surface while naming multiplex separately as internal support only."
+            "The release-candidate bundle collects the strongest shipped benchmark package, runtime lane, companion rerun dossier, external-review kit, comparator pressure, knowledge dossier, recommendation packet, planned lab packet, and requested-versus-observed outcome dossier into one outsider-auditable review surface while naming multiplex separately as internal support only."
         ),
     )
 

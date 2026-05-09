@@ -62,6 +62,12 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
         path.endswith("dda_independent_rerun_dossier.json")
         for path in bundle.independent_rerun_dossier_paths
     )
+    assert "external_review_kit:dda" in bundle.external_review_kit_ids
+    assert "external_review_kit:targeted" in bundle.external_review_kit_ids
+    assert any(
+        path.endswith("dia_external_review_kit.json")
+        for path in bundle.external_review_kit_paths
+    )
     assert "docs/01-bijux-proteomics/foundation/why-trust-dda.md" in bundle.trust_page_paths
     assert "docs/01-bijux-proteomics/foundation/why-trust-dia.md" in bundle.trust_page_paths
 
