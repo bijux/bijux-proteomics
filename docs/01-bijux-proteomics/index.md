@@ -9,15 +9,15 @@ last_reviewed: 2026-04-26
 
 # Repository Handbook
 
-This handbook explains the logic of the split. It is the place to answer
-questions that no single package can answer honestly on its own: why the family
-exists as multiple packages, which decisions belong above package boundaries,
-and where repository authority must stop before it starts flattening the
-product into one vague story.
+This handbook explains the logic of one bounded proteomics product. It is the
+place to answer questions that no single package can answer honestly on its
+own: how benchmark assets become execution, review, recommendation, and lab
+consequence; which package owns each handoff; and which repository claims are
+still blocked.
 
-The important discipline here is restraint. A repository root should make the
-whole system legible, then hand the reader to the true owner. If it keeps
-talking after that point, it becomes noise.
+The root discipline is restraint. The handbook should make the full product
+legible, then hand the reader to the true owner before repository prose starts
+pretending it owns package-local behavior.
 
 ```mermaid
 flowchart TB
@@ -49,16 +49,26 @@ flowchart TB
 
 ## Start With
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
-  when the question is why the split exists and where authority changes hands.
-- Open [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
-  when the question is which scientific workflow capabilities still need to be
-  made explicit across package boundaries.
+- Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  when the question is how the end-to-end product chain is meant to work.
+- Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  when the question is which package or handoff owns the work.
+- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  when the question is whether public wording outruns checked evidence.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
   when the question is how the repository validates, releases, and reviews work
   across package boundaries.
 - Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
   when the answer lives in helper code, make routing, or GitHub automation.
+
+## Reader Routes
+
+- Scientist:
+  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- Operator:
+  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+- Maintainer:
+  [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 
 ## Questions This Handbook Owns
 
