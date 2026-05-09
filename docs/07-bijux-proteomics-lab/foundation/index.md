@@ -9,8 +9,11 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-The foundation section explains the durable role of `bijux-proteomics-lab` before it
-explains implementation detail. Use it to resolve why lab-facing decisions belong here instead of dissolving into ranking or runtime layers.
+The lab foundation section exists to answer one downstream question honestly:
+what assay consequence is justified, what burden and controls does that impose,
+and what observed outcomes should feed back into later review. If a page here
+describes generic orchestration without naming assay burden or outcome learning,
+it is not yet using the right owner language.
 
 ```mermaid
 flowchart LR
@@ -31,10 +34,10 @@ flowchart LR
 
 ## What This Section Protects
 
-- the experimental loop as something richer than task orchestration
-- outcome handling that stays connected to real assay intent
-- a boundary where lab judgment can stay distinct from scoring and runtime
-  mechanics
+- assay-readiness and control demands that stay explicit before spend is
+  committed
+- burden-aware handoff honesty instead of optimistic downstream wording
+- observed-outcome learning that stays tied to real requested follow-up
 
 ## Start With
 
@@ -42,6 +45,9 @@ flowchart LR
   the package role.
 - Open [Ownership Boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/) when the question is
   whether a change belongs here or in a neighbor.
+- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
+  when the question is whether a proposal is trying to smuggle recommendation,
+  scientific law, or runtime control into lab consequence.
 - Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/) when a proposed change
   risks broadening the package.
 - Open [Capability Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/capability-map/) when you need the concrete work
@@ -52,6 +58,7 @@ flowchart LR
 - [Package Overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/scope-and-non-goals/)
 - [Ownership Boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
+- [This Package Does Not Own](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/this-package-does-not-own/)
 - [Capability Map](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/capability-map/)
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/dependencies-and-adjacencies/)
 - [Repository Fit](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/repository-fit/)
@@ -61,10 +68,11 @@ flowchart LR
 
 ## What This Section Settles
 
-- when a behavior is truly lab-facing instead of merely operational
-- how plans and outcomes should stay legible as one loop
-- when a proposed change belongs back in intelligence or runtime instead of in
-  this package
+- when a change truly affects assay consequence instead of only upstream
+  recommendation or runtime delivery
+- which control demands, material limits, and burden signals must remain visible
+- how observed outcomes should feed back into later evidence and recommendation
+  review
 
 ## First Proof Check
 
