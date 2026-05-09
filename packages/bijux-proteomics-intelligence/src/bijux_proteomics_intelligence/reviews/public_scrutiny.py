@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Public scrutiny surfaces for flagship release and trust review."""
+"""Public scrutiny surfaces for flagship release and artifact-role review."""
 
 from __future__ import annotations
 
@@ -18,28 +18,17 @@ from bijux_proteomics_intelligence.reviews.independent_reruns import (
     WorkflowIndependentRerunDossier,
     build_workflow_independent_rerun_dossier_family,
 )
-from bijux_proteomics_intelligence.reviews.outsider_packets import (
-    FlagshipOutsiderReviewPacket,
-    build_flagship_outsider_review_packet_family,
-)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
-)
-from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
-    WorkflowUnsupportedClaimLedger,
-    build_workflow_unsupported_claim_ledger,
 )
 
 __all__ = [
     "PublicArtifactIndex",
     "PublicArtifactIndexEntry",
-    "TrustBreakPage",
-    "TrustBreakPageEntry",
-    "TrustNextPage",
-    "TrustNextPageEntry",
+    "PublicArtifactRoleMatrix",
+    "PublicArtifactRoleMatrixEntry",
     "build_public_artifact_index",
-    "build_trust_break_page",
-    "build_trust_next_page",
+    "build_public_artifact_role_matrix",
 ]
 
 
@@ -53,7 +42,7 @@ _WORKFLOW_FAMILIES: tuple[KnowledgeWorkflowFamily, ...] = (
 
 
 class PublicArtifactIndexEntry(JsonModel):
-    """One reviewer-facing artifact entry in the flagship scrutiny index."""
+    """One reviewer-facing artifact entry in the public scrutiny registry."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -62,70 +51,52 @@ class PublicArtifactIndexEntry(JsonModel):
     owner_package: str = Field(..., min_length=1)
     artifact_kind: str = Field(..., min_length=1)
     locator: str = Field(..., min_length=1)
+    audience: str = Field(..., min_length=1)
+    question_answered: str = Field(..., min_length=1)
+    decision_role: str = Field(..., min_length=1)
+    stronger_neighbor: str | None = None
+    weaker_neighbor: str | None = None
+    coexistence_rationale: str = Field(..., min_length=1)
     why_open_this: str = Field(..., min_length=1)
 
 
 class PublicArtifactIndex(JsonModel):
-    """One public index across the strongest current flagship review surfaces."""
+    """One public index across the strongest current release-facing artifacts."""
 
     model_config = ConfigDict(extra="forbid")
 
     index_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
+    artifact_budget: int = Field(..., ge=1)
     entries: tuple[PublicArtifactIndexEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
-class TrustBreakPageEntry(JsonModel):
-    """One condition that would weaken today's strongest trust surface."""
+class PublicArtifactRoleMatrixEntry(JsonModel):
+    """One role row describing why a public artifact still exists."""
 
     model_config = ConfigDict(extra="forbid")
 
     entry_id: str = Field(..., min_length=1)
     workflow_family: KnowledgeWorkflowFamily | None = None
-    break_condition: str = Field(..., min_length=1)
-    affected_surfaces: tuple[str, ...] = Field(default_factory=tuple)
-    why_it_matters: str = Field(..., min_length=1)
+    artifact_kind: str = Field(..., min_length=1)
+    audience: str = Field(..., min_length=1)
+    decision_role: str = Field(..., min_length=1)
+    question_answered: str = Field(..., min_length=1)
+    stronger_neighbor: str | None = None
+    weaker_neighbor: str | None = None
+    coexistence_rationale: str = Field(..., min_length=1)
 
 
-class TrustBreakPage(JsonModel):
-    """One page explaining how today's bounded trust could fail tomorrow."""
+class PublicArtifactRoleMatrix(JsonModel):
+    """One role matrix showing how adjacent public artifacts differ."""
 
     model_config = ConfigDict(extra="forbid")
 
-    page_id: str = Field(..., min_length=1)
+    matrix_id: str = Field(..., min_length=1)
     doc_path: str = Field(..., min_length=1)
-    entries: tuple[TrustBreakPageEntry, ...] = Field(default_factory=tuple)
+    rows: tuple[PublicArtifactRoleMatrixEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
-
-
-class TrustNextPageEntry(JsonModel):
-    """One strengthening path that would earn more trust next."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    entry_id: str = Field(..., min_length=1)
-    workflow_family: KnowledgeWorkflowFamily | None = None
-    current_claim: str = Field(..., min_length=1)
-    why_still_thin: str = Field(..., min_length=1)
-    strengthening_path: str = Field(..., min_length=1)
-
-
-class TrustNextPage(JsonModel):
-    """One page explaining what would earn stronger trust next."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    page_id: str = Field(..., min_length=1)
-    doc_path: str = Field(..., min_length=1)
-    entries: tuple[TrustNextPageEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-@lru_cache(maxsize=1)
-def _outsider_packets() -> dict[KnowledgeWorkflowFamily, FlagshipOutsiderReviewPacket]:
-    family = build_flagship_outsider_review_packet_family()
-    return {packet.workflow_family: packet for packet in family.packets}
 
 
 @lru_cache(maxsize=1)
@@ -142,12 +113,15 @@ def _external_review_kits() -> dict[KnowledgeWorkflowFamily, WorkflowExternalRev
     return {kit.workflow_family: kit for kit in family.kits}
 
 
-def _ledger(workflow_family: KnowledgeWorkflowFamily) -> WorkflowUnsupportedClaimLedger:
-    return build_workflow_unsupported_claim_ledger(workflow_family)
+def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
+    return (
+        "docs/01-bijux-proteomics/foundation/"
+        f"why-trust-{workflow_family.value}.md"
+    )
 
 
 def build_public_artifact_index() -> PublicArtifactIndex:
-    """Build the flagship public artifact index for hostile review."""
+    """Build the public artifact registry for hostile review."""
 
     entries: list[PublicArtifactIndexEntry] = [
         PublicArtifactIndexEntry(
@@ -156,6 +130,12 @@ def build_public_artifact_index() -> PublicArtifactIndex:
             owner_package="bijux-proteomics-docs",
             artifact_kind="foundation-page",
             locator="docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
+            audience="scientist",
+            question_answered="Which workflow families can the repository defend today?",
+            decision_role="repository-release-boundary",
+            stronger_neighbor="artifact-index:hostile-review-kit",
+            weaker_neighbor="artifact-index:elite-readiness-scorecard",
+            coexistence_rationale="The release-candidate page names the bounded family set, while the hostile review kit is the harder challenge route and the scorecard is the narrower language ceiling.",
             why_open_this="This page names the current outsider-auditable families and the internal-support boundary in one place.",
         ),
         PublicArtifactIndexEntry(
@@ -164,22 +144,75 @@ def build_public_artifact_index() -> PublicArtifactIndex:
             owner_package="bijux-proteomics-docs",
             artifact_kind="foundation-page",
             locator="docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md",
+            audience="maintainer",
+            question_answered="How far may repository-wide language go today?",
+            decision_role="repository-language-ceiling",
+            stronger_neighbor="artifact-index:release-candidate",
+            weaker_neighbor=None,
+            coexistence_rationale="The scorecard is weaker than the release-candidate bundle because it summarizes a boundary rather than naming each family surface.",
             why_open_this="This page states how far public evidence currently authorizes stronger language.",
+        ),
+        PublicArtifactIndexEntry(
+            entry_id="artifact-index:hostile-review-kit",
+            workflow_family=None,
+            owner_package="bijux-proteomics-docs",
+            artifact_kind="foundation-page",
+            locator="docs/01-bijux-proteomics/foundation/hostile-review-kit.md",
+            audience="skeptical outsider",
+            question_answered="What is the shortest whole-repository challenge route?",
+            decision_role="repository-challenge-route",
+            stronger_neighbor=None,
+            weaker_neighbor="artifact-index:release-candidate",
+            coexistence_rationale="The hostile review kit is the strongest whole-repository opening order because it routes directly from the root promise into the hardest challenge surfaces.",
+            why_open_this="This page is the shortest repository-wide challenge order for a skeptical reviewer.",
+        ),
+        PublicArtifactIndexEntry(
+            entry_id="artifact-index:why-not-ready",
+            workflow_family=None,
+            owner_package="bijux-proteomics-docs",
+            artifact_kind="foundation-page",
+            locator="docs/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet.md",
+            audience="reviewer",
+            question_answered="Which blocked release bars still fail right now?",
+            decision_role="repository-blocker-ledger",
+            stronger_neighbor="artifact-index:what-makes-ready",
+            weaker_neighbor="artifact-index:elite-readiness-scorecard",
+            coexistence_rationale="This page names live blockers, while its paired next-step page turns those same categories into closing conditions instead of duplicating softer trust prose.",
+            why_open_this="This page shows the live blocker categories that still prevent stronger release language.",
+        ),
+        PublicArtifactIndexEntry(
+            entry_id="artifact-index:what-makes-ready",
+            workflow_family=None,
+            owner_package="bijux-proteomics-docs",
+            artifact_kind="foundation-page",
+            locator="docs/01-bijux-proteomics/foundation/what-would-make-this-repository-ready.md",
+            audience="maintainer",
+            question_answered="What concrete evidence would move the release boundary next?",
+            decision_role="repository-closing-conditions",
+            stronger_neighbor=None,
+            weaker_neighbor="artifact-index:why-not-ready",
+            coexistence_rationale="This page exists next to the blocker ledger because closing conditions are an action surface, not just a list of current failures.",
+            why_open_this="This page turns blocked release bars into explicit closing conditions instead of roadmap theater.",
         ),
     ]
     for workflow_family in _WORKFLOW_FAMILIES:
-        packet = _outsider_packets()[workflow_family]
         rerun_dossier = _independent_rerun_dossiers()[workflow_family]
         review_kit = _external_review_kits()[workflow_family]
         entries.extend(
             (
                 PublicArtifactIndexEntry(
-                    entry_id=f"artifact-index:{workflow_family.value}:outsider-packet",
+                    entry_id=f"artifact-index:{workflow_family.value}:trust-page",
                     workflow_family=workflow_family,
-                    owner_package="bijux-proteomics-intelligence",
-                    artifact_kind="outsider-packet",
-                    locator=packet.packet_id,
-                    why_open_this="This is the shortest owner-facing packet that ties benchmark, comparator, recommendation, and consequence surfaces together.",
+                    owner_package="bijux-proteomics-docs",
+                    artifact_kind="workflow-trust-page",
+                    locator=_trust_page_path(workflow_family),
+                    audience="scientist",
+                    question_answered=f"Why does {workflow_family.value} still earn bounded outsider-auditable language today?",
+                    decision_role="workflow-justification",
+                    stronger_neighbor=f"artifact-index:{workflow_family.value}:external-review-kit",
+                    weaker_neighbor="artifact-index:release-candidate",
+                    coexistence_rationale="The trust page narrows one workflow-family sentence, while the release-candidate page names the broader family set and the external review kit is the harder challenge lane.",
+                    why_open_this="This page states the exact bounded sentence that the current workflow-family evidence can still carry.",
                 ),
                 PublicArtifactIndexEntry(
                     entry_id=f"artifact-index:{workflow_family.value}:independent-rerun",
@@ -187,6 +220,12 @@ def build_public_artifact_index() -> PublicArtifactIndex:
                     owner_package="bijux-proteomics-intelligence",
                     artifact_kind="independent-rerun-dossier",
                     locator=rerun_dossier.artifact_path,
+                    audience="operator",
+                    question_answered=f"Can {workflow_family.value} survive a second checked rerun challenge?",
+                    decision_role="workflow-rerun-challenge",
+                    stronger_neighbor=f"artifact-index:{workflow_family.value}:external-review-kit",
+                    weaker_neighbor=f"artifact-index:{workflow_family.value}:trust-page",
+                    coexistence_rationale="The rerun dossier exists because the trust page alone is too claim-oriented, while the external review kit is the stronger outsider path that packages the dossier with the key benchmark and recommendation files.",
                     why_open_this="This dossier explains how the workflow claim survives a paired rerun or cross-package challenge instead of one convenient flagship package.",
                 ),
                 PublicArtifactIndexEntry(
@@ -195,6 +234,12 @@ def build_public_artifact_index() -> PublicArtifactIndex:
                     owner_package="bijux-proteomics-intelligence",
                     artifact_kind="external-review-kit",
                     locator=review_kit.artifact_path,
+                    audience="skeptical outsider",
+                    question_answered=f"What should an outsider open to challenge the {workflow_family.value} sentence?",
+                    decision_role="workflow-outsider-challenge",
+                    stronger_neighbor=None,
+                    weaker_neighbor=f"artifact-index:{workflow_family.value}:independent-rerun",
+                    coexistence_rationale="The external review kit remains the strongest family-level challenge artifact because it packages the rerun lane with the benchmark, recommendation, and consequence surfaces needed to reject the claim honestly.",
                     why_open_this="This kit is the shortest outsider route through the shipped files needed to challenge the current bounded claim.",
                 ),
             )
@@ -202,6 +247,7 @@ def build_public_artifact_index() -> PublicArtifactIndex:
     return PublicArtifactIndex(
         index_id="flagship-public-artifact-index",
         artifact_path="artifacts/intelligence/public-scrutiny/flagship_public_artifact_index.json",
+        artifact_budget=20,
         entries=tuple(entries),
         note=(
             "The index exists so a hostile reader can open the strongest current surfaces in a stable order instead of reverse-engineering the repository by package structure."
@@ -209,92 +255,29 @@ def build_public_artifact_index() -> PublicArtifactIndex:
     )
 
 
-def build_trust_break_page() -> TrustBreakPage:
-    """Build the page describing what would weaken current flagship trust tomorrow."""
+def build_public_artifact_role_matrix() -> PublicArtifactRoleMatrix:
+    """Build the role matrix that explains why each public artifact still exists."""
 
-    entries: list[TrustBreakPageEntry] = [
-        TrustBreakPageEntry(
-            entry_id="trust-break:repository",
-            workflow_family=None,
-            break_condition=(
-                "If the repository stops shipping one coherent artifact index, release-candidate page, and review-kit path, current bounded trust becomes maintainer-memory dependent again."
-            ),
-            affected_surfaces=(
-                "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
-                "docs/01-bijux-proteomics/foundation/elite-readiness-scorecard.md",
-                "artifacts/intelligence/public-scrutiny/flagship_public_artifact_index.json",
-            ),
-            why_it_matters=(
-                "The proof boundary is already narrow. If the navigation layer drifts, the remaining trust becomes harder to audit than it is to claim."
-            ),
+    index = build_public_artifact_index()
+    rows = tuple(
+        PublicArtifactRoleMatrixEntry(
+            entry_id=entry.entry_id,
+            workflow_family=entry.workflow_family,
+            artifact_kind=entry.artifact_kind,
+            audience=entry.audience,
+            decision_role=entry.decision_role,
+            question_answered=entry.question_answered,
+            stronger_neighbor=entry.stronger_neighbor,
+            weaker_neighbor=entry.weaker_neighbor,
+            coexistence_rationale=entry.coexistence_rationale,
         )
-    ]
-    for workflow_family in _WORKFLOW_FAMILIES:
-        packet = _outsider_packets()[workflow_family]
-        rerun_dossier = _independent_rerun_dossiers()[workflow_family]
-        review_kit = _external_review_kits()[workflow_family]
-        entries.append(
-            TrustBreakPageEntry(
-                entry_id=f"trust-break:{workflow_family.value}",
-                workflow_family=workflow_family,
-                break_condition=(
-                    f"If {workflow_family.value} loses either its companion rerun dossier or its outsider review kit, the current bounded outsider-auditable sentence becomes too governance-dependent again."
-                ),
-                affected_surfaces=(
-                    packet.packet_id,
-                    rerun_dossier.dossier_id,
-                    review_kit.kit_id,
-                ),
-                why_it_matters=(
-                    "The current trust boundary depends on more than one flagship package. Lose the paired challenge path and the sentence falls back toward one-package optimism."
-                ),
-            )
-        )
-    return TrustBreakPage(
-        page_id="what-breaks-elite-trust",
-        doc_path="docs/01-bijux-proteomics/foundation/what-breaks-elite-trust.md",
-        entries=tuple(entries),
-        note=(
-            "The page is intentionally about fragile current trust, not imaginary future prestige."
-        ),
+        for entry in index.entries
     )
-
-
-def build_trust_next_page() -> TrustNextPage:
-    """Build the page describing what would earn stronger trust next."""
-
-    entries: list[TrustNextPageEntry] = []
-    for workflow_family in _WORKFLOW_FAMILIES:
-        ledger_entry = _ledger(workflow_family).entries[0]
-        entries.append(
-            TrustNextPageEntry(
-                entry_id=f"trust-next:{workflow_family.value}",
-                workflow_family=workflow_family,
-                current_claim=ledger_entry.claim_text,
-                why_still_thin=ledger_entry.why_still_thin,
-                strengthening_path=ledger_entry.strengthening_path,
-            )
-        )
-    entries.append(
-        TrustNextPageEntry(
-            entry_id="trust-next:repository",
-            workflow_family=None,
-            current_claim=(
-                "The repository may talk about bounded outsider-auditable workflow families, but not about repository-wide elite or reliable scientific authority."
-            ),
-            why_still_thin=(
-                "Multiple workflow families are bounded and real, but the strongest current trust still depends on advisory comparator posture, narrow rerun surfaces, and benchmark-simulated consequence loops."
-            ),
-            strengthening_path=(
-                "Earn more than one stronger supported comparator and consequence loop first, then let the README and release pages move only after repository truth stops blocking the language."
-            ),
-        )
-    )
-    return TrustNextPage(
-        page_id="what-earns-elite-trust-next",
-        doc_path="docs/01-bijux-proteomics/foundation/what-earns-elite-trust-next.md",
-        entries=tuple(entries),
+    return PublicArtifactRoleMatrix(
+        matrix_id="public-artifact-role-matrix",
+        doc_path="docs/01-bijux-proteomics/foundation/public-artifact-role-matrix.md",
+        rows=rows,
         note=(
-            "The page names the next hard proof moves instead of generic improvement wishes."
+            "The role matrix exists so new public artifacts must justify a distinct decision role instead of piling up as adjacent trust-shaped noise."
         ),
     )

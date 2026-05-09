@@ -58,4 +58,4 @@ scorecard, the wording is wrong until the shipped evidence moves first.
 
 When that question becomes more specific than a table can answer, open the
 independent rerun dossiers, external review kits, public artifact index, and
-the two trust-boundary pages before widening any language by hand.
+the public artifact role matrix before widening any language by hand.

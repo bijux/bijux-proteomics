@@ -71,12 +71,13 @@ convenient flagship package.
   - [Independent Rerun Dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
   - [External Review Kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
   - [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+  - [Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
   - [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
   - [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
-  - [What Breaks Elite Trust](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-breaks-elite-trust/)
-  - [What Earns Elite Trust Next](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-earns-elite-trust-next/)
 
 The public artifact index is the stable opening-order registry for the bundle.
+The public artifact role matrix is the stable coexistence map that shows why
+each shipped artifact still exists beside its stronger or weaker neighbors.
 The hostile review kit is the stable whole-repository challenge route for the
 bundle.
 The release narrowing protocol is the stable language-demotion rule set for the

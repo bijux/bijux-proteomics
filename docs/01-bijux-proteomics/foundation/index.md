@@ -80,6 +80,8 @@ This section should move a reader from system-level confusion to a package-level
 - Open [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
   when the question is where a hostile reader should actually start opening
   files.
+- Open [Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
+  when the question is why several public surfaces still coexist instead of collapsing into one page.
 
 ## Section Pages
 
@@ -104,10 +106,9 @@ This section should move a reader from system-level confusion to a package-level
 - [Independent Rerun Dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
 - [External Review Kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
 - [Public Artifact Index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+- [Public Artifact Role Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-role-matrix/)
 - [Why This Repository Is Not Ready Yet](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/why-this-repository-is-not-ready-yet/)
 - [What Would Make This Repository Ready](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-would-make-this-repository-ready/)
-- [What Breaks Elite Trust](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-breaks-elite-trust/)
-- [What Earns Elite Trust Next](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-earns-elite-trust-next/)
 
 ## What This Section Settles
 

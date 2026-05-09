@@ -58,9 +58,8 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "elite-readiness-scorecard.md" in text
     assert "workflow-claim-limits.md" in text
     assert "why-multiplex-stops-at-internal-support.md" in text
-    assert "what-breaks-elite-trust.md" in text
-    assert "what-earns-elite-trust-next.md" in text
     assert "public-artifact-index.md" in text
+    assert "public-artifact-role-matrix.md" in text
     assert "validate_workflow_public_scrutiny()" in text
 
 

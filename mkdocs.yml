@@ -71,6 +71,7 @@ nav:
           - Decision Rules: 01-bijux-proteomics/foundation/decision-rules.md
           - Release Readiness Matrix: 01-bijux-proteomics/foundation/release-readiness-matrix.md
           - What One Workflow Family Supports Today: 01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md
+          - Public Artifact Role Matrix: 01-bijux-proteomics/foundation/public-artifact-role-matrix.md
           - Scientific Workflow Roadmap: 01-bijux-proteomics/foundation/scientific-workflow-roadmap.md
           - Current Capability Limits: 01-bijux-proteomics/foundation/current-capability-limits.md
           - Duplicate Model Ownership: 01-bijux-proteomics/foundation/duplicate-model-ownership.md
