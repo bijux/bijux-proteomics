@@ -124,6 +124,14 @@ across knowledge, intelligence, and lab. If those owners disagree on the
 current strongest allowed posture, or if the shared consequence docs drift from
 the live package surfaces, stronger recommendation language must stop.
 
+Repository truth should not be cited without those shared consequence surfaces.
+Its evidence path now includes:
+
+- `docs/decision-support/workflow-consequence-maps.md`
+- `docs/decision-support/what-changed-the-recommendation.md`
+- `docs/lab-consequence/outcome-learning-loops.md`
+- `docs/lab-consequence/workflow-refusal-handbook.md`
+
 Open these consequence routes before widening recommendation or assay-facing
 language:
 

@@ -30,6 +30,9 @@ from bijux_proteomics_dev.release.governance.generated_governance_freshness impo
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     build_package_family_readiness_reports,
 )
+from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
+    validate_workflow_consequence_coherence,
+)
 from bijux_proteomics_dev.release.governance.public_artifact_governance import (
     validate_public_artifact_governance,
 )
@@ -112,6 +115,9 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     workflow_claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
     workflow_intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     workflow_lab_consequence_issues = validate_workflow_lab_consequence()
+    workflow_consequence_issues = validate_workflow_consequence_coherence(
+        repo_root=repo_root
+    )
     workflow_public_scrutiny_issues = validate_workflow_public_scrutiny(repo_root)
     freshness_issues = validate_generated_governance_freshness()
     package_hygiene_issues = validate_package_root_hygiene(repo_root)
@@ -183,6 +189,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"workflow-lab-consequence-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in workflow_consequence_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"workflow-consequence-coherence-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -315,6 +328,10 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             acceptance_dashboard.artifact_path,
             public_artifact_index.artifact_path,
             public_artifact_role_matrix.doc_path,
+            "docs/decision-support/workflow-consequence-maps.md",
+            "docs/decision-support/what-changed-the-recommendation.md",
+            "docs/lab-consequence/outcome-learning-loops.md",
+            "docs/lab-consequence/workflow-refusal-handbook.md",
         ),
         blockers=tuple(blockers),
     )

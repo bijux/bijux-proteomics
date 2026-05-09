@@ -27,6 +27,8 @@ def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestl
     assert report.reopened_completion_claim_package_names == ()
     assert report.completion_claim_package_names == ()
     assert report.evidence_paths
+    assert "docs/decision-support/workflow-consequence-maps.md" in report.evidence_paths
+    assert "docs/lab-consequence/workflow-refusal-handbook.md" in report.evidence_paths
     assert any(
         issue.code == "architectural-ready-floor-not-met"
         for issue in report.blockers
@@ -403,6 +405,109 @@ def test_repository_truth_report_blocks_lab_consequence_without_outcome_evidence
         code="workflow-lab-consequence-lab-consequential-without-outcome-dossier",
         detail=(
             "dda is called lab-consequential without a shipped requested-versus-observed outcome dossier"
+        ),
+    ) in report.blockers
+
+
+def test_repository_truth_report_blocks_consequence_chain_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_scorecard_report",
+        lambda: SimpleNamespace(entries=(SimpleNamespace(architectural_ready=True),)),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_reopened_completion_claim_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_readme_maturity_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_family_readiness_reports",
+        lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        lambda repo_root=None: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_scientific_release_dossier",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_authority_docs",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_claim_grounding",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_intelligence_confidence",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_lab_consequence",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_consequence_coherence",
+        lambda repo_root: (
+            SimpleNamespace(
+                code="family-posture-mismatch",
+                detail=(
+                    "lfq allows recommend_with_downgrade in intelligence but the shared consequence map still pins do_not_recommend"
+                ),
+            ),
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_public_scrutiny",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_generated_governance_freshness",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.compare_ranking_policies_against_benchmark_corpus",
+        lambda legacy, flagship: SimpleNamespace(
+            decision_improved=True,
+            corpus_id="mock-corpus",
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
+        lambda: SimpleNamespace(artifact_path="acceptance_dashboard.json", rows=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_index",
+        lambda: SimpleNamespace(
+            artifact_path="artifact_index.json",
+            entries=tuple(SimpleNamespace(entry_id=f"entry-{index}") for index in range(17)),
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_role_matrix",
+        lambda: SimpleNamespace(doc_path="public-artifact-role-matrix.md", rows=(1,)),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_public_artifact_governance",
+        lambda: (),
+    )
+
+    report = build_repository_truth_report(REPO_ROOT)
+
+    assert RepositoryTruthIssue(
+        code="workflow-consequence-coherence-family-posture-mismatch",
+        detail=(
+            "lfq allows recommend_with_downgrade in intelligence but the shared consequence map still pins do_not_recommend"
         ),
     ) in report.blockers
 
