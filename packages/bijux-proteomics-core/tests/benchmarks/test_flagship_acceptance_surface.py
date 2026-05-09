@@ -42,9 +42,12 @@ def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
         for sheet in sheets
         if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
     )
-    assert build_flagship_acceptance_sheet(
-        KnowledgeWorkflowFamily.MULTIPLEX
-    ).acceptance_passed is False
+    assert (
+        build_flagship_acceptance_sheet(
+            KnowledgeWorkflowFamily.MULTIPLEX
+        ).acceptance_passed
+        is False
+    )
     assert all(
         sheet.earned_release_language
         is AcceptanceReleaseLanguage.OUTSIDER_AUDITABLE_BOUNDED
@@ -52,8 +55,7 @@ def test_flagship_acceptance_surface_starts_with_dda_and_dia() -> None:
         if sheet.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
     )
     assert all(
-        sheet.earned_release_language
-        is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+        sheet.earned_release_language is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
         for sheet in sheets
         if sheet.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     )
@@ -69,7 +71,9 @@ def test_dda_acceptance_sheet_keeps_decoy_and_comparator_thresholds_explicit() -
     assert criteria["dda_comparator_divergence_tolerance"].observed_value == "advisory"
 
 
-def test_dia_acceptance_sheet_keeps_library_and_absent_expected_thresholds_explicit() -> None:
+def test_dia_acceptance_sheet_keeps_library_and_absent_expected_thresholds_explicit() -> (
+    None
+):
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.DIA)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
@@ -79,7 +83,9 @@ def test_dia_acceptance_sheet_keeps_library_and_absent_expected_thresholds_expli
     assert criteria["dia_quantitative_coherence"].observed_value == "0.33"
 
 
-def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_explicit() -> None:
+def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_explicit() -> (
+    None
+):
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.LFQ)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
@@ -89,20 +95,26 @@ def test_lfq_acceptance_sheet_keeps_repeatability_and_promotion_thresholds_expli
     assert criteria["lfq_differential_reproducibility"].observed_value == "24"
 
 
-def test_multiplex_acceptance_sheet_fails_and_keeps_internal_support_only_honest() -> None:
+def test_multiplex_acceptance_sheet_fails_and_keeps_internal_support_only_honest() -> (
+    None
+):
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.MULTIPLEX)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
     assert sheet.acceptance_passed is False
     assert sheet.claim_ahead_of_evidence is False
-    assert sheet.earned_release_language is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+    assert (
+        sheet.earned_release_language is AcceptanceReleaseLanguage.INTERNAL_SUPPORT_ONLY
+    )
     assert criteria["multiplex_interference"].observed_value == "2"
     assert criteria["multiplex_channel_dropout"].observed_value == "1"
     assert criteria["multiplex_ratio_compression"].observed_value == "2"
     assert criteria["multiplex_downstream_review_promotion"].observed_value == "refused"
 
 
-def test_ptm_acceptance_sheet_keeps_ambiguity_and_family_scope_thresholds_explicit() -> None:
+def test_ptm_acceptance_sheet_keeps_ambiguity_and_family_scope_thresholds_explicit() -> (
+    None
+):
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.PTM)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
@@ -114,7 +126,9 @@ def test_ptm_acceptance_sheet_keeps_ambiguity_and_family_scope_thresholds_explic
     assert criteria["ptm_occupancy_stability"].observed_value == "4"
 
 
-def test_targeted_acceptance_sheet_keeps_follow_up_promotion_thresholds_explicit() -> None:
+def test_targeted_acceptance_sheet_keeps_follow_up_promotion_thresholds_explicit() -> (
+    None
+):
     sheet = build_flagship_acceptance_sheet(KnowledgeWorkflowFamily.TARGETED)
     criteria = {criterion.criterion_id: criterion for criterion in sheet.criteria}
 
@@ -129,7 +143,9 @@ def test_targeted_acceptance_sheet_keeps_follow_up_promotion_thresholds_explicit
 
 def test_published_acceptance_json_matches_live_surface() -> None:
     for sheet in list_flagship_acceptance_sheets():
-        payload = json.loads((REPO_ROOT / sheet.artifact_path).read_text(encoding="utf-8"))
+        payload = json.loads(
+            (REPO_ROOT / sheet.artifact_path).read_text(encoding="utf-8")
+        )
         assert payload["sheet_id"] == sheet.sheet_id
         assert payload["workflow_family"] == sheet.workflow_family.value
         assert payload["acceptance_passed"] is sheet.acceptance_passed
@@ -165,7 +181,8 @@ def test_acceptance_rationale_dossier_ties_thresholds_to_real_evidence() -> None
     assert dossier.artifact_path.endswith("acceptance_rationale_dossier.json")
     assert len(dossier.entries) == 30
     assert any(
-        "challenge evidence is part of this threshold" in entry.benchmark_difficulty_basis
+        "challenge evidence is part of this threshold"
+        in entry.benchmark_difficulty_basis
         for entry in dossier.entries
         if entry.workflow_family is not KnowledgeWorkflowFamily.MULTIPLEX
     )

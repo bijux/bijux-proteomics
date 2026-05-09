@@ -243,19 +243,13 @@ def _wilson_interval(
     proportion = success_count / total_count
     z_squared = z_score * z_score
     denominator = 1.0 + (z_squared / total_count)
-    center = (
-        proportion
-        + (z_squared / (2.0 * total_count))
-    ) / denominator
-    margin = (
-        z_score
-        * math.sqrt(
-            (
-                (proportion * (1.0 - proportion) / total_count)
-                + (z_squared / (4.0 * total_count * total_count))
-            )
-            / denominator
+    center = (proportion + (z_squared / (2.0 * total_count))) / denominator
+    margin = z_score * math.sqrt(
+        (
+            (proportion * (1.0 - proportion) / total_count)
+            + (z_squared / (4.0 * total_count * total_count))
         )
+        / denominator
     )
     return (max(0.0, center - margin), min(1.0, center + margin))
 
@@ -368,9 +362,7 @@ def build_entrapment_evaluation_report(
     """Quantify entrapment hits instead of treating entrapment as prose-only support."""
     entrapment_set = {protein_ref.strip() for protein_ref in entrapment_protein_refs}
     matched_records = tuple(
-        record
-        for record in records
-        if entrapment_set.intersection(record.protein_refs)
+        record for record in records if entrapment_set.intersection(record.protein_refs)
     )
     accepted_records = tuple(
         record
@@ -449,7 +441,8 @@ def build_fdr_stress_case_report(
         if record.q_value is not None and record.q_value <= accepted_q_value_threshold
     )
     accepted_decoy_count = sum(
-        record.target_decoy_label is TargetDecoyLabel.DECOY for record in accepted_records
+        record.target_decoy_label is TargetDecoyLabel.DECOY
+        for record in accepted_records
     )
     total_decoy_count = sum(
         record.target_decoy_label is TargetDecoyLabel.DECOY for record in records

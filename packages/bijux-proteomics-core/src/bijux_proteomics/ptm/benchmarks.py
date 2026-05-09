@@ -21,6 +21,7 @@ from bijux_proteomics.ptm.proteoforms import (
     build_proteoform_identity,
 )
 from bijux_proteomics.ptm.review import (
+    PtmOccupancyCounterpartEvidenceEntry,
     build_acetyl_specific_review_fixture_report,
     build_phospho_specific_review_fixture_report,
     build_ptm_motif_enrichment_background_provenance_report,
@@ -285,7 +286,9 @@ def build_ptm_localization_confidence_benchmark_report(
             note = "site has high localization support and sufficient fragment-ion evidence"
         elif node.localization_probability >= supported_probability_threshold:
             tier = PtmLocalizationConfidenceTier.SUPPORTED
-            note = "site is reviewable but still short of decisive localization evidence"
+            note = (
+                "site is reviewable but still short of decisive localization evidence"
+            )
         else:
             tier = PtmLocalizationConfidenceTier.REFUSED
             note = "site localization remains too weak for site-level claims"
@@ -304,16 +307,24 @@ def build_ptm_localization_confidence_benchmark_report(
     return PtmLocalizationConfidenceBenchmarkReport(
         entries=tuple(entries),
         decisive_count=sum(
-            1 for entry in entries if entry.confidence_tier is PtmLocalizationConfidenceTier.DECISIVE
+            1
+            for entry in entries
+            if entry.confidence_tier is PtmLocalizationConfidenceTier.DECISIVE
         ),
         supported_count=sum(
-            1 for entry in entries if entry.confidence_tier is PtmLocalizationConfidenceTier.SUPPORTED
+            1
+            for entry in entries
+            if entry.confidence_tier is PtmLocalizationConfidenceTier.SUPPORTED
         ),
         ambiguous_count=sum(
-            1 for entry in entries if entry.confidence_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
+            1
+            for entry in entries
+            if entry.confidence_tier is PtmLocalizationConfidenceTier.AMBIGUOUS
         ),
         refused_count=sum(
-            1 for entry in entries if entry.confidence_tier is PtmLocalizationConfidenceTier.REFUSED
+            1
+            for entry in entries
+            if entry.confidence_tier is PtmLocalizationConfidenceTier.REFUSED
         ),
         ready_for_site_level_claims=all(
             entry.confidence_tier
@@ -337,7 +348,7 @@ def build_ptm_ambiguity_propagation_benchmark_report(
         site_entries,
         feature_records=feature_records,
     )
-    occupancy_by_site: dict[str, list] = {}
+    occupancy_by_site: dict[str, list[PtmOccupancyCounterpartEvidenceEntry]] = {}
     for entry in occupancy_report.entries:
         occupancy_by_site.setdefault(entry.site_key, []).append(entry)
     report_entries: list[PtmAmbiguityPropagationBenchmarkEntry] = []
@@ -422,13 +433,19 @@ def build_ptm_motif_credibility_benchmark_report(
     )
     caveats: list[str] = list(report.caveats)
     if foreground_count < minimum_foreground_site_count:
-        caveats.append("foreground site count is too small for strong motif biology claims")
+        caveats.append(
+            "foreground site count is too small for strong motif biology claims"
+        )
     if ambiguous_fraction > maximum_ambiguous_site_fraction:
-        caveats.append("site ambiguity fraction is high enough to weaken motif interpretation")
+        caveats.append(
+            "site ambiguity fraction is high enough to weaken motif interpretation"
+        )
     if dominant_fraction > maximum_dominant_protein_fraction:
         caveats.append("motif signal is concentrated in too few proteins")
     disposition = (
-        PtmMotifCredibilityDisposition.CREDIBLE if not caveats else PtmMotifCredibilityDisposition.INTERPRETIVE_ONLY
+        PtmMotifCredibilityDisposition.CREDIBLE
+        if not caveats
+        else PtmMotifCredibilityDisposition.INTERPRETIVE_ONLY
     )
     return PtmMotifCredibilityBenchmarkReport(
         modification_name=modification_name,
@@ -482,8 +499,13 @@ def build_ptm_lab_targeting_rubric_report(
         if site_entry.ambiguous:
             rationale.append("site localization remains ambiguous")
         if not occupancy_complete:
-            rationale.append("modified and unmodified counterpart evidence is incomplete")
-        if site_entry.best_q_value is None or site_entry.best_q_value > maximum_site_q_value:
+            rationale.append(
+                "modified and unmodified counterpart evidence is incomplete"
+            )
+        if (
+            site_entry.best_q_value is None
+            or site_entry.best_q_value > maximum_site_q_value
+        ):
             rationale.append("site-level q-value remains too weak for lab targeting")
         disposition = (
             PtmLabTargetingDisposition.TARGETABLE
@@ -491,7 +513,9 @@ def build_ptm_lab_targeting_rubric_report(
             else PtmLabTargetingDisposition.INTERPRETIVE_ONLY
         )
         if not rationale:
-            rationale.append("site clears localization, occupancy, and q-value requirements")
+            rationale.append(
+                "site clears localization, occupancy, and q-value requirements"
+            )
         entries.append(
             PtmLabTargetingRubricEntry(
                 site_key=site_entry.site_key,
@@ -506,7 +530,9 @@ def build_ptm_lab_targeting_rubric_report(
     return PtmLabTargetingRubricReport(
         entries=tuple(entries),
         targetable_count=sum(
-            1 for entry in entries if entry.disposition is PtmLabTargetingDisposition.TARGETABLE
+            1
+            for entry in entries
+            if entry.disposition is PtmLabTargetingDisposition.TARGETABLE
         ),
         interpretive_only_count=sum(
             1
@@ -535,7 +561,9 @@ def build_ptm_raw_spectrum_validation_lane_report(
         for spectrum_id in localized_spectrum_ids
         if not fragment_ion_support_by_spectrum.get(spectrum_id)
     )
-    ready = len(fragment_supported) == len(localized_spectrum_ids) and bool(fragment_supported)
+    ready = len(fragment_supported) == len(localized_spectrum_ids) and bool(
+        fragment_supported
+    )
     return PtmRawSpectrumValidationLaneReport(
         raw_spectrum_artifact_path=raw_spectrum_artifact_path,
         localized_spectrum_count=len(localized_spectrum_ids),
@@ -711,10 +739,14 @@ def build_ptm_occupancy_stress_benchmark_report(
         feature_records=stressed_feature_records,
     )
     baseline_complete = sum(
-        1 for entry in baseline.entries if entry.uncertainty is PtmOccupancyUncertainty.NONE
+        1
+        for entry in baseline.entries
+        if entry.uncertainty is PtmOccupancyUncertainty.NONE
     )
     stressed_complete = sum(
-        1 for entry in stressed.entries if entry.uncertainty is PtmOccupancyUncertainty.NONE
+        1
+        for entry in stressed.entries
+        if entry.uncertainty is PtmOccupancyUncertainty.NONE
     )
     denominator = max(baseline_complete, 1)
     shift_fraction = abs(baseline_complete - stressed_complete) / denominator

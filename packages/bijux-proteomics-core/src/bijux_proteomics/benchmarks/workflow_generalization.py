@@ -219,7 +219,9 @@ def _json_size_measure(repo_relative_path: str) -> int:
 
 
 def _mgf_spectrum_count(repo_relative_path: str) -> int:
-    return _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    return (
+        _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    )
 
 
 def _optional_row_count(asset: FlagshipPublicBenchmarkAsset) -> int | None:
@@ -932,7 +934,9 @@ def build_secondary_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPac
     )
 
 
-def build_secondary_multiplex_public_benchmark_package() -> FlagshipPublicBenchmarkPackage:
+def build_secondary_multiplex_public_benchmark_package() -> (
+    FlagshipPublicBenchmarkPackage
+):
     package_root = _package_root("multiplex_channel_stress_review_package")
     return FlagshipPublicBenchmarkPackage(
         package_id="public_companion_package:multiplex_channel_stress_review_package",
@@ -1000,7 +1004,9 @@ def build_secondary_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPac
     )
 
 
-def build_secondary_targeted_public_benchmark_package() -> FlagshipPublicBenchmarkPackage:
+def build_secondary_targeted_public_benchmark_package() -> (
+    FlagshipPublicBenchmarkPackage
+):
     package_root = _package_root("targeted_carryover_review_package")
     return FlagshipPublicBenchmarkPackage(
         package_id="public_companion_package:targeted_carryover_review_package",
@@ -1070,7 +1076,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:dda_cross_engine_review_package",
             workflow_family="dda",
-            quality_path=_quality_path(_package_root("dda_cross_engine_review_package")),
+            quality_path=_quality_path(
+                _package_root("dda_cross_engine_review_package")
+            ),
             raw_identity_state="raw-like spectrum plus Comet and Sage exported-result snapshots are tracked",
             runtime_state="reviewable import-only runtime lane exists",
             comparator_state="Comet-versus-Sage confrontation is shipped",
@@ -1089,7 +1097,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:dia_matrix_shift_review_package",
             workflow_family="dia",
-            quality_path=_quality_path(_package_root("dia_matrix_shift_review_package")),
+            quality_path=_quality_path(
+                _package_root("dia_matrix_shift_review_package")
+            ),
             raw_identity_state="DIA-NN report and export snapshots are tracked with explicit matrix-shift pressure",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="DIA-NN-versus-Spectronaut confrontation is shipped",
@@ -1108,7 +1118,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:lfq_sparse_contrast_review_package",
             workflow_family="lfq",
-            quality_path=_quality_path(_package_root("lfq_sparse_contrast_review_package")),
+            quality_path=_quality_path(
+                _package_root("lfq_sparse_contrast_review_package")
+            ),
             raw_identity_state="sparser cohort-like feature and design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="bounded external comparator confrontation is shipped",
@@ -1127,7 +1139,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:multiplex_channel_stress_review_package",
             workflow_family="multiplex",
-            quality_path=_quality_path(_package_root("multiplex_channel_stress_review_package")),
+            quality_path=_quality_path(
+                _package_root("multiplex_channel_stress_review_package")
+            ),
             raw_identity_state="derived channel-stress feature and design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="external confrontation exists, but public authority remains internal-support only",
@@ -1146,7 +1160,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:ptm_ambiguity_stress_review_package",
             workflow_family="ptm",
-            quality_path=_quality_path(_package_root("ptm_ambiguity_stress_review_package")),
+            quality_path=_quality_path(
+                _package_root("ptm_ambiguity_stress_review_package")
+            ),
             raw_identity_state="ambiguity-stress localization evidence is tracked with feature, FASTA, and spectra context",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="bounded external confrontation is shipped",
@@ -1165,7 +1181,9 @@ def build_secondary_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="public_companion_package:targeted_carryover_review_package",
             workflow_family="targeted",
-            quality_path=_quality_path(_package_root("targeted_carryover_review_package")),
+            quality_path=_quality_path(
+                _package_root("targeted_carryover_review_package")
+            ),
             raw_identity_state="carryover-stress targeted QC and follow-up evidence are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="bounded Skyline-class comparator confrontation is shipped",
@@ -1209,7 +1227,9 @@ def build_secondary_public_package_lifecycle_records() -> tuple[
     )
 
 
-def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAssetRegistry:
+def build_secondary_public_package_asset_registry() -> (
+    SecondaryPublicPackageAssetRegistry
+):
     """Return the asset registry for all companion public packages."""
 
     entries = (
@@ -1467,7 +1487,9 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
                 _remote_source(
                     source_id="multiplex-companion:stress-features",
                     public_source_name="Channel-stress multiplex feature snapshot",
-                    package_root=_package_root("multiplex_channel_stress_review_package"),
+                    package_root=_package_root(
+                        "multiplex_channel_stress_review_package"
+                    ),
                     local_relative="evidence/multiplex_channel_stress_ms1_features.tsv",
                     upstream_repo_source_path="packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
                     public_reference_url="https://github.com/bijux/bijux-proteomics",
@@ -1486,13 +1508,17 @@ def build_secondary_public_package_asset_registry() -> SecondaryPublicPackageAss
             ),
             generated_boundaries=(
                 _boundary(
-                    package_root=_package_root("multiplex_channel_stress_review_package"),
+                    package_root=_package_root(
+                        "multiplex_channel_stress_review_package"
+                    ),
                     artifact_relative="README.md",
                     boundary_kind=FlagshipAssetBoundaryKind.CURATED_README,
                     note="README is human-authored to explain channel-stress pressure in the multiplex companion package.",
                 ),
                 _boundary(
-                    package_root=_package_root("multiplex_channel_stress_review_package"),
+                    package_root=_package_root(
+                        "multiplex_channel_stress_review_package"
+                    ),
                     artifact_relative="evidence/multiplex_channel_stress_ms1_features.tsv",
                     boundary_kind=FlagshipAssetBoundaryKind.GENERATED_REPORT,
                     note="The stress feature table is derived from the flagship multiplex features with stronger imbalance and dropout pressure.",
@@ -1685,12 +1711,19 @@ def _stability_score(
     findings: tuple[WorkflowGeneralizationFinding, ...],
 ) -> float:
     weakened = sum(
-        1 for finding in findings if finding.state is WorkflowGeneralizationFindingState.WEAKENS
+        1
+        for finding in findings
+        if finding.state is WorkflowGeneralizationFindingState.WEAKENS
     )
     collapsed = sum(
-        1 for finding in findings if finding.state is WorkflowGeneralizationFindingState.COLLAPSES
+        1
+        for finding in findings
+        if finding.state is WorkflowGeneralizationFindingState.COLLAPSES
     )
-    metric_pressure = sum(min(abs(delta.delta) / max(delta.primary_value, 1.0), 1.0) for delta in metric_deltas)
+    metric_pressure = sum(
+        min(abs(delta.delta) / max(delta.primary_value, 1.0), 1.0)
+        for delta in metric_deltas
+    )
     raw_score = 1.0 - (0.12 * weakened) - (0.22 * collapsed) - (0.08 * metric_pressure)
     return round(max(0.0, min(raw_score, 1.0)), 2)
 
@@ -1753,7 +1786,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/primary/comet_pipeline_export.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/primary/comet_pipeline_export.tsv"
+                    ),
                     "The companion DDA package has fewer accepted imported rows, so family trust cannot assume primary-import density transfers unchanged.",
                 ),
                 _metric_delta(
@@ -1761,7 +1796,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/comparator/sage_pipeline_export.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/comparator/sage_pipeline_export.tsv"
+                    ),
                     "Comparator density shifts under the companion engine pairing.",
                 ),
             )
@@ -1798,7 +1835,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/primary/diann_report.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/primary/diann_report.tsv"
+                    ),
                     "The companion DIA package is visibly thinner at the precursor-report layer.",
                 ),
                 _metric_delta(
@@ -1806,7 +1845,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/primary/diann_pipeline_export.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/primary/diann_pipeline_export.tsv"
+                    ),
                     "The exported-result density shifts materially across the DIA family pair.",
                 ),
             )
@@ -1843,7 +1884,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/evidence/edge_case_ms1_features.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/evidence/edge_case_ms1_features.tsv"
+                    ),
                     "The LFQ companion package has a smaller feature table and therefore a different missingness burden.",
                 ),
                 _metric_delta(
@@ -1851,7 +1894,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _sample_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv"
                     ),
-                    _sample_count(f"{secondary.package_root}/evidence/edge_case.design.tsv"),
+                    _sample_count(
+                        f"{secondary.package_root}/evidence/edge_case.design.tsv"
+                    ),
                     "The LFQ companion package uses a different replicate and batch structure.",
                 ),
             )
@@ -1952,7 +1997,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/evidence/localization_results.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/evidence/localization_results.tsv"
+                    ),
                     "The companion PTM package keeps row volume similar while confidence shifts downward.",
                 ),
             )
@@ -1989,7 +2036,9 @@ def build_workflow_generalization_reports() -> tuple[WorkflowGeneralizationRepor
                     _tsv_row_count(
                         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv"
                     ),
-                    _tsv_row_count(f"{secondary.package_root}/evidence/targeted_benchmark_qc.tsv"),
+                    _tsv_row_count(
+                        f"{secondary.package_root}/evidence/targeted_benchmark_qc.tsv"
+                    ),
                     "The targeted companion package keeps similar QC density while shifting the intensity profile downward.",
                 ),
                 _metric_delta(
@@ -2102,7 +2151,11 @@ def build_workflow_family_stability_scorecard() -> WorkflowFamilyStabilityScorec
 def count_public_packages_for_family(workflow_family: str) -> int:
     """Return how many tracked public packages currently back one workflow family."""
 
-    return 2 if workflow_family in {"dda", "dia", "lfq", "multiplex", "ptm", "targeted"} else 0
+    return (
+        2
+        if workflow_family in {"dda", "dia", "lfq", "multiplex", "ptm", "targeted"}
+        else 0
+    )
 
 
 __all__ = [

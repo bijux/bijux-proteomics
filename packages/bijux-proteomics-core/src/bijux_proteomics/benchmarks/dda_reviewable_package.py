@@ -152,7 +152,9 @@ def _tsv_row_count(repo_relative_path: str) -> int:
 
 
 def _mgf_spectrum_count(repo_relative_path: str) -> int:
-    return _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    return (
+        _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    )
 
 
 def _build_artifacts() -> tuple[DdaReviewablePackageArtifact, ...]:
@@ -242,10 +244,12 @@ def _build_scientific_invariants() -> tuple[DdaScientificInvariant, ...]:
     msfragger_parity = build_search_adapter_parity_report(msfragger)
     maxquant_loss = build_search_adapter_information_loss_report(maxquant)
     target_count = sum(
-        record.target_decoy_label.value == "target" for record in maxquant.normalized_records
+        record.target_decoy_label.value == "target"
+        for record in maxquant.normalized_records
     )
     decoy_count = sum(
-        record.target_decoy_label.value == "decoy" for record in maxquant.normalized_records
+        record.target_decoy_label.value == "decoy"
+        for record in maxquant.normalized_records
     )
     max_observed_q = max(
         record.q_value or 0.0 for record in maxquant.normalized_records
@@ -256,7 +260,10 @@ def _build_scientific_invariants() -> tuple[DdaScientificInvariant, ...]:
     information_loss_free_count = float(
         sum(
             report.acceptable_for_identification_claims
-            for report in (maxquant_loss, build_search_adapter_information_loss_report(msfragger))
+            for report in (
+                maxquant_loss,
+                build_search_adapter_information_loss_report(msfragger),
+            )
         )
     )
     return (

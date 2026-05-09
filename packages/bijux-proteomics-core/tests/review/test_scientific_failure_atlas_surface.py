@@ -248,7 +248,9 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
         ),
         benchmark_suite=calibration_suite,
     )
-    protein_suite = build_protein_inference_benchmark_suite(_protein_inference_scenarios())
+    protein_suite = build_protein_inference_benchmark_suite(
+        _protein_inference_scenarios()
+    )
     protein_claim_review = build_identification_workflow_claim_review(
         workflow_id="flagship-dda-identification",
         benchmark_suite=protein_suite,
@@ -292,8 +294,12 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
         contaminant_audit=contaminant_audit,
     )
 
-    quant_records = parse_ms1_feature_table(_quant_fixture("study_scale_ms1_features.tsv")).accepted_records
-    quant_design = parse_experimental_design_table(_quant_fixture("study_scale.design.tsv")).accepted_entries
+    quant_records = parse_ms1_feature_table(
+        _quant_fixture("study_scale_ms1_features.tsv")
+    ).accepted_records
+    quant_design = parse_experimental_design_table(
+        _quant_fixture("study_scale.design.tsv")
+    ).accepted_entries
     quant_missingness = build_quant_missingness_robustness_report(
         quant_records,
         design_entries=quant_design,
@@ -311,7 +317,8 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
                 update={
                     "intensity": (
                         round(record.intensity * 1.01, 6)
-                        if record.intensity is not None and record.sample_id.startswith("T")
+                        if record.intensity is not None
+                        and record.sample_id.startswith("T")
                         else record.intensity
                     )
                 }
@@ -324,7 +331,9 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
     )
     quant_pressure = build_quantification_pressure_corpus_report(
         benchmark_package_id=lfq_package.package_id,
-        supporting_identity_paths=tuple(asset.path for asset in lfq_package.source_assets),
+        supporting_identity_paths=tuple(
+            asset.path for asset in lfq_package.source_assets
+        ),
         missingness_robustness=quant_missingness,
         normalization_impact=quant_normalization,
         effect_size_stability=quant_effect_size,
@@ -336,10 +345,14 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
         protein_sequences=_protein_sequences(),
     )
     ptm_sites = build_ptm_site_table(mappings)
-    ptm_features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv")).accepted_records
+    ptm_features = parse_ms1_feature_table(
+        _ptm_fixture("ptm_features.tsv")
+    ).accepted_records
     ptm_pressure = build_ptm_pressure_corpus_report(
         benchmark_package_id=ptm_package.package_id,
-        supporting_identity_paths=tuple(asset.path for asset in ptm_package.source_assets),
+        supporting_identity_paths=tuple(
+            asset.path for asset in ptm_package.source_assets
+        ),
         localization_confidence=build_ptm_localization_confidence_benchmark_report(
             parsed.accepted_records,
             mappings,
@@ -498,5 +511,7 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
         "dia",
         "targeted",
     }
-    assert any(entry.severity is ScientificFailureSeverity.HIGH for entry in atlas.entries)
+    assert any(
+        entry.severity is ScientificFailureSeverity.HIGH for entry in atlas.entries
+    )
     assert "cross-family refusal surface" in atlas.note

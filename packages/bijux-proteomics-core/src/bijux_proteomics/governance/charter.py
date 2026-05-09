@@ -237,10 +237,8 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         ("workflow/", "interfaces/execution/")
     ) or module_path in {"interfaces/runtime_plans.py"}:
         return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
-    if (
-        module_path in {"__init__.py"}
-        or module_path.startswith(("governance/",))
-        or module_path.startswith(("interfaces/", "benchmarks/"))
+    if module_path == "__init__.py" or module_path.startswith(
+        ("governance/", "interfaces/", "benchmarks/")
     ):
         return CoreScientificDomainFamily.PACKAGE_SURFACE
     if module_path.startswith("domain/"):

@@ -14,10 +14,18 @@ from bijux_proteomics.io.formats import (
     parse_experimental_design_table,
 )
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
+from bijux_proteomics.quantification import (
+    NormalizationMethod,
+    QuantEntityLevel,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics.study.qc import (
     QcAssessmentSeverity,
     QcDigestionSpecificity,
     QcEvidenceInputFile,
+    QcThresholdPolicy,
     build_batch_qc_assessment,
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
@@ -31,14 +39,6 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
-from bijux_proteomics.quantification import (
-    NormalizationMethod,
-    QuantEntityLevel,
-    build_label_free_intensity_table,
-    normalize_label_free_table,
-    parse_ms1_feature_table,
-)
-from bijux_proteomics.study.qc import QcThresholdPolicy
 
 PROTEIN_SEQUENCES = {
     "P11111": "KACDEFGKRAA",

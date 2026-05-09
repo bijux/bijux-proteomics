@@ -73,8 +73,14 @@ def test_quantification_pressure_corpus_report_anchors_study_scale_lfq_evidence(
     )
 
     assert report.benchmark_package_id == package.package_id
-    assert any(path.endswith("study_scale_ms1_features.tsv") for path in report.supporting_identity_paths)
-    assert any(path.endswith("study_scale.design.tsv") for path in report.supporting_identity_paths)
+    assert any(
+        path.endswith("study_scale_ms1_features.tsv")
+        for path in report.supporting_identity_paths
+    )
+    assert any(
+        path.endswith("study_scale.design.tsv")
+        for path in report.supporting_identity_paths
+    )
     assert report.missingness_robustness.entity_level.value == "protein"
     assert report.effect_size_stability.overlap_fraction >= 0.0
     assert "study-scale missingness" in report.note

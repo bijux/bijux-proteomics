@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 import json
 from pathlib import Path
+from typing import cast
 
 from pydantic import ConfigDict, Field
 
@@ -16,7 +17,10 @@ from bijux_proteomics.benchmarks.workflow_generalization import (
     WorkflowGeneralizationReport,
     build_workflow_generalization_reports,
 )
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.ptm import (
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
@@ -42,6 +46,7 @@ from bijux_proteomics.quantification.contracts import (
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
     MissingChannelPolicy,
+    MissingValueSummaryReport,
     QuantEntityLevel,
     QuantRollupMethod,
 )
@@ -194,13 +199,16 @@ def _report_path(challenge_root: str, challenge_kind: ChallengeKind) -> str:
 
 
 def _review_artifact_paths(package_manifest_path: str) -> tuple[str, ...]:
-    manifest = json.loads((_repo_root() / package_manifest_path).read_text(encoding="utf-8"))
+    manifest = json.loads(
+        (_repo_root() / package_manifest_path).read_text(encoding="utf-8")
+    )
     return tuple(manifest.get("expected_review_artifacts", ()))
 
 
 def _generalization_reports_by_family() -> dict[str, WorkflowGeneralizationReport]:
     return {
-        report.workflow_family: report for report in build_workflow_generalization_reports()
+        report.workflow_family: report
+        for report in build_workflow_generalization_reports()
     }
 
 
@@ -213,12 +221,52 @@ def _perturbation_root(challenge_dir_name: str) -> str:
 
 
 def _read_tsv_rows(repo_relative_path: str) -> list[dict[str, str]]:
-    with (_repo_root() / repo_relative_path).open(newline="", encoding="utf-8") as handle:
+    with (_repo_root() / repo_relative_path).open(
+        newline="", encoding="utf-8"
+    ) as handle:
         return list(csv.DictReader(handle, delimiter="\t"))
 
 
 def _read_json_payload(repo_relative_path: str) -> dict[str, object]:
-    return json.loads((_repo_root() / repo_relative_path).read_text(encoding="utf-8"))
+    payload = json.loads(
+        (_repo_root() / repo_relative_path).read_text(encoding="utf-8")
+    )
+    if not isinstance(payload, dict):
+        raise ValueError(
+            f"expected JSON object payload at {repo_relative_path}, found {type(payload).__name__}"
+        )
+    return cast(dict[str, object], payload)
+
+
+def _require_object_mapping(
+    payload: dict[str, object],
+    key: str,
+) -> dict[str, object]:
+    value = payload.get(key)
+    if not isinstance(value, dict):
+        raise ValueError(f"expected object at key '{key}'")
+    return cast(dict[str, object], value)
+
+
+def _require_numeric_value(payload: dict[str, object], key: str) -> float:
+    value = payload.get(key)
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"expected numeric value at key '{key}'")
+    return float(value)
+
+
+def _require_bool_value(payload: dict[str, object], key: str) -> bool:
+    value = payload.get(key)
+    if not isinstance(value, bool):
+        raise ValueError(f"expected boolean value at key '{key}'")
+    return value
+
+
+def _require_object_list(payload: dict[str, object], key: str) -> tuple[object, ...]:
+    value = payload.get(key)
+    if not isinstance(value, list):
+        raise ValueError(f"expected list value at key '{key}'")
+    return tuple(value)
 
 
 def _holdout_findings(
@@ -228,19 +276,13 @@ def _holdout_findings(
     for finding in report.findings:
         if finding.state == "survives":
             outcome = HoldoutOutcomeState.HIT
-            note = (
-                "the frozen benchmark and review surfaces stayed within the withheld claim boundary"
-            )
+            note = "the frozen benchmark and review surfaces stayed within the withheld claim boundary"
         elif finding.state == "weakens":
             outcome = HoldoutOutcomeState.OVERCONFIDENT
-            note = (
-                "the hidden reveal showed that the frozen family claim was broader than the holdout package justifies"
-            )
+            note = "the hidden reveal showed that the frozen family claim was broader than the holdout package justifies"
         else:
             outcome = HoldoutOutcomeState.MISS
-            note = (
-                "the hidden reveal showed that the frozen family claim does not survive the holdout package"
-            )
+            note = "the hidden reveal showed that the frozen family claim does not survive the holdout package"
         findings.append(
             HoldoutOutcomeFinding(
                 claim_id=finding.claim_id,
@@ -328,7 +370,7 @@ def _spectronaut_peptides(repo_relative_path: str) -> set[str]:
     }
 
 
-def _count_missing_values(summary_report) -> int:
+def _count_missing_values(summary_report: MissingValueSummaryReport) -> int:
     return sum(
         entry.zero_count + entry.not_observed_count + entry.filtered_count
         for entry in summary_report.entries
@@ -347,7 +389,9 @@ def _observed_feature_row_count(
     )
 
 
-def _multiplex_channel_policy(design_entries) -> LabelBasedQuantPolicy:
+def _multiplex_channel_policy(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> LabelBasedQuantPolicy:
     return LabelBasedQuantPolicy(
         missing_channel_policy=MissingChannelPolicy.PRESERVE,
         channel_entries=tuple(
@@ -386,22 +430,32 @@ def _total_tic(repo_relative_path: str) -> float:
 
 def _targeted_follow_up_summary(repo_relative_path: str) -> dict[str, float | bool]:
     payload = _read_json_payload(repo_relative_path)
-    workflow_summary = payload["workflow_readiness_summary"]
-    handoff = payload["handoff_validation"]
-    transition_review = payload["transition_review"]
-    review_packet = payload["review_packet"]
-    executable_plan = payload["executable_plan"]
+    workflow_summary = _require_object_mapping(payload, "workflow_readiness_summary")
+    handoff = _require_object_mapping(payload, "handoff_validation")
+    transition_review = _require_object_mapping(payload, "transition_review")
+    review_packet = _require_object_mapping(payload, "review_packet")
+    executable_plan = _require_object_mapping(payload, "executable_plan")
     return {
-        "ready_step_count": float(workflow_summary["ready_step_count"]),
-        "blocked_step_count": float(workflow_summary["blocked_step_count"]),
-        "accepted_assay_count": float(len(handoff["accepted_assay_ids"])),
-        "approved_transition_count": float(
-            len(transition_review["approved_transition_ids"])
+        "ready_step_count": _require_numeric_value(
+            workflow_summary, "ready_step_count"
         ),
-        "blocked_dependency_count": float(len(executable_plan["blocked_by"])),
-        "readiness_score": float(transition_review["readiness_score"]),
-        "accepted": bool(handoff["accepted"]),
-        "ready_for_synthesis": bool(review_packet["ready_for_synthesis"]),
+        "blocked_step_count": _require_numeric_value(
+            workflow_summary, "blocked_step_count"
+        ),
+        "accepted_assay_count": float(
+            len(_require_object_list(handoff, "accepted_assay_ids"))
+        ),
+        "approved_transition_count": float(
+            len(_require_object_list(transition_review, "approved_transition_ids"))
+        ),
+        "blocked_dependency_count": float(
+            len(_require_object_list(executable_plan, "blocked_by"))
+        ),
+        "readiness_score": _require_numeric_value(transition_review, "readiness_score"),
+        "accepted": _require_bool_value(handoff, "accepted"),
+        "ready_for_synthesis": _require_bool_value(
+            review_packet, "ready_for_synthesis"
+        ),
     }
 
 
@@ -491,7 +545,9 @@ def _build_dia_perturbation_report() -> PerturbationReactionReport:
     )
     baseline_count, baseline_peptides = _accepted_dia_precursors(baseline_primary)
     perturbed_count, perturbed_peptides = _accepted_dia_precursors(perturbed_primary)
-    baseline_overlap = len(baseline_peptides & _spectronaut_peptides(baseline_comparator))
+    baseline_overlap = len(
+        baseline_peptides & _spectronaut_peptides(baseline_comparator)
+    )
     perturbed_overlap = len(
         perturbed_peptides & _spectronaut_peptides(perturbed_comparator)
     )
@@ -561,9 +617,15 @@ def _build_lfq_perturbation_report() -> PerturbationReactionReport:
         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
         "lfq_cohort_review_package/evidence/study_scale.design.tsv"
     )
-    perturbed_feature_path = f"{challenge_root}/evidence/perturbed_study_scale_ms1_features.tsv"
-    design_entries = parse_experimental_design_table(_repo_root() / design_path).accepted_entries
-    baseline_records = parse_ms1_feature_table(_repo_root() / baseline_feature_path).accepted_records
+    perturbed_feature_path = (
+        f"{challenge_root}/evidence/perturbed_study_scale_ms1_features.tsv"
+    )
+    design_entries = parse_experimental_design_table(
+        _repo_root() / design_path
+    ).accepted_entries
+    baseline_records = parse_ms1_feature_table(
+        _repo_root() / baseline_feature_path
+    ).accepted_records
     perturbed_records = parse_ms1_feature_table(
         _repo_root() / perturbed_feature_path
     ).accepted_records
@@ -599,7 +661,9 @@ def _build_lfq_perturbation_report() -> PerturbationReactionReport:
         else PerturbationReactionState.WEAKENS
     )
     baseline_missing = _count_missing_values(baseline_robustness.missing_value_summary)
-    perturbed_missing = _count_missing_values(perturbed_robustness.missing_value_summary)
+    perturbed_missing = _count_missing_values(
+        perturbed_robustness.missing_value_summary
+    )
     return PerturbationReactionReport(
         challenge_id="lfq-missingness-drift-perturbation",
         workflow_family="lfq",
@@ -648,7 +712,9 @@ def _build_multiplex_perturbation_report() -> PerturbationReactionReport:
     perturbed_feature_path = (
         f"{challenge_root}/evidence/perturbed_multiplex_ms1_features.tsv"
     )
-    design_entries = parse_experimental_design_table(_repo_root() / design_path).accepted_entries
+    design_entries = parse_experimental_design_table(
+        _repo_root() / design_path
+    ).accepted_entries
     expected_ratios = (
         MultiplexRatioExpectation(
             numerator_sample_id="plex_a_126",
@@ -954,7 +1020,8 @@ def _build_targeted_perturbation_report() -> PerturbationReactionReport:
     workflow_reaction = (
         PerturbationReactionState.COLLAPSES
         if perturbed_follow_up["approved_transition_count"] == 0.0
-        and perturbed_follow_up["readiness_score"] < baseline_follow_up["readiness_score"]
+        and perturbed_follow_up["readiness_score"]
+        < baseline_follow_up["readiness_score"]
         else PerturbationReactionState.WEAKENS
     )
     comparator_reaction = (

@@ -54,7 +54,9 @@ def test_ptm_pressure_corpus_report_anchors_public_localization_bundle() -> None
         protein_sequences=_protein_sequences(),
     )
     sites = build_ptm_site_table(mappings)
-    feature_records = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    feature_records = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
     localization_confidence = build_ptm_localization_confidence_benchmark_report(
         parsed.accepted_records,
         mappings,

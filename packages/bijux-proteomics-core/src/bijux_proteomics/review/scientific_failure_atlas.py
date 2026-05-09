@@ -151,7 +151,8 @@ def build_scientific_failure_atlas_report(
                     None,
                     (
                         "site ambiguity still propagates into PTM quant"
-                        if ptm_pressure.ambiguity_propagation.interpretive_only_count > 0
+                        if ptm_pressure.ambiguity_propagation.interpretive_only_count
+                        > 0
                         else None,
                         "raw-spectrum validation still leaves unsupported spectra"
                         if not ptm_pressure.raw_spectrum_validation.ready_for_rescoring_follow_up

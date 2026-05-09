@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 TEST_ROOT = Path("packages/bijux-proteomics-core/tests")
 PACKAGE_TEST_ROOT = TEST_ROOT / "package"
 

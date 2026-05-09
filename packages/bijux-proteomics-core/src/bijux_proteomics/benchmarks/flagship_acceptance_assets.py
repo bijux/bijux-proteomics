@@ -34,13 +34,21 @@ def _refresh_acceptance_assets() -> tuple[str, ...]:
     repo_root = _repo_root()
     written: list[str] = []
     for sheet in list_flagship_acceptance_sheets():
-        written.append(_write_json(repo_root / sheet.artifact_path, sheet.to_stable_json()))
+        written.append(
+            _write_json(repo_root / sheet.artifact_path, sheet.to_stable_json())
+        )
     dashboard = build_flagship_acceptance_dashboard()
-    written.append(_write_json(repo_root / dashboard.artifact_path, dashboard.to_stable_json()))
+    written.append(
+        _write_json(repo_root / dashboard.artifact_path, dashboard.to_stable_json())
+    )
     ledger = build_flagship_acceptance_history_ledger()
-    written.append(_write_json(repo_root / ledger.artifact_path, ledger.to_stable_json()))
+    written.append(
+        _write_json(repo_root / ledger.artifact_path, ledger.to_stable_json())
+    )
     dossier = build_flagship_acceptance_rationale_dossier()
-    written.append(_write_json(repo_root / dossier.artifact_path, dossier.to_stable_json()))
+    written.append(
+        _write_json(repo_root / dossier.artifact_path, dossier.to_stable_json())
+    )
     return tuple(written)
 
 
@@ -50,7 +58,9 @@ def _build_parser() -> argparse.ArgumentParser:
         description="Refresh published flagship acceptance sheets.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("refresh", help="rewrite published flagship acceptance sheets")
+    subparsers.add_parser(
+        "refresh", help="rewrite published flagship acceptance sheets"
+    )
     return parser
 
 
@@ -59,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command != "refresh":
         parser.error(f"unsupported command: {args.command}")
-        return 2
+        raise AssertionError("parser.error should terminate execution")
     for path in _refresh_acceptance_assets():
         print(path)
     return 0

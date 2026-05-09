@@ -698,9 +698,7 @@ def deduplicate_fasta_records(
 def _stable_record_accession(record: NormalizedProteinRecord) -> str:
     if record.isoform is None:
         return f"{record.accession_namespace}:{record.canonical_accession}"
-    return (
-        f"{record.accession_namespace}:{record.canonical_accession}-{record.isoform}"
-    )
+    return f"{record.accession_namespace}:{record.canonical_accession}-{record.isoform}"
 
 
 def filter_fasta_records(

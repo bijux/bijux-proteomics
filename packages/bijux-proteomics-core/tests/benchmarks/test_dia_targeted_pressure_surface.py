@@ -44,7 +44,9 @@ def test_dia_pressure_corpus_report_keeps_library_conditioning_visible() -> None
 
     assert report.library_conditioned_partial is True
     assert report.biological_interpretation_blocked is True
-    assert any(path.endswith("diann_report.tsv") for path in report.supporting_identity_paths)
+    assert any(
+        path.endswith("diann_report.tsv") for path in report.supporting_identity_paths
+    )
     assert "missing expected peptides" in report.note
 
 
@@ -132,4 +134,7 @@ def test_targeted_pressure_corpus_report_keeps_handoff_blockers_visible() -> Non
     assert report.transition_handoff_blocked is True
     assert report.workflow_benchmark.calibration_failed_count == 1
     assert report.raw_to_reviewed_bundle.inflated_handoff_count == 1
-    assert any(path.endswith("targeted_benchmark_qc.tsv") for path in report.supporting_identity_paths)
+    assert any(
+        path.endswith("targeted_benchmark_qc.tsv")
+        for path in report.supporting_identity_paths
+    )

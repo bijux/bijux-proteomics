@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.ptm.proteoforms import (
     ProteoformEvidenceLevel,
@@ -14,21 +15,25 @@ from bijux_proteomics.ptm.proteoforms import (
 
 
 def _biology_fixture(name: str) -> dict[str, object]:
-    return json.loads(
+    payload = json.loads(
         (
             Path(__file__).resolve().parent.parent / "fixtures" / "biology" / name
         ).read_text(encoding="utf-8")
     )
+    if not isinstance(payload, dict):
+        raise TypeError("biology fixture payload must be a JSON object")
+    return cast(dict[str, object], payload)
 
 
 def test_build_proteoform_identity_preserves_ptm_combination_and_origin() -> None:
     fixture = _biology_fixture("ambiguity_proteoform_identity.json")
+    ptm_items = cast(list[dict[str, str]], fixture["ptm_assignments"])
     ptm_assignments = tuple(
         ProteoformPtmAssignment(
             name=str(item["name"]),
             site=str(item["site"]),
         )
-        for item in fixture["ptm_assignments"]
+        for item in ptm_items
     )
     identity = build_proteoform_identity(
         sequence=str(fixture["sequence"]),
@@ -46,4 +51,5 @@ def test_build_proteoform_identity_preserves_ptm_combination_and_origin() -> Non
     assert identity.canonical_proteoform_key == (
         "ACDMEK::P12345-2::M4:Oxidation:localized|n_term:Acetyl:localized"
     )
+    assert identity.ambiguity_summary is not None
     assert "isobaric site" in identity.ambiguity_summary

@@ -157,7 +157,9 @@ class IdentificationWorkflowClaimReview(JsonModel):
     refusal_reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
-def _wilson_interval(successes: int, total: int, *, z: float = 1.96) -> tuple[float, float]:
+def _wilson_interval(
+    successes: int, total: int, *, z: float = 1.96
+) -> tuple[float, float]:
     if total <= 0:
         return (0.0, 0.0)
     proportion = successes / total
@@ -172,8 +174,8 @@ def _wilson_interval(successes: int, total: int, *, z: float = 1.96) -> tuple[fl
 
 
 def _base_accession(protein_ref: str) -> str:
-    token = protein_ref.removeprefix("DECOY_").removeprefix("REV__").removeprefix(
-        "CON__"
+    token = (
+        protein_ref.removeprefix("DECOY_").removeprefix("REV__").removeprefix("CON__")
     )
     if "-" in token:
         return token.split("-", maxsplit=1)[0]
@@ -249,7 +251,9 @@ def build_protein_inference_benchmark_report(
         scenario_kind=scenario.scenario_kind,
         expected_present_proteins=tuple(sorted(expected_present)),
         expected_absent_proteins=tuple(sorted(expected_absent)),
-        shared_peptide_pressure=any(len(record.protein_refs) > 1 for record in scenario.records),
+        shared_peptide_pressure=any(
+            len(record.protein_refs) > 1 for record in scenario.records
+        ),
         isoform_pressure=any(
             len({_base_accession(ref) for ref in record.protein_refs}) == 1
             and len(record.protein_refs) > 1
@@ -385,7 +389,8 @@ def build_identification_workflow_claim_review(
         ),
         WorkflowTrustCriterionResult(
             criterion_id="isoform-pressure-covered",
-            passed=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY in scenario_kinds,
+            passed=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY
+            in scenario_kinds,
             detail="isoform-heavy truth pressure is present in the benchmark suite",
         ),
         WorkflowTrustCriterionResult(

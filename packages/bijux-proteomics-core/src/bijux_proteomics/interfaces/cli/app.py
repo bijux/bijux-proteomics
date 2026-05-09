@@ -23,30 +23,14 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     load_modification_registry,
 )
-from bijux_proteomics.sequences.digestion import (
-    PeptideDigestionMode,
-    build_digest_manifest,
-    digest_protein_records,
-    export_peptides_jsonl,
-    export_peptides_parquet,
-    export_peptides_tsv,
-    get_protease_rule,
-    peptide_export_fingerprint,
-)
 from bijux_proteomics.domain.errors import (
     ProteomicsOperatorError,
     ProteomicsOperatorErrorCode,
 )
-from bijux_proteomics.io.formats import (
-    ExperimentalDesignEntry,
-    FormatConversionTarget,
-    ProteomicsFormatKind,
-    build_mzml_collection_summary,
-    build_normalized_run_bundle,
-    convert_proteomics_format,
-    parse_experimental_design_table,
-    parse_mzml,
-    validate_proteomics_input,
+from bijux_proteomics.domain.program_spec import (
+    ProgramSpec,
+    create_program_spec,
+    program_summary,
 )
 from bijux_proteomics.identification import (
     FdrPolicy,
@@ -73,10 +57,42 @@ from bijux_proteomics.identification import (
     infer_proteins_by_parsimony,
     parse_psm_tsv,
 )
-from bijux_proteomics.domain.program_spec import (
-    ProgramSpec,
-    create_program_spec,
-    program_summary,
+from bijux_proteomics.identification.search_adapters import (
+    ScoreOrientation,
+    SearchAdapterKind,
+    build_search_adapter_capability_matrix,
+    build_search_adapter_conformance_report,
+    build_search_adapter_provenance_manifest,
+    compare_search_result_reports,
+    get_search_adapter_manifest,
+    normalize_search_results_with_adapter,
+    parse_search_parameter_file,
+    validate_search_parameters,
+)
+from bijux_proteomics.interfaces.runtime_plans import (
+    WorkflowSchedulerKind,
+    build_proteomics_workflow_runtime_bundle,
+    build_workflow_runtime_validation_report,
+)
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    FormatConversionTarget,
+    ProteomicsFormatKind,
+    build_mzml_collection_summary,
+    build_normalized_run_bundle,
+    convert_proteomics_format,
+    parse_experimental_design_table,
+    parse_mzml,
+    validate_proteomics_input,
+)
+from bijux_proteomics.io.spectra import (
+    annotate_spectrum_fragments,
+    build_spectrum_collection_summary,
+    build_spectrum_metrics,
+    build_spectrum_plot_payload,
+    build_spectrum_provenance_manifest,
+    export_spectrum_annotation_tsv,
+    parse_mgf,
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
@@ -89,19 +105,6 @@ from bijux_proteomics.ptm import (
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
-)
-from bijux_proteomics.study.qc import (
-    QcEvidenceInputFile,
-    build_batch_qc_assessment,
-    build_instrument_batch_qc_report,
-    build_lcms_run_qc_report,
-    build_performance_snapshot,
-    build_qc_evidence_manifest,
-    build_run_qc_assessment,
-    default_qc_threshold_policy,
-    load_qc_threshold_policy,
-    render_qc_assessment_html,
-    render_qc_assessment_tsv,
 )
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
@@ -119,18 +122,6 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
     summarize_missing_values,
 )
-from bijux_proteomics.identification.search_adapters import (
-    ScoreOrientation,
-    SearchAdapterKind,
-    build_search_adapter_capability_matrix,
-    build_search_adapter_conformance_report,
-    build_search_adapter_provenance_manifest,
-    compare_search_result_reports,
-    get_search_adapter_manifest,
-    normalize_search_results_with_adapter,
-    parse_search_parameter_file,
-    validate_search_parameters,
-)
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
@@ -146,19 +137,28 @@ from bijux_proteomics.sequences import (
     sequence_checksum,
     validate_target_decoy_database,
 )
-from bijux_proteomics.io.spectra import (
-    annotate_spectrum_fragments,
-    build_spectrum_collection_summary,
-    build_spectrum_metrics,
-    build_spectrum_plot_payload,
-    build_spectrum_provenance_manifest,
-    export_spectrum_annotation_tsv,
-    parse_mgf,
+from bijux_proteomics.sequences.digestion import (
+    PeptideDigestionMode,
+    build_digest_manifest,
+    digest_protein_records,
+    export_peptides_jsonl,
+    export_peptides_parquet,
+    export_peptides_tsv,
+    get_protease_rule,
+    peptide_export_fingerprint,
 )
-from bijux_proteomics.interfaces.runtime_plans import (
-    WorkflowSchedulerKind,
-    build_proteomics_workflow_runtime_bundle,
-    build_workflow_runtime_validation_report,
+from bijux_proteomics.study.qc import (
+    QcEvidenceInputFile,
+    build_batch_qc_assessment,
+    build_instrument_batch_qc_report,
+    build_lcms_run_qc_report,
+    build_performance_snapshot,
+    build_qc_evidence_manifest,
+    build_run_qc_assessment,
+    default_qc_threshold_policy,
+    load_qc_threshold_policy,
+    render_qc_assessment_html,
+    render_qc_assessment_tsv,
 )
 
 

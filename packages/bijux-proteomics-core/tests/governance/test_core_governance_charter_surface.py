@@ -33,7 +33,9 @@ def test_core_governance_required_modules_exist() -> None:
     }
 
     assert required_modules
-    assert all((CORE_SRC_ROOT / module_path).exists() for module_path in required_modules)
+    assert all(
+        (CORE_SRC_ROOT / module_path).exists() for module_path in required_modules
+    )
 
 
 def test_core_governance_module_audit_covers_source_tree() -> None:
@@ -44,4 +46,3 @@ def test_core_governance_module_audit_covers_source_tree() -> None:
     }
 
     assert audited_paths == source_paths
-

@@ -24,11 +24,14 @@ from bijux_proteomics.identification.search_adapters import (
 
 
 def _fixture(name: str) -> Path:
-    return Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters" / name
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters" / name
+    )
 
 
 def test_search_adapter_information_loss_report_flags_material_missing_fields() -> None:
     manifest = get_search_adapter_manifest(SearchAdapterKind.SAGE)
+    assert manifest.mapping is not None
     normalization_report = SearchAdapterNormalizationReport(
         adapter_manifest=manifest,
         family_policy=build_search_result_family_policy(manifest),
@@ -60,7 +63,9 @@ def test_search_adapter_information_loss_report_flags_material_missing_fields() 
     assert "q_value" in loss_report.material_lost_columns
 
 
-def test_protein_inference_engine_disagreement_dossier_tracks_strategy_divergence() -> None:
+def test_protein_inference_engine_disagreement_dossier_tracks_strategy_divergence() -> (
+    None
+):
     comet = normalize_search_results_with_adapter(
         source_path=_fixture("comet_merge.tsv"),
         adapter_kind=SearchAdapterKind.COMET,

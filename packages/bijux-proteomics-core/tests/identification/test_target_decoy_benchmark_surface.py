@@ -89,4 +89,6 @@ def test_target_decoy_calibration_benchmark_report_checks_decoy_modes() -> None:
         DecoyGenerationMode.SHUFFLE,
     }
     assert all(entry.database_valid for entry in report.entries)
-    assert all(entry.top_fraction_decoy_interval_width >= 0.0 for entry in report.entries)
+    assert all(
+        entry.top_fraction_decoy_interval_width >= 0.0 for entry in report.entries
+    )

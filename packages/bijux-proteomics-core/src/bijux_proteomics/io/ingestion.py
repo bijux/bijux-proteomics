@@ -794,7 +794,9 @@ def build_raw_spectra_dialect_reality_report(
                 format_name=suffix.lstrip(".") or "unknown",
                 support_state=RawSpectraDialectRealityState.REFUSED,
                 practical_scope="raw-spectra dialect is unknown to the current ingestion boundary",
-                diagnostics=("no practical ingestion support is defined for this suffix",),
+                diagnostics=(
+                    "no practical ingestion support is defined for this suffix",
+                ),
             )
         )
 

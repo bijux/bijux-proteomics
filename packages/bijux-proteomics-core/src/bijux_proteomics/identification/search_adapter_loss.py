@@ -58,7 +58,9 @@ class ProteinInferenceEngineDisagreementDossier(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     adapter_kinds: tuple[SearchAdapterKind, ...] = Field(default_factory=tuple)
-    entries: tuple[ProteinInferenceDisagreementEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[ProteinInferenceDisagreementEntry, ...] = Field(
+        default_factory=tuple
+    )
     material_disagreement_count: int = Field(..., ge=0)
 
 
@@ -108,7 +110,9 @@ def build_search_adapter_information_loss_report(
 
     field_accounting = build_search_adapter_field_accounting(normalization_report)
     material_lost_columns = tuple(
-        sorted(set(field_accounting.lost_columns) & _material_columns(normalization_report))
+        sorted(
+            set(field_accounting.lost_columns) & _material_columns(normalization_report)
+        )
     )
     acceptable = not material_lost_columns
     return SearchAdapterInformationLossReport(
@@ -170,9 +174,7 @@ def build_protein_inference_engine_disagreement_dossier(
                 )
             )
     return ProteinInferenceEngineDisagreementDossier(
-        adapter_kinds=tuple(
-            report.adapter_manifest.adapter_kind for report in reports
-        ),
+        adapter_kinds=tuple(report.adapter_manifest.adapter_kind for report in reports),
         entries=tuple(entries),
         material_disagreement_count=sum(1 for entry in entries if entry.material),
     )

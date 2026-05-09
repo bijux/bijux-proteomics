@@ -577,7 +577,9 @@ class MultipleTestingScopeBenchmarkReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[MultipleTestingScopeBenchmarkEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[MultipleTestingScopeBenchmarkEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -722,7 +724,9 @@ def build_multiple_testing_scope_benchmark_report(
     )
     bh_report = apply_benjamini_hochberg(da_report)
     adjusted_values = [
-        entry.adjusted_p_value for entry in bh_report.entries if entry.adjusted_p_value is not None
+        entry.adjusted_p_value
+        for entry in bh_report.entries
+        if entry.adjusted_p_value is not None
     ]
     monotonic = all(
         left <= right
@@ -766,9 +770,7 @@ def build_multiple_testing_scope_benchmark_report(
                 ),
             )
         )
-    note = (
-        "multiple-testing benchmark distinguishes supported report-wide correction from explicitly refused hierarchical scope"
-    )
+    note = "multiple-testing benchmark distinguishes supported report-wide correction from explicitly refused hierarchical scope"
     return MultipleTestingScopeBenchmarkReport(entries=tuple(entries), note=note)
 
 

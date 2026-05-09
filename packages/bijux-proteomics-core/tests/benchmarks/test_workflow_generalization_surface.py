@@ -31,7 +31,12 @@ def test_secondary_public_packages_cover_all_six_workflow_families() -> None:
         "ptm",
         "targeted",
     )
-    assert all(package.package_root.startswith("packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/") for package in packages)
+    assert all(
+        package.package_root.startswith(
+            "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
+        )
+        for package in packages
+    )
     assert all(package.source_assets for package in packages)
     assert all((REPO_ROOT / package.package_root).is_dir() for package in packages)
 
@@ -48,7 +53,10 @@ def test_secondary_public_package_asset_registry_tracks_all_companion_roots() ->
 
 
 def test_workflow_generalization_reports_keep_two_package_transfer_visible() -> None:
-    reports = {report.workflow_family: report for report in build_workflow_generalization_reports()}
+    reports = {
+        report.workflow_family: report
+        for report in build_workflow_generalization_reports()
+    }
 
     assert set(reports) == {"dda", "dia", "lfq", "multiplex", "ptm", "targeted"}
     assert reports["dda"].family_stability_score < 1.0

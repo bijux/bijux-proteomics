@@ -75,7 +75,9 @@ class ScientificConflictReport(JsonModel):
     findings: tuple[ScientificConflictFinding, ...] = Field(default_factory=tuple)
 
 
-def build_scientific_untrustworthy_checklists() -> tuple[ScientificUntrustworthyChecklist, ...]:
+def build_scientific_untrustworthy_checklists() -> tuple[
+    ScientificUntrustworthyChecklist, ...
+]:
     """Return explicit distrust triggers for the biggest scientific families."""
 
     return (
@@ -189,7 +191,9 @@ def evaluate_domain_conflicts(
         findings.append(
             ScientificConflictFinding(
                 code=ScientificConflictFindingCode.MISSING_CHANNEL_PRESSURE,
-                severity="high" if snapshot.quant_missingness_fraction > 0.5 else "medium",
+                severity="high"
+                if snapshot.quant_missingness_fraction > 0.5
+                else "medium",
                 rationale="missing quantitative support changes how confidently downstream effect sizes can be read",
                 blocks_decision_grade=snapshot.quant_missingness_fraction > 0.5,
             )

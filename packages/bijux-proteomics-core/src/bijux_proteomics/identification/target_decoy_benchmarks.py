@@ -57,7 +57,9 @@ class TargetDecoyCalibrationBenchmarkReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[TargetDecoyCalibrationBenchmarkEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[TargetDecoyCalibrationBenchmarkEntry, ...] = Field(
+        default_factory=tuple
+    )
     release_blocked: bool
     blocked_benchmarks: tuple[str, ...] = Field(default_factory=tuple)
 

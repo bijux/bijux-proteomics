@@ -3,13 +3,13 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.sequences.digestion import (
-    PeptideProteinIndexEntry,
-    PeptideUniqueness,
-)
 from bijux_proteomics.review.protein_family_graphs import (
     ProteinFamilyEvidenceNodeKind,
     build_protein_family_evidence_graph,
+)
+from bijux_proteomics.sequences.digestion import (
+    PeptideProteinIndexEntry,
+    PeptideUniqueness,
 )
 
 

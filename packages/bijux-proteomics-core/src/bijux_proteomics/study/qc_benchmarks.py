@@ -292,7 +292,9 @@ def build_qc_control_coverage_report(
     entries: list[QcControlCoverageEntry] = []
     for observation in observations:
         missing = tuple(
-            sorted(set(observation.required_controls) - set(observation.observed_controls))
+            sorted(
+                set(observation.required_controls) - set(observation.observed_controls)
+            )
         )
         scientifically_interpretable = (
             observation.computationally_parseable and not missing
@@ -366,7 +368,8 @@ def build_qc_contamination_propagation_report(
     for observation in observations:
         high_burden = observation.contaminant_psm_fraction >= high_burden_threshold
         propagated = (
-            observation.identification_rate_drop_fraction >= identification_drop_threshold
+            observation.identification_rate_drop_fraction
+            >= identification_drop_threshold
             or observation.quant_distortion_fraction >= quant_distortion_threshold
             or observation.interpretation_advisory_triggered
         )

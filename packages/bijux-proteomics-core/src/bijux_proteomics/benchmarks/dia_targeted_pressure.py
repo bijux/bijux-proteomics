@@ -52,7 +52,9 @@ def build_dia_pressure_corpus_report(
     """Build the DIA pressure corpus from a tiered support report."""
 
     library_conditioned = next(
-        entry for entry in support_report.entries if entry.surface == "library_conditioned_import"
+        entry
+        for entry in support_report.entries
+        if entry.surface == "library_conditioned_import"
     )
     return DiaPressureCorpusReport(
         corpus_id="flagship_dia_pressure:library_conditioned_import",

@@ -179,7 +179,9 @@ def _records() -> tuple[Ms1FeatureRecord, ...]:
     )
 
 
-def test_quant_missingness_robustness_report_surfaces_sparse_and_technical_patterns() -> None:
+def test_quant_missingness_robustness_report_surfaces_sparse_and_technical_patterns() -> (
+    None
+):
     report = build_quant_missingness_robustness_report(
         _records(),
         design_entries=_design(),
@@ -208,7 +210,9 @@ def test_quant_normalization_impact_benchmark_report_tracks_policy_drift() -> No
     assert all(entry.top_entity_id is not None for entry in supported)
 
 
-def test_effect_size_stability_benchmark_report_stays_stable_under_small_perturbation() -> None:
+def test_effect_size_stability_benchmark_report_stays_stable_under_small_perturbation() -> (
+    None
+):
     baseline = _records()
     perturbed = tuple(
         record.model_copy(

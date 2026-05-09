@@ -11,6 +11,7 @@ from bijux_proteomics.identification import (
     filter_psms_by_fdr,
     parse_psm_tsv,
 )
+from bijux_proteomics.identification.contracts import ReviewReadyEvidenceBundle
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     build_ptm_site_table,
@@ -28,7 +29,10 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.quantification.review import build_quant_review_bundle
+from bijux_proteomics.quantification.review import (
+    QuantReviewBundle,
+    build_quant_review_bundle,
+)
 from bijux_proteomics.review import (
     ScientificConsistencyIssueCode,
     build_workflow_scientific_snapshot,
@@ -36,6 +40,7 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.digestion import digest_protein_records
+from bijux_proteomics_lab.handoffs.ptm import PtmLabValidationPacket
 
 
 def _fixture(*parts: str) -> Path:
@@ -131,7 +136,7 @@ def _quant_design() -> tuple[ExperimentalDesignEntry, ...]:
     )
 
 
-def _identification_bundle():
+def _identification_bundle() -> ReviewReadyEvidenceBundle:
     report = parse_psm_tsv(
         _fixture("psm", "protein_inference_results.tsv"),
         mapping=_default_mapping(),
@@ -146,7 +151,7 @@ def _identification_bundle():
     )
 
 
-def _quant_bundle():
+def _quant_bundle() -> QuantReviewBundle:
     return build_quant_review_bundle(
         _quant_records(),
         design_entries=_quant_design(),
@@ -155,7 +160,7 @@ def _quant_bundle():
     )
 
 
-def _ptm_packet():
+def _ptm_packet() -> PtmLabValidationPacket:
     parsed = parse_ptm_localization_tsv(_fixture("ptm", "localization_results.tsv"))
     fasta = parse_fasta_document(
         _fixture("fasta", "ptm_sites.fasta").read_text(),
@@ -173,7 +178,9 @@ def _ptm_packet():
         for site in build_ptm_site_table(mappings)
         if not site.site_key.startswith("Q9DEC1:")
     )
-    features = parse_ms1_feature_table(_fixture("ptm", "ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _fixture("ptm", "ptm_features.tsv")
+    ).accepted_records
     occupancy = build_ptm_occupancy_counterpart_report(sites, feature_records=features)
     return build_ptm_lab_validation_packet(sites, occupancy_report=occupancy)
 
@@ -238,4 +245,7 @@ def test_evaluate_workflow_scientific_consistency_blocks_quant_support_outside_i
     report = evaluate_workflow_scientific_consistency(snapshot)
 
     assert report.composed_story is False
-    assert report.issues[0].code is ScientificConsistencyIssueCode.QUANT_SUPPORT_OUTSIDE_IDENTIFICATION
+    assert (
+        report.issues[0].code
+        is ScientificConsistencyIssueCode.QUANT_SUPPORT_OUTSIDE_IDENTIFICATION
+    )

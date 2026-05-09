@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import bijux_proteomics
 
-
 EXPECTED_CORE_ROOT_EXPORTS = (
     "DigestPolicy",
     "parse_fasta_document",

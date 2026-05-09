@@ -15,7 +15,6 @@ from bijux_proteomics.governance.charter import (
     list_core_domain_families,
 )
 
-
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 REMOVED_COMPATIBILITY_PATHS = {
     "advanced_format_ingestion.py",

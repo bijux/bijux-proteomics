@@ -174,13 +174,15 @@ def test_picked_group_fdr_benchmark_plan_stays_explicitly_unclaimed() -> None:
 def test_identification_workflow_claim_review_refuses_unproven_workflows() -> None:
     suite = build_protein_inference_benchmark_suite((_shared_peptide_heavy_scenario(),))
 
-    review: IdentificationWorkflowClaimReview = build_identification_workflow_claim_review(
-        workflow_id="dda-identification",
-        benchmark_suite=suite,
-        material_loss_count=1,
-        engine_disagreement_count=1,
-        contaminant_risk=True,
-        calibration_release_blocked=True,
+    review: IdentificationWorkflowClaimReview = (
+        build_identification_workflow_claim_review(
+            workflow_id="dda-identification",
+            benchmark_suite=suite,
+            material_loss_count=1,
+            engine_disagreement_count=1,
+            contaminant_risk=True,
+            calibration_release_blocked=True,
+        )
     )
 
     assert review.accepted is False

@@ -288,7 +288,9 @@ def build_quant_normalization_impact_benchmark_report(
 ) -> QuantNormalizationImpactBenchmarkReport:
     """Show when normalization choice changes the primary DA narrative."""
 
-    policies: tuple[tuple[QuantNormalizationPolicyKind, NormalizationMethod | None], ...] = (
+    policies: tuple[
+        tuple[QuantNormalizationPolicyKind, NormalizationMethod | None], ...
+    ] = (
         (QuantNormalizationPolicyKind.NONE, NormalizationMethod.NONE),
         (QuantNormalizationPolicyKind.MEDIAN, NormalizationMethod.MEDIAN),
         (QuantNormalizationPolicyKind.QUANTILE, NormalizationMethod.QUANTILE),
@@ -335,11 +337,15 @@ def build_quant_normalization_impact_benchmark_report(
                 supported=True,
                 top_entity_id=top.entity_id if top is not None else None,
                 top_entity_direction=direction,
-                top_entity_effect_size=top.effect_size_cohens_d if top is not None else None,
+                top_entity_effect_size=top.effect_size_cohens_d
+                if top is not None
+                else None,
                 note="supported normalization policy produced a reviewable DA ranking",
             )
         )
-    primary_narrative_changed = len(set(supported_tops)) > 1 if supported_tops else False
+    primary_narrative_changed = (
+        len(set(supported_tops)) > 1 if supported_tops else False
+    )
     return QuantNormalizationImpactBenchmarkReport(
         condition_a=condition_a,
         condition_b=condition_b,
@@ -442,25 +448,33 @@ def build_multiplex_artifact_pressure_benchmark_report(
         numerator_design = design_lookup.get(expectation.numerator_sample_id)
         denominator_design = design_lookup.get(expectation.denominator_sample_id)
         if numerator_design is None or denominator_design is None:
-            raise ValueError("expected multiplex ratios require multiplex design metadata")
+            raise ValueError(
+                "expected multiplex ratios require multiplex design metadata"
+            )
         if numerator_design.multiplex_group != denominator_design.multiplex_group:
             raise ValueError(
                 "expected multiplex ratios must compare channels inside one multiplex group"
             )
-        numerator_total = total_abundance_by_sample.get(expectation.numerator_sample_id, 0.0)
+        numerator_total = total_abundance_by_sample.get(
+            expectation.numerator_sample_id, 0.0
+        )
         denominator_total = total_abundance_by_sample.get(
             expectation.denominator_sample_id,
             0.0,
         )
         if denominator_total <= 0.0:
-            raise ValueError("expected multiplex ratio denominator must have non-zero abundance")
+            raise ValueError(
+                "expected multiplex ratio denominator must have non-zero abundance"
+            )
         observed_ratio = numerator_total / denominator_total
         ratio_preservation = min(
             observed_ratio / expectation.expected_ratio,
             expectation.expected_ratio / observed_ratio,
         )
         numerator_interference = interference.get(expectation.numerator_sample_id, 0.0)
-        denominator_interference = interference.get(expectation.denominator_sample_id, 0.0)
+        denominator_interference = interference.get(
+            expectation.denominator_sample_id, 0.0
+        )
         numerator_bleed = reporter_bleed.get(expectation.numerator_sample_id, 0.0)
         denominator_bleed = reporter_bleed.get(expectation.denominator_sample_id, 0.0)
         materially_compressed = ratio_preservation < min_ratio_preservation_fraction
@@ -485,9 +499,7 @@ def build_multiplex_artifact_pressure_benchmark_report(
             )
         )
     interference_flagged = sum(
-        1
-        for value in (*interference.values(),)
-        if value >= material_artifact_fraction
+        1 for value in (*interference.values(),) if value >= material_artifact_fraction
     )
     bleed_flagged = sum(
         1
@@ -572,7 +584,9 @@ def build_quant_truth_package_benchmark_report(
         )
     expected_ids = {entry.entity_id for entry in expectations}
     unexpected_leaders = tuple(
-        entry.entity_id for entry in report.entries[:3] if entry.entity_id not in expected_ids
+        entry.entity_id
+        for entry in report.entries[:3]
+        if entry.entity_id not in expected_ids
     )
     matched_count = sum(1 for entry in entries if entry.matched_direction)
     return QuantTruthPackageBenchmarkReport(
@@ -617,9 +631,7 @@ def build_multiplex_stress_benchmark_report(
         if entry.expected_role.value == "reference"
     )
     carrier_overload_count = sum(
-        1
-        for entry in diagnostics.caveats
-        if "carrier/reference channels" in entry
+        1 for entry in diagnostics.caveats if "carrier/reference channels" in entry
     )
     sample_counts_by_group: dict[str, int] = {}
     for entry in design_entries:
@@ -631,7 +643,9 @@ def build_multiplex_stress_benchmark_report(
     smallest = min(counts) if counts else 0
     largest = max(counts) if counts else 0
     unbalanced_group_count = (
-        1 if smallest and (largest / smallest) >= overloaded_carrier_ratio_threshold else 0
+        1
+        if smallest and (largest / smallest) >= overloaded_carrier_ratio_threshold
+        else 0
     )
     ready = (
         reference_dropout_count == 0

@@ -6,21 +6,19 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmSiteGroupEvidenceEntry,
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
     build_ptm_motif_windows,
     build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
+    build_ptm_site_group_evidence,
     build_ptm_site_table,
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
     validate_ptm_site_coordinates,
-)
-from bijux_proteomics.ptm import (
-    PtmSiteGroupEvidenceEntry,
-    build_ptm_site_group_evidence,
 )
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document

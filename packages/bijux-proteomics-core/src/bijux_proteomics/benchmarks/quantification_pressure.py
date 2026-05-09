@@ -48,9 +48,7 @@ def build_quantification_pressure_corpus_report(
     unstable_effect_size = not (
         effect_size_stability.stable_top_rank and effect_size_stability.stable_top_set
     )
-    ready = not (
-        missingness_blocks or normalization_changes or unstable_effect_size
-    )
+    ready = not (missingness_blocks or normalization_changes or unstable_effect_size)
     return QuantificationPressureCorpusReport(
         corpus_id="flagship_quant_pressure:lfq",
         benchmark_package_id=benchmark_package_id,

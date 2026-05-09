@@ -11,7 +11,9 @@ import json
 from pathlib import Path
 
 from bijux_proteomics.benchmarks.flagship_challenge_corpora import (
+    BlindedHoldoutReport,
     ChallengeKind,
+    PerturbationReactionReport,
     build_blinded_holdout_reports,
     build_flagship_challenge_registry,
     build_perturbation_reports,
@@ -34,11 +36,15 @@ def _write_text(repo_relative_path: str, content: str) -> None:
 
 
 def _write_json(repo_relative_path: str, payload: object) -> None:
-    _write_text(repo_relative_path, json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    _write_text(
+        repo_relative_path, json.dumps(payload, indent=2, sort_keys=True) + "\n"
+    )
 
 
 def _read_tsv_rows(repo_relative_path: str) -> list[dict[str, str]]:
-    with (_repo_root() / repo_relative_path).open(newline="", encoding="utf-8") as handle:
+    with (_repo_root() / repo_relative_path).open(
+        newline="", encoding="utf-8"
+    ) as handle:
         return list(csv.DictReader(handle, delimiter="\t"))
 
 
@@ -52,34 +58,40 @@ def _write_tsv(repo_relative_path: str, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
-def _holdout_readme(report) -> str:
-    return "\n".join(
-        (
-            f"# {report.workflow_family.upper()} Blinded Holdout",
-            "",
-            "This challenge root freezes the main package and review surfaces first, then reveals",
-            "whether the withheld family-transfer findings still support the same workflow claims.",
-            "",
-            f"- challenge id: `{report.challenge_id}`",
-            f"- primary package id: `{report.primary_package_id}`",
-            f"- holdout package id: `{report.holdout_package_id}`",
-            f"- revealed report: `{report.artifact_path}`",
+def _holdout_readme(report: BlindedHoldoutReport) -> str:
+    return (
+        "\n".join(
+            (
+                f"# {report.workflow_family.upper()} Blinded Holdout",
+                "",
+                "This challenge root freezes the main package and review surfaces first, then reveals",
+                "whether the withheld family-transfer findings still support the same workflow claims.",
+                "",
+                f"- challenge id: `{report.challenge_id}`",
+                f"- primary package id: `{report.primary_package_id}`",
+                f"- holdout package id: `{report.holdout_package_id}`",
+                f"- revealed report: `{report.artifact_path}`",
+            )
         )
-    ) + "\n"
+        + "\n"
+    )
 
 
-def _perturbation_readme(report) -> str:
-    return "\n".join(
-        (
-            f"# {report.workflow_family.upper()} Perturbation Corpus",
-            "",
-            "This challenge root keeps the perturbed evidence files and the measured",
-            "workflow, comparator, and review reactions together.",
-            "",
-            f"- challenge id: `{report.challenge_id}`",
-            f"- revealed report: `{report.artifact_path}`",
+def _perturbation_readme(report: PerturbationReactionReport) -> str:
+    return (
+        "\n".join(
+            (
+                f"# {report.workflow_family.upper()} Perturbation Corpus",
+                "",
+                "This challenge root keeps the perturbed evidence files and the measured",
+                "workflow, comparator, and review reactions together.",
+                "",
+                f"- challenge id: `{report.challenge_id}`",
+                f"- revealed report: `{report.artifact_path}`",
+            )
         )
-    ) + "\n"
+        + "\n"
+    )
 
 
 def _refresh_dda_dia_lfq_perturbation_assets() -> tuple[str, ...]:
@@ -248,9 +260,9 @@ def _refresh_targeted_perturbation_assets() -> tuple[str, ...]:
     )
     follow_up_payload = json.loads(follow_up_path.read_text(encoding="utf-8"))
     follow_up_payload["review_queue_decision"]["state"] = "blocked"
-    follow_up_payload["review_queue_decision"][
-        "summary"
-    ] = "calibrant drift, transition interference, and carryover block direct targeted execution"
+    follow_up_payload["review_queue_decision"]["summary"] = (
+        "calibrant drift, transition interference, and carryover block direct targeted execution"
+    )
     follow_up_payload["workflow_readiness_summary"]["ready_step_count"] = 2
     follow_up_payload["workflow_readiness_summary"]["blocked_step_count"] = 3
     follow_up_payload["workflow_readiness_summary"]["missing_evidence_needs"] = [
@@ -337,25 +349,28 @@ def refresh_flagship_challenge_assets() -> tuple[str, ...]:
     written.extend(_refresh_multiplex_and_ptm_perturbation_assets())
     written.extend(_refresh_targeted_perturbation_assets())
 
-    for report in build_perturbation_reports():
-        challenge_root = report.artifact_path.rsplit("/", 1)[0]
+    for perturbation_report in build_perturbation_reports():
+        challenge_root = perturbation_report.artifact_path.rsplit("/", 1)[0]
         manifest_path = f"{challenge_root}/challenge_manifest.json"
         readme_path = f"{challenge_root}/README.md"
         _write_json(
             manifest_path,
             {
-                "challenge_id": report.challenge_id,
+                "challenge_id": perturbation_report.challenge_id,
                 "challenge_kind": ChallengeKind.PERTURBATION.value,
-                "workflow_family": report.workflow_family,
-                "perturbation_axes": list(report.perturbation_axes),
-                "evidence_paths": list(report.evidence_paths),
-                "revealed_report_path": report.artifact_path,
-                "note": report.note,
+                "workflow_family": perturbation_report.workflow_family,
+                "perturbation_axes": list(perturbation_report.perturbation_axes),
+                "evidence_paths": list(perturbation_report.evidence_paths),
+                "revealed_report_path": perturbation_report.artifact_path,
+                "note": perturbation_report.note,
             },
         )
-        _write_json(report.artifact_path, report.model_dump(mode="json"))
-        _write_text(readme_path, _perturbation_readme(report))
-        written.extend((manifest_path, report.artifact_path, readme_path))
+        _write_json(
+            perturbation_report.artifact_path,
+            perturbation_report.model_dump(mode="json"),
+        )
+        _write_text(readme_path, _perturbation_readme(perturbation_report))
+        written.extend((manifest_path, perturbation_report.artifact_path, readme_path))
 
     registry = build_flagship_challenge_registry()
     _write_json(flagship_challenge_registry_path(), registry.model_dump(mode="json"))

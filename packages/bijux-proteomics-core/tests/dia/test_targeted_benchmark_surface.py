@@ -63,9 +63,7 @@ def test_targeted_workflow_benchmark_report_surfaces_calibration_pairing_and_int
     assert report.ready_for_transition_handoff is False
 
 
-def test_targeted_raw_to_reviewed_bundle_report_links_qc_handoff_and_outcomes() -> (
-    None
-):
+def test_targeted_raw_to_reviewed_bundle_report_links_qc_handoff_and_outcomes() -> None:
     benchmark = build_targeted_workflow_benchmark_report(
         calibration_observations=(
             TargetedCalibrationStandardObservation(

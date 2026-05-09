@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from bijux_proteomics.interfaces.execution.backend import (
     ExecutionBackend,
@@ -27,8 +27,11 @@ class AgenticProteinsBackend:
             execution_mode=request.execution_mode,
             require_human_decision=request.require_human_decision,
         )
-        return RunManager(base_dir=request.base_dir, config=config).run(
-            request.candidate_sequence
+        return cast(
+            dict[str, Any],
+            RunManager(base_dir=request.base_dir, config=config).run(
+                request.candidate_sequence
+            ),
         )
 
 

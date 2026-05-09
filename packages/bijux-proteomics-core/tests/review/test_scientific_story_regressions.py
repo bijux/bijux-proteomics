@@ -11,6 +11,7 @@ from bijux_proteomics.identification import (
     filter_psms_by_fdr,
     parse_psm_tsv,
 )
+from bijux_proteomics.identification.contracts import ReviewReadyEvidenceBundle
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.ptm import (
     build_ptm_site_table,
@@ -28,7 +29,10 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     parse_ms1_feature_table,
 )
-from bijux_proteomics.quantification.review import build_quant_review_bundle
+from bijux_proteomics.quantification.review import (
+    QuantReviewBundle,
+    build_quant_review_bundle,
+)
 from bijux_proteomics.review import (
     ScientificConsistencyIssueCode,
     build_workflow_scientific_snapshot,
@@ -36,6 +40,7 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.digestion import digest_protein_records
+from bijux_proteomics_lab.handoffs.ptm import PtmLabValidationPacket
 
 
 def _fixture(*parts: str) -> Path:
@@ -53,7 +58,7 @@ def _mapping() -> SearchResultColumnMapping:
     )
 
 
-def _bundle():
+def _bundle() -> ReviewReadyEvidenceBundle:
     report = parse_psm_tsv(
         _fixture("psm", "protein_inference_results.tsv"),
         mapping=_mapping(),
@@ -68,7 +73,7 @@ def _bundle():
     )
 
 
-def _quant_bundle(*, heavily_missing: bool) -> object:
+def _quant_bundle(*, heavily_missing: bool) -> QuantReviewBundle:
     records = (
         Ms1FeatureRecord(
             feature_id="q-1",
@@ -96,7 +101,9 @@ def _quant_bundle(*, heavily_missing: bool) -> object:
             intensity=0.0,
             protein_refs=("P11111",),
             missing_value_kind=(
-                MissingValueKind.NOT_OBSERVED if heavily_missing else MissingValueKind.OBSERVED
+                MissingValueKind.NOT_OBSERVED
+                if heavily_missing
+                else MissingValueKind.OBSERVED
             ),
         ),
         Ms1FeatureRecord(
@@ -107,7 +114,9 @@ def _quant_bundle(*, heavily_missing: bool) -> object:
             intensity=0.0,
             protein_refs=("P11111",),
             missing_value_kind=(
-                MissingValueKind.NOT_OBSERVED if heavily_missing else MissingValueKind.OBSERVED
+                MissingValueKind.NOT_OBSERVED
+                if heavily_missing
+                else MissingValueKind.OBSERVED
             ),
         ),
     )
@@ -153,7 +162,7 @@ def _quant_bundle(*, heavily_missing: bool) -> object:
     )
 
 
-def _ptm_packet():
+def _ptm_packet() -> PtmLabValidationPacket:
     parsed = parse_ptm_localization_tsv(_fixture("ptm", "localization_results.tsv"))
     fasta = parse_fasta_document(
         _fixture("fasta", "ptm_sites.fasta").read_text(),
@@ -171,13 +180,17 @@ def _ptm_packet():
         for site in build_ptm_site_table(mappings)
         if not site.site_key.startswith("Q9DEC1:")
     )
-    features = parse_ms1_feature_table(_fixture("ptm", "ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _fixture("ptm", "ptm_features.tsv")
+    ).accepted_records
     trimmed_features = tuple(
         record
         for record in features
         if not (record.sample_id == "T2" and record.canonical_peptide == "SPEPTIDEK")
     )
-    occupancy = build_ptm_occupancy_counterpart_report(sites, feature_records=trimmed_features)
+    occupancy = build_ptm_occupancy_counterpart_report(
+        sites, feature_records=trimmed_features
+    )
     return build_ptm_lab_validation_packet(sites, occupancy_report=occupancy)
 
 
@@ -208,7 +221,9 @@ def test_scientific_story_regression_blocks_empty_digestion_space() -> None:
     )
 
 
-def test_scientific_story_regression_blocks_decision_grade_under_high_missingness() -> None:
+def test_scientific_story_regression_blocks_decision_grade_under_high_missingness() -> (
+    None
+):
     snapshot = build_workflow_scientific_snapshot(
         workflow_id="wf-missingness",
         identification_bundle=_bundle(),
@@ -223,12 +238,15 @@ def test_scientific_story_regression_blocks_decision_grade_under_high_missingnes
     report = evaluate_workflow_scientific_consistency(snapshot)
 
     assert any(
-        issue.code is ScientificConsistencyIssueCode.DECISION_GRADE_WITH_HIGH_MISSINGNESS
+        issue.code
+        is ScientificConsistencyIssueCode.DECISION_GRADE_WITH_HIGH_MISSINGNESS
         for issue in report.issues
     )
 
 
-def test_scientific_story_regression_blocks_decision_grade_under_ambiguous_ptm() -> None:
+def test_scientific_story_regression_blocks_decision_grade_under_ambiguous_ptm() -> (
+    None
+):
     snapshot = build_workflow_scientific_snapshot(
         workflow_id="wf-ptm",
         identification_bundle=_bundle(),
@@ -265,6 +283,7 @@ def test_scientific_story_regression_blocks_decision_grade_without_review_projec
     report = evaluate_workflow_scientific_consistency(snapshot)
 
     assert any(
-        issue.code is ScientificConsistencyIssueCode.REVIEW_PROJECTION_WITHOUT_CANDIDATES
+        issue.code
+        is ScientificConsistencyIssueCode.REVIEW_PROJECTION_WITHOUT_CANDIDATES
         for issue in report.issues
     )

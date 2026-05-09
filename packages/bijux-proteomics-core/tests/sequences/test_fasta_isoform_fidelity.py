@@ -40,6 +40,4 @@ def test_fasta_deduplication_keeps_distinct_isoform_accessions() -> None:
 
     assert len(records) == 2
     assert {record.isoform for record in records} == {None, 2}
-    assert dedup_report.duplicate_accessions == (
-        "sp|P12345-2|PROT_HUMAN_DUP",
-    )
+    assert dedup_report.duplicate_accessions == ("sp|P12345-2|PROT_HUMAN_DUP",)

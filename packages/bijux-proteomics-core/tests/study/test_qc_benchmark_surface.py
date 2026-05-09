@@ -232,7 +232,9 @@ def test_build_sample_prep_digestion_realism_report_blocks_decoupled_success() -
     assert report.ready_for_sequence_level_claims is False
 
 
-def test_build_workflow_minimum_control_report_names_controls_for_each_workflow() -> None:
+def test_build_workflow_minimum_control_report_names_controls_for_each_workflow() -> (
+    None
+):
     report = build_workflow_minimum_control_report()
 
     assert {entry.workflow_family for entry in report.entries} == {
@@ -243,8 +245,14 @@ def test_build_workflow_minimum_control_report_names_controls_for_each_workflow(
         "ptm",
         "targeted",
     }
-    targeted = next(entry for entry in report.entries if entry.workflow_family == "targeted")
-    assert targeted.minimum_controls == ("blank", "heavy_reference", "calibration_standard")
+    targeted = next(
+        entry for entry in report.entries if entry.workflow_family == "targeted"
+    )
+    assert targeted.minimum_controls == (
+        "blank",
+        "heavy_reference",
+        "calibration_standard",
+    )
 
 
 def test_build_contamination_cleanup_dossier_report_requires_full_propagation() -> None:

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_benchmark_report,
@@ -18,7 +19,6 @@ from bijux_proteomics.sequences.digestion import (
     export_peptides_tsv,
     peptide_export_fingerprint,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def test_digest_protein_records_and_manifest_are_stable(

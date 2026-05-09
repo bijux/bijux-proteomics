@@ -155,7 +155,9 @@ def _protein_inference_scenarios() -> tuple[ProteinInferenceBenchmarkScenario, .
     )
 
 
-def test_calibration_pressure_corpus_report_tracks_real_adapter_family_identities() -> None:
+def test_calibration_pressure_corpus_report_tracks_real_adapter_family_identities() -> (
+    None
+):
     package = build_flagship_dda_public_benchmark_package()
     suite = build_adapter_calibration_benchmark_suite(
         (
@@ -184,7 +186,9 @@ def test_calibration_pressure_corpus_report_tracks_real_adapter_family_identitie
     report = build_calibration_pressure_corpus_report(
         benchmark_package_id=package.package_id,
         imported_result_identity_paths=tuple(
-            asset.path for asset in package.source_assets if asset.asset_role == "search_results"
+            asset.path
+            for asset in package.source_assets
+            if asset.asset_role == "search_results"
         )
         + (
             "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_results.tsv",
@@ -261,4 +265,7 @@ def test_protein_inference_pressure_corpus_report_keeps_contaminant_and_trust_pr
     assert report.false_negative_pressure_scenario_count == 1
     assert report.unresolved_contaminant_promotion is True
     assert report.ready_for_broad_identification_claim is False
-    assert ProteinInferenceStrategyKind.PARSIMONY in report.benchmark_suite.covered_strategy_kinds
+    assert (
+        ProteinInferenceStrategyKind.PARSIMONY
+        in report.benchmark_suite.covered_strategy_kinds
+    )

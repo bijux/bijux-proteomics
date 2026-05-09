@@ -69,7 +69,9 @@ def build_calibration_pressure_corpus_report(
     """Build the flagship calibration corpus from real adapter-family evidence."""
 
     adapter_kinds = tuple(entry.adapter_kind for entry in benchmark_suite.entries)
-    nonmonotonic_count = sum(not entry.q_value_monotonic for entry in benchmark_suite.entries)
+    nonmonotonic_count = sum(
+        not entry.q_value_monotonic for entry in benchmark_suite.entries
+    )
     threshold_drift_count = sum(
         entry.calibration.top_fraction_decoy_interval_width
         > top_fraction_interval_watchpoint
@@ -121,7 +123,9 @@ def build_protein_inference_pressure_corpus_report(
         scenario_kind is ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE
         for scenario_kind in benchmark_suite.scenario_kinds
     )
-    ready = claim_review.accepted and not contaminant_audit.unresolved_contaminant_promotion
+    ready = (
+        claim_review.accepted and not contaminant_audit.unresolved_contaminant_promotion
+    )
     return ProteinInferencePressureCorpusReport(
         corpus_id="flagship_identification_pressure:protein_inference",
         benchmark_package_id=benchmark_package_id,

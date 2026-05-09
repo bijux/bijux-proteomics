@@ -104,7 +104,12 @@ def build_workflow_scientific_snapshot(
     else:
         quant_missingness_fraction = 0.0
     ptm_protein_ids = tuple(
-        sorted({entry.site_key.split(":", 1)[0] for entry in ptm_lab_validation_packet.entries})
+        sorted(
+            {
+                entry.site_key.split(":", 1)[0]
+                for entry in ptm_lab_validation_packet.entries
+            }
+        )
     )
     ambiguous_ptm_site_count = sum(
         1 for entry in ptm_lab_validation_packet.entries if entry.ambiguous_site
@@ -119,7 +124,9 @@ def build_workflow_scientific_snapshot(
         quant_support_protein_ids=tuple(sorted(set(quant_support_protein_ids))),
         quant_missingness_fraction=quant_missingness_fraction,
         quant_readiness_state=quant_review_bundle.decision_readiness.readiness_state.value,
-        quant_blocking_reasons=tuple(quant_review_bundle.decision_readiness.blocking_reasons),
+        quant_blocking_reasons=tuple(
+            quant_review_bundle.decision_readiness.blocking_reasons
+        ),
         ptm_protein_ids=ptm_protein_ids,
         ambiguous_ptm_site_count=ambiguous_ptm_site_count,
         qc_blocking_issue_codes=tuple(qc_blocking_issue_codes),

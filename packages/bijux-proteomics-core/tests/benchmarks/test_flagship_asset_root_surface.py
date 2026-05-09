@@ -38,7 +38,9 @@ def test_flagship_asset_root_contract_tracks_all_six_product_owned_roots() -> No
         assert entry.asset_root.startswith(
             "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/"
         )
-        assert entry.source_locator_manifest_path.endswith("source_locator_manifest.json")
+        assert entry.source_locator_manifest_path.endswith(
+            "source_locator_manifest.json"
+        )
         assert entry.citation_manifest_path.endswith("citation_manifest.json")
         assert entry.generated_boundary_path.endswith("generated_boundary.json")
         assert entry.rebuild_instructions_path.endswith("rebuild_instructions.md")
@@ -48,7 +50,9 @@ def test_flagship_asset_root_contract_tracks_all_six_product_owned_roots() -> No
         assert (REPO_ROOT / entry.asset_root).is_dir()
 
 
-def test_flagship_asset_entries_keep_written_support_files_and_copied_snapshots_visible() -> None:
+def test_flagship_asset_entries_keep_written_support_files_and_copied_snapshots_visible() -> (
+    None
+):
     entries = list_flagship_asset_root_entries()
 
     assert len(entries) == 6
@@ -61,7 +65,9 @@ def test_flagship_asset_entries_keep_written_support_files_and_copied_snapshots_
             assert (REPO_ROOT / source.local_artifact_path).exists()
 
 
-def test_flagship_asset_refresh_report_stays_ready_when_local_support_files_exist() -> None:
+def test_flagship_asset_refresh_report_stays_ready_when_local_support_files_exist() -> (
+    None
+):
     report = build_flagship_asset_refresh_report(check_remote=False)
 
     assert report.report_path == flagship_asset_refresh_report_path()
@@ -74,7 +80,9 @@ def test_flagship_asset_refresh_report_stays_ready_when_local_support_files_exis
         assert all(check.detail for check in entry.remote_checks)
 
 
-def test_flagship_asset_obsolescence_audit_keeps_stronger_dataset_pressure_visible() -> None:
+def test_flagship_asset_obsolescence_audit_keeps_stronger_dataset_pressure_visible() -> (
+    None
+):
     audit = build_flagship_asset_obsolescence_audit()
 
     assert audit.audit_path == flagship_asset_obsolescence_audit_path()

@@ -577,24 +577,16 @@ def build_targeted_platform_support_matrix(
             "calibration_standards": payload.has_calibration_standards,
             "vendor_tuning_profile": payload.has_vendor_tuning_profile,
         }
-        missing = tuple(
-            name for name in required_assumptions if not observed[name]
-        )
+        missing = tuple(name for name in required_assumptions if not observed[name])
         if any(name in hard_blocking for name in missing):
             support_state = TargetedPlatformSupportState.REFUSED
-            note = (
-                "targeted follow-up is refused because the method lacks one or more hard assay preconditions"
-            )
+            note = "targeted follow-up is refused because the method lacks one or more hard assay preconditions"
         elif missing:
             support_state = TargetedPlatformSupportState.PARTIAL
-            note = (
-                "targeted follow-up remains reviewable, but platform-specific standards or templates are still incomplete"
-            )
+            note = "targeted follow-up remains reviewable, but platform-specific standards or templates are still incomplete"
         else:
             support_state = TargetedPlatformSupportState.SUPPORTED
-            note = (
-                "targeted follow-up satisfies transition, timing, standards, heavy-reference, and platform-tuning assumptions"
-            )
+            note = "targeted follow-up satisfies transition, timing, standards, heavy-reference, and platform-tuning assumptions"
         entries.append(
             TargetedPlatformSupportEntry(
                 platform_id=payload.platform_id,
@@ -615,8 +607,7 @@ def build_targeted_platform_support_matrix(
         for entry in entries
     )
     partial_count = sum(
-        entry.support_state is TargetedPlatformSupportState.PARTIAL
-        for entry in entries
+        entry.support_state is TargetedPlatformSupportState.PARTIAL for entry in entries
     )
     refused_count = len(entries) - supported_count - partial_count
     return TargetedPlatformSupportMatrixReport(

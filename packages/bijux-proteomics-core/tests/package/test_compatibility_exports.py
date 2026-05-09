@@ -12,7 +12,6 @@ from bijux_proteomics.governance.charter import (
     CoreModuleClassification,
 )
 
-
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 COMPATIBILITY_IMPORT_RE = re.compile(
     r"^from\s+(bijux_proteomics(?:\.[a-z0-9_]+)+)\s+import\s+\*(?:\s+#.*)?$",

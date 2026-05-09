@@ -64,11 +64,11 @@ def _q_values_are_monotonic(
         score_orientation=score_orientation,
     )
     record_by_spectrum = {record.spectrum_id: record for record in records}
-    ranked_q_values = [
-        record_by_spectrum[entry.spectrum_id].q_value
-        for entry in normalized
-        if record_by_spectrum[entry.spectrum_id].q_value is not None
-    ]
+    ranked_q_values: list[float] = []
+    for entry in normalized:
+        q_value = record_by_spectrum[entry.spectrum_id].q_value
+        if q_value is not None:
+            ranked_q_values.append(q_value)
     return all(
         left <= right
         for left, right in zip(ranked_q_values, ranked_q_values[1:], strict=False)

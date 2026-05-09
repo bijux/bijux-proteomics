@@ -29,7 +29,6 @@ from bijux_proteomics.identification import (
     export_psm_jsonl,
     parse_psm_tsv,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.io.spectra import (
     MgfParseReport,
     SpectrumCollectionSummary,
@@ -39,6 +38,7 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
     render_mgf,
 )
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 _NS_MZML = "http://psi.hupo.org/ms/mzml"

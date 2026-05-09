@@ -6,7 +6,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 ALLOWED_RUNTIME_IMPORTS = {
     "interfaces/execution/runtime_adapter.py": {

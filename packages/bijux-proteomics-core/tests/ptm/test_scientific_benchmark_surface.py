@@ -124,7 +124,9 @@ def test_ptm_ambiguity_propagation_benchmark_report_downgrades_ambiguous_sites()
     )
 
     propagated = next(entry for entry in report.entries if entry.propagated_to_quant)
-    interpretive_only = next(entry for entry in report.entries if entry.interpretive_only)
+    interpretive_only = next(
+        entry for entry in report.entries if entry.interpretive_only
+    )
 
     assert propagated.localization_ambiguous is True
     assert propagated.ambiguous_occupancy_count >= 1
@@ -179,7 +181,9 @@ def test_ptm_family_credibility_track_report_separates_supported_interpretive_an
             ambiguous=False,
         ),
     )
-    feature_records = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    feature_records = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
 
     report = build_ptm_family_credibility_track_report(
         site_entries,
@@ -201,9 +205,7 @@ def test_proteoform_benchmark_report_marks_isoform_and_combinatorial_pressure() 
                 sequence="PEPTIDE",
                 protein_origin="P11111-1",
                 evidence_level=ProteoformEvidenceLevel.PROBABLE,
-                ptm_assignments=(
-                    ProteoformPtmAssignment(name="Phospho", site="S5"),
-                ),
+                ptm_assignments=(ProteoformPtmAssignment(name="Phospho", site="S5"),),
             ),
             ProteoformBenchmarkScenario(
                 scenario_id="ambiguous",
@@ -222,22 +224,30 @@ def test_proteoform_benchmark_report_marks_isoform_and_combinatorial_pressure() 
     )
 
     assert report.interpretive_only_count == 1
-    ambiguous = next(entry for entry in report.entries if entry.scenario_id == "ambiguous")
+    ambiguous = next(
+        entry for entry in report.entries if entry.scenario_id == "ambiguous"
+    )
     assert ambiguous.interpretive_only is True
     clean = next(entry for entry in report.entries if entry.scenario_id == "clean")
     assert clean.interpretive_only is False
 
 
-def test_ptm_occupancy_stress_benchmark_report_tracks_missing_feature_pressure() -> None:
+def test_ptm_occupancy_stress_benchmark_report_tracks_missing_feature_pressure() -> (
+    None
+):
     parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         parsed.accepted_records,
         protein_sequences=_protein_sequences(),
     )
     sites = build_ptm_site_table(mappings)
-    baseline = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    baseline = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
     stressed = tuple(
-        row for row in baseline if not (row.sample_id == "T2" and row.intensity is not None)
+        row
+        for row in baseline
+        if not (row.sample_id == "T2" and row.intensity is not None)
     )
 
     report = build_ptm_occupancy_stress_benchmark_report(
@@ -317,7 +327,10 @@ def test_ptm_lab_targeting_rubric_report_separates_targetable_and_interpretive_s
         if entry.disposition is PtmLabTargetingDisposition.INTERPRETIVE_ONLY
     )
 
-    assert targetable.localization_confidence_tier is PtmLocalizationConfidenceTier.DECISIVE
+    assert (
+        targetable.localization_confidence_tier
+        is PtmLocalizationConfidenceTier.DECISIVE
+    )
     assert targetable.occupancy_complete is True
     assert interpretive.rationale
     assert report.interpretive_only_count >= 1

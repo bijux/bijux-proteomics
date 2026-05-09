@@ -83,9 +83,7 @@ def build_contaminant_aware_protein_inference_audit(
         filtered_records,
         picked_threshold=picked_threshold,
     )
-    filtered_by_kind = {
-        entry.strategy_kind: entry for entry in filtered.selections
-    }
+    filtered_by_kind = {entry.strategy_kind: entry for entry in filtered.selections}
     strategy_shifts: list[ContaminantStrategyShift] = []
     unresolved = False
     for selection in raw.selections:
@@ -99,7 +97,9 @@ def build_contaminant_aware_protein_inference_audit(
         unresolved = unresolved or bool(contaminant_proteins)
         filtered_selection = filtered_by_kind.get(selection.strategy_kind)
         filtered_selected = (
-            filtered_selection.selected_proteins if filtered_selection is not None else ()
+            filtered_selection.selected_proteins
+            if filtered_selection is not None
+            else ()
         )
         strategy_shifts.append(
             ContaminantStrategyShift(
@@ -124,7 +124,7 @@ def build_contaminant_aware_protein_inference_audit(
         any(_is_contaminant(ref, contaminant_prefixes) for ref in record.protein_refs)
         for record in records
     )
-    contaminant_proteins = {
+    contaminant_protein_set = {
         ref
         for record in records
         for ref in record.protein_refs
@@ -132,7 +132,7 @@ def build_contaminant_aware_protein_inference_audit(
     }
     return ContaminantAwareProteinInferenceAudit(
         contaminant_psm_count=contaminant_psm_count,
-        contaminant_protein_count=len(contaminant_proteins),
+        contaminant_protein_count=len(contaminant_protein_set),
         unresolved_contaminant_promotion=unresolved,
         strategy_shifts=tuple(strategy_shifts),
     )

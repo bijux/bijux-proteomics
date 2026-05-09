@@ -57,7 +57,9 @@ def test_build_targeted_platform_support_matrix_separates_supported_partial_and_
     assert states["orbitrap-prm"] is TargetedPlatformSupportState.SUPPORTED
     assert states["qqq-srm"] is TargetedPlatformSupportState.PARTIAL
     assert states["iontrap-prm"] is TargetedPlatformSupportState.REFUSED
-    qqq_entry = next(entry for entry in report.entries if entry.platform_id == "qqq-srm")
+    qqq_entry = next(
+        entry for entry in report.entries if entry.platform_id == "qqq-srm"
+    )
     assert "partial targeted support means" in qqq_entry.partial_support_definition
     assert "calibration_standards" in qqq_entry.missing_assumptions
     refused_entry = next(

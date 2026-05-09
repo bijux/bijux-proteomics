@@ -21,6 +21,7 @@ from bijux_proteomics.identification.search_adapters import (
 
 def test_search_adapter_parity_report_accepts_release_ready_normalization() -> None:
     manifest = get_search_adapter_manifest(SearchAdapterKind.SAGE)
+    assert manifest.mapping is not None
     normalized_record = PsmRecord(
         spectrum_id="sage-1",
         peptide="PEPTIDE",
@@ -60,6 +61,7 @@ def test_search_adapter_parity_report_accepts_release_ready_normalization() -> N
 
 def test_search_adapter_parity_report_refuses_material_information_loss() -> None:
     manifest = get_search_adapter_manifest(SearchAdapterKind.SAGE)
+    assert manifest.mapping is not None
     normalization_report = SearchAdapterNormalizationReport(
         adapter_manifest=manifest,
         family_policy=build_search_result_family_policy(manifest),

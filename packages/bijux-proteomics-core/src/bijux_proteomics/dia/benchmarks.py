@@ -334,13 +334,10 @@ def build_targeted_raw_to_reviewed_bundle_report(
     honest_handoff_count = 0
     inflated_handoff_count = 0
     for observation in handoff_observations:
-        inflated = (
-            observation.claimed_transition_ready
-            and (
-                not observation.calibration_failures_visible
-                or not observation.interference_failures_visible
-                or not observation.control_gaps_visible
-            )
+        inflated = observation.claimed_transition_ready and (
+            not observation.calibration_failures_visible
+            or not observation.interference_failures_visible
+            or not observation.control_gaps_visible
         )
         if inflated:
             inflated_handoff_count += 1
@@ -349,12 +346,12 @@ def build_targeted_raw_to_reviewed_bundle_report(
 
     reconciled_outcome_count = 0
     unreconciled_outcome_count = 0
-    for observation in outcome_observations:
+    for outcome_observation in outcome_observations:
         if (
-            observation.observed_transition_failure
-            and observation.reconciliation_recorded
-            and observation.corrective_action_visible
-        ) or not observation.observed_transition_failure:
+            outcome_observation.observed_transition_failure
+            and outcome_observation.reconciliation_recorded
+            and outcome_observation.corrective_action_visible
+        ) or not outcome_observation.observed_transition_failure:
             reconciled_outcome_count += 1
         else:
             unreconciled_outcome_count += 1

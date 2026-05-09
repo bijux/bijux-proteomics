@@ -45,14 +45,16 @@ def _materialize_generated_package_files() -> tuple[str, ...]:
         for inventory in build_flagship_public_package_artifact_inventories()
     }
     quality_sheets = {
-        sheet.package_id: sheet for sheet in build_flagship_public_package_quality_sheets()
+        sheet.package_id: sheet
+        for sheet in build_flagship_public_package_quality_sheets()
     }
     lifecycle_records = {
         record.package_id: record
         for record in build_flagship_public_package_lifecycle_records()
     }
     package_map = {
-        package.package_id: package for package in list_flagship_public_benchmark_packages()
+        package.package_id: package
+        for package in list_flagship_public_benchmark_packages()
     }
     written: list[str] = []
     dda_package = build_dda_reviewable_package()
@@ -72,7 +74,8 @@ def _materialize_generated_package_files() -> tuple[str, ...]:
             )
             written.append(
                 _write_json(
-                    repo_root / f"{dda_package.package_root}/scientific_invariants.json",
+                    repo_root
+                    / f"{dda_package.package_root}/scientific_invariants.json",
                     JsonListPayload.from_models(
                         dda_package.scientific_invariants
                     ).to_stable_json(),
@@ -80,7 +83,8 @@ def _materialize_generated_package_files() -> tuple[str, ...]:
             )
             written.append(
                 _write_json(
-                    repo_root / f"{dda_package.package_root}/warning_demonstrations.json",
+                    repo_root
+                    / f"{dda_package.package_root}/warning_demonstrations.json",
                     JsonListPayload.from_models(
                         dda_package.warning_demonstrations
                     ).to_stable_json(),
@@ -164,13 +168,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
     if args.command == "refresh":
-        written = list(write_flagship_asset_support_files(check_remote=args.check_remote))
+        written = list(
+            write_flagship_asset_support_files(check_remote=args.check_remote)
+        )
         written.extend(_materialize_generated_package_files())
         for path in written:
             print(path)
         return 0
     parser.error(f"unsupported command: {args.command}")
-    return 2
+    raise AssertionError("parser.error should terminate execution")
 
 
 if __name__ == "__main__":

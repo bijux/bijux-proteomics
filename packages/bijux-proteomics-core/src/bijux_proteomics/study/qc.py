@@ -14,19 +14,19 @@ from statistics import median
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import calculate_peptide_mz
-from bijux_proteomics.sequences.digestion import (
-    ProteaseCleavageMode,
-    ProteaseRule,
-    get_protease_rule,
-)
-from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.spectra import SpectrumModel, calculate_precursor_mass_error
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
     QuantEntityLevel,
 )
-from bijux_proteomics.io.spectra import SpectrumModel, calculate_precursor_mass_error
+from bijux_proteomics.sequences.digestion import (
+    ProteaseCleavageMode,
+    ProteaseRule,
+    get_protease_rule,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_model
 
 

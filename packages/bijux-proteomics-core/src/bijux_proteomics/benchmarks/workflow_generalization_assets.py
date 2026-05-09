@@ -9,6 +9,9 @@ import argparse
 import json
 from pathlib import Path
 
+from bijux_proteomics.benchmarks.flagship_public_packages import (
+    FlagshipPublicBenchmarkPackage,
+)
 from bijux_proteomics.benchmarks.workflow_generalization import (
     SecondaryPublicPackageAssetRegistry,
     WorkflowFamilyStabilityScorecard,
@@ -37,7 +40,7 @@ def _write_text(path: Path, payload: str) -> str:
     return str(path.relative_to(_repo_root()))
 
 
-def _package_readme(package) -> str:
+def _package_readme(package: FlagshipPublicBenchmarkPackage) -> str:
     lines = [
         f"# {package.package_label}",
         "",
@@ -47,7 +50,19 @@ def _package_readme(package) -> str:
         "",
     ]
     for asset in package.source_assets:
-        if asset.path.endswith(("package_manifest.json", "artifact_inventory.json", "quality_sheet.json", "lifecycle.json", "source_locator_manifest.json", "citation_manifest.json", "generated_boundary.json", "rebuild_instructions.md", "README.md")):
+        if asset.path.endswith(
+            (
+                "package_manifest.json",
+                "artifact_inventory.json",
+                "quality_sheet.json",
+                "lifecycle.json",
+                "source_locator_manifest.json",
+                "citation_manifest.json",
+                "generated_boundary.json",
+                "rebuild_instructions.md",
+                "README.md",
+            )
+        ):
             continue
         relative = asset.path.replace(f"{package.package_root}/", "")
         lines.append(f"- `{relative}`")
@@ -94,7 +109,8 @@ def _write_registry_support_files(
                     "workflow_family": entry.workflow_family,
                     "asset_root": entry.asset_root,
                     "remote_sources": [
-                        source.model_dump(mode="json") for source in entry.remote_sources
+                        source.model_dump(mode="json")
+                        for source in entry.remote_sources
                     ],
                 },
                 indent=2,
@@ -169,7 +185,10 @@ def _write_registry_support_files(
 
 def _write_package_surfaces() -> tuple[str, ...]:
     repo_root = _repo_root()
-    packages = {package.package_id: package for package in list_secondary_public_benchmark_packages()}
+    packages = {
+        package.package_id: package
+        for package in list_secondary_public_benchmark_packages()
+    }
     quality_sheets = {
         sheet.package_id: sheet
         for sheet in build_secondary_public_package_quality_sheets()
@@ -181,7 +200,9 @@ def _write_package_surfaces() -> tuple[str, ...]:
     written: list[str] = []
     for package_id, package in packages.items():
         written.append(
-            _write_text(repo_root / package.benchmark_manifest_path, package.to_stable_json())
+            _write_text(
+                repo_root / package.benchmark_manifest_path, package.to_stable_json()
+            )
         )
         written.append(
             _write_text(
@@ -196,7 +217,10 @@ def _write_package_surfaces() -> tuple[str, ...]:
             )
         )
         written.append(
-            _write_text(repo_root / f"{package.package_root}/README.md", _package_readme(package))
+            _write_text(
+                repo_root / f"{package.package_root}/README.md",
+                _package_readme(package),
+            )
         )
     inventories = {
         inventory.package_id: inventory
@@ -219,8 +243,12 @@ def _write_generalization_reports(
     repo_root = _repo_root()
     written: list[str] = []
     for report in reports:
-        written.append(_write_text(repo_root / report.artifact_path, report.to_stable_json()))
-    written.append(_write_text(repo_root / scorecard.artifact_path, scorecard.to_stable_json()))
+        written.append(
+            _write_text(repo_root / report.artifact_path, report.to_stable_json())
+        )
+    written.append(
+        _write_text(repo_root / scorecard.artifact_path, scorecard.to_stable_json())
+    )
     return tuple(written)
 
 
@@ -244,7 +272,6 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command != "refresh":
         parser.error(f"unsupported command: {args.command}")
-        return 2
     written = list(
         _write_registry_support_files(build_secondary_public_package_asset_registry())
     )

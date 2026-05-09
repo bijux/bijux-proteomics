@@ -105,9 +105,7 @@ def build_flagship_scientific_kernel_report(
     )
 
     blocked_reasons = [
-        issue.code.value
-        for issue in consistency.issues
-        if issue.blocking
+        issue.code.value for issue in consistency.issues if issue.blocking
     ]
     blocked_reasons.extend(
         finding.code.value

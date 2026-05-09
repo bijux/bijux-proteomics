@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field
 
@@ -19,6 +20,9 @@ from bijux_proteomics.ptm import (
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics_lab.handoffs.ptm import PtmLabValidationPacket
 
 
 class PtmSiteLocalizationEvidenceNode(JsonModel):
@@ -779,7 +783,7 @@ def build_ptm_lab_validation_packet(
     *,
     occupancy_report: PtmOccupancyCounterpartEvidenceReport | None = None,
     cooccurrence_report: PtmCooccurrenceCautionReport | None = None,
-):
+) -> PtmLabValidationPacket:
     """Route PTM lab-validation packet construction through the lab owner package."""
     from bijux_proteomics_lab.handoffs.ptm import (
         build_ptm_lab_validation_packet as _build,

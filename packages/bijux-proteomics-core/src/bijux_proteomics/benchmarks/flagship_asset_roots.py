@@ -471,9 +471,7 @@ def _asset_root_entries() -> tuple[FlagshipAssetRootEntry, ...]:
             source_locator_manifest_path=_source_locator_manifest_path(
                 "lfq_cohort_review_package"
             ),
-            citation_manifest_path=_citation_manifest_path(
-                "lfq_cohort_review_package"
-            ),
+            citation_manifest_path=_citation_manifest_path("lfq_cohort_review_package"),
             generated_boundary_path=_generated_boundary_path(
                 "lfq_cohort_review_package"
             ),
@@ -734,9 +732,9 @@ def _validated_public_reference(url: str) -> tuple[SplitResult, str]:
         raise ValueError("url must have a resolvable host")
     try:
         address = ip_address(host)
-    except ValueError:
+    except ValueError as exc:
         if host == "localhost" or host.endswith(".local"):
-            raise ValueError("url host must be publicly routable")
+            raise ValueError("url host must be publicly routable") from exc
     else:
         if (
             address.is_loopback
@@ -801,7 +799,8 @@ def build_flagship_asset_refresh_report(
     entries: list[FlagshipAssetFreshnessEntry] = []
     for entry in list_flagship_asset_root_entries():
         local_paths_present = all(
-            (repo_root / source.local_artifact_path).exists() for source in entry.remote_sources
+            (repo_root / source.local_artifact_path).exists()
+            for source in entry.remote_sources
         )
         remote_checks_list: list[FlagshipRemoteAvailabilityCheck] = []
         for source in entry.remote_sources:
@@ -944,7 +943,9 @@ def write_flagship_asset_support_files(
         else:
             output_path = repo_root / payload.audit_path
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(payload.model_dump_json(indent=2) + "\n", encoding="utf-8")
+        output_path.write_text(
+            payload.model_dump_json(indent=2) + "\n", encoding="utf-8"
+        )
         written.append(str(output_path.relative_to(repo_root)))
 
     for entry in contract.entries:
@@ -955,7 +956,10 @@ def write_flagship_asset_support_files(
                     "package_id": entry.package_id,
                     "workflow_family": entry.workflow_family,
                     "asset_root": entry.asset_root,
-                    "remote_sources": [source.model_dump(mode="json") for source in entry.remote_sources],
+                    "remote_sources": [
+                        source.model_dump(mode="json")
+                        for source in entry.remote_sources
+                    ],
                 },
                 indent=2,
             )
@@ -968,7 +972,9 @@ def write_flagship_asset_support_files(
                 {
                     "package_id": entry.package_id,
                     "workflow_family": entry.workflow_family,
-                    "citations": [citation.model_dump(mode="json") for citation in entry.citations],
+                    "citations": [
+                        citation.model_dump(mode="json") for citation in entry.citations
+                    ],
                 },
                 indent=2,
             )

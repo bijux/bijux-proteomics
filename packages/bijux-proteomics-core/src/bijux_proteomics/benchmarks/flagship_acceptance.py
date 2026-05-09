@@ -238,7 +238,9 @@ def _reviews() -> dict[KnowledgeWorkflowFamily, WorkflowBenchmarkReview]:
 
 @lru_cache(maxsize=1)
 def _holdouts() -> dict[str, BlindedHoldoutReport]:
-    return {report.workflow_family: report for report in build_blinded_holdout_reports()}
+    return {
+        report.workflow_family: report for report in build_blinded_holdout_reports()
+    }
 
 
 @lru_cache(maxsize=1)
@@ -279,7 +281,9 @@ def build_flagship_acceptance_sheet(
 def list_flagship_acceptance_sheets() -> tuple[FlagshipAcceptanceSheet, ...]:
     """Return the currently published flagship acceptance sheets."""
 
-    return tuple(build_flagship_acceptance_sheet(family) for family in _SUPPORTED_FAMILIES)
+    return tuple(
+        build_flagship_acceptance_sheet(family) for family in _SUPPORTED_FAMILIES
+    )
 
 
 def build_flagship_acceptance_dashboard() -> FlagshipAcceptanceDashboard:
@@ -288,7 +292,9 @@ def build_flagship_acceptance_dashboard() -> FlagshipAcceptanceDashboard:
     rows = []
     for sheet in list_flagship_acceptance_sheets():
         failing = tuple(
-            criterion.criterion_id for criterion in sheet.criteria if not criterion.passed
+            criterion.criterion_id
+            for criterion in sheet.criteria
+            if not criterion.passed
         )
         rows.append(
             FlagshipAcceptanceDashboardRow(
@@ -364,7 +370,9 @@ def build_flagship_acceptance_rationale_dossier() -> FlagshipAcceptanceRationale
         if sheet.workflow_family.value in holdouts:
             challenge_refs += (holdouts[sheet.workflow_family.value].artifact_path,)
         if sheet.workflow_family.value in perturbations:
-            challenge_refs += (perturbations[sheet.workflow_family.value].artifact_path,)
+            challenge_refs += (
+                perturbations[sheet.workflow_family.value].artifact_path,
+            )
         for criterion in sheet.criteria:
             entries.append(
                 FlagshipAcceptanceRationaleEntry(
@@ -389,12 +397,11 @@ def build_flagship_acceptance_rationale_dossier() -> FlagshipAcceptanceRationale
                     ),
                     lab_consequence_basis=(
                         "minimum controls that remain visible in the benchmark review: "
-                        + ", ".join(_reviews()[sheet.workflow_family].minimum_controls_required)
+                        + ", ".join(
+                            _reviews()[sheet.workflow_family].minimum_controls_required
+                        )
                     ),
-                    evidence_paths=(
-                        criterion.evidence_paths
-                        + challenge_refs
-                    ),
+                    evidence_paths=(criterion.evidence_paths + challenge_refs),
                 )
             )
     return FlagshipAcceptanceRationaleDossier(
@@ -461,7 +468,8 @@ def _build_dda_acceptance_sheet() -> FlagshipAcceptanceSheet:
             observed_value=review.public_claim_support_state.value,
             required_relation=AcceptanceRelation.ONE_OF,
             required_value="advisory|supported",
-            passed=review.public_claim_support_state in {
+            passed=review.public_claim_support_state
+            in {
                 ComparatorClaimSupportState.ADVISORY,
                 ComparatorClaimSupportState.SUPPORTED,
             },
@@ -480,7 +488,10 @@ def _build_dda_acceptance_sheet() -> FlagshipAcceptanceSheet:
             required_value="review_grade:true|decision_grade:true",
             passed=review.ready_for_release_review
             and review.reviewer_grounding_state
-            in {ReviewerGroundingState.REVIEW_GRADE, ReviewerGroundingState.DECISION_GRADE},
+            in {
+                ReviewerGroundingState.REVIEW_GRADE,
+                ReviewerGroundingState.DECISION_GRADE,
+            },
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
@@ -508,10 +519,15 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="dia_library_dependence",
             dimension="library dependence",
             observed_kind=AcceptanceObservedKind.FRACTION,
-            observed_value=_claim_metric(review, "library_conditioned_import_tier", "observed_fraction"),
+            observed_value=_claim_metric(
+                review, "library_conditioned_import_tier", "observed_fraction"
+            ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="0.67",
-            passed=_claim_metric_float(review, "library_conditioned_import_tier", "observed_fraction") >= 0.67,
+            passed=_claim_metric_float(
+                review, "library_conditioned_import_tier", "observed_fraction"
+            )
+            >= 0.67,
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
@@ -522,10 +538,15 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="dia_peptide_evidence_coverage",
             dimension="peptide evidence coverage",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "protein_group_reviewability", "protein_groups"),
+            observed_value=_claim_metric(
+                review, "protein_group_reviewability", "protein_groups"
+            ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="4",
-            passed=_claim_metric_float(review, "protein_group_reviewability", "protein_groups") >= 4.0,
+            passed=_claim_metric_float(
+                review, "protein_group_reviewability", "protein_groups"
+            )
+            >= 4.0,
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py",
@@ -544,7 +565,9 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
             ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="1",
-            passed=any(finding.revealed_outcome.value == "hit" for finding in holdout.findings),
+            passed=any(
+                finding.revealed_outcome.value == "hit" for finding in holdout.findings
+            ),
             evidence_paths=(
                 holdout.artifact_path,
                 "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py",
@@ -555,10 +578,15 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="dia_quantitative_coherence",
             dimension="quantitative coherence",
             observed_kind=AcceptanceObservedKind.FRACTION,
-            observed_value=_claim_metric(review, "biological_interpretation_tier", "absent_expected_fraction"),
+            observed_value=_claim_metric(
+                review, "biological_interpretation_tier", "absent_expected_fraction"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="0.33",
-            passed=_claim_metric_float(review, "biological_interpretation_tier", "absent_expected_fraction") <= 0.33,
+            passed=_claim_metric_float(
+                review, "biological_interpretation_tier", "absent_expected_fraction"
+            )
+            <= 0.33,
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-core/tests/dia/test_scientific_support_surface.py",
@@ -574,7 +602,10 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
             required_value="review_grade:true|decision_grade:true",
             passed=review.ready_for_release_review
             and review.reviewer_grounding_state
-            in {ReviewerGroundingState.REVIEW_GRADE, ReviewerGroundingState.DECISION_GRADE},
+            in {
+                ReviewerGroundingState.REVIEW_GRADE,
+                ReviewerGroundingState.DECISION_GRADE,
+            },
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
@@ -618,7 +649,8 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
             observed_value="decision_grade",
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="decision_grade",
-            passed=_claim_support_state(review, "decision_grade_boundary") == "supported",
+            passed=_claim_support_state(review, "decision_grade_boundary")
+            == "supported",
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/quantification/test_effect_size_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -629,10 +661,13 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="lfq_differential_reproducibility",
             dimension="differential reproducibility",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "feature_ingestion", "accepted_records"),
+            observed_value=_claim_metric(
+                review, "feature_ingestion", "accepted_records"
+            ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="24",
-            passed=_claim_metric_float(review, "feature_ingestion", "accepted_records") >= 24.0,
+            passed=_claim_metric_float(review, "feature_ingestion", "accepted_records")
+            >= 24.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -646,7 +681,8 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
             observed_value=review.public_claim_support_state.value,
             required_relation=AcceptanceRelation.ONE_OF,
             required_value="advisory|supported",
-            passed=review.public_claim_support_state in {
+            passed=review.public_claim_support_state
+            in {
                 ComparatorClaimSupportState.ADVISORY,
                 ComparatorClaimSupportState.SUPPORTED,
             },
@@ -665,7 +701,10 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
             required_value="review_grade:true|decision_grade:true",
             passed=review.ready_for_release_review
             and review.reviewer_grounding_state
-            in {ReviewerGroundingState.REVIEW_GRADE, ReviewerGroundingState.DECISION_GRADE},
+            in {
+                ReviewerGroundingState.REVIEW_GRADE,
+                ReviewerGroundingState.DECISION_GRADE,
+            },
             evidence_paths=(
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -693,10 +732,15 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="multiplex_interference",
             dimension="interference",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "channel_balance_caveats", "flagged_imbalance_count"),
+            observed_value=_claim_metric(
+                review, "channel_balance_caveats", "flagged_imbalance_count"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="1",
-            passed=_claim_metric_float(review, "channel_balance_caveats", "flagged_imbalance_count") <= 1.0,
+            passed=_claim_metric_float(
+                review, "channel_balance_caveats", "flagged_imbalance_count"
+            )
+            <= 1.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -707,10 +751,13 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="multiplex_channel_dropout",
             dimension="channel dropout",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "channel_manifest", "missing_channels"),
+            observed_value=_claim_metric(
+                review, "channel_manifest", "missing_channels"
+            ),
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="0",
-            passed=_claim_metric_float(review, "channel_manifest", "missing_channels") == 0.0,
+            passed=_claim_metric_float(review, "channel_manifest", "missing_channels")
+            == 0.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -721,10 +768,15 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="multiplex_reference_channel_fragility",
             dimension="reference-channel fragility",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "channel_balance_caveats", "missing_channel_count"),
+            observed_value=_claim_metric(
+                review, "channel_balance_caveats", "missing_channel_count"
+            ),
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="0",
-            passed=_claim_metric_float(review, "channel_balance_caveats", "missing_channel_count") == 0.0,
+            passed=_claim_metric_float(
+                review, "channel_balance_caveats", "missing_channel_count"
+            )
+            == 0.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/quantification/test_multiplex_artifact_pressure_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -735,10 +787,13 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="multiplex_ratio_compression",
             dimension="ratio compression",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_metric_value(perturbation, "materially_compressed_ratio_count"),
+            observed_value=_metric_value(
+                perturbation, "materially_compressed_ratio_count"
+            ),
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="0",
-            passed=_metric_float(perturbation, "materially_compressed_ratio_count") == 0.0,
+            passed=_metric_float(perturbation, "materially_compressed_ratio_count")
+            == 0.0,
             evidence_paths=(
                 perturbation.artifact_path,
                 "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py",
@@ -752,7 +807,8 @@ def _build_multiplex_acceptance_sheet() -> FlagshipAcceptanceSheet:
             observed_value=review.public_claim_support_state.value,
             required_relation=AcceptanceRelation.ONE_OF,
             required_value="advisory|supported",
-            passed=review.public_claim_support_state in {
+            passed=review.public_claim_support_state
+            in {
                 ComparatorClaimSupportState.ADVISORY,
                 ComparatorClaimSupportState.SUPPORTED,
             },
@@ -782,10 +838,13 @@ def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="ptm_localization_quality",
             dimension="localization quality",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "phospho_review_packet", "motif_windows"),
+            observed_value=_claim_metric(
+                review, "phospho_review_packet", "motif_windows"
+            ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="5",
-            passed=_claim_metric_float(review, "phospho_review_packet", "motif_windows") >= 5.0,
+            passed=_claim_metric_float(review, "phospho_review_packet", "motif_windows")
+            >= 5.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -796,10 +855,15 @@ def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="ptm_ambiguity_burden",
             dimension="ambiguity burden",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "site_ambiguity_visibility", "ambiguous_sites"),
+            observed_value=_claim_metric(
+                review, "site_ambiguity_visibility", "ambiguous_sites"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="2",
-            passed=_claim_metric_float(review, "site_ambiguity_visibility", "ambiguous_sites") <= 2.0,
+            passed=_claim_metric_float(
+                review, "site_ambiguity_visibility", "ambiguous_sites"
+            )
+            <= 2.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/ptm/test_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -824,10 +888,15 @@ def _build_ptm_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="ptm_occupancy_stability",
             dimension="occupancy stability",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "phospho_review_packet", "quantified_samples"),
+            observed_value=_claim_metric(
+                review, "phospho_review_packet", "quantified_samples"
+            ),
             required_relation=AcceptanceRelation.AT_LEAST,
             required_value="4",
-            passed=_claim_metric_float(review, "phospho_review_packet", "quantified_samples") >= 4.0,
+            passed=_claim_metric_float(
+                review, "phospho_review_packet", "quantified_samples"
+            )
+            >= 4.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/ptm/test_occupancy_counterpart_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -869,10 +938,15 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="targeted_calibration_quality",
             dimension="calibration quality",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "calibration_failed"),
+            observed_value=_claim_metric(
+                review, "calibration_and_pairing_pressure", "calibration_failed"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="1",
-            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "calibration_failed") <= 1.0,
+            passed=_claim_metric_float(
+                review, "calibration_and_pairing_pressure", "calibration_failed"
+            )
+            <= 1.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -883,10 +957,15 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="targeted_transition_interference",
             dimension="transition interference",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "interference_flags"),
+            observed_value=_claim_metric(
+                review, "calibration_and_pairing_pressure", "interference_flags"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="1",
-            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "interference_flags") <= 1.0,
+            passed=_claim_metric_float(
+                review, "calibration_and_pairing_pressure", "interference_flags"
+            )
+            <= 1.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -897,10 +976,15 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="targeted_heavy_light_coherence",
             dimension="heavy-light coherence",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "calibration_and_pairing_pressure", "missing_pairs"),
+            observed_value=_claim_metric(
+                review, "calibration_and_pairing_pressure", "missing_pairs"
+            ),
             required_relation=AcceptanceRelation.AT_MOST,
             required_value="1",
-            passed=_claim_metric_float(review, "calibration_and_pairing_pressure", "missing_pairs") <= 1.0,
+            passed=_claim_metric_float(
+                review, "calibration_and_pairing_pressure", "missing_pairs"
+            )
+            <= 1.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -911,10 +995,15 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             criterion_id="targeted_carryover_posture",
             dimension="carryover posture",
             observed_kind=AcceptanceObservedKind.INTEGER,
-            observed_value=_claim_metric(review, "chromatogram_qc_surface", "failed_metric_rows"),
+            observed_value=_claim_metric(
+                review, "chromatogram_qc_surface", "failed_metric_rows"
+            ),
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="0",
-            passed=_claim_metric_float(review, "chromatogram_qc_surface", "failed_metric_rows") == 0.0,
+            passed=_claim_metric_float(
+                review, "chromatogram_qc_surface", "failed_metric_rows"
+            )
+            == 0.0,
             evidence_paths=(
                 "packages/bijux-proteomics-core/tests/dia/test_targeted_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -928,7 +1017,8 @@ def _build_targeted_acceptance_sheet() -> FlagshipAcceptanceSheet:
             observed_value=_claim_support_state(review, "raw_to_reviewed_bundle"),
             required_relation=AcceptanceRelation.EXACTLY,
             required_value="supported",
-            passed=_claim_support_state(review, "raw_to_reviewed_bundle") == "supported",
+            passed=_claim_support_state(review, "raw_to_reviewed_bundle")
+            == "supported",
             evidence_paths=(
                 "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
@@ -1015,7 +1105,9 @@ def _claim_metric(
     claim_id: str,
     metric_key: str,
 ) -> str:
-    claim = next(claim for claim in review.claim_summaries if claim.claim_id == claim_id)
+    claim = next(
+        claim for claim in review.claim_summaries if claim.claim_id == claim_id
+    )
     for reference in claim.evidence_refs:
         if reference.startswith(f"{metric_key}="):
             return reference.split("=", 1)[1]
@@ -1031,7 +1123,9 @@ def _claim_metric_float(
 
 
 def _claim_support_state(review: WorkflowBenchmarkReview, claim_id: str) -> str:
-    claim = next(claim for claim in review.claim_summaries if claim.claim_id == claim_id)
+    claim = next(
+        claim for claim in review.claim_summaries if claim.claim_id == claim_id
+    )
     return claim.support_state.value
 
 

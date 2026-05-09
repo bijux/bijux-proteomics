@@ -176,7 +176,9 @@ def _tsv_row_count(repo_relative_path: str) -> int:
 
 
 def _mgf_spectrum_count(repo_relative_path: str) -> int:
-    return _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    return (
+        _repo_path(repo_relative_path).read_text(encoding="utf-8").count("BEGIN IONS")
+    )
 
 
 def _optional_row_count(asset: FlagshipPublicBenchmarkAsset) -> int | None:
@@ -1049,7 +1051,9 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
     )
 
 
-def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchmarkPackage:
+def build_flagship_multiplex_public_benchmark_package() -> (
+    FlagshipPublicBenchmarkPackage
+):
     """Build the flagship public multiplex package."""
 
     package_root = _package_root("multiplex_tmtpro_review_package")
@@ -1136,7 +1140,9 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
     )
 
 
-def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmarkPackage:
+def build_flagship_targeted_public_benchmark_package() -> (
+    FlagshipPublicBenchmarkPackage
+):
     """Build the flagship public targeted package."""
 
     package_root = _package_root("targeted_transition_review_package")
@@ -1179,7 +1185,9 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
     )
 
 
-def list_flagship_public_benchmark_packages() -> tuple[FlagshipPublicBenchmarkPackage, ...]:
+def list_flagship_public_benchmark_packages() -> tuple[
+    FlagshipPublicBenchmarkPackage, ...
+]:
     """Return the flagship public packages that anchor core proof surfaces today."""
 
     return (
@@ -1287,7 +1295,9 @@ def build_flagship_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:multiplex_tmtpro_review_package",
             workflow_family="multiplex",
-            quality_path=_quality_path(_package_root("multiplex_tmtpro_review_package")),
+            quality_path=_quality_path(
+                _package_root("multiplex_tmtpro_review_package")
+            ),
             raw_identity_state="TMTpro feature and channel-design snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="external confrontation exists but public authority stays internal-support only",
@@ -1307,7 +1317,9 @@ def build_flagship_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:ptm_localization_review_package",
             workflow_family="ptm",
-            quality_path=_quality_path(_package_root("ptm_localization_review_package")),
+            quality_path=_quality_path(
+                _package_root("ptm_localization_review_package")
+            ),
             raw_identity_state="localization, feature, raw-spectrum, and FASTA snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="bounded external confrontation is shipped",
@@ -1328,7 +1340,9 @@ def build_flagship_public_package_quality_sheets() -> tuple[
         FlagshipPublicPackageQualitySheet(
             package_id="flagship_public_package:targeted_transition_review_package",
             workflow_family="targeted",
-            quality_path=_quality_path(_package_root("targeted_transition_review_package")),
+            quality_path=_quality_path(
+                _package_root("targeted_transition_review_package")
+            ),
             raw_identity_state="transition QC and approved/failed/refused consequence packet snapshots are tracked",
             runtime_state="reviewable raw-executable runtime lane exists",
             comparator_state="bounded Skyline-class comparator confrontation is shipped",
@@ -1406,7 +1420,9 @@ def build_flagship_public_package_lifecycle_records() -> tuple[
         FlagshipPublicPackageLifecycleRecord(
             package_id="flagship_public_package:multiplex_tmtpro_review_package",
             workflow_family="multiplex",
-            lifecycle_path=_lifecycle_path(_package_root("multiplex_tmtpro_review_package")),
+            lifecycle_path=_lifecycle_path(
+                _package_root("multiplex_tmtpro_review_package")
+            ),
             created_on=date(2026, 5, 7),
             last_refreshed_on=refreshed_on,
             obsolescence_triggers=(
@@ -1422,7 +1438,9 @@ def build_flagship_public_package_lifecycle_records() -> tuple[
         FlagshipPublicPackageLifecycleRecord(
             package_id="flagship_public_package:ptm_localization_review_package",
             workflow_family="ptm",
-            lifecycle_path=_lifecycle_path(_package_root("ptm_localization_review_package")),
+            lifecycle_path=_lifecycle_path(
+                _package_root("ptm_localization_review_package")
+            ),
             created_on=date(2026, 5, 7),
             last_refreshed_on=refreshed_on,
             obsolescence_triggers=(
@@ -1438,7 +1456,9 @@ def build_flagship_public_package_lifecycle_records() -> tuple[
         FlagshipPublicPackageLifecycleRecord(
             package_id="flagship_public_package:targeted_transition_review_package",
             workflow_family="targeted",
-            lifecycle_path=_lifecycle_path(_package_root("targeted_transition_review_package")),
+            lifecycle_path=_lifecycle_path(
+                _package_root("targeted_transition_review_package")
+            ),
             created_on=date(2026, 5, 7),
             last_refreshed_on=refreshed_on,
             obsolescence_triggers=(

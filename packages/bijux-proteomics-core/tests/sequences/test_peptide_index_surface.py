@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.sequences.digestion import (
     PeptideUniqueness,
     build_peptide_protein_index,
@@ -7,7 +8,6 @@ from bijux_proteomics.sequences.digestion import (
     digest_protein_records,
     digest_sequence,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
 def test_classify_peptide_uniqueness_distinguishes_unique_and_shared_peptides() -> None:
