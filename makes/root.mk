@@ -84,10 +84,10 @@ security-dependency-allowlist: root-check-env ## Validate the dependency allowli
 	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist
 
 api-freeze: root-check-env ## Enforce API schema freeze contracts
-	@$(DEV_RUN) -m bijux_proteomics_dev.api.freeze_contracts
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.freeze_contracts
 
 openapi-drift: root-check-env ## Detect breaking API schema changes without version bumps
-	@$(DEV_RUN) -m bijux_proteomics_dev.api.openapi_drift
+	@$(DEV_RUN) -m bijux_proteomics_dev.governance.contracts.openapi_drift
 
 architecture-check: root-check-env ## Run architecture documentation and design-debt guards
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.architecture_docs
