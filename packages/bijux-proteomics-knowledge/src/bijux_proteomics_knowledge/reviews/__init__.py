@@ -1,12 +1,28 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Scientific decision-read surfaces built on curated memory."""
+"""Curated review owner bands for knowledge-facing decision surfaces."""
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.reviews.explanations import *  # noqa: F401,F403
-from bijux_proteomics_knowledge.reviews.decision_briefs import *  # noqa: F401,F403
-from bijux_proteomics_knowledge.reviews.provenance import *  # noqa: F401,F403
-from bijux_proteomics_knowledge.reviews.trends import *  # noqa: F401,F403
-from bijux_proteomics_knowledge.reviews.flagship_evidence import *  # noqa: F401,F403
+from importlib import import_module
+from types import ModuleType
+
+__all__ = [
+    "decision_briefs",
+    "explanations",
+    "flagship_evidence",
+    "provenance",
+    "trends",
+]
+
+_REVIEW_OWNER_MODULES = {name: f"{__name__}.{name}" for name in __all__}
+
+
+def __getattr__(name: str) -> ModuleType:
+    """Load curated review owner modules lazily."""
+
+    module_name = _REVIEW_OWNER_MODULES.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return import_module(module_name)
