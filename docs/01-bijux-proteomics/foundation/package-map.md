@@ -60,6 +60,8 @@ This page should let a reader classify work before diffing the whole repository.
 
 - `configs/package-governance/public-root-symbol-owners.toml` for the
   machine-readable map of canonical package-root exports
+- [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
+  for the durable split, temporary compatibility split, and future merge rules
 - `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
   for the wrapper-only compatibility inventory
 - `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md`

@@ -43,6 +43,7 @@ def test_workflow_family_index_covers_family_status_run_mode_and_blockers() -> N
     assert "primary run mode" in text
     assert "benchmark coverage" in text
     assert "current blockers" in text
+    assert "DDA Cross-Package Handbook" in text
     assert "Scientist Journey" in text
     assert "Benchmark Assets" in text
     assert "Execution" in text
@@ -60,6 +61,7 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
     assert "Workflow Recommendation Confidence" in scientist
     assert "Lab Consequence" in scientist
     assert "Current Capability Limits" in scientist
+    assert "DDA Cross-Package Handbook" in scientist
 
     assert "Benchmark Rerun Kits" in operator
     assert "Runtime Environment Contracts" in operator

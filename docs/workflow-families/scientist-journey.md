@@ -15,6 +15,9 @@ runtime evidence, recommendation posture, and lab consequence.
 
 ## One-Family Route
 
+If the reader wants one worked family instead of the general route, start with
+the [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/workflow-families/dda-cross-package-handbook/).
+
 | step | question answered | owner | best page |
 | --- | --- | --- | --- |
 | 1 | Which family sentence is the repository defending today? | repository docs | [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/) |

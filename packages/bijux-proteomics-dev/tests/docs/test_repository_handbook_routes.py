@@ -17,6 +17,7 @@ def test_repository_handbook_routes_product_owners_and_reader_intent() -> None:
     assert "## Shared Reader Routes" in handbook
     assert "Product Architecture" in handbook
     assert "Cross-Package Ownership" in handbook
+    assert "Repository Shape Rationale" in handbook
     assert "Release Readiness Matrix" in handbook
     assert "## Reader Routes" in handbook
     assert "Product Overview" in handbook

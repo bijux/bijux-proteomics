@@ -49,6 +49,9 @@ This section should move a reader from system-level confusion to a package-level
   for the shortest explanation of the end-to-end product chain.
 - Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
   when the question is which package should own the work, import, or artifact.
+- Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
+  when the question is why the current package split still exists and which
+  split is only temporary compatibility.
 - Open [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
   when a change crosses root and package boundaries.
 - Open [Public Language Glossary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-language-glossary/)
@@ -91,6 +94,7 @@ This section should move a reader from system-level confusion to a package-level
 - [Workspace Layout](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workspace-layout/)
 - [Package Map](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/package-map/)
 - [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
 - [Ownership Model](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/ownership-model/)
 - [Public Language Glossary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-language-glossary/)
 - [Domain Language](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/domain-language/)

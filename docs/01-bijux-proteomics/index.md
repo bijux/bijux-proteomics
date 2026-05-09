@@ -64,6 +64,9 @@ flowchart TB
   when the question is how the end-to-end product chain is meant to work.
 - Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
   when the question is which package or handoff owns the work.
+- Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
+  when the question is why the current package split still exists and which
+  split is only compatibility.
 - Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
   when the question is whether public wording outruns checked evidence.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)

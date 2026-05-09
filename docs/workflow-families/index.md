@@ -27,6 +27,9 @@ story.
 
 ## Best Next Routes
 
+- Open [DDA Cross-Package Handbook](https://bijux.io/bijux-proteomics/workflow-families/dda-cross-package-handbook/)
+  when the question is how one real flagship family crosses foundation, core,
+  runtime, knowledge, intelligence, and lab without package-handbook hopping.
 - Open [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
   when the question is how one family connects benchmark assets, runtime
   evidence, curated knowledge, recommendation posture, and lab consequence.
