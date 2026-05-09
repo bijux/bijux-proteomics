@@ -64,6 +64,7 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
             "bijux_proteomics_foundation.serialization.json_contracts"
         ].consumer_distributions
     ) == {
+        "bijux-proteomics-core",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-knowledge",
         "bijux-proteomics-runtime",
@@ -74,6 +75,7 @@ def test_foundation_surface_consumer_matrix_covers_public_surfaces() -> None:
         ].consumer_distributions
     ) == {
         "bijux-proteomics-intelligence",
+        "bijux-proteomics-lab",
     }
     assert set(
         entry_by_module[
