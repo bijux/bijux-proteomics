@@ -78,10 +78,11 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
             allowed_outbound_edges=(
                 "bijux-proteomics-foundation",
                 "bijux-proteomics-intelligence",
+                "bijux-proteomics-knowledge",
                 "bijux-proteomics-lab",
                 "bijux-proteomics-runtime",
             ),
-            rationale="core currently exposes narrow scientific seams into runtime, intelligence, and lab while remaining grounded on foundation primitives.",
+            rationale="core stays grounded on foundation primitives while owning benchmark acceptance and workflow contracts that consume narrow knowledge references plus reviewed seams into runtime, intelligence, and lab.",
         )
     if package_name == "bijux-proteomics-runtime":
         return PackageDependencyPolicyEntry(
@@ -90,8 +91,10 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
                 "bijux-proteomics-core",
                 "bijux-proteomics-foundation",
                 "bijux-proteomics-intelligence",
+                "bijux-proteomics-knowledge",
+                "bijux-proteomics-lab",
             ),
-            rationale="runtime depends on core scientific seams, foundation contracts, and a narrow intelligence review path that remains explicitly governed.",
+            rationale="runtime depends on core scientific seams, foundation contracts, and governed downstream review surfaces when it assembles replayable cross-package workflow evidence.",
         )
     if package_name == "bijux-proteomics-intelligence":
         return PackageDependencyPolicyEntry(
@@ -100,8 +103,10 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
                 "bijux-proteomics-core",
                 "bijux-proteomics-foundation",
                 "bijux-proteomics-knowledge",
+                "bijux-proteomics-lab",
+                "bijux-proteomics-runtime",
             ),
-            rationale="intelligence consumes core scientific semantics, foundation contracts, and knowledge evidence/reference owners.",
+            rationale="intelligence consumes core scientific semantics, foundation contracts, knowledge evidence owners, runtime replay truth, and lab burden signals when it publishes release-facing review posture.",
         )
     if package_name == "bijux-proteomics-knowledge":
         return PackageDependencyPolicyEntry(

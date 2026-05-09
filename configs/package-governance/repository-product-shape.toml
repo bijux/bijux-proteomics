@@ -84,7 +84,7 @@ handoff_class = "scientific-review-bundle"
 owner_package = "bijux-proteomics-knowledge"
 producer_packages = ["bijux-proteomics-knowledge"]
 consumer_packages = ["bijux-proteomics-intelligence", "bijux-proteomics-lab"]
-examples = ["evidence bundle", "contradiction ledger", "knowledge review packet"]
+examples = ["evidence bundle", "contradiction ledger", "knowledge decision brief"]
 summary = "Knowledge owns the grounded evidence memory that recommendation and lab consequence must consume rather than recreate."
 
 [[handoff]]
@@ -139,8 +139,8 @@ role_kind = "product"
 role_summary = "benchmark assets, durable scientific contracts, and workflow requests"
 docs_path = "docs/04-bijux-proteomics-core/index.md"
 readme_path = "packages/bijux-proteomics-core/README.md"
-allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-knowledge"]
+allowed_outbound_imports = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev"]
 owned_handoff_classes = ["benchmark-asset-bundle"]
 
 [[package]]
@@ -149,8 +149,8 @@ role_kind = "product"
 role_summary = "execution, provider binding, deterministic replay, and operator entrypoints"
 docs_path = "docs/09-bijux-proteomics-runtime/index.md"
 readme_path = "packages/bijux-proteomics-runtime/README.md"
-allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev"]
 owned_handoff_classes = ["runtime-run-bundle"]
 
 [[package]]
@@ -159,8 +159,8 @@ role_kind = "product"
 role_summary = "recommendation posture, ranking sensitivity, and refusal behavior"
 docs_path = "docs/05-bijux-proteomics-intelligence/index.md"
 readme_path = "packages/bijux-proteomics-intelligence/README.md"
-allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
-forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-runtime", "bijux-proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+forbidden_outbound_imports = ["agentic-proteins", "bijux-proteomics-dev"]
 owned_handoff_classes = ["recommendation-record"]
 
 [[package]]

@@ -18,18 +18,18 @@ rationale = "foundation remains the primitive base and does not import product p
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-rationale = "core currently exposes narrow scientific seams into runtime, intelligence, and lab while remaining grounded on foundation primitives."
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "core stays grounded on foundation primitives while owning benchmark acceptance and workflow contracts that consume narrow knowledge references plus reviewed seams into runtime, intelligence, and lab."
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
-rationale = "runtime depends on core scientific seams, foundation contracts, and a narrow intelligence review path that remains explicitly governed."
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+rationale = "runtime depends on core scientific seams, foundation contracts, and governed downstream review surfaces when it assembles replayable cross-package workflow evidence."
 
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
-allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge"]
-rationale = "intelligence consumes core scientific semantics, foundation contracts, and knowledge evidence/reference owners."
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+rationale = "intelligence consumes core scientific semantics, foundation contracts, knowledge evidence owners, runtime replay truth, and lab burden signals when it publishes release-facing review posture."
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
