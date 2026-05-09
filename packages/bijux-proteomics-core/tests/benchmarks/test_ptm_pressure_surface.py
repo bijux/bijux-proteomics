@@ -107,7 +107,10 @@ def test_ptm_pressure_corpus_report_anchors_public_localization_bundle() -> None
     )
 
     assert report.benchmark_package_id == package.package_id
-    assert any(path.endswith("ptm/localization_results.tsv") for path in report.supporting_identity_paths)
+    assert any(
+        path.endswith("evidence/localization_results.tsv")
+        for path in report.supporting_identity_paths
+    )
     assert report.localization_confidence.ambiguous_count >= 1
     assert report.ambiguity_propagation.interpretive_only_count >= 1
     assert report.ready_for_broad_ptm_claim is False
