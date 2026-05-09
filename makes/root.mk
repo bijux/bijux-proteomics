@@ -15,7 +15,7 @@ UV_SYNC := UV_PROJECT_ENVIRONMENT="$(ROOT_CHECK_VENV)" $(UV) sync --frozen --pyt
 ROOT_CHECK_STAMP_SYNC_MESSAGE := @echo "→ Syncing uv groups: $(UV_GROUPS)"
 DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+:$$PYTHONPATH}" "$(ROOT_CHECK_PYTHON)"
 DOCS_RENDER_SERVE_CONFIG := 0
-ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation
+ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
 
 -include .env
@@ -38,7 +38,7 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	sync-badges sync-license-assets quality-docs-links quality-docs-consistency security-dependency-allowlist \
+	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py
 
 check: lock-check lint test quality security docs api build sbom ## Run the full repository verification flow
@@ -62,6 +62,10 @@ quality-docs-links: root-check-env ## Refresh docs link validation evidence
 
 quality-docs-consistency: root-check-env ## Refresh docs consistency evidence
 	@$(DEV_RUN) -m bijux_proteomics_dev.docs.consistency
+
+quality-artifact-governance: root-check-env ## Enforce artifact roots and repository file ownership
+	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
+	@$(DEV_RUN) -c "from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import validate_package_root_hygiene; import sys; issues = validate_package_root_hygiene(); [print(f'{issue.code}: {issue.detail}') for issue in issues]; raise SystemExit(1 if issues else 0)"
 
 quality-runtime-boundaries: root-check-env ## Enforce runtime boundary contracts
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_boundaries

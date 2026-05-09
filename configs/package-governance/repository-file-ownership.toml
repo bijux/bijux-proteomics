@@ -1,0 +1,47 @@
+# Generated repository file-ownership matrix.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership
+
+[[area]]
+area_id = "root-directories"
+owner_surface = "repository-root"
+purpose = "Keep repository-wide contracts, docs, workflow entrypoints, and package boundaries visible at the root instead of scattering them under packages."
+path_rules = ["Use `apis/` for checked OpenAPI contracts and frozen payloads.", "Use `configs/` for repository-wide governance, lint, typing, and release manifests.", "Use `docs/` for repository-level handbook pages and reader journeys.", "Use `makes/` for root and package orchestration entrypoints.", "Use `packages/` only for package-owned code, tests, package docs, and package metadata."]
+anchor_paths = ["apis", "configs", "docs", "makes", "packages"]
+prohibited_alternates = ["Do not create package-local `apis/`, `configs/`, or `makes/` directories to mirror root governance.", "Do not place repository-wide docs under a package root when one root handbook page already owns the concern."]
+cleanup_commands = ["make clean-root-artifacts"]
+
+[[area]]
+area_id = "package-docs"
+owner_surface = "package-readers"
+purpose = "Keep package-scoped onboarding close to the package that owns the code while routing repository-wide concerns back to the root handbook."
+path_rules = ["Every package overview starts in `packages/<package>/README.md`.", "Package-specific handbook pages belong under `packages/<package>/docs/` when they explain package-owned behavior.", "Root docs own cross-package journeys, release gates, and repository-wide policy pages."]
+anchor_paths = ["packages/bijux-proteomics-foundation/README.md", "packages/bijux-proteomics-runtime/docs/CONTRACTS.md", "packages/bijux-proteomics-dev/docs/index.md"]
+prohibited_alternates = ["Do not duplicate root release guidance or repository artifact policy under package docs.", "Do not add package-local copies of root reader-path or repository-shape pages."]
+cleanup_commands = ["make quality-docs-consistency", "make quality-docs-links"]
+
+[[area]]
+area_id = "benchmark-assets"
+owner_surface = "bijux-proteomics-core"
+purpose = "Keep benchmark packages, challenge corpora, and flagship benchmark metadata in one scientific owner package so asset lineage stays inspectable."
+path_rules = ["Checked benchmark assets live under `packages/bijux-proteomics-core/benchmark-assets/`.", "Packages other than core may reference benchmark assets but must not create their own benchmark roots."]
+anchor_paths = ["packages/bijux-proteomics-core/benchmark-assets", "docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md"]
+prohibited_alternates = ["Do not create sibling benchmark roots under runtime, intelligence, knowledge, lab, or foundation packages.", "Do not store flagship benchmark manifests under `artifacts/` as if they were governed source."]
+cleanup_commands = ["make quality"]
+
+[[area]]
+area_id = "generated-outputs"
+owner_surface = "artifacts-root"
+purpose = "Separate transient execution state from governed source so local runs cannot masquerade as durable repository truth."
+path_rules = ["Default local outputs, caches, reports, and rerun products to `artifacts/`.", "Only write outside `artifacts/` when the task explicitly updates a governed destination such as `docs/`, `apis/`, or `configs/`.", "Publishable package roots must stay free of transient state such as `.pytest_cache`, `.ruff_cache`, `coverage.xml`, `dist/`, and `site/`."]
+anchor_paths = ["artifacts", "docs/01-bijux-proteomics/operations/artifact-governance.md"]
+prohibited_alternates = ["Do not leave caches or generated outputs under `packages/*` roots.", "Do not route local run state into the workspace root or ad hoc temp folders inside source trees."]
+cleanup_commands = ["make test-clean", "make clean-root-artifacts"]
+
+[[area]]
+area_id = "maintainer-automation"
+owner_surface = "bijux-proteomics-dev-and-root-makes"
+purpose = "Keep repository-health automation in one package plus root make entrypoints so maintainers can find quality, release, and sync behavior without package hunting."
+path_rules = ["Python governance and release helpers live under `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/`.", "Human-facing automation entrypoints live in `makes/` and the root `Makefile` flow.", "Generated governance manifests belong under `configs/package-governance/`."]
+anchor_paths = ["packages/bijux-proteomics-dev/src/bijux_proteomics_dev", "makes/root.mk", "configs/package-governance"]
+prohibited_alternates = ["Do not hide repository-wide quality or release automation under product packages.", "Do not invent new one-off maintainer scripts in package roots when root make targets already own the flow."]
+cleanup_commands = ["make quality", "make release-preflight"]
