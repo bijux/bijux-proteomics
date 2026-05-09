@@ -39,6 +39,11 @@ This page should let a reviewer classify an artifact before debating its meaning
 - tracked contract artifacts under `apis/`
 - generated local or CI output under `artifacts/`
 
+Publishable package roots must stay free of `.pytest_cache`, `.ruff_cache`,
+`__pycache__`, coverage spillover, and comparable transient execution state.
+If a normal workflow leaves that residue under `packages/*`, the workflow is
+wrong even if the code still passes.
+
 ## Authority Rule
 
 When source, docs, and generated output disagree, source plus the governing
