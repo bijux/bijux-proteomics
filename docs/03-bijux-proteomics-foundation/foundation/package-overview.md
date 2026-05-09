@@ -9,21 +9,24 @@ last_reviewed: 2026-04-26
 
 # Package Overview
 
-`bijux-proteomics-foundation` exists to stabilize shared payload meaning through identifiers, schema compatibility, migrations, and deterministic serialization. The package is useful only when that
-role stays narrow enough that a reviewer can say why it exists without naming
-several different owners at once.
+`bijux-proteomics-foundation` owns the low-volatility primitives every product
+package shares: identifiers, schema profiles, canonical JSON, stable hashes,
+and migration-safe document rules. The package is only healthy when that owner
+story stays narrow enough that a reviewer never has to mention ranking,
+execution, benchmark acceptance, or lab consequence to explain why it exists.
 
 ## What It Owns
 
 - define shared identifiers
-- govern schema and serialization compatibility
-- carry migration helpers for payload evolution
+- govern schema profiles and serialization compatibility
+- carry deterministic hashing and payload fingerprint rules
+- carry migration helpers for payload evolution and cross-package invariants
 
 ## What It Refuses
 
-- program policy
-- evidence truth and contradictions
-- execution orchestration
+- program lifecycle or benchmark-acceptance policy
+- evidence truth, contradiction handling, or recommendation posture
+- execution orchestration, replay, or assay consequence logic
 
 ## First Proof Check
 

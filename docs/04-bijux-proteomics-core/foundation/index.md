@@ -9,8 +9,11 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-The foundation section explains the durable role of `bijux-proteomics-core` before it
-explains implementation detail. Use it to resolve why durable workflow rules belong here before evidence, scoring, or execution layers act on them.
+The core foundation section is where the repository names its durable
+scientific law: workflow contracts, lifecycle transitions, review gates,
+runtime-agnostic request shapes, and benchmark acceptance logic. If a page here
+needs recommendation posture or operator transport to justify itself, the
+boundary is already drifting.
 
 ```mermaid
 flowchart LR
@@ -32,10 +35,10 @@ flowchart LR
 
 ## What This Section Protects
 
-- one durable grammar for workflows before downstream packages optimize around
-  it
-- gate semantics that remain reviewable instead of dissolving into code paths
-- lifecycle discipline that survives changes in policy or execution tooling
+- one canonical workflow grammar before downstream packages add policy or
+  transport
+- review-gate and lifecycle truth that stays inspectable outside runtime code
+- scientific contracts that remain distinct from evidence memory and lab burden
 
 ## Start With
 
@@ -43,6 +46,9 @@ flowchart LR
   the package role.
 - Open [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/) when the question is
   whether a change belongs here or in a neighbor.
+- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
+  when the question is whether a proposal is trying to push evidence,
+  recommendation, or execution delivery back into core.
 - Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/) when a proposed change
   risks broadening the package.
 - Open [Capability Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/capability-map/) when you need the concrete work
@@ -85,6 +91,7 @@ flowchart LR
 - [Package Overview](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/scope-and-non-goals/)
 - [Ownership Boundary](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/ownership-boundary/)
+- [This Package Does Not Own](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/this-package-does-not-own/)
 - [Capability Map](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/capability-map/)
 - [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
 - [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/)
@@ -109,10 +116,11 @@ flowchart LR
 
 ## What This Section Settles
 
-- when a rule is foundational enough to belong in core
-- how much downstream freedom exists once lifecycle and gate contracts are set
-- when a proposed change is really policy or execution and should leave this
-  package
+- whether a rule changes canonical scientific workflow truth or only downstream
+  interpretation
+- which benchmark-acceptance and lifecycle surfaces are still owned here
+- when a proposed change is really evidence policy, runtime delivery, or lab
+  consequence and should leave this package
 
 ## First Proof Check
 

@@ -9,8 +9,11 @@ last_reviewed: 2026-04-26
 
 # Foundation
 
-The foundation section explains the durable role of `bijux-proteomics-foundation` before it
-explains implementation detail. Use it to resolve why shared meaning belongs here before downstream packages add policy or execution.
+The foundation section exists to keep shared primitives narrow and durable:
+identifiers, schema compatibility, canonical serialization, and cross-package
+invariants. If a page here needs recommendation posture, runtime delivery, or
+lab consequence to justify itself, the page is already pointing at the wrong
+owner.
 
 ```mermaid
 flowchart LR
@@ -30,9 +33,10 @@ flowchart LR
 
 ## What This Section Protects
 
-- one family-level meaning for shared objects and records
-- visible migration discipline instead of silent schema drift
-- a clean handoff from common semantics to downstream policy and execution
+- one shared identifier and document grammar across all product packages
+- deterministic serialization and hashing that survive package boundaries
+- migration-safe invariants that downstream owners can consume without rewriting
+  primitive meaning
 
 ## Start With
 
@@ -40,6 +44,9 @@ flowchart LR
   the package role.
 - Open [Ownership Boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/) when the question is
   whether a change belongs here or in a neighbor.
+- Open [This Package Does Not Own](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/this-package-does-not-own/)
+  when the question is whether a proposal is trying to smuggle product or
+  review behavior into shared primitives.
 - Open [Scope and Non-Goals](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/scope-and-non-goals/) when a proposed change
   risks broadening the package.
 - Open [Capability Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/capability-map/) when you need the concrete work
@@ -50,6 +57,7 @@ flowchart LR
 - [Package Overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/package-overview/)
 - [Scope and Non-Goals](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/scope-and-non-goals/)
 - [Ownership Boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
+- [This Package Does Not Own](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/this-package-does-not-own/)
 - [Capability Map](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/capability-map/)
 - [Dependencies and Adjacencies](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/dependencies-and-adjacencies/)
 - [Repository Fit](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/repository-fit/)
@@ -59,9 +67,11 @@ flowchart LR
 
 ## What This Section Settles
 
-- why a concern belongs in shared meaning instead of in a downstream package
-- when compatibility pressure justifies a foundation-layer change
-- how much downstream code should be allowed to depend on shared primitives
+- whether a rule is truly a shared primitive instead of lifecycle, evidence,
+  recommendation, or execution logic
+- which invariants every package must share before local owner policy begins
+- when a migration helper is justified versus when a higher package should own
+  the change directly
 
 ## First Proof Check
 

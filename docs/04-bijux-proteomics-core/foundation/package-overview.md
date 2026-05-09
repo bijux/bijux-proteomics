@@ -9,21 +9,26 @@ last_reviewed: 2026-04-26
 
 # Package Overview
 
-`bijux-proteomics-core` exists to define durable program contracts, lifecycle rules, and gate semantics used by downstream layers. The package is useful only when that
-role stays narrow enough that a reviewer can say why it exists without naming
-several different owners at once.
+`bijux-proteomics-core` owns the durable scientific contracts that the rest of
+the repository depends on: program, target, assay, and review entities;
+lifecycle transitions; review gates; normalized proteomics I/O seams; and
+benchmark-acceptance surfaces. The package is only healthy when those
+scientific rules remain runtime-agnostic and distinct from evidence memory,
+recommendation posture, and assay consequence.
 
 ## What It Owns
 
-- define program specifications and lifecycle state
-- encode gates and operating constraints
-- publish stable core contracts to downstream packages
+- define program, target, assay, and review entities
+- encode lifecycle transitions, gate truth, and runtime-agnostic workflow
+  requests
+- publish benchmark-acceptance and scientific contract surfaces to downstream
+  packages
 
 ## What It Refuses
 
-- shared schema primitives
-- evidence truth
-- operator-facing runtime execution
+- shared schema primitives that belong in foundation
+- evidence memory, contradiction handling, or recommendation policy
+- operator-facing runtime execution, replay, or assay-consequence ownership
 
 ## First Proof Check
 
