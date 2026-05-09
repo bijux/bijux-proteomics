@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Integrated review packet builders for scientific decision readiness."""
+"""Decision-brief builders for scientific decision readiness."""
 
 from __future__ import annotations
 
@@ -45,8 +45,8 @@ from bijux_proteomics_knowledge.reviews.provenance import (
 )
 
 
-class KnowledgeReviewPacket(JsonModel):
-    """Unified review packet for one target and decision dimension."""
+class KnowledgeDecisionBrief(JsonModel):
+    """Unified decision brief for one target and decision dimension."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -173,7 +173,7 @@ class MultiDecisionReadiness(JsonModel):
 
 
 class DecisionGateProfile(JsonModel):
-    """Policy thresholds for decision recommendation in review packets."""
+    """Policy thresholds for decision recommendation in decision briefs."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -194,7 +194,7 @@ class DecisionGateProfile(JsonModel):
     )
 
 
-def build_knowledge_review_packet(
+def build_knowledge_decision_brief(
     bundle: EvidenceBundle,
     claims: list[EvidenceClaim],
     *,
@@ -205,8 +205,8 @@ def build_knowledge_review_packet(
     expected_system: str | None = None,
     expected_sample_type: str | None = None,
     gate_profile: DecisionGateProfile | None = None,
-) -> KnowledgeReviewPacket:
-    """Build an integrated review packet for decision workflows."""
+) -> KnowledgeDecisionBrief:
+    """Build an integrated decision brief for decision workflows."""
     ranking = rank_evidence_for_decision(
         bundle,
         decision_tag=decision_tag,
@@ -279,7 +279,7 @@ def build_knowledge_review_packet(
         gate_recommendation=gate_recommendation,
         biological_takeaway=biological_takeaway,
     )
-    return KnowledgeReviewPacket(
+    return KnowledgeDecisionBrief(
         target_id=bundle.target_id,
         decision_tag=decision_tag,
         evidence_ranking=ranking,
@@ -489,10 +489,10 @@ def summarize_multi_decision_readiness(
     decision_tags: list[str],
     required_modalities: list[str] | None = None,
 ) -> MultiDecisionReadiness:
-    """Build a cross-decision readiness summary from review packets."""
+    """Build a cross-decision readiness summary from decision briefs."""
     scores: dict[str, float] = {}
     for decision_tag in decision_tags:
-        packet = build_knowledge_review_packet(
+        packet = build_knowledge_decision_brief(
             bundle,
             claims,
             decision_tag=decision_tag,

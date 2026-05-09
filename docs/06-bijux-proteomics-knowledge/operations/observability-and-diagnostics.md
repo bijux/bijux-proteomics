@@ -20,5 +20,5 @@ Diagnostics should reveal whether a failure belongs to this package or to a neig
 ## First Proof Check
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/packets.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 - `packages/bijux-proteomics-knowledge/tests`

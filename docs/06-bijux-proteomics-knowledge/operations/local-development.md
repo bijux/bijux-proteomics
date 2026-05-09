@@ -20,5 +20,5 @@ Local development guidance should protect package boundaries while making routin
 ## First Proof Check
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/packets.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 - `packages/bijux-proteomics-knowledge/tests`

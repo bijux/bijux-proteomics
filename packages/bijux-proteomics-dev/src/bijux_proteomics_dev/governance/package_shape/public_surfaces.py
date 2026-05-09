@@ -71,7 +71,7 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
                 "EvidenceBundle",
                 "EvidenceClaim",
                 "EvidenceRecord",
-                "KnowledgeReviewPacket",
+                "KnowledgeDecisionBrief",
                 "evaluate_schema_compatibility",
             ),
         ),

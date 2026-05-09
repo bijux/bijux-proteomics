@@ -13,21 +13,21 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.reviews.packets import (
+from bijux_proteomics_knowledge.reviews.decision_briefs import (
     BiologicalGroundingState,
     DecisionGateProfile,
     OperationalDecisionLabel,
     ScientificConclusion,
-    build_knowledge_review_packet,
+    build_knowledge_decision_brief,
     summarize_multi_decision_readiness,
 )
 
 
-def test_build_knowledge_review_packet_returns_integrated_sections(
+def test_build_knowledge_decision_brief_returns_integrated_sections(
     supported_progression_bundle: EvidenceBundle,
     supported_progression_claims: list[object],
 ) -> None:
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         supported_progression_bundle,
         supported_progression_claims,
         decision_tag="progression",
@@ -110,7 +110,7 @@ def test_summarize_multi_decision_readiness_reports_portfolio_score() -> None:
     assert 0.0 <= summary.portfolio_score <= 1.0
 
 
-def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
+def test_build_knowledge_decision_brief_supports_gate_profiles() -> None:
     bundle = EvidenceBundle(
         bundle_id="bundle-gate-profile",
         target_id="target-gate-profile",
@@ -137,7 +137,7 @@ def test_build_knowledge_review_packet_supports_gate_profiles() -> None:
             resolution_assays=["assay"],
         )
     ]
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         bundle,
         claims,
         decision_tag="progression",
@@ -185,7 +185,7 @@ def test_knowledge_review_packet_flags_missing_bundle_links_in_claim_provenance(
         )
     ]
 
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         bundle,
         claims,
         decision_tag="progression",
@@ -203,7 +203,7 @@ def test_knowledge_review_packet_downgrades_biological_takeaway_under_contradict
     contradictory_progression_bundle,
     contradictory_progression_claims,
 ) -> None:
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         contradictory_progression_bundle,
         contradictory_progression_claims,
         decision_tag="progression",
@@ -259,7 +259,7 @@ def test_knowledge_review_packet_keeps_machine_readable_state_index_visible() ->
         )
     ]
 
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         bundle,
         claims,
         decision_tag="progression",

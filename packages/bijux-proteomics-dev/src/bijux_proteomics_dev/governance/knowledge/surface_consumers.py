@@ -70,7 +70,7 @@ def knowledge_surfaces() -> tuple[PublicKnowledgeSurface, ...]:
         PublicKnowledgeSurface(
             "bijux_proteomics_knowledge.memory.reconciliation.resolution"
         ),
-        PublicKnowledgeSurface("bijux_proteomics_knowledge.reviews.packets"),
+        PublicKnowledgeSurface("bijux_proteomics_knowledge.reviews.decision_briefs"),
     )
 
 

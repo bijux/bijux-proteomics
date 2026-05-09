@@ -124,10 +124,10 @@ def build_canonical_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffCo
             stage_id="knowledge-evidence-review",
             owner_package=WorkflowOwnerPackage.KNOWLEDGE,
             produced_surface_ref=(
-                "bijux_proteomics_knowledge.reviews.packets.build_knowledge_review_packet"
+                "bijux_proteomics_knowledge.reviews.decision_briefs.build_knowledge_decision_brief"
             ),
             review_packet_surface_ref=(
-                "bijux_proteomics_knowledge.reviews.packets.build_knowledge_review_packet"
+                "bijux_proteomics_knowledge.reviews.decision_briefs.build_knowledge_decision_brief"
             ),
             upstream_stage_ids=(
                 "core-identification-review",

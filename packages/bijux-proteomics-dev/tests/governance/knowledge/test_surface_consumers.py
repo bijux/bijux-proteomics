@@ -34,9 +34,11 @@ def test_knowledge_surface_consumer_matrix_records_current_owner_usage() -> None
             "bijux_proteomics_knowledge.references.workflows.benchmarks"
         ].consumer_distributions
     ) == {
+        "bijux-proteomics-core",
         "bijux-proteomics-dev",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-lab",
+        "bijux-proteomics-runtime",
     }
     assert set(
         entry_by_module[

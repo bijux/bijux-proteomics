@@ -14,7 +14,7 @@ Code navigation should get a reviewer from the package question to the owning mo
 ## Start Here
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py` for canonical structures
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/packets.py`, and `reviews/provenance.py` for trust and contradiction handling
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py` for trust and contradiction handling
 - `packages/bijux-proteomics-knowledge/tests` for proof of evidence semantics
 
 ## First Proof Check

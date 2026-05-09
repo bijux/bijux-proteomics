@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Decision-scoped graph explanations built from knowledge review packets."""
+"""Decision-scoped graph explanations built from knowledge decision briefs."""
 
 from __future__ import annotations
 
@@ -26,10 +26,10 @@ from bijux_proteomics_knowledge.memory.integrity.graph import (
 from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
     resolve_conflicts,
 )
-from bijux_proteomics_knowledge.reviews.packets import (
+from bijux_proteomics_knowledge.reviews.decision_briefs import (
     DecisionGateProfile,
-    KnowledgeReviewPacket,
-    build_knowledge_review_packet,
+    KnowledgeDecisionBrief,
+    build_knowledge_decision_brief,
 )
 
 
@@ -87,7 +87,7 @@ def explain_candidate_decision_with_graph(
     gate_profile: DecisionGateProfile | None = None,
 ) -> CandidateDecisionGraphExplanation:
     """Explain one candidate outcome with decision-scoped graph evidence."""
-    packet = build_knowledge_review_packet(
+    packet = build_knowledge_decision_brief(
         bundle,
         claims,
         decision_tag=query.decision_tag,
@@ -252,7 +252,7 @@ def _conflict_matches_decision(
 def _build_candidate_decision_explanation_lines(
     *,
     query: CandidateDecisionGraphQuery,
-    packet: KnowledgeReviewPacket,
+    packet: KnowledgeDecisionBrief,
     supporting_evidence_ids: list[str],
     contradicting_evidence_ids: list[str],
     unresolved_question_ids: list[str],

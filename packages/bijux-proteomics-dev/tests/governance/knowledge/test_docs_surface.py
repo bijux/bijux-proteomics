@@ -28,7 +28,7 @@ def test_knowledge_docs_publish_scientific_memory_and_owner_families() -> None:
     assert "memory/models/evidence.py" in text
     assert "memory/models/claims.py" in text
     assert "memory/reconciliation/resolution.py" in text
-    assert "reviews/packets.py" in text
+    assert "reviews/decision_briefs.py" in text
     assert "references/grounding/" in text
     assert "references/workflows/" in text
     assert "selective" in text

@@ -21,7 +21,7 @@ def test_knowledge_analytical_logic_stays_in_governed_hotspots() -> None:
     assert any(
         identifier == "gate_recommendation"
         for module in report
-        if module.module_path == "reviews/packets.py"
+        if module.module_path == "reviews/decision_briefs.py"
         for identifier in module.matched_identifiers
     )
     assert any(

@@ -39,7 +39,7 @@ flowchart LR
 - open [Data Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/data-contracts/)
   when the question is how evidence, claims, or reviews are represented
 - open [Artifact Contracts](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/artifact-contracts/)
-  when the concern is lineage, persisted review packets, or contradiction-aware
+  when the concern is lineage, persisted decision briefs, or contradiction-aware
   outputs
 - open [Operator Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/operator-workflows/)
   when the reader wants the knowledge flow rather than a code inventory
@@ -71,5 +71,5 @@ flowchart LR
 ## First Proof Check
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/packets.py`, and `reviews/provenance.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py`
 - `packages/bijux-proteomics-knowledge/tests`

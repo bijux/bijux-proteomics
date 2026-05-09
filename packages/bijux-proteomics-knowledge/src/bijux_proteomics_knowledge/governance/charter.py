@@ -99,7 +99,7 @@ DEFAULT_KNOWLEDGE_CHARTER: tuple[KnowledgeCharterEntry, ...] = (
         required_modules=(
             "references/grounding/contexts.py",
             "references/workflows/briefings.py",
-            "reviews/packets.py",
+            "reviews/decision_briefs.py",
             "reviews/explanations.py",
         ),
         release_blocker="Knowledge cannot ship if downstream packages would need to recreate caveats or scope context locally.",
@@ -342,7 +342,7 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Resolution logic preserves how conflicting scientific memory gets reviewed instead of silently overwritten.",
     ),
     KnowledgeModuleAuditEntry(
-        module_path="reviews/packets.py",
+        module_path="reviews/decision_briefs.py",
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(
             KnowledgeCharterCapability.BENCHMARK_MANIFESTS,

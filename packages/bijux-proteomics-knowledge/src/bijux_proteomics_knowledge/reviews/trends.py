@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Packet comparison and trend summaries for reviewer-facing knowledge output."""
+"""Decision-brief comparison and trend summaries for knowledge output."""
 
 from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.reviews.packets import KnowledgeReviewPacket
+from bijux_proteomics_knowledge.reviews.decision_briefs import KnowledgeDecisionBrief
 
 
 class KnowledgeReviewDelta(JsonModel):
-    """Difference report between two review packets."""
+    """Difference report between two decision briefs."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -52,13 +52,13 @@ class KnowledgeReviewTrend(JsonModel):
     )
 
 
-def compare_review_packets(
-    previous: KnowledgeReviewPacket,
-    current: KnowledgeReviewPacket,
+def compare_decision_briefs(
+    previous: KnowledgeDecisionBrief,
+    current: KnowledgeDecisionBrief,
 ) -> KnowledgeReviewDelta:
-    """Compare two review packets for the same decision tag."""
+    """Compare two decision briefs for the same decision tag."""
     if previous.decision_tag != current.decision_tag:
-        raise ValueError("review packets must share the same decision_tag")
+        raise ValueError("decision briefs must share the same decision_tag")
     return KnowledgeReviewDelta(
         decision_tag=current.decision_tag,
         intelligence_index_delta=round(
@@ -79,7 +79,9 @@ def compare_review_packets(
     )
 
 
-def summarize_review_trend(deltas: list[KnowledgeReviewDelta]) -> KnowledgeReviewTrend:
+def summarize_decision_brief_trend(
+    deltas: list[KnowledgeReviewDelta],
+) -> KnowledgeReviewTrend:
     """Summarize progression trend across ordered review deltas."""
     if not deltas:
         return KnowledgeReviewTrend(

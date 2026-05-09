@@ -67,7 +67,7 @@ owner_distribution_name = "bijux-proteomics-foundation"
 owner_import_root = "bijux_proteomics_foundation"
 
 [[symbol]]
-name = "KnowledgeReviewPacket"
+name = "KnowledgeDecisionBrief"
 owner_distribution_name = "bijux-proteomics-knowledge"
 owner_import_root = "bijux_proteomics_knowledge"
 

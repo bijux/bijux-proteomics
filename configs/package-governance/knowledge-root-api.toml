@@ -23,10 +23,10 @@ classification = "shared_memory_anchor"
 rationale = "Evidence records are the reusable atomic memory payload across package boundaries."
 
 [[symbol]]
-name = "KnowledgeReviewPacket"
-owner_module = "bijux_proteomics_knowledge.reviews.packets"
-classification = "review_handoff"
-rationale = "Knowledge review packets are the main reviewer-facing handoff surface built from curated memory."
+name = "KnowledgeDecisionBrief"
+owner_module = "bijux_proteomics_knowledge.reviews.decision_briefs"
+classification = "decision_brief_handoff"
+rationale = "Knowledge decision briefs are the main decision handoff surface built from curated memory."
 
 [[symbol]]
 name = "evaluate_schema_compatibility"

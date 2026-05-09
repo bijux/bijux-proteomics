@@ -20,5 +20,5 @@ Common workflows should sound like the real jobs people do with the package, not
 ## First Proof Check
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/packets.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 - `packages/bijux-proteomics-knowledge/tests`

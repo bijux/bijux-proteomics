@@ -8,7 +8,7 @@ from bijux_proteomics_knowledge import (
     EvidenceBundle,
     EvidenceClaim,
     EvidenceRecord,
-    KnowledgeReviewPacket,
+    KnowledgeDecisionBrief,
     evaluate_schema_compatibility,
 )
 
@@ -42,5 +42,5 @@ def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
 
     assert bundle.records[0].evidence_id == "public-root-record"
     assert claim.evidence_ids == ["public-root-record"]
-    assert KnowledgeReviewPacket.__name__ == "KnowledgeReviewPacket"
+    assert KnowledgeDecisionBrief.__name__ == "KnowledgeDecisionBrief"
     assert report.compatible is True

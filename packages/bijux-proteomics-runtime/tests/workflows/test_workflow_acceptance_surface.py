@@ -61,7 +61,7 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.reviews.packets import build_knowledge_review_packet
+from bijux_proteomics_knowledge.reviews.decision_briefs import build_knowledge_decision_brief
 from bijux_proteomics_lab.handoffs import TargetedTransitionReview
 from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
 from bijux_proteomics_lab.outcomes import ExperimentOutcome
@@ -355,7 +355,7 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
             resolution_assays=["orthogonal assay"],
         )
     ]
-    knowledge_packet = build_knowledge_review_packet(
+    knowledge_packet = build_knowledge_decision_brief(
         knowledge_bundle,
         knowledge_claims,
         decision_tag="progression",

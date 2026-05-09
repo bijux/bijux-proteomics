@@ -6,25 +6,23 @@ from __future__ import annotations
 from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
-    EvidenceKind,
-    EvidenceRecord,
     EvidenceStrength,
 )
-from bijux_proteomics_knowledge.reviews.packets import (
-    KnowledgeReviewPacket,
-    build_knowledge_review_packet,
+from bijux_proteomics_knowledge.reviews.decision_briefs import (
+    KnowledgeDecisionBrief,
+    build_knowledge_decision_brief,
 )
 from bijux_proteomics_knowledge.reviews.trends import (
-    compare_review_packets,
-    summarize_review_trend,
+    compare_decision_briefs,
+    summarize_decision_brief_trend,
 )
 
 
-def test_compare_review_packets_reports_delta(
+def test_compare_decision_briefs_reports_delta(
     supported_progression_bundle: EvidenceBundle,
     supported_progression_claims: list[EvidenceClaim],
 ) -> None:
-    previous = build_knowledge_review_packet(
+    previous = build_knowledge_decision_brief(
         supported_progression_bundle,
         supported_progression_claims,
         decision_tag="progression",
@@ -38,18 +36,30 @@ def test_compare_review_packets_reports_delta(
             ]
         }
     )
-    current = build_knowledge_review_packet(
+    current = build_knowledge_decision_brief(
         improved_bundle, supported_progression_claims, decision_tag="progression"
     )
-    delta = compare_review_packets(previous, current)
+    delta = compare_decision_briefs(previous, current)
 
     assert delta.decision_tag == "progression"
     assert isinstance(delta.intelligence_index_delta, float)
 
 
-def test_summarize_review_trend_accumulates_delta_direction() -> None:
-    delta_a = compare_review_packets(
-        KnowledgeReviewPacket.model_validate(
+def test_summarize_decision_brief_trend_accumulates_delta_direction() -> None:
+    evidence_state_index = {
+        "bundle_id": "b",
+        "target_id": "t",
+        "decision_tag": "progression",
+        "record_assessments": [],
+        "trusted_record_ids": [],
+        "fresh_record_ids": [],
+        "contradictory_record_ids": [],
+        "insufficient_record_ids": [],
+        "high_uncertainty_record_ids": [],
+        "caveat_codes": [],
+    }
+    delta_a = compare_decision_briefs(
+        KnowledgeDecisionBrief.model_validate(
             {
                 "target_id": "t",
                 "decision_tag": "progression",
@@ -65,6 +75,7 @@ def test_summarize_review_trend_accumulates_delta_direction() -> None:
                     "conflict_count": 0,
                     "recommendations": [],
                 },
+                "evidence_state_index": evidence_state_index,
                 "hypothesis_dossier": {
                     "target_id": "t",
                     "decision_tag": "progression",
@@ -82,7 +93,7 @@ def test_summarize_review_trend_accumulates_delta_direction() -> None:
                 "decision_intelligence_index": 0.4,
             }
         ),
-        KnowledgeReviewPacket.model_validate(
+        KnowledgeDecisionBrief.model_validate(
             {
                 "target_id": "t",
                 "decision_tag": "progression",
@@ -98,6 +109,7 @@ def test_summarize_review_trend_accumulates_delta_direction() -> None:
                     "conflict_count": 0,
                     "recommendations": [],
                 },
+                "evidence_state_index": evidence_state_index,
                 "hypothesis_dossier": {
                     "target_id": "t",
                     "decision_tag": "progression",
@@ -116,6 +128,6 @@ def test_summarize_review_trend_accumulates_delta_direction() -> None:
             }
         ),
     )
-    trend = summarize_review_trend([delta_a])
+    trend = summarize_decision_brief_trend([delta_a])
 
     assert trend.improving_steps == 1

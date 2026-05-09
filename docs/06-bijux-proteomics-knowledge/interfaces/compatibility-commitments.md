@@ -20,5 +20,5 @@ Compatibility commitments are expensive promises. They should be visible enough 
 ## First Proof Check
 
 - `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/packets.py`, and `reviews/provenance.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py`
 - `packages/bijux-proteomics-knowledge/tests`

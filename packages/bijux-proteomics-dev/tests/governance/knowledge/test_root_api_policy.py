@@ -77,7 +77,7 @@ def test_knowledge_root_excludes_convenience_symbol_exports() -> None:
         "EvidenceKind",
         "KnowledgeGap",
         "build_claim",
-        "build_knowledge_review_packet",
+        "build_knowledge_decision_brief",
         "evidence_gaps",
     }
 

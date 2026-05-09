@@ -35,8 +35,12 @@ ALLOWED_ANALYTICAL_MODULES = (
     "memory/models/evidence.py",
     "memory/reconciliation/resolution.py",
     "references/grounding/rules.py",
+    "references/workflows/comparator_scorecards.py",
+    "references/workflows/lookups.py",
+    "references/workflows/scientific_release.py",
+    "references/workflows/scientific_risk.py",
+    "reviews/decision_briefs.py",
     "reviews/explanations.py",
-    "reviews/packets.py",
     "reviews/trends.py",
 )
 

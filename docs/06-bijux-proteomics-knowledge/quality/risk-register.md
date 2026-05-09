@@ -36,7 +36,7 @@ understanding stop lining up.
 
 - `packages/bijux-proteomics-knowledge/tests`
 - `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
-- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/packets.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 
 ## Design Pressure
 

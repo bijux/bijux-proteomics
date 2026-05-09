@@ -7,7 +7,7 @@ matched_identifiers = ["completeness_score", "minimum_trust_score", "recommendat
 
 [[module]]
 path = "memory/models/evidence.py"
-matched_identifiers = ["EvidenceRefreshPriority", "EvidenceRelevanceScore", "EvidenceTrustScoreInput", "TrustScoreProvenance", "TrustScoreRule", "base_score", "completeness_score", "convergence_score", "coverage_score", "decisive_score", "final_score", "integrated_trust_score", "modality_score", "priority", "quality_score", "quantity_score", "recommendations", "record_scores", "relevance_score", "risk_score", "score", "score_evidence_record", "support_score", "triangulation_score", "trust_score", "weighted_score"]
+matched_identifiers = ["EvidenceRefreshPriority", "EvidenceRelevanceScore", "EvidenceTrustScoreInput", "TrustScoreProvenance", "TrustScoreRule", "base_score", "completeness_score", "convergence_score", "coverage_score", "decisive_score", "final_score", "integrated_trust_score", "modality_score", "priority", "quality_score", "quantity_score", "recommendations", "record_scores", "relevance_score", "risk_score", "score", "score_evidence_record", "support_score", "triangulation_score", "trust_score", "uncertainty_score", "weighted_score"]
 
 [[module]]
 path = "memory/reconciliation/resolution.py"
@@ -18,12 +18,28 @@ path = "references/grounding/rules.py"
 matched_identifiers = ["RankingRuleGroundingLedger", "build_ranking_rule_grounding_ledger"]
 
 [[module]]
-path = "reviews/explanations.py"
-matched_identifiers = ["CandidateDecisionDisposition", "decision_intelligence_index", "disposition", "gate_recommendation", "triangulation_score", "trust_score"]
+path = "references/workflows/comparator_scorecards.py"
+matched_identifiers = ["WorkflowComparatorScorecard", "WorkflowComparatorScorecardReport", "build_workflow_comparator_scorecard", "build_workflow_comparator_scorecard_report", "scorecard_summary"]
 
 [[module]]
-path = "reviews/packets.py"
+path = "references/workflows/lookups.py"
+matched_identifiers = ["WorkflowComparatorScorecard", "build_workflow_comparator_scorecard", "build_workflow_comparator_scorecard_report", "get_workflow_comparator_scorecard", "list_workflow_comparator_scorecards"]
+
+[[module]]
+path = "references/workflows/scientific_release.py"
+matched_identifiers = ["BenchmarkMetricPriorityEntry", "BenchmarkMetricPriorityLedger", "RecommendationFailureTrapReport", "ScientificMetricPriorityCategory", "benchmark_metric_priorities", "build_benchmark_metric_priority_ledger", "build_recommendation_failure_trap_report", "metric_priorities"]
+
+[[module]]
+path = "references/workflows/scientific_risk.py"
+matched_identifiers = ["RecommendationFailureTrapEntry", "RecommendationFailureTrapReport", "build_recommendation_failure_trap_report"]
+
+[[module]]
+path = "reviews/decision_briefs.py"
 matched_identifiers = ["EvidenceRelevanceScore", "compute_decision_intelligence_index", "decision_intelligence_index", "decision_scores", "evidence_ranking", "gate_recommendation", "intelligence_index", "minimum_triangulation_score", "minimum_trust_score", "portfolio_score", "ranking", "recommendation", "recommendations", "score", "scores", "triangulation_score", "trust_score"]
+
+[[module]]
+path = "reviews/explanations.py"
+matched_identifiers = ["CandidateDecisionDisposition", "decision_intelligence_index", "disposition", "gate_recommendation", "triangulation_score", "trust_score"]
 
 [[module]]
 path = "reviews/trends.py"
