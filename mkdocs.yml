@@ -221,6 +221,7 @@ nav:
           - Package Overview: 03-bijux-proteomics-foundation/foundation/package-overview.md
           - Scope and Non-Goals: 03-bijux-proteomics-foundation/foundation/scope-and-non-goals.md
           - Ownership Boundary: 03-bijux-proteomics-foundation/foundation/ownership-boundary.md
+          - This Package Does Not Own: 03-bijux-proteomics-foundation/this-package-does-not-own.md
           - Repository Fit: 03-bijux-proteomics-foundation/foundation/repository-fit.md
           - Capability Map: 03-bijux-proteomics-foundation/foundation/capability-map.md
           - Domain Language: 03-bijux-proteomics-foundation/foundation/domain-language.md
@@ -278,6 +279,7 @@ nav:
           - Package Overview: 04-bijux-proteomics-core/foundation/package-overview.md
           - Scope and Non-Goals: 04-bijux-proteomics-core/foundation/scope-and-non-goals.md
           - Ownership Boundary: 04-bijux-proteomics-core/foundation/ownership-boundary.md
+          - This Package Does Not Own: 04-bijux-proteomics-core/this-package-does-not-own.md
           - Repository Fit: 04-bijux-proteomics-core/foundation/repository-fit.md
           - Capability Map: 04-bijux-proteomics-core/foundation/capability-map.md
           - Domain Language: 04-bijux-proteomics-core/foundation/domain-language.md
@@ -335,6 +337,7 @@ nav:
           - Package Overview: 05-bijux-proteomics-intelligence/foundation/package-overview.md
           - Scope and Non-Goals: 05-bijux-proteomics-intelligence/foundation/scope-and-non-goals.md
           - Ownership Boundary: 05-bijux-proteomics-intelligence/foundation/ownership-boundary.md
+          - This Package Does Not Own: 05-bijux-proteomics-intelligence/this-package-does-not-own.md
           - Repository Fit: 05-bijux-proteomics-intelligence/foundation/repository-fit.md
           - Capability Map: 05-bijux-proteomics-intelligence/foundation/capability-map.md
           - Domain Language: 05-bijux-proteomics-intelligence/foundation/domain-language.md
@@ -394,6 +397,7 @@ nav:
           - Package Overview: 06-bijux-proteomics-knowledge/foundation/package-overview.md
           - Scope and Non-Goals: 06-bijux-proteomics-knowledge/foundation/scope-and-non-goals.md
           - Ownership Boundary: 06-bijux-proteomics-knowledge/foundation/ownership-boundary.md
+          - This Package Does Not Own: 06-bijux-proteomics-knowledge/this-package-does-not-own.md
           - Repository Fit: 06-bijux-proteomics-knowledge/foundation/repository-fit.md
           - Capability Map: 06-bijux-proteomics-knowledge/foundation/capability-map.md
           - Domain Language: 06-bijux-proteomics-knowledge/foundation/domain-language.md
@@ -453,6 +457,7 @@ nav:
           - Package Overview: 07-bijux-proteomics-lab/foundation/package-overview.md
           - Scope and Non-Goals: 07-bijux-proteomics-lab/foundation/scope-and-non-goals.md
           - Ownership Boundary: 07-bijux-proteomics-lab/foundation/ownership-boundary.md
+          - This Package Does Not Own: 07-bijux-proteomics-lab/this-package-does-not-own.md
           - Repository Fit: 07-bijux-proteomics-lab/foundation/repository-fit.md
           - Capability Map: 07-bijux-proteomics-lab/foundation/capability-map.md
           - Domain Language: 07-bijux-proteomics-lab/foundation/domain-language.md
@@ -505,6 +510,7 @@ nav:
           - Risk Register: 07-bijux-proteomics-lab/quality/risk-register.md
   - bijux-proteomics-runtime:
       - Overview: 09-bijux-proteomics-runtime/index.md
+      - This Package Does Not Own: 09-bijux-proteomics-runtime/this-package-does-not-own.md
       - Migration Ledger:
           - Migration Ledger: 09-bijux-proteomics-runtime/migration-ledger/README.md
           - Agentic Module Ledger Summary: 09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md
