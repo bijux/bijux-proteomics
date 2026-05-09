@@ -26,11 +26,14 @@ from bijux_proteomics_runtime.workflows.flagship_runs import (
 __all__ = [
     "RuntimeArtifactStabilityEntry",
     "RuntimeBlackBoxVerificationRoute",
+    "RuntimeBlackBoxRerunGate",
+    "RuntimeBlackBoxRerunIssue",
     "RuntimeEnvironmentContract",
     "RuntimeExecutionModeComparison",
     "RuntimeReplayChallenge",
     "RuntimeRerunRefusalEntry",
     "build_runtime_artifact_stability_reports",
+    "build_runtime_black_box_rerun_gate",
     "build_runtime_black_box_verification_routes",
     "build_runtime_environment_contracts",
     "build_runtime_execution_mode_comparisons",
@@ -57,6 +60,28 @@ class RuntimeBlackBoxVerificationRoute(JsonModel):
     stage_lineage_artifact_path: str = Field(..., min_length=1)
     replay_artifact_path: str = Field(..., min_length=1)
     validating_test_paths: tuple[str, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class RuntimeBlackBoxRerunIssue(JsonModel):
+    """One blocker on stronger black-box rerun authority for a workflow family."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    workflow_family: str = Field(..., min_length=1)
+    code: str = Field(..., min_length=1)
+    detail: str = Field(..., min_length=1)
+
+
+class RuntimeBlackBoxRerunGate(JsonModel):
+    """Release-facing black-box rerun gate over flagship runtime families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    gate_id: str = Field(..., min_length=1)
+    blocked_workflow_families: tuple[str, ...] = Field(default_factory=tuple)
+    evidence_paths: tuple[str, ...] = Field(default_factory=tuple)
+    issues: tuple[RuntimeBlackBoxRerunIssue, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -157,6 +182,58 @@ def build_runtime_black_box_verification_routes() -> tuple[RuntimeBlackBoxVerifi
             )
         )
     return tuple(routes)
+
+
+def build_runtime_black_box_rerun_gate() -> RuntimeBlackBoxRerunGate:
+    """Return the release-facing rerun gate anchored in black-box runtime surfaces."""
+
+    from bijux_proteomics_runtime.workflows.proof_accounting import (
+        build_runtime_flagship_proof_gate,
+    )
+
+    proof_gate = build_runtime_flagship_proof_gate()
+    refusal_rows = build_runtime_rerun_refusals()
+    blocked = set(proof_gate.blocked_workflow_families)
+    issues = [
+        RuntimeBlackBoxRerunIssue(
+            workflow_family=issue.workflow_family,
+            code=issue.code,
+            detail=issue.detail,
+        )
+        for issue in proof_gate.issues
+    ]
+    for row in refusal_rows:
+        if row.rerun_ready:
+            continue
+        blocked.add(row.workflow_family)
+        issues.append(
+            RuntimeBlackBoxRerunIssue(
+                workflow_family=row.workflow_family,
+                code="faithful-rerun-refused",
+                detail=(
+                    f"{row.workflow_family} still refuses stronger rerun claims: "
+                    + "; ".join(row.refusal_reasons)
+                ),
+            )
+        )
+    return RuntimeBlackBoxRerunGate(
+        gate_id="runtime-black-box-rerun-gate",
+        blocked_workflow_families=tuple(sorted(blocked)),
+        evidence_paths=(
+            "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py",
+            "docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md",
+            "docs/09-bijux-proteomics-runtime/black-box-run-verification.md",
+            "docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md",
+            "docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md",
+            "docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md",
+            "docs/09-bijux-proteomics-runtime/runtime-artifact-stability.md",
+            "docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md",
+        ),
+        issues=tuple(issues),
+        note=(
+            "A workflow family cannot count toward stronger black-box rerun authority when the shipped route still depends on fake helpers, simulation-only execution, or an explicit faithful-rerun refusal."
+        ),
+    )
 
 
 def build_runtime_execution_mode_comparisons() -> tuple[RuntimeExecutionModeComparison, ...]:

@@ -47,7 +47,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     )
     assert "dda-maxquant-pipeline-corpus" in text
     assert "comparator_path:msfragger_imported_dda_review" in text
-    assert "runtime flagship proof gate" in text
+    assert "runtime flagship rerun gate" in text
     assert "lab-consequence gate" in text
     assert "runtime-execution-boundary.md" in text
     assert "black-box-run-verification.md" in text

@@ -37,6 +37,9 @@ from bijux_proteomics_dev.release.governance.readme_truth import (
 from bijux_proteomics_dev.release.governance.release_narrowing_protocol import (
     run as run_release_narrowing_protocol,
 )
+from bijux_proteomics_dev.release.governance.runtime_black_box_docs import (
+    run as run_runtime_black_box_docs,
+)
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     validate_scientific_release_dossier,
 )
@@ -58,8 +61,8 @@ from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
 from bijux_proteomics_runtime.workflows.manifest import (
     validate_canonical_workflow_manifest,
 )
-from bijux_proteomics_runtime.workflows.proof_accounting import (
-    build_runtime_flagship_proof_gate,
+from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
+    build_runtime_black_box_rerun_gate,
 )
 
 __all__ = [
@@ -215,12 +218,16 @@ def _runtime_reproducibility_stage(repo_root: Path) -> FinalPreflightStage:
             default_code="canonical-workflow",
         ),
         *_normalize_issues(
-            build_runtime_flagship_proof_gate().issues,
-            default_code="runtime-proof-gate",
+            build_runtime_black_box_rerun_gate().issues,
+            default_code="runtime-black-box-rerun-gate",
         ),
         *_normalize_issues(
             validate_black_box_benchmark_language(),
             default_code="black-box-benchmark-language",
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.runtime_black_box_docs",
+            run_runtime_black_box_docs(check=True),
         ),
         *_freshness_issue(
             "bijux_proteomics_dev.release.governance.benchmark_rerun_governance",

@@ -51,8 +51,8 @@ from bijux_proteomics_runtime.workflows.manifest import (
     CANONICAL_WORKFLOW_MANIFEST_PATH,
     validate_canonical_workflow_manifest,
 )
-from bijux_proteomics_runtime.workflows.proof_accounting import (
-    build_runtime_flagship_proof_gate,
+from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
+    build_runtime_black_box_rerun_gate,
 )
 
 __all__ = [
@@ -156,7 +156,7 @@ def build_release_readiness_matrix(
     drift_audit_issues = validate_repository_drift_audit(repo_root)
     intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     lab_consequence_issues = validate_workflow_lab_consequence()
-    runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
+    runtime_rerun_gate = build_runtime_black_box_rerun_gate()
     black_box_language_issues = validate_black_box_benchmark_language()
 
     categories = (
@@ -185,14 +185,14 @@ def build_release_readiness_matrix(
                 "without maintainers narrating around missing artifacts."
             ),
             evidence_paths=(
-                "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py",
+                *runtime_rerun_gate.evidence_paths,
                 "docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md",
                 "docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md",
                 "docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md",
                 "docs/01-bijux-proteomics/foundation/public-artifact-index.md",
                 "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
             ),
-            issues=(*runtime_proof_gate.issues, *black_box_language_issues),
+            issues=(*runtime_rerun_gate.issues, *black_box_language_issues),
         ),
         _category(
             category_id="benchmark-asset-quality",

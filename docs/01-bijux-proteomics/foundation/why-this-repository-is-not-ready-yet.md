@@ -11,7 +11,7 @@ last_reviewed: 2026-05-09
 
 This page is generated from the current release-readiness matrix. It exists so blocked release bars stay visible in plain language and cannot be softened manually.
 
-- blocked release bars: 5
+- blocked release bars: 4
 - source of truth: `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/release_readiness_matrix.py`
 
 ## Black-box rerunability
@@ -19,7 +19,14 @@ This page is generated from the current release-readiness matrix. It exists so b
 A hostile reviewer should be able to start from the flagship runtime lane and see whether rerun evidence is strong enough without maintainers narrating around missing artifacts.
 
 Evidence paths:
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`
+- `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
+- `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`
+- `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`
+- `docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md`
+- `docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md`
+- `docs/09-bijux-proteomics-runtime/runtime-artifact-stability.md`
+- `docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md`
 - `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
 - `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
 - `docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md`
@@ -27,6 +34,9 @@ Evidence paths:
 - `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`
 
 Current blockers:
+- `faithful-rerun-refused`: dda still refuses stronger rerun claims: faithful rerun still stops at imported MaxQuant and comparator exports because the repository does not own a raw DDA search execution lane; external-engine behavior remains proprietary or out-of-repository for the strongest DDA package
+- `faithful-rerun-refused`: dia still refuses stronger rerun claims: the shipped DIA lane is raw-executable in runtime terms but still depends on library-conditioned exported reports rather than chromatogram-native replay
+- `faithful-rerun-refused`: multiplex still refuses stronger rerun claims: multiplex remains below outsider-auditable trust because runtime rerun strength still outruns family-level consequence and challenge closure
 - `black-box-language-outruns-rerun-evidence`: dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded
 
 ## Benchmark asset quality
@@ -35,6 +45,7 @@ Release claims must stay behind the benchmark asset coverage, grounding, and sci
 
 Evidence paths:
 - `configs/package-governance/scientific-release-workflows.toml`
+- `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`
 - `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`
 - `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`
 
@@ -83,16 +94,3 @@ Current blockers:
 - `release-contract-failure`: bijux-proteomics-core imports disallowed package edges: bijux-proteomics-knowledge
 - `release-contract-failure`: bijux-proteomics-intelligence imports disallowed package edges: bijux-proteomics-lab, bijux-proteomics-runtime
 - `release-contract-failure`: bijux-proteomics-runtime imports disallowed package edges: bijux-proteomics-knowledge, bijux-proteomics-lab
-
-## Artifact hygiene
-
-A repository that still leaks caches, package-local artifacts, or duplicate owner surfaces on disk is not ready for stronger release language.
-
-Evidence paths:
-- `configs/package-governance/repository-file-ownership.toml`
-- `configs/package-governance/repository-drift-audit.toml`
-- `docs/01-bijux-proteomics/operations/artifact-governance.md`
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py`
-
-Current blockers:
-- `package-cache-spillover`: bijux-proteomics-dev still contains forbidden cache state at packages/bijux-proteomics-dev/.pytest_cache

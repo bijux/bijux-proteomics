@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics_runtime.workflows import (
     build_runtime_artifact_stability_reports,
+    build_runtime_black_box_rerun_gate,
     build_runtime_black_box_verification_routes,
     build_runtime_environment_contracts,
     build_runtime_execution_mode_comparisons,
@@ -48,3 +49,19 @@ def test_replay_challenges_environment_contracts_and_refusals_stay_aligned() -> 
     assert refusals["dda"].rerun_ready is False
     assert "raw DDA search parity" in refusals["dda"].blocked_claims
     assert refusals["lfq"].rerun_ready is True
+
+
+def test_runtime_black_box_rerun_gate_routes_release_blockers_to_public_surfaces() -> (
+    None
+):
+    gate = build_runtime_black_box_rerun_gate()
+
+    assert gate.gate_id == "runtime-black-box-rerun-gate"
+    assert "dda" in gate.blocked_workflow_families
+    assert "dia" in gate.blocked_workflow_families
+    assert "multiplex" in gate.blocked_workflow_families
+    assert (
+        "docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md"
+        in gate.evidence_paths
+    )
+    assert any(issue.code == "faithful-rerun-refused" for issue in gate.issues)

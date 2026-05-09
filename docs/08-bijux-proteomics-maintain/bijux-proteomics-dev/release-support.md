@@ -106,9 +106,10 @@ Use `build_repository_truth_report()` when the question is stronger than
 package publication and benchmark scope: it answers whether the repository may
 honestly speak in `reference-grade` or `elite` language at all.
 
-That repository truth now includes the runtime flagship proof gate. If the
+That repository truth now includes the runtime flagship rerun gate. If the
 strongest current runtime lane for a workflow family still depends on a fake
-helper anywhere in its claimed flagship path, the family must not count toward
+helper anywhere in its claimed flagship path, or the rerun ledger still names
+an explicit faithful-rerun refusal, the family must not count toward
 outsider-auditable or release-candidate authority.
 
 That repository truth also includes the lab-consequence gate. A workflow family

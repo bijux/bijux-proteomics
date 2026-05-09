@@ -63,8 +63,8 @@ from bijux_proteomics_runtime.workflows.manifest import (
     CANONICAL_WORKFLOW_MANIFEST_PATH,
     validate_canonical_workflow_manifest,
 )
-from bijux_proteomics_runtime.workflows.proof_accounting import (
-    build_runtime_flagship_proof_gate,
+from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
+    build_runtime_black_box_rerun_gate,
 )
 
 __all__ = [
@@ -114,7 +114,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     freshness_issues = validate_generated_governance_freshness()
     package_hygiene_issues = validate_package_root_hygiene(repo_root)
     drift_audit_issues = validate_repository_drift_audit(repo_root)
-    runtime_proof_gate = build_runtime_flagship_proof_gate(repo_root)
+    runtime_rerun_gate = build_runtime_black_box_rerun_gate()
     acceptance_dashboard = build_flagship_acceptance_dashboard()
     ranking_improvement = compare_ranking_policies_against_benchmark_corpus(
         build_legacy_ranking_policy(),
@@ -212,10 +212,10 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
                 detail=issue.detail,
             )
         )
-    for issue in runtime_proof_gate.issues:
+    for issue in runtime_rerun_gate.issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"runtime-proof-gate-{issue.code}",
+                code=f"runtime-rerun-gate-{issue.code}",
                 detail=issue.detail,
             )
         )
