@@ -30,6 +30,9 @@ from bijux_proteomics_dev.release.governance.generated_governance_freshness impo
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     build_package_family_readiness_reports,
 )
+from bijux_proteomics_dev.release.governance.public_artifact_governance import (
+    validate_public_artifact_governance,
+)
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     scientific_release_manifest_path,
     validate_scientific_release_dossier,
@@ -56,8 +59,7 @@ from bijux_proteomics_intelligence.candidates.ranking_benchmarks import (
 )
 from bijux_proteomics_intelligence.reviews.public_scrutiny import (
     build_public_artifact_index,
-    build_trust_break_page,
-    build_trust_next_page,
+    build_public_artifact_role_matrix,
 )
 from bijux_proteomics_runtime.workflows.manifest import (
     CANONICAL_WORKFLOW_MANIFEST_PATH,
@@ -116,13 +118,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     drift_audit_issues = validate_repository_drift_audit(repo_root)
     runtime_rerun_gate = build_runtime_black_box_rerun_gate()
     acceptance_dashboard = build_flagship_acceptance_dashboard()
+    public_artifact_governance_issues = validate_public_artifact_governance()
     ranking_improvement = compare_ranking_policies_against_benchmark_corpus(
         build_legacy_ranking_policy(),
         build_flagship_ranking_policy(),
     )
     public_artifact_index = build_public_artifact_index()
-    trust_break_page = build_trust_break_page()
-    trust_next_page = build_trust_next_page()
+    public_artifact_role_matrix = build_public_artifact_role_matrix()
 
     architecturally_ready_package_count = sum(
         entry.architectural_ready for entry in scorecard.entries
@@ -188,6 +190,13 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         blockers.append(
             RepositoryTruthIssue(
                 code=f"workflow-public-scrutiny-{issue.code}",
+                detail=issue.detail,
+            )
+        )
+    for issue in public_artifact_governance_issues:
+        blockers.append(
+            RepositoryTruthIssue(
+                code=f"public-artifact-governance-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -305,8 +314,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             "artifacts/runtime/proof-accounting/runtime_proof_map.json",
             acceptance_dashboard.artifact_path,
             public_artifact_index.artifact_path,
-            trust_break_page.doc_path,
-            trust_next_page.doc_path,
+            public_artifact_role_matrix.doc_path,
         ),
         blockers=tuple(blockers),
     )

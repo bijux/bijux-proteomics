@@ -84,8 +84,8 @@ def test_repository_truth_report_blocks_fake_backed_runtime_authority(
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(
             issues=(
                 SimpleNamespace(
                     workflow_family="dda_import",
@@ -156,8 +156,8 @@ def test_repository_truth_report_blocks_workflow_authority_doc_drift(
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(issues=()),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
     )
 
     report = build_repository_truth_report(REPO_ROOT)
@@ -215,8 +215,8 @@ def test_repository_truth_report_blocks_acceptance_claim_drift(
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(issues=()),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
@@ -302,8 +302,8 @@ def test_repository_truth_report_blocks_decision_grade_intelligence_without_audi
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(issues=()),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
@@ -386,8 +386,8 @@ def test_repository_truth_report_blocks_lab_consequence_without_outcome_evidence
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(issues=()),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
@@ -471,8 +471,8 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_flagship_proof_gate",
-        lambda repo_root: SimpleNamespace(issues=()),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
@@ -486,12 +486,12 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
         ),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_trust_break_page",
-        lambda: SimpleNamespace(doc_path="what-breaks-elite-trust.md", entries=(1,)),
+        "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_role_matrix",
+        lambda: SimpleNamespace(doc_path="public-artifact-role-matrix.md", rows=(1,)),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.build_trust_next_page",
-        lambda: SimpleNamespace(doc_path="what-earns-elite-trust-next.md", entries=(1,)),
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_public_artifact_governance",
+        lambda: (),
     )
 
     report = build_repository_truth_report(REPO_ROOT)
@@ -499,4 +499,99 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
     assert RepositoryTruthIssue(
         code="workflow-public-scrutiny-external-review-kit-not-ready",
         detail="dia external review kit is not ready for outsider review",
+    ) in report.blockers
+
+
+def test_repository_truth_report_blocks_public_artifact_governance_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_scorecard_report",
+        lambda: SimpleNamespace(entries=(SimpleNamespace(architectural_ready=True),)),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_reopened_completion_claim_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_readme_maturity_report",
+        lambda: SimpleNamespace(entries=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_package_family_readiness_reports",
+        lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        lambda repo_root=None: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_scientific_release_dossier",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_authority_docs",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_claim_grounding",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_intelligence_confidence",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_lab_consequence",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_workflow_public_scrutiny",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_generated_governance_freshness",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.compare_ranking_policies_against_benchmark_corpus",
+        lambda legacy, flagship: SimpleNamespace(
+            decision_improved=True,
+            corpus_id="mock-corpus",
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_runtime_black_box_rerun_gate",
+        lambda: SimpleNamespace(issues=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_flagship_acceptance_dashboard",
+        lambda: SimpleNamespace(artifact_path="acceptance_dashboard.json", rows=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_index",
+        lambda: SimpleNamespace(
+            artifact_path="artifact_index.json",
+            entries=(),
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_role_matrix",
+        lambda: SimpleNamespace(doc_path="public-artifact-role-matrix.md", rows=()),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_public_artifact_governance",
+        lambda: (
+            SimpleNamespace(
+                code="public-artifact-count-growth",
+                detail="public artifact count grew beyond the governed budget",
+            ),
+        ),
+    )
+
+    report = build_repository_truth_report(REPO_ROOT)
+
+    assert RepositoryTruthIssue(
+        code="public-artifact-governance-public-artifact-count-growth",
+        detail="public artifact count grew beyond the governed budget",
     ) in report.blockers
