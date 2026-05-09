@@ -33,6 +33,7 @@ def test_family_lineage_docs_and_core_indexes_link_to_audit_surfaces() -> None:
     multiplex = _read_core_doc("multiplex-benchmark-lineage.md")
     licensing = _read_core_doc("benchmark-licensing-and-redistribution.md")
     incompleteness = _read_core_doc("benchmark-incompleteness-ledger.md")
+    flagship_status = _read_core_doc("benchmark-flagship-status.md")
     foundation_index = _read_core_doc("index.md")
     asset_handbook = _read_core_doc("flagship-benchmark-assets.md")
 
@@ -47,12 +48,17 @@ def test_family_lineage_docs_and_core_indexes_link_to_audit_surfaces() -> None:
     assert "# Benchmark Incompleteness Ledger" in incompleteness
     assert "Non-transfer zones" in incompleteness
     assert "Expected failure conditions" in incompleteness
+    assert "# Benchmark Flagship Status" in flagship_status
+    assert "generalization_companion" in flagship_status
+    assert "flagship_primary_internal_support" in flagship_status
     assert "Benchmark Asset Audit" in foundation_index
     assert "Benchmark Licensing and Redistribution" in foundation_index
     assert "Benchmark Incompleteness Ledger" in foundation_index
+    assert "Benchmark Flagship Status" in foundation_index
     assert "DDA Benchmark Lineage" in foundation_index
     assert "Targeted Benchmark Lineage" in foundation_index
     assert "Benchmark Asset Audit" in asset_handbook
     assert "Benchmark Licensing and Redistribution" in asset_handbook
     assert "Benchmark Incompleteness Ledger" in asset_handbook
+    assert "Benchmark Flagship Status" in asset_handbook
     assert "Multiplex Benchmark Lineage" in asset_handbook
