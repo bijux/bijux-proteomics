@@ -14,10 +14,14 @@ def test_repository_handbook_routes_product_owners_and_reader_intent() -> None:
         REPO_ROOT / "docs" / "01-bijux-proteomics" / "index.md"
     ).read_text(encoding="utf-8")
 
+    assert "## Shared Reader Routes" in handbook
     assert "Product Architecture" in handbook
     assert "Cross-Package Ownership" in handbook
     assert "Release Readiness Matrix" in handbook
     assert "## Reader Routes" in handbook
-    assert "Scientist:" in handbook
-    assert "Operator:" in handbook
-    assert "Maintainer:" in handbook
+    assert "Product Overview" in handbook
+    assert "Workflow Families" in handbook
+    assert "Maintenance" in handbook
+    assert "Scientist Journey" in handbook
+    assert "Operator Rerun Journey" in handbook
+    assert "Maintainer Safe Change" in handbook

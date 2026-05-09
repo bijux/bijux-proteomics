@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-05-09
 ---
 
 # Repository Handbook
@@ -47,7 +47,18 @@ flowchart TB
 - it keeps the reader from blaming the wrong package for the wrong kind of
   change
 
-## Start With
+## Shared Reader Routes
+
+- Open [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+  when the question is still product-wide rather than repository-handbook
+  specific.
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the reader already knows the question is family credibility rather than
+  repository topology.
+- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+  when the question is already about safe change or release validation.
+
+## Start Inside This Handbook
 
 - Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
   when the question is how the end-to-end product chain is meant to work.
@@ -58,17 +69,15 @@ flowchart TB
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
   when the question is how the repository validates, releases, and reviews work
   across package boundaries.
-- Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
-  when the answer lives in helper code, make routing, or GitHub automation.
 
 ## Reader Routes
 
 - Scientist:
-  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
 - Operator:
-  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
 - Maintainer:
-  [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
 
 ## Questions This Handbook Owns
 
@@ -85,13 +94,6 @@ flowchart TB
 - [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 - [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-
-## First Proof Check
-
-- `packages/` for the package seams this handbook is describing
-- `Makefile` and `makes/` for root-owned command and release routing
-- `apis/` and `.github/workflows/` for repository-level contract and validation
-  surfaces
 
 ## Boundary Test
 
