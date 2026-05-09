@@ -49,7 +49,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/final_preflight.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
-- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
+- `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`
 - `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
 - `configs/package-governance/canonical-workflow-manifest.toml`
 - `configs/package-governance/scientific-release-workflows.toml`
@@ -116,12 +116,16 @@ must not be called lab-consequential unless the authority surface points to one
 shipped requested-versus-observed outcome dossier and one assay-worth-it ledger
 row for that same family.
 
-When the question is specifically whether a runtime lane is raw,
-import-backed, replay-backed, or simulation-only, open
-`docs/09-bijux-proteomics-runtime/runtime-proof-accounting.md` before
-generalizing from runtime success.
+When the question is specifically how a runtime lane should be reopened,
+challenged, or refused, open these runtime-owned boundary surfaces before
+generalizing from runtime success:
 
-That report should not be the first stop for workflow trust. First open the
+- `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
+- `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`
+- `docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md`
+- `docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md`
+
+Those pages should not be the first stop for workflow trust. First open the
 flagship package, runtime lane, comparator surface, and validating tests. Then
 use repository truth to decide how far the repository may generalize from those
 artifacts.

@@ -49,14 +49,14 @@ Per-family artifacts:
 
 ## Current Runtime Families
 
-| Workflow | Runtime package id | Current lane | Proof class |
+| Workflow | Runtime package id | Current lane | Execution mode |
 | --- | --- | --- | --- |
-| `dda` | `dda-maxquant-pipeline-corpus` | strict import lane over tracked MaxQuant exports | `import_backed_execution` |
-| `dia` | `dia-diann-pipeline-corpus` | raw-executable review lane over tracked DIA library-conditioned evidence | `raw_execution` |
-| `lfq` | `lfq-cohort-review-corpus` | raw-executable review lane over tracked feature and design tables | `raw_execution` |
-| `multiplex` | `multiplex-tmtpro-review-corpus` | raw-executable review lane over tracked channel feature and design tables | `raw_execution` |
-| `ptm` | `ptm-localization-review-corpus` | raw-executable review lane over tracked localization, feature, and FASTA evidence | `raw_execution` |
-| `targeted` | `targeted-transition-review-corpus` | raw-executable review lane over tracked targeted QC and follow-up artifacts | `raw_execution` |
+| `dda` | `dda-maxquant-pipeline-corpus` | strict import lane over tracked MaxQuant exports | `import_only` |
+| `dia` | `dia-diann-pipeline-corpus` | raw-executable review lane over tracked DIA library-conditioned evidence | `raw_executable` |
+| `lfq` | `lfq-cohort-review-corpus` | raw-executable review lane over tracked feature and design tables | `raw_executable` |
+| `multiplex` | `multiplex-tmtpro-review-corpus` | raw-executable review lane over tracked channel feature and design tables | `raw_executable` |
+| `ptm` | `ptm-localization-review-corpus` | raw-executable review lane over tracked localization, feature, and FASTA evidence | `raw_executable` |
+| `targeted` | `targeted-transition-review-corpus` | raw-executable review lane over tracked targeted QC and follow-up artifacts | `raw_executable` |
 
 ## What These Bundles Authorize
 
@@ -72,6 +72,9 @@ These bundles prove runtime execution and runtime traceability. They do not
 automatically upgrade knowledge, comparator, recommendation, or lab authority.
 Use the cross-family bundle to see those downstream owners directly.
 
-When the question becomes whether a lane is raw, import-backed, replay-backed,
-or simulation-only, continue with
-`docs/09-bijux-proteomics-runtime/runtime-proof-accounting.md`.
+When the question becomes how a lane should be reopened, challenged, or
+refused, continue with:
+
+- `docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md`
+- `docs/09-bijux-proteomics-runtime/black-box-run-verification.md`
+- `docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md`

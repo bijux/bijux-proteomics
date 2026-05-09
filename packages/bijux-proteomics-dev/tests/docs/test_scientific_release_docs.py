@@ -28,7 +28,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "validate_ssot_readiness()",
         "canonical-workflow-manifest.toml",
         "scientific-release-workflows.toml",
-        "workflows/proof_accounting.py",
+        "workflows/black_box_reproducibility.py",
         "package-substance.md",
         "`dda`",
         "`dia`",
@@ -49,7 +49,10 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "comparator_path:msfragger_imported_dda_review" in text
     assert "runtime flagship proof gate" in text
     assert "lab-consequence gate" in text
-    assert "runtime-proof-accounting.md" in text
+    assert "runtime-execution-boundary.md" in text
+    assert "black-box-run-verification.md" in text
+    assert "raw-versus-import-execution.md" in text
+    assert "runtime-rerun-refusals.md" in text
     assert "flagship-release-candidate.md" in text
     assert "elite-readiness-scorecard.md" in text
     assert "what-breaks-elite-trust.md" in text
