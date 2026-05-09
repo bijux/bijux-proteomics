@@ -19,6 +19,7 @@ def test_public_scrutiny_foundation_pages_exist_and_name_real_surfaces() -> None
     reruns = _read_foundation_doc("independent-rerun-dossiers.md")
     kits = _read_foundation_doc("external-review-kits.md")
     index = _read_foundation_doc("public-artifact-index.md")
+    narrowing = _read_foundation_doc("release-narrowing-protocol.md")
     hostile = _read_foundation_doc("hostile-review-kit.md")
     why_not_ready = _read_foundation_doc("why-this-repository-is-not-ready-yet.md")
     what_makes_ready = _read_foundation_doc("what-would-make-this-repository-ready.md")
@@ -30,6 +31,8 @@ def test_public_scrutiny_foundation_pages_exist_and_name_real_surfaces() -> None
     assert "outsider packet" in kits
     assert "independent rerun dossier" in kits
     assert "reverse-engineering the repository package" in index
+    assert "allowed language" in narrowing
+    assert "benchmark-asset-quality" in narrowing
     assert "flagship-release-candidate-bundle" in hostile
     assert "whole-repository challenge route" in hostile
     assert "blocked release bars" in why_not_ready
@@ -57,16 +60,19 @@ def test_existing_release_pages_link_to_public_scrutiny_surfaces() -> None:
     assert "independent rerun dossiers" in release_candidate
     assert "external review kits" in release_candidate
     assert "public artifact index" in release_candidate
+    assert "Release Narrowing Protocol" in release_candidate
     assert "Hostile Review Kit" in release_candidate
     assert "Why This Repository Is Not Ready Yet" in release_candidate
     assert "What Would Make This Repository Ready" in release_candidate
     assert "What Breaks Elite Trust" in release_candidate
     assert "What Earns Elite Trust Next" in release_candidate
     assert "independent rerun dossiers" in scorecard.lower()
+    assert "Release Narrowing Protocol" in foundation_index
     assert "Hostile Review Kit" in foundation_index
     assert "What Would Make This Repository Ready" in foundation_index
     assert "Public Artifact Index" in foundation_index
     assert "workflow_public_scrutiny.py" in release_support
     assert "hostile_review_pages.py" in release_support
+    assert "release_narrowing_protocol.py" in release_support
     assert "validate_workflow_public_scrutiny()" in release_support
     assert "Public artifact index" in readme

@@ -66,6 +66,7 @@ convenient flagship package.
   - [Multiplex Authority Boundary](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/multiplex-authority-boundary/)
   - [Workflow Authority Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/workflow-authority-matrix/)
 - public scrutiny pages:
+  - [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/)
   - [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
   - [Independent Rerun Dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
   - [External Review Kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
@@ -77,6 +78,8 @@ convenient flagship package.
 
 The public artifact index is the stable opening-order registry for the bundle.
 The hostile review kit is the stable whole-repository challenge route for the
+bundle.
+The release narrowing protocol is the stable language-demotion rule set for the
 bundle.
 
 ## Honest Reading

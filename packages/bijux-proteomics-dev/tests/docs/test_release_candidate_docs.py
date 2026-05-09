@@ -34,10 +34,12 @@ def test_release_candidate_page_names_current_auditable_and_blocked_families() -
     assert "independent rerun dossiers" in text
     assert "external review kits" in text
     assert "public artifact index" in text
+    assert "Release Narrowing Protocol" in text
     assert "Hostile Review Kit" in text
     assert "Why This Repository Is Not Ready Yet" in text
     assert "What Would Make This Repository Ready" in text
     assert "whole-repository challenge route" in text
+    assert "stable language-demotion rule set" in text
 
 
 def test_elite_readiness_scorecard_blocks_repo_wide_elite_language() -> None:

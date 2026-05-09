@@ -57,6 +57,9 @@ This section should move a reader from system-level confusion to a package-level
   when the question is what one real workflow family can currently prove.
 - Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
   when the question is whether public wording currently outruns hard evidence.
+- Open [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/)
+  when the question is how workflow-family language narrows automatically after
+  release evidence degrades.
 - Open [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
   when the question is how a skeptical outsider should challenge the strongest
   current repository claim without maintainer narration.
@@ -90,6 +93,7 @@ This section should move a reader from system-level confusion to a package-level
 - [Change Principles](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/change-principles/)
 - [Decision Rules](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/decision-rules/)
 - [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+- [Release Narrowing Protocol](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-narrowing-protocol/)
 - [Hostile Review Kit](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/hostile-review-kit/)
 - [Canonical Workflow Proof](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/canonical-workflow-proof/)
 - [Flagship Release Candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
