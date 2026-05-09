@@ -44,15 +44,22 @@ flowchart LR
 - scenario evaluation and recommendation logic
 - explanation and reporting surfaces for those decisions
 
-## Start With
+## Shared Reader Routes
+
+- Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+  when the question is still about grounding, recommendation posture, or public
+  artifact roles rather than one intelligence-owner module.
+- Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the family trust sentence is still the main question.
+
+## Start Inside This Package
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/)
   for the package role and boundary.
+- Open [Architecture](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)
+  when the question is how scoring, scenarios, and explanations are arranged.
 - Open [Interfaces](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/)
   when the issue is a policy-facing surface or explanation output.
-- Open [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-  when the disagreement is about evidence state rather than recommendation
-  policy.
 
 ## What It Refuses
 

@@ -48,15 +48,22 @@ flowchart LR
 - the checked migration guide and compatibility inventory that explain how old
   imports collapse back to canonical package ownership
 
-## Start With
+## Shared Reader Routes
+
+- Use [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+  when the question is still product-wide rather than compatibility-specific.
+- Use [Execution](https://bijux.io/bijux-proteomics/execution/)
+  when the question is about canonical runtime behavior instead of the legacy
+  bridge.
+
+## Start Inside This Package
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/)
   when you need the package boundary first.
 - Open [Interfaces](https://bijux.io/bijux-proteomics/02-agentic-proteins/interfaces/)
   when the question is a preserved import, CLI, API, or compatibility contract.
-- Open [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-  as soon as the question becomes current execution behavior rather than legacy
-  forwarding.
+- Open [Operations](https://bijux.io/bijux-proteomics/02-agentic-proteins/operations/)
+  when the question is local migration or release behavior inside the bridge.
 
 ## What Should Make A Reader Suspicious
 

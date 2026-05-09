@@ -45,15 +45,23 @@ flowchart LR
 - gate semantics and durable workflow constraints
 - core contracts that downstream packages depend on
 
-## Start With
+## Shared Reader Routes
+
+- Use [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
+  when the question is about public benchmark packages, lineage, or flagship
+  acceptance before it becomes a package-local question.
+- Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the question is which family currently deserves attention.
+
+## Start Inside This Package
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/)
   for the package role and contract boundary.
+- Open [Architecture](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/architecture/)
+  when the issue is internal program structure rather than public benchmark
+  assets.
 - Open [Interfaces](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/interfaces/)
   when the issue is a public contract or package-facing surface.
-- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  when the concern becomes recommendation policy rather than durable program
-  rules.
 
 ## What It Refuses
 

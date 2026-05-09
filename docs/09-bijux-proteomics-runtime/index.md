@@ -43,9 +43,17 @@ flowchart LR
 - it holds the operational seam between the product family and the outside
   world
 
-## Start With
+## Shared Reader Routes
 
-- open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question starts from a legacy import, CLI path, or API surface
+- Use [Execution](https://bijux.io/bijux-proteomics/execution/)
+  when the question is still about rerun flow rather than one runtime-owned
+  surface.
+- Use [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+  when the question starts from a flagship workflow family rather than from a
+  runtime subsystem.
+
+## Start Inside This Package
+
 - open [Flagship Run Registry](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/flagship-run-registry/) when the question is which public benchmark runs are actually checked and what claims they authorize
 - open [Benchmark Rerun Kits](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-rerun-kits/) when the question is how to reopen a workflow family from its primary and companion package roots without maintainer narration
 - open [Benchmark Comparability Matrix](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/benchmark-comparability-matrix/) when the question is whether a workflow sentence survives both the flagship package and the companion generalization package
@@ -57,6 +65,7 @@ flowchart LR
 - open [Runtime Environment Contracts](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-environment-contracts/) when the question is which software and dependency combinations the shipped runtime lane actually supports
 - open [Runtime Artifact Stability](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-artifact-stability/) when the question is what must remain bit-stable, value-stable, or review-stable across repeated reruns
 - open [Runtime Rerun Refusals](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/runtime-rerun-refusals/) when the question is why a family still cannot be rerun more faithfully without overstating the current lane
+- open [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/) when the question starts from a legacy import, CLI path, or API surface
 - open [Migration Ledger](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/migration-ledger/) when the question is whether a legacy module still belongs in runtime ownership
 - open the lower package handbooks when the disputed behavior is really domain, evidence, recommendation, or lab meaning
 

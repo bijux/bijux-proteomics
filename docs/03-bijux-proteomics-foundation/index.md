@@ -53,14 +53,22 @@ flowchart TB
 - schema and serialization compatibility helpers
 - migration rules for shared payload evolution
 
-## Start With
+## Shared Reader Routes
+
+- Use [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+  before this page when the question is still repository-wide.
+- Use [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+  when the dispute is about safe change or release gates rather than shared
+  payload meaning.
+
+## Start Inside This Package
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/)
   for the package role and boundary.
+- Open [Architecture](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)
+  when the question is how identifiers, schemas, and migrations stay arranged.
 - Open [Interfaces](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/interfaces/)
   when the question is a public contract or shared data surface.
-- Open [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-  when the concern becomes program behavior rather than shared meaning.
 
 ## What It Refuses
 

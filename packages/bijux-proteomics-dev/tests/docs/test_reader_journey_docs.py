@@ -68,3 +68,21 @@ def test_scientist_operator_and_maintainer_journeys_land_on_owner_surfaces() -> 
     assert "Release Support" in maintainer
     assert "Testing And Validation" in maintainer
     assert "Release Readiness Matrix" in maintainer
+
+
+def test_package_index_pages_hand_off_shared_routes_before_local_routes() -> None:
+    package_index_paths = [
+        "docs/02-agentic-proteins/index.md",
+        "docs/03-bijux-proteomics-foundation/index.md",
+        "docs/04-bijux-proteomics-core/index.md",
+        "docs/05-bijux-proteomics-intelligence/index.md",
+        "docs/06-bijux-proteomics-knowledge/index.md",
+        "docs/07-bijux-proteomics-lab/index.md",
+        "docs/08-bijux-proteomics-maintain/index.md",
+        "docs/09-bijux-proteomics-runtime/index.md",
+    ]
+
+    for path in package_index_paths:
+        text = _read(path)
+        assert "## Shared Reader Routes" in text
+        assert "## Start Inside" in text
