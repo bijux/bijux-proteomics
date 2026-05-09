@@ -121,6 +121,22 @@ prove whether an operational story is supportable.
 It does not own analytical recommendation logic, core scientific semantics, or
 execution orchestration or runtime policy.
 
+## Consequence chain route
+
+Lab owns the downstream burden and observed outcome part of the shared
+consequence chain, not a separate trust story that can outrank knowledge or
+intelligence.
+
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is whether assay burden or the cost of being wrong already
+  blocks stronger public recommendation language
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+  when the question is how requested-versus-observed follow-up should tighten
+  or weaken the next recommendation
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next action is to stop, rerun, narrow, or refuse before more
+  assay spend
+
 ## Contract checkpoints
 
 - planning outputs preserve dependency, queue, and material context

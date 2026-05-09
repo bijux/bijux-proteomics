@@ -68,3 +68,42 @@ def test_package_readmes_keep_selection_and_routing_guidance_substantive() -> No
     assert not failures, "package README routing guidance failed:\n" + "\n".join(
         failures
     )
+
+
+def test_knowledge_intelligence_and_lab_readmes_route_through_shared_consequence_surfaces() -> (
+    None
+):
+    expected_bits = {
+        "bijux-proteomics-knowledge": (
+            "## Consequence chain route",
+            "Workflow Consequence Maps",
+            "What Changed The Recommendation",
+            "Outcome Learning Loops",
+        ),
+        "bijux-proteomics-intelligence": (
+            "## Consequence chain route",
+            "Workflow Consequence Maps",
+            "What Changed The Recommendation",
+            "Workflow Refusal Handbook",
+        ),
+        "bijux-proteomics-lab": (
+            "## Consequence chain route",
+            "Workflow Consequence Maps",
+            "Outcome Learning Loops",
+            "Workflow Refusal Handbook",
+        ),
+    }
+
+    failures: list[str] = []
+    for package_name, bits in expected_bits.items():
+        path = _package_dir(package_name) / "README.md"
+        text = path.read_text(encoding="utf-8")
+        missing = [bit for bit in bits if bit not in text]
+        if missing:
+            failures.append(
+                f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
+            )
+
+    assert not failures, (
+        "package README consequence routing failed:\n" + "\n".join(failures)
+    )

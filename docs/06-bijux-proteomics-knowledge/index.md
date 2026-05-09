@@ -54,6 +54,12 @@ flowchart LR
 - Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
   when the question is still about evidence, contradiction, or public belief
   posture rather than one knowledge-owner module.
+- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is how contradiction pressure should narrow the current
+  recommendation before assay spend is approved.
+- Use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the question is whether literature pressure, comparator pressure, or lab
+  burden actually moved the call.
 - Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
   when the family route is clearer than the package route.
 

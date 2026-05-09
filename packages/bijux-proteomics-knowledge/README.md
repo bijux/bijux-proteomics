@@ -93,6 +93,21 @@ ranking or recommendation policy, or experiment scheduling.
 It is also not a generic context store. New content belongs here only when it
 becomes selective, cited, and reviewable scientific memory.
 
+## Consequence chain route
+
+Knowledge is the first owner in the cross-package consequence chain, not a
+complete trust story by itself.
+
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is how contradiction pressure becomes a weaker or stronger
+  recommendation and then a real assay burden
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the question is whether literature pressure, comparator pressure, or
+  downstream lab burden actually moved the call
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+  when the question is how requested-versus-observed follow-up should tighten
+  the next knowledge-facing claim
+
 ## Scientific memory charter
 
 The package boundary is justified by five grounded capabilities:

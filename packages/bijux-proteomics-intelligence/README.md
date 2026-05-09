@@ -158,6 +158,21 @@ It can decide:
 It does not own scientific truth, evidence curation, workflow stage law,
 runtime transport, or lab scheduling.
 
+## Consequence chain route
+
+Intelligence owns the recommendation sentence inside the shared consequence
+chain, but it does not own the whole story.
+
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is whether the current recommendation already outruns the
+  weakest downstream boundary
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the question is which counterfactual, contradiction, or lab burden
+  actually changed the recommendation
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next action may still be stop, rerun, narrow, or refuse even
+  though a recommendation surface exists
+
 ## Contract checkpoints
 
 - ranking and scenario outputs must carry typed rationale instead of opaque scores

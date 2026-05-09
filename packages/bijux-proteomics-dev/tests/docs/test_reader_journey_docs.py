@@ -93,3 +93,21 @@ def test_package_index_pages_hand_off_shared_routes_before_local_routes() -> Non
         text = _read(path)
         assert "## Shared Reader Routes" in text
         assert "## Start Inside" in text
+
+
+def test_knowledge_intelligence_and_lab_indexes_route_readers_into_consequence_chain() -> (
+    None
+):
+    knowledge = _read("docs/06-bijux-proteomics-knowledge/index.md")
+    intelligence = _read("docs/05-bijux-proteomics-intelligence/index.md")
+    lab = _read("docs/07-bijux-proteomics-lab/index.md")
+
+    assert "Workflow Consequence Maps" in knowledge
+    assert "What Changed The Recommendation" in knowledge
+
+    assert "Workflow Consequence Maps" in intelligence
+    assert "What Changed The Recommendation" in intelligence
+
+    assert "Workflow Consequence Maps" in lab
+    assert "Outcome Learning Loops" in lab
+    assert "Workflow Refusal Handbook" in lab

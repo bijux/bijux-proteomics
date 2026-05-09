@@ -47,6 +47,9 @@ flowchart LR
 
 ## Shared Reader Routes
 
+- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is whether assay burden or the cost of being wrong already
+  blocks stronger workflow language.
 - Use [Lab Consequence](https://bijux.io/bijux-proteomics/lab-consequence/)
   when the question is still about downstream assay burden, refusal, or outcome
   pressure rather than one lab-owner module.
