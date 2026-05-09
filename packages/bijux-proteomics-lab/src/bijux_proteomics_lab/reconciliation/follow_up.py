@@ -300,7 +300,9 @@ def _build_next_cycle_packet(
     if blocked_assay_ids:
         decision = ProgressDecision.HOLD
         assay_backlog = sorted(blocked_assay_ids)
-        notes.append("requested follow-up remained operationally blocked after execution reconciliation")
+        notes.append(
+            "requested follow-up remained operationally blocked after execution reconciliation"
+        )
     elif weakened_assay_ids:
         decision = ProgressDecision.REDESIGN
         assay_backlog = sorted(weakened_assay_ids)
@@ -308,11 +310,15 @@ def _build_next_cycle_packet(
     elif evidence_backlog:
         decision = ProgressDecision.HOLD
         assay_backlog = []
-        notes.append("supporting assays landed, but unresolved scientific risks still block progression")
+        notes.append(
+            "supporting assays landed, but unresolved scientific risks still block progression"
+        )
     else:
         decision = ProgressDecision.ADVANCE
         assay_backlog = []
-        notes.append("requested follow-up produced progression-supporting outcomes without unresolved drift")
+        notes.append(
+            "requested follow-up produced progression-supporting outcomes without unresolved drift"
+        )
     if supported_assay_ids:
         notes.append(
             "progression-supporting assays: " + ", ".join(sorted(supported_assay_ids))

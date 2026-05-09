@@ -269,9 +269,7 @@ def test_build_follow_up_practicality_report_blocks_candidates_without_practical
     assert report.executable_batch_ids == ["b1"]
     assert report.blocked_batch_ids == ["b2"]
     assert report.practicality_score == 0.42
-    assert any(
-        "grounded strongly enough" in blocker for blocker in report.blockers
-    )
+    assert any("grounded strongly enough" in blocker for blocker in report.blockers)
 
 
 def test_realistic_proteomics_planning_fixture_exercises_lab_priority_surfaces() -> (

@@ -74,9 +74,7 @@ def test_reconcile_planned_and_observed_outcome_emits_feedback_signal() -> None:
         "weakening claims: claim-2",
     )
     assert report.intelligence_feedback.recommended_action.startswith("send")
-    assert (
-        "return-to-candidate-review: assay-b" in report.operational_follow_through
-    )
+    assert "return-to-candidate-review: assay-b" in report.operational_follow_through
     assert report.claim_belief_update.contributing_assay_count == 2
     assert report.next_cycle_packet.decision is ProgressDecision.REDESIGN
     assert report.next_cycle_packet.assay_backlog == ["assay-b"]
