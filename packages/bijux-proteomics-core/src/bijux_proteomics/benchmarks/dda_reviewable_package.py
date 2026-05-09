@@ -415,10 +415,10 @@ def build_dda_reviewable_package() -> DdaReviewablePackage:
         warning_demonstrations=_build_warning_demonstrations(),
         citation_refs=_build_citation_refs(),
         review_artifact_paths=(
-            "artifacts/workflows/reviewable-proteomics/runtime/sequence_intake.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/qc_report.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
-            "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json",
+            "artifacts/workflows/flagship-workflows/runtime/sequence_intake.json",
+            "artifacts/workflows/flagship-workflows/runtime/qc_report.json",
+            "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+            "artifacts/workflows/flagship-workflows/core/scientific_kernel.json",
         ),
         validating_test_paths=(
             "packages/bijux-proteomics-core/tests/benchmarks/test_dda_reviewable_package_surface.py",

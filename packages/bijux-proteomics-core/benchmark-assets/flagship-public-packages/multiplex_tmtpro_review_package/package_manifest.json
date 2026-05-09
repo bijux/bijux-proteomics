@@ -5,8 +5,8 @@
   "claim_scope": "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape.",
   "comparator_availability": "external confrontation exists, but public authority is intentionally limited to internal support",
   "expected_review_artifacts": [
-    "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
-    "artifacts/workflows/reviewable-proteomics/core/quant_review_packet.json"
+    "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+    "artifacts/workflows/flagship-workflows/core/quant_review_packet.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",

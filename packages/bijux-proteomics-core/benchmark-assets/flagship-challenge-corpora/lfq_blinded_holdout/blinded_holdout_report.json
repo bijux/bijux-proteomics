@@ -28,9 +28,9 @@
   "frozen_surface_paths": [
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/missingness_profile.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/differential_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+    "artifacts/workflows/flagship-workflows/runtime/missingness_profile.json",
+    "artifacts/workflows/flagship-workflows/runtime/differential_report.json",
     "artifacts/workflows/generalization-lfq/runtime/quant_bundle.json",
     "artifacts/workflows/generalization-lfq/runtime/differential_report.json",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json"

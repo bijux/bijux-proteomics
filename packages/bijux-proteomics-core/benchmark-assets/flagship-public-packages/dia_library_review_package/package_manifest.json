@@ -5,9 +5,9 @@
   "claim_scope": "DIA credibility is now anchored in a public package with paired exported-result surfaces, explicit library assumptions, and confrontation context instead of a hidden mini-study contract.",
   "comparator_availability": "Spectronaut-versus-DIA-NN confrontation is shipped",
   "expected_review_artifacts": [
-    "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/evidence_bundle.json",
-    "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json"
+    "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+    "artifacts/workflows/flagship-workflows/runtime/evidence_bundle.json",
+    "artifacts/workflows/flagship-workflows/core/scientific_kernel.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",

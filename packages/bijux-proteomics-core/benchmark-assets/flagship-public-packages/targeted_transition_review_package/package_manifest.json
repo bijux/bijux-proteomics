@@ -5,8 +5,8 @@
   "claim_scope": "Targeted credibility is now anchored in a public transition-control package with explicit approved, failed, and refused consequence packets instead of a buried QC fixture.",
   "comparator_availability": "bounded Skyline-class comparator confrontation is shipped",
   "expected_review_artifacts": [
-    "artifacts/workflows/reviewable-proteomics/lab/follow_up_packet.json",
-    "artifacts/workflows/reviewable-proteomics/core/targeted_qc_review.json"
+    "artifacts/workflows/flagship-workflows/lab/follow_up_packet.json",
+    "artifacts/workflows/flagship-workflows/core/targeted_qc_review.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",

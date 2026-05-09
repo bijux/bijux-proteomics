@@ -4,9 +4,9 @@
   "frozen_surface_paths": [
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/package_manifest.json",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/package_manifest.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_localization_report.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_occupancy_report.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_lab_targeting_packet.json",
+    "artifacts/workflows/flagship-workflows/runtime/ptm_localization_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/ptm_occupancy_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/ptm_lab_targeting_packet.json",
     "artifacts/workflows/generalization-ptm/runtime/review_packet.json",
     "artifacts/workflows/generalization-ptm/runtime/evidence_bundle.json",
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/cross_package_generalization.json"

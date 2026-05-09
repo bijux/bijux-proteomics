@@ -5,9 +5,9 @@
   "claim_scope": "LFQ credibility is now anchored in a public cohort-style package with feature, design, and reproducibility surfaces instead of a tidy closed matrix story.",
   "comparator_availability": "bounded external comparator confrontation is shipped",
   "expected_review_artifacts": [
-    "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/missingness_profile.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/differential_report.json"
+    "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+    "artifacts/workflows/flagship-workflows/runtime/missingness_profile.json",
+    "artifacts/workflows/flagship-workflows/runtime/differential_report.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",

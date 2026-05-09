@@ -5,9 +5,9 @@
   "claim_scope": "PTM credibility is now anchored in a public localization review package with raw-spectrum and feature context instead of a hidden fixture-only contract.",
   "comparator_availability": "bounded external comparator confrontation is shipped",
   "expected_review_artifacts": [
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_localization_report.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_occupancy_report.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/ptm_lab_targeting_packet.json"
+    "artifacts/workflows/flagship-workflows/runtime/ptm_localization_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/ptm_occupancy_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/ptm_lab_targeting_packet.json"
   ],
   "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/generated_boundary.json",
   "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/lifecycle.json",

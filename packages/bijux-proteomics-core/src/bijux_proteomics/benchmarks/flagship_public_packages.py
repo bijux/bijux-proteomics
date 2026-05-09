@@ -941,10 +941,10 @@ def build_flagship_dda_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         comparator_availability="MaxQuant-versus-MSFragger confrontation is shipped",
         source_assets=_dda_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/runtime/sequence_intake.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/qc_report.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
-            "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json",
+            "artifacts/workflows/flagship-workflows/runtime/sequence_intake.json",
+            "artifacts/workflows/flagship-workflows/runtime/qc_report.json",
+            "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+            "artifacts/workflows/flagship-workflows/core/scientific_kernel.json",
         ),
         scientific_pressures=(
             "calibration drift",
@@ -986,9 +986,9 @@ def build_flagship_dia_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         comparator_availability="Spectronaut-versus-DIA-NN confrontation is shipped",
         source_assets=_dia_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/evidence_bundle.json",
-            "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json",
+            "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+            "artifacts/workflows/flagship-workflows/runtime/evidence_bundle.json",
+            "artifacts/workflows/flagship-workflows/core/scientific_kernel.json",
         ),
         scientific_pressures=(
             "library incompleteness",
@@ -1030,9 +1030,9 @@ def build_flagship_lfq_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         comparator_availability="bounded external comparator confrontation is shipped",
         source_assets=_lfq_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/missingness_profile.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/differential_report.json",
+            "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+            "artifacts/workflows/flagship-workflows/runtime/missingness_profile.json",
+            "artifacts/workflows/flagship-workflows/runtime/differential_report.json",
         ),
         scientific_pressures=(
             "realistic missingness",
@@ -1074,8 +1074,8 @@ def build_flagship_multiplex_public_benchmark_package() -> FlagshipPublicBenchma
         comparator_availability="external confrontation exists, but public authority is intentionally limited to internal support",
         source_assets=_multiplex_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/runtime/quant_bundle.json",
-            "artifacts/workflows/reviewable-proteomics/core/quant_review_packet.json",
+            "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+            "artifacts/workflows/flagship-workflows/core/quant_review_packet.json",
         ),
         scientific_pressures=(
             "reference-channel dependence",
@@ -1117,9 +1117,9 @@ def build_flagship_ptm_public_benchmark_package() -> FlagshipPublicBenchmarkPack
         comparator_availability="bounded external comparator confrontation is shipped",
         source_assets=_ptm_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/runtime/ptm_localization_report.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/ptm_occupancy_report.json",
-            "artifacts/workflows/reviewable-proteomics/runtime/ptm_lab_targeting_packet.json",
+            "artifacts/workflows/flagship-workflows/runtime/ptm_localization_report.json",
+            "artifacts/workflows/flagship-workflows/runtime/ptm_occupancy_report.json",
+            "artifacts/workflows/flagship-workflows/runtime/ptm_lab_targeting_packet.json",
         ),
         scientific_pressures=(
             "site ambiguity",
@@ -1161,8 +1161,8 @@ def build_flagship_targeted_public_benchmark_package() -> FlagshipPublicBenchmar
         comparator_availability="bounded Skyline-class comparator confrontation is shipped",
         source_assets=_targeted_assets(),
         expected_review_artifacts=(
-            "artifacts/workflows/reviewable-proteomics/lab/follow_up_packet.json",
-            "artifacts/workflows/reviewable-proteomics/core/targeted_qc_review.json",
+            "artifacts/workflows/flagship-workflows/lab/follow_up_packet.json",
+            "artifacts/workflows/flagship-workflows/core/targeted_qc_review.json",
         ),
         scientific_pressures=(
             "transition reproducibility",

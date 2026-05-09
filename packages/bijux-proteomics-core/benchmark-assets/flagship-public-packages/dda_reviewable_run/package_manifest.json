@@ -107,10 +107,10 @@
     "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json"
   ],
   "review_artifact_paths": [
-    "artifacts/workflows/reviewable-proteomics/runtime/sequence_intake.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/qc_report.json",
-    "artifacts/workflows/reviewable-proteomics/runtime/review_packet.json",
-    "artifacts/workflows/reviewable-proteomics/core/scientific_kernel.json"
+    "artifacts/workflows/flagship-workflows/runtime/sequence_intake.json",
+    "artifacts/workflows/flagship-workflows/runtime/qc_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+    "artifacts/workflows/flagship-workflows/core/scientific_kernel.json"
   ],
   "runtime_package_id": "dda-maxquant-pipeline-corpus",
   "scientific_invariants": [
