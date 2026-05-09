@@ -18,11 +18,7 @@ def _pytest_config() -> ConfigParser:
 
 def _pytest_testpaths() -> set[str]:
     raw_value = _pytest_config()["pytest"]["testpaths"]
-    return {
-        line.strip()
-        for line in raw_value.splitlines()
-        if line.strip()
-    }
+    return {line.strip() for line in raw_value.splitlines() if line.strip()}
 
 
 def test_root_pytest_configuration_redirects_cache_into_artifacts() -> None:

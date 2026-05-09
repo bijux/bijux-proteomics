@@ -133,10 +133,9 @@ def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) ->
                 for target in node.targets
             ):
                 continue
-            if (
-                all(isinstance(target, ast.Name) for target in node.targets)
-                and isinstance(node.value, ast.Name)
-            ):
+            if all(
+                isinstance(target, ast.Name) for target in node.targets
+            ) and isinstance(node.value, ast.Name):
                 continue
             if (
                 all(isinstance(target, ast.Name) for target in node.targets)

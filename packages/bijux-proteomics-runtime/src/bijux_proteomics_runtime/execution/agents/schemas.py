@@ -340,10 +340,7 @@ class CoordinatorAgentInput(BaseModel):
             "improvement_delta",
         )
         if all(hasattr(value, field_name) for field_name in fields):
-            return {
-                field_name: getattr(value, field_name)
-                for field_name in fields
-            }
+            return {field_name: getattr(value, field_name) for field_name in fields}
         return value
 
 
