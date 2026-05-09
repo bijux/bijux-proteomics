@@ -91,6 +91,10 @@ def test_release_narrowing_protocol_demotes_language_when_benchmark_assets_block
             )
         },
     )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",
+        lambda: {},
+    )
 
     protocol = build_release_narrowing_protocol()
     decision = protocol.decisions[0]
@@ -145,6 +149,10 @@ def test_release_narrowing_protocol_uses_weaker_earned_acceptance_language(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._dossier_by_family",
         lambda: {},
     )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",
+        lambda: {},
+    )
 
     protocol = build_release_narrowing_protocol()
     decision = protocol.decisions[0]
@@ -153,3 +161,70 @@ def test_release_narrowing_protocol_uses_weaker_earned_acceptance_language(
     assert decision.requested_language == "outsider_auditable_bounded"
     assert decision.allowed_language == "internal_support_only"
     assert decision.active_rule_ids == ("acceptance-bars",)
+
+
+def test_release_narrowing_protocol_uses_freshness_floor_when_family_review_expires(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._authority_rows",
+        lambda: (
+            SimpleNamespace(
+                workflow_family=SimpleNamespace(value="dda"),
+                public_release_language="outsider_auditable_bounded",
+            ),
+        ),
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._acceptance_by_family",
+        lambda: {
+            "dda": SimpleNamespace(
+                workflow_family=SimpleNamespace(value="dda"),
+                public_release_language=SimpleNamespace(
+                    value="outsider_auditable_bounded"
+                ),
+                earned_release_language=SimpleNamespace(
+                    value="outsider_auditable_bounded"
+                ),
+                acceptance_passed=True,
+                evidence_paths=(
+                    "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/dda_acceptance_sheet.json",
+                ),
+            )
+        },
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._category_by_id",
+        lambda: {
+            "benchmark-asset-quality": SimpleNamespace(ready=True, evidence_paths=()),
+            "black-box-rerunability": SimpleNamespace(ready=True, evidence_paths=()),
+            "consequence-realism": SimpleNamespace(ready=True, evidence_paths=()),
+        },
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._kit_by_family",
+        lambda: {},
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._dossier_by_family",
+        lambda: {},
+    )
+    monkeypatch.setattr(
+        "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",
+        lambda: {
+            "dda": SimpleNamespace(
+                blockers=("benchmark review window expired",),
+                release_language_floor="review_grade_bounded",
+                evidence_paths=(
+                    "docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md",
+                ),
+            )
+        },
+    )
+
+    protocol = build_release_narrowing_protocol()
+    decision = protocol.decisions[0]
+
+    assert decision.workflow_family == "dda"
+    assert decision.allowed_language == "review_grade_bounded"
+    assert decision.active_rule_ids == ("benchmark-asset-quality",)

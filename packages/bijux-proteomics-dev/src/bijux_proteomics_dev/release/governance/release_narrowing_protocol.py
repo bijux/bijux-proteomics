@@ -9,6 +9,10 @@ from bijux_proteomics.benchmarks.flagship_acceptance import (
     build_flagship_acceptance_dashboard,
 )
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
+from bijux_proteomics_dev.release.governance.benchmark_freshness_review import (
+    BenchmarkFreshnessReviewEntry,
+    build_benchmark_freshness_review,
+)
 from bijux_proteomics_dev.release.governance.release_readiness_matrix import (
     ReleaseReadinessCategory,
     build_release_readiness_matrix,
@@ -159,12 +163,20 @@ def _dossier_by_family() -> dict[str, WorkflowIndependentRerunDossier]:
     return {dossier.workflow_family.value: dossier for dossier in family.dossiers}
 
 
+def _freshness_by_family() -> dict[str, BenchmarkFreshnessReviewEntry]:
+    return {
+        entry.workflow_family.value: entry
+        for entry in build_benchmark_freshness_review()
+    }
+
+
 def _decision(
     row: WorkflowAuthorityRow,
     acceptance_row: FlagshipAcceptanceDashboardRow,
     blocked_categories: dict[str, ReleaseReadinessCategory],
     kits: dict[str, WorkflowExternalReviewKit],
     dossiers: dict[str, WorkflowIndependentRerunDossier],
+    freshness_rows: dict[str, BenchmarkFreshnessReviewEntry],
 ) -> ReleaseNarrowingDecision:
     requested_language = row.public_release_language
     allowed_language = requested_language
@@ -184,6 +196,17 @@ def _decision(
             "benchmark asset quality is currently blocked in the release-readiness matrix"
         )
         evidence_paths.extend(benchmark_assets.evidence_paths)
+    freshness = freshness_rows.get(workflow_family)
+    if freshness is not None and freshness.blockers:
+        allowed_language = _narrow(
+            allowed_language,
+            freshness.release_language_floor,
+        )
+        active_rule_ids.append("benchmark-asset-quality")
+        active_reasons.append(
+            "benchmark freshness review currently lowers the family release-language floor"
+        )
+        evidence_paths.extend(freshness.evidence_paths)
 
     rerunability = blocked_categories["black-box-rerunability"]
     dossier = dossiers.get(workflow_family)
@@ -255,6 +278,7 @@ def build_release_narrowing_protocol() -> ReleaseNarrowingProtocol:
     acceptance_by_family = _acceptance_by_family()
     kits = _kit_by_family()
     dossiers = _dossier_by_family()
+    freshness_rows = _freshness_by_family()
     decisions = tuple(
         _decision(
             row=row,
@@ -262,6 +286,7 @@ def build_release_narrowing_protocol() -> ReleaseNarrowingProtocol:
             blocked_categories=blocked_categories,
             kits=kits,
             dossiers=dossiers,
+            freshness_rows=freshness_rows,
         )
         for row in _authority_rows()
     )

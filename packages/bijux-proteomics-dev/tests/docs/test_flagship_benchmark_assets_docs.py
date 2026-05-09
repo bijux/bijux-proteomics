@@ -27,6 +27,7 @@ def test_flagship_benchmark_assets_doc_names_product_owned_asset_root() -> None:
     assert "asset_root_contract.json" in text
     assert "freshness_report.json" in text
     assert "obsolescence_audit.json" in text
+    assert "Benchmark Freshness Review" in text
 
 
 def test_flagship_benchmark_assets_doc_names_refresh_command_and_per_package_support_files() -> None:
@@ -37,3 +38,12 @@ def test_flagship_benchmark_assets_doc_names_refresh_command_and_per_package_sup
     assert "citation_manifest.json" in text
     assert "generated_boundary.json" in text
     assert "rebuild_instructions.md" in text
+
+
+def test_foundation_index_links_to_benchmark_freshness_review() -> None:
+    text = (
+        REPO_ROOT / "docs" / "04-bijux-proteomics-core" / "foundation" / "index.md"
+    ).read_text(encoding="utf-8")
+
+    assert "Benchmark Freshness Review" in text
+    assert "benchmark-freshness-review" in text

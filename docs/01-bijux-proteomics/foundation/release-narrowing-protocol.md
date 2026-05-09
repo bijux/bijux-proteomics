@@ -55,21 +55,21 @@ This page is generated from live release evidence. It records how workflow-famil
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
 - active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`, `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
 
 ### `dia`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
 - active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`, `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
 
 ### `lfq`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
 - active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`, `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
 
 ### `multiplex`
 
@@ -83,11 +83,11 @@ This page is generated from live release evidence. It records how workflow-famil
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
 - active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`, `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`
 
 ### `targeted`
 
 - requested language: `outsider_auditable_bounded`
 - allowed language: `review_grade_bounded`
 - active reasons: benchmark asset quality is currently blocked in the release-readiness matrix, black-box rerunability is not strong enough to hold outsider-auditable language
-- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`, `docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md`
+- evidence paths: `configs/package-governance/scientific-release-workflows.toml`, `docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md`, `docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md`, `docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md`, `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`, `docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md`

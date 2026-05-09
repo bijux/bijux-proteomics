@@ -25,6 +25,7 @@ repository keeps the current freshness and obsolescence pressure visible.
 The direct audit and lineage follow-up pages are:
 
 - [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
+- [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
 - [Benchmark Licensing and Redistribution](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-licensing-and-redistribution/)
 - [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/)
 - [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/)

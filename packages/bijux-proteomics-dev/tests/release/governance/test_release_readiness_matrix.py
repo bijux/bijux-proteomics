@@ -40,6 +40,10 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
         in by_id["black-box-rerunability"].evidence_paths
     )
     assert (
+        "docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md"
+        in by_id["benchmark-asset-quality"].evidence_paths
+    )
+    assert (
         "configs/package-governance/repository-drift-audit.toml"
         in by_id["artifact-hygiene"].evidence_paths
     )

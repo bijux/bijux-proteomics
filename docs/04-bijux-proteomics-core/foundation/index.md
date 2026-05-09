@@ -57,6 +57,10 @@ flowchart LR
   when you need every primary and companion benchmark root re-audited for raw
   source, checksum, extraction step, derived review path, and owning rebuild
   command.
+- Open [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
+  when the question is whether a workflow family's benchmark review window,
+  copied snapshots, or remote references have slipped far enough to narrow
+  release language.
 - Open the family lineage pages when the dispute is whether one workflow family
   still holds together across both its primary flagship package and its
   companion generalization package.
@@ -85,6 +89,7 @@ flowchart LR
 - [Flagship Public Benchmark Catalog](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog/)
 - [Flagship Benchmark Assets](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/flagship-benchmark-assets/)
 - [Benchmark Asset Audit](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-asset-audit/)
+- [Benchmark Freshness Review](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-freshness-review/)
 - [Benchmark Licensing and Redistribution](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-licensing-and-redistribution/)
 - [Benchmark Incompleteness Ledger](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger/)
 - [Benchmark Flagship Status](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/foundation/benchmark-flagship-status/)

@@ -21,6 +21,10 @@ from bijux_proteomics_dev.release.governance.package_family_readiness import (
     package_family_readiness_manifest_path,
     validate_package_family_readiness,
 )
+from bijux_proteomics_dev.release.governance.benchmark_freshness_review import (
+    BENCHMARK_FRESHNESS_REVIEW_PATH,
+    validate_benchmark_freshness_review,
+)
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     validate_black_box_benchmark_language,
 )
@@ -142,6 +146,7 @@ def build_release_readiness_matrix(
     )
     family_readiness_issues = validate_package_family_readiness(repo_root)
     scientific_release_issues = validate_scientific_release_dossier(repo_root)
+    benchmark_freshness_issues = validate_benchmark_freshness_review()
     claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
     authority_doc_issues = validate_workflow_authority_docs(repo_root)
     public_scrutiny_issues = validate_workflow_public_scrutiny(repo_root)
@@ -200,10 +205,15 @@ def build_release_readiness_matrix(
                 scientific_release_manifest_path(repo_root)
                 .relative_to(repo_root)
                 .as_posix(),
+                BENCHMARK_FRESHNESS_REVIEW_PATH.relative_to(repo_root).as_posix(),
                 "docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md",
                 "docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md",
             ),
-            issues=(*scientific_release_issues, *claim_grounding_issues),
+            issues=(
+                *scientific_release_issues,
+                *benchmark_freshness_issues,
+                *claim_grounding_issues,
+            ),
         ),
         _category(
             category_id="docs-clarity",
