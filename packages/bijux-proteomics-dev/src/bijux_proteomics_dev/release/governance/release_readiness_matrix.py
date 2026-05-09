@@ -98,8 +98,12 @@ def _issues_to_codes_and_details(
     codes: list[str] = []
     details: list[str] = []
     for issue in issues:
-        code = getattr(issue, "code", "")
-        detail = getattr(issue, "detail", "")
+        if isinstance(issue, str):
+            code = "release-contract-failure"
+            detail = issue
+        else:
+            code = getattr(issue, "code", "")
+            detail = getattr(issue, "detail", "")
         codes.append(str(code))
         details.append(str(detail))
     return tuple(codes), tuple(details)

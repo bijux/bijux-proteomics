@@ -43,3 +43,14 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
 
 def test_release_readiness_matrix_has_no_internal_consistency_failures() -> None:
     assert validate_release_readiness_matrix() == ()
+
+
+def test_release_readiness_matrix_keeps_blockers_human_readable() -> None:
+    matrix = build_release_readiness_matrix()
+
+    for category in matrix.categories:
+        for code, detail in zip(
+            category.blocker_codes, category.blocker_details, strict=True
+        ):
+            assert code
+            assert detail
