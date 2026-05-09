@@ -42,7 +42,7 @@ This dashboard states what the runtime and public benchmark evidence can defend 
 ### `multiplex`
 
 - 1 cross-package claim(s) collapse under the companion rerun path
-- no multiplex lab packet or outsider review packet family
+- no multiplex lab packet or outsider decision brief family
 - multiplex authority is intentionally kept out of the outsider-facing flagship set
 
 ### `ptm`

@@ -23,7 +23,7 @@ def test_runtime_artifact_ledger_records_top_level_outputs_and_items(
         context.workspace,
         "review_packet",
         {"packet_id": "review-1"},
-        description="review packet",
+        description="decision brief",
     )
 
     ledger = refresh_runtime_artifact_ledger(

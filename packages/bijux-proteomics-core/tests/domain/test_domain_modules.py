@@ -117,7 +117,7 @@ def test_domain_modules_define_program_components() -> None:
             delivery=ProgramDeliveryContext(
                 sponsor="translational biology",
                 decision_horizon="quarterly",
-                intended_output="review packet",
+                intended_output="decision brief",
             ),
             tags=["solid-tumor", "discovery"],
         ),

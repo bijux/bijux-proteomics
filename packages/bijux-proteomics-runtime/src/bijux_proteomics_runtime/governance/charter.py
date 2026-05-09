@@ -87,7 +87,7 @@ DEFAULT_RUNTIME_CHARTER = RuntimeProductCharter(
     required_inputs=(
         "core-owned scientific contracts and execution requests",
         "knowledge-owned evidence and benchmark references",
-        "intelligence-owned recommendation and review packets",
+        "intelligence-owned recommendation and decision briefs",
         "lab-owned operational readiness and assay handoff surfaces",
     ),
     excluded_ownership=(
@@ -146,7 +146,7 @@ DEFAULT_RUNTIME_CHARTER_ENTRIES: tuple[RuntimeCharterEntry, ...] = (
     ),
     RuntimeCharterEntry(
         capability=RuntimeCharterCapability.REVIEWABLE_OUTPUTS,
-        owned_surface="Typed run contracts, review packets, artifact inventories, histories, and failure reports that downstream packages can consume without private file coupling.",
+        owned_surface="Typed run contracts, decision briefs, artifact inventories, histories, and failure reports that downstream packages can consume without private file coupling.",
         required_modules=(
             "api/catalog.py",
             "runs/contracts.py",

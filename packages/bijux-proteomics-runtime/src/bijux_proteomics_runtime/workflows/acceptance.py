@@ -295,7 +295,7 @@ def build_minimum_real_workflow_proof_bar() -> WorkflowProofBar:
             ),
             WorkflowProofRequirement(
                 requirement_id="reviewed-artifacts",
-                requirement_label="every downstream stage emits a stable review packet or report",
+                requirement_label="every downstream stage emits a stable decision brief or report",
                 validating_surface_refs=(
                     "bijux_proteomics.identification.contracts.build_review_ready_evidence_bundle",
                     "bijux_proteomics.quantification.review.build_quant_review_bundle",

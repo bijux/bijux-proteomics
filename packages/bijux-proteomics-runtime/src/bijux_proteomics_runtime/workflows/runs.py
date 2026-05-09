@@ -1173,12 +1173,12 @@ def run_knowledge_review_workflow_end_to_end(
             ),
             RuntimeWorkflowStepRecord(
                 step_id="assemble-review-packet",
-                description="assemble knowledge review packet from ranked and contested claims",
+                description="assemble knowledge decision brief from ranked and contested claims",
                 status=RuntimeWorkflowStatus.COMPLETED,
                 output_count=len(accepted) + len(contested),
             ),
         ),
-        note="workflow completed evidence ranking and contradiction-aware knowledge review packet generation",
+        note="workflow completed evidence ranking and contradiction-aware knowledge decision brief generation",
     )
 
 
@@ -1187,7 +1187,7 @@ def run_lab_handoff_workflow_end_to_end(
     *,
     artifact_root: str = "artifacts/workflows/lab-handoff",
 ) -> LabHandoffWorkflowRunReport:
-    """Execute lab handoff workflow from review packet to export and unresolved-risk report."""
+    """Execute lab handoff workflow from decision brief to export and unresolved-risk report."""
     planned_assays = sum(1 for entry in packet.entries if entry.target_peptides)
     unresolved = sum(
         1
@@ -1223,7 +1223,7 @@ def run_lab_handoff_workflow_end_to_end(
         steps=(
             RuntimeWorkflowStepRecord(
                 step_id="ingest-review-packet",
-                description="ingest PTM review packet for assay planning",
+                description="ingest PTM decision brief for assay planning",
                 status=RuntimeWorkflowStatus.COMPLETED,
                 output_count=len(packet.entries),
             ),

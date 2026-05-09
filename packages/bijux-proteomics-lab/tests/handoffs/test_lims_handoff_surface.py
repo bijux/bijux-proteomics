@@ -91,7 +91,7 @@ def test_build_lims_export_bundle_reports_field_mapping_and_loss() -> None:
             supported=(
                 HandoffSupportStatement(
                     level=HandoffSupportLevel.SUPPORTED,
-                    summary="review packet contains linked evidence",
+                    summary="decision brief contains linked evidence",
                     evidence_refs=("ev-1",),
                 ),
             ),

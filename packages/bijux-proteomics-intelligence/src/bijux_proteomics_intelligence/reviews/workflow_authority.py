@@ -420,7 +420,7 @@ def _blocked_claims(
         blocked.append("no shipped assay-worth-it ledger row exists yet")
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
         blocked.append(
-            "multiplex does not ride with outsider-auditable flagship families until a dedicated lab outcome dossier, assay-worth-it ledger row, and outsider review packet are all shipped"
+            "multiplex does not ride with outsider-auditable flagship families until a dedicated lab outcome dossier, assay-worth-it ledger row, and outsider decision brief are all shipped"
         )
     return tuple(dict.fromkeys(blocked))
 

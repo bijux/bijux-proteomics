@@ -516,7 +516,7 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
             ),
-            note="The current DIA package is only trusted at bounded outsider scope once at least two thirds of library-conditioned peptide evidence remains visible in the shipped review packet.",
+            note="The current DIA package is only trusted at bounded outsider scope once at least two thirds of library-conditioned peptide evidence remains visible in the shipped decision brief.",
         ),
         FlagshipAcceptanceCriterion(
             criterion_id="dia_peptide_evidence_coverage",
@@ -579,7 +579,7 @@ def _build_dia_acceptance_sheet() -> FlagshipAcceptanceSheet:
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py",
             ),
-            note="DIA trust can only regenerate as outsider-auditable when the review packet is both releasable and still grounded at review-grade or stronger after its library and mobility caveats are carried through.",
+            note="DIA trust can only regenerate as outsider-auditable when the decision brief is both releasable and still grounded at review-grade or stronger after its library and mobility caveats are carried through.",
         ),
     )
     return _sheet_from_criteria(
@@ -637,7 +637,7 @@ def _build_lfq_acceptance_sheet() -> FlagshipAcceptanceSheet:
                 "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
             ),
-            note="The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the review packet names.",
+            note="The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the decision brief names.",
         ),
         FlagshipAcceptanceCriterion(
             criterion_id="lfq_comparator_divergence",
@@ -974,7 +974,7 @@ def _sheet_from_criteria(
         blocked_claims=blocked_claims,
         artifact_path=f"{_ASSET_ROOT}/{workflow_family.value}_acceptance_sheet.json",
         note=(
-            "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet."
+            "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief."
         ),
     )
 

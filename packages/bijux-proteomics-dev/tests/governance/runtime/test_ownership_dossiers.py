@@ -61,7 +61,7 @@ def test_runtime_route_ownership_dossier_covers_live_route_owners_tests_and_fixt
         "ROUTE-OWNERSHIP.md",
         required_references=(
             "src/bijux_proteomics_runtime/api/routes/runtime_execution.py",
-            "src/bijux_proteomics_runtime/api/routes/review_packets.py",
+            "src/bijux_proteomics_runtime/api/routes/decision_briefs.py",
             "src/bijux_proteomics_runtime/api/routes/quant_reports.py",
             "src/bijux_proteomics_runtime/api/routes/ptm_reports.py",
             "src/bijux_proteomics_runtime/api/routes/evidence_graph.py",
@@ -70,7 +70,7 @@ def test_runtime_route_ownership_dossier_covers_live_route_owners_tests_and_fixt
             "src/bijux_proteomics_runtime/api/v1/endpoints/run.py",
             "src/bijux_proteomics_runtime/api/v1/endpoints/runtime_contracts.py",
             "tests/api/test_runtime_execution_route_surface.py",
-            "tests/api/test_review_packet_route_surface.py",
+            "tests/api/test_decision_brief_route_surface.py",
             "tests/api/test_quant_report_route_surface.py",
             "tests/api/test_ptm_report_route_surface.py",
             "tests/api/test_evidence_graph_query_route_surface.py",

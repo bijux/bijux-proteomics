@@ -16,7 +16,7 @@
       "record the assay caveat so LIMS operators do not treat the handoff as execution-ready"
     ],
     "unresolved_risks": [
-      "review packet remains blocked by contradictory follow-up evidence",
+      "decision brief remains blocked by contradictory follow-up evidence",
       "transition controls are still incomplete"
     ],
     "ready_for_lab_review": false

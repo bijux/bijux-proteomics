@@ -875,7 +875,7 @@ def build_effect_size_first_differential_abundance_report(
 
 
 class MissingnessMechanismKind(StrEnum):
-    """Missingness classes required for quantification review packets."""
+    """Missingness classes required for quantification decision briefs."""
 
     TECHNICAL_FAILURE = "technical_failure"
     SPARSE_BIOLOGY_CANDIDATE = "sparse_biology_candidate"

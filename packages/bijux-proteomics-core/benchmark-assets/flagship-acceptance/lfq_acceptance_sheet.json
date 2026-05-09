@@ -44,7 +44,7 @@
         "packages/bijux-proteomics-core/tests/quantification/test_scientific_benchmark_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
       ],
-      "note": "The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the review packet names.",
+      "note": "The current LFQ sheet requires the full tracked feature table to survive ingestion so repeatability claims remain anchored to the same differential evidence surface that the decision brief names.",
       "observed_kind": "integer",
       "observed_value": "24",
       "passed": true,
@@ -81,7 +81,7 @@
     }
   ],
   "earned_release_language": "outsider_auditable_bounded",
-  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
   "public_release_language": "outsider_auditable_bounded",
   "sheet_id": "flagship-acceptance:lfq",
   "workflow_family": "lfq"

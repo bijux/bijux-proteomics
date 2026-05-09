@@ -19,7 +19,6 @@ from bijux_proteomics_foundation import (
     JsonModel,
     ProgramId,
 )
-from bijux_proteomics_foundation.identity.identifiers import CycleId
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     assess_decision_readiness,
@@ -27,13 +26,6 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     evidence_gaps,
     flag_conflicting_evidence,
     triangulate_evidence,
-)
-from bijux_proteomics_lab.outcomes import (
-    AssayResultState,
-    ExperimentOutcome,
-    assess_batch_outcome,
-    summarize_experiment_outcome,
-    triage_batch_failures,
 )
 
 
@@ -469,7 +461,7 @@ class AdvancementEvidencePacket(JsonModel):
 
 
 class ReviewRiskProfile(JsonModel):
-    """Risk summary attached to a review packet."""
+    """Risk summary attached to a decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -499,7 +491,7 @@ class LabReviewPacketBundle(JsonModel):
     )
     target_evidence_ids: list[str] = Field(
         default_factory=list,
-        description="Evidence records tied directly to the target review packet.",
+        description="Evidence records tied directly to the target decision brief.",
     )
     unresolved_risks: list[str] = Field(
         default_factory=list,

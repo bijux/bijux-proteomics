@@ -141,7 +141,7 @@ Reference surfaces:
 - eligible for designation: yes
 
 - Multiplex remains flagship-visible but internal-support only because public workflow language is intentionally narrower.
-- no multiplex lab packet or outsider review packet family
+- no multiplex lab packet or outsider decision brief family
 - multiplex authority is intentionally kept out of the outsider-facing flagship set
 
 ### `multiplex`: companion generalization package

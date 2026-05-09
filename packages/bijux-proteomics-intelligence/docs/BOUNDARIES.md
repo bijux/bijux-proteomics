@@ -9,7 +9,7 @@
 
 - candidate ranking, rejection semantics, and policy-governed explainability
 - downgrade and refusal posture when evidence is stale, thin, or contradictory
-- review packets, skeptical challenge pressure, and benchmark-backed review claims
+- decision briefs, skeptical challenge pressure, and benchmark-backed review claims
 - cautious interpretation summaries over already-typed proteomics evidence
 - learning pressure that changes future prioritization without rewriting past decisions
 

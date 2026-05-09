@@ -516,7 +516,7 @@ def prioritize_evidence_gaps(
 
 
 class ReviewPacketEvidenceEntry(JsonModel):
-    """Evidence record bundled into a review packet."""
+    """Evidence record bundled into a decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -527,7 +527,7 @@ class ReviewPacketEvidenceEntry(JsonModel):
 
 
 class ReviewPacketContradictionEntry(JsonModel):
-    """Contradiction row included in the review packet."""
+    """Contradiction row included in the decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -560,7 +560,7 @@ class ReviewPacketAssayPlanEntry(JsonModel):
 
 
 class ReviewPacketRiskEntry(JsonModel):
-    """Risk and mitigation row in review packet."""
+    """Risk and mitigation row in decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -571,7 +571,7 @@ class ReviewPacketRiskEntry(JsonModel):
 
 
 class ReviewPacketDecisionEntry(JsonModel):
-    """Decision row in review packet."""
+    """Decision row in decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -612,7 +612,7 @@ def build_review_packet_schema(
     risks: tuple[ReviewPacketRiskEntry, ...],
     decisions: tuple[ReviewPacketDecisionEntry, ...],
 ) -> ReviewPacketSchema:
-    """Build one deterministic review packet bundle from structured facts."""
+    """Build one deterministic decision brief bundle from structured facts."""
 
     return ReviewPacketSchema(
         packet_id=packet_id,
@@ -789,7 +789,7 @@ class ReviewPacketDiffEntry(JsonModel):
 
 
 class ReviewPacketDiffReport(JsonModel):
-    """Diff report between two review packets."""
+    """Diff report between two decision briefs."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -803,7 +803,7 @@ def diff_review_packets(
     before: ReviewPacketSchema,
     after: ReviewPacketSchema,
 ) -> ReviewPacketDiffReport:
-    """Compare review packets across runs, releases, or evidence updates."""
+    """Compare decision briefs across runs, releases, or evidence updates."""
 
     entries: list[ReviewPacketDiffEntry] = []
 

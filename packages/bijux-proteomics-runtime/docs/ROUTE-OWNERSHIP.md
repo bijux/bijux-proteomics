@@ -18,9 +18,9 @@ surfaces in broad route wrappers.
 
 ## `review_packets`
 
-- owner code: `src/bijux_proteomics_runtime/api/routes/review_packets.py`
+- owner code: `src/bijux_proteomics_runtime/api/routes/decision_briefs.py`
 - endpoint wiring: `src/bijux_proteomics_runtime/api/v1/endpoints/runtime_contracts.py`
-- owner tests: `tests/api/test_review_packet_route_surface.py`
+- owner tests: `tests/api/test_decision_brief_route_surface.py`
 - owner fixtures: `tests/support/fixture_data.py`
 
 ## `quant_reports`

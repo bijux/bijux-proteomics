@@ -29,7 +29,7 @@ runtime-agnostic workflow seams.
   identification contracts
 - `quantification/`, `study/`, `ptm/`, and `dia/` own quantitative, laboratory,
   PTM, and DIA scientific meaning
-- `review/` owns review packets, collaboration bundles, and structure-report
+- `review/` owns decision briefs, collaboration bundles, and structure-report
   surfaces
 - `workflow/` owns scientific workflow blueprints
 - `interfaces/` owns runtime-facing seams, examples, and CLI boundaries

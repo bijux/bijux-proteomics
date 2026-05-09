@@ -98,11 +98,11 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                 rationale="This names the shortest outsider opening order through benchmark, rerun, and recommendation evidence for one workflow family.",
             ),
             PublicLanguageTerm(
-                term="review packet",
+                term="decision brief",
                 status="allowed",
-                preferred_phrase="review packet",
+                preferred_phrase="decision brief",
                 allowed_surfaces=(
-                    "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/review_packets.py",
+                    "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/decision_briefs.py",
                 ),
                 rationale="This remains a stable route-contract term for package-owned packet creation, lookup, diff, and export operations.",
             ),
@@ -222,7 +222,7 @@ def _target_paths(repo_root: Path) -> tuple[Path, ...]:
         repo_root / "README.md",
         repo_root / "docs" / "index.md",
         repo_root / "docs" / "08-bijux-proteomics-maintain" / "bijux-proteomics-dev" / "release-support.md",
-        repo_root / "packages" / "bijux-proteomics-runtime" / "src" / "bijux_proteomics_runtime" / "api" / "routes" / "review_packets.py",
+        repo_root / "packages" / "bijux-proteomics-runtime" / "src" / "bijux_proteomics_runtime" / "api" / "routes" / "decision_briefs.py",
     ]
     seen: set[Path] = set()
     ordered: list[Path] = []

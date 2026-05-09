@@ -319,7 +319,7 @@ def test_error_envelope_round_trips_degraded_context_with_deeper_exception_chain
             except ValueError as error:
                 raise LookupError("candidate resolution degraded") from error
         except LookupError as error:
-            raise RuntimeError("review packet normalization degraded") from error
+            raise RuntimeError("decision brief normalization degraded") from error
     except RuntimeError as error:
         envelope = build_error_envelope_from_exception(
             category=ErrorCategory.RUNTIME,
@@ -343,7 +343,7 @@ def test_error_envelope_round_trips_degraded_context_with_deeper_exception_chain
         ("step", {"step_id": "review", "support": "lossy"}),
     )
     assert restored.cause_chain == (
-        "RuntimeError: review packet normalization degraded",
+        "RuntimeError: decision brief normalization degraded",
         "LookupError: candidate resolution degraded",
         "ValueError: missing precursor evidence",
     )

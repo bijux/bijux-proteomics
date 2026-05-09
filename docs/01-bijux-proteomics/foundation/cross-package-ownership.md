@@ -32,7 +32,7 @@ package boundaries, who owns it and who is allowed to consume it.
 | `foundation-contract` | `bijux-proteomics-foundation` | foundation | core, runtime, knowledge, intelligence, lab | `DocumentSchema`, `JsonModel`, `ProgramId` |
 | `benchmark-asset-bundle` | `bijux-proteomics-core` | core | runtime, knowledge, intelligence, lab | flagship benchmark manifest, challenge corpus package, workflow execution request |
 | `runtime-run-bundle` | `bijux-proteomics-runtime` | runtime | knowledge, intelligence, lab | run manifest, artifact ledger, review output bundle |
-| `scientific-review-bundle` | `bijux-proteomics-knowledge` | knowledge | intelligence, lab | evidence bundle, contradiction ledger, knowledge review packet |
+| `scientific-review-bundle` | `bijux-proteomics-knowledge` | knowledge | intelligence, lab | evidence bundle, contradiction ledger, knowledge decision brief |
 | `recommendation-record` | `bijux-proteomics-intelligence` | intelligence | lab | ranking brief, recommendation stance, refusal explanation |
 | `lab-consequence-record` | `bijux-proteomics-lab` | lab | knowledge, intelligence | assay plan, lab handoff, observed outcome record |
 

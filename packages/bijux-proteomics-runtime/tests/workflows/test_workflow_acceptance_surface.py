@@ -365,8 +365,8 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
 
     program = create_program_spec(
         program_id="prog-packet",
-        name="review packet",
-        objective="compose intelligence review packet",
+        name="decision brief",
+        objective="compose intelligence decision brief",
         target_id="target-packet",
         target_name="Target Packet",
         sequence="ACDEFGHIKLMNPQRSTVWY",

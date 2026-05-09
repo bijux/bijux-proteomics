@@ -1299,7 +1299,7 @@ def build_flagship_public_package_quality_sheets() -> tuple[
                 "runtime now executes the tracked multiplex review path",
             ),
             exact_blockers=(
-                "no multiplex lab packet or outsider review packet family",
+                "no multiplex lab packet or outsider decision brief family",
                 "multiplex authority is intentionally kept out of the outsider-facing flagship set",
             ),
             note="Multiplex has real package, runtime, and comparator substance, but it remains an internal-support family rather than an outsider-facing flagship family.",

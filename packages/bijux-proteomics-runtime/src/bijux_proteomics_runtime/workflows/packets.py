@@ -17,7 +17,7 @@ class WorkflowPacketSerializationMode(StrEnum):
 
 @dataclass(frozen=True)
 class WorkflowStagePacketBoundaryContract:
-    """Serialization contract for one review packet that crosses package boundaries."""
+    """Serialization contract for one decision brief that crosses package boundaries."""
 
     stage_id: str
     packet_surface_ref: str

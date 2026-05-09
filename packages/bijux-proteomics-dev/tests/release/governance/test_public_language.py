@@ -53,7 +53,7 @@ def test_public_language_flags_retired_phrase(tmp_path: Path, monkeypatch: pytes
         / "bijux_proteomics_runtime"
         / "api"
         / "routes"
-        / "review_packets.py"
+        / "decision_briefs.py"
     ).write_text("", encoding="utf-8")
     (
         repo_root
@@ -74,8 +74,8 @@ def test_public_language_glossary_declares_review_packet_as_route_contract() -> 
     glossary = build_public_language_glossary()
 
     review_packet_term = next(
-        term for term in glossary.allowed_terms if term.term == "review packet"
+        term for term in glossary.allowed_terms if term.term == "decision brief"
     )
     assert review_packet_term.allowed_surfaces == (
-        "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/review_packets.py",
+        "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/decision_briefs.py",
     )

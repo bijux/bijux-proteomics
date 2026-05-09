@@ -81,7 +81,7 @@
     }
   ],
   "earned_release_language": "outsider_auditable_bounded",
-  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
   "public_release_language": "outsider_auditable_bounded",
   "sheet_id": "flagship-acceptance:ptm",
   "workflow_family": "ptm"

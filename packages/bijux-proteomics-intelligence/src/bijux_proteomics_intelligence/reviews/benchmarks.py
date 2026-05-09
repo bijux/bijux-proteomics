@@ -1003,7 +1003,7 @@ def build_ptm_benchmark_review(
                 >= len(phospho_review.phospho_site_keys)
                 else SupportState.INCOMPLETE
             ),
-            summary="PTM benchmark review reaches a phospho-specific review packet with motif and occupancy caveats intact",
+            summary="PTM benchmark review reaches a phospho-specific decision brief with motif and occupancy caveats intact",
             evidence_refs=(
                 f"motif_windows={phospho_review.motif_window_count}",
                 f"quantified_samples={len(phospho_review.quantified_sample_ids)}",
@@ -1101,7 +1101,7 @@ def build_ptm_benchmark_review(
         benchmark_authority_status=registry_entry.authority_status,
         title=manifest.title,
         reviewer_summary=(
-            "PTM benchmark review turns checked-in localization evidence into a phospho review packet "
+            "PTM benchmark review turns checked-in localization evidence into a phospho decision brief "
             f"while preserving explicit ambiguity and motif-scope limits, naming supported PTM families ({supported_family_summary}), "
             f"and refusing unsupported carryover ({refused_family_summary}); {_grounding_summary_phrase(reviewer_grounding_state)}"
         ),

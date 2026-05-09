@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Inference-disagreement review packets built from core identification semantics."""
+"""Inference-disagreement decision briefs built from core identification semantics."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 class InferenceDisagreementSeverity(StrEnum):
-    """Severity level for inference review packet entries."""
+    """Severity level for inference decision brief entries."""
 
     INFO = "info"
     WARNING = "warning"

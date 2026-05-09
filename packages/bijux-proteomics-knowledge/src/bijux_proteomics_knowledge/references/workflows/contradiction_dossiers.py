@@ -70,7 +70,7 @@ _SCENARIO_BLUEPRINTS: dict[KnowledgeWorkflowFamily, tuple[_ScenarioBlueprint, ..
             tension_title="confidence semantics survive only while decoy posture remains visible",
             literature_position="Target-decoy and protein-inference references treat confidence framing as inseparable from explicit error-model visibility.",
             benchmark_position="The pinned DDA export is strong enough to review normalization and proteome grounding, but still not strong enough to prove live-engine parity.",
-            current_repo_trust_position="Trust the adapter-normalized review packet only for bounded confidence semantics and reviewed-proteome grounding.",
+            current_repo_trust_position="Trust the adapter-normalized decision brief only for bounded confidence semantics and reviewed-proteome grounding.",
             recommended_hold_reason="Broader identification trust stays blocked until the benchmark stops depending on one pinned external export family.",
             matrix_entry_ids=("literature_matrix:dda:1", "literature_matrix:dda:2"),
         ),

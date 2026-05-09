@@ -16,7 +16,7 @@
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json"
       ],
-      "note": "The current DIA package is only trusted at bounded outsider scope once at least two thirds of library-conditioned peptide evidence remains visible in the shipped review packet.",
+      "note": "The current DIA package is only trusted at bounded outsider scope once at least two thirds of library-conditioned peptide evidence remains visible in the shipped decision brief.",
       "observed_kind": "fraction",
       "observed_value": "0.67",
       "passed": true,
@@ -72,7 +72,7 @@
         "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
         "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py"
       ],
-      "note": "DIA trust can only regenerate as outsider-auditable when the review packet is both releasable and still grounded at review-grade or stronger after its library and mobility caveats are carried through.",
+      "note": "DIA trust can only regenerate as outsider-auditable when the decision brief is both releasable and still grounded at review-grade or stronger after its library and mobility caveats are carried through.",
       "observed_kind": "state",
       "observed_value": "review_grade:true",
       "passed": true,
@@ -81,7 +81,7 @@
     }
   ],
   "earned_release_language": "outsider_auditable_bounded",
-  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
   "public_release_language": "outsider_auditable_bounded",
   "sheet_id": "flagship-acceptance:dia",
   "workflow_family": "dia"

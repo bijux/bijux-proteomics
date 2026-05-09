@@ -72,7 +72,7 @@ flowchart TD
 ## Route owners
 
 - `api/routes/runtime_execution.py` owns run, import, resume, compare, and inspect route composition
-- `api/routes/review_packets.py` owns review packet transport
+- `api/routes/decision_briefs.py` owns decision brief transport
 - `api/routes/quant_reports.py` owns quant-report transport
 - `api/routes/ptm_reports.py` owns PTM-report transport
 - `api/routes/evidence_graph.py` owns evidence-graph transport

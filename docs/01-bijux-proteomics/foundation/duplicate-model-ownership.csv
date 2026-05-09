@@ -1227,9 +1227,9 @@ ReviewPacketDiffReport,bijux-proteomics-core,bijux_proteomics/review/contracts.p
 ReviewPacketEvidenceEntry,bijux-proteomics-core,bijux_proteomics/review/contracts.py,jsonmodel
 ReviewPacketQcCaveatEntry,bijux-proteomics-core,bijux_proteomics/review/contracts.py,jsonmodel
 ReviewPacketRiskEntry,bijux-proteomics-core,bijux_proteomics/review/contracts.py,jsonmodel
-ReviewPacketRouteIssue,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/review_packets.py,jsonmodel
-ReviewPacketRouteRequest,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/review_packets.py,jsonmodel
-ReviewPacketRouteResponse,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/review_packets.py,jsonmodel
+DecisionBriefRouteIssue,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/decision_briefs.py,jsonmodel
+DecisionBriefRouteRequest,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/decision_briefs.py,jsonmodel
+DecisionBriefRouteResponse,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/decision_briefs.py,jsonmodel
 ReviewPacketScaleBenchmarkInput,bijux-proteomics-core,bijux_proteomics/benchmarks/performance.py,jsonmodel
 ReviewPacketScaleBenchmarkReport,bijux-proteomics-core,bijux_proteomics/benchmarks/performance.py,jsonmodel
 ReviewPacketSchema,bijux-proteomics-core,bijux_proteomics/review/contracts.py,jsonmodel

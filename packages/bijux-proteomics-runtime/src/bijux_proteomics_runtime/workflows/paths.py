@@ -315,7 +315,7 @@ def run_reviewable_import_path(
         ),
         notes=(
             "import-only useful path preserves third-party provenance without pretending runtime executed the upstream engine",
-            "review consumers should follow the import trace before interpreting the derived review packet",
+            "review consumers should follow the import trace before interpreting the derived decision brief",
         ),
     )
     _write_reviewable_output_manifest(

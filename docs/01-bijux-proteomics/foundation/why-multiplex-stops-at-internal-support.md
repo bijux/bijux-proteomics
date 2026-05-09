@@ -16,7 +16,7 @@ set.
 
 It has a real public package, a raw-executable runtime lane, and explicit
 chemistry pressure, plus one companion stress package and one published
-cross-package report, but it still lacks a dedicated outsider review packet, a
+cross-package report, but it still lacks a dedicated outsider decision brief, a
 requested-versus-observed outcome dossier, and an assay-worth-it ledger row.
 
 ## What This Family Has Earned

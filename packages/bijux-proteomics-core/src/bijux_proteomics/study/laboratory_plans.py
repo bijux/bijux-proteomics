@@ -686,7 +686,7 @@ def build_lims_handoff_profile(
 
 
 class LabReviewPacketInput(JsonModel):
-    """Structured input required to render a lab review packet."""
+    """Structured input required to render a lab decision brief."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -700,7 +700,7 @@ class LabReviewPacketInput(JsonModel):
 
 
 class LabReviewPacketRendered(JsonModel):
-    """Rendered lab review packet bundle for planning and board review."""
+    """Rendered lab decision brief bundle for planning and board review."""
 
     model_config = ConfigDict(extra="forbid")
 

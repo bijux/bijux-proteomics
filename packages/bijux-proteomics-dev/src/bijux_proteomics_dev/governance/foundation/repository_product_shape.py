@@ -239,7 +239,7 @@ def _handoff_entries() -> tuple[ArtifactHandoffEntry, ...]:
             examples=(
                 "evidence bundle",
                 "contradiction ledger",
-                "knowledge review packet",
+                "knowledge decision brief",
             ),
             summary=(
                 "Knowledge owns the grounded evidence memory that recommendation "

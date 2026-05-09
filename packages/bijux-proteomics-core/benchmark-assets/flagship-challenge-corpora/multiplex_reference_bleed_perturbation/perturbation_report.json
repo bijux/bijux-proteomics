@@ -18,7 +18,7 @@
     {
       "baseline_value": 4.0,
       "delta": -4.0,
-      "interpretation": "Reference-channel dropout removes the pooled anchor that the multiplex review packet depends on.",
+      "interpretation": "Reference-channel dropout removes the pooled anchor that the multiplex decision brief depends on.",
       "metric_id": "reference_feature_row_count",
       "perturbed_value": 0.0
     },

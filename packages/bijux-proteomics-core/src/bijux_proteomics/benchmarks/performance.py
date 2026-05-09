@@ -204,7 +204,7 @@ def build_evidence_graph_scale_benchmark_report(
 
 
 class ReviewPacketScaleBenchmarkInput(JsonModel):
-    """Scale observations for rendering and navigating large review packets."""
+    """Scale observations for rendering and navigating large decision briefs."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -216,7 +216,7 @@ class ReviewPacketScaleBenchmarkInput(JsonModel):
 
 
 class ReviewPacketScaleBenchmarkReport(JsonModel):
-    """Scale benchmark report for large review packet surfaces."""
+    """Scale benchmark report for large decision brief surfaces."""
 
     model_config = ConfigDict(extra="forbid")
 

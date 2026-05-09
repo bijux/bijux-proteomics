@@ -81,7 +81,7 @@
     }
   ],
   "earned_release_language": "internal_support_only",
-  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and review packet.",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
   "public_release_language": "internal_support_only",
   "sheet_id": "flagship-acceptance:multiplex",
   "workflow_family": "multiplex"

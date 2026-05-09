@@ -189,7 +189,7 @@ def build_skeptical_review_report(
                     "downstream review consumers need an explicit supported, refused, or degraded result contract",
                 ],
                 required_follow_up=[
-                    "emit the recommendation gate result with the review packet",
+                    "emit the recommendation gate result with the decision brief",
                 ],
             )
         )

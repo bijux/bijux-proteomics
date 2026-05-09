@@ -157,7 +157,7 @@ def build_handoff_explanation(
         supported.append(
             HandoffSupportStatement(
                 level=HandoffSupportLevel.SUPPORTED,
-                summary="review packet contains linked evidence for the requested follow-up",
+                summary="decision brief contains linked evidence for the requested follow-up",
                 evidence_refs=tuple(
                     sorted(review_packet.advancement_evidence.evidence_ids)
                 ),
@@ -255,7 +255,7 @@ def _build_authority_boundary(
     ]
     if not review_packet.ready_for_synthesis or review_packet.blocking_findings:
         blocked_authority_claims.append(
-            "lab cannot upgrade a blocked review packet into progression approval"
+            "lab cannot upgrade a blocked decision brief into progression approval"
         )
     if handoff_validation.blockers:
         blocked_authority_claims.append(
@@ -321,7 +321,7 @@ def refuse_irresponsible_assay_handoff(
                 "candidate remains out of the executable follow-up queue",
                 "lab scheduling must stop before irreversible spend",
                 *(
-                    ["review packet must be reopened before a new handoff is proposed"]
+                    ["decision brief must be reopened before a new handoff is proposed"]
                     if review_packet.blocking_findings
                     else []
                 ),

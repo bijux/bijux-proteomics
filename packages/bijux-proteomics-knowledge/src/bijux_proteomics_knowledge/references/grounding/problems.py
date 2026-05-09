@@ -212,7 +212,7 @@ DEFAULT_KNOWN_PROBLEM_REGISTRY: tuple[KnownProblemRegistryEntry, ...] = (
         problem_id="problem:dia_library_transfer_overclaim",
         problem_kind=KnowledgeProblemKind.WEAK_BENCHMARK_SHORTCUT,
         title="Library-conditioned DIA consistency can be over-generalized",
-        problem_summary="A reproducible DIA extraction surface can still depend on one library shape and one transfer pattern more heavily than a downstream review packet makes obvious.",
+        problem_summary="A reproducible DIA extraction surface can still depend on one library shape and one transfer pattern more heavily than a downstream decision brief makes obvious.",
         mitigation_guidance="Keep library composition, transition compatibility, and peptide-centric scope explicit before turning one stable DIA extraction benchmark into broader protein-facing portability claims.",
         version_trace=(
             "Problem wording was reviewed against the linked corpora, benchmarks, and citations on 2026-05-05.",

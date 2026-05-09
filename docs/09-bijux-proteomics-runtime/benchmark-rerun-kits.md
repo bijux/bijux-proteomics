@@ -160,7 +160,7 @@ Validating tests:
 
 Remaining limits:
 
-- no multiplex lab packet or outsider review packet family
+- no multiplex lab packet or outsider decision brief family
 - multiplex authority is intentionally kept out of the outsider-facing flagship set
 - multiplex still lacks outsider review and lab consequence posture
 - public release language remains internal-support only even with a second package

@@ -19,7 +19,7 @@ This page governs the release-facing vocabulary that root docs, package docs, an
 | `internal-support-only` | `internal-support-only` | `README.md`, `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md`, `docs/01-bijux-proteomics/foundation/workflow-claim-limits.md`, `docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md` | Use this for workflow families with real substance that still do not earn outsider-facing release language. |
 | `independent rerun dossier` | `independent rerun dossier` | `docs/01-bijux-proteomics/foundation/independent-rerun-dossiers.md`, `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md` | This names a distinct reviewer-facing artifact that tests whether one workflow sentence survives a second challenge lane. |
 | `external review kit` | `external review kit` | `docs/01-bijux-proteomics/foundation/external-review-kits.md`, `docs/01-bijux-proteomics/foundation/flagship-release-candidate.md` | This names the shortest outsider opening order through benchmark, rerun, and recommendation evidence for one workflow family. |
-| `review packet` | `review packet` | `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/review_packets.py` | This remains a stable route-contract term for package-owned packet creation, lookup, diff, and export operations. |
+| `decision brief` | `decision brief` | `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/routes/decision_briefs.py` | This remains a stable route-contract term for package-owned packet creation, lookup, diff, and export operations. |
 
 ## Retired Terms
 

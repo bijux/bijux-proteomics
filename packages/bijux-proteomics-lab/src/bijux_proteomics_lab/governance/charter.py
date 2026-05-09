@@ -288,7 +288,7 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         module_path="planning/assays.py",
         classification=LabModuleClassification.OPERATIONAL_VALUE,
         anchor_capabilities=(LabCharterCapability.ASSAY_PLANNING,),
-        reason="Planning assay construction owns batch formation, review packets, dependency integrity, and executable request assembly.",
+        reason="Planning assay construction owns batch formation, decision briefs, dependency integrity, and executable request assembly.",
     ),
     LabModuleAuditEntry(
         module_path="planning/next_cycle.py",

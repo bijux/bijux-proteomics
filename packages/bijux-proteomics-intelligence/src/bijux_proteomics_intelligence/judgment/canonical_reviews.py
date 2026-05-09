@@ -26,7 +26,7 @@ class CanonicalDecisionState(StrEnum):
 
 
 class CanonicalDecisionReview(JsonModel):
-    """Decision-review packet for the flagship workflow family."""
+    """Decision-decision brief for the flagship workflow family."""
 
     model_config = ConfigDict(extra="forbid")
 

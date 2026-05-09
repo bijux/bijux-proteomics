@@ -629,8 +629,8 @@ def test_summarize_scenario_consensus_reports_conflicting_actions() -> None:
 def test_build_intelligence_review_packet_combines_consensus_and_portfolio() -> None:
     program = create_program_spec(
         program_id="prog-packet",
-        name="review packet",
-        objective="compose intelligence review packet",
+        name="decision brief",
+        objective="compose intelligence decision brief",
         target_id="target-packet",
         target_name="Target Packet",
         sequence="ACDEFGHIKLMNPQRSTVWY",
@@ -916,7 +916,7 @@ def test_build_advanced_review_packet_includes_escalation_and_ledger() -> None:
         create_program_spec(
             program_id="prog-advanced-packet",
             name="advanced packet",
-            objective="compose advanced review packet",
+            objective="compose advanced decision brief",
             target_id="target-advanced-packet",
             target_name="Target Advanced Packet",
             sequence="ACDEFGHIKLMNPQRSTVWY",

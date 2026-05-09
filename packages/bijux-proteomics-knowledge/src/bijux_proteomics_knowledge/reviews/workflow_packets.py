@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Workflow-scoped review packets for canonical evidence proof."""
+"""Workflow-scoped decision briefs for canonical evidence proof."""
 
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ class WorkflowClaimTier(StrEnum):
 
 
 class CanonicalEvidenceReviewPacket(JsonModel):
-    """Evidence-review packet for the canonical reviewable workflow family."""
+    """Evidence-decision brief for the canonical reviewable workflow family."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -49,7 +49,7 @@ def build_canonical_evidence_review_packet(
     flagship_family_id: str = "reviewable-proteomics",
     limitation_notes: tuple[str, ...] = (),
 ) -> CanonicalEvidenceReviewPacket:
-    """Build the evidence-review packet for the canonical workflow proof set."""
+    """Build the evidence-decision brief for the canonical workflow proof set."""
 
     if not artifact_path.startswith("artifacts/"):
         raise ValueError("artifact_path must live under artifacts/")
@@ -67,7 +67,7 @@ def build_canonical_evidence_review_packet(
         limitation_notes=limitation_notes,
         review_complete=review_complete,
         note=(
-            "The canonical evidence-review packet uses the repository claim taxonomy "
+            "The canonical evidence-decision brief uses the repository claim taxonomy "
             "so users can distinguish reviewable workflow proof from benchmark-only or future-work claims."
         ),
     )

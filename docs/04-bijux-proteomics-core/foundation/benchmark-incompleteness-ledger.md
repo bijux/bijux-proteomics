@@ -247,7 +247,7 @@ Obsolescence conditions:
 
 Quality blockers:
 
-- no multiplex lab packet or outsider review packet family
+- no multiplex lab packet or outsider decision brief family
 - multiplex authority is intentionally kept out of the outsider-facing flagship set
 
 Weakness notes:

@@ -759,7 +759,7 @@ def _build_multiplex_perturbation_report() -> PerturbationReactionReport:
                 baseline_value=float(baseline_reference_rows),
                 perturbed_value=float(perturbed_reference_rows),
                 delta=float(perturbed_reference_rows - baseline_reference_rows),
-                interpretation="Reference-channel dropout removes the pooled anchor that the multiplex review packet depends on.",
+                interpretation="Reference-channel dropout removes the pooled anchor that the multiplex decision brief depends on.",
             ),
             PerturbationMetricDelta(
                 metric_id="interference_or_bleed_flagged_channel_count",

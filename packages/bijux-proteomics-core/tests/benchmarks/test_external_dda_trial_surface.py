@@ -20,7 +20,7 @@ def test_build_external_strong_user_dda_trial_report_tracks_precise_issues() -> 
             issues=(
                 TrialIssueEntry(
                     issue_id="i-1",
-                    summary="review packet missing ambiguity rationale",
+                    summary="decision brief missing ambiguity rationale",
                     evidence_pointer="evidence://claim/22",
                     severity="high",
                 ),

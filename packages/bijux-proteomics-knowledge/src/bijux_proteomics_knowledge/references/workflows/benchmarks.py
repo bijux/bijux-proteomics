@@ -1151,7 +1151,7 @@ DEFAULT_BENCHMARK_MANIFESTS: tuple[BenchmarkManifest, ...] = (
             ),
             transparent_assumptions=(
                 "the bundle proves targeted review governance rather than live Skyline or vendor chromatogram parity",
-                "calibration and control pressure are modeled through review packets and QC tables, not through raw vendor traces",
+                "calibration and control pressure are modeled through decision briefs and QC tables, not through raw vendor traces",
             ),
             governed_output_surfaces=(
                 "formats.targeted_qc_ingestion",

@@ -841,7 +841,7 @@ _DOC_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "It has a real public package, a raw-executable runtime lane, and "
                 "explicit chemistry pressure, plus one companion stress package and "
                 "one published cross-package report, but it still lacks a dedicated "
-                "outsider review packet and a dedicated lab consequence packet."
+                "outsider decision brief and a dedicated lab consequence packet."
             ),
             evidence_refs=(
                 _ref(
@@ -1362,10 +1362,10 @@ _UNSUPPORTED_CLAIM_BLUEPRINTS: dict[
     ),
     KnowledgeWorkflowFamily.MULTIPLEX: (
         (
-            "It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider review packet and a dedicated lab consequence packet.",
+            "It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider decision brief and a dedicated lab consequence packet.",
             ScientificClaimSeverity.LOW,
             "The narrowing is honest, but the chemistry-pressure wording still depends on internal benchmark interpretation because multiplex lacks its own outsider packet and lab consequence surface.",
-            "Ship a dedicated multiplex outsider review packet and a dedicated multiplex lab consequence packet before promoting any stronger public chemistry-pressure language.",
+            "Ship a dedicated multiplex outsider decision brief and a dedicated multiplex lab consequence packet before promoting any stronger public chemistry-pressure language.",
         ),
     ),
 }
