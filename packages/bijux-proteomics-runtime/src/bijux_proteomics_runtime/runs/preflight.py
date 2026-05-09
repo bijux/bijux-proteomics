@@ -19,7 +19,7 @@ from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_
 class PreflightCheckState(StrEnum):
     """Allowed states for one runtime preflight check."""
 
-    PASS = "pass"
+    PASSED = "pass"
     WARN = "warn"
     FAIL = "fail"
 
@@ -64,7 +64,7 @@ def build_runtime_preflight_report(
             state=(
                 PreflightCheckState.FAIL
                 if workspace_errors
-                else PreflightCheckState.PASS
+                else PreflightCheckState.PASSED
             ),
             message=(
                 "workspace layout is ready"
@@ -81,7 +81,7 @@ def build_runtime_preflight_report(
             state=(
                 PreflightCheckState.FAIL
                 if provider_errors
-                else PreflightCheckState.PASS
+                else PreflightCheckState.PASSED
             ),
             message=(
                 "provider requirements are available"
@@ -96,7 +96,7 @@ def build_runtime_preflight_report(
         PreflightCheck(
             check_id="candidate_store_root",
             state=(
-                PreflightCheckState.PASS
+                PreflightCheckState.PASSED
                 if candidate_store_ready
                 else PreflightCheckState.FAIL
             ),
@@ -116,7 +116,7 @@ def build_runtime_preflight_report(
             PreflightCheck(
                 check_id="source_dataset",
                 state=(
-                    PreflightCheckState.PASS
+                    PreflightCheckState.PASSED
                     if dataset_exists
                     else PreflightCheckState.FAIL
                 ),
@@ -142,7 +142,7 @@ def build_runtime_preflight_report(
                 PreflightCheck(
                     check_id="source_dataset_layout",
                     state=(
-                        PreflightCheckState.PASS
+                        PreflightCheckState.PASSED
                         if layout_valid
                         else PreflightCheckState.FAIL
                     ),
@@ -168,7 +168,7 @@ def build_runtime_preflight_report(
             PreflightCheck(
                 check_id="tool_versions",
                 state=(
-                    PreflightCheckState.PASS
+                    PreflightCheckState.PASSED
                     if not version_mismatches
                     else PreflightCheckState.FAIL
                 ),

@@ -293,7 +293,8 @@ def _module_reason(
         )
     if classification is CoreModuleClassification.COMPATIBILITY_EXPORT:
         target = _compatibility_target(module_path)
-        assert target is not None
+        if target is None:
+            raise ValueError(f"missing compatibility target for {module_path}")
         return (
             f"This module is a compatibility export over {target} and must stay a thin "
             "alias rather than growing new scientific logic."

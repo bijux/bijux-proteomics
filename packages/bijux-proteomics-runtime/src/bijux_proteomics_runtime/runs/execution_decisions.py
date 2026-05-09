@@ -77,7 +77,7 @@ def build_runtime_refusal_decision_report(
                 operator_guidance=_preflight_guidance(check.check_id),
             )
             for check in preflight_report.checks
-            if check.state is not PreflightCheckState.PASS
+            if check.state is not PreflightCheckState.PASSED
         )
     if failure_report is not None:
         findings.extend(

@@ -7,10 +7,11 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
+from http.client import HTTPConnection, HTTPException, HTTPSConnection
+from ipaddress import ip_address
 import json
 from pathlib import Path
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.parse import SplitResult, urlsplit
 
 from pydantic import ConfigDict, Field
 
@@ -722,21 +723,66 @@ def build_flagship_asset_root_contract() -> FlagshipAssetRootContract:
     )
 
 
-def _check_remote_url(url: str) -> FlagshipRemoteAvailabilityCheck:
-    request = Request(url, method="HEAD")
+def _validated_public_reference(url: str) -> tuple[SplitResult, str]:
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"}:
+        raise ValueError("unsupported url scheme")
+    if not parsed.netloc or parsed.username is not None or parsed.password is not None:
+        raise ValueError("url must have a public host without embedded credentials")
+    host = parsed.hostname
+    if host is None:
+        raise ValueError("url must have a resolvable host")
     try:
-        with urlopen(request, timeout=10) as response:
-            detail = f"http {response.status}"
-            status = FlagshipRemoteAvailabilityStatus.AVAILABLE
-    except HTTPError as exc:  # pragma: no cover - network-dependent branch
-        status = FlagshipRemoteAvailabilityStatus.HTTP_ERROR
-        detail = f"http {exc.code}"
-    except URLError as exc:  # pragma: no cover - network-dependent branch
-        status = FlagshipRemoteAvailabilityStatus.NETWORK_ERROR
-        detail = str(exc.reason)
-    except ValueError:  # pragma: no cover - invalid URLs should be caught by tests
+        address = ip_address(host)
+    except ValueError:
+        if host == "localhost" or host.endswith(".local"):
+            raise ValueError("url host must be publicly routable")
+    else:
+        if (
+            address.is_loopback
+            or address.is_link_local
+            or address.is_multicast
+            or address.is_private
+            or address.is_reserved
+            or address.is_unspecified
+        ):
+            raise ValueError("url host must be publicly routable")
+    path = parsed.path or "/"
+    if parsed.query:
+        path = f"{path}?{parsed.query}"
+    return parsed, path
+
+
+def _check_remote_url(url: str) -> FlagshipRemoteAvailabilityCheck:
+    try:
+        parsed, path = _validated_public_reference(url)
+    except ValueError:
         status = FlagshipRemoteAvailabilityStatus.INVALID_URL
         detail = "invalid url"
+    else:
+        connection_cls = HTTPSConnection if parsed.scheme == "https" else HTTPConnection
+        connection = connection_cls(parsed.netloc, timeout=10)
+        try:
+            connection.request(
+                "HEAD",
+                path,
+                headers={"User-Agent": "bijux-proteomics-asset-audit/1.0"},
+            )
+            response = connection.getresponse()
+            detail = f"http {response.status}"
+            status = (
+                FlagshipRemoteAvailabilityStatus.AVAILABLE
+                if 200 <= response.status < 400
+                else FlagshipRemoteAvailabilityStatus.HTTP_ERROR
+            )
+        except HTTPException as exc:  # pragma: no cover - network-dependent branch
+            status = FlagshipRemoteAvailabilityStatus.NETWORK_ERROR
+            detail = str(exc)
+        except OSError as exc:  # pragma: no cover - network-dependent branch
+            status = FlagshipRemoteAvailabilityStatus.NETWORK_ERROR
+            detail = str(exc)
+        finally:
+            connection.close()
     return FlagshipRemoteAvailabilityCheck(
         source_id=url,
         public_reference_url=url,

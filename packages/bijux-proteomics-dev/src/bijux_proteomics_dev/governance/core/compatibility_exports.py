@@ -84,7 +84,10 @@ def _compatibility_exports() -> tuple[tuple[str, str, str], ...]:
             continue
         content = (CORE_SRC_ROOT / entry.module_path).read_text(encoding="utf-8")
         match = COMPATIBILITY_IMPORT_RE.search(content)
-        assert match is not None, entry.module_path
+        if match is None:
+            raise ValueError(
+                f"compatibility export is no longer a thin star re-export: {entry.module_path}"
+            )
         target_module_name = match.group(1)
         exports.append(
             (
