@@ -43,6 +43,9 @@ from bijux_proteomics_dev.release.governance.public_language import (
 from bijux_proteomics_dev.release.governance.release_narrowing_protocol import (
     run as run_release_narrowing_protocol,
 )
+from bijux_proteomics_dev.release.governance.workflow_consequence_docs import (
+    run as run_workflow_consequence_docs,
+)
 from bijux_proteomics_dev.release.governance.runtime_black_box_docs import (
     run as run_runtime_black_box_docs,
 )
@@ -54,6 +57,9 @@ from bijux_proteomics_dev.release.governance.workflow_authority_docs import (
 )
 from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
     validate_workflow_claim_grounding,
+)
+from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
+    validate_workflow_consequence_coherence,
 )
 from bijux_proteomics_dev.release.governance.workflow_intelligence_confidence import (
     validate_workflow_intelligence_confidence,
@@ -264,6 +270,14 @@ def _consequence_coherence_stage(repo_root: Path) -> FinalPreflightStage:
         *_normalize_issues(
             validate_workflow_lab_consequence(),
             default_code="workflow-lab-consequence",
+        ),
+        *_normalize_issues(
+            validate_workflow_consequence_coherence(repo_root),
+            default_code="workflow-consequence-coherence",
+        ),
+        *_freshness_issue(
+            "bijux_proteomics_dev.release.governance.workflow_consequence_docs",
+            run_workflow_consequence_docs(check=True),
         ),
     ]
     return FinalPreflightStage(

@@ -104,3 +104,38 @@ def test_docs_stage_blocks_stale_public_artifact_docs(monkeypatch) -> None:
             "is stale; regenerate it before release preflight"
         ),
     ) in stage.issues
+
+
+def test_consequence_stage_blocks_stale_consequence_docs(monkeypatch) -> None:
+    monkeypatch.setattr(
+        final_preflight_module,
+        "validate_workflow_intelligence_confidence",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        final_preflight_module,
+        "validate_workflow_lab_consequence",
+        lambda: (),
+    )
+    monkeypatch.setattr(
+        final_preflight_module,
+        "validate_workflow_consequence_coherence",
+        lambda repo_root: (),
+    )
+    monkeypatch.setattr(
+        final_preflight_module,
+        "run_workflow_consequence_docs",
+        lambda check=True: 1,
+    )
+
+    stage = final_preflight_module._consequence_coherence_stage(
+        final_preflight_module.REPO_ROOT
+    )
+
+    assert FinalPreflightIssue(
+        code="stale-generated-doc-surface",
+        detail=(
+            "bijux_proteomics_dev.release.governance.workflow_consequence_docs "
+            "is stale; regenerate it before release preflight"
+        ),
+    ) in stage.issues

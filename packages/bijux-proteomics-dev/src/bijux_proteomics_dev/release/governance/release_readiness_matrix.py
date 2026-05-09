@@ -38,6 +38,9 @@ from bijux_proteomics_dev.release.governance.workflow_authority_docs import (
 from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
     validate_workflow_claim_grounding,
 )
+from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
+    validate_workflow_consequence_coherence,
+)
 from bijux_proteomics_dev.release.governance.workflow_intelligence_confidence import (
     validate_workflow_intelligence_confidence,
 )
@@ -156,6 +159,7 @@ def build_release_readiness_matrix(
     drift_audit_issues = validate_repository_drift_audit(repo_root)
     intelligence_issues = validate_workflow_intelligence_confidence(repo_root)
     lab_consequence_issues = validate_workflow_lab_consequence()
+    consequence_coherence_issues = validate_workflow_consequence_coherence(repo_root)
     runtime_rerun_gate = build_runtime_black_box_rerun_gate()
     black_box_language_issues = validate_black_box_benchmark_language()
 
@@ -270,10 +274,18 @@ def build_release_readiness_matrix(
             ),
             evidence_paths=(
                 "docs/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md",
+                "docs/decision-support/workflow-consequence-maps.md",
+                "docs/decision-support/what-changed-the-recommendation.md",
+                "docs/lab-consequence/outcome-learning-loops.md",
+                "docs/lab-consequence/workflow-refusal-handbook.md",
                 "docs/07-bijux-proteomics-lab/index.md",
                 "docs/01-bijux-proteomics/foundation/current-capability-limits.md",
             ),
-            issues=(*intelligence_issues, *lab_consequence_issues),
+            issues=(
+                *intelligence_issues,
+                *lab_consequence_issues,
+                *consequence_coherence_issues,
+            ),
         ),
     )
     return ReleaseReadinessMatrix(categories=categories)

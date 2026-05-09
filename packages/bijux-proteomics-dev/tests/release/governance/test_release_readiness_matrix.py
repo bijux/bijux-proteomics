@@ -51,6 +51,14 @@ def test_release_readiness_matrix_covers_hostile_review_categories() -> None:
         "configs/package-governance/repository-drift-audit.toml"
         in by_id["artifact-hygiene"].evidence_paths
     )
+    assert (
+        "docs/decision-support/workflow-consequence-maps.md"
+        in by_id["consequence-realism"].evidence_paths
+    )
+    assert (
+        "docs/lab-consequence/workflow-refusal-handbook.md"
+        in by_id["consequence-realism"].evidence_paths
+    )
 
 
 def test_release_readiness_matrix_has_no_internal_consistency_failures() -> None:
