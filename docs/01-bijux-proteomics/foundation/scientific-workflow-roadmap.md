@@ -10,7 +10,7 @@ last_reviewed: 2026-04-27
 # Scientific Workflow Roadmap
 
 `bijux-proteomics` already has substantial package contracts and now has one
-checked canonical workflow family. What it does not yet have is broad
+checked flagship workflow chain. What it does not yet have is broad
 scientific workflow coverage across the larger proteomics surface.
 
 ## Current State

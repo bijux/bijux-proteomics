@@ -21,7 +21,7 @@ REPO_ROOT = next(
 def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestly() -> None:
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert report.canonical_workflow_undeniable is True
+    assert report.flagship_workflow_undeniable is True
     assert report.reference_grade_claim_allowed is False
     assert report.elite_claim_allowed is False
     assert report.reopened_completion_claim_package_names == ()
@@ -63,7 +63,7 @@ def test_repository_truth_report_blocks_fake_backed_runtime_authority(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -101,7 +101,7 @@ def test_repository_truth_report_blocks_fake_backed_runtime_authority(
     report = build_repository_truth_report(REPO_ROOT)
 
     assert RepositoryTruthIssue(
-        code="runtime-proof-gate-fake-helper-still-present-in-flagship-path",
+        code="runtime-rerun-gate-fake-helper-still-present-in-flagship-path",
         detail="dda import still depends on a fake helper",
     ) in report.blockers
 
@@ -126,7 +126,7 @@ def test_repository_truth_report_blocks_workflow_authority_doc_drift(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -190,7 +190,7 @@ def test_repository_truth_report_blocks_acceptance_claim_drift(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -265,7 +265,7 @@ def test_repository_truth_report_blocks_decision_grade_intelligence_without_audi
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -346,7 +346,7 @@ def test_repository_truth_report_blocks_lab_consequence_without_outcome_evidence
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -429,7 +429,7 @@ def test_repository_truth_report_blocks_consequence_chain_drift(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -532,7 +532,7 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(
@@ -627,7 +627,7 @@ def test_repository_truth_report_blocks_public_artifact_governance_drift(
         lambda repo_root: (SimpleNamespace(family_id="flagship", ready=True),),
     )
     monkeypatch.setattr(
-        "bijux_proteomics_dev.release.governance.repository_truth.validate_canonical_workflow_manifest",
+        "bijux_proteomics_dev.release.governance.repository_truth.validate_flagship_workflow_manifest",
         lambda repo_root=None: (),
     )
     monkeypatch.setattr(

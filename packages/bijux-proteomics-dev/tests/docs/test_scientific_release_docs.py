@@ -29,7 +29,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "workflow_consequence_docs.py",
         "workflow_public_scrutiny.py",
         "validate_ssot_readiness()",
-        "canonical-workflow-manifest.toml",
+        "flagship-workflow-manifest.toml",
         "scientific-release-workflows.toml",
         "workflows/black_box_reproducibility.py",
         "package-substance.md",

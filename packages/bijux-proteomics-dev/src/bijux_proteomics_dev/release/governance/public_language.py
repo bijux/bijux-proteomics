@@ -123,11 +123,18 @@ def build_public_language_glossary() -> PublicLanguageGlossary:
                 rationale="The page no longer exists to project authority. It exists to state current claim limits per workflow family.",
             ),
             PublicLanguageTerm(
-                term="canonical workflow proof",
+                term="canonical workflow",
                 status="retired",
                 preferred_phrase="what one workflow family supports today",
                 allowed_surfaces=(),
                 rationale="The old label sounded broader and more final than the one bounded workflow sentence the repository can currently defend.",
+            ),
+            PublicLanguageTerm(
+                term="reviewable-proteomics",
+                status="retired",
+                preferred_phrase="flagship workflow chain or bounded workflow family",
+                allowed_surfaces=(),
+                rationale="This was an internal campaign label, not a durable public product name or workflow concept.",
             ),
             PublicLanguageTerm(
                 term="multiplex authority boundary",

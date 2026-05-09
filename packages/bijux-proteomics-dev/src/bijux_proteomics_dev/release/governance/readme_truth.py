@@ -29,12 +29,14 @@ REQUIRED_LINK_SNIPPETS = (
     "foundation/product-architecture/",
     "foundation/cross-package-ownership/",
     "foundation/release-readiness-matrix/",
+    "foundation/what-one-workflow-family-supports-today/",
     "foundation/public-artifact-index/",
     "operations/runtime-migration-validation/",
 )
 BANNED_STRONG_TERMS = (
     "release-ready",
     "reference-grade",
+    "elite",
     "product-grade",
 )
 

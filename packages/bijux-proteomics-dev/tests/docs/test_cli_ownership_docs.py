@@ -24,9 +24,9 @@ def test_runtime_and_compat_docs_name_the_workflow_cli_owner() -> None:
     ).read_text(encoding="utf-8")
 
     assert (
-        "Canonical workflow CLI command: `bijux-proteomics-runtime`" in runtime_readme
+        "Flagship workflow CLI command: `bijux-proteomics-runtime`" in runtime_readme
     )
-    assert "not the canonical workflow runner" in core_readme
+    assert "not the flagship workflow runner" in core_readme
     assert "Legacy compatibility CLI command: `agentic-proteins`" in compat_readme
     assert "bijux-proteomics-runtime --help" in compat_readme
     assert "agentic-proteins --help" in compat_readme
@@ -44,6 +44,7 @@ def test_non_compat_docs_and_examples_default_to_canonical_entrypoints() -> None
         "pip install agentic-proteins",
     )
     excluded_prefixes = (
+        "artifacts/",
         "packages/agentic-proteins/",
         "docs/02-agentic-proteins/",
         "docs/09-bijux-proteomics-runtime/migration-ledger/",

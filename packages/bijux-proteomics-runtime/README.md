@@ -40,8 +40,8 @@ Within the suite, runtime owns execution, provider binding, deterministic
 replay, and operator entrypoints.
 
 Use this package when you need supported CLI, HTTP API, provider wiring,
-runtime state handling, and replay-safe orchestration for canonical
-`bijux-proteomics` execution.
+runtime state handling, and replay-safe orchestration for the bounded
+flagship workflow chain.
 
 Runtime owns execution control. It does not own the scientific workflow
 blueprint, evidence truth, ranking semantics, or lab progression logic that the
@@ -104,7 +104,7 @@ instead of widening `bijux_proteomics_runtime` into a convenience bucket.
 
 - Distribution name: `bijux-proteomics-runtime`
 - Import root: `bijux_proteomics_runtime`
-- Canonical workflow CLI command: `bijux-proteomics-runtime`
+- Flagship workflow CLI command: `bijux-proteomics-runtime`
 - Stable entrypoints: `AppConfig`, `RunManager`, `create_app`, and `api.cli:cli`
 - Execution charter: `src/bijux_proteomics_runtime/governance/charter.py`
 - First-level owner families: `api/`, `execution/`, `governance/`, `providers/`, `runs/`, `state/`, `support/`, and `workflows/`

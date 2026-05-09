@@ -64,9 +64,9 @@ from bijux_proteomics_intelligence.reviews.public_scrutiny import (
     build_public_artifact_index,
     build_public_artifact_role_matrix,
 )
-from bijux_proteomics_runtime.workflows.manifest import (
-    CANONICAL_WORKFLOW_MANIFEST_PATH,
-    validate_canonical_workflow_manifest,
+from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
+    FLAGSHIP_WORKFLOW_MANIFEST_PATH,
+    validate_flagship_workflow_manifest,
 )
 from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
     build_runtime_black_box_rerun_gate,
@@ -92,7 +92,7 @@ class RepositoryTruthIssue:
 class RepositoryTruthReport:
     """Repository-level truth posture for stronger scientific maturity claims."""
 
-    canonical_workflow_undeniable: bool
+    flagship_workflow_undeniable: bool
     reference_grade_claim_allowed: bool
     elite_claim_allowed: bool
     architecturally_ready_package_count: int
@@ -109,7 +109,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     reopened = build_package_reopened_completion_claim_report()
     maturity = build_package_readme_maturity_report()
     family_reports = build_package_family_readiness_reports(repo_root)
-    workflow_manifest_issues = validate_canonical_workflow_manifest(repo_root=repo_root)
+    workflow_manifest_issues = validate_flagship_workflow_manifest(repo_root=repo_root)
     scientific_dossier_issues = validate_scientific_release_dossier(repo_root)
     workflow_authority_doc_issues = validate_workflow_authority_docs(repo_root)
     workflow_claim_grounding_issues = validate_workflow_claim_grounding(repo_root)
@@ -145,7 +145,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
         for entry in maturity.entries
         if entry.completion_claims_while_not_ready
     )
-    canonical_workflow_undeniable = (
+    flagship_workflow_undeniable = (
         not workflow_manifest_issues and ranking_improvement.decision_improved
     )
 
@@ -153,7 +153,7 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     for issue in workflow_manifest_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"canonical-workflow-{issue.code}",
+                code=f"flagship-workflow-{issue.code}",
                 detail=issue.detail,
             )
         )
@@ -302,20 +302,20 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
             )
         )
 
-    reference_grade_claim_allowed = canonical_workflow_undeniable and not blockers
+    reference_grade_claim_allowed = flagship_workflow_undeniable and not blockers
     elite_claim_allowed = (
         reference_grade_claim_allowed
         and architecturally_ready_package_count == len(scorecard.entries)
     )
     return RepositoryTruthReport(
-        canonical_workflow_undeniable=canonical_workflow_undeniable,
+        flagship_workflow_undeniable=flagship_workflow_undeniable,
         reference_grade_claim_allowed=reference_grade_claim_allowed,
         elite_claim_allowed=elite_claim_allowed,
         architecturally_ready_package_count=architecturally_ready_package_count,
         reopened_completion_claim_package_names=reopened_packages,
         completion_claim_package_names=completion_claim_packages,
         evidence_paths=(
-            CANONICAL_WORKFLOW_MANIFEST_PATH.relative_to(repo_root).as_posix(),
+            FLAGSHIP_WORKFLOW_MANIFEST_PATH.relative_to(repo_root).as_posix(),
             PACKAGE_SCORECARD_PATH.relative_to(repo_root).as_posix(),
             PACKAGE_REOPENED_COMPLETION_CLAIMS_PATH.relative_to(repo_root).as_posix(),
             PACKAGE_README_MATURITY_PATH.relative_to(repo_root).as_posix(),
@@ -346,7 +346,7 @@ def validate_repository_truth_report(
     issues: list[RepositoryTruthIssue] = []
     if (
         report.reference_grade_claim_allowed
-        and not report.canonical_workflow_undeniable
+        and not report.flagship_workflow_undeniable
     ):
         issues.append(
             RepositoryTruthIssue(

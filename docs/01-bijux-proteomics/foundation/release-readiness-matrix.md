@@ -23,7 +23,7 @@ validators so the root wording cannot drift ahead of the actual repository.
 
 | Category | What it asks | Primary evidence |
 | --- | --- | --- |
-| Workflow-family product evidence | Does the root promise stay behind the checked workflow manifest and package-family readiness evidence? | canonical workflow manifest, release family manifest, product architecture |
+| Workflow-family product evidence | Does the root promise stay behind the checked workflow manifest and package-family readiness evidence? | flagship workflow manifest, release family manifest, product architecture |
 | Black-box rerunability | Can an outsider challenge the flagship runtime lane without maintainers narrating around missing artifacts? | runtime execution boundary, black-box run verification, flagship release candidate, public artifact index |
 | Benchmark asset quality | Are benchmark-backed claims grounded by the release dossier and workflow claim checks? | scientific release manifest, benchmark asset docs, claim grounding checks |
 | Docs clarity | Do root docs route readers to real evidence without stronger trust language than the evidence supports? | README, docs home, product architecture, cross-package ownership |

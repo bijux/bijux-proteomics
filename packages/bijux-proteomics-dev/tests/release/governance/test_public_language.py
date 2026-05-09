@@ -36,7 +36,7 @@ def test_public_language_flags_retired_phrase(tmp_path: Path, monkeypatch: pytes
         parents=True
     )
     (repo_root / "packages" / "bijux-proteomics-foundation").mkdir(parents=True)
-    (repo_root / "README.md").write_text("canonical workflow proof\n", encoding="utf-8")
+    (repo_root / "README.md").write_text("canonical workflow\n", encoding="utf-8")
     (repo_root / "docs" / "index.md").write_text("", encoding="utf-8")
     (
         repo_root

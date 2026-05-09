@@ -9,10 +9,10 @@ compatibility bridge for runtime entrypoints and imports, while
 
 ## Product Scope
 
-This repository is strongest when a reviewer needs to inspect one end-to-end
-path from benchmark asset intake through execution, scientific review,
-recommendation, and possible lab follow-up without guessing who owns each
-handoff.
+This repository is strongest when a reviewer needs to inspect one bounded
+evidence chain from benchmark asset intake through execution, scientific
+review, recommendation, and possible lab follow-up without guessing who owns
+each handoff.
 
 The product shape is explicit:
 
@@ -90,9 +90,9 @@ and the current hostile-review blockers are tracked in
 ## Reader Paths
 
 - Scientist: start with
-  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+  [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
   and then open the
-  [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/).
+  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/).
 - Operator: start with the
   [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
   and then the

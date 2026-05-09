@@ -70,8 +70,8 @@ from bijux_proteomics_dev.release.governance.workflow_lab_consequence import (
 from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
     validate_workflow_public_scrutiny,
 )
-from bijux_proteomics_runtime.workflows.manifest import (
-    validate_canonical_workflow_manifest,
+from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
+    validate_flagship_workflow_manifest,
 )
 from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
     build_runtime_black_box_rerun_gate,
@@ -234,8 +234,8 @@ def _benchmark_assets_stage(repo_root: Path) -> FinalPreflightStage:
 def _runtime_reproducibility_stage(repo_root: Path) -> FinalPreflightStage:
     issues = [
         *_normalize_issues(
-            validate_canonical_workflow_manifest(repo_root=repo_root),
-            default_code="canonical-workflow",
+            validate_flagship_workflow_manifest(repo_root=repo_root),
+            default_code="flagship-workflow",
         ),
         *_normalize_issues(
             build_runtime_black_box_rerun_gate().issues,

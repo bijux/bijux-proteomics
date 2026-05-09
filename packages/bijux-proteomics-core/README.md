@@ -71,7 +71,7 @@ pip install bijux-proteomics-core
 ## Quick start
 
 The core CLI is a domain toolkit for scientific parsing, normalization, and
-report preparation. It is not the canonical workflow runner.
+report preparation. It is not the flagship workflow runner.
 
 ```bash
 bijux-proteomics --help

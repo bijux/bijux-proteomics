@@ -50,9 +50,9 @@ from bijux_proteomics_dev.release.governance.workflow_lab_consequence import (
 from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
     validate_workflow_public_scrutiny,
 )
-from bijux_proteomics_runtime.workflows.manifest import (
-    CANONICAL_WORKFLOW_MANIFEST_PATH,
-    validate_canonical_workflow_manifest,
+from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
+    FLAGSHIP_WORKFLOW_MANIFEST_PATH,
+    validate_flagship_workflow_manifest,
 )
 from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
     build_runtime_black_box_rerun_gate,
@@ -144,9 +144,7 @@ def build_release_readiness_matrix(
 ) -> ReleaseReadinessMatrix:
     """Build the repository hostile-review readiness matrix."""
 
-    canonical_workflow_issues = validate_canonical_workflow_manifest(
-        repo_root=repo_root
-    )
+    flagship_workflow_issues = validate_flagship_workflow_manifest(repo_root=repo_root)
     family_readiness_issues = validate_package_family_readiness(repo_root)
     scientific_release_issues = validate_scientific_release_dossier(repo_root)
     benchmark_freshness_issues = validate_benchmark_freshness_review()
@@ -172,13 +170,13 @@ def build_release_readiness_matrix(
                 "manifest plus declared package-family readiness evidence."
             ),
             evidence_paths=(
-                CANONICAL_WORKFLOW_MANIFEST_PATH.relative_to(repo_root).as_posix(),
+                FLAGSHIP_WORKFLOW_MANIFEST_PATH.relative_to(repo_root).as_posix(),
                 package_family_readiness_manifest_path(repo_root)
                 .relative_to(repo_root)
                 .as_posix(),
                 "docs/01-bijux-proteomics/foundation/product-architecture.md",
             ),
-            issues=(*canonical_workflow_issues, *family_readiness_issues),
+            issues=(*flagship_workflow_issues, *family_readiness_issues),
         ),
         _category(
             category_id="black-box-rerunability",

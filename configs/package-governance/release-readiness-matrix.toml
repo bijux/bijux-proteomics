@@ -6,7 +6,7 @@ category_id = "workflow-family-product-evidence"
 title = "Workflow-family product evidence"
 ready = true
 rationale = "The root promise must be anchored in one checked workflow manifest plus declared package-family readiness evidence."
-evidence_paths = ["configs/package-governance/canonical-workflow-manifest.toml", "configs/package-governance/release-families.toml", "docs/01-bijux-proteomics/foundation/product-architecture.md"]
+evidence_paths = ["configs/package-governance/flagship-workflow-manifest.toml", "configs/package-governance/release-families.toml", "docs/01-bijux-proteomics/foundation/product-architecture.md"]
 blocker_codes = []
 blocker_details = []
 

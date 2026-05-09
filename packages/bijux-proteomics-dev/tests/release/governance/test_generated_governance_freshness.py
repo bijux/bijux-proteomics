@@ -15,7 +15,7 @@ def test_generated_governance_freshness_report_covers_generated_reports() -> Non
         by_path["configs/package-governance/foundation-root-api.toml"].fresh is True
     )
     assert (
-        by_path["configs/package-governance/canonical-workflow-manifest.toml"].fresh
+        by_path["configs/package-governance/flagship-workflow-manifest.toml"].fresh
         is True
     )
     assert any(not entry.fresh for entry in report.entries)

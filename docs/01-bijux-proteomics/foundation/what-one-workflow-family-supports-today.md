@@ -9,8 +9,8 @@ last_reviewed: 2026-05-07
 
 # What One Workflow Family Supports Today
 
-`bijux-proteomics` now has one checked canonical workflow family:
-`reviewable-proteomics`.
+`bijux-proteomics` now has one checked flagship workflow chain:
+`flagship-workflows`.
 
 That phrase is intentionally narrow. It means one governed workflow proof set
 exists from sequence intake through search/confidence, quantification, PTM
@@ -119,7 +119,7 @@ It will come from stronger flagship evidence:
 
 ## Boundary
 
-Only `reviewable-proteomics` may be described with this one-workflow-family
+Only `flagship-workflows` may be described with this one-workflow-family
 sentence.
 Every other workflow family remains future-only until it has its own
 artifact-backed proof surface.

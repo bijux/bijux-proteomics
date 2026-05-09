@@ -92,7 +92,7 @@ flowchart TD
 ## Dependency direction
 
 Runtime may depend on foundation, core, intelligence, knowledge, and lab in
-order to orchestrate canonical workflow execution.
+order to orchestrate flagship workflow execution.
 
 Lower-layer packages must not depend on runtime, and runtime should not take
 ownership of their scientific meaning.

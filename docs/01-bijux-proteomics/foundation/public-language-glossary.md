@@ -27,7 +27,8 @@ This page governs the release-facing vocabulary that root docs, package docs, an
 | --- | --- | --- |
 | `authority boundary` | `claim limits or internal-support limit` | This phrase hid the real reader question. Public docs should now say what claims are supported, blocked, or refused. |
 | `workflow authority matrix` | `workflow claim limits` | The page no longer exists to project authority. It exists to state current claim limits per workflow family. |
-| `canonical workflow proof` | `what one workflow family supports today` | The old label sounded broader and more final than the one bounded workflow sentence the repository can currently defend. |
+| `canonical workflow` | `what one workflow family supports today` | The old label sounded broader and more final than the one bounded workflow sentence the repository can currently defend. |
+| `reviewable-proteomics` | `flagship workflow chain or bounded workflow family` | This was an internal campaign label, not a durable public product name or workflow concept. |
 | `multiplex authority boundary` | `why multiplex stops at internal support` | Readers need a direct answer about multiplex limits, not a repository-internal framing term. |
 
 ## Enforcement

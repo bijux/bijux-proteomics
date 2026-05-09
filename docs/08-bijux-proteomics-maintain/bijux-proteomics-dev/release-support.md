@@ -53,7 +53,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py`
 - `src/bijux_proteomics_dev/release/governance/ssot_readiness.py`
-- `configs/package-governance/canonical-workflow-manifest.toml`
+- `configs/package-governance/flagship-workflow-manifest.toml`
 - `configs/package-governance/scientific-release-workflows.toml`
 
 ## Scientific Proof Chain
