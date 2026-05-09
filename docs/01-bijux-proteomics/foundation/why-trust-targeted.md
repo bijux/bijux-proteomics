@@ -40,6 +40,9 @@ authority.
   but promotion confidence weakens under the carryover-stress package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
+- decision-grade wording remains blocked because the shared consequence chain
+  still ends at exploratory-only follow-up and can collapse when calibration or
+  interference burden gets heavier.
 
 ## Exact Claims
 
@@ -67,6 +70,18 @@ authority.
 - calibration-clean and vendor-parity targeted authority are not earned
 - promotion confidence weakens on the carryover-stress package
 - targeted follow-up remains exploratory
+
+## Consequence Boundary
+
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  before widening targeted language beyond bounded QC-facing support
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  before claiming that one calibration-facing rerun changed the full targeted
+  posture
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next move may still be stop, rerun, narrow, or refuse
+- one doubled assay burden or one interference-heavy failure still demotes the
+  public sentence faster than this page alone might suggest
 
 ## Evidence Grounding
 

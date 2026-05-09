@@ -25,6 +25,9 @@ Internal-support-only workflow families today: `multiplex`.
   there is still no broad cross-family proteomics proof set that survives the
   same standard with supported comparator posture and decision-grade
   consequence
+- LFQ, PTM, and targeted remain bounded because their shared consequence chain
+  still ends at exploratory-only follow-up, and one doubled assay burden can
+  still collapse the recommendation back toward refusal
 - DDA still stops short of in-repo live-engine rerun parity
 - multiplex still remains internal support only, so no release language should
   let it ride for free on adjacent flagship trust claims
@@ -58,6 +61,10 @@ Internal-support-only workflow families today: `multiplex`.
   move first
 - if a real capability lands and this page is stale, update this page in the
   same change set as the new proof
+- open `docs/decision-support/workflow-consequence-maps.md` and
+  `docs/decision-support/what-changed-the-recommendation.md` before widening
+  LFQ, PTM, or targeted language from bounded recommendation toward
+  decision-grade claims
 
 ## Boundary
 

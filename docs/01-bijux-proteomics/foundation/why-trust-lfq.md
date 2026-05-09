@@ -37,6 +37,9 @@ claim, not broad cohort-transfer or decision-grade quant authority.
   but effect-direction confidence weakens on the sparse contrast package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
+- decision-grade wording remains blocked because the shared consequence chain
+  still ends at exploratory-only follow-up and can collapse under higher assay
+  burden.
 
 ## Exact Claims
 
@@ -65,6 +68,18 @@ claim, not broad cohort-transfer or decision-grade quant authority.
   this public workflow claim
 - effect-direction confidence weakens on the sparse companion cohort
 - broad generalization beyond the two current cohort packages is not earned
+
+## Consequence Boundary
+
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  before widening LFQ language beyond a bounded recommendation
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  before claiming that one extra cohort or follow-up loop materially changed the
+  call
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the next honest move may still be stop, rerun, narrow, or refuse
+- one doubled assay burden or one weak observed outcome still demotes the
+  public sentence faster than this page alone might suggest
 
 ## Evidence Grounding
 

@@ -38,6 +38,9 @@ a bounded sense, not a decision-grade promotion story.
   package.
 - the recommendation posture is `recommend_with_downgrade`.
 - the lab posture is `exploratory_only`.
+- decision-grade wording remains blocked because the shared consequence chain
+  still ends at exploratory-only follow-up and can collapse once PTM burden or
+  ambiguity widens again.
 
 ## Exact Claims
 
@@ -67,6 +70,17 @@ a bounded sense, not a decision-grade promotion story.
   localization evidence
 - targetability confidence weakens materially on the ambiguity-stress package
 - PTM follow-up remains exploratory
+
+## Consequence Boundary
+
+- open [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  before widening PTM language beyond bounded localization support
+- open [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  before claiming that one targetable site family changed broader PTM posture
+- open [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next move may still be stop, rerun, narrow, or refuse
+- one doubled assay burden or one wider ambiguity failure still demotes the
+  public sentence faster than this page alone might suggest
 
 ## Evidence Grounding
 

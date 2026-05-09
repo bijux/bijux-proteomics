@@ -43,3 +43,13 @@ def test_multiplex_boundary_doc_keeps_internal_support_limit_explicit() -> None:
     assert "multiplex_channel_stress_review_package/cross_package_generalization.json" in text
     assert "fragile_transfer" in text
     assert "requested-versus-observed outcome dossier" in text
+
+
+def test_current_capability_limits_keep_consequence_boundary_explicit() -> None:
+    text = _read_doc("current-capability-limits.md")
+
+    assert "LFQ, PTM, and targeted remain bounded" in text
+    assert "exploratory-only follow-up" in text
+    assert "doubled assay burden" in text
+    assert "workflow-consequence-maps.md" in text
+    assert "what-changed-the-recommendation.md" in text

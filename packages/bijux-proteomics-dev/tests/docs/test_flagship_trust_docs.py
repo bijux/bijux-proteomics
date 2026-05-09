@@ -86,6 +86,18 @@ def test_non_dda_trust_pages_keep_bounded_posture_visible() -> None:
     assert "public claim support is `advisory`" in targeted
     assert "raw_executable" in targeted
     assert "`0.87`" in targeted
+    assert "decision-grade wording remains blocked" in lfq
+    assert "decision-grade wording remains blocked" in ptm
+    assert "decision-grade wording remains blocked" in targeted
+    assert "Workflow Consequence Maps" in lfq
+    assert "Workflow Consequence Maps" in ptm
+    assert "Workflow Consequence Maps" in targeted
+    assert "What Changed The Recommendation" in lfq
+    assert "What Changed The Recommendation" in ptm
+    assert "What Changed The Recommendation" in targeted
+    assert "Workflow Refusal Handbook" in lfq
+    assert "Workflow Refusal Handbook" in ptm
+    assert "Workflow Refusal Handbook" in targeted
 
 
 def test_trust_and_boundary_pages_link_to_claim_grounding_and_literature_audits() -> (
