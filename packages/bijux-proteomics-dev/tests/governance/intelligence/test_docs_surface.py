@@ -32,7 +32,7 @@ def test_intelligence_docs_name_live_owner_modules_and_analytical_bands() -> Non
     assert "reviews/benchmarks.py" in combined
     assert "learning/adaptation.py" in combined
     assert "judgment/recommendations.py" in combined
-    assert "reviews/packets.py" in combined
+    assert "reviews/decision_briefs.py" in combined
     assert "judgment" in combined
     assert "posture" in combined
     assert "interpretation" in combined

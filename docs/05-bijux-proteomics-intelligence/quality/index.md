@@ -26,7 +26,7 @@ flowchart LR
 
 This page should make intelligence quality about explainability pressure. The
 package earns trust when recommendation behavior can still be justified through
-candidate ranking, judgment paths, review packets, and recommendation outputs
+candidate ranking, judgment paths, decision briefs, and recommendation outputs
 instead of opaque drift.
 
 ## Start With

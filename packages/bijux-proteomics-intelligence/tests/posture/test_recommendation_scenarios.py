@@ -26,7 +26,7 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
 from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_intelligence.reviews.packets import build_review_board_packet
+from bijux_proteomics_intelligence.reviews.decision_briefs import build_review_board_packet
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceRecord,

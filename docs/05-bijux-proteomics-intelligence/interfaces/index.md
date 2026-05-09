@@ -12,14 +12,14 @@ last_reviewed: 2026-04-26
 `bijux-proteomics-intelligence` interfaces are how recommendation logic becomes
 usable to humans and tooling. This section should help a reader see which
 surfaces accept candidates and judgment inputs, which ones emit rankings,
-review packets, interpretation summaries, and recommendation outcomes, and
+decision briefs, interpretation summaries, and recommendation outcomes, and
 where explanation is part of the contract instead of optional decoration.
 
 ```mermaid
 flowchart LR
     inputs["candidate and policy inputs"]
     scoring["candidate, judgment, and posture surfaces"]
-    briefs["review packets and analytical reports"]
+    briefs["decision briefs and analytical reports"]
     outcomes["recommendation outcomes"]
     review["review boards and downstream packages"]
 

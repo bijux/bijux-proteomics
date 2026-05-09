@@ -46,7 +46,7 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     EvaluatorPolicyBundle,
     evaluate_all_scenarios,
 )
-from bijux_proteomics_intelligence.reviews.packets import (
+from bijux_proteomics_intelligence.reviews.decision_briefs import (
     build_intelligence_review_packet,
 )
 from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus, build_claim

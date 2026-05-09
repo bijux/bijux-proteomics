@@ -148,10 +148,10 @@ def build_canonical_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffCo
             stage_id="intelligence-decision-review",
             owner_package=WorkflowOwnerPackage.INTELLIGENCE,
             produced_surface_ref=(
-                "bijux_proteomics_intelligence.reviews.packets.build_intelligence_review_packet"
+                "bijux_proteomics_intelligence.reviews.decision_briefs.build_intelligence_review_packet"
             ),
             review_packet_surface_ref=(
-                "bijux_proteomics_intelligence.reviews.packets.build_intelligence_review_packet"
+                "bijux_proteomics_intelligence.reviews.decision_briefs.build_intelligence_review_packet"
             ),
             upstream_stage_ids=("knowledge-evidence-review", "core-quantification-review"),
             downstream_stage_ids=("lab-review-packet",),

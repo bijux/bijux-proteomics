@@ -34,7 +34,7 @@
 
 `bijux-proteomics-intelligence` is the analytical judgment layer for
 `bijux-proteomics`. It can rank candidates, gate recommendation readiness,
-assemble review packets, summarize cautious interpretation posture, and carry
+assemble decision briefs, summarize cautious interpretation posture, and carry
 learning pressure forward without claiming scientific truth, runtime
 orchestration, or lab execution authority.
 
@@ -249,7 +249,7 @@ chain, but it does not own the whole story.
 - [`src/bijux_proteomics_intelligence/judgment/paths.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py) for end-to-end analytical decision paths
 - [`src/bijux_proteomics_intelligence/posture/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py) for contradiction, freshness, downgrade, and refusal posture
 - [`src/bijux_proteomics_intelligence/posture/skeptical.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/skeptical.py) for scientific and software challenge pressure
-- [`src/bijux_proteomics_intelligence/reviews/packets.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/packets.py) for review packet assembly and ranked evidence presentation
+- [`src/bijux_proteomics_intelligence/reviews/decision_briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/decision_briefs.py) for decision brief assembly and ranked evidence presentation
 - [`src/bijux_proteomics_intelligence/reviews/boards.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/boards.py) for board-facing analytical review projections
 - [`src/bijux_proteomics_intelligence/reviews/candidates.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/candidates.py) for candidate-facing review projections
 - [`src/bijux_proteomics_intelligence/reviews/pathways.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/pathways.py) for pathway-facing review projections

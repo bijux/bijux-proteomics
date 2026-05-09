@@ -18,7 +18,7 @@ people may use to decide what gets advanced, redesigned, or paused.
 flowchart LR
     policy["candidate, judgment, or posture change"]
     scenarios["rerun scenario and ranking tests"]
-    explain["check review packet and interpretation quality"]
+    explain["check decision brief and interpretation quality"]
     drift["inspect portfolio and refinement drift"]
     review["review recommendation consequences"]
     release["publish updated judgment surface"]

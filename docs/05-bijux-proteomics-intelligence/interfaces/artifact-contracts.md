@@ -13,7 +13,7 @@ Artifacts matter because they survive the moment of execution and become someone
 
 ## Package Surface
 
-- review packets, recommendation reports, and interpretation summaries
+- decision briefs, recommendation reports, and interpretation summaries
 - evaluation outputs and decision outcomes
 - serialized payloads that explain why a recommendation was made
 

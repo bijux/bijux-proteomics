@@ -9,7 +9,7 @@ max_touched_band_count = 4
 [guard]
 baseline_hotspot_count = 3
 baseline_max_touched_band_count = 4
-baseline_hotspot_modules = ["candidates/ranking.py", "judgment/paths.py", "reviews/packets.py"]
+baseline_hotspot_modules = ["candidates/ranking.py", "judgment/paths.py", "reviews/decision_briefs.py"]
 
 [[module]]
 module_path = "candidates/lifecycle.py"
@@ -228,7 +228,7 @@ touched_bands = ["reviews"]
 hotspot = false
 
 [[module]]
-module_path = "reviews/packets.py"
+module_path = "reviews/decision_briefs.py"
 band = "reviews"
 touched_band_count = 4
 cross_band_import_count = 5

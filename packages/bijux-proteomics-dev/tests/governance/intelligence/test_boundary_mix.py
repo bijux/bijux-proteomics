@@ -24,7 +24,7 @@ def test_intelligence_boundary_mix_report_tracks_governed_hotspots() -> None:
     assert guard.baseline_hotspot_modules == (
         "candidates/ranking.py",
         "judgment/paths.py",
-        "reviews/packets.py",
+        "reviews/decision_briefs.py",
     )
 
 

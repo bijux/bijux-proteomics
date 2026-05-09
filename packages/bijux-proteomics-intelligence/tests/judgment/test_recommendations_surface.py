@@ -28,7 +28,7 @@ from bijux_proteomics_intelligence.posture.evidence import (
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
-from bijux_proteomics_intelligence.reviews.packets import (
+from bijux_proteomics_intelligence.reviews.decision_briefs import (
     ComparativeCandidateReviewPacket,
     build_comparative_candidate_review_packet,
 )

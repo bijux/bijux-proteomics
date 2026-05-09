@@ -207,14 +207,14 @@ DEFAULT_INTELLIGENCE_CAPABILITY_MAP: tuple[IntelligenceCapabilityMapEntry, ...] 
     IntelligenceCapabilityMapEntry(
         band=IntelligenceAnalyticalBand.REVIEWS,
         owned_surface=(
-            "review packets, skeptical challenge reports, benchmark-backed review, "
+            "decision briefs, skeptical challenge reports, benchmark-backed review, "
             "and end-to-end decision paths"
         ),
         required_modules=(
             "reviews/boards.py",
             "reviews/candidates.py",
             "reviews/pathways.py",
-            "reviews/packets.py",
+            "reviews/decision_briefs.py",
             "reviews/benchmarks.py",
         ),
         decision_scope=(
@@ -270,7 +270,7 @@ DEFAULT_INTELLIGENCE_CHARTER_ENTRIES: tuple[IntelligenceCharterEntry, ...] = (
         capability=IntelligenceCharterCapability.REVIEW_REASONING,
         owned_surface="Review-board packets and skeptical challenge reports that survive scientific and software scrutiny.",
         required_modules=(
-            "reviews/packets.py",
+            "reviews/decision_briefs.py",
             "judgment/recommendations.py",
             "judgment/paths.py",
             "posture/skeptical.py",
@@ -401,7 +401,7 @@ DEFAULT_INTELLIGENCE_MODULE_AUDIT: tuple[IntelligenceModuleAuditEntry, ...] = (
         reason="Pathway-facing review synthesis keeps cautious interpretation visible when review consumers need analytical summaries instead of raw signal tables.",
     ),
     IntelligenceModuleAuditEntry(
-        module_path="reviews/packets.py",
+        module_path="reviews/decision_briefs.py",
         classification=IntelligenceModuleClassification.ANALYTICAL_VALUE,
         anchor_capabilities=(IntelligenceCharterCapability.REVIEW_REASONING,),
         reason="Review packet assembly now stays separate from scenario policy so review-facing evidence and recommendation artifacts have a clear owner.",

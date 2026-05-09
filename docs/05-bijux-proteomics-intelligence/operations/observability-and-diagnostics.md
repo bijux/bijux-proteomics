@@ -13,7 +13,7 @@ Diagnostics should reveal whether a failure belongs to this package or to a neig
 
 ## Operating Rules
 
-- review packets, interpretation summaries, and recommendation outputs are core diagnostics here
+- decision briefs, interpretation summaries, and recommendation outputs are core diagnostics here
 - observe which metric or policy change moved the recommendation
 - make uncertainty and contradiction visible rather than smoothing them away
 

@@ -36,7 +36,7 @@ The reviewer should be able to say what changed in recommendation policy without
 ## Review Rules
 
 - ask which decision lever actually changed
-- check review packets, interpretation summaries, and recommendation outputs before trusting raw scores
+- check decision briefs, interpretation summaries, and recommendation outputs before trusting raw scores
 - verify that evidence semantics remain owned by the knowledge layer
 
 ## First Proof Check

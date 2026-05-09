@@ -301,7 +301,7 @@ def build_minimum_real_workflow_proof_bar() -> WorkflowProofBar:
                     "bijux_proteomics.quantification.review.build_quant_review_bundle",
                     "bijux_proteomics.ptm.review.build_ptm_lab_validation_packet",
                     "bijux_proteomics_knowledge.reviews.decision_briefs.build_knowledge_decision_brief",
-                    "bijux_proteomics_intelligence.reviews.packets.build_intelligence_review_packet",
+                    "bijux_proteomics_intelligence.reviews.decision_briefs.build_intelligence_review_packet",
                     "bijux_proteomics_lab.planning.assays.build_lab_review_packet_bundle",
                     "bijux_proteomics_lab.reconciliation.follow_up.build_operational_follow_up_path",
                 ),

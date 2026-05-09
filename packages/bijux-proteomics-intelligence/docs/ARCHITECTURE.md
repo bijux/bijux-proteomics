@@ -23,7 +23,7 @@ explicit governance family:
   `interpretation/contaminants.py`, `interpretation/contrasts.py`,
   `interpretation/pathways.py`, `interpretation/structures.py`
 - `reviews`: `reviews/boards.py`, `reviews/candidates.py`,
-  `reviews/pathways.py`, `reviews/packets.py`, `reviews/benchmarks.py`
+  `reviews/pathways.py`, `reviews/decision_briefs.py`, `reviews/benchmarks.py`
 - `learning`: `learning/adaptation.py`, `learning/refinement/`
 - `governance`: `governance/charter.py`
 
@@ -47,7 +47,7 @@ explicit governance family:
 - `reviews/boards.py` owns board-facing review synthesis
 - `reviews/candidates.py` owns candidate-facing review projections
 - `reviews/pathways.py` owns pathway-facing review projections
-- `reviews/packets.py` owns review packet assembly and ranked-evidence presentation
+- `reviews/decision_briefs.py` owns decision-brief assembly and ranked-evidence presentation
 - `reviews/benchmarks.py` owns benchmark-backed release review claims
 - `interpretation/runs.py`, `interpretation/quantitative.py`,
   `interpretation/ptm.py`, `interpretation/contaminants.py`,

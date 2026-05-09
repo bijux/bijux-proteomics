@@ -43,8 +43,8 @@ refusal_scope_count = 2
 
 [[band]]
 band = "reviews"
-owned_surface = "review packets, skeptical challenge reports, benchmark-backed review, and end-to-end decision paths"
-required_modules = ["reviews/boards.py", "reviews/candidates.py", "reviews/pathways.py", "reviews/packets.py", "reviews/benchmarks.py"]
+owned_surface = "decision briefs, skeptical challenge reports, benchmark-backed review, and end-to-end decision paths"
+required_modules = ["reviews/boards.py", "reviews/candidates.py", "reviews/pathways.py", "reviews/decision_briefs.py", "reviews/benchmarks.py"]
 decision_scope_count = 2
 refusal_scope_count = 2
 

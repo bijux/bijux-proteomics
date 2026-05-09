@@ -41,7 +41,7 @@ whether that choice landed as a hit, a miss, or an overconfidence signal.
 
 The targeted miss matters most right now.
 The hidden interference and carryover perturbation collapses the follow-up lane
-that still looks actionable when only the cleaner review packet is visible.
+that still looks actionable when only the cleaner decision brief is visible.
 
 ## Why This Belongs Here
 

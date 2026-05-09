@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Review-packet owners for intelligence recommendation surfaces."""
+"""Decision-brief owners for intelligence recommendation surfaces."""
 
 from __future__ import annotations
 
@@ -24,7 +24,6 @@ from bijux_proteomics_intelligence.judgment.recommendations import (
 from bijux_proteomics_intelligence.judgment.scenarios import (
     PortfolioDecisionReport,
     ScenarioDecisionConsensus,
-    ScenarioAction,
     ScenarioSetEvaluation,
     evaluate_portfolio_balance,
     summarize_scenario_consensus,
@@ -101,7 +100,7 @@ class AdvancedIntelligenceReviewPacket(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     base_packet: IntelligenceReviewPacket = Field(
-        ..., description="Base intelligence review packet."
+        ..., description="Base intelligence decision brief."
     )
     escalation: DecisionEscalationFlags = Field(
         ..., description="Escalation flags for decision governance."
@@ -139,7 +138,7 @@ def build_intelligence_review_packet(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
 ) -> IntelligenceReviewPacket:
-    """Build a review packet from scenario and portfolio intelligence outputs."""
+    """Build a decision brief from scenario and portfolio intelligence outputs."""
 
     consensus = summarize_scenario_consensus(evaluations)
     portfolio = evaluate_portfolio_balance(ranking, risks)
@@ -198,7 +197,7 @@ def _build_claim_partition(
         else "no-ranked-candidate"
     )
     if evidence_bundle is None:
-        data_says = "direct evidence was not attached to this review packet"
+        data_says = "direct evidence was not attached to this decision brief"
     elif contradiction_summary is None:
         data_says = f"direct evidence was attached for {top_candidate_id}, but contradiction posture was not summarized"
     elif contradiction_summary.posture.value == "blocking":
@@ -462,7 +461,7 @@ def build_advanced_review_packet(
     ranking: CandidateRanking,
     risks: list[CandidateRiskProfile],
 ) -> AdvancedIntelligenceReviewPacket:
-    """Build advanced review packet with escalation and unresolved question ledger."""
+    """Build advanced decision brief with escalation and unresolved question ledger."""
 
     base = build_intelligence_review_packet(evaluations, ranking, risks)
     escalation = derive_decision_escalation_flags(evaluations)

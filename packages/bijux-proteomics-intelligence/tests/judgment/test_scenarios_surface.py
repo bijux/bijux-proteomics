@@ -47,7 +47,7 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     summarize_scenario_confidence_spread,
     summarize_scenario_consensus,
 )
-from bijux_proteomics_intelligence.reviews.packets import (
+from bijux_proteomics_intelligence.reviews.decision_briefs import (
     ComparativeCandidateReviewPacket,
     ReviewBoardPacket,
     build_advanced_review_packet,

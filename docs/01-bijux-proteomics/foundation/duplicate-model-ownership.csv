@@ -5,7 +5,7 @@ AcceptedPsmProvenanceReport,bijux-proteomics-core,bijux_proteomics/identificatio
 AdapterConformanceRouteRequest,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/adapter_conformance.py,jsonmodel
 AdapterConformanceRouteResponse,bijux-proteomics-runtime,bijux_proteomics_runtime/api/routes/adapter_conformance.py,jsonmodel
 AdductHypothesis,bijux-proteomics-core,bijux_proteomics/chemistry/isotope_adduct_annotation.py,jsonmodel
-AdvancedIntelligenceReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/packets.py,jsonmodel
+AdvancedIntelligenceReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/decision_briefs.py,jsonmodel
 AdvancementEvidenceItem,bijux-proteomics-lab,bijux_proteomics_lab/planning/assays.py,jsonmodel
 AdvancementEvidencePacket,bijux-proteomics-lab,bijux_proteomics_lab/planning/assays.py,jsonmodel
 AdvisoryAssayPlan,bijux-proteomics-lab,bijux_proteomics_lab/planning/assays.py,jsonmodel
@@ -187,7 +187,7 @@ CollaboratorChallengeWorkflowReport,bijux-proteomics-core,bijux_proteomics/revie
 CombinedEvidenceEntry,bijux-proteomics-core,bijux_proteomics/identification/contracts.py,jsonmodel
 CombinedEvidenceQuantSupport,bijux-proteomics-core,bijux_proteomics/identification/contracts.py,jsonmodel
 CombinedEvidenceReport,bijux-proteomics-core,bijux_proteomics/identification/contracts.py,jsonmodel
-ComparativeCandidateReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/packets.py,jsonmodel
+ComparativeCandidateReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/decision_briefs.py,jsonmodel
 CompareRequest,bijux-proteomics-runtime,bijux_proteomics_runtime/api/v1/schema.py,basemodel
 CompareResponse,bijux-proteomics-runtime,bijux_proteomics_runtime/api/v1/schema.py,basemodel
 ComplexMembership,bijux-proteomics-core,bijux_proteomics/domain/targets.py,basemodel
@@ -260,7 +260,7 @@ DdaSearchHitInput,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/ru
 Decision,bijux-proteomics-runtime,bijux_proteomics_runtime/support/primitives/decisions.py,basemodel
 DecisionEscalationFlags,bijux-proteomics-intelligence,bijux_proteomics_intelligence/judgment/recommendations.py,jsonmodel
 DecisionExplanation,bijux-proteomics-runtime,bijux_proteomics_runtime/support/primitives/decisions.py,basemodel
-DecisionGateProfile,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/packets.py,jsonmodel
+DecisionGateProfile,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/decision_briefs.py,jsonmodel
 DecisionLineage,bijux-proteomics-knowledge,bijux_proteomics_knowledge/memory/models/claims.py,jsonmodel
 DecisionOwnerRole,bijux-proteomics-core,bijux_proteomics/domain/operating_model.py,strenum
 DecisionPayload,bijux-proteomics-runtime,bijux_proteomics_runtime/state/memory_records.py,basemodel
@@ -579,7 +579,7 @@ IntelligenceModuleAuditEntry,bijux-proteomics-intelligence,bijux_proteomics_inte
 IntelligenceModuleClassification,bijux-proteomics-intelligence,bijux_proteomics_intelligence/governance/charter.py,strenum
 IntelligenceOutputMode,bijux-proteomics-intelligence,bijux_proteomics_intelligence/judgment/recommendations.py,strenum
 IntelligenceProductCharter,bijux-proteomics-intelligence,bijux_proteomics_intelligence/governance/charter.py,jsonmodel
-IntelligenceReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/packets.py,jsonmodel
+IntelligenceReviewPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/decision_briefs.py,jsonmodel
 InterpretationClaimScope,bijux-proteomics-intelligence,bijux_proteomics_intelligence/interpretation/pathways.py,strenum
 InvocationInput,bijux-proteomics-runtime,bijux_proteomics_runtime/support/primitives/tooling.py,basemodel
 InvocationInputLike,bijux-proteomics-intelligence,bijux_proteomics_intelligence/candidates/updates.py,protocol
@@ -604,7 +604,7 @@ KnowledgeOntologyMapping,bijux-proteomics-knowledge,bijux_proteomics_knowledge/r
 KnowledgeProblemKind,bijux-proteomics-knowledge,bijux_proteomics_knowledge/references/grounding/problems.py,strenum
 KnowledgeQualityAudit,bijux-proteomics-knowledge,bijux_proteomics_knowledge/memory/models/evidence.py,jsonmodel
 KnowledgeReviewDelta,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/trends.py,jsonmodel
-KnowledgeReviewPacket,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/packets.py,jsonmodel
+KnowledgeDecisionBrief,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/decision_briefs.py,jsonmodel
 KnowledgeReviewTrend,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/trends.py,jsonmodel
 KnowledgeReviewWorkflowRunReport,bijux-proteomics-runtime,bijux_proteomics_runtime/workflows/runs.py,jsonmodel
 KnowledgeRuleDomain,bijux-proteomics-knowledge,bijux_proteomics_knowledge/references/grounding/rules.py,strenum
@@ -782,7 +782,7 @@ Ms1FeatureColumnMapping,bijux-proteomics-core,bijux_proteomics/quantification/co
 Ms1FeatureParseReport,bijux-proteomics-core,bijux_proteomics/quantification/contracts.py,jsonmodel
 Ms1FeatureRecord,bijux-proteomics-core,bijux_proteomics/quantification/contracts.py,jsonmodel
 Ms1FeatureTableIngestionReport,bijux-proteomics-core,bijux_proteomics/io/ingestion.py,jsonmodel
-MultiDecisionReadiness,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/packets.py,jsonmodel
+MultiDecisionReadiness,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/decision_briefs.py,jsonmodel
 MultiObjectiveRankingEntry,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/candidates.py,jsonmodel
 MultiObjectiveRankingInput,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/candidates.py,jsonmodel
 MultiObjectiveRankingReport,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/candidates.py,jsonmodel
@@ -835,7 +835,7 @@ OperatingModel,bijux-proteomics-core,bijux_proteomics/domain/operating_model.py,
 OperationDisposition,bijux-proteomics-foundation,bijux_proteomics_foundation/outcomes/results.py,strenum
 OperationRefusal,bijux-proteomics-foundation,bijux_proteomics_foundation/outcomes/refusals.py,jsonmodel
 OperationResult,bijux-proteomics-foundation,bijux_proteomics_foundation/outcomes/results.py,jsonmodel
-OperationalDecisionLabel,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/packets.py,jsonmodel
+OperationalDecisionLabel,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/decision_briefs.py,jsonmodel
 OperationalFollowUpPath,bijux-proteomics-lab,bijux_proteomics_lab/reconciliation/follow_up.py,jsonmodel
 OperationalReadinessReport,bijux-proteomics-lab,bijux_proteomics_lab/readiness/operations.py,jsonmodel
 OperatorFollowThroughAction,bijux-proteomics-lab,bijux_proteomics_lab/reconciliation/follow_up.py,jsonmodel
@@ -1200,8 +1200,8 @@ ReviewBacklogSnapshot,bijux-proteomics-lab,bijux_proteomics_lab/readiness/operat
 ReviewBoardAgendaEntry,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/boards.py,jsonmodel
 ReviewBoardDecisionEntry,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/boards.py,jsonmodel
 ReviewBoardDecisionPath,bijux-proteomics-intelligence,bijux_proteomics_intelligence/judgment/paths.py,jsonmodel
-ReviewBoardEvidenceLine,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/packets.py,jsonmodel
-ReviewBoardPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/packets.py,jsonmodel
+ReviewBoardEvidenceLine,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/decision_briefs.py,jsonmodel
+ReviewBoardPacket,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/decision_briefs.py,jsonmodel
 ReviewBoardVote,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/boards.py,strenum
 ReviewBoardVoteEntry,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/boards.py,jsonmodel
 ReviewBoardWorkflowReport,bijux-proteomics-intelligence,bijux_proteomics_intelligence/reviews/boards.py,jsonmodel
@@ -1334,7 +1334,7 @@ SchemaFormatCompatibilityReport,bijux-proteomics-runtime,bijux_proteomics_runtim
 SchemaFormatContract,bijux-proteomics-runtime,bijux_proteomics_runtime/support/artifact_formats.py,jsonmodel
 SchemaMigration,bijux-proteomics-foundation,bijux_proteomics_foundation/compatibility/schema_migrations.py,jsonmodel
 SchemaVersion,bijux-proteomics-foundation,bijux_proteomics_foundation/compatibility/schema_versions.py,jsonmodel
-ScientificConclusion,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/packets.py,jsonmodel
+ScientificConclusion,bijux-proteomics-knowledge,bijux_proteomics_knowledge/reviews/decision_briefs.py,jsonmodel
 ScientificConstraint,bijux-proteomics-core,bijux_proteomics/domain/constraints.py,basemodel
 ScientificContextCompletenessReport,bijux-proteomics-knowledge,bijux_proteomics_knowledge/memory/models/evidence.py,jsonmodel
 ScientificContextEntry,bijux-proteomics-knowledge,bijux_proteomics_knowledge/references/grounding/contexts.py,jsonmodel

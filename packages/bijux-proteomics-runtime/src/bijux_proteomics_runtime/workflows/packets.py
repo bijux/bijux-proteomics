@@ -95,7 +95,7 @@ def build_workflow_stage_packet_boundary_contracts() -> tuple[WorkflowStagePacke
         WorkflowStagePacketBoundaryContract(
             stage_id="intelligence-decision-review",
             packet_surface_ref=(
-                "bijux_proteomics_intelligence.reviews.packets.build_intelligence_review_packet"
+                "bijux_proteomics_intelligence.reviews.decision_briefs.build_intelligence_review_packet"
             ),
             serialization_mode=WorkflowPacketSerializationMode.MODEL_DUMP,
             required_top_level_keys=("consensus", "portfolio", "review_ready"),
