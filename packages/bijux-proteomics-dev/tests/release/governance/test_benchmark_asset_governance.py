@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
     build_benchmark_asset_audit,
+    build_benchmark_incompleteness_ledger,
+    build_benchmark_licensing_matrix,
     run,
 )
 
@@ -28,3 +30,18 @@ def test_benchmark_asset_audit_covers_primary_and_companion_roots() -> None:
         for entry in entries
         for source in entry.source_rows
     )
+
+
+def test_benchmark_asset_governance_keeps_licensing_and_incompleteness_explicit() -> (
+    None
+):
+    licensing = build_benchmark_licensing_matrix()
+    incompleteness = build_benchmark_incompleteness_ledger()
+
+    assert len(licensing) == 12
+    assert len(incompleteness) == 12
+    assert all(entry.dataset_license_and_reuse_note for entry in licensing)
+    assert all(entry.source_license_notes for entry in licensing)
+    assert all(entry.redistributed_artifact_paths for entry in licensing)
+    assert all(entry.quality_blockers for entry in incompleteness)
+    assert all(entry.non_transfer_zones for entry in incompleteness)

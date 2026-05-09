@@ -30,15 +30,27 @@ from bijux_proteomics_dev.release.governance.benchmark_review_support import (
 
 __all__ = [
     "BENCHMARK_ASSET_AUDIT_PATH",
+    "BENCHMARK_INCOMPLETENESS_LEDGER_PATH",
+    "BENCHMARK_LICENSING_PATH",
     "LINEAGE_DOC_PATHS",
     "BenchmarkAssetAuditEntry",
     "BenchmarkAssetSourceAudit",
+    "BenchmarkIncompletenessEntry",
+    "BenchmarkLicensingEntry",
     "build_benchmark_asset_audit",
+    "build_benchmark_incompleteness_ledger",
+    "build_benchmark_licensing_matrix",
     "run",
 ]
 
 
 BENCHMARK_ASSET_AUDIT_PATH = CORE_FOUNDATION_DIR / "benchmark-asset-audit.md"
+BENCHMARK_LICENSING_PATH = (
+    CORE_FOUNDATION_DIR / "benchmark-licensing-and-redistribution.md"
+)
+BENCHMARK_INCOMPLETENESS_LEDGER_PATH = (
+    CORE_FOUNDATION_DIR / "benchmark-incompleteness-ledger.md"
+)
 LINEAGE_DOC_PATHS = {
     KnowledgeWorkflowFamily.DDA: CORE_FOUNDATION_DIR / "dda-benchmark-lineage.md",
     KnowledgeWorkflowFamily.DIA: CORE_FOUNDATION_DIR / "dia-benchmark-lineage.md",
@@ -90,6 +102,36 @@ class BenchmarkAssetAuditEntry:
     support_files_present: bool
     source_rows: tuple[BenchmarkAssetSourceAudit, ...]
     audit_note: str
+
+
+@dataclass(frozen=True)
+class BenchmarkLicensingEntry:
+    """One package-level licensing and redistribution posture row."""
+
+    workflow_family: KnowledgeWorkflowFamily
+    package_role: str
+    package_id: str
+    package_root: str
+    dataset_license_and_reuse_note: str
+    known_license_limits: tuple[str, ...]
+    source_license_notes: tuple[str, ...]
+    redistributed_artifact_paths: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class BenchmarkIncompletenessEntry:
+    """One package-level record of what still keeps the benchmark bounded."""
+
+    workflow_family: KnowledgeWorkflowFamily
+    package_role: str
+    package_id: str
+    package_root: str
+    quality_blockers: tuple[str, ...]
+    weakness_notes: tuple[str, ...]
+    fixture_realism_limits: tuple[str, ...]
+    expected_failure_conditions: tuple[str, ...]
+    non_transfer_zones: tuple[str, ...]
+    obsolescence_conditions: tuple[str, ...]
 
 
 def _support_paths(bundle: BenchmarkPackageBundle) -> tuple[str, ...]:
@@ -168,6 +210,64 @@ def build_benchmark_asset_audit() -> tuple[BenchmarkAssetAuditEntry, ...]:
                     "The audit keeps raw source, checksum, extraction step, derived review paths, "
                     "and the owning rebuild command visible without leaving the repository."
                 ),
+            )
+        )
+    return tuple(entries)
+
+
+def build_benchmark_licensing_matrix() -> tuple[BenchmarkLicensingEntry, ...]:
+    """Return the public licensing and redistribution posture for each package."""
+
+    entries: list[BenchmarkLicensingEntry] = []
+    for bundle in iter_benchmark_package_bundles():
+        role_label = (
+            _PRIMARY_ROLE_LABEL if bundle.package_role == "primary" else _COMPANION_ROLE_LABEL
+        )
+        redistributed_artifact_paths = tuple(
+            asset.path
+            for asset in bundle.source_assets
+            if "/evidence/" in asset.path
+            or "/primary/" in asset.path
+            or "/comparator/" in asset.path
+            or "/follow_up/" in asset.path
+        )
+        entries.append(
+            BenchmarkLicensingEntry(
+                workflow_family=bundle.workflow_family,
+                package_role=role_label,
+                package_id=bundle.package_id,
+                package_root=bundle.package_root,
+                dataset_license_and_reuse_note=bundle.benchmark_manifest.dataset_license_and_reuse_note,
+                known_license_limits=bundle.asset_root_entry.known_license_limits,
+                source_license_notes=tuple(
+                    source.license_note for source in bundle.asset_root_entry.remote_sources
+                ),
+                redistributed_artifact_paths=redistributed_artifact_paths,
+            )
+        )
+    return tuple(entries)
+
+
+def build_benchmark_incompleteness_ledger() -> tuple[BenchmarkIncompletenessEntry, ...]:
+    """Return the explicit reasons benchmark roots still stay bounded."""
+
+    entries: list[BenchmarkIncompletenessEntry] = []
+    for bundle in iter_benchmark_package_bundles():
+        role_label = (
+            _PRIMARY_ROLE_LABEL if bundle.package_role == "primary" else _COMPANION_ROLE_LABEL
+        )
+        entries.append(
+            BenchmarkIncompletenessEntry(
+                workflow_family=bundle.workflow_family,
+                package_role=role_label,
+                package_id=bundle.package_id,
+                package_root=bundle.package_root,
+                quality_blockers=bundle.quality_sheet.exact_blockers,
+                weakness_notes=bundle.benchmark_manifest.weakness_notes,
+                fixture_realism_limits=bundle.benchmark_manifest.fixture_realism_limits,
+                expected_failure_conditions=bundle.benchmark_manifest.expected_failure_conditions,
+                non_transfer_zones=bundle.benchmark_manifest.non_transfer_zones,
+                obsolescence_conditions=bundle.benchmark_manifest.obsolescence_conditions,
             )
         )
     return tuple(entries)
@@ -364,6 +464,167 @@ def _render_lineage_doc(
     return "\n".join(lines)
 
 
+def _render_licensing_matrix(entries: tuple[BenchmarkLicensingEntry, ...]) -> str:
+    lines = [
+        "---",
+        "title: Benchmark Licensing and Redistribution",
+        "audience: mixed",
+        "type: explanation",
+        "status: canonical",
+        "owner: bijux-proteomics-core-docs",
+        f"last_reviewed: {LAST_REVIEWED}",
+        "---",
+        "",
+        "# Benchmark Licensing and Redistribution",
+        "",
+        "This page makes the current licensing and redistribution posture explicit for every public benchmark root. It exists so a reviewer can tell the difference between what the repository redistributes as governed evidence and what remains only a public reference or external-engine context.",
+        "",
+        "## Package Matrix",
+        "",
+        "| workflow family | package role | redistributed evidence count | package root |",
+        "| --- | --- | --- | --- |",
+    ]
+    for entry in entries:
+        lines.append(
+            "| "
+            f"`{entry.workflow_family.value}` | {entry.package_role} | "
+            f"`{len(entry.redistributed_artifact_paths)}` | `{entry.package_root}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Licensing Stories",
+            "",
+        ]
+    )
+    for entry in entries:
+        lines.extend(
+            [
+                f"### `{entry.workflow_family.value}`: {entry.package_role}",
+                "",
+                f"- package id: `{entry.package_id}`",
+                f"- package root: `{entry.package_root}`",
+                f"- dataset reuse note: {entry.dataset_license_and_reuse_note}",
+                "",
+                "Redistributed evidence inside the package root:",
+                "",
+            ]
+        )
+        for path in entry.redistributed_artifact_paths:
+            lines.append(f"- `{path}`")
+        lines.extend(
+            [
+                "",
+                "Current licensing limits:",
+                "",
+            ]
+        )
+        for note in entry.known_license_limits:
+            lines.append(f"- {note}")
+        for note in entry.source_license_notes:
+            lines.append(f"- {note}")
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _render_incompleteness_ledger(
+    entries: tuple[BenchmarkIncompletenessEntry, ...],
+) -> str:
+    lines = [
+        "---",
+        "title: Benchmark Incompleteness Ledger",
+        "audience: mixed",
+        "type: explanation",
+        "status: canonical",
+        "owner: bijux-proteomics-core-docs",
+        f"last_reviewed: {LAST_REVIEWED}",
+        "---",
+        "",
+        "# Benchmark Incompleteness Ledger",
+        "",
+        "This ledger records why the current benchmark roots still cap public trust language. It is intentionally repetitive: each package repeats its live blockers, realism limits, failure conditions, and non-transfer zones so a reviewer does not need to infer those limits from prose alone.",
+        "",
+        "## Package Summary",
+        "",
+        "| workflow family | package role | quality blockers | non-transfer zones |",
+        "| --- | --- | --- | --- |",
+    ]
+    for entry in entries:
+        lines.append(
+            "| "
+            f"`{entry.workflow_family.value}` | {entry.package_role} | "
+            f"`{len(entry.quality_blockers)}` | `{len(entry.non_transfer_zones)}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Live Incompleteness Entries",
+            "",
+        ]
+    )
+    for entry in entries:
+        lines.extend(
+            [
+                f"### `{entry.workflow_family.value}`: {entry.package_role}",
+                "",
+                f"- package id: `{entry.package_id}`",
+                f"- package root: `{entry.package_root}`",
+                "",
+                "Quality blockers:",
+                "",
+            ]
+        )
+        for item in entry.quality_blockers:
+            lines.append(f"- {item}")
+        lines.extend(
+            [
+                "",
+                "Weakness notes:",
+                "",
+            ]
+        )
+        for item in entry.weakness_notes:
+            lines.append(f"- {item}")
+        lines.extend(
+            [
+                "",
+                "Fixture realism limits:",
+                "",
+            ]
+        )
+        for item in entry.fixture_realism_limits:
+            lines.append(f"- {item}")
+        lines.extend(
+            [
+                "",
+                "Expected failure conditions:",
+                "",
+            ]
+        )
+        for item in entry.expected_failure_conditions:
+            lines.append(f"- {item}")
+        lines.extend(
+            [
+                "",
+                "Non-transfer zones:",
+                "",
+            ]
+        )
+        for item in entry.non_transfer_zones:
+            lines.append(f"- {item}")
+        lines.extend(
+            [
+                "",
+                "Obsolescence conditions:",
+                "",
+            ]
+        )
+        for item in entry.obsolescence_conditions:
+            lines.append(f"- {item}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def _write_text(path: Path, text: str) -> int:
     rendered = text.rstrip() + "\n"
     if path.exists() and path.read_text(encoding="utf-8") == rendered:
@@ -376,11 +637,17 @@ def run(*, check: bool = False) -> int:
     """Write or verify the benchmark asset audit and family lineage pages."""
 
     audit_entries = build_benchmark_asset_audit()
+    licensing_entries = build_benchmark_licensing_matrix()
+    incompleteness_entries = build_benchmark_incompleteness_ledger()
     grouped = _grouped_bundles()
     reports = build_generalization_report_map()
 
     rendered: dict[Path, str] = {
         BENCHMARK_ASSET_AUDIT_PATH: _render_asset_audit(audit_entries),
+        BENCHMARK_LICENSING_PATH: _render_licensing_matrix(licensing_entries),
+        BENCHMARK_INCOMPLETENESS_LEDGER_PATH: _render_incompleteness_ledger(
+            incompleteness_entries
+        ),
     }
     for workflow_family, path in LINEAGE_DOC_PATHS.items():
         rendered[path] = _render_lineage_doc(
