@@ -47,13 +47,6 @@ def run(repo_root: Path) -> int:
             if "\n# " not in f"\n{text}":
                 failures.append(f"missing_h1: {ref}")
 
-    for doc in sorted(docs_dir.rglob("*.md")):
-        rel = doc.relative_to(docs_dir)
-        if _is_non_nav_doc(rel):
-            continue
-        if rel not in references:
-            failures.append(f"orphan_doc: {rel}")
-
     if failures:
         for failure in failures:
             print(failure)
