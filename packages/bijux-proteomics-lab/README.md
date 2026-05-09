@@ -86,7 +86,6 @@ pip install bijux-proteomics-lab
 from bijux_proteomics_lab import (
     build_advisory_assay_plan,
     build_executable_assay_plan,
-    build_review_packet,
     plan_experiment_batches,
 )
 ```
@@ -107,7 +106,7 @@ from bijux_proteomics_lab.reconciliation.follow_up import (
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable root entrypoints: `plan_experiment_batches`, `build_review_packet`,
+- Stable root entrypoints: `plan_experiment_batches`,
   `build_advisory_assay_plan`, and `build_executable_assay_plan`
 - Stable owner bands: `design`, `planning`, `readiness`, `lifecycle`,
   `handoffs`, `outcomes`, `reconciliation`, and `benchmarks`

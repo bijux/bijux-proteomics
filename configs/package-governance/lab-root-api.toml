@@ -1,7 +1,7 @@
 # Curated public root API for bijux_proteomics_lab.
 
 [budget]
-max_public_symbols = 4
+max_public_symbols = 3
 max_init_lines = 16
 
 [[symbol]]
@@ -9,12 +9,6 @@ name = "plan_experiment_batches"
 owner_module = "bijux_proteomics_lab.planning.assays"
 classification = "operational_planning_entrypoint"
 rationale = "Batch planning is the main package-level entrypoint that turns scientific requirements into executable lab work."
-
-[[symbol]]
-name = "build_review_packet"
-owner_module = "bijux_proteomics_lab.planning.assays"
-classification = "operational_review_entrypoint"
-rationale = "Review packets are the smallest shared operator-facing handoff artifact that multiple higher layers consume."
 
 [[symbol]]
 name = "build_advisory_assay_plan"

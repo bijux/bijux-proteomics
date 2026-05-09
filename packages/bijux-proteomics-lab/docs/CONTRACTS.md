@@ -4,7 +4,7 @@
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `plan_experiment_batches`, `build_review_packet`,
+- Stable entrypoints: `plan_experiment_batches`,
   `build_advisory_assay_plan`, and `build_executable_assay_plan`
 
 ## Stable contracts

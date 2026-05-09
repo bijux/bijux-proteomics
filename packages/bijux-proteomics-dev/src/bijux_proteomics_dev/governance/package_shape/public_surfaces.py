@@ -80,7 +80,6 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
             import_root="bijux_proteomics_lab",
             supported_attributes=(
                 "plan_experiment_batches",
-                "build_review_packet",
                 "build_advisory_assay_plan",
                 "build_executable_assay_plan",
             ),

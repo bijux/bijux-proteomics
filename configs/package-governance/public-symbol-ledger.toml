@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_symbol_ledger
 
 [guard]
-min_public_symbol_count = 41
-min_symbols_with_owner_tests = 41
+min_public_symbol_count = 40
+min_symbols_with_owner_tests = 40
 
 [[symbol]]
 distribution_name = "agentic-proteins"
@@ -349,16 +349,6 @@ owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycl
 distribution_name = "bijux-proteomics-lab"
 import_root = "bijux_proteomics_lab"
 name = "build_executable_assay_plan"
-symbol_kind = "callable"
-owner_distribution_name = "bijux-proteomics-lab"
-owner_module_name = "bijux_proteomics_lab.planning.assays"
-owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
-
-[[symbol]]
-distribution_name = "bijux-proteomics-lab"
-import_root = "bijux_proteomics_lab"
-name = "build_review_packet"
 symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"

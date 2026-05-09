@@ -26,10 +26,9 @@ def test_lab_module_audit_requires_substantial_operational_surface() -> None:
     assert len(operational_modules) >= 8
 
 
-def test_lab_root_stays_curated_to_four_operational_entrypoints() -> None:
+def test_lab_root_stays_curated_to_three_operational_entrypoints() -> None:
     assert tuple(lab.__all__) == (
         "plan_experiment_batches",
-        "build_review_packet",
         "build_advisory_assay_plan",
         "build_executable_assay_plan",
     )

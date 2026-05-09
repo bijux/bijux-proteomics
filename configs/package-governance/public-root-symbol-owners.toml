@@ -107,11 +107,6 @@ owner_distribution_name = "bijux-proteomics-core"
 owner_import_root = "bijux_proteomics"
 
 [[symbol]]
-name = "build_review_packet"
-owner_distribution_name = "bijux-proteomics-lab"
-owner_import_root = "bijux_proteomics_lab"
-
-[[symbol]]
 name = "candidates"
 owner_distribution_name = "bijux-proteomics-intelligence"
 owner_import_root = "bijux_proteomics_intelligence"
