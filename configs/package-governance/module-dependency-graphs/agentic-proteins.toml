@@ -325,7 +325,7 @@ outgoing_workspace_modules = ["bijux_proteomics.review.structure_reports", "biju
 
 [[module]]
 module_name = "agentic_proteins.orchestration"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["agentic_proteins.orchestration.bridge_contracts"]
 outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.graph_validation", "bijux_proteomics_runtime.runs.analysis", "bijux_proteomics_runtime.runs.logging", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.runs.telemetry", "bijux_proteomics_runtime.runs.tool_reliability"]
 
 [[module]]
@@ -337,6 +337,11 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.analysis"]
 module_name = "agentic_proteins.orchestration.artifacts"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics_runtime.runs.artifacts"]
+
+[[module]]
+module_name = "agentic_proteins.orchestration.bridge_contracts"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "agentic_proteins.orchestration.compiler"
@@ -431,7 +436,7 @@ outgoing_workspace_modules = ["bijux_proteomics_runtime.execution.validation"]
 [[module]]
 module_name = "agentic_proteins.providers"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.providers.catalog", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.providers.selection"]
+outgoing_workspace_modules = ["bijux_proteomics_runtime.providers.assurance", "bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.providers.catalog", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.providers.selection"]
 
 [[module]]
 module_name = "agentic_proteins.providers.base"

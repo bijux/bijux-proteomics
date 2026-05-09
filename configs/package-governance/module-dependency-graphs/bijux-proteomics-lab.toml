@@ -10,13 +10,28 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_lab.benchmarks"
-outgoing_internal_modules = ["bijux_proteomics_lab.benchmarks.claims", "bijux_proteomics_lab.benchmarks.rehearsals"]
+outgoing_internal_modules = ["bijux_proteomics_lab.benchmarks.claims", "bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.benchmarks.learning", "bijux_proteomics_lab.benchmarks.outcome_dossiers", "bijux_proteomics_lab.benchmarks.rehearsals"]
 outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_lab.benchmarks.claims"
 outgoing_internal_modules = ["bijux_proteomics_lab.handoffs.exports", "bijux_proteomics_lab.handoffs.transitions", "bijux_proteomics_lab.reconciliation.follow_up"]
 outgoing_workspace_modules = ["bijux_proteomics.dia", "bijux_proteomics.io.ingestion", "bijux_proteomics_foundation", "bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.judgment.paths", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+
+[[module]]
+module_name = "bijux_proteomics_lab.benchmarks.follow_up"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.support.states", "bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_intelligence.judgment.benchmark_policies", "bijux_proteomics_intelligence.reviews.benchmarks", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.comparator_failures"]
+
+[[module]]
+module_name = "bijux_proteomics_lab.benchmarks.learning"
+outgoing_internal_modules = ["bijux_proteomics_lab.reconciliation.follow_up"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
+
+[[module]]
+module_name = "bijux_proteomics_lab.benchmarks.outcome_dossiers"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.benchmark_policies", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.benchmarks.rehearsals"
@@ -160,8 +175,13 @@ outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_pro
 
 [[module]]
 module_name = "bijux_proteomics_lab.reconciliation"
-outgoing_internal_modules = ["bijux_proteomics_lab.reconciliation.follow_up"]
+outgoing_internal_modules = ["bijux_proteomics_lab.reconciliation.canonical_follow_up", "bijux_proteomics_lab.reconciliation.follow_up"]
 outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_lab.reconciliation.canonical_follow_up"
+outgoing_internal_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.canonical_reviews"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.reconciliation.follow_up"

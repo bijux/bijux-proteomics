@@ -375,7 +375,12 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.providers"
-outgoing_internal_modules = ["bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.catalog", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_internal_modules = ["bijux_proteomics_runtime.providers.assurance", "bijux_proteomics_runtime.providers.builtin.heuristic", "bijux_proteomics_runtime.providers.catalog", "bijux_proteomics_runtime.providers.contracts", "bijux_proteomics_runtime.providers.errors", "bijux_proteomics_runtime.support.primitives.stability"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.providers.assurance"
+outgoing_internal_modules = ["bijux_proteomics_runtime.providers.capabilities", "bijux_proteomics_runtime.providers.catalog"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -734,6 +739,51 @@ outgoing_internal_modules = ["bijux_proteomics_runtime.support.primitives.stabil
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_runtime.workflows.acceptance"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.assurance"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.benchmark_runs"
+outgoing_internal_modules = ["bijux_proteomics_runtime.runs.contracts", "bijux_proteomics_runtime.runs.ledger", "bijux_proteomics_runtime.runs.recovery", "bijux_proteomics_runtime.runs.replay", "bijux_proteomics_runtime.runs.reruns", "bijux_proteomics_runtime.support.workspace", "bijux_proteomics_runtime.workflows.assurance", "bijux_proteomics_runtime.workflows.paths", "bijux_proteomics_runtime.workflows.proof_classes", "bijux_proteomics_runtime.workflows.runs"]
+outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.quantification", "bijux_proteomics.sequences", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.black_box_reproducibility"
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.flagship_runs", "bijux_proteomics_runtime.workflows.proof_accounting"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.canonical"
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.runs"]
+outgoing_workspace_modules = ["bijux_proteomics.review.canonical_kernel", "bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.canonical_reviews", "bijux_proteomics_knowledge.reviews.workflow_packets", "bijux_proteomics_lab.reconciliation.canonical_follow_up"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.flagship_runs"
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.proof_classes"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation", "bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs", "bijux_proteomics_lab.benchmarks.follow_up"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.handoffs"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.manifest"
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.canonical"]
+outgoing_workspace_modules = []
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.packets"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_runtime.workflows.paths"
 outgoing_internal_modules = ["bijux_proteomics_runtime.runs.contracts", "bijux_proteomics_runtime.runs.ledger", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.support.workspace"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
@@ -742,6 +792,16 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 module_name = "bijux_proteomics_runtime.workflows.plans"
 outgoing_internal_modules = []
 outgoing_workspace_modules = ["bijux_proteomics.identification.search_adapters", "bijux_proteomics.io.formats", "bijux_proteomics.study.qc", "bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.proof_accounting"
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.assurance", "bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.proof_classes"]
+outgoing_workspace_modules = ["bijux_proteomics_foundation"]
+
+[[module]]
+module_name = "bijux_proteomics_runtime.workflows.proof_classes"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.public"
@@ -756,4 +816,4 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.runs"
 outgoing_internal_modules = []
-outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics_foundation"]
+outgoing_workspace_modules = ["bijux_proteomics.io.formats", "bijux_proteomics.io.ingestion", "bijux_proteomics.io.spectra", "bijux_proteomics.ptm", "bijux_proteomics.ptm.review", "bijux_proteomics.quantification", "bijux_proteomics.quantification.review", "bijux_proteomics.sequences.core", "bijux_proteomics.sequences.digestion", "bijux_proteomics_foundation"]
