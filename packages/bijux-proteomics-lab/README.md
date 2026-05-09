@@ -57,6 +57,8 @@ or handoff safety guarantees.
   how belief posture should change afterward
 - benchmark rehearsals that show whether targeted operational claims are
   supportable before operators inherit them
+- outcome dossiers and worth-it ledgers that show whether requested follow-up
+  loops repaid their cost after execution pressure was visible
 
 ## Typical use cases
 
@@ -126,6 +128,8 @@ execution orchestration or runtime policy.
 - reconciliation keeps requested assays, observed assays, belief posture, and
   operational follow-through aligned
 - benchmark outputs keep supported, weakened, and blocked claims separate
+- benchmark outcome dossiers keep requested assays, observed assays, and
+  worth-it judgment visible in the same owner surface
 
 ## Choose this package when
 
@@ -207,6 +211,9 @@ execution orchestration or runtime policy.
   outcome posture and follow-through
 - `benchmarks/claims.py` and `benchmarks/rehearsals.py` for targeted benchmark
   claim support and rehearsal delivery
+- `benchmarks/follow_up.py` and `benchmarks/outcome_dossiers.py` for planned
+  assay boundaries, requested-versus-observed closure, and assay-worth-it
+  evidence
 
 ## Documentation
 

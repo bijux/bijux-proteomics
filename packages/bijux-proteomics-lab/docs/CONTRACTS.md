@@ -17,7 +17,9 @@
   protocol controls, caveats, and lossy export notes
 - reconciliation contracts preserve requested work, observed work, belief
   posture, and operational follow-through
-- benchmark contracts keep supported, weakened, and blocked claims separate
+- benchmark contracts keep supported, weakened, and blocked claims separate,
+  and keep requested-versus-observed outcome dossiers plus assay-worth-it
+  judgments explicit
 
 ## Change requirements
 

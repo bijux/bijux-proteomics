@@ -38,6 +38,7 @@ def test_lab_docs_publish_execution_reality_and_owner_families() -> None:
     assert "handoffs/exports.py" in text
     assert "reconciliation/follow_up.py" in text
     assert "benchmarks/rehearsals.py" in text
+    assert "benchmarks/outcome_dossiers.py" in text
 
 
 def test_lab_docs_keep_non_goals_and_refusal_behavior_explicit() -> None:

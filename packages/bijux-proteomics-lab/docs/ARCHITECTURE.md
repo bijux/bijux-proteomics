@@ -48,6 +48,9 @@ constraints.
   downstream feedback posture
 - `benchmarks/claims.py` and `benchmarks/rehearsals.py` own targeted
   operational claim support and rehearsal delivery
+- `benchmarks/follow_up.py` owns the planned flagship assay boundary, and
+  `benchmarks/outcome_dossiers.py` owns the requested-versus-observed flagship
+  outcome dossiers plus the cross-family assay-worth-it ledgers
 - `governance/` owns the machine-readable lab charter and owner-map boundaries
   for operational planning, readiness, handoff, and reconciliation surfaces
 

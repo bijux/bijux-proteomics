@@ -42,6 +42,7 @@ This page should make release support feel like a pre-publication proof chain. T
 - `src/bijux_proteomics_dev/release/versioning/changelog_version.py`
 - `src/bijux_proteomics_dev/release/governance/publication_guard.py`
 - `src/bijux_proteomics_dev/release/governance/repository_truth.py`
+- `src/bijux_proteomics_dev/release/governance/workflow_lab_consequence.py`
 - `src/bijux_proteomics_dev/release/governance/scientific_readiness.py`
 - `src/bijux_proteomics_dev/release/governance/generated_governance_freshness.py`
 - `packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_accounting.py`
@@ -105,6 +106,11 @@ That repository truth now includes the runtime flagship proof gate. If the
 strongest current runtime lane for a workflow family still depends on a fake
 helper anywhere in its claimed flagship path, the family must not count toward
 outsider-auditable or release-candidate authority.
+
+That repository truth also includes the lab-consequence gate. A workflow family
+must not be called lab-consequential unless the authority surface points to one
+shipped requested-versus-observed outcome dossier and one assay-worth-it ledger
+row for that same family.
 
 When the question is specifically whether a runtime lane is raw,
 import-backed, replay-backed, or simulation-only, open

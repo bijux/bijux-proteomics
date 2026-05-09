@@ -23,6 +23,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
         "build_scientific_release_dossier()",
         "build_repository_truth_report()",
         "validate_generated_governance_freshness()",
+        "workflow_lab_consequence.py",
         "validate_ssot_readiness()",
         "canonical-workflow-manifest.toml",
         "scientific-release-workflows.toml",
@@ -46,6 +47,7 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "dda-maxquant-pipeline-corpus" in text
     assert "comparator_path:msfragger_imported_dda_review" in text
     assert "runtime flagship proof gate" in text
+    assert "lab-consequence gate" in text
     assert "runtime-proof-accounting.md" in text
     assert "flagship-release-candidate.md" in text
     assert "elite-readiness-scorecard.md" in text
