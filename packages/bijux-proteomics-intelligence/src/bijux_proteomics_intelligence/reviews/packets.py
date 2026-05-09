@@ -200,27 +200,17 @@ def _build_claim_partition(
     if evidence_bundle is None:
         data_says = "direct evidence was not attached to this review packet"
     elif contradiction_summary is None:
-        data_says = (
-            f"direct evidence was attached for {top_candidate_id}, but contradiction posture was not summarized"
-        )
+        data_says = f"direct evidence was attached for {top_candidate_id}, but contradiction posture was not summarized"
     elif contradiction_summary.posture.value == "blocking":
-        data_says = (
-            f"direct evidence remains contradictory for {top_candidate_id} and cannot support a clean recommendation"
-        )
+        data_says = f"direct evidence remains contradictory for {top_candidate_id} and cannot support a clean recommendation"
     elif contradiction_summary.posture.value == "unresolved":
-        data_says = (
-            f"direct evidence keeps {top_candidate_id} reviewable, but unresolved contradictions still weaken confidence"
-        )
+        data_says = f"direct evidence keeps {top_candidate_id} reviewable, but unresolved contradictions still weaken confidence"
     else:
-        data_says = (
-            f"direct evidence currently supports {top_candidate_id} without explicit contradiction pressure"
-        )
+        data_says = f"direct evidence currently supports {top_candidate_id} without explicit contradiction pressure"
 
     if workflow_family is None:
         benchmark_allows = "no workflow-family benchmark briefing was attached to bound this recommendation"
-        literature_suggests = (
-            "no workflow-family literature briefing was attached to shape downstream interpretation"
-        )
+        literature_suggests = "no workflow-family literature briefing was attached to shape downstream interpretation"
         unknowns = tuple(unresolved_questions)
         return data_says, benchmark_allows, literature_suggests, unknowns
 
@@ -269,14 +259,12 @@ def build_review_board_packet(
         {str(item).strip() for item in qc_caveats if str(item).strip()}
     )
     unresolved_ledger = summarize_unresolved_question_ledger(evaluations)
-    data_says, benchmark_allows, literature_suggests, unknowns = (
-        _build_claim_partition(
-            ranking=ranking,
-            evidence_bundle=evidence_bundle,
-            contradiction_summary=contradiction_summary,
-            unresolved_questions=unresolved_ledger.prioritized_questions,
-            workflow_family=workflow_family,
-        )
+    data_says, benchmark_allows, literature_suggests, unknowns = _build_claim_partition(
+        ranking=ranking,
+        evidence_bundle=evidence_bundle,
+        contradiction_summary=contradiction_summary,
+        unresolved_questions=unresolved_ledger.prioritized_questions,
+        workflow_family=workflow_family,
     )
     ranked_evidence: list[ReviewBoardEvidenceLine] = []
     for ranked_candidate in ranking.ranked_candidates[:5]:

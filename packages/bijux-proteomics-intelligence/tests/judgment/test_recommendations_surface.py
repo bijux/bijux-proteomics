@@ -404,7 +404,8 @@ def test_final_decision_recommendation_holds_when_evidence_gate_refuses() -> Non
     assert recommendation.gate_result.disposition.value == "refused"
     assert "evidence gate refused the recommendation" in recommendation.downgrade_chain
     assert any(
-        "contradiction pressure=" in reason or reason.startswith("resolve contradiction:")
+        "contradiction pressure=" in reason
+        or reason.startswith("resolve contradiction:")
         for reason in recommendation.downgrade_chain
     )
 

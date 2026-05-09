@@ -483,7 +483,9 @@ def _build_pathway_interpretation_caution_report(
                 ),
             )
         )
-    elif themes and all(theme.category is AnnotationCategory.KINASE for theme in themes):
+    elif themes and all(
+        theme.category is AnnotationCategory.KINASE for theme in themes
+    ):
         cautions.append(
             PathwayInterpretationCaution(
                 code=PathwayInterpretationCautionCode.KINASE_ONLY_SUPPORT,
