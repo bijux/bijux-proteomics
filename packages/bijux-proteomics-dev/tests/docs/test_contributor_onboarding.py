@@ -23,7 +23,7 @@ def test_contributor_onboarding_covers_all_workspace_packages() -> None:
     entries = build_contributor_onboarding_entries(REPO_ROOT)
     docs = {entry.package_name: entry.docs_root for entry in entries}
 
-    assert len(entries) == 8
+    assert len(entries) == 16
     assert docs["bijux-proteomics-dev"] == (
         "docs/08-bijux-proteomics-maintain/bijux-proteomics-dev"
     )

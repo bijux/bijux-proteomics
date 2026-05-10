@@ -17,7 +17,7 @@ def test_package_docs_claim_proof_report_tracks_current_evidence_gaps() -> None:
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_DOCS_CLAIM_PROOF_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert report.guard.max_total_unproven_claim_kind_count == 0
     assert entries["bijux-proteomics-dev"].unproven_claim_kinds == ()
     assert entries["bijux-proteomics-knowledge"].unproven_claim_kinds == ()
