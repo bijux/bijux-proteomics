@@ -3,8 +3,8 @@
 
 [[package]]
 distribution_name = "agentic-proteins"
-allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
-rationale = "agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners."
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+rationale = "agentic-proteins stays as a narrow compatibility bridge that forwards to canonical core and runtime owners only."
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"

@@ -9,27 +9,22 @@ build-backend = "hatchling.build"
 [project]
 name = "agentic-proteins"
 dynamic = ["version"]
-description = "Deterministic protein design runtime with replayable execution artifacts, CLI automation, and API surfaces for lab-in-the-loop workflows"
+description = "Legacy compatibility bridge for historical runtime entrypoints, imports, and migration-safe CLI continuity."
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { text = "Apache-2.0" }
 requires-python = ">=3.11,<4"
 authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
 keywords = [
-  "protein-design",
-  "protein-structure",
-  "bioinformatics",
-  "computational-biology",
+  "proteomics",
   "runtime",
-  "reproducibility",
+  "compatibility",
+  "migration",
+  "forwarding",
 ]
 dependencies = [
-  "bijux-proteomics-runtime>=0.3.6,<0.4.0",
-  "bijux-proteomics-foundation>=0.3.6,<0.4.0",
-  "bijux-proteomics-core>=0.3.6,<0.4.0",
-  "bijux-proteomics-knowledge>=0.3.6,<0.4.0",
-  "bijux-proteomics-intelligence>=0.3.6,<0.4.0",
-  "bijux-proteomics-lab>=0.3.6,<0.4.0",
+  "bijux-proteomics-core>=0.3.7,<0.4.0",
+  "bijux-proteomics-runtime>=0.3.7,<0.4.0",
 ]
 
 [project.urls]
@@ -46,22 +41,22 @@ agentic-proteins = "agentic_proteins.interfaces.cli:cli"
 
 [project.optional-dependencies]
 api = [
-  "bijux-proteomics-runtime[api]>=0.3.6,<0.4.0",
+  "bijux-proteomics-runtime[api]>=0.3.7,<0.4.0",
 ]
 local-esmfold = [
-  "bijux-proteomics-runtime[local-esmfold]>=0.3.6,<0.4.0",
+  "bijux-proteomics-runtime[local-esmfold]>=0.3.7,<0.4.0",
 ]
 local-rosettafold = [
-  "bijux-proteomics-runtime[local-rosettafold]>=0.3.6,<0.4.0",
+  "bijux-proteomics-runtime[local-rosettafold]>=0.3.7,<0.4.0",
 ]
 nl = [
-  "bijux-proteomics-runtime[nl]>=0.3.6,<0.4.0",
+  "bijux-proteomics-runtime[nl]>=0.3.7,<0.4.0",
 ]
 
 [tool.hatch.version]
 source = "vcs"
 tag-pattern = "^v(?P<version>.*)$"
-fallback-version = "0.3.6"
+fallback-version = "0.3.7"
 raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
 
 [tool.hatch.build]

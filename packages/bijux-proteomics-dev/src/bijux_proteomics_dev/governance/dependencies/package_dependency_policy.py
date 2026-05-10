@@ -48,10 +48,9 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
             distribution_name=package_name,
             allowed_outbound_edges=(
                 "bijux-proteomics-core",
-                "bijux-proteomics-intelligence",
                 "bijux-proteomics-runtime",
             ),
-            rationale="agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners.",
+            rationale="agentic-proteins stays as a narrow compatibility bridge that forwards to canonical core and runtime owners only.",
         )
     if package_name == "bijux-proteomics":
         return PackageDependencyPolicyEntry(
