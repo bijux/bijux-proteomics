@@ -66,6 +66,15 @@ def _package_project(package_slug: str) -> dict[str, Any]:
 def _public_package_slugs() -> tuple[str, ...]:
     workspace = _workspace_metadata()
     docs_package = cast(str, workspace["docs_package"])
+    packages = cast(list[str], workspace["packages"])
+    return tuple(
+        package_slug for package_slug in packages if package_slug != docs_package
+    )
+
+
+def _badge_package_slugs() -> tuple[str, ...]:
+    workspace = _workspace_metadata()
+    docs_package = cast(str, workspace["docs_package"])
     packages = cast(list[str], workspace.get("badge_packages", workspace["packages"]))
     return tuple(
         package_slug for package_slug in packages if package_slug != docs_package
@@ -110,6 +119,13 @@ def public_package_records() -> tuple[PackageBadgeRecord, ...]:
     """Return badge metadata for every public package in workspace order."""
     return tuple(
         _package_record(package_slug) for package_slug in _public_package_slugs()
+    )
+
+
+def family_badge_records() -> tuple[PackageBadgeRecord, ...]:
+    """Return badge metadata for the canonical family badges."""
+    return tuple(
+        _package_record(package_slug) for package_slug in _badge_package_slugs()
     )
 
 
@@ -173,14 +189,16 @@ def _render_badge_groups(
 
 
 def _render_repository_badges(
-    catalog: dict[str, str], records: tuple[PackageBadgeRecord, ...]
+    catalog: dict[str, str],
+    public_records: tuple[PackageBadgeRecord, ...],
+    family_records: tuple[PackageBadgeRecord, ...],
 ) -> str:
     sections = [
         _render_template(
             catalog["repository-summary"],
-            {"public_package_count": str(len(records))},
+            {"public_package_count": str(len(public_records))},
         ),
-        *_render_badge_groups(catalog, records),
+        *_render_badge_groups(catalog, family_records),
     ]
     return "\n\n".join(section for section in sections if section)
 
@@ -188,9 +206,9 @@ def _render_repository_badges(
 def _render_package_badges(
     catalog: dict[str, str],
     record: PackageBadgeRecord,
-    records: tuple[PackageBadgeRecord, ...],
+    family_records: tuple[PackageBadgeRecord, ...],
 ) -> str:
-    ordered_records = _prioritize_record(records, record)
+    ordered_records = _prioritize_record(family_records, record)
     sections = [
         _render_template(catalog["package-summary"], _record_context(record)),
         *_render_badge_groups(catalog, ordered_records),
@@ -218,14 +236,21 @@ def iter_badge_targets() -> tuple[BadgeTarget, ...]:
 def render_badge_block(target: BadgeTarget) -> str:
     """Render the managed badge block for one documentation surface."""
     catalog = load_badge_catalog()
-    records = public_package_records()
+    public_records = public_package_records()
+    canonical_family_records = family_badge_records()
     if target.kind == "repository":
-        return _render_repository_badges(catalog, records)
+        return _render_repository_badges(
+            catalog,
+            public_records,
+            canonical_family_records,
+        )
     if target.kind == "package" and target.package_slug is not None:
         record = next(
-            record for record in records if record.package_slug == target.package_slug
+            record
+            for record in public_records
+            if record.package_slug == target.package_slug
         )
-        return _render_package_badges(catalog, record, records)
+        return _render_package_badges(catalog, record, canonical_family_records)
     raise ValueError(f"Unsupported badge target: {target}")
 
 

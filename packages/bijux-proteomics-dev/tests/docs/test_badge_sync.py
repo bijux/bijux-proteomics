@@ -44,6 +44,8 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
     assert rendered.index("bijux-proteomics-runtime/") < rendered.index(
         "agentic-proteins/"
     )
+    assert "ghcr-15%20packages" in rendered
+    assert "published%20packages-15-2563EB" in rendered
     assert rendered.count("https://img.shields.io/pypi/v/") == 7
     assert rendered.count("/pkgs/container/") == 7
     assert rendered.count("https://bijux.io/bijux-proteomics/") == 7
@@ -81,6 +83,59 @@ def test_package_badge_block_prioritizes_the_current_distribution() -> None:
     )
 
 
+def test_alias_package_badge_blocks_prioritize_the_current_distribution() -> None:
+    cases = (
+        (
+            "bijux-proteomics",
+            "packages/bijux-proteomics/README.md",
+            "bijux--proteomics",
+        ),
+        ("proteomics", "packages/proteomics/README.md", "proteomics"),
+        ("proteomics-core", "packages/proteomics-core/README.md", "proteomics--core"),
+        (
+            "proteomics-foundation",
+            "packages/proteomics-foundation/README.md",
+            "proteomics--foundation",
+        ),
+        (
+            "proteomics-runtime",
+            "packages/proteomics-runtime/README.md",
+            "proteomics--runtime",
+        ),
+        (
+            "proteomics-intelligence",
+            "packages/proteomics-intelligence/README.md",
+            "proteomics--intelligence",
+        ),
+        (
+            "proteomics-knowledge",
+            "packages/proteomics-knowledge/README.md",
+            "proteomics--knowledge",
+        ),
+        ("proteomics-lab", "packages/proteomics-lab/README.md", "proteomics--lab"),
+    )
+    for package_slug, path, badge_label in cases:
+        rendered = render_badge_block(
+            BadgeTarget(
+                path=Path(path),
+                kind="package",
+                package_slug=package_slug,
+            )
+        )
+        assert (
+            f"\n[![{package_slug}](https://img.shields.io/pypi/v/{package_slug}"
+            in rendered
+        )
+        assert (
+            f"\n[![{package_slug}](https://img.shields.io/badge/{badge_label}-ghcr"
+            in rendered
+        )
+        assert (
+            f"\n[![{package_slug} docs](https://img.shields.io/badge/docs-{badge_label}"
+            in rendered
+        )
+
+
 def test_badge_surfaces_are_synchronized() -> None:
     assert synchronize_badges(check=True) == []
 
@@ -96,6 +151,14 @@ def test_managed_surfaces_only_use_generated_badges() -> None:
         Path("packages/bijux-proteomics-intelligence/README.md"),
         Path("packages/bijux-proteomics-knowledge/README.md"),
         Path("packages/bijux-proteomics-lab/README.md"),
+        Path("packages/bijux-proteomics/README.md"),
+        Path("packages/proteomics/README.md"),
+        Path("packages/proteomics-core/README.md"),
+        Path("packages/proteomics-foundation/README.md"),
+        Path("packages/proteomics-runtime/README.md"),
+        Path("packages/proteomics-intelligence/README.md"),
+        Path("packages/proteomics-knowledge/README.md"),
+        Path("packages/proteomics-lab/README.md"),
     ]
     for path in targets:
         text = path.read_text(encoding="utf-8")

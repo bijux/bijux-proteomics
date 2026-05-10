@@ -23,9 +23,13 @@ plain markdown links instead of inline badge markdown.
 Generated badge sections always render in this order:
 
 1. surface summary badges
-2. one line of `PyPI` badges for every public package
-3. one line of `GHCR` badges for every public package
-4. one line of `Documentation` badges for every public package
+2. one line of `PyPI` badges for the canonical owner packages in the family
+3. one line of `GHCR` badges for the canonical owner packages in the family
+4. one line of `Documentation` badges for the canonical owner packages in the family
+
+Alias package README surfaces still prioritize their own distribution badge
+first, then show the canonical family owner badges so the forwarding target
+stays visible.
 
 Link policy for GHCR badges is fixed here as part of the contract:
 
