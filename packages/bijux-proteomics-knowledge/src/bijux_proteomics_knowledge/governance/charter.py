@@ -252,6 +252,192 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         reason="Workflow narratives preserve claim and limitation framing with explicit references.",
     ),
     KnowledgeModuleAuditEntry(
+        module_path="references/workflows/benchmark_ledger.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(KnowledgeCharterCapability.BENCHMARK_MANIFESTS,),
+        reason="Benchmark ledger entries keep per-family benchmark authority and review state explicit instead of implicit in prose.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/claim_grounding.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Workflow claim grounding ties shipped claim language back to explicit benchmark evidence and scope limits.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparator_confrontations.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator confrontation summaries keep external pressure visible instead of flattening disagreement into local success stories.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparator_failures.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator failure surfaces keep blocked or downgraded public claims grounded in named external gaps.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparator_positions.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator positions preserve the exact matched, partial, refused, and non-attempted workflow behaviors for each external tool.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparator_regressions.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator regression tracking keeps formerly-supported workflow behavior from silently drifting backward.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparator_scorecards.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator scorecards translate raw confrontation details into durable review-grade workflow pressure.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/comparators.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Comparator matrices are a first-class scientific memory surface for what the repository does and does not claim against external tools.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/contradiction_dossiers.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Contradiction dossiers keep workflow disagreements reviewable as governed scientific memory instead of ephemeral notes.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/contradiction_triage.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Contradiction triage preserves how conflicting evidence is prioritized and bounded before downstream review consumers act on it.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/evidence_sufficiency.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Evidence sufficiency rubrics keep current trust tiers explicit rather than letting release posture drift by implication.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/knowledge_deficits.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Knowledge deficit reports keep remaining public-data, comparator, literature, and runtime-proof gaps visible per workflow family.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/literature_audits.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Workflow literature audits make the breadth and concentration of citation support reviewable instead of assumed.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/literature_matrices.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Literature matrices keep workflow claims tied to explicit citation groups and contradiction coverage.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/reference_support.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+        ),
+        reason="Reference-support lookups provide the governed routing between benchmark families and their grounded scientific briefings.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/registry.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Benchmark registry entries are a public scientific memory surface for what each benchmark currently authorizes.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/replay_proof.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Replay-proof reports keep benchmark reproduction boundaries and validating tests visible to downstream reviewers.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/scientific_reading_packs.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Scientific reading packs gather workflow-specific literature anchors into a durable review surface rather than an ad hoc reading list.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/scientific_release.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Scientific release packets define the explicit graduation and hostile-review posture for each workflow family.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/scientific_risk.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Scientific risk surfaces preserve unresolved workflow hazards as first-class reviewable evidence.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="references/workflows/scientific_thresholds.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Scientific threshold tables keep benchmark acceptance bars explicit and durable across release-facing consumers.",
+    ),
+    KnowledgeModuleAuditEntry(
         module_path="references/grounding/__init__.py",
         classification=KnowledgeModuleClassification.THIN_PLACEHOLDER,
         reason="The grounding package root groups citations, contexts, corpora, ontologies, problems, and rules without separate curation logic.",
@@ -325,6 +511,24 @@ DEFAULT_KNOWLEDGE_MODULE_AUDIT: tuple[KnowledgeModuleAuditEntry, ...] = (
         classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
         anchor_capabilities=(KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,),
         reason="Decision-scoped review explanations turn existing knowledge packets into auditable graph-backed reviewer narratives.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/flagship_evidence.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.BENCHMARK_MANIFESTS,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Flagship evidence summaries keep cross-workflow scientific memory legible at the release-facing review layer.",
+    ),
+    KnowledgeModuleAuditEntry(
+        module_path="reviews/provenance.py",
+        classification=KnowledgeModuleClassification.CURATED_REFERENCE_VALUE,
+        anchor_capabilities=(
+            KnowledgeCharterCapability.REFERENCES,
+            KnowledgeCharterCapability.SCIENTIFIC_CONTEXT,
+        ),
+        reason="Provenance disagreement surfaces preserve how reference scope pressure changes reviewer-facing confidence.",
     ),
     KnowledgeModuleAuditEntry(
         module_path="reviews/trends.py",

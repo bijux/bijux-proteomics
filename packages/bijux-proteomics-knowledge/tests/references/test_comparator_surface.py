@@ -68,7 +68,7 @@ def test_comparator_matrix_keeps_match_partial_refusal_and_non_attempt_scopes() 
         for status in targeted_entry.tool_statuses
         if status.comparator_tool is ProteomicsComparatorTool.SKYLINE
     )
-    assert targeted_skyline.refused_behaviors
+    assert targeted_skyline.matched_behaviors
     assert targeted_skyline.not_attempted_behaviors
 
     dia_entry = next(

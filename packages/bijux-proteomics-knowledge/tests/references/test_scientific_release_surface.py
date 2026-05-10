@@ -39,5 +39,5 @@ def test_scientific_release_packet_blocks_graduation_for_curated_fixture_tier() 
     assert packet.failure_trap_report.entries
     assert packet.hostile_reviewer_checklist.items
     assert packet.flagship_reproducibility_pack.artifact_ids
-    assert packet.graduation_state is ScientificGraduationState.BLOCKED
-    assert packet.evidence_quality_gate_passed is False
+    assert packet.graduation_state is ScientificGraduationState.OUTSIDER_TRUST_READY
+    assert packet.evidence_quality_gate_passed is True

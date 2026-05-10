@@ -194,6 +194,15 @@ DEFAULT_LAB_MODULE_AUDIT: tuple[LabModuleAuditEntry, ...] = (
         reason="Targeted benchmark rehearsals keep operator, failure, and external-review delivery separate from claim construction.",
     ),
     LabModuleAuditEntry(
+        module_path="benchmarks/outcome_dossiers.py",
+        classification=LabModuleClassification.OPERATIONAL_VALUE,
+        anchor_capabilities=(
+            LabCharterCapability.HANDOFF_PACKETS,
+            LabCharterCapability.OBSERVED_OUTCOME_RECONCILIATION,
+        ),
+        reason="Outcome dossiers keep observed benchmark follow-up consequences reviewable as durable lab-facing evidence instead of one-line summaries.",
+    ),
+    LabModuleAuditEntry(
         module_path="governance/__init__.py",
         classification=LabModuleClassification.THIN_ABSTRACTION,
         reason="The governance band exposes package-boundary metadata without adding operational behavior.",

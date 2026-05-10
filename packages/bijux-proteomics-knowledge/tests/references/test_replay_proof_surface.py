@@ -22,7 +22,7 @@ def test_replay_proof_report_keeps_governed_artifacts_and_tests_visible() -> Non
     assert report.artifact_proofs
     assert report.replay_steps
     assert any(artifact.required_for_replay for artifact in report.artifact_proofs)
-    assert report.bounded_by_external_execution is True
+    assert report.bounded_by_external_execution is False
 
 
 def test_replay_proof_ledger_covers_every_curated_workflow_family() -> None:

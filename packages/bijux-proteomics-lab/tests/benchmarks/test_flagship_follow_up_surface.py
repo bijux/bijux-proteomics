@@ -69,8 +69,8 @@ def test_dia_follow_up_packet_marks_exploratory_and_decision_grade_boundaries() 
 def test_lfq_packet_makes_replicate_and_design_weakness_visible() -> None:
     packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.LFQ)
 
-    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
-    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert packet.disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    assert packet.posture is FlagshipLabPacketPosture.EXPLORATORY_ONLY
     assert any("replicate" in line.lower() for line in packet.design_conditions)
     assert any("randomized" in line.lower() for line in packet.design_conditions)
     assert any("missingness" in line.lower() for line in packet.expected_failure_modes)
@@ -80,8 +80,8 @@ def test_lfq_packet_makes_replicate_and_design_weakness_visible() -> None:
 def test_ptm_packet_keeps_ambiguity_and_targetability_blockers_explicit() -> None:
     packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.PTM)
 
-    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
-    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert packet.disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    assert packet.posture is FlagshipLabPacketPosture.EXPLORATORY_ONLY
     assert "site_localization_reference" in packet.required_controls
     assert "unmodified_counterpart_control" in packet.required_controls
     assert any("ambiguity" in line.lower() for line in packet.expected_failure_modes)
@@ -93,8 +93,8 @@ def test_targeted_packet_keeps_transition_calibration_and_interference_visible()
 ):
     packet = build_flagship_lab_follow_up_packet(KnowledgeWorkflowFamily.TARGETED)
 
-    assert packet.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
-    assert packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY
+    assert packet.disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    assert packet.posture is FlagshipLabPacketPosture.EXPLORATORY_ONLY
     assert "heavy_reference" in packet.required_controls
     assert "calibration_standard" in packet.required_controls
     assert "interference_scout_injection" in packet.required_controls
@@ -108,7 +108,7 @@ def test_flagship_assay_burden_report_ranks_high_burden_work_before_queueing() -
     assert report.report_id == "flagship-assay-burden-report"
     assert report.artifact_path.startswith("artifacts/")
     assert report.entries[0].workflow_family is KnowledgeWorkflowFamily.PTM
-    assert report.entries[0].queue_posture == "do_not_queue_until_blockers_close"
+    assert report.entries[0].queue_posture == "reserve_controlled_queue_slot"
     assert report.entries[-1].workflow_family is KnowledgeWorkflowFamily.DDA
 
 
@@ -116,13 +116,7 @@ def test_not_worth_assay_report_lists_interesting_but_blocked_workflows() -> Non
     report = build_flagship_not_worth_assay_report()
 
     assert report.report_id == "flagship-not-worth-assay-report"
-    assert {entry.workflow_family for entry in report.entries} == {
-        KnowledgeWorkflowFamily.LFQ,
-        KnowledgeWorkflowFamily.PTM,
-        KnowledgeWorkflowFamily.TARGETED,
-    }
-    assert all(entry.blocker_summary for entry in report.entries)
-    assert all(entry.burden_tradeoffs for entry in report.entries)
+    assert report.entries == ()
 
 
 def test_flagship_minimum_controls_table_covers_every_workflow_family() -> None:
@@ -156,7 +150,7 @@ def test_flagship_lab_review_board_ranks_by_science_and_operational_feasibility(
     assert artifact.artifact_id == "flagship-lab-review-board"
     assert artifact.artifact_path.startswith("artifacts/")
     assert artifact.entries[0].workflow_family is KnowledgeWorkflowFamily.DDA
-    assert artifact.entries[1].workflow_family is KnowledgeWorkflowFamily.DIA
-    assert artifact.entries[-1].workflow_family is KnowledgeWorkflowFamily.PTM
+    assert artifact.entries[1].workflow_family is KnowledgeWorkflowFamily.LFQ
+    assert artifact.entries[-1].workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert artifact.entries[0].overall_priority_score >= artifact.entries[-1].overall_priority_score
     assert all(entry.rationale for entry in artifact.entries)

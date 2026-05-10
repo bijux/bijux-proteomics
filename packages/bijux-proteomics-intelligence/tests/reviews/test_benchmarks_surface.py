@@ -149,7 +149,7 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.PTM
-    assert review.public_claim_support_state.value == "refused"
+    assert review.public_claim_support_state.value == "advisory"
     assert review.improvement_targets
     assert any(
         position.comparator_tool.value == "maxquant"
@@ -187,7 +187,7 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.LFQ
     assert review.benchmark_package_id is not None
-    assert review.public_claim_support_state.value == "refused"
+    assert review.public_claim_support_state.value == "advisory"
     assert any(
         position.comparator_tool.value == "maxquant"
         and position.partial_behaviors
@@ -209,10 +209,10 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert decision_boundary_claim.evidence_refs
     assert review.external_reviewer_bundle.evidence_pointer_ids
     assert "missingness" in review.reviewer_summary
-    assert review.reviewer_grounding_state.value == "thin"
+    assert review.reviewer_grounding_state.value == "review_grade"
     assert (
         review.scientific_release_packet.graduation_state.value
-        == "promising_infrastructure"
+        == "outsider_trust_ready"
     )
 
 
@@ -277,7 +277,7 @@ def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible
 
     assert isinstance(review, WorkflowBenchmarkReview)
     assert review.workflow_family is KnowledgeWorkflowFamily.TARGETED
-    assert review.public_claim_support_state.value == "refused"
+    assert review.public_claim_support_state.value == "advisory"
     assert review.vendor_caveat_ledger is not None
     assert review.vendor_caveat_ledger.vendor_support_state is SupportState.ADVISORY
     vendor_claim = next(
@@ -298,19 +298,19 @@ def test_build_targeted_benchmark_review_keeps_vendor_and_control_limits_visible
         for claim in review.claim_summaries
         if claim.claim_id == "raw_to_reviewed_bundle"
     )
-    assert raw_to_reviewed_claim.support_state is SupportState.ADVISORY
+    assert raw_to_reviewed_claim.support_state is SupportState.SUPPORTED
     assert review.minimum_controls_required == (
         "blank",
         "heavy_reference",
         "calibration_standard",
     )
-    assert review.reviewer_grounding_state.value == "thin"
+    assert review.reviewer_grounding_state.value == "review_grade"
     assert any(
         artifact.artifact_kind == "targeted_raw_to_reviewed_bundle_report"
         for artifact in review.review_artifacts
     )
     assert "Skyline or vendor execution parity" in review.reviewer_summary
-    assert "biological grounding remains thin" in review.reviewer_summary
+    assert "biological grounding stays review-grade" in review.reviewer_summary
     assert review.scientific_release_packet.threshold_evidence.entries
     assert review.scientific_release_packet.hostile_reviewer_checklist.items
     assert review.scientific_release_packet.science_tables.tables

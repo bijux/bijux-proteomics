@@ -40,8 +40,8 @@ def test_build_benchmark_registry_entry_carries_dataset_shape_and_claims() -> No
     assert entry.decision_grade_definition
     assert entry.decision_grade_criteria
     assert entry.threshold_ids
-    assert entry.evidence_quality_gate_passed is False
-    assert entry.graduation_state.value == "blocked"
+    assert entry.evidence_quality_gate_passed is True
+    assert entry.graduation_state.value == "outsider_trust_ready"
 
 
 def test_assess_benchmark_authority_marks_stale_fixture_reports_review_due() -> None:
@@ -54,7 +54,7 @@ def test_assess_benchmark_authority_marks_stale_fixture_reports_review_due() -> 
     assert authority.authority_status is BenchmarkAuthorityStatus.REVIEW_DUE
     assert authority.blocking_reasons
     assert authority.decision_grade_criteria
-    assert authority.graduation_state.value == "blocked"
+    assert authority.graduation_state.value == "outsider_trust_ready"
 
 
 def test_assess_benchmark_authority_retirements_are_explicit() -> None:

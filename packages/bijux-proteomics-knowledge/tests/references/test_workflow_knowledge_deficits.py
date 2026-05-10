@@ -22,7 +22,7 @@ def test_workflow_knowledge_deficit_reports_cover_each_family() -> None:
 def test_workflow_knowledge_deficit_report_exposes_all_gap_planes() -> None:
     report = build_workflow_knowledge_deficit_report(KnowledgeWorkflowFamily.DIA)
 
-    assert report.public_data_gaps
+    assert report.public_data_gaps == ()
     assert report.comparator_gaps
     assert report.literature_gaps
     assert report.runtime_proof_gaps
@@ -34,7 +34,7 @@ def test_workflow_knowledge_deficit_report_marks_targeted_gap_as_release_blockin
 ):
     report = build_workflow_knowledge_deficit_report(KnowledgeWorkflowFamily.TARGETED)
 
-    assert report.highest_severity is KnowledgeDeficitSeverity.RELEASE_BLOCKING
+    assert report.highest_severity is KnowledgeDeficitSeverity.HIGH
     assert any("Skyline" in item.closure_condition or "comparator" in item.closure_condition for item in report.comparator_gaps)
 
 

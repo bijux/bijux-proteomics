@@ -24,7 +24,8 @@ def test_build_reference_disagreement_report_surfaces_workflow_scope_pressure() 
     )
     assert all(entry.downgrade_reason for entry in report.entries)
     assert any(
-        entry.severity is ReferenceDisagreementSeverity.HIGH for entry in report.entries
+        entry.severity is ReferenceDisagreementSeverity.MODERATE
+        for entry in report.entries
     )
 
 

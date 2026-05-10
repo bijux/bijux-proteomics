@@ -11,6 +11,7 @@ LAB_TEST_ROOT = Path("packages/bijux-proteomics-lab/tests")
 LAB_TEST_FAMILIES = {
     "benchmarks",
     "design",
+    "governance",
     "handoffs",
     "lifecycle",
     "outcomes",

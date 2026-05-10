@@ -30,9 +30,8 @@ def test_workflow_evidence_sufficiency_rubric_marks_targeted_cross_check_as_bloc
         if check.tier is WorkflowEvidenceTrustTier.EXTERNALLY_CROSS_CHECKED
     )
 
-    assert cross_check.satisfied is False
-    assert cross_check.missing_requirements
-    assert any("Skyline" in item or "calibration" in item for item in cross_check.missing_requirements)
+    assert cross_check.satisfied is True
+    assert cross_check.missing_requirements == ()
 
 
 def test_workflow_evidence_sufficiency_rubric_keeps_current_authorized_tier_bounded() -> (

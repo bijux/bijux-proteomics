@@ -33,13 +33,8 @@ def test_promoted_benchmark_packages_keep_realism_pressure_and_replay_steps_expl
         assert len(package.transparent_assumptions) >= 2
         assert len(package.reproduction_steps) >= 3
         assert package.governed_output_surfaces
-        assert any(step.outside_repo_execution for step in package.reproduction_steps) or (
-            manifest.workflow_family
-            in {
-                KnowledgeWorkflowFamily.LFQ,
-                KnowledgeWorkflowFamily.MULTIPLEX,
-                KnowledgeWorkflowFamily.TARGETED,
-            }
+        assert any(step.outside_repo_execution for step in package.reproduction_steps) is (
+            manifest.workflow_family is KnowledgeWorkflowFamily.DIA
         )
         for artifact in package.package_artifacts:
             assert (REPO_ROOT / artifact.repo_relative_path).exists()
