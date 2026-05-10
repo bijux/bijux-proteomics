@@ -4,9 +4,9 @@
 execution, scientific review, recommendation posture, and lab consequence.
 
 Six real product packages own that chain. `agentic-proteins` stays as a legacy
-compatibility bridge for runtime entrypoints and imports, while
-`bijux-proteomics-dev` owns repository-health automation. Short install aliases
-now reserve `bijux-proteomics`, `proteomics`, and the family-scoped
+compatibility install surface for historical runtime entrypoints and imports,
+while `bijux-proteomics-dev` owns repository-health automation. Short install
+aliases now reserve `bijux-proteomics`, `proteomics`, and the family-scoped
 `proteomics-*` package names without creating second owner surfaces.
 
 ## Product Scope
@@ -106,8 +106,7 @@ and the current hostile-review blockers are tracked in
 
 ## Package Map
 
-The canonical publishable surface is `6` real product packages and `1`
-compatibility bridge:
+The canonical publishable surface is `6` real product packages:
 
 | Package | Role | Links |
 | --- | --- | --- |
@@ -117,7 +116,6 @@ compatibility bridge:
 | `bijux-proteomics-knowledge` | Scientific memory, provenance, contradiction handling, and review state | <a href="https://pypi.org/project/bijux-proteomics-knowledge/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
 | `bijux-proteomics-intelligence` | Recommendation posture, ranking sensitivity, and refusal behavior | <a href="https://pypi.org/project/bijux-proteomics-intelligence/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
 | `bijux-proteomics-lab` | Assay consequence planning, readiness, and observed outcomes | <a href="https://pypi.org/project/bijux-proteomics-lab/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `agentic-proteins` | Legacy compatibility bridge for runtime entrypoints and imports | <a href="https://pypi.org/project/agentic-proteins/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/02-agentic-proteins/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
 
 Repository-owned developer tooling also lives here in
 [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev), but it is for
@@ -125,14 +123,15 @@ maintaining the workspace rather than for end-user installation.
 
 ## Install Aliases
 
-The repository also publishes `8` install aliases so the canonical packages can
-be discovered under shorter or reserve-worthy package names. Those aliases
-forward into the same owner packages above, so the badge catalog stays focused
-on canonical package owners rather than duplicating the same runtime under
-multiple names.
+The repository also publishes `8` install aliases and `1` compatibility install
+surface so the canonical packages can be discovered under shorter,
+reserve-worthy, or migration-safe package names. Those installs forward into
+the same owner packages above, so the badge catalog stays focused on canonical
+package owners rather than duplicating the same runtime under multiple names.
 
-| Alias package | Resolves to | Reference docs | Purpose |
+| Install surface | Resolves to | Reference docs | Purpose |
 | --- | --- | --- | --- |
+| `agentic-proteins` | `bijux-proteomics-runtime` plus legacy compatibility submodules | [Compatibility handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/) | preserve the historical runtime CLI and import tree while new work defaults to canonical runtime ownership |
 | `bijux-proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | reserve the top-level project name as an install and command surface |
 | `proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short install, import, and CLI alias for the core package |
 | `proteomics-core` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short family-specific alias for the core package |

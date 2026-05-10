@@ -88,15 +88,18 @@ flowchart TB
 - Which package should own a disputed behavior?
 - Which repository surfaces are truly shared and which are only adjacent?
 
-## Product Handbooks
+## Canonical Package Handbooks
 
-- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
 - [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
 - [bijux-proteomics-knowledge](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 - [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+
+## Compatibility Handbook
+
+- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
 
 ## Boundary Test
 
