@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import tomllib
 
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
     run as run_api_freeze,
@@ -17,9 +18,16 @@ from bijux_proteomics_dev.release.governance.compatibility_ledger import (
     run as run_migration_ledger,
 )
 
-REQUIRED_RELEASE_SLUGS = ("agentic-proteins",)
 COMPATIBILITY_TESTS = (
     "packages/agentic-proteins/tests/package/test_import_forwarding.py",
+    "packages/bijux-proteomics/tests/compatibility/test_bijux_proteomics_alias.py",
+    "packages/proteomics/tests/compatibility/test_proteomics_alias.py",
+    "packages/proteomics-core/tests/compatibility/test_proteomics_core_alias.py",
+    "packages/proteomics-foundation/tests/compatibility/test_proteomics_foundation_alias.py",
+    "packages/proteomics-runtime/tests/compatibility/test_proteomics_runtime_alias.py",
+    "packages/proteomics-intelligence/tests/compatibility/test_proteomics_intelligence_alias.py",
+    "packages/proteomics-knowledge/tests/compatibility/test_proteomics_knowledge_alias.py",
+    "packages/proteomics-lab/tests/compatibility/test_proteomics_lab_alias.py",
     "packages/bijux-proteomics-dev/tests/quality/architecture/test_runtime_boundaries_compat_forwarding.py",
     "packages/bijux-proteomics-dev/tests/governance/runtime/test_api_contract_roots.py",
     "packages/bijux-proteomics-dev/tests/governance/runtime/test_public_surfaces.py",
@@ -31,6 +39,17 @@ class ValidationResult:
     name: str
     ok: bool
     detail: str
+
+
+def _workspace_public_release_slugs(repo_root: Path) -> tuple[str, ...]:
+    with (repo_root / "pyproject.toml").open("rb") as handle:
+        data = tomllib.load(handle)
+    workspace = data["tool"]["bijux_proteomics"]
+    docs_package = str(workspace["docs_package"])
+    packages = workspace["packages"]
+    if not isinstance(packages, list):
+        raise ValueError("tool.bijux_proteomics.packages must be a list")
+    return tuple(str(package) for package in packages if str(package) != docs_package)
 
 
 def _load_release_matrix(repo_root: Path, variable: str) -> list[dict[str, object]]:
@@ -47,34 +66,33 @@ def _load_release_matrix(repo_root: Path, variable: str) -> list[dict[str, objec
 
 
 def _check_release_matrices(repo_root: Path) -> ValidationResult:
+    required_slugs = set(_workspace_public_release_slugs(repo_root))
     variables = (
         "BIJUX_RELEASE_BUILD_MATRIX_JSON",
         "BIJUX_PYPI_PACKAGE_MATRIX_JSON",
         "BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON",
     )
-    missing_by_matrix: dict[str, list[str]] = {}
+    mismatches_by_matrix: dict[str, dict[str, list[str]]] = {}
     for variable in variables:
         matrix = _load_release_matrix(repo_root, variable)
         slugs = {str(entry.get("package_slug", "")).strip() for entry in matrix}
-        missing = [slug for slug in REQUIRED_RELEASE_SLUGS if slug not in slugs]
-        has_core_release = any(
-            slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
-            for slug in slugs
-        )
-        if missing:
-            missing_by_matrix[variable] = missing
-        elif not has_core_release:
-            missing_by_matrix[variable] = ["bijux-proteomics-* release package"]
-    if missing_by_matrix:
+        missing = sorted(required_slugs - slugs)
+        unexpected = sorted(slugs - required_slugs)
+        if missing or unexpected:
+            mismatches_by_matrix[variable] = {
+                "missing": missing,
+                "unexpected": unexpected,
+            }
+    if mismatches_by_matrix:
         return ValidationResult(
             name="release-matrices",
             ok=False,
-            detail=f"missing slugs by matrix: {missing_by_matrix}",
+            detail=f"release matrix mismatches: {mismatches_by_matrix}",
         )
     return ValidationResult(
         name="release-matrices",
         ok=True,
-        detail="release matrices include compatibility and core release packages",
+        detail="release matrices include every published install surface",
     )
 
 
@@ -145,7 +163,7 @@ def run(repo_root: Path) -> int:
         _check(
             "release-matrices",
             lambda: 0 if _check_release_matrices(repo_root).ok else 1,
-            "release matrices include compatibility and core release packages",
+            "release matrices include every published install surface",
         ),
         _run_pytest(repo_root),
     ]

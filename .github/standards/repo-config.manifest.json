@@ -2695,6 +2695,12 @@
               "build_targets": "build sbom"
             },
             {
+              "package_slug": "bijux-proteomics",
+              "package_dir": "packages/bijux-proteomics",
+              "artifacts_dir": "artifacts/bijux-proteomics",
+              "build_targets": "build sbom"
+            },
+            {
               "package_slug": "bijux-proteomics-foundation",
               "package_dir": "packages/bijux-proteomics-foundation",
               "artifacts_dir": "artifacts/bijux-proteomics-foundation",
@@ -2704,6 +2710,12 @@
               "package_slug": "bijux-proteomics-core",
               "package_dir": "packages/bijux-proteomics-core",
               "artifacts_dir": "artifacts/bijux-proteomics-core",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime",
+              "package_dir": "packages/bijux-proteomics-runtime",
+              "artifacts_dir": "artifacts/bijux-proteomics-runtime",
               "build_targets": "build sbom"
             },
             {
@@ -2723,6 +2735,48 @@
               "package_dir": "packages/bijux-proteomics-lab",
               "artifacts_dir": "artifacts/bijux-proteomics-lab",
               "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics",
+              "package_dir": "packages/proteomics",
+              "artifacts_dir": "artifacts/proteomics",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-core",
+              "package_dir": "packages/proteomics-core",
+              "artifacts_dir": "artifacts/proteomics-core",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-foundation",
+              "package_dir": "packages/proteomics-foundation",
+              "artifacts_dir": "artifacts/proteomics-foundation",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-runtime",
+              "package_dir": "packages/proteomics-runtime",
+              "artifacts_dir": "artifacts/proteomics-runtime",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-intelligence",
+              "package_dir": "packages/proteomics-intelligence",
+              "artifacts_dir": "artifacts/proteomics-intelligence",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-knowledge",
+              "package_dir": "packages/proteomics-knowledge",
+              "artifacts_dir": "artifacts/proteomics-knowledge",
+              "build_targets": "build sbom"
+            },
+            {
+              "package_slug": "proteomics-lab",
+              "package_dir": "packages/proteomics-lab",
+              "artifacts_dir": "artifacts/proteomics-lab",
+              "build_targets": "build sbom"
             }
           ]
         },
@@ -2739,10 +2793,16 @@
               "package_slug": "agentic-proteins"
             },
             {
+              "package_slug": "bijux-proteomics"
+            },
+            {
               "package_slug": "bijux-proteomics-foundation"
             },
             {
               "package_slug": "bijux-proteomics-core"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime"
             },
             {
               "package_slug": "bijux-proteomics-intelligence"
@@ -2752,6 +2812,27 @@
             },
             {
               "package_slug": "bijux-proteomics-lab"
+            },
+            {
+              "package_slug": "proteomics"
+            },
+            {
+              "package_slug": "proteomics-core"
+            },
+            {
+              "package_slug": "proteomics-foundation"
+            },
+            {
+              "package_slug": "proteomics-runtime"
+            },
+            {
+              "package_slug": "proteomics-intelligence"
+            },
+            {
+              "package_slug": "proteomics-knowledge"
+            },
+            {
+              "package_slug": "proteomics-lab"
             }
           ]
         },
@@ -2763,10 +2844,16 @@
               "package_slug": "agentic-proteins"
             },
             {
+              "package_slug": "bijux-proteomics"
+            },
+            {
               "package_slug": "bijux-proteomics-foundation"
             },
             {
               "package_slug": "bijux-proteomics-core"
+            },
+            {
+              "package_slug": "bijux-proteomics-runtime"
             },
             {
               "package_slug": "bijux-proteomics-intelligence"
@@ -2776,6 +2863,27 @@
             },
             {
               "package_slug": "bijux-proteomics-lab"
+            },
+            {
+              "package_slug": "proteomics"
+            },
+            {
+              "package_slug": "proteomics-core"
+            },
+            {
+              "package_slug": "proteomics-foundation"
+            },
+            {
+              "package_slug": "proteomics-runtime"
+            },
+            {
+              "package_slug": "proteomics-intelligence"
+            },
+            {
+              "package_slug": "proteomics-knowledge"
+            },
+            {
+              "package_slug": "proteomics-lab"
             }
           ]
         }
@@ -2822,6 +2930,18 @@
           {
             "package-ecosystem": "pip",
             "directory": "/packages/agentic-proteins",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/bijux-proteomics",
             "schedule": {
               "interval": "weekly"
             },
@@ -2894,6 +3014,102 @@
           {
             "package-ecosystem": "pip",
             "directory": "/packages/bijux-proteomics-lab",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/bijux-proteomics-runtime",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-core",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-foundation",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-intelligence",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-knowledge",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-lab",
+            "schedule": {
+              "interval": "weekly"
+            },
+            "open-pull-requests-limit": 10,
+            "labels": [
+              "dependencies",
+              "python"
+            ]
+          },
+          {
+            "package-ecosystem": "pip",
+            "directory": "/packages/proteomics-runtime",
             "schedule": {
               "interval": "weekly"
             },
@@ -3218,6 +3434,11 @@
                       "artifacts_dir": "artifacts/agentic-proteins"
                     },
                     {
+                      "package_slug": "bijux-proteomics",
+                      "package_dir": "packages/bijux-proteomics",
+                      "artifacts_dir": "artifacts/bijux-proteomics"
+                    },
+                    {
                       "package_slug": "bijux-proteomics-foundation",
                       "package_dir": "packages/bijux-proteomics-foundation",
                       "artifacts_dir": "artifacts/bijux-proteomics-foundation"
@@ -3226,6 +3447,11 @@
                       "package_slug": "bijux-proteomics-core",
                       "package_dir": "packages/bijux-proteomics-core",
                       "artifacts_dir": "artifacts/bijux-proteomics-core"
+                    },
+                    {
+                      "package_slug": "bijux-proteomics-runtime",
+                      "package_dir": "packages/bijux-proteomics-runtime",
+                      "artifacts_dir": "artifacts/bijux-proteomics-runtime"
                     },
                     {
                       "package_slug": "bijux-proteomics-intelligence",
@@ -3241,6 +3467,41 @@
                       "package_slug": "bijux-proteomics-lab",
                       "package_dir": "packages/bijux-proteomics-lab",
                       "artifacts_dir": "artifacts/bijux-proteomics-lab"
+                    },
+                    {
+                      "package_slug": "proteomics",
+                      "package_dir": "packages/proteomics",
+                      "artifacts_dir": "artifacts/proteomics"
+                    },
+                    {
+                      "package_slug": "proteomics-core",
+                      "package_dir": "packages/proteomics-core",
+                      "artifacts_dir": "artifacts/proteomics-core"
+                    },
+                    {
+                      "package_slug": "proteomics-foundation",
+                      "package_dir": "packages/proteomics-foundation",
+                      "artifacts_dir": "artifacts/proteomics-foundation"
+                    },
+                    {
+                      "package_slug": "proteomics-runtime",
+                      "package_dir": "packages/proteomics-runtime",
+                      "artifacts_dir": "artifacts/proteomics-runtime"
+                    },
+                    {
+                      "package_slug": "proteomics-intelligence",
+                      "package_dir": "packages/proteomics-intelligence",
+                      "artifacts_dir": "artifacts/proteomics-intelligence"
+                    },
+                    {
+                      "package_slug": "proteomics-knowledge",
+                      "package_dir": "packages/proteomics-knowledge",
+                      "artifacts_dir": "artifacts/proteomics-knowledge"
+                    },
+                    {
+                      "package_slug": "proteomics-lab",
+                      "package_dir": "packages/proteomics-lab",
+                      "artifacts_dir": "artifacts/proteomics-lab"
                     },
                     {
                       "package_slug": "bijux-proteomics-dev",

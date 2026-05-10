@@ -9,6 +9,24 @@ REPO_ROOT = next(
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
 
+EXPECTED_PUBLIC_RELEASE_SLUGS = {
+    "agentic-proteins",
+    "bijux-proteomics",
+    "bijux-proteomics-core",
+    "bijux-proteomics-foundation",
+    "bijux-proteomics-intelligence",
+    "bijux-proteomics-knowledge",
+    "bijux-proteomics-lab",
+    "bijux-proteomics-runtime",
+    "proteomics",
+    "proteomics-core",
+    "proteomics-foundation",
+    "proteomics-intelligence",
+    "proteomics-knowledge",
+    "proteomics-lab",
+    "proteomics-runtime",
+}
+
 
 def _release_var(name: str) -> str:
     for line in (
@@ -20,17 +38,13 @@ def _release_var(name: str) -> str:
     raise AssertionError(f"missing release env variable: {name}")
 
 
-def test_release_matrices_include_runtime_and_compat_roles() -> None:
+def test_release_matrices_include_every_public_install_surface() -> None:
     build_matrix = json.loads(_release_var("BIJUX_RELEASE_BUILD_MATRIX_JSON"))
     pypi_matrix = json.loads(_release_var("BIJUX_PYPI_PACKAGE_MATRIX_JSON"))
     ghcr_matrix = json.loads(_release_var("BIJUX_GHCR_RELEASE_PACKAGE_MATRIX_JSON"))
 
     build_slugs = {entry["package_slug"] for entry in build_matrix}
-    assert "agentic-proteins" in build_slugs
-    assert any(
-        slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
-        for slug in build_slugs
-    )
+    assert build_slugs == EXPECTED_PUBLIC_RELEASE_SLUGS
 
     role_by_slug = {
         entry["package_slug"]: entry.get("release_role") for entry in build_matrix
@@ -39,11 +53,7 @@ def test_release_matrices_include_runtime_and_compat_roles() -> None:
 
     for matrix in (pypi_matrix, ghcr_matrix):
         slugs = {entry["package_slug"] for entry in matrix}
-        assert "agentic-proteins" in slugs
-        assert any(
-            slug.startswith("bijux-proteomics-") and slug != "bijux-proteomics-dev"
-            for slug in slugs
-        )
+        assert slugs == EXPECTED_PUBLIC_RELEASE_SLUGS
         role_index = {
             entry["package_slug"]: entry.get("release_role") for entry in matrix
         }

@@ -21,10 +21,32 @@ def test_release_matrix_loader_reads_json_list() -> None:
     assert matrix
 
 
-def test_release_matrix_check_requires_runtime_and_compat_entries() -> None:
+def test_workspace_release_slug_inventory_matches_public_install_surface() -> None:
+    assert runtime_compatibility_validation._workspace_public_release_slugs(
+        REPO_ROOT
+    ) == (
+        "agentic-proteins",
+        "bijux-proteomics-foundation",
+        "bijux-proteomics-core",
+        "bijux-proteomics-runtime",
+        "bijux-proteomics-intelligence",
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-lab",
+        "bijux-proteomics",
+        "proteomics",
+        "proteomics-core",
+        "proteomics-foundation",
+        "proteomics-runtime",
+        "proteomics-intelligence",
+        "proteomics-knowledge",
+        "proteomics-lab",
+    )
+
+
+def test_release_matrix_check_requires_every_public_install_surface() -> None:
     result = runtime_compatibility_validation._check_release_matrices(REPO_ROOT)
     assert result.ok
-    assert "compatibility and core release packages" in result.detail
+    assert "published install surface" in result.detail
 
 
 def test_runtime_migration_runner_succeeds_with_stubbed_checks(
