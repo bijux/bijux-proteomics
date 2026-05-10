@@ -31,6 +31,11 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
             supported_attributes=("__version__",),
         ),
         PackagePublicSurfaceContract(
+            distribution_name="bijux-proteomics",
+            import_root="bijux_proteomics_alias",
+            supported_attributes=("__version__",),
+        ),
+        PackagePublicSurfaceContract(
             distribution_name="bijux-proteomics-core",
             import_root="bijux_proteomics",
             supported_attributes=(
@@ -87,6 +92,76 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
         PackagePublicSurfaceContract(
             distribution_name="bijux-proteomics-runtime",
             import_root="bijux_proteomics_runtime",
+            supported_attributes=("AppConfig", "create_app", "RunManager", "cli"),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics",
+            import_root="proteomics",
+            supported_attributes=(
+                "DigestPolicy",
+                "parse_fasta_document",
+                "parse_experimental_design_table",
+                "build_normalized_run_bundle",
+                "build_fdr_audit_trail",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-core",
+            import_root="proteomics_core",
+            supported_attributes=(
+                "DigestPolicy",
+                "parse_fasta_document",
+                "parse_experimental_design_table",
+                "build_normalized_run_bundle",
+                "build_fdr_audit_trail",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-foundation",
+            import_root="proteomics_foundation",
+            supported_attributes=(
+                "DocumentSchema",
+                "JsonModel",
+                "hash_payload",
+                "to_canonical_json",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-intelligence",
+            import_root="proteomics_intelligence",
+            supported_attributes=(
+                "candidates",
+                "governance",
+                "interpretation",
+                "judgment",
+                "learning",
+                "posture",
+                "reviews",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-knowledge",
+            import_root="proteomics_knowledge",
+            supported_attributes=(
+                "EvidenceBundle",
+                "EvidenceClaim",
+                "EvidenceRecord",
+                "KnowledgeDecisionBrief",
+                "evaluate_schema_compatibility",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-lab",
+            import_root="proteomics_lab",
+            supported_attributes=(
+                "plan_experiment_batches",
+                "build_advisory_assay_plan",
+                "build_executable_assay_plan",
+            ),
+        ),
+        PackagePublicSurfaceContract(
+            distribution_name="proteomics-runtime",
+            import_root="proteomics_runtime",
             supported_attributes=("AppConfig", "create_app", "RunManager", "cli"),
         ),
         PackagePublicSurfaceContract(

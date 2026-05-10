@@ -75,10 +75,10 @@ quality-runtime-boundaries: root-check-env ## Enforce runtime boundary contracts
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_boundaries
 
 quality-runtime-migration-ledger: root-check-env ## Validate agentic migration ledger coverage and freshness
-	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger --check
+	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.compatibility_ledger --check
 
 quality-runtime-migration-validation: root-check-env ## Run full runtime migration validation suite
-	@$(DEV_RUN) -m bijux_proteomics_dev.quality.architecture.runtime_migration_validation
+	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.runtime_compatibility_validation
 
 security-dependency-allowlist: root-check-env ## Validate the dependency allowlist
 	@$(DEV_RUN) -m bijux_proteomics_dev.security.dependency_allowlist

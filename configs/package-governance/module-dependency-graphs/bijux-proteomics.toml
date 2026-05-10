@@ -1,0 +1,9 @@
+# Generated module dependency graph.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.module_dependency_graphs
+
+distribution_name = "bijux-proteomics"
+
+[[module]]
+module_name = "bijux_proteomics_alias"
+outgoing_internal_modules = []
+outgoing_workspace_modules = []

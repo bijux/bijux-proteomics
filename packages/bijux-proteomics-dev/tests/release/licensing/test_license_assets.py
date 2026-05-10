@@ -28,6 +28,7 @@ def test_managed_assets_cover_every_workspace_package() -> None:
     package_targets = {asset.target.parent.name for asset in managed_assets()}
     assert package_targets == {
         "agentic-proteins",
+        "bijux-proteomics",
         "bijux-proteomics-core",
         "bijux-proteomics-dev",
         "bijux-proteomics-foundation",
@@ -35,6 +36,13 @@ def test_managed_assets_cover_every_workspace_package() -> None:
         "bijux-proteomics-knowledge",
         "bijux-proteomics-lab",
         "bijux-proteomics-runtime",
+        "proteomics",
+        "proteomics-core",
+        "proteomics-foundation",
+        "proteomics-intelligence",
+        "proteomics-knowledge",
+        "proteomics-lab",
+        "proteomics-runtime",
     }
 
 

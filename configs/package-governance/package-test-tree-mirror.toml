@@ -77,3 +77,75 @@ mirrored_owner_families = ["benchmarks", "design", "governance", "handoffs", "li
 missing_test_families = []
 extra_test_families = ["package"]
 flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0

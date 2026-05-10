@@ -66,6 +66,7 @@ interfaces/structure_reports.py,runtime_execution_ownership,bijux-proteomics-run
 orchestration/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 orchestration/analysis.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 orchestration/artifacts.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
+orchestration/bridge_contracts.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 orchestration/compiler/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 orchestration/compiler/boundary.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.
 orchestration/evaluation/__init__.py,runtime_execution_ownership,bijux-proteomics-runtime,Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces.

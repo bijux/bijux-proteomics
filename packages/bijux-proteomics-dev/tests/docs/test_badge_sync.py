@@ -51,6 +51,8 @@ def test_repository_badge_block_renders_all_public_badge_groups() -> None:
         "https://github.com/bijux?tab=packages&repo_name=bijux-proteomics" in rendered
     )
     assert "https://github.com/bijux?tab=packages)" not in rendered
+    assert "https://pypi.org/project/proteomics/" not in rendered
+    assert "https://pypi.org/project/bijux-proteomics/" not in rendered
 
 
 def test_package_badge_block_prioritizes_the_current_distribution() -> None:

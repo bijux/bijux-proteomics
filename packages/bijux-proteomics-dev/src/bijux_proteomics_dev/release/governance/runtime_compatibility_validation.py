@@ -3,8 +3,9 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 import json
-import os
 from pathlib import Path
+import subprocess
+import sys
 
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
     run as run_api_freeze,
@@ -18,7 +19,7 @@ from bijux_proteomics_dev.release.governance.compatibility_ledger import (
 
 REQUIRED_RELEASE_SLUGS = ("agentic-proteins",)
 COMPATIBILITY_TESTS = (
-    "packages/agentic-proteins/tests/unit/compat/test_import_forwarding.py",
+    "packages/agentic-proteins/tests/package/test_import_forwarding.py",
     "packages/bijux-proteomics-dev/tests/quality/architecture/test_runtime_boundaries_compat_forwarding.py",
     "packages/bijux-proteomics-dev/tests/governance/runtime/test_api_contract_roots.py",
     "packages/bijux-proteomics-dev/tests/governance/runtime/test_public_surfaces.py",
@@ -78,21 +79,37 @@ def _check_release_matrices(repo_root: Path) -> ValidationResult:
 
 
 def _run_pytest(repo_root: Path) -> ValidationResult:
-    import importlib
-
-    previous_cwd = Path.cwd()
-    try:
-        os.chdir(repo_root)
-        pytest = importlib.import_module("pytest")
-        result_code = pytest.main(["-q", *COMPATIBILITY_TESTS])
-    finally:
-        os.chdir(previous_cwd)
-
-    if result_code != 0:
+    cache_dir = repo_root / "artifacts" / "root" / "pytest-cache"
+    for test_path in COMPATIBILITY_TESTS:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "--rootdir",
+                str(repo_root),
+                "-o",
+                f"cache_dir={cache_dir}",
+                "-q",
+                test_path,
+            ],
+            cwd=repo_root,
+            check=False,
+        )
+        if result.returncode != 0:
+            return ValidationResult(
+                name="compatibility-tests",
+                ok=False,
+                detail=(
+                    f"compatibility test failures in {test_path} "
+                    f"(exit code {result.returncode})"
+                ),
+            )
+    if not COMPATIBILITY_TESTS:
         return ValidationResult(
             name="compatibility-tests",
             ok=False,
-            detail=f"compatibility test failures (exit code {result_code})",
+            detail="no compatibility tests are configured",
         )
     return ValidationResult(
         name="compatibility-tests",

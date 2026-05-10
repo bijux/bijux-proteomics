@@ -40,3 +40,43 @@ rationale = "knowledge stays as cited memory over foundation primitives and does
 distribution_name = "bijux-proteomics-lab"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
 rationale = "lab consumes core science, intelligence judgment, knowledge evidence, and foundation contracts without owning runtime orchestration."
+
+[[package]]
+distribution_name = "bijux-proteomics"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+rationale = "bijux-proteomics stays as an install-and-command alias for the canonical core package without owning additional product behavior."
+
+[[package]]
+distribution_name = "proteomics"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+rationale = "proteomics stays as the short install and import alias for canonical core surfaces."
+
+[[package]]
+distribution_name = "proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+rationale = "proteomics-core stays as the short alias for the canonical core distribution."
+
+[[package]]
+distribution_name = "proteomics-foundation"
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+rationale = "proteomics-foundation stays as the short alias for the canonical foundation distribution."
+
+[[package]]
+distribution_name = "proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-runtime"]
+rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution."
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-intelligence"]
+rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution."
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-knowledge"]
+rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution."
+
+[[package]]
+distribution_name = "proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-lab"]
+rationale = "proteomics-lab stays as the short alias for the canonical lab distribution."

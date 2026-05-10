@@ -6,6 +6,9 @@ from bijux_proteomics_dev.governance.package_shape.package_scorecard import (
     run,
     validate_package_scorecard,
 )
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_package_names,
+)
 
 
 def test_package_scorecard_is_up_to_date() -> None:
@@ -17,7 +20,7 @@ def test_package_scorecard_combines_owner_depth_breadth_and_proof() -> None:
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_SCORECARD_PATH.exists()
-    assert len(report.entries) == 8
+    assert set(by_package) == set(workspace_package_names())
     assert by_package["bijux-proteomics-runtime"].proof_depth_count >= 1
     assert by_package["bijux-proteomics-foundation"].wrapper_module_count == 6
     assert by_package["bijux-proteomics-lab"].architectural_ready is False

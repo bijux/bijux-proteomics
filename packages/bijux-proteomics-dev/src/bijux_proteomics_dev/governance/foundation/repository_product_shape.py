@@ -290,6 +290,12 @@ def _package_role_data() -> dict[str, tuple[str, str, str, tuple[str, ...]]]:
             "docs/02-agentic-proteins/foundation/compatibility-contract.md",
             (),
         ),
+        "bijux-proteomics": (
+            "alias",
+            "install and command alias for bijux-proteomics-core",
+            "packages/bijux-proteomics/README.md",
+            (),
+        ),
         "bijux-proteomics-dev": (
             "maintainer",
             "maintainer automation, docs checks, and release governance",
@@ -331,6 +337,48 @@ def _package_role_data() -> dict[str, tuple[str, str, str, tuple[str, ...]]]:
             "assay consequence planning, readiness, and observed outcomes",
             "docs/07-bijux-proteomics-lab/index.md",
             ("lab-consequence-record",),
+        ),
+        "proteomics": (
+            "alias",
+            "install and import alias for bijux-proteomics-core",
+            "packages/proteomics/README.md",
+            (),
+        ),
+        "proteomics-core": (
+            "alias",
+            "install and import alias for bijux-proteomics-core",
+            "packages/proteomics-core/README.md",
+            (),
+        ),
+        "proteomics-foundation": (
+            "alias",
+            "install and import alias for bijux-proteomics-foundation",
+            "packages/proteomics-foundation/README.md",
+            (),
+        ),
+        "proteomics-runtime": (
+            "alias",
+            "install and import alias for bijux-proteomics-runtime",
+            "packages/proteomics-runtime/README.md",
+            (),
+        ),
+        "proteomics-intelligence": (
+            "alias",
+            "install and import alias for bijux-proteomics-intelligence",
+            "packages/proteomics-intelligence/README.md",
+            (),
+        ),
+        "proteomics-knowledge": (
+            "alias",
+            "install and import alias for bijux-proteomics-knowledge",
+            "packages/proteomics-knowledge/README.md",
+            (),
+        ),
+        "proteomics-lab": (
+            "alias",
+            "install and import alias for bijux-proteomics-lab",
+            "packages/proteomics-lab/README.md",
+            (),
         ),
     }
 

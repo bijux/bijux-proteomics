@@ -13,12 +13,20 @@ def test_public_surface_contracts_cover_publishable_packages() -> None:
 
     assert [contract.distribution_name for contract in contracts] == [
         "agentic-proteins",
+        "bijux-proteomics",
         "bijux-proteomics-core",
         "bijux-proteomics-foundation",
         "bijux-proteomics-intelligence",
         "bijux-proteomics-knowledge",
         "bijux-proteomics-lab",
         "bijux-proteomics-runtime",
+        "proteomics",
+        "proteomics-core",
+        "proteomics-foundation",
+        "proteomics-intelligence",
+        "proteomics-knowledge",
+        "proteomics-lab",
+        "proteomics-runtime",
         "bijux-proteomics-dev",
     ]
 

@@ -53,6 +53,12 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
             ),
             rationale="agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners.",
         )
+    if package_name == "bijux-proteomics":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-core",),
+            rationale="bijux-proteomics stays as an install-and-command alias for the canonical core package without owning additional product behavior.",
+        )
     if package_name == "bijux-proteomics-dev":
         return PackageDependencyPolicyEntry(
             distribution_name=package_name,
@@ -124,6 +130,48 @@ def _policy_entry(package_name: str) -> PackageDependencyPolicyEntry:
                 "bijux-proteomics-knowledge",
             ),
             rationale="lab consumes core science, intelligence judgment, knowledge evidence, and foundation contracts without owning runtime orchestration.",
+        )
+    if package_name == "proteomics":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-core",),
+            rationale="proteomics stays as the short install and import alias for canonical core surfaces.",
+        )
+    if package_name == "proteomics-core":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-core",),
+            rationale="proteomics-core stays as the short alias for the canonical core distribution.",
+        )
+    if package_name == "proteomics-foundation":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-foundation",),
+            rationale="proteomics-foundation stays as the short alias for the canonical foundation distribution.",
+        )
+    if package_name == "proteomics-runtime":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-runtime",),
+            rationale="proteomics-runtime stays as the short alias for the canonical runtime distribution.",
+        )
+    if package_name == "proteomics-intelligence":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-intelligence",),
+            rationale="proteomics-intelligence stays as the short alias for the canonical intelligence distribution.",
+        )
+    if package_name == "proteomics-knowledge":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-knowledge",),
+            rationale="proteomics-knowledge stays as the short alias for the canonical knowledge distribution.",
+        )
+    if package_name == "proteomics-lab":
+        return PackageDependencyPolicyEntry(
+            distribution_name=package_name,
+            allowed_outbound_edges=("bijux-proteomics-lab",),
+            rationale="proteomics-lab stays as the short alias for the canonical lab distribution.",
         )
     raise KeyError(f"unknown package {package_name!r}")
 

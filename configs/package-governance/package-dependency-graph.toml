@@ -2,8 +2,8 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_dependency_graph
 
 [guard]
-max_total_edges = 28
-max_total_source_module_uses = 484
+max_total_edges = 29
+max_total_source_module_uses = 482
 
 [[edge]]
 source_distribution = "agentic-proteins"
@@ -183,20 +183,27 @@ target_modules = ["bijux_proteomics_foundation", "bijux_proteomics_foundation.se
 [[edge]]
 source_distribution = "bijux-proteomics-runtime"
 target_distribution = "bijux-proteomics-intelligence"
-source_module_count = 14
-source_modules = ["bijux_proteomics_runtime.api.cli", "bijux_proteomics_runtime.execution.agents.planning.validation", "bijux_proteomics_runtime.execution.agents.schemas", "bijux_proteomics_runtime.execution.agents.verification.quality_control", "bijux_proteomics_runtime.execution.evaluation.evaluation", "bijux_proteomics_runtime.execution.validation", "bijux_proteomics_runtime.runs.artifacts", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.tool_reliability", "bijux_proteomics_runtime.state.schemas", "bijux_proteomics_runtime.workflows.flagship_runs", "bijux_proteomics_runtime.workflows.flagship_workflow_chain"]
-target_modules = ["bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.candidates.quality", "bijux_proteomics_intelligence.candidates.records", "bijux_proteomics_intelligence.candidates.schema", "bijux_proteomics_intelligence.candidates.validation", "bijux_proteomics_intelligence.judgment.benchmark_corpora", "bijux_proteomics_intelligence.judgment.benchmark_packets", "bijux_proteomics_intelligence.judgment.flagship_decisions", "bijux_proteomics_intelligence.learning.refinement.runner"]
+source_module_count = 13
+source_modules = ["bijux_proteomics_runtime.api.cli", "bijux_proteomics_runtime.execution.agents.planning.validation", "bijux_proteomics_runtime.execution.agents.schemas", "bijux_proteomics_runtime.execution.agents.verification.quality_control", "bijux_proteomics_runtime.execution.evaluation.evaluation", "bijux_proteomics_runtime.execution.validation", "bijux_proteomics_runtime.runs.artifacts", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.tool_reliability", "bijux_proteomics_runtime.state.schemas", "bijux_proteomics_runtime.workflows.flagship_workflow_chain"]
+target_modules = ["bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.candidates.quality", "bijux_proteomics_intelligence.candidates.records", "bijux_proteomics_intelligence.candidates.schema", "bijux_proteomics_intelligence.candidates.validation", "bijux_proteomics_intelligence.judgment.flagship_decisions", "bijux_proteomics_intelligence.learning.refinement.runner"]
 
 [[edge]]
-source_distribution = "bijux-proteomics-runtime"
-target_distribution = "bijux-proteomics-knowledge"
-source_module_count = 2
-source_modules = ["bijux_proteomics_runtime.workflows.flagship_runs", "bijux_proteomics_runtime.workflows.flagship_workflow_chain"]
-target_modules = ["bijux_proteomics_knowledge.references.workflows.benchmarks", "bijux_proteomics_knowledge.references.workflows.reference_support", "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs", "bijux_proteomics_knowledge.reviews.flagship_evidence"]
+source_distribution = "proteomics"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 1
+source_modules = ["proteomics.cli"]
+target_modules = ["bijux_proteomics.interfaces.cli"]
 
 [[edge]]
-source_distribution = "bijux-proteomics-runtime"
-target_distribution = "bijux-proteomics-lab"
-source_module_count = 2
-source_modules = ["bijux_proteomics_runtime.workflows.flagship_runs", "bijux_proteomics_runtime.workflows.flagship_workflow_chain"]
-target_modules = ["bijux_proteomics_lab.benchmarks.follow_up", "bijux_proteomics_lab.reconciliation.flagship_follow_up"]
+source_distribution = "proteomics-core"
+target_distribution = "bijux-proteomics-core"
+source_module_count = 1
+source_modules = ["proteomics_core.cli"]
+target_modules = ["bijux_proteomics.interfaces.cli"]
+
+[[edge]]
+source_distribution = "proteomics-runtime"
+target_distribution = "bijux-proteomics-runtime"
+source_module_count = 1
+source_modules = ["proteomics_runtime.cli"]
+target_modules = ["bijux_proteomics_runtime.api.cli"]

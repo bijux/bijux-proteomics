@@ -18,9 +18,10 @@ def test_package_family_readiness_reports_cover_declared_families() -> None:
     reports = build_package_family_readiness_reports(REPO_ROOT)
     by_family = {report.family_id: report for report in reports}
 
-    assert len(reports) == 3
+    assert len(reports) == 4
     assert {report.family_id for report in reports} == {
         "compatibility-bridge",
+        "install-aliases",
         "scientific-platform",
         "runtime-service",
     }

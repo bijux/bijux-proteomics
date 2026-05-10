@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import importlib
 import inspect
 from pathlib import Path
+from functools import lru_cache
 
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
@@ -75,24 +76,39 @@ def _symbol_kind(value: object) -> str:
     return "data"
 
 
-def _root_export_sources(package_name: str) -> dict[str, str]:
-    init_path = src_root(package_name) / "__init__.py"
-    tree = ast.parse(init_path.read_text(encoding="utf-8"), filename=str(init_path))
+def _module_export_sources(
+    root_module_name: str,
+    module_path: Path,
+    *,
+    visited: frozenset[str] = frozenset(),
+) -> dict[str, str]:
+    if root_module_name in visited:
+        return {}
+    tree = ast.parse(module_path.read_text(encoding="utf-8"), filename=str(module_path))
     mapping: dict[str, str] = {}
-    root_name = import_root(package_name)
+    runtime_package_name: str | None = None
     for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if (
+                    isinstance(target, ast.Name)
+                    and target.id == "_RUNTIME_PACKAGE"
+                    and isinstance(node.value, ast.Constant)
+                    and isinstance(node.value.value, str)
+                ):
+                    runtime_package_name = node.value.value
         if isinstance(node, ast.ImportFrom):
             if node.level == 0:
                 if node.module is None:
                     continue
-                module_name = node.module
+                source_module_name = node.module
             else:
                 relative_parts = []
                 if node.module:
                     relative_parts.extend(node.module.split("."))
-                module_name = ".".join((root_name, *relative_parts))
+                source_module_name = ".".join((root_module_name, *relative_parts))
             for alias in node.names:
-                mapping[alias.asname or alias.name] = module_name
+                mapping[alias.asname or alias.name] = source_module_name
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 mapping[alias.asname or alias.name] = alias.name
@@ -109,7 +125,25 @@ def _root_export_sources(package_name: str) -> dict[str, str]:
                     and isinstance(value.elts[0].value, str)
                 ):
                     mapping[key.value] = value.elts[0].value
+    if runtime_package_name and runtime_package_name != root_module_name:
+        runtime_package = importlib.import_module(runtime_package_name)
+        runtime_module_file = getattr(runtime_package, "__file__", None)
+        if runtime_module_file:
+            runtime_module_path = Path(runtime_module_file).resolve()
+            mapping.update(
+                _module_export_sources(
+                    runtime_package_name,
+                    runtime_module_path,
+                    visited=visited | {root_module_name},
+                )
+            )
     return mapping
+
+
+@lru_cache(maxsize=None)
+def _root_export_sources(package_name: str) -> dict[str, str]:
+    root_name = import_root(package_name)
+    return _module_export_sources(root_name, src_root(package_name) / "__init__.py")
 
 
 def _owner_module_name(
@@ -216,7 +250,10 @@ def build_public_symbol_ledger_report() -> PublicSymbolLedgerReport:
             owner_distribution_name = _owner_distribution_name(
                 owner_module_name, package_name
             )
-            owner_module_path = _owner_module_path(package_name, owner_module_name)
+            owner_module_path = _owner_module_path(
+                owner_distribution_name,
+                owner_module_name,
+            )
             owner_test_paths = _candidate_owner_test_paths(
                 owner_package_name=owner_distribution_name,
                 symbol_name=symbol_name,

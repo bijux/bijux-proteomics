@@ -10,6 +10,7 @@ from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 WORKSPACE_IMPORT_ROOTS = (
     "agentic_proteins",
+    "bijux_proteomics_alias",
     "bijux_proteomics",
     "bijux_proteomics_dev",
     "bijux_proteomics_foundation",
@@ -17,6 +18,13 @@ WORKSPACE_IMPORT_ROOTS = (
     "bijux_proteomics_knowledge",
     "bijux_proteomics_lab",
     "bijux_proteomics_runtime",
+    "proteomics",
+    "proteomics_core",
+    "proteomics_foundation",
+    "proteomics_intelligence",
+    "proteomics_knowledge",
+    "proteomics_lab",
+    "proteomics_runtime",
 )
 ROOT_API_POLICY_DIR = REPO_ROOT / "configs" / "package-governance"
 
@@ -32,6 +40,8 @@ def workspace_package_names() -> tuple[str, ...]:
 def import_root(package_name: str) -> str:
     if package_name == "bijux-proteomics-core":
         return "bijux_proteomics"
+    if package_name == "bijux-proteomics":
+        return "bijux_proteomics_alias"
     return package_name.replace("-", "_")
 
 

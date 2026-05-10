@@ -260,7 +260,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation.serialization.json_co
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.reviews"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.reviews.decision_briefs", "bijux_proteomics_knowledge.reviews.explanations", "bijux_proteomics_knowledge.reviews.flagship_evidence", "bijux_proteomics_knowledge.reviews.provenance", "bijux_proteomics_knowledge.reviews.trends"]
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]

@@ -364,6 +364,11 @@ outgoing_internal_modules = ["bijux_proteomics_dev.governance.runtime.topology"]
 outgoing_workspace_modules = []
 
 [[module]]
+module_name = "bijux_proteomics_dev.governance.package_shape.package_surface_coherence"
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers", "bijux_proteomics_dev.governance.package_shape.package_tree_dossiers", "bijux_proteomics_dev.governance.package_shape.public_surfaces", "bijux_proteomics_dev.governance.runtime.topology"]
+outgoing_workspace_modules = []
+
+[[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.package_surface_pressure"
 outgoing_internal_modules = ["bijux_proteomics_dev.governance.package_shape.package_module_ledger", "bijux_proteomics_dev.governance.package_shape.public_symbol_ledger", "bijux_proteomics_dev.governance.runtime.topology"]
 outgoing_workspace_modules = []

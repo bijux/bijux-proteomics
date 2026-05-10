@@ -66,7 +66,7 @@ def _package_project(package_slug: str) -> dict[str, Any]:
 def _public_package_slugs() -> tuple[str, ...]:
     workspace = _workspace_metadata()
     docs_package = cast(str, workspace["docs_package"])
-    packages = cast(list[str], workspace["packages"])
+    packages = cast(list[str], workspace.get("badge_packages", workspace["packages"]))
     return tuple(
         package_slug for package_slug in packages if package_slug != docs_package
     )

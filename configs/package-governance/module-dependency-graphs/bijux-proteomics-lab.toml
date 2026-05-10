@@ -65,7 +65,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_lab.handoffs"
-outgoing_internal_modules = ["bijux_proteomics_lab.handoffs.artifacts", "bijux_proteomics_lab.handoffs.explanations", "bijux_proteomics_lab.handoffs.exports", "bijux_proteomics_lab.handoffs.ptm", "bijux_proteomics_lab.handoffs.risk", "bijux_proteomics_lab.handoffs.serialization", "bijux_proteomics_lab.handoffs.transitions"]
+outgoing_internal_modules = []
 outgoing_workspace_modules = []
 
 [[module]]

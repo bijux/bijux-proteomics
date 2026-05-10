@@ -48,3 +48,29 @@ evidence_paths = [
   "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/compatibility_migration_guides.py",
 ]
 rationale = "the compatibility bridge stays publishable only while its live migration path, wrapper-only inventory, and preserved API contract stay reviewable in code"
+
+[[family]]
+family_id = "install-aliases"
+package_names = [
+  "bijux-proteomics",
+  "proteomics",
+  "proteomics-core",
+  "proteomics-foundation",
+  "proteomics-runtime",
+  "proteomics-intelligence",
+  "proteomics-knowledge",
+  "proteomics-lab",
+]
+evidence_paths = [
+  "README.md",
+  "docs/index.md",
+  "packages/bijux-proteomics/README.md",
+  "packages/proteomics/README.md",
+  "packages/proteomics-core/README.md",
+  "packages/proteomics-foundation/README.md",
+  "packages/proteomics-runtime/README.md",
+  "packages/proteomics-intelligence/README.md",
+  "packages/proteomics-knowledge/README.md",
+  "packages/proteomics-lab/README.md",
+]
+rationale = "install aliases stay publishable only while each alias remains thin, explicitly routed to one canonical owner, and documented as a naming shortcut rather than an additional product layer"
