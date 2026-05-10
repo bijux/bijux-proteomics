@@ -10,9 +10,21 @@ change contributor and maintainer workflows across the repository.
 
 ## Unreleased
 
+### Added
+
+- Added install aliases for the canonical workspace packages: `bijux-proteomics`,
+  `proteomics`, `proteomics-core`, `proteomics-foundation`,
+  `proteomics-runtime`, `proteomics-intelligence`, `proteomics-knowledge`,
+  and `proteomics-lab`.
+
 ### Changed
 
-- No unreleased changes yet.
+- Updated repository governance, package-shape manifests, and release-family
+  reports so alias packages are tracked as install surfaces without being
+  treated as second owner packages.
+- Updated the repository and documentation landing pages to explain the alias
+  package layer while keeping canonical owner packages as the primary product
+  reference surface.
 
 ## 0.3.7 - 2026-04-21
 
