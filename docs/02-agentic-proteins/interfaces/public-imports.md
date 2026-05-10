@@ -15,7 +15,8 @@ The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compat
 
 ## Package Surface
 
-- `agentic_proteins` import paths that still exist for compatibility review
+- `agentic_proteins` root imports for the same top-level runtime exports that
+  the canonical package exposes
 - `agentic_proteins.interfaces` for public CLI, HTTP, and structure-report
   entrypoints that forward toward canonical owners
 - `agentic_proteins.execution`, `state`, `providers`, `tools`, and `agents`

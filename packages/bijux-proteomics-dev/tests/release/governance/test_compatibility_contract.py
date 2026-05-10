@@ -31,7 +31,12 @@ def test_agentic_contract_keeps_compatibility_role_explicit() -> None:
     assert package.role_summary == (
         "legacy compatibility bridge for runtime entrypoints and imports"
     )
-    assert public_surface.supported_attributes == ("__version__",)
+    assert public_surface.supported_attributes == (
+        "AppConfig",
+        "create_app",
+        "RunManager",
+        "cli",
+    )
     assert public_surface.supported_modules == ()
 
 

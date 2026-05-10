@@ -28,7 +28,7 @@ def default_public_surface_contracts() -> tuple[PackagePublicSurfaceContract, ..
         PackagePublicSurfaceContract(
             distribution_name="agentic-proteins",
             import_root="agentic_proteins",
-            supported_attributes=("__version__",),
+            supported_attributes=("AppConfig", "create_app", "RunManager", "cli"),
         ),
         PackagePublicSurfaceContract(
             distribution_name="bijux-proteomics",

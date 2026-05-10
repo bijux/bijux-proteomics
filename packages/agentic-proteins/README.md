@@ -42,10 +42,11 @@ behavior stays in canonical packages.
 
 ## Compatibility contract
 
+- mirrors the canonical runtime root exports at `agentic_proteins`
 - forwards surviving bridge families to `bijux-proteomics-runtime`
 - forwards structure-report and lower scientific surfaces to canonical packages
-- keeps the import root intentionally thin: package root metadata plus
-  compatibility families only
+- keeps the historical submodule tree explicit so legacy imports stay
+  inspectable
 - exists to preserve migration safety for existing integrations
 
 ## Installation
@@ -78,6 +79,7 @@ from bijux_proteomics_runtime.api.cli import cli
 Legacy imports continue to work via forwarding:
 
 ```python
+from agentic_proteins import cli
 from agentic_proteins.interfaces.cli import cli
 ```
 
@@ -91,6 +93,7 @@ from agentic_proteins.interfaces.cli import cli
 ## Package boundaries
 
 - this package owns compatibility routing only
+- the root import `agentic_proteins` mirrors canonical runtime root exports
 - this package keeps the durable bridge tree under `interfaces/`, `agents/`,
   `orchestration/`, `providers/`, `state/`, and `tools/`
 - historical `execution/`, `agents/execution/`, and

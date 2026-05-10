@@ -107,10 +107,16 @@ def test_removed_compat_families_stay_deleted() -> None:
         assert not (root / family).exists(), family
 
 
-def test_package_root_exports_version_only() -> None:
+def test_package_root_mirrors_runtime_root_exports() -> None:
     import agentic_proteins
+    import bijux_proteomics_runtime
 
-    assert agentic_proteins.__all__ == ["__version__"]
+    assert agentic_proteins.__all__ == list(bijux_proteomics_runtime.__all__)
+    for name in bijux_proteomics_runtime.__all__:
+        assert getattr(agentic_proteins, name) is getattr(
+            bijux_proteomics_runtime, name
+        )
+    assert agentic_proteins.__version__
 
 
 def test_high_level_tests_use_public_entrypoints() -> None:
