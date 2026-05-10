@@ -12,6 +12,7 @@ resolution-markers = [
 [manifest]
 members = [
     "agentic-proteins",
+    "bijux-proteomics",
     "bijux-proteomics-core",
     "bijux-proteomics-dev",
     "bijux-proteomics-foundation",
@@ -20,6 +21,13 @@ members = [
     "bijux-proteomics-lab",
     "bijux-proteomics-repository",
     "bijux-proteomics-runtime",
+    "proteomics",
+    "proteomics-core",
+    "proteomics-foundation",
+    "proteomics-intelligence",
+    "proteomics-knowledge",
+    "proteomics-lab",
+    "proteomics-runtime",
 ]
 
 [[package]]
@@ -379,6 +387,16 @@ wheels = [
 ]
 
 [[package]]
+name = "bijux-proteomics"
+source = { editable = "packages/bijux-proteomics" }
+dependencies = [
+    { name = "bijux-proteomics-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" }]
+
+[[package]]
 name = "bijux-proteomics-core"
 source = { editable = "packages/bijux-proteomics-core" }
 dependencies = [
@@ -570,6 +588,7 @@ dev = [
     { name = "agentic-proteins" },
     { name = "arq" },
     { name = "bandit" },
+    { name = "bijux-proteomics" },
     { name = "bijux-proteomics-core" },
     { name = "bijux-proteomics-dev" },
     { name = "bijux-proteomics-foundation" },
@@ -595,6 +614,13 @@ dev = [
     { name = "pexpect" },
     { name = "pip-audit" },
     { name = "prance" },
+    { name = "proteomics" },
+    { name = "proteomics-core" },
+    { name = "proteomics-foundation" },
+    { name = "proteomics-intelligence" },
+    { name = "proteomics-knowledge" },
+    { name = "proteomics-lab" },
+    { name = "proteomics-runtime" },
     { name = "pydocstyle" },
     { name = "pyfakefs" },
     { name = "pytest" },
@@ -644,6 +670,7 @@ dev = [
     { name = "agentic-proteins", editable = "packages/agentic-proteins" },
     { name = "arq", specifier = ">=0.18" },
     { name = "bandit", specifier = ">=1.7.10,<2.0" },
+    { name = "bijux-proteomics", editable = "packages/bijux-proteomics" },
     { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
     { name = "bijux-proteomics-dev", editable = "packages/bijux-proteomics-dev" },
     { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
@@ -669,6 +696,13 @@ dev = [
     { name = "pexpect", specifier = ">=4.8.0,<5.0" },
     { name = "pip-audit", specifier = ">=2.7.3,<3.0" },
     { name = "prance", specifier = ">=23.6.21.0" },
+    { name = "proteomics", editable = "packages/proteomics" },
+    { name = "proteomics-core", editable = "packages/proteomics-core" },
+    { name = "proteomics-foundation", editable = "packages/proteomics-foundation" },
+    { name = "proteomics-intelligence", editable = "packages/proteomics-intelligence" },
+    { name = "proteomics-knowledge", editable = "packages/proteomics-knowledge" },
+    { name = "proteomics-lab", editable = "packages/proteomics-lab" },
+    { name = "proteomics-runtime", editable = "packages/proteomics-runtime" },
     { name = "pydocstyle", specifier = ">=6.2.1,<7.0" },
     { name = "pyfakefs", specifier = ">=5.9.0" },
     { name = "pytest", specifier = ">=8.4.1,<10.0" },
@@ -3792,6 +3826,76 @@ sdist = { url = "https://files.pythonhosted.org/packages/ec/29/f27a4e1eddf72ed3d
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bd/4d/fc923f5c85318ee8cc903566dc4e0ebe41b2dfc1d2ecf5546db232397ed6/properdocs-1.6.7-py3-none-any.whl", hash = "sha256:6fa0cfa2e01bf338f684892c8a506cf70ea88ae7f3479c933b6fa20168101cbd", size = 225406, upload-time = "2026-03-20T20:07:46.875Z" },
 ]
+
+[[package]]
+name = "proteomics"
+source = { editable = "packages/proteomics" }
+dependencies = [
+    { name = "bijux-proteomics-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" }]
+
+[[package]]
+name = "proteomics-core"
+source = { editable = "packages/proteomics-core" }
+dependencies = [
+    { name = "bijux-proteomics-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" }]
+
+[[package]]
+name = "proteomics-foundation"
+source = { editable = "packages/proteomics-foundation" }
+dependencies = [
+    { name = "bijux-proteomics-foundation" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" }]
+
+[[package]]
+name = "proteomics-intelligence"
+source = { editable = "packages/proteomics-intelligence" }
+dependencies = [
+    { name = "bijux-proteomics-intelligence" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" }]
+
+[[package]]
+name = "proteomics-knowledge"
+source = { editable = "packages/proteomics-knowledge" }
+dependencies = [
+    { name = "bijux-proteomics-knowledge" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" }]
+
+[[package]]
+name = "proteomics-lab"
+source = { editable = "packages/proteomics-lab" }
+dependencies = [
+    { name = "bijux-proteomics-lab" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" }]
+
+[[package]]
+name = "proteomics-runtime"
+source = { editable = "packages/proteomics-runtime" }
+dependencies = [
+    { name = "bijux-proteomics-runtime" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" }]
 
 [[package]]
 name = "ptyprocess"

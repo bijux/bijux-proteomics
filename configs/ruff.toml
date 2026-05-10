@@ -5,6 +5,8 @@ cache-dir = "artifacts/root/ruff-cache"
 src = [
   "packages/agentic-proteins/src",
   "packages/agentic-proteins/tests",
+  "packages/bijux-proteomics/src",
+  "packages/bijux-proteomics/tests",
   "packages/bijux-proteomics-core/src",
   "packages/bijux-proteomics-core/tests",
   "packages/bijux-proteomics-dev/src",
@@ -19,6 +21,20 @@ src = [
   "packages/bijux-proteomics-lab/tests",
   "packages/bijux-proteomics-runtime/src",
   "packages/bijux-proteomics-runtime/tests",
+  "packages/proteomics/src",
+  "packages/proteomics/tests",
+  "packages/proteomics-core/src",
+  "packages/proteomics-core/tests",
+  "packages/proteomics-foundation/src",
+  "packages/proteomics-foundation/tests",
+  "packages/proteomics-intelligence/src",
+  "packages/proteomics-intelligence/tests",
+  "packages/proteomics-knowledge/src",
+  "packages/proteomics-knowledge/tests",
+  "packages/proteomics-lab/src",
+  "packages/proteomics-lab/tests",
+  "packages/proteomics-runtime/src",
+  "packages/proteomics-runtime/tests",
 ]
 exclude = [
   ".git",
@@ -51,6 +67,7 @@ ignore = ["E501", "E203"]
 force-sort-within-sections = true
 known-first-party = [
   "agentic_proteins",
+  "bijux_proteomics_alias",
   "bijux_proteomics",
   "bijux_proteomics_dev",
   "bijux_proteomics_foundation",
@@ -58,6 +75,13 @@ known-first-party = [
   "bijux_proteomics_knowledge",
   "bijux_proteomics_lab",
   "bijux_proteomics_runtime",
+  "proteomics",
+  "proteomics_core",
+  "proteomics_foundation",
+  "proteomics_intelligence",
+  "proteomics_knowledge",
+  "proteomics_lab",
+  "proteomics_runtime",
   "tests",
 ]
 

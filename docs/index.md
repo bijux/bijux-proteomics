@@ -4,7 +4,7 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-05-09
+last_reviewed: 2026-05-10
 ---
 
 # Bijux Proteomics
@@ -13,7 +13,9 @@ last_reviewed: 2026-05-09
 execution, scientific review, recommendation posture, and lab consequence.
 
 The package split exists so those steps stay reviewable, but the reader should
-not have to learn the package tree before they can learn the product.
+not have to learn the package tree before they can learn the product. Short
+install aliases now reserve `bijux-proteomics`, `proteomics`, and the
+family-scoped `proteomics-*` names without creating second owner packages.
 
 ## Product Scope
 
@@ -105,6 +107,9 @@ for the live limit list.
 
 ## Package Family At A Glance
 
+<code>bijux-proteomics-runtime</code> governs execution and replay.
+<code>agentic-proteins</code> preserves compatibility entrypoints.
+
 | Package | Owns |
 | --- | --- |
 | `bijux-proteomics-foundation` | shared contracts, identifiers, and deterministic serialization |
@@ -114,6 +119,23 @@ for the live limit list.
 | `bijux-proteomics-intelligence` | recommendation posture, ranking sensitivity, and refusal behavior |
 | `bijux-proteomics-lab` | assay consequence planning, readiness, and observed outcomes |
 | `agentic-proteins` | legacy compatibility bridge for runtime entrypoints and imports |
+
+## Install Aliases
+
+Canonical owner packages stay the product reference surface. Alias
+distributions exist so the same package owners can also be installed under the
+shorter or reserve-worthy names below.
+
+| Alias package | Canonical owner package |
+| --- | --- |
+| `bijux-proteomics` | `bijux-proteomics-core` |
+| `proteomics` | `bijux-proteomics-core` |
+| `proteomics-core` | `bijux-proteomics-core` |
+| `proteomics-foundation` | `bijux-proteomics-foundation` |
+| `proteomics-runtime` | `bijux-proteomics-runtime` |
+| `proteomics-intelligence` | `bijux-proteomics-intelligence` |
+| `proteomics-knowledge` | `bijux-proteomics-knowledge` |
+| `proteomics-lab` | `bijux-proteomics-lab` |
 
 ## Boundary
 

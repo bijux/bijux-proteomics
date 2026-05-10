@@ -5,7 +5,9 @@ execution, scientific review, recommendation posture, and lab consequence.
 
 Six real product packages own that chain. `agentic-proteins` stays as a legacy
 compatibility bridge for runtime entrypoints and imports, while
-`bijux-proteomics-dev` owns repository-health automation.
+`bijux-proteomics-dev` owns repository-health automation. Short install aliases
+now reserve `bijux-proteomics`, `proteomics`, and the family-scoped
+`proteomics-*` package names without creating second owner surfaces.
 
 ## Product Scope
 
@@ -104,8 +106,8 @@ and the current hostile-review blockers are tracked in
 
 ## Package Map
 
-The publishable surface is `6` real product packages and `1` compatibility
-bridge:
+The canonical publishable surface is `6` real product packages and `1`
+compatibility bridge:
 
 | Package | Role | Links |
 | --- | --- | --- |
@@ -120,6 +122,25 @@ bridge:
 Repository-owned developer tooling also lives here in
 [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev), but it is for
 maintaining the workspace rather than for end-user installation.
+
+## Install Aliases
+
+The repository also publishes `8` install aliases so the canonical packages can
+be discovered under shorter or reserve-worthy package names. Those aliases
+forward into the same owner packages above, so the badge catalog stays focused
+on canonical package owners rather than duplicating the same runtime under
+multiple names.
+
+| Alias package | Resolves to | Reference docs | Purpose |
+| --- | --- | --- | --- |
+| `bijux-proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | reserve the top-level project name as an install and command surface |
+| `proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short install, import, and CLI alias for the core package |
+| `proteomics-core` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short family-specific alias for the core package |
+| `proteomics-foundation` | `bijux-proteomics-foundation` | [Foundation handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) | short alias for the shared foundation package |
+| `proteomics-runtime` | `bijux-proteomics-runtime` | [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) | short alias for the execution package and runtime CLI |
+| `proteomics-intelligence` | `bijux-proteomics-intelligence` | [Intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) | short alias for recommendation and review logic |
+| `proteomics-knowledge` | `bijux-proteomics-knowledge` | [Knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) | short alias for evidence memory and contradiction handling |
+| `proteomics-lab` | `bijux-proteomics-lab` | [Lab handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) | short alias for assay follow-up planning |
 
 ## Common Commands
 
@@ -179,7 +200,7 @@ not silent drift from the other `bijux-g3` repos.
 - `release-artifacts.yml` builds each package artifact bundle, then calls `release-pypi.yml`, `release-ghcr.yml`, and `release-github.yml`
 - `release-ghcr.yml` publishes one GHCR bundle per package and `release-github.yml` assembles the GitHub Release from staged assets
 - `release-pypi.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
-- coordinated release language must keep `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility
+- coordinated release language must keep `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility, while treating `bijux-proteomics` and `proteomics*` names as install aliases rather than second owners
 
 Recommended release order:
 

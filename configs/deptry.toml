@@ -2,10 +2,14 @@
 optional_dependencies_dev_groups = ["dev"]
 ignore = ["DEP002", "DEP003"]
 extend_exclude = ["docs", "apis", "artifacts", "site"]
-package_module_name_map = { "agentic-proteins" = "agentic_proteins", "bijux-proteomics-core" = "bijux_proteomics", "bijux-proteomics-dev" = "bijux_proteomics_dev", "bijux-proteomics-foundation" = "bijux_proteomics_foundation", "bijux-proteomics-intelligence" = "bijux_proteomics_intelligence", "bijux-proteomics-knowledge" = "bijux_proteomics_knowledge", "bijux-proteomics-lab" = "bijux_proteomics_lab", "bijux-proteomics-runtime" = "bijux_proteomics_runtime", "boto3" = "boto3", "einops" = "einops", "hatch" = "hatch", "huggingface-hub" = "huggingface_hub", "langchain-community" = "langchain_community", "langchain-core" = "langchain_core", "langchain-huggingface" = "langchain_huggingface", "langchain-text-splitters" = "langchain_text_splitters", "langsmith" = "langsmith", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin", "openapi-spec-validator" = "openapi_spec_validator", "openprotein-python" = "openprotein", "pyfakefs" = "pyfakefs", "pytest-mock" = "pytest_mock", "slowapi" = "slowapi", "tokenizers" = "tokenizers", "torch" = "torch", "transformers" = "transformers" }
+package_module_name_map = { "agentic-proteins" = "agentic_proteins", "bijux-proteomics" = "bijux_proteomics_alias", "bijux-proteomics-core" = "bijux_proteomics", "bijux-proteomics-dev" = "bijux_proteomics_dev", "bijux-proteomics-foundation" = "bijux_proteomics_foundation", "bijux-proteomics-intelligence" = "bijux_proteomics_intelligence", "bijux-proteomics-knowledge" = "bijux_proteomics_knowledge", "bijux-proteomics-lab" = "bijux_proteomics_lab", "bijux-proteomics-runtime" = "bijux_proteomics_runtime", "boto3" = "boto3", "einops" = "einops", "hatch" = "hatch", "huggingface-hub" = "huggingface_hub", "langchain-community" = "langchain_community", "langchain-core" = "langchain_core", "langchain-huggingface" = "langchain_huggingface", "langchain-text-splitters" = "langchain_text_splitters", "langsmith" = "langsmith", "mkdocs-autorefs" = "mkdocs_autorefs", "mkdocs-git-revision-date-localized-plugin" = "mkdocs_git_revision_date_localized_plugin", "openapi-spec-validator" = "openapi_spec_validator", "openprotein-python" = "openprotein", "proteomics" = "proteomics", "proteomics-core" = "proteomics_core", "proteomics-foundation" = "proteomics_foundation", "proteomics-intelligence" = "proteomics_intelligence", "proteomics-knowledge" = "proteomics_knowledge", "proteomics-lab" = "proteomics_lab", "proteomics-runtime" = "proteomics_runtime", "pyfakefs" = "pyfakefs", "pytest-mock" = "pytest_mock", "slowapi" = "slowapi", "tokenizers" = "tokenizers", "torch" = "torch", "transformers" = "transformers" }
 
 [tool.repo_deptry.packages."agentic-proteins"]
 known_first_party = ["agentic_proteins"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."bijux-proteomics"]
+known_first_party = ["bijux_proteomics_alias"]
 ignore = ["DEP002", "DEP003"]
 
 [tool.repo_deptry.packages."bijux-proteomics-foundation"]
@@ -35,4 +39,32 @@ ignore = ["DEP002", "DEP003"]
 
 [tool.repo_deptry.packages."bijux-proteomics-runtime"]
 known_first_party = ["bijux_proteomics_runtime"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics"]
+known_first_party = ["proteomics"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-core"]
+known_first_party = ["proteomics_core"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-foundation"]
+known_first_party = ["proteomics_foundation"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-intelligence"]
+known_first_party = ["proteomics_intelligence"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-knowledge"]
+known_first_party = ["proteomics_knowledge"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-lab"]
+known_first_party = ["proteomics_lab"]
+ignore = ["DEP002", "DEP003"]
+
+[tool.repo_deptry.packages."proteomics-runtime"]
+known_first_party = ["proteomics_runtime"]
 ignore = ["DEP002", "DEP003"]
