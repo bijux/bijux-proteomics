@@ -35,10 +35,6 @@ name = "agentic-proteins"
 source = { editable = "packages/agentic-proteins" }
 dependencies = [
     { name = "bijux-proteomics-core" },
-    { name = "bijux-proteomics-foundation" },
-    { name = "bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge" },
-    { name = "bijux-proteomics-lab" },
     { name = "bijux-proteomics-runtime" },
 ]
 
@@ -59,10 +55,6 @@ nl = [
 [package.metadata]
 requires-dist = [
     { name = "bijux-proteomics-core", editable = "packages/bijux-proteomics-core" },
-    { name = "bijux-proteomics-foundation", editable = "packages/bijux-proteomics-foundation" },
-    { name = "bijux-proteomics-intelligence", editable = "packages/bijux-proteomics-intelligence" },
-    { name = "bijux-proteomics-knowledge", editable = "packages/bijux-proteomics-knowledge" },
-    { name = "bijux-proteomics-lab", editable = "packages/bijux-proteomics-lab" },
     { name = "bijux-proteomics-runtime", editable = "packages/bijux-proteomics-runtime" },
     { name = "bijux-proteomics-runtime", extras = ["api"], marker = "extra == 'api'", editable = "packages/bijux-proteomics-runtime" },
     { name = "bijux-proteomics-runtime", extras = ["local-esmfold"], marker = "extra == 'local-esmfold'", editable = "packages/bijux-proteomics-runtime" },
