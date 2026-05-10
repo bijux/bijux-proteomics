@@ -3,6 +3,7 @@ from __future__ import annotations
 from configparser import ConfigParser
 from pathlib import Path
 import tomllib
+from typing import Any, cast
 
 REPO_ROOT = next(
     parent
@@ -17,9 +18,14 @@ def _mypy_config() -> ConfigParser:
     return parser
 
 
-def _root_pyproject() -> dict[str, object]:
+def _root_pyproject() -> dict[str, Any]:
     with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
         return tomllib.load(handle)
+
+
+def _table(payload: object) -> dict[str, Any]:
+    assert isinstance(payload, dict)
+    return cast(dict[str, Any], payload)
 
 
 def _tox_config() -> ConfigParser:
@@ -33,7 +39,7 @@ def test_root_mypy_configuration_uses_namespace_packages() -> None:
 
 
 def test_root_pyproject_declares_documented_quality_tooling() -> None:
-    tool_section = _root_pyproject()["tool"]
+    tool_section = _table(_root_pyproject()["tool"])
     interrogate = tool_section["interrogate"]
     assert interrogate["fail-under"] == 45
     assert interrogate["color"] is True
@@ -46,7 +52,7 @@ def test_root_tox_configuration_redirects_state_into_root_artifacts() -> None:
 
 
 def test_root_pyproject_declares_documented_security_tooling() -> None:
-    tool_section = _root_pyproject()["tool"]
+    tool_section = _table(_root_pyproject()["tool"])
     bandit = tool_section["bandit"]
     assert bandit["skips"] == ["B404", "B311"]
     assert bandit["exclude_dirs"] == [
@@ -60,6 +66,7 @@ def test_root_pyproject_declares_documented_security_tooling() -> None:
 
 def test_root_pyproject_declares_repo_owned_optional_dependency_groups() -> None:
     dependency_groups = _root_pyproject()["dependency-groups"]
+    assert isinstance(dependency_groups, dict)
     assert set(dependency_groups) == {
         "dev",
         "api",

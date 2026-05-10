@@ -108,30 +108,33 @@ def module_dependency_edges(
                         )
                     )
             elif isinstance(node, ast.ImportFrom):
-                target_name: str | None = None
-                target_distribution: str | None = None
+                resolved_target_name: str | None = None
+                resolved_target_distribution: str | None = None
                 if node.level > 0:
-                    target_name = _resolve_relative_module(
+                    resolved_target_name = _resolve_relative_module(
                         package_name,
                         path,
                         level=node.level,
                         module_name=node.module,
                     )
-                    if target_name is not None:
-                        target_distribution = package_name
+                    if resolved_target_name is not None:
+                        resolved_target_distribution = package_name
                 elif node.module is not None:
-                    target_name = node.module
-                    root_name = target_name.split(".")[0]
-                    target_distribution = roots.get(root_name)
-                if target_name is None or target_distribution is None:
+                    resolved_target_name = node.module
+                    root_name = resolved_target_name.split(".")[0]
+                    resolved_target_distribution = roots.get(root_name)
+                if (
+                    resolved_target_name is None
+                    or resolved_target_distribution is None
+                ):
                     continue
                 edges.add(
                     WorkspaceModuleDependencyEdge(
                         source_distribution=package_name,
                         source_module=source_module,
-                        target_distribution=target_distribution,
-                        target_module=target_name,
-                        internal=target_distribution == package_name,
+                        target_distribution=resolved_target_distribution,
+                        target_module=resolved_target_name,
+                        internal=resolved_target_distribution == package_name,
                     )
                 )
     return tuple(

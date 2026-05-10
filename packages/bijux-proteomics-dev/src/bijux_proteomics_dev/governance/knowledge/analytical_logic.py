@@ -4,10 +4,8 @@ import argparse
 import ast
 from dataclasses import dataclass
 
-from bijux_proteomics_dev.governance.knowledge.boundary_drift import (
-    KNOWLEDGE_SRC_ROOT,
-    REPO_ROOT,
-)
+from bijux_proteomics_dev.governance.knowledge.boundary_drift import KNOWLEDGE_SRC_ROOT
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "KNOWLEDGE_ANALYTICAL_LOGIC_PATH",

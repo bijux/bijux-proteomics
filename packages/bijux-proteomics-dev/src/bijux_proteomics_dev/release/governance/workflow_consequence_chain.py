@@ -350,7 +350,7 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
     for packet in _packet_by_family().values():
         counterfactual = counterfactual_by_family.get(packet.workflow_family)
         revision = revision_by_family.get(packet.workflow_family)
-        driver_signals = ()
+        driver_signals: tuple[str, ...] = ()
         primary_change_driver = "current public recommendation still holds under shipped evidence"
         observed_strength: RecommendationStrength | None = None
         if revision is not None:
@@ -500,10 +500,13 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
         triage = triage_by_family[packet.workflow_family]
         lab_packet = lab_by_family.get(packet.workflow_family)
         dossier = outcome_by_family.get(packet.workflow_family)
-        stop_when = ()
+        stop_when: tuple[str, ...] = ()
         rerun_when = tuple(dict.fromkeys((*packet.blocker_set, *packet.downgrade_chain)))
-        narrow_when = (triage.entries[0].summary, triage.entries[0].next_action)
-        refuse_when = ()
+        narrow_when: tuple[str, ...] = (
+            triage.entries[0].summary,
+            triage.entries[0].next_action,
+        )
+        refuse_when: tuple[str, ...] = ()
         if lab_packet is not None:
             stop_when = tuple(dict.fromkeys(lab_packet.stop_reasons[:3]))
             rerun_when = tuple(

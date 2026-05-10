@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from bijux_proteomics_dev.release.governance.benchmark_review_support import (
     LAST_REVIEWED,
@@ -250,28 +251,34 @@ def _render_refusal_handbook() -> str:
     return "\n".join(lines)
 
 
-def _write(path, text: str) -> None:
+def _write(path: Path, text: str) -> None:
     path.write_text(text + "\n", encoding="utf-8")
 
 
-def _up_to_date(path, text: str) -> bool:
-    return path.exists() and path.read_text(encoding="utf-8") == text + "\n"
+def _up_to_date(path: Path, text: str) -> bool:
+    if not path.exists():
+        return False
+    return bool(path.read_text(encoding="utf-8") == text + "\n")
 
 
 def run(check: bool = False) -> int:
-    renders = (
+    renders: tuple[tuple[Path, str], ...] = (
         (WORKFLOW_CONSEQUENCE_MAPS_PATH, _render_consequence_maps()),
         (RECOMMENDATION_CHANGE_PATH, _render_recommendation_changes()),
         (LAB_CONSEQUENCE_OUTCOME_LEARNING_PATH, _render_outcome_learning_loops()),
         (LAB_CONSEQUENCE_REFUSAL_HANDBOOK_PATH, _render_refusal_handbook()),
     )
     if check:
-        stale = [path.as_posix() for path, text in renders if not _up_to_date(path, text)]
+        stale = [
+            render_path.as_posix()
+            for render_path, text in renders
+            if not _up_to_date(render_path, text)
+        ]
         if not stale:
             print("workflow consequence docs are up to date")
             return 0
-        for path in stale:
-            print(f"stale workflow consequence doc: {path}")
+        for stale_path in stale:
+            print(f"stale workflow consequence doc: {stale_path}")
         return 1
     for path, text in renders:
         _write(path, text)

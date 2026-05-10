@@ -7,6 +7,7 @@ from io import StringIO
 from pathlib import Path
 import re
 import tokenize
+from typing import cast
 
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_root,
@@ -84,7 +85,13 @@ def _docstring_entries(
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             nodes.append((node, "function_docstring"))
     for node, kind in nodes:
-        docstring = ast.get_docstring(node, clean=False)
+        docstring = ast.get_docstring(
+            cast(
+                ast.AsyncFunctionDef | ast.ClassDef | ast.FunctionDef | ast.Module,
+                node,
+            ),
+            clean=False,
+        )
         if not docstring:
             continue
         matched_text = _matches_delivery_history(docstring)

@@ -110,20 +110,22 @@ def build_lab_cross_package_dependency_report() -> LabCrossPackageDependencyRepo
                     )
                 )
 
-    entries = tuple(sorted(entries, key=_entry_key))
+    sorted_entries = tuple(sorted(entries, key=_entry_key))
 
     def _count(distribution: str) -> int:
-        return sum(1 for entry in entries if entry.owner_distribution == distribution)
+        return sum(
+            1 for entry in sorted_entries if entry.owner_distribution == distribution
+        )
 
     return LabCrossPackageDependencyReport(
-        entries=entries,
+        entries=sorted_entries,
         guard=LabCrossPackageDependencyGuard(
             max_core_edges=_count("bijux-proteomics-core"),
             max_foundation_edges=_count("bijux-proteomics-foundation"),
             max_intelligence_edges=_count("bijux-proteomics-intelligence"),
             max_knowledge_edges=_count("bijux-proteomics-knowledge"),
             max_runtime_edges=_count("bijux-proteomics-runtime"),
-            max_total_edges=len(entries),
+            max_total_edges=len(sorted_entries),
         ),
     )
 

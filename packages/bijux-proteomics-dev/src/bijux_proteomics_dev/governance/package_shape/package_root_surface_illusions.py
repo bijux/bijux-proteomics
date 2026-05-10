@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import tomllib
+from typing import Any, cast
 
 from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import (
     build_package_surface_pressure_report,
@@ -53,12 +54,18 @@ class PackageRootSurfaceIllusionReport:
     guard: PackageRootSurfaceIllusionGuard
 
 
-def _load_tree_dossiers() -> dict[str, dict[str, object]]:
+def _load_tree_dossiers() -> dict[str, dict[str, Any]]:
     with (
         REPO_ROOT / "configs" / "package-governance" / "package-tree-dossiers.toml"
     ).open("rb") as handle:
         data = tomllib.load(handle)
-    return {entry["distribution_name"]: entry for entry in data["package"]}
+    package_rows = data["package"]
+    assert isinstance(package_rows, list)
+    assert all(isinstance(row, dict) for row in package_rows)
+    return {
+        str(entry["distribution_name"]): cast(dict[str, Any], entry)
+        for entry in package_rows
+    }
 
 
 def build_package_root_surface_illusion_report() -> PackageRootSurfaceIllusionReport:

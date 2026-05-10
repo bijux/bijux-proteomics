@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import tomllib
+from typing import Any, cast
 
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_root,
@@ -49,12 +50,19 @@ class PackageReleaseDossierReport:
     entries: tuple[PackageReleaseDossierEntry, ...]
 
 
-def _load_report(name: str) -> dict[str, object]:
+def _load_report(name: str) -> dict[str, Any]:
     return tomllib.loads(
         (REPO_ROOT / "configs" / "package-governance" / name).read_text(
             encoding="utf-8"
         )
     )
+
+
+def _rows(name: str, key: str) -> tuple[dict[str, Any], ...]:
+    rows = _load_report(name)[key]
+    assert isinstance(rows, list)
+    assert all(isinstance(row, dict) for row in rows)
+    return tuple(cast(dict[str, Any], row) for row in rows)
 
 
 def _boundary_doc_path(package_name: str) -> Path:
@@ -97,21 +105,21 @@ def build_package_release_dossier_report() -> PackageReleaseDossierReport:
 
     tree_dossiers = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-tree-dossiers.toml")["package"]
+        for entry in _rows("package-tree-dossiers.toml", "package")
     }
     dependency_dossiers = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-dependency-dossiers.toml")["package"]
+        for entry in _rows("package-dependency-dossiers.toml", "package")
     }
     docs_claim_proof = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-docs-claim-proof.toml")["package"]
+        for entry in _rows("package-docs-claim-proof.toml", "package")
     }
     fixture_coverage = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-fixture-scenario-coverage.toml")["package"]
+        for entry in _rows("package-fixture-scenario-coverage.toml", "package")
     }
-    reopened_debt_entries = _load_report("reopened-debt-ledger.toml")["debt"]
+    reopened_debt_entries = _rows("reopened-debt-ledger.toml", "debt")
     debt_by_package: dict[str, list[dict[str, str]]] = {}
     for entry in reopened_debt_entries:
         debt_by_package.setdefault(str(entry["distribution_name"]), []).append(entry)

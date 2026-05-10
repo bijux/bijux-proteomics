@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from bijux_proteomics.benchmarks.workflow_generalization import (
     build_workflow_generalization_reports,
@@ -155,8 +156,10 @@ def validate_workflow_authority_docs(
     return tuple(issues)
 
 
-def _cell_earned(row, authority_kind: WorkflowAuthorityKind) -> bool:
-    return next(cell for cell in row.cells if cell.authority_kind == authority_kind).earned
+def _cell_earned(row: Any, authority_kind: WorkflowAuthorityKind) -> bool:
+    return bool(
+        next(cell for cell in row.cells if cell.authority_kind == authority_kind).earned
+    )
 
 
 def _format_family_sentence(

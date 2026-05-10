@@ -207,10 +207,10 @@ def _candidate_owner_test_paths(
     fallback: list[str] = []
     for path in sorted(root.rglob("*.py")):
         text = path.read_text(encoding="utf-8")
-        relative = _relative_repo_path(path)
+        relative_path = _relative_repo_path(path)
         tree = ast.parse(text, filename=str(path))
         if owner_family and owner_family in path.parts:
-            family_owned.append(relative)
+            family_owned.append(relative_path)
         owner_module_imported = False
         for node in ast.walk(tree):
             if isinstance(node, ast.ImportFrom) and node.module == owner_module_name:
@@ -224,12 +224,12 @@ def _candidate_owner_test_paths(
             if owner_module_imported:
                 break
         if owner_module_imported:
-            module_owned.append(relative)
+            module_owned.append(relative_path)
         if symbol_name not in text:
             continue
-        fallback.append(relative)
+        fallback.append(relative_path)
         if owner_family and owner_family in path.parts:
-            preferred.append(relative)
+            preferred.append(relative_path)
     return tuple(preferred or fallback or module_owned or family_owned)
 
 

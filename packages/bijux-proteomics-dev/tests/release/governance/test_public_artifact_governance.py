@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from _pytest.monkeypatch import MonkeyPatch
+
 from bijux_proteomics_dev.release.governance.public_artifact_governance import (
     run,
     validate_public_artifact_governance,
@@ -16,7 +18,9 @@ def test_public_artifact_governance_real_repo_has_no_live_failures() -> None:
     assert validate_public_artifact_governance() == ()
 
 
-def test_public_artifact_governance_blocks_artifact_growth(monkeypatch) -> None:
+def test_public_artifact_governance_blocks_artifact_growth(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.public_artifact_governance.build_public_artifact_docs",
         lambda: (
@@ -56,7 +60,9 @@ def test_public_artifact_governance_blocks_artifact_growth(monkeypatch) -> None:
     assert any(issue.code == "public-artifact-count-growth" for issue in issues)
 
 
-def test_public_artifact_governance_blocks_role_overlap(monkeypatch) -> None:
+def test_public_artifact_governance_blocks_role_overlap(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.public_artifact_governance.build_public_artifact_docs",
         lambda: (
@@ -102,7 +108,7 @@ def test_public_artifact_governance_blocks_role_overlap(monkeypatch) -> None:
 
 
 def test_public_artifact_governance_blocks_workflow_artifact_without_neighbor(
-    monkeypatch,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.public_artifact_governance.build_public_artifact_docs",

@@ -70,7 +70,8 @@ def _run_check(module_name: str) -> bool:
     run = getattr(module, "run", None)
     if not callable(run):
         raise AttributeError(f"{module_name} does not expose run(check=True)")
-    return run(check=True) == 0
+    result = run(check=True)
+    return isinstance(result, int) and result == 0
 
 
 def build_generated_governance_freshness_report() -> GeneratedGovernanceFreshnessReport:

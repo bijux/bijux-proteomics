@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 import tomllib
+from typing import Any, cast
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
@@ -41,12 +42,19 @@ class ReopenedDebtLedgerReport:
     entries: tuple[ReopenedDebtEntry, ...]
 
 
-def _load_report(name: str) -> dict[str, object]:
+def _load_report(name: str) -> dict[str, Any]:
     return tomllib.loads(
         (REPO_ROOT / "configs" / "package-governance" / name).read_text(
             encoding="utf-8"
         )
     )
+
+
+def _rows(payload: dict[str, Any], key: str) -> tuple[dict[str, Any], ...]:
+    rows = payload[key]
+    assert isinstance(rows, list)
+    assert all(isinstance(row, dict) for row in rows)
+    return tuple(cast(dict[str, Any], row) for row in rows)
 
 
 def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
@@ -55,7 +63,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
     entries: list[ReopenedDebtEntry] = []
 
     docs_claim_proof = _load_report("package-docs-claim-proof.toml")
-    for package in docs_claim_proof["package"]:
+    for package in _rows(docs_claim_proof, "package"):
         distribution_name = str(package["distribution_name"])
         claim_kinds = tuple(str(value) for value in package["unproven_claim_kinds"])
         if not claim_kinds:
@@ -74,7 +82,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
         )
 
     tree_dossiers = _load_report("package-tree-dossiers.toml")
-    for package in tree_dossiers["package"]:
+    for package in _rows(tree_dossiers, "package"):
         distribution_name = str(package["distribution_name"])
         compatibility_surfaces = tuple(
             str(value) for value in package["compatibility_surfaces"]
@@ -95,7 +103,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
         )
 
     test_tree_mirror = _load_report("package-test-tree-mirror.toml")
-    for package in test_tree_mirror["package"]:
+    for package in _rows(test_tree_mirror, "package"):
         distribution_name = str(package["distribution_name"])
         missing_test_families = tuple(
             str(value) for value in package["missing_test_families"]
@@ -117,7 +125,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
 
     oversized_modules = _load_report("package-oversized-mixed-modules.toml")
     oversized_counts: dict[str, int] = {}
-    for module in oversized_modules["module"]:
+    for module in _rows(oversized_modules, "module"):
         distribution_name = str(module["distribution_name"])
         oversized_counts[distribution_name] = (
             oversized_counts.get(distribution_name, 0) + 1
@@ -137,7 +145,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
         )
 
     tree_quality = _load_report("repository-tree-quality.toml")
-    for package in tree_quality["package"]:
+    for package in _rows(tree_quality, "package"):
         distribution_name = str(package["distribution_name"])
         overall_tree_quality_score = float(package["overall_tree_quality_score"])
         if overall_tree_quality_score >= 70.0:
@@ -156,7 +164,7 @@ def build_reopened_debt_ledger_report() -> ReopenedDebtLedgerReport:
         )
 
     reopened_completion_claims = _load_report("package-reopened-completion-claims.toml")
-    for package in reopened_completion_claims["package"]:
+    for package in _rows(reopened_completion_claims, "package"):
         distribution_name = str(package["distribution_name"])
         reopened_reasons = tuple(str(value) for value in package["reopened_reasons"])
         if not reopened_reasons:

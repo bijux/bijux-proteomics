@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import tomllib
+from typing import Any, cast
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
@@ -53,9 +54,16 @@ class PackageScorecardReport:
     guard: PackageScorecardGuard
 
 
-def _load_report(name: str) -> dict[str, object]:
+def _load_report(name: str) -> dict[str, Any]:
     with (REPO_ROOT / "configs" / "package-governance" / name).open("rb") as handle:
         return tomllib.load(handle)
+
+
+def _rows(name: str, key: str = "package") -> tuple[dict[str, Any], ...]:
+    rows = _load_report(name)[key]
+    assert isinstance(rows, list)
+    assert all(isinstance(row, dict) for row in rows)
+    return tuple(cast(dict[str, Any], row) for row in rows)
 
 
 def build_package_scorecard_report() -> PackageScorecardReport:
@@ -63,23 +71,23 @@ def build_package_scorecard_report() -> PackageScorecardReport:
 
     surface_pressure = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-surface-pressure.toml")["package"]
+        for entry in _rows("package-surface-pressure.toml")
     }
     wrapper_density = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-wrapper-density.toml")["package"]
+        for entry in _rows("package-wrapper-density.toml")
     }
     test_tree = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-test-tree-mirror.toml")["package"]
+        for entry in _rows("package-test-tree-mirror.toml")
     }
     docs_claims = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-docs-claim-proof.toml")["package"]
+        for entry in _rows("package-docs-claim-proof.toml")
     }
     release_dossiers = {
         entry["distribution_name"]: entry
-        for entry in _load_report("package-release-dossiers.toml")["package"]
+        for entry in _rows("package-release-dossiers.toml")
     }
 
     entries: list[PackageScorecardEntry] = []

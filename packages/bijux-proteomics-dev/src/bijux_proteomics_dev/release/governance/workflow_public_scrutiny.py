@@ -88,12 +88,18 @@ def validate_workflow_public_scrutiny(
                         ),
                     )
                 )
-    for issue in validate_black_box_benchmark_language():
+    for benchmark_language_issue in validate_black_box_benchmark_language():
         issues.append(
-            WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail)
+            WorkflowPublicScrutinyIssue(
+                code=benchmark_language_issue.code,
+                detail=benchmark_language_issue.detail,
+            )
         )
-    for issue in validate_public_language(repo_root):
+    for public_language_issue in validate_public_language(repo_root):
         issues.append(
-            WorkflowPublicScrutinyIssue(code=issue.code, detail=issue.detail)
+            WorkflowPublicScrutinyIssue(
+                code=public_language_issue.code,
+                detail=public_language_issue.detail,
+            )
         )
     return tuple(issues)

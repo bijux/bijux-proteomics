@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
@@ -83,8 +84,8 @@ def _designation(workflow_family: KnowledgeWorkflowFamily, package_role: str) ->
     return "flagship_primary_outsider_auditable"
 
 
-def _by_package_id(entries):
-    return {entry.package_id: entry for entry in entries}
+def _by_package_id(entries: tuple[Any, ...]) -> dict[str, Any]:
+    return {str(entry.package_id): entry for entry in entries}
 
 
 def build_benchmark_flagship_status() -> tuple[BenchmarkFlagshipStatusEntry, ...]:

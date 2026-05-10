@@ -179,7 +179,7 @@ _CANONICAL_PRODUCT_EXPECTATIONS = {
     ),
 }
 
-FOUNDATION_COMPATIBILITY_WRAPPER_PATHS = frozenset()
+FOUNDATION_COMPATIBILITY_WRAPPER_PATHS: frozenset[str] = frozenset()
 
 
 def _source_module_paths(package: WorkspacePackage) -> tuple[Path, ...]:
@@ -221,7 +221,10 @@ def _charter_backed_entry(
     thin_value: str,
 ) -> PackageSubstanceEntry:
     source_paths = _source_module_paths(package)
-    counts = Counter(getattr(entry.classification, "value") for entry in audit)
+    counts = Counter(
+        str(getattr(getattr(entry, "classification", ""), "value", ""))
+        for entry in audit
+    )
     expectation = _CANONICAL_PRODUCT_EXPECTATIONS[package_name]
     owned_logic_count = counts[owned_logic_value]
     thin_module_count = counts[thin_value]
@@ -247,18 +250,22 @@ def _foundation_kernel_entry(package: WorkspacePackage) -> PackageSubstanceEntry
         for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
     )
     expectation = _CANONICAL_PRODUCT_EXPECTATIONS["bijux-proteomics-foundation"]
-    wrapper_module_count = sum(
-        1
-        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
-        if entry.module_path in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
+    wrapper_module_count = len(
+        [
+            entry
+            for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+            if entry.module_path in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
+        ]
     )
-    thin_module_count = sum(
-        1
-        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
-        if (
-            entry.classification is FoundationModuleClassification.THIN_ABSTRACTION
-            and entry.module_path not in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
-        )
+    thin_module_count = len(
+        [
+            entry
+            for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+            if (
+                entry.classification is FoundationModuleClassification.THIN_ABSTRACTION
+                and entry.module_path not in FOUNDATION_COMPATIBILITY_WRAPPER_PATHS
+            )
+        ]
     )
     return PackageSubstanceEntry(
         package_name="bijux-proteomics-foundation",

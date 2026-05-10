@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from _pytest.monkeypatch import MonkeyPatch
+
 import bijux_proteomics_dev.release.governance.final_preflight as final_preflight_module
 from bijux_proteomics_dev.release.governance.final_preflight import (
     FINAL_PREFLIGHT_STAGE_IDS,
@@ -26,7 +28,7 @@ def test_final_preflight_keeps_exact_stage_order() -> None:
 
 
 def test_final_preflight_returns_failure_when_any_stage_has_issues(
-    monkeypatch,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.final_preflight.build_final_preflight_report",
@@ -44,7 +46,9 @@ def test_final_preflight_returns_failure_when_any_stage_has_issues(
     assert run() == 1
 
 
-def test_final_preflight_returns_success_when_all_stages_pass(monkeypatch) -> None:
+def test_final_preflight_returns_success_when_all_stages_pass(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.final_preflight.build_final_preflight_report",
         lambda repo_root: FinalPreflightReport(
@@ -58,7 +62,9 @@ def test_final_preflight_returns_success_when_all_stages_pass(monkeypatch) -> No
     assert run() == 0
 
 
-def test_docs_stage_blocks_stale_public_artifact_docs(monkeypatch) -> None:
+def test_docs_stage_blocks_stale_public_artifact_docs(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         final_preflight_module,
         "validate_readme_truth",
@@ -95,7 +101,9 @@ def test_docs_stage_blocks_stale_public_artifact_docs(monkeypatch) -> None:
         lambda check=True: 1,
     )
 
-    stage = final_preflight_module._docs_stage(final_preflight_module.REPO_ROOT)
+    stage = final_preflight_module._docs_stage(
+        getattr(final_preflight_module, "REPO_ROOT")
+    )
 
     assert FinalPreflightIssue(
         code="stale-generated-doc-surface",
@@ -106,7 +114,9 @@ def test_docs_stage_blocks_stale_public_artifact_docs(monkeypatch) -> None:
     ) in stage.issues
 
 
-def test_consequence_stage_blocks_stale_consequence_docs(monkeypatch) -> None:
+def test_consequence_stage_blocks_stale_consequence_docs(
+    monkeypatch: MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         final_preflight_module,
         "validate_workflow_intelligence_confidence",
@@ -129,7 +139,7 @@ def test_consequence_stage_blocks_stale_consequence_docs(monkeypatch) -> None:
     )
 
     stage = final_preflight_module._consequence_coherence_stage(
-        final_preflight_module.REPO_ROOT
+        getattr(final_preflight_module, "REPO_ROOT")
     )
 
     assert FinalPreflightIssue(

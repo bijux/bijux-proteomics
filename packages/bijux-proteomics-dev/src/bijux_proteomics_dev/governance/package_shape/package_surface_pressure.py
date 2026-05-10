@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import tomllib
+from typing import Any, cast
 
 from bijux_proteomics_dev.governance.package_shape.package_module_ledger import (
     build_package_module_ledger_report,
@@ -62,10 +63,16 @@ class PackageSurfacePressureReport:
     guard: PackageSurfacePressureGuard
 
 
-def _load_tree_dossiers() -> dict[str, dict[str, object]]:
+def _load_tree_dossiers() -> dict[str, dict[str, Any]]:
     with PACKAGE_TREE_DOSSIERS_PATH.open("rb") as handle:
         data = tomllib.load(handle)
-    return {entry["distribution_name"]: entry for entry in data["package"]}
+    package_rows = data["package"]
+    assert isinstance(package_rows, list)
+    assert all(isinstance(row, dict) for row in package_rows)
+    return {
+        str(entry["distribution_name"]): cast(dict[str, Any], entry)
+        for entry in package_rows
+    }
 
 
 def build_package_surface_pressure_report() -> PackageSurfacePressureReport:
@@ -88,9 +95,9 @@ def build_package_surface_pressure_report() -> PackageSurfacePressureReport:
             )
 
     root_export_counts: dict[str, int] = {}
-    for entry in public_symbol_ledger.entries:
-        root_export_counts[entry.distribution_name] = (
-            root_export_counts.get(entry.distribution_name, 0) + 1
+    for public_symbol_entry in public_symbol_ledger.entries:
+        root_export_counts[public_symbol_entry.distribution_name] = (
+            root_export_counts.get(public_symbol_entry.distribution_name, 0) + 1
         )
 
     entries: list[PackageSurfacePressureEntry] = []

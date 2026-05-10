@@ -150,95 +150,95 @@ def build_repository_truth_report(repo_root: Path) -> RepositoryTruthReport:
     )
 
     blockers: list[RepositoryTruthIssue] = []
-    for issue in workflow_manifest_issues:
+    for manifest_issue in workflow_manifest_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"flagship-workflow-{issue.code}",
-                detail=issue.detail,
+                code=f"flagship-workflow-{manifest_issue.code}",
+                detail=manifest_issue.detail,
             )
         )
-    for issue in scientific_dossier_issues:
+    for scientific_issue in scientific_dossier_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"scientific-release-{issue.code}",
-                detail=issue.detail,
+                code=f"scientific-release-{scientific_issue.code}",
+                detail=scientific_issue.detail,
             )
         )
-    for issue in workflow_authority_doc_issues:
+    for authority_issue in workflow_authority_doc_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-authority-docs-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-authority-docs-{authority_issue.code}",
+                detail=authority_issue.detail,
             )
         )
-    for issue in workflow_claim_grounding_issues:
+    for claim_grounding_issue in workflow_claim_grounding_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-claim-grounding-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-claim-grounding-{claim_grounding_issue.code}",
+                detail=claim_grounding_issue.detail,
             )
         )
-    for issue in workflow_intelligence_issues:
+    for intelligence_issue in workflow_intelligence_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-intelligence-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-intelligence-{intelligence_issue.code}",
+                detail=intelligence_issue.detail,
             )
         )
-    for issue in workflow_lab_consequence_issues:
+    for lab_consequence_issue in workflow_lab_consequence_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-lab-consequence-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-lab-consequence-{lab_consequence_issue.code}",
+                detail=lab_consequence_issue.detail,
             )
         )
-    for issue in workflow_consequence_issues:
+    for consequence_issue in workflow_consequence_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-consequence-coherence-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-consequence-coherence-{consequence_issue.code}",
+                detail=consequence_issue.detail,
             )
         )
-    for issue in workflow_public_scrutiny_issues:
+    for public_scrutiny_issue in workflow_public_scrutiny_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"workflow-public-scrutiny-{issue.code}",
-                detail=issue.detail,
+                code=f"workflow-public-scrutiny-{public_scrutiny_issue.code}",
+                detail=public_scrutiny_issue.detail,
             )
         )
-    for issue in public_artifact_governance_issues:
+    for artifact_governance_issue in public_artifact_governance_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"public-artifact-governance-{issue.code}",
-                detail=issue.detail,
+                code=f"public-artifact-governance-{artifact_governance_issue.code}",
+                detail=artifact_governance_issue.detail,
             )
         )
-    for issue in freshness_issues:
+    for freshness_issue in freshness_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"governance-freshness-{issue.code}",
-                detail=issue.detail,
+                code=f"governance-freshness-{freshness_issue.code}",
+                detail=freshness_issue.detail,
             )
         )
-    for issue in package_hygiene_issues:
+    for hygiene_issue in package_hygiene_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"artifact-hygiene-{issue.code}",
-                detail=issue.detail,
+                code=f"artifact-hygiene-{hygiene_issue.code}",
+                detail=hygiene_issue.detail,
             )
         )
-    for issue in drift_audit_issues:
+    for drift_issue in drift_audit_issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"artifact-drift-{issue.code}",
-                detail=issue.detail,
+                code=f"artifact-drift-{drift_issue.code}",
+                detail=drift_issue.detail,
             )
         )
-    for issue in runtime_rerun_gate.issues:
+    for rerun_gate_issue in runtime_rerun_gate.issues:
         blockers.append(
             RepositoryTruthIssue(
-                code=f"runtime-rerun-gate-{issue.code}",
-                detail=issue.detail,
+                code=f"runtime-rerun-gate-{rerun_gate_issue.code}",
+                detail=rerun_gate_issue.detail,
             )
         )
     for row in acceptance_dashboard.rows:

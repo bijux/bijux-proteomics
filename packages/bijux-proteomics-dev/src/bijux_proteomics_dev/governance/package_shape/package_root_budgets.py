@@ -68,10 +68,12 @@ def build_package_root_budget_report() -> PackageRootBudgetReport:
         max_public_symbols = (
             budget["max_public_symbols"] if budget is not None else None
         )
-        within_budget = budget is None or (
-            init_line_count <= max_init_lines
-            and public_symbol_count <= max_public_symbols
-        )
+        within_budget = True
+        if max_init_lines is not None and max_public_symbols is not None:
+            within_budget = (
+                init_line_count <= max_init_lines
+                and public_symbol_count <= max_public_symbols
+            )
         entries.append(
             PackageRootBudgetEntry(
                 distribution_name=package_name,

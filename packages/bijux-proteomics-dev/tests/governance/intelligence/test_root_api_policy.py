@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 import tomllib
+from typing import Any, cast
 
 import bijux_proteomics_intelligence
 
@@ -28,8 +29,24 @@ PUBLIC_SURFACE_TESTS = {
 }
 
 
-def _policy() -> dict[str, object]:
+def _policy() -> dict[str, Any]:
     return tomllib.loads(INTELLIGENCE_ROOT_API_POLICY.read_text(encoding="utf-8"))
+
+
+def _symbol_entries(policy: dict[str, Any]) -> list[dict[str, Any]]:
+    entries = policy["symbol"]
+    assert isinstance(entries, list)
+    assert all(isinstance(entry, dict) for entry in entries)
+    return [cast(dict[str, Any], entry) for entry in entries]
+
+
+def _budget(policy: dict[str, Any]) -> dict[str, int]:
+    budget = policy["budget"]
+    assert isinstance(budget, dict)
+    return {
+        "max_public_symbols": int(budget["max_public_symbols"]),
+        "max_init_lines": int(budget["max_init_lines"]),
+    }
 
 
 def _imports_intelligence_root(path: Path) -> bool:
@@ -49,7 +66,7 @@ def _imports_intelligence_root(path: Path) -> bool:
 
 def test_intelligence_root_api_matches_curated_policy() -> None:
     policy = _policy()
-    entries = policy["symbol"]
+    entries = _symbol_entries(policy)
 
     assert [entry["name"] for entry in entries] == list(
         bijux_proteomics_intelligence.__all__
@@ -61,7 +78,7 @@ def test_intelligence_root_api_matches_curated_policy() -> None:
 
 def test_intelligence_root_api_stays_within_budget() -> None:
     policy = _policy()
-    budget = policy["budget"]
+    budget = _budget(policy)
     init_lines = INTELLIGENCE_ROOT_INIT.read_text(encoding="utf-8").splitlines()
 
     assert len(bijux_proteomics_intelligence.__all__) <= budget["max_public_symbols"]
