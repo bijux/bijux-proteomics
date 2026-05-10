@@ -17,7 +17,7 @@ def test_package_tree_dossier_report_captures_owner_domains_and_shims() -> None:
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_TREE_DOSSIERS_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert "planning" in entries["bijux-proteomics-lab"].owner_domains
     assert "handoffs" in entries["bijux-proteomics-lab"].owner_domains
     assert entries["bijux-proteomics-dev"].public_modules == ()

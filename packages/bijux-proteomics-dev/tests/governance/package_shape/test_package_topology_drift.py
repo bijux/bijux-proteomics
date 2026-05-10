@@ -17,7 +17,7 @@ def test_package_topology_drift_report_tracks_flatness_and_doc_mismatch() -> Non
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_TOPOLOGY_DRIFT_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert by_package["bijux-proteomics-runtime"].undocumented_owner_families == ()
     assert by_package["bijux-proteomics-foundation"].historical_topology_mentions == ()
     assert by_package["bijux-proteomics-foundation"].undocumented_owner_families == ()

@@ -8,6 +8,9 @@ import tomllib
 from typing import Any, cast
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    import_root as workspace_import_root,
+)
 
 __all__ = [
     "REPOSITORY_TREE_QUALITY_PATH",
@@ -76,9 +79,7 @@ def _package_names() -> tuple[str, ...]:
 
 
 def _import_root(package_name: str) -> str:
-    if package_name == "bijux-proteomics-core":
-        return "bijux_proteomics"
-    return package_name.replace("-", "_")
+    return workspace_import_root(package_name)
 
 
 def _package_root(package_name: str) -> Path:

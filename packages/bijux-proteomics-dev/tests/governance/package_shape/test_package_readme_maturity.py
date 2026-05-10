@@ -17,7 +17,7 @@ def test_package_readme_maturity_report_tracks_current_overclaim_pressure() -> N
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_README_MATURITY_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert by_package["bijux-proteomics-runtime"].proof_depth_count >= 1
     assert by_package["bijux-proteomics-core"].maturity_claim_count == 0
     assert by_package["bijux-proteomics-core"].completion_claim_count == 0

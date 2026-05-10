@@ -2,18 +2,48 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_symbol_ledger
 
 [guard]
-min_public_symbol_count = 85
-min_symbols_with_owner_tests = 85
+min_public_symbol_count = 88
+min_symbols_with_owner_tests = 88
 
 [[symbol]]
 distribution_name = "agentic-proteins"
 import_root = "agentic_proteins"
-name = "__version__"
+name = "AppConfig"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "RunManager"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.runs.manager"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "cli"
 symbol_kind = "data"
-owner_distribution_name = "agentic-proteins"
-owner_module_name = "agentic_proteins"
-owner_module_path = "packages/agentic-proteins/src/agentic_proteins/__init__.py"
-owner_test_paths = ["packages/agentic-proteins/tests/package/test_import_boundaries.py"]
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api.cli"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "create_app"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics"

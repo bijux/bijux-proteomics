@@ -17,7 +17,7 @@ def test_package_release_dossiers_keep_strengths_limits_and_debt_explicit() -> N
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_RELEASE_DOSSIERS_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert by_package["bijux-proteomics-core"].proofs
     assert by_package["bijux-proteomics-foundation"].limits
     assert by_package["bijux-proteomics-lab"].unresolved_debt_ids

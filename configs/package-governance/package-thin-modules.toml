@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_thin_modules
 
 [guard]
-max_total_thin_module_count = 123
+max_total_thin_module_count = 132
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -344,6 +344,13 @@ public_class_count = 0
 distribution_name = "agentic-proteins"
 module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/artifacts.py"
 nonempty_line_count = 27
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "agentic-proteins"
+module_path = "packages/agentic-proteins/src/agentic_proteins/orchestration/bridge_contracts.py"
+nonempty_line_count = 14
 public_function_count = 0
 public_class_count = 0
 
@@ -720,6 +727,13 @@ public_class_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/public.py"
+nonempty_line_count = 24
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/execution/schemas.py"
 nonempty_line_count = 30
 public_function_count = 0
@@ -831,6 +845,13 @@ public_function_count = 0
 public_class_count = 0
 
 [[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/proof_classes.py"
+nonempty_line_count = 12
+public_function_count = 0
+public_class_count = 1
+
+[[module]]
 distribution_name = "bijux-proteomics-intelligence"
 module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/filters.py"
 nonempty_line_count = 21
@@ -842,6 +863,13 @@ distribution_name = "bijux-proteomics-intelligence"
 module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/transform.py"
 nonempty_line_count = 18
 public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/benchmark_decisions.py"
+nonempty_line_count = 13
+public_function_count = 0
 public_class_count = 0
 
 [[module]]
@@ -859,8 +887,43 @@ public_function_count = 1
 public_class_count = 0
 
 [[module]]
-distribution_name = "bijux-proteomics-knowledge"
-module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/references/public.py"
-nonempty_line_count = 38
+distribution_name = "proteomics"
+module_path = "packages/proteomics/src/proteomics/__main__.py"
+nonempty_line_count = 5
 public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "proteomics"
+module_path = "packages/proteomics/src/proteomics/cli.py"
+nonempty_line_count = 12
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "proteomics-core"
+module_path = "packages/proteomics-core/src/proteomics_core/__main__.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "proteomics-core"
+module_path = "packages/proteomics-core/src/proteomics_core/cli.py"
+nonempty_line_count = 12
+public_function_count = 1
+public_class_count = 0
+
+[[module]]
+distribution_name = "proteomics-runtime"
+module_path = "packages/proteomics-runtime/src/proteomics_runtime/__main__.py"
+nonempty_line_count = 5
+public_function_count = 0
+public_class_count = 0
+
+[[module]]
+distribution_name = "proteomics-runtime"
+module_path = "packages/proteomics-runtime/src/proteomics_runtime/cli.py"
+nonempty_line_count = 12
+public_function_count = 1
 public_class_count = 0

@@ -76,7 +76,7 @@ import_root = "bijux_proteomics_alias"
 owner_domains = []
 public_modules = []
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics"
@@ -84,7 +84,7 @@ import_root = "proteomics"
 owner_domains = []
 public_modules = ["__main__", "cli", "runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-core"
@@ -92,7 +92,7 @@ import_root = "proteomics_core"
 owner_domains = []
 public_modules = ["__main__", "cli", "runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-foundation"
@@ -100,7 +100,7 @@ import_root = "proteomics_foundation"
 owner_domains = []
 public_modules = ["runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "product runtime behavior", "recommendation policy", "evidence-memory logic", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "product runtime behavior", "recommendation policy", "evidence-memory logic", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-runtime"
@@ -108,7 +108,7 @@ import_root = "proteomics_runtime"
 owner_domains = []
 public_modules = ["__main__", "cli", "runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "recommendation policy", "evidence-memory logic", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "recommendation policy", "evidence-memory logic", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-intelligence"
@@ -116,7 +116,7 @@ import_root = "proteomics_intelligence"
 owner_domains = []
 public_modules = ["runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "evidence-memory logic", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "evidence-memory logic", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-knowledge"
@@ -124,7 +124,7 @@ import_root = "proteomics_knowledge"
 owner_domains = []
 public_modules = ["runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "lab planning"]
 
 [[package]]
 distribution_name = "proteomics-lab"
@@ -132,4 +132,4 @@ import_root = "proteomics_lab"
 owner_domains = []
 public_modules = ["runtime_alias"]
 compatibility_surfaces = []
-excluded_responsibilities = ["benchmark assets", "scientific contract logic", "runtime orchestration", "recommendation policy", "evidence-memory logic"]
+excluded_responsibilities = ["evaluation artifacts", "scientific contract logic", "runtime orchestration", "recommendation policy", "evidence-memory logic"]

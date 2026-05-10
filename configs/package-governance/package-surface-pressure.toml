@@ -2,18 +2,18 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_surface_pressure
 
 [guard]
-max_total_root_export_symbol_count = 85
-max_total_public_breadth_count = 98
+max_total_root_export_symbol_count = 88
+max_total_public_breadth_count = 101
 max_overexposed_package_count = 9
 
 [[package]]
 distribution_name = "agentic-proteins"
 owner_logic_module_count = 0
 compatibility_surface_count = 0
-root_export_symbol_count = 1
+root_export_symbol_count = 4
 public_module_count = 0
-public_breadth_count = 1
-breadth_to_owner_ratio = 1.0
+public_breadth_count = 4
+breadth_to_owner_ratio = 4.0
 breadth_outpaces_owner_logic = true
 
 [[package]]

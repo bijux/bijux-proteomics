@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_oversized_mixed_modules
 
 [guard]
-max_total_oversized_mixed_module_count = 32
+max_total_oversized_mixed_module_count = 40
 max_largest_nonempty_line_count = 3350
 
 [[module]]
@@ -48,10 +48,18 @@ workspace_import_root_count = 2
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
-nonempty_line_count = 2040
-public_function_count = 33
-public_class_count = 43
+nonempty_line_count = 2260
+public_function_count = 35
+public_class_count = 48
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/workflow_generalization.py"
+nonempty_line_count = 2037
+public_function_count = 14
+public_class_count = 7
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -60,6 +68,14 @@ nonempty_line_count = 2019
 public_function_count = 22
 public_class_count = 29
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-intelligence"
+module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py"
+nonempty_line_count = 1832
+public_function_count = 6
+public_class_count = 8
+workspace_import_root_count = 3
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -78,6 +94,22 @@ public_class_count = 29
 workspace_import_root_count = 4
 
 [[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/benchmark_runs.py"
+nonempty_line_count = 1366
+public_function_count = 22
+public_class_count = 13
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-runtime"
+module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+nonempty_line_count = 1302
+public_function_count = 12
+public_class_count = 22
+workspace_import_root_count = 2
+
+[[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
 nonempty_line_count = 1214
@@ -88,10 +120,10 @@ workspace_import_root_count = 2
 [[module]]
 distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-nonempty_line_count = 1149
+nonempty_line_count = 1141
 public_function_count = 18
 public_class_count = 32
-workspace_import_root_count = 4
+workspace_import_root_count = 3
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -110,6 +142,22 @@ public_class_count = 31
 workspace_import_root_count = 3
 
 [[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/review.py"
+nonempty_line_count = 1067
+public_function_count = 11
+public_class_count = 24
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_acceptance.py"
+nonempty_line_count = 1051
+public_function_count = 5
+public_class_count = 12
+workspace_import_root_count = 4
+
+[[module]]
 distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
 nonempty_line_count = 1012
@@ -118,19 +166,11 @@ public_class_count = 19
 workspace_import_root_count = 2
 
 [[module]]
-distribution_name = "bijux-proteomics-runtime"
-module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
-nonempty_line_count = 997
-public_function_count = 10
-public_class_count = 20
-workspace_import_root_count = 2
-
-[[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/quantification/review.py"
-nonempty_line_count = 963
-public_function_count = 10
-public_class_count = 21
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/confidence.py"
+nonempty_line_count = 993
+public_function_count = 12
+public_class_count = 27
 workspace_import_root_count = 2
 
 [[module]]
@@ -143,8 +183,16 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_asset_roots.py"
+nonempty_line_count = 955
+public_function_count = 9
+public_class_count = 12
+workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py"
-nonempty_line_count = 947
+nonempty_line_count = 951
 public_function_count = 18
 public_class_count = 20
 workspace_import_root_count = 1
@@ -166,14 +214,6 @@ public_class_count = 20
 workspace_import_root_count = 2
 
 [[module]]
-distribution_name = "bijux-proteomics-intelligence"
-module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py"
-nonempty_line_count = 846
-public_function_count = 5
-public_class_count = 3
-workspace_import_root_count = 3
-
-[[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
 nonempty_line_count = 834
@@ -190,12 +230,12 @@ public_class_count = 36
 workspace_import_root_count = 1
 
 [[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/confidence.py"
-nonempty_line_count = 822
-public_function_count = 10
-public_class_count = 23
-workspace_import_root_count = 2
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/follow_up.py"
+nonempty_line_count = 744
+public_function_count = 6
+public_class_count = 12
+workspace_import_root_count = 3
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -207,11 +247,27 @@ workspace_import_root_count = 4
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py"
+nonempty_line_count = 730
+public_function_count = 12
+public_class_count = 16
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/review.py"
-nonempty_line_count = 689
+nonempty_line_count = 692
 public_function_count = 10
 public_class_count = 18
 workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/benchmarks.py"
+nonempty_line_count = 691
+public_function_count = 9
+public_class_count = 19
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
@@ -224,7 +280,7 @@ workspace_import_root_count = 4
 [[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/contracts.py"
-nonempty_line_count = 672
+nonempty_line_count = 678
 public_function_count = 10
 public_class_count = 33
 workspace_import_root_count = 2
@@ -238,6 +294,22 @@ public_class_count = 15
 workspace_import_root_count = 2
 
 [[module]]
+distribution_name = "bijux-proteomics-dev"
+module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/benchmark_asset_governance.py"
+nonempty_line_count = 642
+public_function_count = 5
+public_class_count = 4
+workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/laboratory_plans.py"
+nonempty_line_count = 624
+public_function_count = 11
+public_class_count = 29
+workspace_import_root_count = 1
+
+[[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/study/contracts.py"
 nonempty_line_count = 623
@@ -246,17 +318,9 @@ public_class_count = 25
 workspace_import_root_count = 1
 
 [[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py"
-nonempty_line_count = 618
-public_function_count = 11
-public_class_count = 13
-workspace_import_root_count = 2
-
-[[module]]
 distribution_name = "bijux-proteomics-intelligence"
 module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/pathways.py"
-nonempty_line_count = 605
+nonempty_line_count = 607
 public_function_count = 4
 public_class_count = 18
 workspace_import_root_count = 2

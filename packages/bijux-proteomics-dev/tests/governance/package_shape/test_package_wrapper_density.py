@@ -17,7 +17,7 @@ def test_package_wrapper_density_report_tracks_current_wrapper_pressure() -> Non
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_WRAPPER_DENSITY_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert report.guard.max_total_wrapper_module_count >= 20
     assert entries["bijux-proteomics-lab"].wrapper_module_count >= 4
     assert (
@@ -25,7 +25,7 @@ def test_package_wrapper_density_report_tracks_current_wrapper_pressure() -> Non
         == entries["bijux-proteomics-lab"].wrapper_module_count
     )
     assert entries["bijux-proteomics-runtime"].wrapper_module_count >= 4
-    assert entries["agentic-proteins"].wrapper_density == 0.9914
+    assert entries["agentic-proteins"].wrapper_density == 0.9915
 
 
 def test_package_wrapper_density_release_guard_has_no_failures() -> None:

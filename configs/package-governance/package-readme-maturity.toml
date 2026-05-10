@@ -16,11 +16,21 @@ maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
 
 [[package]]
+distribution_name = "bijux-proteomics"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
 distribution_name = "bijux-proteomics-core"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 6
-proof_depth_count = 40
+proof_depth_count = 49
 unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
@@ -30,8 +40,8 @@ distribution_name = "bijux-proteomics-dev"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 5
-proof_depth_count = 4
-unresolved_debt_count = 0
+proof_depth_count = 13
+unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
 
@@ -50,7 +60,7 @@ distribution_name = "bijux-proteomics-intelligence"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 5
-proof_depth_count = 4
+proof_depth_count = 15
 unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
@@ -70,7 +80,7 @@ distribution_name = "bijux-proteomics-lab"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 5
-proof_depth_count = 5
+proof_depth_count = 8
 unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false
@@ -80,7 +90,77 @@ distribution_name = "bijux-proteomics-runtime"
 maturity_claim_count = 0
 completion_claim_count = 0
 owned_value_bullet_count = 6
-proof_depth_count = 8
+proof_depth_count = 14
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-core"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-foundation"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-lab"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
+unresolved_debt_count = 1
+maturity_outpaces_owner_logic = false
+completion_claims_while_not_ready = false
+
+[[package]]
+distribution_name = "proteomics-runtime"
+maturity_claim_count = 0
+completion_claim_count = 0
+owned_value_bullet_count = 2
+proof_depth_count = 0
 unresolved_debt_count = 1
 maturity_outpaces_owner_logic = false
 completion_claims_while_not_ready = false

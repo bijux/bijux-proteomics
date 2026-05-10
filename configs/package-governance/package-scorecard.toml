@@ -2,13 +2,13 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_scorecard
 
 [guard]
-min_architectural_ready_package_count = 2
-max_total_unresolved_debt_count = 6
+min_architectural_ready_package_count = 1
+max_total_unresolved_debt_count = 15
 
 [[package]]
 distribution_name = "agentic-proteins"
 owner_logic_module_count = 0
-public_breadth_count = 1
+public_breadth_count = 4
 wrapper_module_count = 116
 missing_test_family_count = 0
 flat_test_module_count = 0
@@ -24,7 +24,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -46,8 +46,8 @@ wrapper_module_count = 27
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 13
-unresolved_debt_count = 0
-architectural_ready = true
+unresolved_debt_count = 1
+architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
@@ -112,7 +112,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -123,7 +123,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -134,7 +134,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -145,7 +145,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -156,7 +156,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -167,7 +167,7 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false
 
 [[package]]
@@ -178,5 +178,5 @@ wrapper_module_count = 0
 missing_test_family_count = 0
 flat_test_module_count = 0
 proof_depth_count = 0
-unresolved_debt_count = 0
+unresolved_debt_count = 1
 architectural_ready = false

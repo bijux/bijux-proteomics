@@ -17,7 +17,7 @@ def test_package_test_tree_mirror_report_tracks_source_alignment() -> None:
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_TEST_TREE_MIRROR_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert report.guard.max_total_missing_test_family_count == 0
     assert entries["bijux-proteomics-knowledge"].missing_test_families == ()
     assert entries["agentic-proteins"].missing_test_families == ()

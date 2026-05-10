@@ -17,7 +17,7 @@ def test_package_owned_value_audit_tracks_current_documented_value() -> None:
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_OWNED_VALUE_AUDIT_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert by_package["bijux-proteomics-foundation"].owned_value_bullets
     assert by_package["bijux-proteomics-core"].owner_depth_count >= 10
     assert (

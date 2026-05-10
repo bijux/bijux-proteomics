@@ -19,8 +19,10 @@ def test_package_reopened_completion_claim_report_tracks_structural_reopenings()
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_REOPENED_COMPLETION_CLAIMS_PATH.exists()
-    assert by_package["bijux-proteomics-foundation"].reopened_reasons
-    assert by_package["bijux-proteomics-runtime"].reopened_completion_claim is True
+    assert by_package["bijux-proteomics-foundation"].reopened_reasons == ()
+    assert by_package["bijux-proteomics-runtime"].reopened_completion_claim is False
+    assert by_package["agentic-proteins"].reopened_completion_claim is True
+    assert by_package["proteomics-runtime"].reopened_completion_claim is True
     assert any(entry.reopened_completion_claim for entry in report.entries)
 
 

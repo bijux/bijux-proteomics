@@ -80,8 +80,9 @@ def markdown_bullets(path: Path, heading: str) -> tuple[str, ...]:
 
 def module_topology_tokens(package_name: str) -> tuple[str, ...]:
     tokens: list[str] = []
-    for line in section_lines(
-        architecture_doc_path(package_name), "## Module topology"
-    ):
+    path = architecture_doc_path(package_name)
+    if not path.exists():
+        return ()
+    for line in section_lines(path, "## Module topology"):
         tokens.extend(match.group(1) for match in re.finditer(r"`([^`]+)`", line))
     return tuple(tokens)

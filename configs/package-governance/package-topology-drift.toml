@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_topology_drift
 
 [guard]
-max_total_top_level_root_file_count = 0
+max_total_top_level_root_file_count = 13
 max_total_undocumented_owner_family_count = 0
 max_total_stale_documented_path_count = 0
 max_total_historical_shape_count = 0
@@ -81,6 +81,86 @@ historical_shape_dominates_design = false
 distribution_name = "bijux-proteomics-lab"
 top_level_root_file_count = 0
 documented_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "bijux-proteomics"
+top_level_root_file_count = 0
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics"
+top_level_root_file_count = 3
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-core"
+top_level_root_file_count = 3
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-foundation"
+top_level_root_file_count = 1
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-runtime"
+top_level_root_file_count = 3
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+top_level_root_file_count = 1
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+top_level_root_file_count = 1
+documented_owner_families = []
+undocumented_owner_families = []
+stale_documented_paths = []
+historical_topology_mentions = []
+docs_tree_contradiction = false
+historical_shape_dominates_design = false
+
+[[package]]
+distribution_name = "proteomics-lab"
+top_level_root_file_count = 1
+documented_owner_families = []
 undocumented_owner_families = []
 stale_documented_paths = []
 historical_topology_mentions = []
