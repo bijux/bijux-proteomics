@@ -16,6 +16,7 @@ from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
 from bijux_proteomics_intelligence.candidates import CandidateStore
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
@@ -196,7 +197,7 @@ def _compare_runs_payload(run_a: Path, run_b: Path) -> dict[str, Any]:
     return compare_run_operation(run_a, run_b)
 
 
-def _inspect_candidate(base_dir: Path, candidate_id: str):
+def _inspect_candidate(base_dir: Path, candidate_id: str) -> Candidate:
     """_inspect_candidate."""
     return inspect_candidate_operation(base_dir, candidate_id)
 

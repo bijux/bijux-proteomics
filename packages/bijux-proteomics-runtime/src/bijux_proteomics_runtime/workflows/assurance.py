@@ -320,14 +320,14 @@ def build_workflow_assurance_matrix() -> tuple[WorkflowAssuranceMatrixRow, ...]:
                 if lane.assurance_tier is WorkflowAssuranceTier.SIMULATION_CONTRACT
             )
         )
-        blocker_notes = ()
+        blocker_notes: tuple[str, ...] = ()
         if workflow_family in major_workflow_families() and not (
             real_lane_ids or external_pack_lane_ids
         ):
             blocker_notes = (
                 "major workflow family lacks real operator, corpus, or external compatibility proof",
             )
-        notes = ()
+        notes: tuple[str, ...] = ()
         if workflow_family == "external_engine_simulation":
             notes = (
                 "simulation contract rows are explicit so they cannot be mistaken for real workflow validation",

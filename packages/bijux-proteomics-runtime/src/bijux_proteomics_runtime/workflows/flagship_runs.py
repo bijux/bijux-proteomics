@@ -9,6 +9,7 @@ from datetime import date
 from importlib import import_module
 from pathlib import Path
 import tempfile
+from typing import Any
 
 from pydantic import ConfigDict, Field
 
@@ -30,6 +31,7 @@ from bijux_proteomics_runtime.workflows.benchmark_runs import (
     run_benchmark_ptm_review_path,
     run_benchmark_targeted_review_path,
 )
+from bijux_proteomics_runtime.workflows.paths import RuntimeReviewableOutputPath
 from bijux_proteomics_runtime.workflows.proof_classes import RuntimeProofClass
 
 __all__ = [
@@ -293,6 +295,9 @@ def build_flagship_cross_family_run_bundle(
 
     bundles = build_flagship_run_bundle_family(base_dir=base_dir)
     context = _downstream_context()
+    reading_pack_paths = context["reading_pack_paths"]
+    recommendation_paths = context["recommendation_paths"]
+    lab_paths = context["lab_paths"]
     return FlagshipCrossFamilyRunBundle(
         bundle_id="flagship-cross-family-run-bundle",
         artifact_path=f"{_FIXTURE_ROOT}/cross_family_run_bundle.json",
@@ -306,13 +311,13 @@ def build_flagship_cross_family_run_bundle(
             )
         ),
         knowledge_artifact_paths=tuple(
-            context["reading_pack_paths"][family] for family in _FAMILY_ORDER
+            reading_pack_paths[family] for family in _FAMILY_ORDER
         ),
         intelligence_artifact_paths=tuple(
-            context["recommendation_paths"][family] for family in _FAMILY_ORDER
+            recommendation_paths[family] for family in _FAMILY_ORDER
         ),
         lab_artifact_paths=tuple(
-            context["lab_paths"][family] for family in _FAMILY_ORDER
+            lab_paths[family] for family in _FAMILY_ORDER
         ),
         note=(
             "This bundle keeps the exact core, knowledge, intelligence, and lab artifacts visible beside the runtime-owned flagship run bundles so the workflow stops looking like adjacent islands."
@@ -392,12 +397,12 @@ def _build_flagship_run_bundle(
         benchmark_package_id=review.benchmark_package_id,
         runtime_package_id=spec.package_id,
         runtime_surface=runtime_surface,
-        authorized_claim_scope=review.authorized_claim_scope,
+        authorized_claim_scope=tuple(str(item) for item in review.authorized_claim_scope),
         remaining_blockers=_remaining_blockers(
             workflow_family=workflow_family,
             runtime_truth=runtime_truth,
-            review_limits=review.scientific_limits,
-            recommendation_blockers=recommendation.blocker_set,
+            review_limits=tuple(str(item) for item in review.scientific_limits),
+            recommendation_blockers=tuple(str(item) for item in recommendation.blocker_set),
         ),
         artifact_inventory=tuple(artifact_inventory),
         stage_lineage_artifact_path=stage_lineage.artifact_path,
@@ -437,81 +442,81 @@ def _runtime_surface_snapshot(
                 base_dir=base_dir,
                 manifest=manifest,
             )
-        report = run_benchmark_dia_review_path()
+        dia_report = run_benchmark_dia_review_path()
         return _report_runtime_surface_snapshot(
             workflow_family=workflow_family,
             spec=spec,
             report_summary=(
-                f"precursor_count={report.precursor_count}",
-                f"peptide_count={report.peptide_count}",
-                f"protein_count={report.protein_count}",
-                f"quantified_precursor_count={report.quantified_precursor_count}",
-                f"qc_missing_intensity_count={report.qc_missing_intensity_count}",
+                f"precursor_count={dia_report.precursor_count}",
+                f"peptide_count={dia_report.peptide_count}",
+                f"protein_count={dia_report.protein_count}",
+                f"quantified_precursor_count={dia_report.quantified_precursor_count}",
+                f"qc_missing_intensity_count={dia_report.qc_missing_intensity_count}",
             ),
-            artifact_paths=report.artifact_paths,
-            evidence_pointers=report.evidence_pointers,
+            artifact_paths=dia_report.artifact_paths,
+            evidence_pointers=dia_report.evidence_pointers,
         )
     if workflow_family == "lfq":
-        report = run_benchmark_lfq_review_path()
+        lfq_report = run_benchmark_lfq_review_path()
         return _report_runtime_surface_snapshot(
             workflow_family=workflow_family,
             spec=spec,
             report_summary=(
-                f"feature_record_count={report.feature_record_count}",
-                f"design_entry_count={report.design_entry_count}",
-                f"condition_count={report.condition_count}",
-                f"outlier_sample_count={report.outlier_sample_count}",
-                f"review_bundle_hash={report.review_bundle_hash}",
+                f"feature_record_count={lfq_report.feature_record_count}",
+                f"design_entry_count={lfq_report.design_entry_count}",
+                f"condition_count={lfq_report.condition_count}",
+                f"outlier_sample_count={lfq_report.outlier_sample_count}",
+                f"review_bundle_hash={lfq_report.review_bundle_hash}",
             ),
-            artifact_paths=report.artifact_paths,
-            evidence_pointers=report.evidence_pointers,
+            artifact_paths=lfq_report.artifact_paths,
+            evidence_pointers=lfq_report.evidence_pointers,
         )
     if workflow_family == "multiplex":
-        report = run_benchmark_multiplex_review_path()
+        multiplex_report = run_benchmark_multiplex_review_path()
         return _report_runtime_surface_snapshot(
             workflow_family=workflow_family,
             spec=spec,
             report_summary=(
-                f"feature_record_count={report.feature_record_count}",
-                f"multiplex_group_count={report.multiplex_group_count}",
-                f"channel_count={report.channel_count}",
-                f"reference_channel_count={report.reference_channel_count}",
-                f"flagged_imbalance_count={report.flagged_imbalance_count}",
-                f"carrier_effect_channel_count={report.carrier_effect_channel_count}",
+                f"feature_record_count={multiplex_report.feature_record_count}",
+                f"multiplex_group_count={multiplex_report.multiplex_group_count}",
+                f"channel_count={multiplex_report.channel_count}",
+                f"reference_channel_count={multiplex_report.reference_channel_count}",
+                f"flagged_imbalance_count={multiplex_report.flagged_imbalance_count}",
+                f"carrier_effect_channel_count={multiplex_report.carrier_effect_channel_count}",
             ),
-            artifact_paths=report.artifact_paths,
-            evidence_pointers=report.evidence_pointers,
+            artifact_paths=multiplex_report.artifact_paths,
+            evidence_pointers=multiplex_report.evidence_pointers,
         )
     if workflow_family == "ptm":
-        report = run_benchmark_ptm_review_path()
+        ptm_report = run_benchmark_ptm_review_path()
         return _report_runtime_surface_snapshot(
             workflow_family=workflow_family,
             spec=spec,
             report_summary=(
-                f"accepted_identification_count={report.accepted_identification_count}",
-                f"mapped_site_count={report.mapped_site_count}",
-                f"motif_window_count={report.motif_window_count}",
-                f"occupancy_entry_count={report.occupancy_entry_count}",
-                f"lab_packet_target_count={report.lab_packet_target_count}",
-                f"unresolved_risk_count={report.unresolved_risk_count}",
+                f"accepted_identification_count={ptm_report.accepted_identification_count}",
+                f"mapped_site_count={ptm_report.mapped_site_count}",
+                f"motif_window_count={ptm_report.motif_window_count}",
+                f"occupancy_entry_count={ptm_report.occupancy_entry_count}",
+                f"lab_packet_target_count={ptm_report.lab_packet_target_count}",
+                f"unresolved_risk_count={ptm_report.unresolved_risk_count}",
             ),
-            artifact_paths=report.artifact_paths,
-            evidence_pointers=report.evidence_pointers,
+            artifact_paths=ptm_report.artifact_paths,
+            evidence_pointers=ptm_report.evidence_pointers,
         )
-    report = run_benchmark_targeted_review_path()
+    targeted_report = run_benchmark_targeted_review_path()
     return _report_runtime_surface_snapshot(
         workflow_family=workflow_family,
         spec=spec,
         report_summary=(
-            f"qc_point_count={report.qc_point_count}",
-            f"approved_transition_count={report.approved_transition_count}",
-            f"exploratory_transition_count={report.exploratory_transition_count}",
-            f"refused_transition_count={report.refused_transition_count}",
-            f"blocked_follow_up_count={report.blocked_follow_up_count}",
-            f"observed_outcome_count={report.observed_outcome_count}",
+            f"qc_point_count={targeted_report.qc_point_count}",
+            f"approved_transition_count={targeted_report.approved_transition_count}",
+            f"exploratory_transition_count={targeted_report.exploratory_transition_count}",
+            f"refused_transition_count={targeted_report.refused_transition_count}",
+            f"blocked_follow_up_count={targeted_report.blocked_follow_up_count}",
+            f"observed_outcome_count={targeted_report.observed_outcome_count}",
         ),
-        artifact_paths=report.artifact_paths,
-        evidence_pointers=report.evidence_pointers,
+        artifact_paths=targeted_report.artifact_paths,
+        evidence_pointers=targeted_report.evidence_pointers,
     )
 
 
@@ -520,13 +525,12 @@ def _import_runtime_surface_snapshot(
     workflow_family: str,
     spec: BenchmarkRunSpec,
     base_dir: Path,
-    manifest: object,
+    manifest: RuntimeReviewableOutputPath,
 ) -> tuple[FlagshipRuntimeSurfaceSnapshot, tuple[FlagshipRunArtifact, ...]]:
-    runtime_manifest = manifest
     browser = build_benchmark_artifact_browser(
         base_dir,
         package_id=spec.package_id,
-        manifest=runtime_manifest,
+        manifest=manifest,
     )
     runtime_artifacts = tuple(
         FlagshipRunArtifact(
@@ -871,7 +875,7 @@ def _remaining_blockers(
     return tuple(dict.fromkeys(blockers))
 
 
-def _downstream_context() -> dict[str, dict[str, object]]:
+def _downstream_context() -> dict[str, dict[str, Any]]:
     benchmark_corpora_module = import_module(
         "bijux_proteomics_intelligence.judgment.benchmark_corpora"
     )

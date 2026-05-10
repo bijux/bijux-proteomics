@@ -65,6 +65,9 @@ class _PtmLabValidationEntryLike(Protocol):
     target_peptides: tuple[str, ...]
     assay_risk: Any
 
+    def to_dict(self) -> dict[str, Any]:
+        """Serialize one entry for replay-stable hashing."""
+
 
 class _PtmLabValidationPacketLike(Protocol):
     """Shape runtime needs from one PTM lab validation packet."""

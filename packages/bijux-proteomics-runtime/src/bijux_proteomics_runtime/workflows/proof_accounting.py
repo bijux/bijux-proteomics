@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+from typing import TypedDict
 
 from pydantic import ConfigDict, Field
 
@@ -38,6 +39,15 @@ __all__ = [
 
 _SHORTCUT_PATTERN = re.compile(r"^\s*def (?P<name>_fake_[a-z0-9_]+)\(", re.MULTILINE)
 _PROHIBITED_FAMILY_TOKENS = ("end_to_end", "integrity", "replay", "execution")
+
+
+class _ShortcutClassification(TypedDict):
+    """Typed classification payload for one fake-helper exception."""
+
+    proof_class: RuntimeProofClass
+    counts_toward_flagship_proof: bool
+    justified_exception: bool
+    justification: str
 
 
 class RuntimeExecutionShortcutAuditEntry(JsonModel):
@@ -483,7 +493,7 @@ def _flagship_family_id(workflow_family: str) -> str:
     }[workflow_family]
 
 
-def _shortcut_classifications() -> dict[tuple[str, str], dict[str, object]]:
+def _shortcut_classifications() -> dict[tuple[str, str], _ShortcutClassification]:
     simulation_justification = (
         "this helper exists only inside the container and scheduler smoke-contract tests, "
         "which model launch-bundle publication and mocked environment transitions rather than "

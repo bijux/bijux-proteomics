@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime
 
 from pydantic import ConfigDict, Field
@@ -170,13 +171,8 @@ def build_container_run_bundle(
         mount_maps=default_container_mounts(workspace),
         environment_capture=ContainerEnvironmentCapture(
             execution_mode=str(config.get("execution_mode") or "auto"),
-            enabled_predictors=tuple(
-                str(item) for item in (config.get("predictors_enabled") or [])
-            ),
-            tool_versions={
-                str(key): str(value)
-                for key, value in (config.get("tool_versions") or {}).items()
-            },
+            enabled_predictors=_string_tuple(config.get("predictors_enabled")),
+            tool_versions=_string_mapping(config.get("tool_versions")),
         ),
         artifact_expectations=default_artifact_expectations(),
     )
@@ -255,6 +251,22 @@ def load_scheduler_job_bundle(workspace: RunWorkspace) -> SchedulerJobBundle:
         ),
     )
     return SchedulerJobBundle.load_json(workspace.scheduler_job_bundle_path)
+
+
+def _string_tuple(payload: object) -> tuple[str, ...]:
+    """Normalize a config sequence into a tuple of strings."""
+
+    if isinstance(payload, str) or not isinstance(payload, Iterable):
+        return ()
+    return tuple(str(item) for item in payload)
+
+
+def _string_mapping(payload: object) -> dict[str, str]:
+    """Normalize a config mapping into a string-keyed string mapping."""
+
+    if not isinstance(payload, Mapping):
+        return {}
+    return {str(key): str(value) for key, value in payload.items()}
 
 
 __all__ = [

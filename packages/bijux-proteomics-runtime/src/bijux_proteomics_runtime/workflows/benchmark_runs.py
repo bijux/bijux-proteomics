@@ -879,7 +879,7 @@ def build_benchmark_artifact_browser(
     input_paths = (_repo_root() / spec.primary_input_path,) + tuple(
         _repo_root() / path for path in spec.companion_input_paths
     )
-    imported_results = ()
+    imported_results: tuple[BenchmarkArtifactEntry, ...] = ()
     public_package_artifacts = tuple(
         _summarize_source_path(_repo_root() / path) for path in spec.public_package_paths
     )
@@ -1138,10 +1138,7 @@ def build_benchmark_execution_cost_report(
         run_id=manifest.run_id,
         workflow_family=manifest.workflow_family,
         wall_time_ms=run_total,
-        cost_metrics={
-            key: float(value)
-            for key, value in _dict_items(telemetry.get("cost", {}))
-        },
+        cost_metrics=_float_mapping(telemetry.get("cost", {})),
         total_artifact_bytes=sum(entry.size_bytes for entry in ledger.entries),
         largest_artifacts=tuple(
             BenchmarkCostArtifact(
@@ -1445,6 +1442,22 @@ def _dict_items(payload: object) -> tuple[tuple[str, object], ...]:
     if not isinstance(payload, dict):
         return ()
     return tuple((str(key), value) for key, value in payload.items())
+
+
+def _float_mapping(payload: object) -> dict[str, float]:
+    """Normalize a mapping-like payload into float metrics."""
+
+    metrics: dict[str, float] = {}
+    for key, value in _dict_items(payload):
+        if isinstance(value, bool):
+            metrics[key] = float(value)
+            continue
+        if isinstance(value, int | float):
+            metrics[key] = float(value)
+            continue
+        if isinstance(value, str):
+            metrics[key] = float(value)
+    return metrics
 
 
 def _semantic_signature(
