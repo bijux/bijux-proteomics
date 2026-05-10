@@ -17,7 +17,11 @@ def test_package_dependency_policy_covers_workspace_packages() -> None:
     by_package = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_DEPENDENCY_POLICY_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
+    assert by_package["agentic-proteins"].allowed_outbound_edges == (
+        "bijux-proteomics-core",
+        "bijux-proteomics-runtime",
+    )
     assert by_package["bijux-proteomics-foundation"].allowed_outbound_edges == ()
     assert by_package["bijux-proteomics-knowledge"].allowed_outbound_edges == (
         "bijux-proteomics-foundation",
@@ -51,6 +55,9 @@ def test_package_dependency_policy_covers_workspace_packages() -> None:
             "bijux-proteomics-lab",
             "bijux-proteomics-runtime",
         )
+    )
+    assert by_package["proteomics-runtime"].allowed_outbound_edges == (
+        "bijux-proteomics-runtime",
     )
 
 

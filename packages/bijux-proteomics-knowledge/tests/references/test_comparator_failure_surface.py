@@ -3,13 +3,17 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.references import (
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.comparator_failures import (
     BenchmarkComparatorFailureEntry,
     BenchmarkComparatorFailureReport,
     ComparatorClaimSupportState,
     ComparatorFailureSeverity,
-    KnowledgeWorkflowFamily,
     build_benchmark_comparator_failure_report,
+)
+from bijux_proteomics_knowledge.references.workflows.lookups import (
     get_benchmark_comparator_failure,
 )
 

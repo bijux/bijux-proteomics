@@ -52,8 +52,8 @@ def _load_report(name: str) -> dict[str, Any]:
 
 def _rows(payload: dict[str, Any], key: str) -> tuple[dict[str, Any], ...]:
     rows = payload[key]
-    assert isinstance(rows, list)
-    assert all(isinstance(row, dict) for row in rows)
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+        raise TypeError(f"{key} must be a list of TOML tables")
     return tuple(cast(dict[str, Any], row) for row in rows)
 
 

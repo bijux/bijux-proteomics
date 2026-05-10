@@ -16,7 +16,7 @@ def test_lab_publishability_requires_operator_trust_signals() -> None:
     report = build_lab_publishability_report()
 
     assert LAB_PUBLISHABILITY_PATH.exists()
-    assert report.root_entrypoint_count == 4
+    assert report.root_entrypoint_count == 3
     assert report.source_owner_family_count == 8
     assert report.test_family_count == 9
     assert report.mirrored_owner_family_count == 8

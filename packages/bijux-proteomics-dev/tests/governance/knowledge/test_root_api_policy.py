@@ -30,6 +30,7 @@ PUBLIC_SURFACE_TESTS = {
     "packages/bijux-proteomics-knowledge/tests/contracts/test_schema.py",
     "packages/bijux-proteomics-knowledge/tests/package/test_public_api_surface.py",
     "packages/bijux-proteomics-knowledge/tests/package/test_serialization.py",
+    "packages/proteomics-knowledge/tests/compatibility/test_proteomics_knowledge_alias.py",
 }
 
 

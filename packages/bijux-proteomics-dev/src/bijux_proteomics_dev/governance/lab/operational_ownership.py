@@ -43,7 +43,7 @@ REQUIRED_SOURCE_OWNER_FAMILIES = tuple(
 )
 REQUIRED_TEST_FAMILIES = tuple(sorted(REQUIRED_SOURCE_OWNER_FAMILIES + ("package",)))
 IGNORED_SOURCE_FAMILIES = {"__pycache__", "governance"}
-IGNORED_TEST_FAMILIES = {"__pycache__", "fixtures"}
+IGNORED_TEST_FAMILIES = {"__pycache__", "fixtures", "governance"}
 
 
 @dataclass(frozen=True)

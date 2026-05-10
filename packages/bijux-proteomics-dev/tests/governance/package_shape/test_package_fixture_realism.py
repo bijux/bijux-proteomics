@@ -17,7 +17,7 @@ def test_package_fixture_realism_report_tracks_serious_fixture_depth() -> None:
     entries = {entry.distribution_name: entry for entry in report.entries}
 
     assert PACKAGE_FIXTURE_REALISM_PATH.exists()
-    assert len(report.entries) == 8
+    assert len(report.entries) == 16
     assert entries["bijux-proteomics-core"].toy_named_fixture_count == 0
     assert entries["bijux-proteomics-runtime"].realistic_fixture_count_ge_1024 >= 7
     assert report.guard.max_total_toy_named_fixture_count == 0

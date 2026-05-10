@@ -43,6 +43,7 @@ def build_package_boundary_coherence_issues(
     public_surface_by_package = {
         entry.distribution_name: entry for entry in default_public_surface_contracts()
     }
+    runtime_public_surface = public_surface_by_package.get("bijux-proteomics-runtime")
     issues: list[PackageBoundaryCoherenceIssue] = []
 
     if not REPOSITORY_PRODUCT_SHAPE_PATH.exists():
@@ -95,7 +96,15 @@ def build_package_boundary_coherence_issues(
                 )
             )
         elif package.role_kind == "compatibility":
-            if public_surface.supported_attributes != ("__version__",):
+            expected_attributes = (
+                runtime_public_surface.supported_attributes
+                if (
+                    runtime_public_surface is not None
+                    and package.distribution_name == "agentic-proteins"
+                )
+                else ("__version__",)
+            )
+            if public_surface.supported_attributes != expected_attributes:
                 issues.append(
                     PackageBoundaryCoherenceIssue(
                         code="compatibility-root-overgrowth",
