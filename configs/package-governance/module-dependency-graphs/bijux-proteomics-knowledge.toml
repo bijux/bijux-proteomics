@@ -80,7 +80,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_knowledge.references"
-outgoing_internal_modules = ["bijux_proteomics_knowledge.references", "bijux_proteomics_knowledge.references.public"]
+outgoing_internal_modules = ["bijux_proteomics_knowledge.references.public"]
 outgoing_workspace_modules = []
 
 [[module]]

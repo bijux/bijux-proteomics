@@ -26,7 +26,7 @@ outgoing_workspace_modules = []
 [[module]]
 module_name = "bijux_proteomics_runtime.api.cli"
 outgoing_internal_modules = ["bijux_proteomics_runtime.api", "bijux_proteomics_runtime.api.catalog", "bijux_proteomics_runtime.api.v1.schema", "bijux_proteomics_runtime.runs.correlation", "bijux_proteomics_runtime.runs.manager", "bijux_proteomics_runtime.runs.operations", "bijux_proteomics_runtime.runs.output", "bijux_proteomics_runtime.runs.request", "bijux_proteomics_runtime.runs.run_config", "bijux_proteomics_runtime.support.identity", "bijux_proteomics_runtime.support.workspace"]
-outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates"]
+outgoing_workspace_modules = ["bijux_proteomics_intelligence.candidates", "bijux_proteomics_intelligence.candidates.schema"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.api.command_output"
@@ -770,7 +770,7 @@ outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]
 module_name = "bijux_proteomics_runtime.workflows.flagship_runs"
-outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.proof_classes"]
+outgoing_internal_modules = ["bijux_proteomics_runtime.workflows.benchmark_runs", "bijux_proteomics_runtime.workflows.paths", "bijux_proteomics_runtime.workflows.proof_classes"]
 outgoing_workspace_modules = ["bijux_proteomics_foundation"]
 
 [[module]]

@@ -3,12 +3,12 @@
 
 [[package]]
 distribution_name = "agentic-proteins"
-allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
 allowed_inbound_edges = []
 actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
 actual_inbound_edges = []
 unexpected_outbound_edges = []
-rationale = "agentic-proteins stays as a narrow product-layer consumer of canonical core, intelligence, and runtime owners."
+rationale = "agentic-proteins stays as a narrow compatibility bridge that forwards to canonical core and runtime owners only."
 
 [[package]]
 distribution_name = "bijux-proteomics-dev"
@@ -49,7 +49,7 @@ rationale = "runtime depends on core scientific seams, foundation contracts, and
 [[package]]
 distribution_name = "bijux-proteomics-intelligence"
 allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
-allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics-intelligence"]
+allowed_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics-intelligence"]
 actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
 unexpected_outbound_edges = []

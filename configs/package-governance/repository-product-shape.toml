@@ -109,8 +109,8 @@ role_kind = "compatibility"
 role_summary = "legacy compatibility bridge for runtime entrypoints and imports"
 docs_path = "docs/02-agentic-proteins/foundation/compatibility-contract.md"
 readme_path = "packages/agentic-proteins/README.md"
-allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-intelligence", "bijux-proteomics-runtime"]
-forbidden_outbound_imports = ["bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
+allowed_outbound_imports = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+forbidden_outbound_imports = ["bijux-proteomics-dev", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics", "proteomics", "proteomics-core", "proteomics-foundation", "proteomics-runtime", "proteomics-intelligence", "proteomics-knowledge", "proteomics-lab"]
 owned_handoff_classes = []
 
 [[package]]
