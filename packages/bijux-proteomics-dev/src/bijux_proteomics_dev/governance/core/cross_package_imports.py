@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import ast
 from dataclasses import dataclass
-from pathlib import Path
 
 from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
 

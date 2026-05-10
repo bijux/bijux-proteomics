@@ -59,11 +59,21 @@ nav:
       - Product Architecture: 01-bijux-proteomics/foundation/product-architecture.md
       - Cross-Package Ownership: 01-bijux-proteomics/foundation/cross-package-ownership.md
       - Release Readiness Matrix: 01-bijux-proteomics/foundation/release-readiness-matrix.md
+      - Elite Readiness Scorecard: 01-bijux-proteomics/foundation/elite-readiness-scorecard.md
+      - Hostile Review Kit: 01-bijux-proteomics/foundation/hostile-review-kit.md
+      - External Review Kits: 01-bijux-proteomics/foundation/external-review-kits.md
+      - Independent Rerun Dossiers: 01-bijux-proteomics/foundation/independent-rerun-dossiers.md
   - Benchmark Assets:
       - Benchmark Assets: benchmark-assets/index.md
       - Flagship Public Benchmark Catalog: 04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md
+      - Flagship Benchmark Assets: 04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md
+      - Benchmark Asset Audit: 04-bijux-proteomics-core/foundation/benchmark-asset-audit.md
       - Benchmark Freshness Review: 04-bijux-proteomics-core/foundation/benchmark-freshness-review.md
       - Flagship Acceptance Bars: 04-bijux-proteomics-core/foundation/flagship-acceptance-bars.md
+      - Benchmark Flagship Status: 04-bijux-proteomics-core/foundation/benchmark-flagship-status.md
+      - Benchmark Licensing and Redistribution: 04-bijux-proteomics-core/foundation/benchmark-licensing-and-redistribution.md
+      - Benchmark Incompleteness Ledger: 04-bijux-proteomics-core/foundation/benchmark-incompleteness-ledger.md
+      - Flagship Challenge Corpus Catalog: 04-bijux-proteomics-core/foundation/flagship-challenge-corpus-catalog.md
       - DDA Benchmark Lineage: 04-bijux-proteomics-core/foundation/dda-benchmark-lineage.md
       - DIA Benchmark Lineage: 04-bijux-proteomics-core/foundation/dia-benchmark-lineage.md
       - LFQ Benchmark Lineage: 04-bijux-proteomics-core/foundation/lfq-benchmark-lineage.md
@@ -76,6 +86,7 @@ nav:
       - Runtime Handbook: 09-bijux-proteomics-runtime/index.md
       - Flagship Run Registry: 09-bijux-proteomics-runtime/flagship-run-registry.md
       - Benchmark Rerun Kits: 09-bijux-proteomics-runtime/benchmark-rerun-kits.md
+      - Benchmark Comparability Matrix: 09-bijux-proteomics-runtime/benchmark-comparability-matrix.md
       - Black-Box Benchmark Dashboard: 09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md
       - Runtime Execution Boundary: 09-bijux-proteomics-runtime/runtime-execution-boundary.md
       - Black-Box Run Verification: 09-bijux-proteomics-runtime/black-box-run-verification.md

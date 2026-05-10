@@ -2,7 +2,6 @@
 # Copyright © 2026 Bijan Mousavi
 
 """Curated public entrypoints for the core proteomics package."""
-
 from __future__ import annotations
 
 from bijux_proteomics.identification import build_fdr_audit_trail
@@ -12,7 +11,6 @@ from bijux_proteomics.io.formats import (
 )
 from bijux_proteomics.sequences import parse_fasta_document
 from bijux_proteomics.sequences.digestion import DigestPolicy
-
 __all__ = (
     "DigestPolicy",
     "parse_fasta_document",
