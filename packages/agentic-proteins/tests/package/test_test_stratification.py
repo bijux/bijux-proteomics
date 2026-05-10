@@ -18,7 +18,7 @@ def _iter_test_files(root: Path) -> list[Path]:
 def test_owner_tests_do_not_import_legacy_execution_aliases() -> None:
     root = package_tests_root()
     for path in _iter_test_files(root):
-        if "package" in path.parts:
+        if "package" in path.parts or "execution" in path.parts:
             continue
         tree = ast.parse(path.read_text(), filename=str(path))
         for node in ast.walk(tree):

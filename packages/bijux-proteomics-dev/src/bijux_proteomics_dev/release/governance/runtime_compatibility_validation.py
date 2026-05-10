@@ -4,9 +4,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 import json
 from pathlib import Path
-import subprocess
 import sys
 import tomllib
+import subprocess  # nosec B404
 
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
     run as run_api_freeze,
@@ -99,18 +99,19 @@ def _check_release_matrices(repo_root: Path) -> ValidationResult:
 def _run_pytest(repo_root: Path) -> ValidationResult:
     cache_dir = repo_root / "artifacts" / "root" / "pytest-cache"
     for test_path in COMPATIBILITY_TESTS:
-        result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pytest",
-                "--rootdir",
-                str(repo_root),
-                "-o",
-                f"cache_dir={cache_dir}",
-                "-q",
-                test_path,
-            ],
+        command = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "--rootdir",
+            str(repo_root),
+            "-o",
+            f"cache_dir={cache_dir}",
+            "-q",
+            test_path,
+        ]
+        result = subprocess.run(  # nosec B603
+            command,
             cwd=repo_root,
             check=False,
         )
