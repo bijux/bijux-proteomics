@@ -40,7 +40,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_runtime.api.public"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_runtime.api.app"]
 outgoing_workspace_modules = []
 
 [[module]]

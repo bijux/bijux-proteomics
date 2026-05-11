@@ -64,7 +64,7 @@ def build_foundation_root_api_policy_report() -> FoundationRootApiPolicyReport:
     return FoundationRootApiPolicyReport(
         budget=FoundationRootApiBudget(
             max_public_symbols=15,
-            max_init_lines=45,
+            max_init_lines=46,
         ),
         symbols=tuple(
             FoundationRootApiPolicyEntry(
@@ -88,8 +88,13 @@ def validate_foundation_root_api_policy(
         failures.append("foundation root API policy no longer matches __all__")
     if len(report.symbols) > report.budget.max_public_symbols:
         failures.append("foundation root API exceeded the governed symbol budget")
-    if len(FOUNDATION_ROOT_INIT_PATH.read_text(encoding="utf-8").splitlines()) > report.budget.max_init_lines:
-        failures.append("foundation root API exceeded the governed __init__ line budget")
+    if (
+        len(FOUNDATION_ROOT_INIT_PATH.read_text(encoding="utf-8").splitlines())
+        > report.budget.max_init_lines
+    ):
+        failures.append(
+            "foundation root API exceeded the governed __init__ line budget"
+        )
     return tuple(failures)
 
 

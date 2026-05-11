@@ -36,7 +36,10 @@ def test_runtime_execution_boundary_page_starts_from_public_manifest_routes() ->
 
     assert "# Runtime Execution Boundary" in text
     assert "independent reviewer reopen a shipped workflow family" in text
-    assert "| workflow family | start from | runtime entrypoint | checked bundle | current limit |" in text
+    assert (
+        "| workflow family | start from | runtime entrypoint | checked bundle | current limit |"
+        in text
+    )
     assert "source_locator_manifest.json" in text
     assert "runtime-rerun-refusals.md" not in text
 

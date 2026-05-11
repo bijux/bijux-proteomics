@@ -18,7 +18,9 @@ def test_foundation_docs_stay_on_primitives_serialization_and_invariants() -> No
         [
             _read("docs/03-bijux-proteomics-foundation/foundation/index.md"),
             _read("docs/03-bijux-proteomics-foundation/foundation/package-overview.md"),
-            _read("docs/03-bijux-proteomics-foundation/foundation/ownership-boundary.md"),
+            _read(
+                "docs/03-bijux-proteomics-foundation/foundation/ownership-boundary.md"
+            ),
         ]
     )
 

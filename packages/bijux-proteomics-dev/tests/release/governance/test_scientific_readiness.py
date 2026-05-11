@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    KnowledgeWorkflowFamily,
-)
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     build_scientific_release_dossier,
     validate_scientific_release_dossier,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
 )
 
 REPO_ROOT = next(

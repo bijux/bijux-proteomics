@@ -5,9 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import tomllib
 
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    DEFAULT_BENCHMARK_MANIFESTS,
-)
+from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
 from bijux_proteomics_knowledge.references.grounding.citations import (
     DEFAULT_CITATION_REGISTRY,
 )
@@ -20,9 +18,6 @@ from bijux_proteomics_knowledge.references.grounding.corpora import (
 from bijux_proteomics_knowledge.references.grounding.literature import (
     DEFAULT_LITERATURE_GROUPS,
 )
-from bijux_proteomics_knowledge.references.workflows.narratives import (
-    DEFAULT_WORKFLOW_NARRATIVES,
-)
 from bijux_proteomics_knowledge.references.grounding.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
 )
@@ -32,8 +27,12 @@ from bijux_proteomics_knowledge.references.grounding.problems import (
 from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
 )
-
-from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
+)
+from bijux_proteomics_knowledge.references.workflows.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
+)
 
 __all__ = [
     "KNOWLEDGE_BREADTH_PATH",
@@ -185,14 +184,14 @@ def validate_knowledge_breadth() -> tuple[str, ...]:
         failures.append(
             "knowledge query-helper breadth now grows faster than curated reference depth"
         )
-    if metrics.total_public_surface_count > guard.baseline_total_public_surface_count:
-        if (
-            metrics.curated_registry_entry_count
-            <= guard.baseline_curated_registry_entry_count
-        ):
-            failures.append(
-                "knowledge public surface grew without adding deeper curated scientific memory"
-            )
+    if (
+        metrics.total_public_surface_count > guard.baseline_total_public_surface_count
+        and metrics.curated_registry_entry_count
+        <= guard.baseline_curated_registry_entry_count
+    ):
+        failures.append(
+            "knowledge public surface grew without adding deeper curated scientific memory"
+        )
     return tuple(failures)
 
 

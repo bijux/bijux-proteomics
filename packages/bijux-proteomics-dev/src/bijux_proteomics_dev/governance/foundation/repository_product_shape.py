@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from pathlib import Path
 
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     build_package_dependency_policy_report,
@@ -90,8 +89,7 @@ def _stage_entries() -> tuple[RepositoryLifecycleStageEntry, ...]:
             ),
             docs_path="docs/03-bijux-proteomics-foundation/foundation/package-overview.md",
             primary_path=(
-                "packages/bijux-proteomics-foundation/src/"
-                "bijux_proteomics_foundation"
+                "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"
             ),
         ),
         RepositoryLifecycleStageEntry(
@@ -117,8 +115,7 @@ def _stage_entries() -> tuple[RepositoryLifecycleStageEntry, ...]:
             ),
             docs_path="docs/09-bijux-proteomics-runtime/index.md",
             primary_path=(
-                "packages/bijux-proteomics-runtime/src/"
-                "bijux_proteomics_runtime"
+                "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime"
             ),
         ),
         RepositoryLifecycleStageEntry(
@@ -132,8 +129,7 @@ def _stage_entries() -> tuple[RepositoryLifecycleStageEntry, ...]:
             ),
             docs_path="docs/06-bijux-proteomics-knowledge/index.md",
             primary_path=(
-                "packages/bijux-proteomics-knowledge/src/"
-                "bijux_proteomics_knowledge"
+                "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge"
             ),
         ),
         RepositoryLifecycleStageEntry(
@@ -474,7 +470,10 @@ def validate_repository_product_shape() -> tuple[str, ...]:
             failures.append(
                 f"{package.distribution_name}: missing README path {package.readme_path}"
             )
-        if dependency_policy[package.distribution_name] != package.allowed_outbound_imports:
+        if (
+            dependency_policy[package.distribution_name]
+            != package.allowed_outbound_imports
+        ):
             failures.append(
                 f"{package.distribution_name}: allowed outbound imports drifted from package dependency policy"
             )

@@ -10,12 +10,9 @@ REPO_ROOT = next(
 
 
 def _read_runtime_doc(name: str) -> str:
-    return (
-        REPO_ROOT
-        / "docs"
-        / "09-bijux-proteomics-runtime"
-        / name
-    ).read_text(encoding="utf-8")
+    return (REPO_ROOT / "docs" / "09-bijux-proteomics-runtime" / name).read_text(
+        encoding="utf-8"
+    )
 
 
 def test_runtime_index_links_to_flagship_run_registry() -> None:
@@ -37,5 +34,11 @@ def test_flagship_run_registry_page_names_checked_runtime_artifacts() -> None:
     assert "multiplex-tmtpro-review-corpus" in text
     assert "ptm-localization-review-corpus" in text
     assert "targeted-transition-review-corpus" in text
-    assert "raw-executable review lane over tracked DIA library-conditioned evidence" in text
-    assert "raw-executable review lane over tracked targeted QC and follow-up artifacts" in text
+    assert (
+        "raw-executable review lane over tracked DIA library-conditioned evidence"
+        in text
+    )
+    assert (
+        "raw-executable review lane over tracked targeted QC and follow-up artifacts"
+        in text
+    )

@@ -23,9 +23,7 @@ def test_runtime_and_compat_docs_name_the_workflow_cli_owner() -> None:
         REPO_ROOT / "docs" / "02-agentic-proteins" / "interfaces" / "cli-surface.md"
     ).read_text(encoding="utf-8")
 
-    assert (
-        "Flagship workflow CLI command: `bijux-proteomics-runtime`" in runtime_readme
-    )
+    assert "Flagship workflow CLI command: `bijux-proteomics-runtime`" in runtime_readme
     assert "not the flagship workflow runner" in core_readme
     assert "Legacy compatibility CLI command: `agentic-proteins`" in compat_readme
     assert "bijux-proteomics-runtime --help" in compat_readme

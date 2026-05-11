@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from pathlib import Path
 
 from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
 from bijux_proteomics_dev.quality.artifacts.benchmark_artifacts import (

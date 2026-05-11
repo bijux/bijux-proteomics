@@ -10,16 +10,14 @@ REPO_ROOT = next(
 
 
 def _read_doc(name: str) -> str:
-    return (
-        REPO_ROOT
-        / "docs"
-        / "01-bijux-proteomics"
-        / "foundation"
-        / name
-    ).read_text(encoding="utf-8")
+    return (REPO_ROOT / "docs" / "01-bijux-proteomics" / "foundation" / name).read_text(
+        encoding="utf-8"
+    )
 
 
-def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets() -> None:
+def test_workflow_authority_matrix_doc_names_outsider_and_internal_support_sets() -> (
+    None
+):
     text = _read_doc("workflow-claim-limits.md")
 
     assert "# Workflow Claim Limits" in text
@@ -40,7 +38,10 @@ def test_multiplex_boundary_doc_keeps_internal_support_limit_explicit() -> None:
     assert "# Why Multiplex Stops At Internal Support" in text
     assert "Internal Support Only" in text
     assert "outsider-auditable flagship family" in text
-    assert "multiplex_channel_stress_review_package/cross_package_generalization.json" in text
+    assert (
+        "multiplex_channel_stress_review_package/cross_package_generalization.json"
+        in text
+    )
     assert "fragile_transfer" in text
     assert "requested-versus-observed outcome dossier" in text
 

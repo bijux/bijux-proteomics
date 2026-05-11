@@ -128,22 +128,26 @@ def validate_readme_truth(repo_root: Path = REPO_ROOT) -> tuple[ReadmeTruthIssue
 
     if RELEASE_READINESS_MATRIX_PATH.exists():
         categories = _load_matrix_categories()
-        if any(not bool(category["ready"]) for category in categories):
-            if "This repository does not yet claim:" not in text:
-                issues.append(
-                    ReadmeTruthIssue(
-                        code="missing-readiness-disclaimer",
-                        detail=(
-                            "README must explicitly narrow stronger release language "
-                            "while readiness matrix categories remain blocked"
-                        ),
-                    )
+        if (
+            any(not bool(category["ready"]) for category in categories)
+            and "This repository does not yet claim:" not in text
+        ):
+            issues.append(
+                ReadmeTruthIssue(
+                    code="missing-readiness-disclaimer",
+                    detail=(
+                        "README must explicitly narrow stronger release language "
+                        "while readiness matrix categories remain blocked"
+                    ),
                 )
+            )
 
     try:
         forbidden_start, forbidden_end = _section_bounds(text, "Forbidden Claims")
     except ValueError as exc:
-        issues.append(ReadmeTruthIssue(code="missing-forbidden-claims", detail=str(exc)))
+        issues.append(
+            ReadmeTruthIssue(code="missing-forbidden-claims", detail=str(exc))
+        )
         return tuple(sorted(issues, key=lambda issue: (issue.code, issue.detail)))
 
     outside_forbidden = text[:forbidden_start] + text[forbidden_end:]

@@ -104,7 +104,9 @@ def validate_source_path_references() -> tuple[SourcePathIssue, ...]:
 
     issues: list[SourcePathIssue] = []
     for reference in collect_source_path_references():
-        resolved_path = _resolve_reference(reference.doc_path, reference.referenced_path)
+        resolved_path = _resolve_reference(
+            reference.doc_path, reference.referenced_path
+        )
         if not resolved_path.exists():
             issues.append(
                 SourcePathIssue(

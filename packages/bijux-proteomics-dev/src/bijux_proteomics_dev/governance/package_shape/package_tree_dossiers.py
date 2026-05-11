@@ -4,6 +4,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     is_wrapper_module,
@@ -12,7 +13,6 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     source_owner_families,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_TREE_DOSSIERS_PATH",

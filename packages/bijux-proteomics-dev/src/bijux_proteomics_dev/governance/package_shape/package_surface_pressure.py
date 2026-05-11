@@ -70,7 +70,9 @@ def _load_tree_dossiers() -> dict[str, dict[str, Any]]:
     if not isinstance(package_rows, list) or not all(
         isinstance(row, dict) for row in package_rows
     ):
-        raise TypeError("package-tree-dossiers.toml:package must be a list of TOML tables")
+        raise TypeError(
+            "package-tree-dossiers.toml:package must be a list of TOML tables"
+        )
     return {
         str(entry["distribution_name"]): cast(dict[str, Any], entry)
         for entry in package_rows

@@ -66,7 +66,9 @@ def test_release_narrowing_protocol_demotes_language_when_benchmark_assets_block
         lambda: {
             "benchmark-asset-quality": SimpleNamespace(
                 ready=False,
-                evidence_paths=("docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md",),
+                evidence_paths=(
+                    "docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md",
+                ),
             ),
             "black-box-rerunability": SimpleNamespace(ready=True, evidence_paths=()),
             "consequence-realism": SimpleNamespace(ready=True, evidence_paths=()),
@@ -93,7 +95,7 @@ def test_release_narrowing_protocol_demotes_language_when_benchmark_assets_block
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",
-        lambda: {},
+        dict,
     )
 
     protocol = build_release_narrowing_protocol()
@@ -143,15 +145,15 @@ def test_release_narrowing_protocol_uses_weaker_earned_acceptance_language(
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._kit_by_family",
-        lambda: {},
+        dict,
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._dossier_by_family",
-        lambda: {},
+        dict,
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",
-        lambda: {},
+        dict,
     )
 
     protocol = build_release_narrowing_protocol()
@@ -203,11 +205,11 @@ def test_release_narrowing_protocol_uses_freshness_floor_when_family_review_expi
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._kit_by_family",
-        lambda: {},
+        dict,
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._dossier_by_family",
-        lambda: {},
+        dict,
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.release_narrowing_protocol._freshness_by_family",

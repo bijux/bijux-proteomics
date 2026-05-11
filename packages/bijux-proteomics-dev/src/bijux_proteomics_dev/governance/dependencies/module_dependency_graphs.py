@@ -4,14 +4,14 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.governance.support.workspace_inventory import (
-    source_modules,
-    workspace_package_names,
-)
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_import_inventory import (
     module_dependency_edges,
     module_identifier,
+)
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    source_modules,
+    workspace_package_names,
 )
 
 __all__ = [

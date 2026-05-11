@@ -9,10 +9,10 @@ from bijux_proteomics_dev.governance.dependencies.package_dependency_graph impor
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     build_package_dependency_policy_report,
 )
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_DEPENDENCY_DOSSIERS_PATH",

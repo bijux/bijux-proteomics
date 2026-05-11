@@ -6,16 +6,16 @@ from dataclasses import dataclass
 from bijux_proteomics_dev.docs.governance.package_document_contracts import (
     boundary_doc_path,
     markdown_bullets,
-    section_lines,
     readme_path,
+    section_lines,
 )
 from bijux_proteomics_dev.governance.package_shape.package_surface_pressure import (
     build_package_surface_pressure_report,
 )
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_OWNED_VALUE_AUDIT_PATH",
@@ -75,12 +75,11 @@ def _owned_value_bullets(package_name: str) -> tuple[str, ...]:
         fallback = markdown_bullets(path, "## Owned maintenance surfaces")
         if fallback:
             return fallback
-    prose_lines = tuple(
+    return tuple(
         line.strip()
         for line in section_lines(path, "## This package owns")
         if line.strip() and not line.startswith("- ")
     )
-    return prose_lines
 
 
 def build_package_owned_value_audit_report() -> PackageOwnedValueAuditReport:

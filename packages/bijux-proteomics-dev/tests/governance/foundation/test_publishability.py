@@ -10,7 +10,6 @@ from bijux_proteomics_dev.governance.foundation.publishability import (
     validate_foundation_publishability,
 )
 
-
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
@@ -45,21 +44,23 @@ def _foundation_consumers() -> set[str]:
         for path in src_root.rglob("*.py"):
             tree = ast.parse(path.read_text(), filename=str(path))
             for node in ast.walk(tree):
-                if isinstance(node, ast.Import):
-                    if any(
-                        alias.name == "bijux_proteomics_foundation"
-                        or alias.name.startswith("bijux_proteomics_foundation.")
-                        for alias in node.names
-                    ):
-                        consumers.add(package_name)
-                        break
-                if isinstance(node, ast.ImportFrom) and node.module is not None:
-                    if (
+                if isinstance(node, ast.Import) and any(
+                    alias.name == "bijux_proteomics_foundation"
+                    or alias.name.startswith("bijux_proteomics_foundation.")
+                    for alias in node.names
+                ):
+                    consumers.add(package_name)
+                    break
+                if (
+                    isinstance(node, ast.ImportFrom)
+                    and node.module is not None
+                    and (
                         node.module == "bijux_proteomics_foundation"
                         or node.module.startswith("bijux_proteomics_foundation.")
-                    ):
-                        consumers.add(package_name)
-                        break
+                    )
+                ):
+                    consumers.add(package_name)
+                    break
             if package_name in consumers:
                 break
     return consumers

@@ -9,7 +9,11 @@ from bijux_proteomics_dev.quality.artifacts.benchmark_artifacts import (
     validate_benchmark_artifact_definitions,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_benchmark_artifact_manifest_covers_each_workspace_package() -> None:

@@ -19,7 +19,9 @@ def _read_doc() -> str:
     ).read_text(encoding="utf-8")
 
 
-def test_flagship_challenge_corpus_doc_lists_holdout_and_perturbation_families() -> None:
+def test_flagship_challenge_corpus_doc_lists_holdout_and_perturbation_families() -> (
+    None
+):
     text = _read_doc()
 
     assert "# Flagship Challenge Corpus Catalog" in text

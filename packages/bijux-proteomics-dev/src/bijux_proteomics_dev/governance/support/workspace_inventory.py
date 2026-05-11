@@ -146,9 +146,12 @@ def public_symbol_count_from_init(package_name: str) -> int:
         if not isinstance(node, ast.Assign):
             continue
         for target in node.targets:
-            if isinstance(target, ast.Name) and target.id == "__all__":
-                if isinstance(node.value, (ast.List, ast.Tuple)):
-                    return len(node.value.elts)
+            if (
+                isinstance(target, ast.Name)
+                and target.id == "__all__"
+                and isinstance(node.value, (ast.List, ast.Tuple))
+            ):
+                return len(node.value.elts)
     return 0
 
 

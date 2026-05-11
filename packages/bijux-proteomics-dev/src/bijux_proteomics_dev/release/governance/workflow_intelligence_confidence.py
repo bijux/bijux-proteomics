@@ -50,7 +50,9 @@ def _doc_contains_decision_grade_intelligence(
     workflow_family: KnowledgeWorkflowFamily,
 ) -> bool:
     doc_path = repo_root / _TRUST_PAGE_PATHS[workflow_family]
-    return bool(_DECISION_GRADE_INTELLIGENCE_RE.search(doc_path.read_text(encoding="utf-8")))
+    return bool(
+        _DECISION_GRADE_INTELLIGENCE_RE.search(doc_path.read_text(encoding="utf-8"))
+    )
 
 
 def _packet_contains_decision_grade_intelligence(

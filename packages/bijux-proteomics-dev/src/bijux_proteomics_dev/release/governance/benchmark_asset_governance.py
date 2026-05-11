@@ -12,11 +12,6 @@ from pathlib import Path
 from bijux_proteomics.benchmarks.workflow_generalization import (
     WorkflowGeneralizationReport,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    BenchmarkEvidenceTier,
-    KnowledgeWorkflowFamily,
-)
-
 from bijux_proteomics_dev.release.governance.benchmark_review_support import (
     CORE_FOUNDATION_DIR,
     LAST_REVIEWED,
@@ -26,6 +21,10 @@ from bijux_proteomics_dev.release.governance.benchmark_review_support import (
     build_generalization_report_map,
     iter_benchmark_package_bundles,
     package_sha256,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    BenchmarkEvidenceTier,
+    KnowledgeWorkflowFamily,
 )
 
 __all__ = [
@@ -150,7 +149,9 @@ def _support_paths(bundle: BenchmarkPackageBundle) -> tuple[str, ...]:
     )
 
 
-def _source_rows(bundle: BenchmarkPackageBundle) -> tuple[BenchmarkAssetSourceAudit, ...]:
+def _source_rows(
+    bundle: BenchmarkPackageBundle,
+) -> tuple[BenchmarkAssetSourceAudit, ...]:
     rows: list[BenchmarkAssetSourceAudit] = []
     inventory = artifact_inventory_by_path(bundle)
     derived_paths = _support_paths(bundle)
@@ -186,9 +187,13 @@ def build_benchmark_asset_audit() -> tuple[BenchmarkAssetAuditEntry, ...]:
 
     entries: list[BenchmarkAssetAuditEntry] = []
     for bundle in iter_benchmark_package_bundles():
-        support_files_present = all((REPO_ROOT / path).exists() for path in _support_paths(bundle))
+        support_files_present = all(
+            (REPO_ROOT / path).exists() for path in _support_paths(bundle)
+        )
         role_label = (
-            _PRIMARY_ROLE_LABEL if bundle.package_role == "primary" else _COMPANION_ROLE_LABEL
+            _PRIMARY_ROLE_LABEL
+            if bundle.package_role == "primary"
+            else _COMPANION_ROLE_LABEL
         )
         entries.append(
             BenchmarkAssetAuditEntry(
@@ -227,7 +232,9 @@ def build_benchmark_licensing_matrix() -> tuple[BenchmarkLicensingEntry, ...]:
     entries: list[BenchmarkLicensingEntry] = []
     for bundle in iter_benchmark_package_bundles():
         role_label = (
-            _PRIMARY_ROLE_LABEL if bundle.package_role == "primary" else _COMPANION_ROLE_LABEL
+            _PRIMARY_ROLE_LABEL
+            if bundle.package_role == "primary"
+            else _COMPANION_ROLE_LABEL
         )
         redistributed_artifact_paths = tuple(
             asset.path
@@ -246,7 +253,8 @@ def build_benchmark_licensing_matrix() -> tuple[BenchmarkLicensingEntry, ...]:
                 dataset_license_and_reuse_note=bundle.benchmark_manifest.dataset_license_and_reuse_note,
                 known_license_limits=bundle.asset_root_entry.known_license_limits,
                 source_license_notes=tuple(
-                    source.license_note for source in bundle.asset_root_entry.remote_sources
+                    source.license_note
+                    for source in bundle.asset_root_entry.remote_sources
                 ),
                 redistributed_artifact_paths=redistributed_artifact_paths,
             )
@@ -260,7 +268,9 @@ def build_benchmark_incompleteness_ledger() -> tuple[BenchmarkIncompletenessEntr
     entries: list[BenchmarkIncompletenessEntry] = []
     for bundle in iter_benchmark_package_bundles():
         role_label = (
-            _PRIMARY_ROLE_LABEL if bundle.package_role == "primary" else _COMPANION_ROLE_LABEL
+            _PRIMARY_ROLE_LABEL
+            if bundle.package_role == "primary"
+            else _COMPANION_ROLE_LABEL
         )
         entries.append(
             BenchmarkIncompletenessEntry(
@@ -279,7 +289,9 @@ def build_benchmark_incompleteness_ledger() -> tuple[BenchmarkIncompletenessEntr
     return tuple(entries)
 
 
-def _grouped_bundles() -> dict[KnowledgeWorkflowFamily, tuple[BenchmarkAssetAuditEntry, ...]]:
+def _grouped_bundles() -> dict[
+    KnowledgeWorkflowFamily, tuple[BenchmarkAssetAuditEntry, ...]
+]:
     grouped: dict[KnowledgeWorkflowFamily, list[BenchmarkAssetAuditEntry]] = {
         family: [] for family in LINEAGE_DOC_PATHS
     }
@@ -290,14 +302,26 @@ def _grouped_bundles() -> dict[KnowledgeWorkflowFamily, tuple[BenchmarkAssetAudi
 
 def _workflow_header(workflow_family: KnowledgeWorkflowFamily) -> tuple[str, str]:
     titles = {
-        KnowledgeWorkflowFamily.DDA: ("DDA Benchmark Lineage", "bijux-proteomics-core-docs"),
-        KnowledgeWorkflowFamily.DIA: ("DIA Benchmark Lineage", "bijux-proteomics-core-docs"),
-        KnowledgeWorkflowFamily.LFQ: ("LFQ Benchmark Lineage", "bijux-proteomics-core-docs"),
+        KnowledgeWorkflowFamily.DDA: (
+            "DDA Benchmark Lineage",
+            "bijux-proteomics-core-docs",
+        ),
+        KnowledgeWorkflowFamily.DIA: (
+            "DIA Benchmark Lineage",
+            "bijux-proteomics-core-docs",
+        ),
+        KnowledgeWorkflowFamily.LFQ: (
+            "LFQ Benchmark Lineage",
+            "bijux-proteomics-core-docs",
+        ),
         KnowledgeWorkflowFamily.MULTIPLEX: (
             "Multiplex Benchmark Lineage",
             "bijux-proteomics-core-docs",
         ),
-        KnowledgeWorkflowFamily.PTM: ("PTM Benchmark Lineage", "bijux-proteomics-core-docs"),
+        KnowledgeWorkflowFamily.PTM: (
+            "PTM Benchmark Lineage",
+            "bijux-proteomics-core-docs",
+        ),
         KnowledgeWorkflowFamily.TARGETED: (
             "Targeted Benchmark Lineage",
             "bijux-proteomics-core-docs",
@@ -396,7 +420,9 @@ def _render_lineage_doc(
     report: WorkflowGeneralizationReport,
 ) -> str:
     title, owner = _workflow_header(workflow_family)
-    primary = next(entry for entry in entries if entry.package_role == _PRIMARY_ROLE_LABEL)
+    primary = next(
+        entry for entry in entries if entry.package_role == _PRIMARY_ROLE_LABEL
+    )
     companion = next(
         entry for entry in entries if entry.package_role == _COMPANION_ROLE_LABEL
     )

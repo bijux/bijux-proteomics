@@ -3,11 +3,11 @@
 
 [guard]
 max_core_edges = 13
-max_foundation_edges = 32
-max_intelligence_edges = 8
+max_foundation_edges = 34
+max_intelligence_edges = 7
 max_knowledge_edges = 11
 max_runtime_edges = 0
-max_total_edges = 64
+max_total_edges = 65
 
 [[dependency]]
 importer_module_path = "benchmarks/claims.py"
@@ -61,19 +61,13 @@ imported_symbols = ["SupportState"]
 importer_module_path = "benchmarks/follow_up.py"
 owner_distribution = "bijux-proteomics-intelligence"
 imported_module_name = "bijux_proteomics_intelligence.judgment.benchmark_corpora"
-imported_symbols = ["list_flagship_benchmark_reviews"]
+imported_symbols = ["BenchmarkDisposition", "list_flagship_benchmark_reviews"]
 
 [[dependency]]
 importer_module_path = "benchmarks/follow_up.py"
 owner_distribution = "bijux-proteomics-intelligence"
 imported_module_name = "bijux_proteomics_intelligence.judgment.benchmark_packets"
 imported_symbols = ["BenchmarkRecommendationPacket", "build_flagship_benchmark_recommendation_packet_family"]
-
-[[dependency]]
-importer_module_path = "benchmarks/follow_up.py"
-owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.judgment.benchmark_policies"
-imported_symbols = ["BenchmarkDisposition"]
 
 [[dependency]]
 importer_module_path = "benchmarks/follow_up.py"
@@ -114,7 +108,7 @@ imported_symbols = ["JsonModel"]
 [[dependency]]
 importer_module_path = "benchmarks/outcome_dossiers.py"
 owner_distribution = "bijux-proteomics-intelligence"
-imported_module_name = "bijux_proteomics_intelligence.judgment.benchmark_policies"
+imported_module_name = "bijux_proteomics_intelligence.judgment.benchmark_corpora"
 imported_symbols = ["BenchmarkDisposition"]
 
 [[dependency]]
@@ -157,7 +151,13 @@ imported_symbols = ["JsonModel"]
 importer_module_path = "handoffs/artifacts.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
-imported_symbols = ["DocumentSchema", "JsonModel"]
+imported_symbols = ["DocumentSchema"]
+
+[[dependency]]
+importer_module_path = "handoffs/artifacts.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["JsonModel"]
 
 [[dependency]]
 importer_module_path = "handoffs/explanations.py"
@@ -217,7 +217,13 @@ imported_symbols = ["AssayId", "JsonModel"]
 importer_module_path = "handoffs/serialization.py"
 owner_distribution = "bijux-proteomics-foundation"
 imported_module_name = "bijux_proteomics_foundation"
-imported_symbols = ["DocumentSchema", "JsonModel", "hash_payload"]
+imported_symbols = ["DocumentSchema"]
+
+[[dependency]]
+importer_module_path = "handoffs/serialization.py"
+owner_distribution = "bijux-proteomics-foundation"
+imported_module_name = "bijux_proteomics_foundation"
+imported_symbols = ["JsonModel", "hash_payload"]
 
 [[dependency]]
 importer_module_path = "handoffs/transitions.py"

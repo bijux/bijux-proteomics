@@ -18,9 +18,14 @@ def test_benchmark_asset_audit_covers_primary_and_companion_roots() -> None:
     assert len(entries) == 12
     families = {entry.workflow_family.value for entry in entries}
     assert families == {"dda", "dia", "lfq", "multiplex", "ptm", "targeted"}
-    assert sum(entry.package_role == "primary flagship package" for entry in entries) == 6
     assert (
-        sum(entry.package_role == "companion generalization package" for entry in entries)
+        sum(entry.package_role == "primary flagship package" for entry in entries) == 6
+    )
+    assert (
+        sum(
+            entry.package_role == "companion generalization package"
+            for entry in entries
+        )
         == 6
     )
     assert all(entry.support_files_present for entry in entries)

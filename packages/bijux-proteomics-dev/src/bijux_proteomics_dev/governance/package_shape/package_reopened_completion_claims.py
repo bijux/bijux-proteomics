@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-import tomllib
 
 from bijux_proteomics_dev.governance.package_shape.package_readme_maturity import (
     build_package_readme_maturity_report,

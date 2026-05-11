@@ -4,18 +4,26 @@ from dataclasses import dataclass
 
 from bijux_proteomics_foundation import (
     DocumentSchema,
-    fingerprint_model as fingerprint_knowledge_model,
     hash_model,
+)
+from bijux_proteomics_foundation import (
+    fingerprint_model as fingerprint_knowledge_model,
+)
+from bijux_proteomics_foundation import (
     fingerprint_model as fingerprint_lab_model,
+)
+from bijux_proteomics_foundation import (
     to_canonical_json as knowledge_to_canonical_json,
+)
+from bijux_proteomics_foundation import (
     to_canonical_json as lab_to_canonical_json,
 )
 from bijux_proteomics_foundation.compatibility import (
     SchemaCompatibility,
     assess_schema_compatibility,
 )
-from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
 from bijux_proteomics_knowledge.contracts.schema import evaluate_schema_compatibility
+from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
 from bijux_proteomics_lab.handoffs.artifacts import (
     build_lab_artifact_upgrade_advisory,
     evaluate_lab_artifact_with_registry,

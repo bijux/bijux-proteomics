@@ -215,12 +215,16 @@ def _knowledge_strength(
 ) -> RecommendationStrength:
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
         return RecommendationStrength.DO_NOT_RECOMMEND
-    if any(entry.consequence_level.value == "release_blocking" for entry in triage.entries):
+    if any(
+        entry.consequence_level.value == "release_blocking" for entry in triage.entries
+    ):
         return RecommendationStrength.RECOMMEND_WITH_DOWNGRADE
     return RecommendationStrength.RECOMMEND
 
 
-def _counterfactual_by_family() -> dict[KnowledgeWorkflowFamily, CounterfactualRecommendationEntry]:
+def _counterfactual_by_family() -> dict[
+    KnowledgeWorkflowFamily, CounterfactualRecommendationEntry
+]:
     report = build_counterfactual_recommendation_report()
     return {entry.workflow_family: entry for entry in report.entries}
 
@@ -230,7 +234,9 @@ def _packet_by_family() -> dict[KnowledgeWorkflowFamily, BenchmarkRecommendation
     return {packet.workflow_family: packet for packet in family.packets}
 
 
-def _triage_by_family() -> dict[KnowledgeWorkflowFamily, WorkflowContradictionTriageReport]:
+def _triage_by_family() -> dict[
+    KnowledgeWorkflowFamily, WorkflowContradictionTriageReport
+]:
     return {
         report.workflow_family: report
         for report in list_workflow_contradiction_triage_reports()
@@ -242,7 +248,9 @@ def _lab_packet_by_family() -> dict[KnowledgeWorkflowFamily, FlagshipLabFollowUp
     return {packet.workflow_family: packet for packet in family.packets}
 
 
-def _outcome_by_family() -> dict[KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier]:
+def _outcome_by_family() -> dict[
+    KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier
+]:
     family = build_flagship_follow_up_outcome_dossier_family()
     return {dossier.workflow_family: dossier for dossier in family.dossiers}
 
@@ -257,7 +265,9 @@ def _revision_by_family() -> dict[
 def _low_yield_by_family(
     report: FlagshipJustifiedButLowYieldReport,
 ) -> dict[KnowledgeWorkflowFamily, tuple[str, ...]]:
-    return {entry.workflow_family: entry.early_block_signals for entry in report.entries}
+    return {
+        entry.workflow_family: entry.early_block_signals for entry in report.entries
+    }
 
 
 def _underestimated_by_family(
@@ -294,8 +304,12 @@ def build_workflow_consequence_maps() -> tuple[WorkflowConsequenceMap, ...]:
             )
         )
         control_demands = () if lab_packet is None else lab_packet.required_controls
-        burden_tradeoffs = () if lab_packet is None else lab_packet.burden_profile.tradeoffs
-        cost_of_being_wrong = () if lab_packet is None else lab_packet.expected_failure_modes
+        burden_tradeoffs = (
+            () if lab_packet is None else lab_packet.burden_profile.tradeoffs
+        )
+        cost_of_being_wrong = (
+            () if lab_packet is None else lab_packet.expected_failure_modes
+        )
         evidence_paths = [
             packet.artifact_path,
             *packet.comparator_pressure,
@@ -342,7 +356,9 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
 
     counterfactual_by_family = _counterfactual_by_family()
     revision_by_family = _revision_by_family()
-    low_yield_by_family = _low_yield_by_family(build_flagship_justified_but_low_yield_report())
+    low_yield_by_family = _low_yield_by_family(
+        build_flagship_justified_but_low_yield_report()
+    )
     underestimated_by_family = _underestimated_by_family(
         build_flagship_underestimated_but_useful_report()
     )
@@ -351,7 +367,9 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
         counterfactual = counterfactual_by_family.get(packet.workflow_family)
         revision = revision_by_family.get(packet.workflow_family)
         driver_signals: tuple[str, ...] = ()
-        primary_change_driver = "current public recommendation still holds under shipped evidence"
+        primary_change_driver = (
+            "current public recommendation still holds under shipped evidence"
+        )
         observed_strength: RecommendationStrength | None = None
         if revision is not None:
             observed_strength = _packet_strength(
@@ -361,18 +379,12 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
             primary_change_driver = revision.outcome_summary
         elif packet.workflow_family in low_yield_by_family:
             driver_signals = low_yield_by_family[packet.workflow_family]
-            primary_change_driver = (
-                "assay spend looked justified at first, but the observed outcome says the family should stop earlier next time"
-            )
+            primary_change_driver = "assay spend looked justified at first, but the observed outcome says the family should stop earlier next time"
         elif packet.workflow_family in underestimated_by_family:
             driver_signals = underestimated_by_family[packet.workflow_family]
-            primary_change_driver = (
-                "the observed outcome proved the loop more useful than the initial ranking expected"
-            )
+            primary_change_driver = "the observed outcome proved the loop more useful than the initial ranking expected"
         elif counterfactual is None:
-            primary_change_driver = (
-                "no public counterfactual report is shipped for this family because recommendation posture is already held below outsider-facing consequence closure"
-            )
+            primary_change_driver = "no public counterfactual report is shipped for this family because recommendation posture is already held below outsider-facing consequence closure"
         changes.append(
             WorkflowRecommendationChange(
                 workflow_family=packet.workflow_family,
@@ -400,11 +412,15 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
                     dict.fromkeys(
                         (
                             packet.artifact_path,
-                            *((
-                                counterfactual.comparator_note,
-                                counterfactual.literature_note,
-                                counterfactual.lab_burden_note,
-                            ) if counterfactual is not None else ()),
+                            *(
+                                (
+                                    counterfactual.comparator_note,
+                                    counterfactual.literature_note,
+                                    counterfactual.lab_burden_note,
+                                )
+                                if counterfactual is not None
+                                else ()
+                            ),
                             *(driver_signals or ()),
                         )
                     )
@@ -412,7 +428,9 @@ def build_workflow_recommendation_changes() -> tuple[WorkflowRecommendationChang
             )
         )
     return tuple(
-        sorted(changes, key=lambda entry: _WORKFLOW_FAMILIES.index(entry.workflow_family))
+        sorted(
+            changes, key=lambda entry: _WORKFLOW_FAMILIES.index(entry.workflow_family)
+        )
     )
 
 
@@ -501,7 +519,9 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
         lab_packet = lab_by_family.get(packet.workflow_family)
         dossier = outcome_by_family.get(packet.workflow_family)
         stop_when: tuple[str, ...] = ()
-        rerun_when = tuple(dict.fromkeys((*packet.blocker_set, *packet.downgrade_chain)))
+        rerun_when = tuple(
+            dict.fromkeys((*packet.blocker_set, *packet.downgrade_chain))
+        )
         narrow_when: tuple[str, ...] = (
             triage.entries[0].summary,
             triage.entries[0].next_action,
@@ -519,13 +539,14 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
                 )
             )
             narrow_when = tuple(
-                dict.fromkeys(
-                    (*narrow_when, *lab_packet.exploratory_boundary[:2])
-                )
+                dict.fromkeys((*narrow_when, *lab_packet.exploratory_boundary[:2]))
             )
             refuse_when = tuple(
                 dict.fromkeys(
-                    (*lab_packet.stop_reasons[:2], *lab_packet.decision_grade_boundary[:2])
+                    (
+                        *lab_packet.stop_reasons[:2],
+                        *lab_packet.decision_grade_boundary[:2],
+                    )
                 )
             )
         if dossier is not None and not dossier.worth_it:
@@ -557,7 +578,11 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
                         (
                             packet.artifact_path,
                             triage.entries[0].entry_id,
-                            *(lab_packet.required_controls if lab_packet is not None else ()),
+                            *(
+                                lab_packet.required_controls
+                                if lab_packet is not None
+                                else ()
+                            ),
                             *(() if dossier is None else (dossier.artifact_path,)),
                         )
                     )
@@ -565,7 +590,9 @@ def build_workflow_refusal_guidance_family() -> tuple[WorkflowRefusalGuidance, .
             )
         )
     return tuple(
-        sorted(guidance, key=lambda entry: _WORKFLOW_FAMILIES.index(entry.workflow_family))
+        sorted(
+            guidance, key=lambda entry: _WORKFLOW_FAMILIES.index(entry.workflow_family)
+        )
     )
 
 
@@ -647,7 +674,11 @@ def validate_workflow_consequence_coherence(
                     ),
                 )
             )
-        if label not in change_text or label not in learning_text or label not in refusal_text:
+        if (
+            label not in change_text
+            or label not in learning_text
+            or label not in refusal_text
+        ):
             issues.append(
                 WorkflowConsequenceCoherenceIssue(
                     code="missing-consequence-doc-route",
@@ -658,9 +689,7 @@ def validate_workflow_consequence_coherence(
             )
 
     for workflow_family, entry in by_family.items():
-        expected_line = (
-            f"- current strongest allowed posture: `{entry.weakest_allowed_strength.value}`"
-        )
+        expected_line = f"- current strongest allowed posture: `{entry.weakest_allowed_strength.value}`"
         if expected_line not in consequence_text:
             issues.append(
                 WorkflowConsequenceCoherenceIssue(

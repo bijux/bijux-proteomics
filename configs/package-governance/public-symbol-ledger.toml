@@ -11,9 +11,9 @@ import_root = "agentic_proteins"
 name = "AppConfig"
 symbol_kind = "class"
 owner_distribution_name = "bijux-proteomics-runtime"
-owner_module_name = "bijux_proteomics_runtime.api"
-owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py"]
 
 [[symbol]]
 distribution_name = "agentic-proteins"
@@ -21,9 +21,9 @@ import_root = "agentic_proteins"
 name = "RunManager"
 symbol_kind = "class"
 owner_distribution_name = "bijux-proteomics-runtime"
-owner_module_name = "bijux_proteomics_runtime.runs.manager"
-owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/execution/test_runtime_container_and_scheduler_end_to_end.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_governance_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_primitives_surface.py", "packages/bijux-proteomics-runtime/tests/performance/test_runtime_execution_control_benchmark_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
 
 [[symbol]]
 distribution_name = "agentic-proteins"
@@ -31,9 +31,9 @@ import_root = "agentic_proteins"
 name = "cli"
 symbol_kind = "data"
 owner_distribution_name = "bijux-proteomics-runtime"
-owner_module_name = "bijux_proteomics_runtime.api.cli"
-owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py", "packages/bijux-proteomics-runtime/tests/execution/test_container_build_definition_surface.py", "packages/bijux-proteomics-runtime/tests/execution/test_container_smoke_execution_surface.py", "packages/bijux-proteomics-runtime/tests/execution/test_slurm_script_export_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_governance_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_primitives_surface.py", "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_proof_accounting_surface.py"]
 
 [[symbol]]
 distribution_name = "agentic-proteins"
@@ -41,9 +41,9 @@ import_root = "agentic_proteins"
 name = "create_app"
 symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-runtime"
-owner_module_name = "bijux_proteomics_runtime.api"
-owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics"
@@ -383,7 +383,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -393,7 +393,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-lab"
@@ -403,7 +403,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-runtime"
@@ -823,7 +823,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py"]
 
 [[symbol]]
 distribution_name = "proteomics-lab"
@@ -833,7 +833,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
 
 [[symbol]]
 distribution_name = "proteomics-lab"
@@ -843,7 +843,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-lab"
 owner_module_name = "bijux_proteomics_lab.planning.assays"
 owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
-owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_next_cycle_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
 
 [[symbol]]
 distribution_name = "proteomics-runtime"

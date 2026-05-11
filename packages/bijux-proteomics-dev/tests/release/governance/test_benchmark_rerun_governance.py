@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
-    build_black_box_benchmark_dashboard,
     build_benchmark_comparability_matrix,
     build_benchmark_rerun_kits,
+    build_black_box_benchmark_dashboard,
     run,
     validate_black_box_benchmark_language,
 )
@@ -28,7 +28,9 @@ def test_benchmark_rerun_kits_cover_all_workflow_families() -> None:
     assert all(entry.primary_spec.canonical_entrypoint for entry in kits)
     assert all(entry.companion_spec.canonical_entrypoint for entry in kits)
     assert all(entry.validating_test_paths for entry in kits)
-    multiplex = next(entry for entry in kits if entry.workflow_family.value == "multiplex")
+    multiplex = next(
+        entry for entry in kits if entry.workflow_family.value == "multiplex"
+    )
     assert multiplex.independent_rerun_path is None
     assert multiplex.external_review_kit_path is None
     assert "internal-support only" in " ".join(multiplex.remaining_limits)
@@ -38,8 +40,14 @@ def test_benchmark_comparability_matrix_keeps_cross_package_drift_visible() -> N
     rows = build_benchmark_comparability_matrix()
 
     assert len(rows) == 6
-    assert all(row.report_path.endswith("cross_package_generalization.json") for row in rows)
-    assert all(row.surviving_claim_count + row.weakened_claim_count + row.collapsed_claim_count > 0 for row in rows)
+    assert all(
+        row.report_path.endswith("cross_package_generalization.json") for row in rows
+    )
+    assert all(
+        row.surviving_claim_count + row.weakened_claim_count + row.collapsed_claim_count
+        > 0
+        for row in rows
+    )
     assert any(row.collapsed_claim_count > 0 for row in rows)
 
 

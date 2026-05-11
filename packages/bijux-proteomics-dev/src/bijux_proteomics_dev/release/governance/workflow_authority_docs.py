@@ -50,7 +50,9 @@ def validate_workflow_authority_docs(
     )
 
     outsider = tuple(
-        row.workflow_family for row in matrix.rows if _cell_earned(row, WorkflowAuthorityKind.OUTSIDER_AUDITABLE)
+        row.workflow_family
+        for row in matrix.rows
+        if _cell_earned(row, WorkflowAuthorityKind.OUTSIDER_AUDITABLE)
     )
     internal_support = tuple(
         row.workflow_family
@@ -71,7 +73,10 @@ def validate_workflow_authority_docs(
     issues: list[WorkflowAuthorityDocIssue] = []
     for label, text in (
         ("README.md", readme_text),
-        ("docs/01-bijux-proteomics/foundation/flagship-release-candidate.md", release_text),
+        (
+            "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md",
+            release_text,
+        ),
         ("docs/01-bijux-proteomics/foundation/workflow-claim-limits.md", matrix_text),
     ):
         if outsider_line not in text:
@@ -165,4 +170,6 @@ def _cell_earned(row: Any, authority_kind: WorkflowAuthorityKind) -> bool:
 def _format_family_sentence(
     workflow_families: tuple[KnowledgeWorkflowFamily, ...],
 ) -> str:
-    return ", ".join(f"`{workflow_family.value}`" for workflow_family in workflow_families)
+    return ", ".join(
+        f"`{workflow_family.value}`" for workflow_family in workflow_families
+    )

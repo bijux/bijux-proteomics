@@ -4,9 +4,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 import json
 from pathlib import Path
+import subprocess  # nosec B404
 import sys
 import tomllib
-import subprocess  # nosec B404
 
 from bijux_proteomics_dev.governance.contracts.freeze_contracts import (
     run as run_api_freeze,

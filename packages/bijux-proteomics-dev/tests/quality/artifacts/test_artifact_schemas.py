@@ -7,7 +7,11 @@ from bijux_proteomics_dev.quality.artifacts.artifact_schemas import (
     validate_high_value_artifact_schemas,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_high_value_artifact_schema_manifest_covers_curated_outputs() -> None:

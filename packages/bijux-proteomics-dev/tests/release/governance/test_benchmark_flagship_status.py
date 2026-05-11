@@ -18,7 +18,9 @@ def test_benchmark_flagship_status_demotes_companions_and_keeps_multiplex_intern
 
     assert len(entries) == 12
     assert validate_benchmark_flagship_promotion() == ()
-    assert sum(entry.designation == "generalization_companion" for entry in entries) == 6
+    assert (
+        sum(entry.designation == "generalization_companion" for entry in entries) == 6
+    )
     multiplex_primary = next(
         entry
         for entry in entries

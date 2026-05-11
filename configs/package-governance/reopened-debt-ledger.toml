@@ -30,7 +30,7 @@ debt_id = "bijux-proteomics-dev:mixed-responsibility-modules"
 distribution_name = "bijux-proteomics-dev"
 debt_family = "mixed-responsibility-modules"
 severity = "high"
-summary = "1 oversized mixed-responsibility modules still need owner splits"
+summary = "2 oversized mixed-responsibility modules still need owner splits"
 evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
 
 [[debt]]

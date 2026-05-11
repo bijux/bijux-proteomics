@@ -7,11 +7,11 @@ from bijux_proteomics_dev.governance.package_shape.package_fixture_realism impor
     REALISTIC_FIXTURE_SIZE_LIMIT,
     SERIOUS_PRODUCT_AREAS,
 )
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     fixture_files,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_FIXTURE_SCENARIO_COVERAGE_PATH",

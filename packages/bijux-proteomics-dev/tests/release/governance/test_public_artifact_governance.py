@@ -51,7 +51,12 @@ def test_public_artifact_governance_blocks_artifact_growth(
                     ),
                 ),
             ),
-            SimpleNamespace(rows=(SimpleNamespace(entry_id="entry-1"), SimpleNamespace(entry_id="entry-2"))),
+            SimpleNamespace(
+                rows=(
+                    SimpleNamespace(entry_id="entry-1"),
+                    SimpleNamespace(entry_id="entry-2"),
+                )
+            ),
         ),
     )
 

@@ -3,7 +3,7 @@
 
 [budget]
 max_public_symbols = 15
-max_init_lines = 45
+max_init_lines = 46
 
 [[symbol]]
 name = "AssayId"

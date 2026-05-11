@@ -120,7 +120,7 @@ def _render_consequence_maps() -> str:
 
 
 def _render_recommendation_change(entry: WorkflowRecommendationChange) -> list[str]:
-    lines = [
+    return [
         f"### `{entry.workflow_family.value}`",
         "",
         f"- current posture: `{entry.current_strength.value}`",
@@ -137,7 +137,6 @@ def _render_recommendation_change(entry: WorkflowRecommendationChange) -> list[s
         f"- evidence paths: {', '.join(f'`{path}`' for path in entry.evidence_paths)}",
         "",
     ]
-    return lines
 
 
 def _render_recommendation_changes() -> str:

@@ -33,7 +33,10 @@ def test_benchmark_freshness_review_downgrades_when_review_window_expires(
         lambda: date(2028, 5, 9),
     )
 
-    entries = {entry.workflow_family.value: entry for entry in build_benchmark_freshness_review()}
+    entries = {
+        entry.workflow_family.value: entry
+        for entry in build_benchmark_freshness_review()
+    }
 
     assert entries["dda"].review_state == "overdue"
     assert entries["dda"].release_language_floor == "review_grade_bounded"

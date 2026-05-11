@@ -92,12 +92,16 @@ def build_lab_runtime_boundary_drift_report() -> LabRuntimeBoundaryDriftReport:
                 for alias in node.names:
                     if alias.name.startswith(FORBIDDEN_IMPORT_PREFIXES):
                         forbidden_import_edges.append(f"{relative}: {alias.name}")
-            if isinstance(node, ast.ImportFrom) and node.module is not None:
-                if node.module.startswith(FORBIDDEN_IMPORT_PREFIXES):
-                    forbidden_import_edges.append(f"{relative}: {node.module}")
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                if _matches_forbidden_definition(node.name):
-                    forbidden_definition_names.append(f"{relative}: {node.name}")
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module is not None
+                and node.module.startswith(FORBIDDEN_IMPORT_PREFIXES)
+            ):
+                forbidden_import_edges.append(f"{relative}: {node.module}")
+            if isinstance(
+                node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            ) and _matches_forbidden_definition(node.name):
+                forbidden_definition_names.append(f"{relative}: {node.name}")
 
     return LabRuntimeBoundaryDriftReport(
         forbidden_module_paths=tuple(sorted(forbidden_module_paths)),

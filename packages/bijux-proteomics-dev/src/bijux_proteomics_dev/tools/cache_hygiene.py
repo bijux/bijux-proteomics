@@ -17,11 +17,7 @@ def find_forbidden_cache_dirs(root: Path) -> tuple[Path, ...]:
 
     matches: list[Path] = []
     for cache_dir_name in FORBIDDEN_CACHE_DIR_NAMES:
-        matches.extend(
-            path
-            for path in root.rglob(cache_dir_name)
-            if path.is_dir()
-        )
+        matches.extend(path for path in root.rglob(cache_dir_name) if path.is_dir())
     return tuple(sorted(dict.fromkeys(matches)))
 
 

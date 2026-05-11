@@ -37,7 +37,9 @@ def test_final_preflight_returns_failure_when_any_stage_has_issues(
                 FinalPreflightStage(
                     stage_id="docs-clarity",
                     label="docs clarity",
-                    issues=(FinalPreflightIssue(code="readme-truth", detail="blocked"),),
+                    issues=(
+                        FinalPreflightIssue(code="readme-truth", detail="blocked"),
+                    ),
                 ),
             )
         ),
@@ -101,17 +103,18 @@ def test_docs_stage_blocks_stale_public_artifact_docs(
         lambda check=True: 1,
     )
 
-    stage = final_preflight_module._docs_stage(
-        getattr(final_preflight_module, "REPO_ROOT")
-    )
+    stage = final_preflight_module._docs_stage(final_preflight_module.REPO_ROOT)
 
-    assert FinalPreflightIssue(
-        code="stale-generated-doc-surface",
-        detail=(
-            "bijux_proteomics_dev.release.governance.public_artifact_governance "
-            "is stale; regenerate it before release preflight"
-        ),
-    ) in stage.issues
+    assert (
+        FinalPreflightIssue(
+            code="stale-generated-doc-surface",
+            detail=(
+                "bijux_proteomics_dev.release.governance.public_artifact_governance "
+                "is stale; regenerate it before release preflight"
+            ),
+        )
+        in stage.issues
+    )
 
 
 def test_consequence_stage_blocks_stale_consequence_docs(
@@ -139,13 +142,16 @@ def test_consequence_stage_blocks_stale_consequence_docs(
     )
 
     stage = final_preflight_module._consequence_coherence_stage(
-        getattr(final_preflight_module, "REPO_ROOT")
+        final_preflight_module.REPO_ROOT
     )
 
-    assert FinalPreflightIssue(
-        code="stale-generated-doc-surface",
-        detail=(
-            "bijux_proteomics_dev.release.governance.workflow_consequence_docs "
-            "is stale; regenerate it before release preflight"
-        ),
-    ) in stage.issues
+    assert (
+        FinalPreflightIssue(
+            code="stale-generated-doc-surface",
+            detail=(
+                "bijux_proteomics_dev.release.governance.workflow_consequence_docs "
+                "is stale; regenerate it before release preflight"
+            ),
+        )
+        in stage.issues
+    )

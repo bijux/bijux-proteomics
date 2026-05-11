@@ -25,8 +25,8 @@ This report makes package-boundary substance explicit. The five real product pac
 - `bijux-proteomics-dev`: role=maintainer_support, owned_logic=142, wrappers=0, thin=27, ready=no
 - `bijux-proteomics-foundation`: role=shared_kernel, owned_logic=24, wrappers=0, thin=1, ready=yes
 - `bijux-proteomics-intelligence`: role=canonical_product, owned_logic=25, wrappers=0, thin=1, ready=yes
-- `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=21, wrappers=0, thin=13, ready=yes
-- `bijux-proteomics-lab`: role=canonical_product, owned_logic=26, wrappers=0, thin=10, ready=yes
+- `bijux-proteomics-knowledge`: role=canonical_product, owned_logic=44, wrappers=0, thin=13, ready=yes
+- `bijux-proteomics-lab`: role=canonical_product, owned_logic=27, wrappers=0, thin=10, ready=yes
 - `bijux-proteomics-runtime`: role=canonical_product, owned_logic=139, wrappers=0, thin=26, ready=yes
 
 ## Release Rule

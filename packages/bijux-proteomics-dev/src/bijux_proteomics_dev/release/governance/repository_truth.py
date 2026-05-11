@@ -30,9 +30,6 @@ from bijux_proteomics_dev.release.governance.generated_governance_freshness impo
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     build_package_family_readiness_reports,
 )
-from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
-    validate_workflow_consequence_coherence,
-)
 from bijux_proteomics_dev.release.governance.public_artifact_governance import (
     validate_public_artifact_governance,
 )
@@ -45,6 +42,9 @@ from bijux_proteomics_dev.release.governance.workflow_authority_docs import (
 )
 from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
     validate_workflow_claim_grounding,
+)
+from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
+    validate_workflow_consequence_coherence,
 )
 from bijux_proteomics_dev.release.governance.workflow_intelligence_confidence import (
     validate_workflow_intelligence_confidence,
@@ -64,12 +64,12 @@ from bijux_proteomics_intelligence.reviews.public_scrutiny import (
     build_public_artifact_index,
     build_public_artifact_role_matrix,
 )
+from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
+    build_runtime_black_box_rerun_gate,
+)
 from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
     FLAGSHIP_WORKFLOW_MANIFEST_PATH,
     validate_flagship_workflow_manifest,
-)
-from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
-    build_runtime_black_box_rerun_gate,
 )
 
 __all__ = [
@@ -344,10 +344,7 @@ def validate_repository_truth_report(
 
     report = build_repository_truth_report(repo_root)
     issues: list[RepositoryTruthIssue] = []
-    if (
-        report.reference_grade_claim_allowed
-        and not report.flagship_workflow_undeniable
-    ):
+    if report.reference_grade_claim_allowed and not report.flagship_workflow_undeniable:
         issues.append(
             RepositoryTruthIssue(
                 code="reference-grade-without-undeniable-workflow",

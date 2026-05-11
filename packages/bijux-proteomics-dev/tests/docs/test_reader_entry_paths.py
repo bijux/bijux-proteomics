@@ -23,9 +23,9 @@ def test_root_readme_front_loads_scope_limits_and_reader_paths() -> None:
     assert readme.index("## Forbidden Claims") < readme.index(
         "<!-- bijux-proteomics-badges:generated:start -->"
     )
-    assert readme.index("<!-- bijux-proteomics-badges:generated:end -->") < readme.index(
-        "## Reader Paths"
-    )
+    assert readme.index(
+        "<!-- bijux-proteomics-badges:generated:end -->"
+    ) < readme.index("## Reader Paths")
     assert "Scientist: start with" in readme
     assert "Operator: start with the" in readme
     assert "Maintainer: start with" in readme

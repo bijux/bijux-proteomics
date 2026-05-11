@@ -2,10 +2,10 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_module_ledger
 
 [guard]
-min_owner_logic_module_count = 521
+min_owner_logic_module_count = 522
 max_compatibility_surface_count = 0
 max_import_glue_module_count = 226
-max_dead_weight_module_count = 10
+max_dead_weight_module_count = 9
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -13,7 +13,7 @@ module_path = "packages/agentic-proteins/src/agentic_proteins/__init__.py"
 module_import_path = "agentic_proteins"
 module_kind = "root_export_surface"
 public_definition_count = 0
-workspace_import_root_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "agentic-proteins"
@@ -9441,6 +9441,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/tests/memory/__init__.py"
+module_import_path = "tests.bijux_proteomics_knowledge.memory.__init__"
+module_kind = "test_only_helper"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/tests/memory/conftest.py"
 module_import_path = "tests.bijux_proteomics_knowledge.memory.conftest"
 module_kind = "test_only_helper"
@@ -9801,6 +9809,14 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-knowledge"
+module_path = "packages/bijux-proteomics-knowledge/tests/reviews/__init__.py"
+module_import_path = "tests.bijux_proteomics_knowledge.reviews.__init__"
+module_kind = "test_only_helper"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-knowledge"
 module_path = "packages/bijux-proteomics-knowledge/tests/reviews/conftest.py"
 module_import_path = "tests.bijux_proteomics_knowledge.reviews.conftest"
 module_kind = "test_only_helper"
@@ -10153,6 +10169,14 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/tests/benchmarks/__init__.py"
+module_import_path = "tests.bijux_proteomics_lab.benchmarks.__init__"
+module_kind = "test_only_helper"
+public_definition_count = 0
+workspace_import_root_count = 0
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/tests/benchmarks/test_claims_surface.py"
 module_import_path = "tests.bijux_proteomics_lab.benchmarks.test_claims_surface"
 module_kind = "test_only_helper"
@@ -10405,7 +10429,7 @@ module_path = "packages/bijux-proteomics-lab/tests/planning/test_scheduling_surf
 module_import_path = "tests.bijux_proteomics_lab.planning.test_scheduling_surface"
 module_kind = "test_only_helper"
 public_definition_count = 7
-workspace_import_root_count = 3
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
@@ -10422,6 +10446,14 @@ module_import_path = "tests.bijux_proteomics_lab.readiness.test_stage_readiness_
 module_kind = "test_only_helper"
 public_definition_count = 2
 workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-lab"
+module_path = "packages/bijux-proteomics-lab/tests/reconciliation/__init__.py"
+module_import_path = "tests.bijux_proteomics_lab.reconciliation.__init__"
+module_kind = "test_only_helper"
+public_definition_count = 0
+workspace_import_root_count = 0
 
 [[module]]
 distribution_name = "bijux-proteomics-lab"
@@ -10523,9 +10555,9 @@ workspace_import_root_count = 1
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/public.py"
 module_import_path = "bijux_proteomics_runtime.api.public"
-module_kind = "dead_weight"
+module_kind = "owner_logic"
 public_definition_count = 0
-workspace_import_root_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-runtime"

@@ -19,7 +19,9 @@ REPO_ROOT = next(
 def test_agentic_contract_keeps_compatibility_role_explicit() -> None:
     report = build_repository_product_shape_report()
     package = next(
-        entry for entry in report.packages if entry.distribution_name == "agentic-proteins"
+        entry
+        for entry in report.packages
+        if entry.distribution_name == "agentic-proteins"
     )
     public_surface = next(
         entry
@@ -56,11 +58,7 @@ def test_agentic_contract_spans_docs_readme_and_release_guidance() -> None:
         / "package-overview.md"
     ).read_text(encoding="utf-8")
     public_imports = (
-        REPO_ROOT
-        / "docs"
-        / "02-agentic-proteins"
-        / "interfaces"
-        / "public-imports.md"
+        REPO_ROOT / "docs" / "02-agentic-proteins" / "interfaces" / "public-imports.md"
     ).read_text(encoding="utf-8")
     runtime_migration = (
         REPO_ROOT
@@ -69,9 +67,9 @@ def test_agentic_contract_spans_docs_readme_and_release_guidance() -> None:
         / "operations"
         / "runtime-migration-validation.md"
     ).read_text(encoding="utf-8")
-    readme = (
-        REPO_ROOT / "packages" / "agentic-proteins" / "README.md"
-    ).read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "packages" / "agentic-proteins" / "README.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "compatibility bridge" in contract
     assert "canonical runtime package" in contract

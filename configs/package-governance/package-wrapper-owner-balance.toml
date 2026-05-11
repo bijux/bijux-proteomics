@@ -63,7 +63,7 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 130
+owner_logic_module_count = 131
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false

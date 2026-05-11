@@ -5,12 +5,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
-    ScientificClaimSeverity,
-)
 from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
     WorkflowClaimGroundingIssue,
     validate_workflow_claim_grounding,
+)
+from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
+    ScientificClaimSeverity,
 )
 
 REPO_ROOT = next(
@@ -45,10 +45,13 @@ def test_workflow_claim_grounding_blocks_threshold_exceeding_unsupported_claims(
 
     issues = validate_workflow_claim_grounding(REPO_ROOT)
 
-    assert WorkflowClaimGroundingIssue(
-        code="unsupported-claim-threshold-exceeded",
-        detail=(
-            "dda still has high unsupported claim language: "
-            "dangerously unsupported public claim"
-        ),
-    ) in issues
+    assert (
+        WorkflowClaimGroundingIssue(
+            code="unsupported-claim-threshold-exceeded",
+            detail=(
+                "dda still has high unsupported claim language: "
+                "dangerously unsupported public claim"
+            ),
+        )
+        in issues
+    )

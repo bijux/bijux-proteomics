@@ -44,6 +44,15 @@ def _load_toml(path: Path) -> dict[str, Any]:
         return tomllib.load(handle)
 
 
+def _tracked_package_names(repo_root: Path) -> set[str]:
+    tool_table = _load_toml(repo_root / "pyproject.toml")["tool"]["bijux_proteomics"]
+    badge_packages = {
+        str(package_name) for package_name in tool_table["badge_packages"]
+    }
+    badge_packages.update({"agentic-proteins", "bijux-proteomics-dev"})
+    return badge_packages
+
+
 def load_benchmark_owners(repo_root: Path) -> tuple[BenchmarkOwnerEntry, ...]:
     """Load package benchmark owner declarations."""
     raw = _load_toml(benchmark_owner_manifest_path(repo_root))
@@ -63,7 +72,9 @@ def validate_benchmark_owners(repo_root: Path) -> tuple[BenchmarkOwnershipIssue,
     """Validate package-specific benchmark ownership declarations."""
     entries = load_benchmark_owners(repo_root)
     workspace_packages = {
-        package.package_name for package in load_workspace_packages(repo_root)
+        package.package_name
+        for package in load_workspace_packages(repo_root)
+        if package.package_name in _tracked_package_names(repo_root)
     }
     issues: list[BenchmarkOwnershipIssue] = []
     seen: set[str] = set()

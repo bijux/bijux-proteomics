@@ -6,6 +6,15 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 
+from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (
+    AgenticModuleClassification,
+    build_agentic_compatibility_inventory,
+    validate_agentic_compatibility_inventory,
+)
+from bijux_proteomics_dev.quality.graphs.package_graph import (
+    WorkspacePackage,
+    load_workspace_packages,
+)
 from bijux_proteomics_foundation.support.charter import (
     DEFAULT_FOUNDATION_MODULE_AUDIT,
     FoundationModuleClassification,
@@ -25,15 +34,6 @@ from bijux_proteomics_lab.governance.charter import (
 from bijux_proteomics_runtime.governance.charter import (
     DEFAULT_RUNTIME_MODULE_AUDIT,
     RuntimeModuleClassification,
-)
-from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (
-    AgenticModuleClassification,
-    build_agentic_compatibility_inventory,
-    validate_agentic_compatibility_inventory,
-)
-from bijux_proteomics_dev.quality.graphs.package_graph import (
-    WorkspacePackage,
-    load_workspace_packages,
 )
 
 __all__ = [
@@ -246,8 +246,7 @@ def _charter_backed_entry(
 def _foundation_kernel_entry(package: WorkspacePackage) -> PackageSubstanceEntry:
     source_paths = _source_module_paths(package)
     counts = Counter(
-        getattr(entry.classification, "value")
-        for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
+        entry.classification.value for entry in DEFAULT_FOUNDATION_MODULE_AUDIT
     )
     expectation = _CANONICAL_PRODUCT_EXPECTATIONS["bijux-proteomics-foundation"]
     wrapper_module_count = len(

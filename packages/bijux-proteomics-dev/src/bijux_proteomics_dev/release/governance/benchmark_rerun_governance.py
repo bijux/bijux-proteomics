@@ -13,6 +13,20 @@ from bijux_proteomics.benchmarks.workflow_generalization import (
     WorkflowGeneralizationFindingState,
     WorkflowGeneralizationReport,
 )
+from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
+    build_benchmark_asset_audit,
+    build_benchmark_licensing_matrix,
+)
+from bijux_proteomics_dev.release.governance.benchmark_review_support import (
+    LAST_REVIEWED,
+    RUNTIME_DIR,
+    BenchmarkPackageBundle,
+    build_generalization_report_map,
+    build_workflow_authority_row_map,
+    bundle_runtime_spec,
+    family_order,
+    iter_benchmark_package_bundles,
+)
 from bijux_proteomics_intelligence.reviews.external_review_kits import (
     WorkflowExternalReviewKit,
     build_workflow_external_review_kit_family,
@@ -27,21 +41,6 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 from bijux_proteomics_runtime.workflows.benchmark_runs import (
     BenchmarkRunMode,
     BenchmarkRunSpec,
-)
-
-from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
-    build_benchmark_asset_audit,
-    build_benchmark_licensing_matrix,
-)
-from bijux_proteomics_dev.release.governance.benchmark_review_support import (
-    LAST_REVIEWED,
-    BenchmarkPackageBundle,
-    RUNTIME_DIR,
-    build_generalization_report_map,
-    build_workflow_authority_row_map,
-    bundle_runtime_spec,
-    family_order,
-    iter_benchmark_package_bundles,
 )
 
 __all__ = [
@@ -196,7 +195,9 @@ def build_benchmark_rerun_kits() -> tuple[BenchmarkRerunKitEntry, ...]:
         entries.append(
             BenchmarkRerunKitEntry(
                 workflow_family=workflow_family,
-                public_release_language=authority_rows[workflow_family.value].public_release_language,
+                public_release_language=authority_rows[
+                    workflow_family.value
+                ].public_release_language,
                 primary_package_root=primary.package_root,
                 companion_package_root=companion.package_root,
                 primary_spec=primary_spec,
@@ -266,7 +267,9 @@ def build_benchmark_comparability_matrix() -> tuple[BenchmarkComparabilityRow, .
         rows.append(
             BenchmarkComparabilityRow(
                 workflow_family=workflow_family,
-                public_release_language=authority_rows[workflow_family.value].public_release_language,
+                public_release_language=authority_rows[
+                    workflow_family.value
+                ].public_release_language,
                 primary_package_root=primary.package_root,
                 companion_package_root=companion.package_root,
                 primary_run_mode=primary_spec.run_mode.value,
@@ -305,7 +308,9 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
     licensing_by_id = {
         entry.package_id: entry for entry in build_benchmark_licensing_matrix()
     }
-    rerun_kits = {entry.workflow_family: entry for entry in build_benchmark_rerun_kits()}
+    rerun_kits = {
+        entry.workflow_family: entry for entry in build_benchmark_rerun_kits()
+    }
     comparability = {
         entry.workflow_family: entry for entry in build_benchmark_comparability_matrix()
     }
@@ -321,12 +326,16 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
         if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
             allowed_language = "internal_support_only"
         if rerun_kit.primary_spec.run_mode is not BenchmarkRunMode.RAW_EXECUTABLE:
-            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            allowed_language = _narrow_language(
+                allowed_language, "review_grade_bounded"
+            )
             remaining_blockers.append(
                 "primary flagship lane is still not raw-executable in the runtime layer"
             )
         if rerun_kit.companion_spec.run_mode is not BenchmarkRunMode.RAW_EXECUTABLE:
-            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            allowed_language = _narrow_language(
+                allowed_language, "review_grade_bounded"
+            )
             remaining_blockers.append(
                 "companion generalization lane is still not raw-executable in the runtime layer"
             )
@@ -334,7 +343,9 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
             requested_language != "internal_support_only"
             and rerun_kit.independent_rerun_path is None
         ):
-            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            allowed_language = _narrow_language(
+                allowed_language, "review_grade_bounded"
+            )
             remaining_blockers.append(
                 "no published independent rerun dossier currently backs the family"
             )
@@ -342,7 +353,9 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
             requested_language != "internal_support_only"
             and rerun_kit.external_review_kit_path is None
         ):
-            allowed_language = _narrow_language(allowed_language, "review_grade_bounded")
+            allowed_language = _narrow_language(
+                allowed_language, "review_grade_bounded"
+            )
             remaining_blockers.append(
                 "no published external review kit currently backs the family"
             )
@@ -383,7 +396,9 @@ def build_black_box_benchmark_dashboard() -> tuple[BenchmarkBlackBoxDashboardRow
                 drift_status=drift_status,
                 artifact_completeness=artifact_completeness,
                 remaining_blockers=tuple(
-                    dict.fromkeys([*remaining_blockers, *rerun_kit.remaining_limits[:2]])
+                    dict.fromkeys(
+                        [*remaining_blockers, *rerun_kit.remaining_limits[:2]]
+                    )
                 ),
             )
         )
@@ -537,7 +552,9 @@ def validate_black_box_benchmark_language() -> tuple[BenchmarkBlackBoxIssue, ...
 
     issues: list[BenchmarkBlackBoxIssue] = []
     for row in build_black_box_benchmark_dashboard():
-        if _language_rank(row.allowed_language) < _language_rank(row.requested_language):
+        if _language_rank(row.allowed_language) < _language_rank(
+            row.requested_language
+        ):
             issues.append(
                 BenchmarkBlackBoxIssue(
                     code="black-box-language-outruns-rerun-evidence",

@@ -1,7 +1,7 @@
 """Import tests for bijux-proteomics-dev."""
 
-import bijux_proteomics_dev.governance
 import bijux_proteomics_dev.docs
+import bijux_proteomics_dev.governance
 import bijux_proteomics_dev.quality
 import bijux_proteomics_dev.release
 import bijux_proteomics_dev.security

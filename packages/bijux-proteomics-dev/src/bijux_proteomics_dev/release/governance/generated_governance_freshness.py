@@ -102,7 +102,9 @@ def build_generated_governance_freshness_report() -> GeneratedGovernanceFreshnes
     return GeneratedGovernanceFreshnessReport(entries=tuple(entries))
 
 
-def validate_generated_governance_freshness() -> tuple[GeneratedGovernanceFreshnessIssue, ...]:
+def validate_generated_governance_freshness() -> tuple[
+    GeneratedGovernanceFreshnessIssue, ...
+]:
     """Validate that every generated governance file has a working freshness lane."""
 
     issues: list[GeneratedGovernanceFreshnessIssue] = []

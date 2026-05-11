@@ -8,7 +8,11 @@ from bijux_proteomics_dev.quality.artifacts.bundle_verification import (
     verify_bundle_payload,
 )
 
-REPO_ROOT = next(parent for parent in Path(__file__).resolve().parents if (parent / "packages").is_dir() and (parent / "configs").is_dir())
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
 
 
 def test_bundle_verification_profiles_cover_curated_bundle_kinds() -> None:

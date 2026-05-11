@@ -54,13 +54,3 @@ This dashboard states what the runtime and public benchmark evidence can defend 
 
 - vendor-parity and calibration-clean authority are still outside the current proof boundary
 - targeted follow-up remains exploratory and cannot authorize calibration-perfect biological certainty
-
-## Next Routes
-
-- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
-  when the question becomes which family sentence a human should inspect next.
-- Open [Benchmark Assets](https://bijux.io/bijux-proteomics/benchmark-assets/)
-  when the disagreement is still about public package roots and lineage.
-- Open [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
-  when the disagreement is now about grounded belief, recommendation pressure,
-  or public artifact role drift.

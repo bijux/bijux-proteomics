@@ -10,10 +10,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    KnowledgeWorkflowFamily,
-)
-
 from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
     BENCHMARK_INCOMPLETENESS_LEDGER_PATH,
     BENCHMARK_LICENSING_PATH,
@@ -23,11 +19,6 @@ from bijux_proteomics_dev.release.governance.benchmark_asset_governance import (
     build_benchmark_incompleteness_ledger,
     build_benchmark_licensing_matrix,
 )
-from bijux_proteomics_dev.release.governance.benchmark_review_support import (
-    CORE_FOUNDATION_DIR,
-    LAST_REVIEWED,
-    family_order,
-)
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     BENCHMARK_COMPARABILITY_MATRIX_PATH,
     BENCHMARK_RERUN_KITS_PATH,
@@ -35,6 +26,14 @@ from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     BenchmarkRerunKitEntry,
     build_benchmark_comparability_matrix,
     build_benchmark_rerun_kits,
+)
+from bijux_proteomics_dev.release.governance.benchmark_review_support import (
+    CORE_FOUNDATION_DIR,
+    LAST_REVIEWED,
+    family_order,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
 )
 
 __all__ = [
@@ -94,7 +93,9 @@ def build_benchmark_flagship_status() -> tuple[BenchmarkFlagshipStatusEntry, ...
     asset_audit = _by_package_id(build_benchmark_asset_audit())
     licensing = _by_package_id(build_benchmark_licensing_matrix())
     incompleteness = _by_package_id(build_benchmark_incompleteness_ledger())
-    rerun_kits = {entry.workflow_family: entry for entry in build_benchmark_rerun_kits()}
+    rerun_kits = {
+        entry.workflow_family: entry for entry in build_benchmark_rerun_kits()
+    }
     comparability = {
         entry.workflow_family: entry for entry in build_benchmark_comparability_matrix()
     }
@@ -113,7 +114,9 @@ def build_benchmark_flagship_status() -> tuple[BenchmarkFlagshipStatusEntry, ...
         comparability_row: BenchmarkComparabilityRow = comparability[
             audit_entry.workflow_family
         ]
-        designation = _designation(audit_entry.workflow_family, audit_entry.package_role)
+        designation = _designation(
+            audit_entry.workflow_family, audit_entry.package_role
+        )
         asset_audit_complete = audit_entry.support_files_present and bool(
             audit_entry.source_rows
         )
@@ -170,12 +173,17 @@ def build_benchmark_flagship_status() -> tuple[BenchmarkFlagshipStatusEntry, ...
     return tuple(rows)
 
 
-def validate_benchmark_flagship_promotion() -> tuple[BenchmarkFlagshipPromotionIssue, ...]:
+def validate_benchmark_flagship_promotion() -> tuple[
+    BenchmarkFlagshipPromotionIssue, ...
+]:
     """Fail when a package keeps flagship naming without the required evidence."""
 
     issues: list[BenchmarkFlagshipPromotionIssue] = []
     for entry in build_benchmark_flagship_status():
-        if entry.designation.startswith("flagship_") and not entry.eligible_for_designation:
+        if (
+            entry.designation.startswith("flagship_")
+            and not entry.eligible_for_designation
+        ):
             issues.append(
                 BenchmarkFlagshipPromotionIssue(
                     code="flagship-designation-without-complete-evidence",

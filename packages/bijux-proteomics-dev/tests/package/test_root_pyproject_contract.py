@@ -48,9 +48,7 @@ def test_root_pyproject_uses_shared_workspace_build_contract() -> None:
     hatch_wheel = _table(
         _table(_table(_table(pyproject["tool"])["hatch"])["build"])["targets"]
     )["wheel"]
-    assert hatch_wheel == {
-        "bypass-selection": True
-    }
+    assert hatch_wheel == {"bypass-selection": True}
 
 
 def test_root_pyproject_exposes_all_workspace_packages_to_root_dev_installs() -> None:
@@ -73,6 +71,6 @@ def test_root_pyproject_uses_workspace_sources_for_every_workspace_package() -> 
     assert isinstance(uv_sources, dict)
 
     assert set(uv_sources) == workspace_packages
-    assert {name for name, config in uv_sources.items() if config == {"workspace": True}} == (
-        workspace_packages
-    )
+    assert {
+        name for name, config in uv_sources.items() if config == {"workspace": True}
+    } == (workspace_packages)

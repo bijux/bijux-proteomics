@@ -6,10 +6,10 @@ from dataclasses import dataclass
 from bijux_proteomics_dev.governance.dependencies.package_dependency_graph import (
     build_package_dependency_graph_report,
 )
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_DEPENDENCY_POLICY_PATH",

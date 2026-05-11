@@ -17,16 +17,16 @@ from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import (
 from bijux_proteomics_dev.quality.artifacts.repository_drift_audit import (
     validate_repository_drift_audit,
 )
-from bijux_proteomics_dev.release.governance.package_family_readiness import (
-    package_family_readiness_manifest_path,
-    validate_package_family_readiness,
-)
 from bijux_proteomics_dev.release.governance.benchmark_freshness_review import (
     BENCHMARK_FRESHNESS_REVIEW_PATH,
     validate_benchmark_freshness_review,
 )
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     validate_black_box_benchmark_language,
+)
+from bijux_proteomics_dev.release.governance.package_family_readiness import (
+    package_family_readiness_manifest_path,
+    validate_package_family_readiness,
 )
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     scientific_release_manifest_path,
@@ -50,12 +50,12 @@ from bijux_proteomics_dev.release.governance.workflow_lab_consequence import (
 from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
     validate_workflow_public_scrutiny,
 )
+from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
+    build_runtime_black_box_rerun_gate,
+)
 from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
     FLAGSHIP_WORKFLOW_MANIFEST_PATH,
     validate_flagship_workflow_manifest,
-)
-from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
-    build_runtime_black_box_rerun_gate,
 )
 
 __all__ = [

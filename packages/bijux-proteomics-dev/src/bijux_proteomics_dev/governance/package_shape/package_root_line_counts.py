@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     public_symbol_count_from_init,
@@ -10,7 +11,6 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     src_root,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_ROOT_LINE_COUNTS_PATH",

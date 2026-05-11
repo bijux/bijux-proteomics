@@ -3,13 +3,13 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     nonempty_line_count,
     public_definition_counts,
     source_modules,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_THIN_MODULES_PATH",

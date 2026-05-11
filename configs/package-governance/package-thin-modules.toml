@@ -693,7 +693,7 @@ public_class_count = 1
 [[module]]
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/public.py"
-nonempty_line_count = 17
+nonempty_line_count = 19
 public_function_count = 0
 public_class_count = 0
 

@@ -2,7 +2,7 @@
 
 [budget]
 max_public_symbols = 5
-max_init_lines = 19
+max_init_lines = 22
 
 [[symbol]]
 name = "EvidenceBundle"

@@ -20,7 +20,7 @@ def test_package_coupling_report_surfaces_current_hotspots() -> None:
 
     assert report[0].package_name == "bijux-proteomics-runtime"
     assert by_package["bijux-proteomics-foundation"].pressure_level == "watch"
-    assert by_package["agentic-proteins"].direct_dependency_count == 6
+    assert by_package["agentic-proteins"].direct_dependency_count == 2
     assert by_package["bijux-proteomics-knowledge"].reverse_dependency_count == 4
 
 

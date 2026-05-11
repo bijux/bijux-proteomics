@@ -68,14 +68,17 @@ def build_lab_core_scientific_semantics_report() -> tuple[LabCoreScientificImpor
                                 imported_module_name=alias.name,
                             )
                         )
-            if isinstance(node, ast.ImportFrom) and node.module is not None:
-                if node.module.startswith(SCIENTIFIC_IMPORT_PREFIXES):
-                    entries.add(
-                        LabCoreScientificImport(
-                            importer_module_path=relative,
-                            imported_module_name=node.module,
-                        )
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module is not None
+                and node.module.startswith(SCIENTIFIC_IMPORT_PREFIXES)
+            ):
+                entries.add(
+                    LabCoreScientificImport(
+                        importer_module_path=relative,
+                        imported_module_name=node.module,
                     )
+                )
     return tuple(
         sorted(
             entries,

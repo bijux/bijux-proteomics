@@ -228,8 +228,19 @@ def _target_paths(repo_root: Path) -> tuple[Path, ...]:
     explicit = [
         repo_root / "README.md",
         repo_root / "docs" / "index.md",
-        repo_root / "docs" / "08-bijux-proteomics-maintain" / "bijux-proteomics-dev" / "release-support.md",
-        repo_root / "packages" / "bijux-proteomics-runtime" / "src" / "bijux_proteomics_runtime" / "api" / "routes" / "decision_briefs.py",
+        repo_root
+        / "docs"
+        / "08-bijux-proteomics-maintain"
+        / "bijux-proteomics-dev"
+        / "release-support.md",
+        repo_root
+        / "packages"
+        / "bijux-proteomics-runtime"
+        / "src"
+        / "bijux_proteomics_runtime"
+        / "api"
+        / "routes"
+        / "decision_briefs.py",
     ]
     seen: set[Path] = set()
     ordered: list[Path] = []
@@ -241,7 +252,9 @@ def _target_paths(repo_root: Path) -> tuple[Path, ...]:
     return tuple(ordered)
 
 
-def validate_public_language(repo_root: Path = REPO_ROOT) -> tuple[PublicLanguageIssue, ...]:
+def validate_public_language(
+    repo_root: Path = REPO_ROOT,
+) -> tuple[PublicLanguageIssue, ...]:
     """Reject retired public-language phrases after the cleanup."""
 
     issues: list[PublicLanguageIssue] = []
@@ -265,7 +278,9 @@ def run(check: bool = False) -> int:
 
     rendered = _render_glossary(build_public_language_glossary())
     if check:
-        return int(PUBLIC_LANGUAGE_GLOSSARY_PATH.read_text(encoding="utf-8") != rendered)
+        return int(
+            PUBLIC_LANGUAGE_GLOSSARY_PATH.read_text(encoding="utf-8") != rendered
+        )
     PUBLIC_LANGUAGE_GLOSSARY_PATH.write_text(rendered, encoding="utf-8")
     return 0
 

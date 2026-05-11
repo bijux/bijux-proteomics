@@ -19,7 +19,9 @@ def _read_doc() -> str:
     ).read_text(encoding="utf-8")
 
 
-def test_flagship_public_benchmark_catalog_doc_lists_all_six_workflow_families() -> None:
+def test_flagship_public_benchmark_catalog_doc_lists_all_six_workflow_families() -> (
+    None
+):
     text = _read_doc()
 
     assert "# Flagship Public Benchmark Catalog" in text
@@ -27,7 +29,9 @@ def test_flagship_public_benchmark_catalog_doc_lists_all_six_workflow_families()
         assert f"`{workflow_family}`" in text
 
 
-def test_flagship_public_benchmark_catalog_doc_names_machine_readable_package_surfaces() -> None:
+def test_flagship_public_benchmark_catalog_doc_names_machine_readable_package_surfaces() -> (
+    None
+):
     text = _read_doc()
 
     assert "artifact inventory" in text
@@ -48,7 +52,9 @@ def test_flagship_public_benchmark_catalog_doc_points_to_asset_root_handbook() -
     assert "Open [Decision Support]" in text
 
 
-def test_flagship_public_benchmark_catalog_doc_keeps_multiplex_internal_support_explicit() -> None:
+def test_flagship_public_benchmark_catalog_doc_keeps_multiplex_internal_support_explicit() -> (
+    None
+):
     text = _read_doc()
 
     assert "internal-support family" in text

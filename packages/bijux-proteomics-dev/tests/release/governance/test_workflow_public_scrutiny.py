@@ -49,14 +49,20 @@ def test_workflow_public_scrutiny_blocks_unready_external_review_kit(
 
     issues = validate_workflow_public_scrutiny(REPO_ROOT)
 
-    assert WorkflowPublicScrutinyIssue(
-        code="external-review-kit-not-standalone-verifiable",
-        detail="dia external review kit does not survive standalone verification",
-    ) in issues
-    assert WorkflowPublicScrutinyIssue(
-        code="external-review-kit-not-ready",
-        detail="dia external review kit is not ready for outsider review",
-    ) in issues
+    assert (
+        WorkflowPublicScrutinyIssue(
+            code="external-review-kit-not-standalone-verifiable",
+            detail="dia external review kit does not survive standalone verification",
+        )
+        in issues
+    )
+    assert (
+        WorkflowPublicScrutinyIssue(
+            code="external-review-kit-not-ready",
+            detail="dia external review kit is not ready for outsider review",
+        )
+        in issues
+    )
 
 
 def test_workflow_public_scrutiny_blocks_banned_release_language(
@@ -69,9 +75,7 @@ def test_workflow_public_scrutiny_blocks_banned_release_language(
 
     issues = validate_workflow_public_scrutiny(REPO_ROOT)
 
-    assert any(
-        issue.code == "banned-strong-release-language" for issue in issues
-    )
+    assert any(issue.code == "banned-strong-release-language" for issue in issues)
 
 
 def test_workflow_public_scrutiny_blocks_artifact_role_drift(
@@ -89,7 +93,10 @@ def test_workflow_public_scrutiny_blocks_artifact_role_drift(
 
     issues = validate_workflow_public_scrutiny(REPO_ROOT)
 
-    assert WorkflowPublicScrutinyIssue(
-        code="public-artifact-count-growth",
-        detail="public artifact count grew beyond the governed budget",
-    ) in issues
+    assert (
+        WorkflowPublicScrutinyIssue(
+            code="public-artifact-count-growth",
+            detail="public artifact count grew beyond the governed budget",
+        )
+        in issues
+    )

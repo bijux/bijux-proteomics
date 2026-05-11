@@ -57,7 +57,10 @@ def _front_matter(title: str) -> list[str]:
 
 
 def _render_execution_boundary() -> str:
-    routes = {route.workflow_family: route for route in build_runtime_black_box_verification_routes()}
+    routes = {
+        route.workflow_family: route
+        for route in build_runtime_black_box_verification_routes()
+    }
     challenges = {row.workflow_family: row for row in build_runtime_replay_challenges()}
     refusals = {row.workflow_family: row for row in build_runtime_rerun_refusals()}
     lines = _front_matter("Runtime Execution Boundary")

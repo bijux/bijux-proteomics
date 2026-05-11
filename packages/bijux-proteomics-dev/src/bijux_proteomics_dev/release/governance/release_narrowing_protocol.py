@@ -364,9 +364,9 @@ def _render_markdown(protocol: ReleaseNarrowingProtocol) -> str:
 def _is_up_to_date(protocol: ReleaseNarrowingProtocol) -> bool:
     if not RELEASE_NARROWING_PROTOCOL_PATH.exists():
         return False
-    return RELEASE_NARROWING_PROTOCOL_PATH.read_text(encoding="utf-8") == _render_markdown(
-        protocol
-    )
+    return RELEASE_NARROWING_PROTOCOL_PATH.read_text(
+        encoding="utf-8"
+    ) == _render_markdown(protocol)
 
 
 def run(check: bool = False) -> int:

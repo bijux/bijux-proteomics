@@ -15,15 +15,14 @@ from bijux_proteomics.benchmarks.flagship_asset_roots import (
     flagship_asset_obsolescence_audit_path,
     flagship_asset_refresh_report_path,
 )
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    KnowledgeWorkflowFamily,
-)
-
 from bijux_proteomics_dev.release.governance.benchmark_review_support import (
     CORE_FOUNDATION_DIR,
     LAST_REVIEWED,
     build_workflow_authority_row_map,
     iter_benchmark_package_bundles,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
 )
 
 __all__ = [
@@ -36,9 +35,7 @@ __all__ = [
 ]
 
 
-BENCHMARK_FRESHNESS_REVIEW_PATH = (
-    CORE_FOUNDATION_DIR / "benchmark-freshness-review.md"
-)
+BENCHMARK_FRESHNESS_REVIEW_PATH = CORE_FOUNDATION_DIR / "benchmark-freshness-review.md"
 
 
 @dataclass(frozen=True)
@@ -107,7 +104,9 @@ def build_benchmark_freshness_review() -> tuple[BenchmarkFreshnessReviewEntry, .
         workflow_family = bundle.workflow_family
         refresh = refresh_by_family[workflow_family.value]
         obsolescence = obsolescence_by_family[workflow_family.value]
-        requested_release_language = authority_rows[workflow_family.value].public_release_language
+        requested_release_language = authority_rows[
+            workflow_family.value
+        ].public_release_language
         freshness_due_on = bundle.benchmark_manifest.last_reviewed_on + timedelta(
             days=bundle.benchmark_manifest.freshness_window_days
         )
@@ -254,9 +253,9 @@ def _render_markdown(entries: tuple[BenchmarkFreshnessReviewEntry, ...]) -> str:
 def _is_up_to_date(entries: tuple[BenchmarkFreshnessReviewEntry, ...]) -> bool:
     if not BENCHMARK_FRESHNESS_REVIEW_PATH.exists():
         return False
-    return BENCHMARK_FRESHNESS_REVIEW_PATH.read_text(encoding="utf-8") == _render_markdown(
-        entries
-    )
+    return BENCHMARK_FRESHNESS_REVIEW_PATH.read_text(
+        encoding="utf-8"
+    ) == _render_markdown(entries)
 
 
 def run(check: bool = False) -> int:
@@ -278,7 +277,9 @@ def run(check: bool = False) -> int:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="fail if outputs are stale")
+    parser.add_argument(
+        "--check", action="store_true", help="fail if outputs are stale"
+    )
     return parser
 
 

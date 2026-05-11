@@ -132,22 +132,19 @@ def validate_runtime_breadth() -> tuple[str, ...]:
         failures.append(
             "runtime breadth now outpaces owned execution logic per governed surface"
         )
-    if metrics.total_breadth_count > guard.baseline_total_breadth_count:
-        if (
-            metrics.owner_execution_module_count
-            <= guard.baseline_owner_execution_module_count
-        ):
-            failures.append(
-                "runtime breadth grew without adding owned execution modules"
-            )
-    if metrics.first_level_subtree_count > guard.baseline_first_level_subtree_count:
-        if (
-            metrics.owner_execution_modules_per_surface
-            <= guard.baseline_owner_execution_modules_per_surface
-        ):
-            failures.append(
-                "runtime topology widened without stronger owned execution density"
-            )
+    if metrics.total_breadth_count > guard.baseline_total_breadth_count and (
+        metrics.owner_execution_module_count
+        <= guard.baseline_owner_execution_module_count
+    ):
+        failures.append("runtime breadth grew without adding owned execution modules")
+    if (
+        metrics.first_level_subtree_count > guard.baseline_first_level_subtree_count
+        and metrics.owner_execution_modules_per_surface
+        <= guard.baseline_owner_execution_modules_per_surface
+    ):
+        failures.append(
+            "runtime topology widened without stronger owned execution density"
+        )
     return tuple(failures)
 
 

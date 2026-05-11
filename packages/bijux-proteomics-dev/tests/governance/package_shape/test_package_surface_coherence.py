@@ -28,7 +28,10 @@ def test_package_surface_coherence_report_tracks_all_real_product_packages() -> 
     assert by_package["bijux-proteomics-foundation"].allowed_outbound_edges == ()
     assert "DigestPolicy" in by_package["bijux-proteomics-core"].public_surface_names
     assert "reviews" in by_package["bijux-proteomics-intelligence"].public_surface_names
-    assert "EvidenceBundle" in by_package["bijux-proteomics-knowledge"].public_surface_names
+    assert (
+        "EvidenceBundle"
+        in by_package["bijux-proteomics-knowledge"].public_surface_names
+    )
     assert (
         "execution orchestration or runtime policy"
         in by_package["bijux-proteomics-lab"].excluded_responsibilities

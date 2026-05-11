@@ -9,12 +9,12 @@ import re
 import tokenize
 from typing import cast
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_root,
     source_modules,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "SOURCE_DELIVERY_HISTORY_PATH",

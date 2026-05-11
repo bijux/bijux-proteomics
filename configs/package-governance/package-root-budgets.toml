@@ -1,7 +1,7 @@
 # Generated package-root budget report.
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_budgets
 
-total_init_line_count = 477
+total_init_line_count = 466
 over_budget_packages = []
 
 [evidence]
@@ -9,8 +9,8 @@ package_root_line_counts_path = "configs/package-governance/package-root-line-co
 
 [[package]]
 distribution_name = "agentic-proteins"
-init_line_count = 36
-public_symbol_count = 0
+init_line_count = 17
+public_symbol_count = 4
 budgeted = false
 within_budget = true
 
@@ -23,19 +23,19 @@ within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-foundation"
-init_line_count = 45
+init_line_count = 46
 public_symbol_count = 15
 budgeted = true
-max_init_lines = 45
+max_init_lines = 46
 max_public_symbols = 15
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-init_line_count = 20
+init_line_count = 22
 public_symbol_count = 5
 budgeted = true
-max_init_lines = 20
+max_init_lines = 22
 max_public_symbols = 5
 within_budget = true
 
@@ -59,16 +59,16 @@ within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-knowledge"
-init_line_count = 19
+init_line_count = 22
 public_symbol_count = 5
 budgeted = true
-max_init_lines = 19
+max_init_lines = 22
 max_public_symbols = 5
 within_budget = true
 
 [[package]]
 distribution_name = "bijux-proteomics-lab"
-init_line_count = 14
+init_line_count = 16
 public_symbol_count = 3
 budgeted = true
 max_init_lines = 16

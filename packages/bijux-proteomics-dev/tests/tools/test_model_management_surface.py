@@ -26,4 +26,3 @@ def test_find_latest_version_requires_prepared_marker(tmp_path: Path) -> None:
 def test_resolve_command_rejects_missing_executable() -> None:
     with pytest.raises(FileNotFoundError):
         _resolve_command(["definitely-not-a-real-bijux-command"])
-

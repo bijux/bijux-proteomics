@@ -37,7 +37,14 @@ def test_workflow_family_index_covers_family_status_run_mode_and_blockers() -> N
     text = _read("docs/workflow-families/index.md")
 
     assert "# Workflow Families" in text
-    for workflow_family in ("`dda`", "`dia`", "`lfq`", "`multiplex`", "`ptm`", "`targeted`"):
+    for workflow_family in (
+        "`dda`",
+        "`dia`",
+        "`lfq`",
+        "`multiplex`",
+        "`ptm`",
+        "`targeted`",
+    ):
         assert workflow_family in text
     assert "trust status" in text
     assert "primary run mode" in text

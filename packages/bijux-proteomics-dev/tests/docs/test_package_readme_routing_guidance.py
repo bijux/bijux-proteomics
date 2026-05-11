@@ -104,6 +104,6 @@ def test_knowledge_intelligence_and_lab_readmes_route_through_shared_consequence
                 f"{path.relative_to(REPO_ROOT).as_posix()}: missing {', '.join(missing)}"
             )
 
-    assert not failures, (
-        "package README consequence routing failed:\n" + "\n".join(failures)
+    assert not failures, "package README consequence routing failed:\n" + "\n".join(
+        failures
     )

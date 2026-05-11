@@ -168,7 +168,8 @@ def _benchmark_manifest(
 
 def _primary_bundle_map() -> dict[str, BenchmarkPackageBundle]:
     packages = {
-        package.package_id: package for package in list_flagship_public_benchmark_packages()
+        package.package_id: package
+        for package in list_flagship_public_benchmark_packages()
     }
     inventories = {
         inventory.package_id: inventory
@@ -286,7 +287,8 @@ def build_generalization_report_map() -> dict[str, WorkflowGeneralizationReport]
     """Return cross-package generalization reports keyed by family id."""
 
     return {
-        report.workflow_family: report for report in build_workflow_generalization_reports()
+        report.workflow_family: report
+        for report in build_workflow_generalization_reports()
     }
 
 
@@ -299,9 +301,7 @@ def build_runtime_spec_map() -> dict[str, BenchmarkRunSpec]:
 def build_runtime_truth_map() -> dict[str, BenchmarkRuntimeTruthRow]:
     """Return runtime benchmark truth rows keyed by runtime workflow id."""
 
-    return {
-        row.workflow_family: row for row in build_benchmark_runtime_truth_surface()
-    }
+    return {row.workflow_family: row for row in build_benchmark_runtime_truth_surface()}
 
 
 def build_workflow_authority_row_map() -> dict[str, WorkflowAuthorityRow]:

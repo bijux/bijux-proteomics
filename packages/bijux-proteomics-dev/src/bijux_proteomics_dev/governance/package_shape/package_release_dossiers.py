@@ -6,11 +6,11 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_root,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_RELEASE_DOSSIERS_PATH",

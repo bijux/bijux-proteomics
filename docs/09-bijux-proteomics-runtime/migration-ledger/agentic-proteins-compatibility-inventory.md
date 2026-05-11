@@ -13,16 +13,15 @@ last_reviewed: 2026-05-05
 
 ## Current Counts
 
-- total modules: 116
+- total modules: 117
 - `canonical`: 0
 - `dead`: 5
 - `duplicate`: 0
-- `wrapper`: 111
+- `wrapper`: 112
 
 ## Owner Distribution
 
-- `bijux-proteomics-runtime`: 114
-- `agentic-proteins-compat`: 1
+- `bijux-proteomics-runtime`: 116
 - `bijux-proteomics-core`: 1
 
 ## Forbidden Owner Families

@@ -10,13 +10,9 @@ REPO_ROOT = next(
 
 
 def _read_doc(name: str) -> str:
-    return (
-        REPO_ROOT
-        / "docs"
-        / "01-bijux-proteomics"
-        / "foundation"
-        / name
-    ).read_text(encoding="utf-8")
+    return (REPO_ROOT / "docs" / "01-bijux-proteomics" / "foundation" / name).read_text(
+        encoding="utf-8"
+    )
 
 
 def test_flagship_trust_pages_exist_for_all_five_workflow_families() -> None:

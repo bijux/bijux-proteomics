@@ -131,7 +131,11 @@ def _family_entries() -> tuple[HostileReviewFamilyEntry, ...]:
                 exact_claims=packet.exact_claims[:2],
                 known_limits=tuple(
                     dict.fromkeys(
-                        (*packet.known_limits[:2], *dossier.remaining_limits[:2], *kit.known_exclusions[:2])
+                        (
+                            *packet.known_limits[:2],
+                            *dossier.remaining_limits[:2],
+                            *kit.known_exclusions[:2],
+                        )
                     )
                 ),
             )
@@ -163,7 +167,8 @@ def _blocked_categories() -> tuple[ReleaseReadinessCategory, ...]:
 
 def _blocker_groups() -> tuple[RepositoryBlockerGroup, ...]:
     blocked_by_id = {
-        category.category_id: category for category in build_release_readiness_matrix(REPO_ROOT).categories
+        category.category_id: category
+        for category in build_release_readiness_matrix(REPO_ROOT).categories
     }
     acceptance_dashboard = build_flagship_acceptance_dashboard()
     scorecard = build_package_scorecard_report()
@@ -174,10 +179,14 @@ def _blocker_groups() -> tuple[RepositoryBlockerGroup, ...]:
         (
             f"`{row.workflow_family.value}` remains `{row.earned_release_language.value}` "
             f"because acceptance still fails or stays intentionally narrowed: "
-            + ", ".join(row.failing_criteria or ("current bounded posture still caps broader language",))
+            + ", ".join(
+                row.failing_criteria
+                or ("current bounded posture still caps broader language",)
+            )
         )
         for row in acceptance_dashboard.rows
-        if not row.acceptance_passed or row.public_release_language != row.earned_release_language
+        if not row.acceptance_passed
+        or row.public_release_language != row.earned_release_language
     ]
     artifact_issues: list[str] = []
     for category_id in (
@@ -191,7 +200,9 @@ def _blocker_groups() -> tuple[RepositoryBlockerGroup, ...]:
             continue
         artifact_issues.extend(
             f"`{code}`: {detail}"
-            for code, detail in zip(category.blocker_codes, category.blocker_details, strict=True)
+            for code, detail in zip(
+                category.blocker_codes, category.blocker_details, strict=True
+            )
         )
     docs_issues: list[str] = []
     docs_category = blocked_by_id.get("docs-clarity")
@@ -376,7 +387,9 @@ def _render_why_not_ready(pages: HostileReviewPageSet) -> str:
         lines.append("Current blockers:")
         lines.extend(
             f"- `{code}`: {detail}"
-            for code, detail in zip(category.blocker_codes, category.blocker_details, strict=True)
+            for code, detail in zip(
+                category.blocker_codes, category.blocker_details, strict=True
+            )
         )
         lines.append("")
     return "\n".join(lines)

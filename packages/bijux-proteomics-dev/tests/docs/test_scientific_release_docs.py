@@ -53,7 +53,10 @@ def test_release_support_docs_name_the_scientific_release_dossier() -> None:
     assert "runtime flagship rerun gate" in text
     assert "lab-consequence gate" in text
     assert "validate_workflow_consequence_coherence()" in text
-    assert "Repository truth should not be cited without those shared consequence surfaces." in text
+    assert (
+        "Repository truth should not be cited without those shared consequence surfaces."
+        in text
+    )
     assert "workflow-consequence-maps.md" in text
     assert "what-changed-the-recommendation.md" in text
     assert "outcome-learning-loops.md" in text

@@ -61,9 +61,7 @@ def test_root_deptry_configuration_covers_every_workspace_package_override() -> 
         )
     )
     package_overrides = set(
-        _string_list(
-            _table(_table(_deptry_config()["tool"])["repo_deptry"])["packages"]
-        )
+        _table(_table(_deptry_config()["tool"])["repo_deptry"])["packages"]
     )
 
     assert package_overrides == workspace_packages

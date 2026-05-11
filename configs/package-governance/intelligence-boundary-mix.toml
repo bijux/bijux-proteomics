@@ -115,7 +115,7 @@ module_path = "judgment/paths.py"
 band = "judgment"
 touched_band_count = 3
 cross_band_import_count = 3
-internal_import_count = 5
+internal_import_count = 6
 touched_bands = ["candidates", "judgment", "reviews"]
 hotspot = true
 

@@ -8,13 +8,13 @@ from enum import StrEnum
 import io
 from pathlib import Path
 
-from bijux_proteomics_dev.release.governance.compatibility_ledger import (
-    build_ledger,
-)
 from bijux_proteomics_dev.quality.architecture.scanner import (
     import_references,
     iter_python_files,
     parse_python_module,
+)
+from bijux_proteomics_dev.release.governance.compatibility_ledger import (
+    build_ledger,
 )
 
 __all__ = [
@@ -173,9 +173,7 @@ def _is_alias_expr(node: ast.AST) -> bool:
         return True
     if isinstance(node, ast.Attribute):
         return _is_alias_expr(node.value)
-    if isinstance(node, ast.Constant):
-        return True
-    return False
+    return bool(isinstance(node, ast.Constant))
 
 
 def _is_all_assignment(node: ast.Assign) -> bool:
@@ -224,10 +222,7 @@ def _is_wrapper_try(node: ast.Try) -> bool:
 
     if not _statements_are_wrapper_safe(node.body):
         return False
-    for handler in node.handlers:
-        if not _statements_are_wrapper_safe(handler.body):
-            return False
-    return True
+    return all(_statements_are_wrapper_safe(handler.body) for handler in node.handlers)
 
 
 def _is_wrapper_function(node: ast.FunctionDef) -> bool:
@@ -262,9 +257,13 @@ def _is_dead_module(tree: ast.Module) -> bool:
     for node in tree.body:
         if _is_docstring_expr(node):
             continue
-        if isinstance(node, ast.Assign) and _is_all_assignment(node):
-            if isinstance(node.value, (ast.List, ast.Tuple)) and not node.value.elts:
-                continue
+        if (
+            isinstance(node, ast.Assign)
+            and _is_all_assignment(node)
+            and isinstance(node.value, (ast.List, ast.Tuple))
+            and not node.value.elts
+        ):
+            continue
         statements.append(node)
     return not statements
 
@@ -458,9 +457,9 @@ def _csv_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> str:
 
 
 def _summary_text(entries: tuple[AgenticCompatibilityInventoryEntry, ...]) -> str:
-    counts: dict[AgenticModuleClassification, int] = {
-        classification: 0 for classification in AgenticModuleClassification
-    }
+    counts: dict[AgenticModuleClassification, int] = dict.fromkeys(
+        AgenticModuleClassification, 0
+    )
     owner_counts: dict[str, int] = {}
     compat_import_hops = 0
     local_definition_count = 0

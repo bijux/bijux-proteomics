@@ -6,8 +6,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from bijux_proteomics_dev.governance.foundation.root_consumers import (
-    DownstreamPackage,
     REPO_ROOT,
+    DownstreamPackage,
     downstream_packages,
 )
 

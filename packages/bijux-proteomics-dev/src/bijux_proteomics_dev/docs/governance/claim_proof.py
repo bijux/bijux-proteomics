@@ -93,7 +93,9 @@ def _matching_repo_relative_paths(
     )
 
 
-def _claim_document_paths(paths: tuple[Path, ...], tokens: tuple[str, ...]) -> tuple[str, ...]:
+def _claim_document_paths(
+    paths: tuple[Path, ...], tokens: tuple[str, ...]
+) -> tuple[str, ...]:
     matched_paths: list[str] = []
     for path in paths:
         text = path.read_text(encoding="utf-8").lower()
@@ -333,9 +335,7 @@ def validate_package_docs_claim_proof(
         failures.append(
             "integrity proof artifacts dropped below the governed docs evidence baseline"
         )
-    baseline_entries = {
-        entry.distribution_name: entry for entry in baseline.entries
-    }
+    baseline_entries = {entry.distribution_name: entry for entry in baseline.entries}
     for entry in report.entries:
         baseline_entry = baseline_entries.get(entry.distribution_name)
         if baseline_entry is None:

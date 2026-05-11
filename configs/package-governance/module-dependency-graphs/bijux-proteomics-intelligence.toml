@@ -190,7 +190,7 @@ outgoing_workspace_modules = ["bijux_proteomics.review.flagship_kernel", "bijux_
 
 [[module]]
 module_name = "bijux_proteomics_intelligence.judgment.paths"
-outgoing_internal_modules = ["bijux_proteomics_intelligence.candidates.lifecycle", "bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.interpretation", "bijux_proteomics_intelligence.judgment.recommendations", "bijux_proteomics_intelligence.judgment.scenarios", "bijux_proteomics_intelligence.reviews.decision_briefs"]
+outgoing_internal_modules = ["bijux_proteomics_intelligence.candidates.lifecycle", "bijux_proteomics_intelligence.candidates.ranking", "bijux_proteomics_intelligence.interpretation", "bijux_proteomics_intelligence.judgment.policies", "bijux_proteomics_intelligence.judgment.recommendations", "bijux_proteomics_intelligence.judgment.scenarios", "bijux_proteomics_intelligence.reviews.decision_briefs"]
 outgoing_workspace_modules = ["bijux_proteomics.domain.program_spec", "bijux_proteomics.quantification", "bijux_proteomics.study.qc", "bijux_proteomics_foundation", "bijux_proteomics_knowledge.memory.models.evidence", "bijux_proteomics_knowledge.references.workflows.benchmarks"]
 
 [[module]]

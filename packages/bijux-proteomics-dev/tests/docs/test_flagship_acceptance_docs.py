@@ -19,7 +19,9 @@ def _read_doc() -> str:
     ).read_text(encoding="utf-8")
 
 
-def test_flagship_acceptance_doc_lists_all_six_family_sheets_and_dashboard_surfaces() -> None:
+def test_flagship_acceptance_doc_lists_all_six_family_sheets_and_dashboard_surfaces() -> (
+    None
+):
     text = _read_doc()
 
     assert "# Flagship Acceptance Bars" in text
@@ -37,7 +39,9 @@ def test_flagship_acceptance_doc_lists_all_six_family_sheets_and_dashboard_surfa
         assert f"`{file_name}`" in text
 
 
-def test_flagship_acceptance_doc_keeps_multiplex_failure_and_refresh_command_visible() -> None:
+def test_flagship_acceptance_doc_keeps_multiplex_failure_and_refresh_command_visible() -> (
+    None
+):
     text = _read_doc()
 
     assert "`multiplex` remains `internal_support_only`" in text

@@ -35,7 +35,9 @@ class PublicArtifactGovernanceIssue:
     detail: str
 
 
-def build_public_artifact_docs() -> tuple[PublicArtifactIndex, PublicArtifactRoleMatrix]:
+def build_public_artifact_docs() -> tuple[
+    PublicArtifactIndex, PublicArtifactRoleMatrix
+]:
     """Build the public artifact registry and its adjacent role matrix."""
 
     return build_public_artifact_index(), build_public_artifact_role_matrix()
@@ -207,7 +209,10 @@ def run(check: bool = False) -> int:
     }
     if check:
         return int(
-            any(path.read_text(encoding="utf-8") != text for path, text in expected.items())
+            any(
+                path.read_text(encoding="utf-8") != text
+                for path, text in expected.items()
+            )
         )
     for path, text in expected.items():
         path.write_text(text, encoding="utf-8")

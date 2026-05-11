@@ -11,15 +11,15 @@ module_count = 28
 
 [[subtree]]
 name = "execution"
-module_count = 43
+module_count = 44
 
 [[subtree]]
 name = "governance"
-module_count = 2
+module_count = 3
 
 [[subtree]]
 name = "providers"
-module_count = 15
+module_count = 16
 
 [[subtree]]
 name = "runs"
@@ -35,4 +35,4 @@ module_count = 20
 
 [[subtree]]
 name = "workflows"
-module_count = 6
+module_count = 17

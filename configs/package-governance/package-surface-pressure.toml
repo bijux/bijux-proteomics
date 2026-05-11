@@ -88,12 +88,12 @@ breadth_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 130
+owner_logic_module_count = 131
 compatibility_surface_count = 0
 root_export_symbol_count = 4
 public_module_count = 0
 public_breadth_count = 4
-breadth_to_owner_ratio = 0.0308
+breadth_to_owner_ratio = 0.0305
 breadth_outpaces_owner_logic = false
 
 [[package]]

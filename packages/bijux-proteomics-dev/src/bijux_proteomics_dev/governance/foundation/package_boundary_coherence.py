@@ -70,8 +70,7 @@ def build_package_boundary_coherence_issues(
                 )
             )
         if (
-            "Product architecture"
-            not in readme_text
+            "Product architecture" not in readme_text
             or "Cross-package ownership" not in readme_text
         ):
             issues.append(

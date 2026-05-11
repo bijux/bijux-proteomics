@@ -7,7 +7,6 @@ from typing import Any, cast
 
 import bijux_proteomics_runtime
 
-
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents

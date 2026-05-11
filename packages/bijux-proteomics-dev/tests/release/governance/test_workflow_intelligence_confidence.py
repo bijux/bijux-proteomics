@@ -42,17 +42,23 @@ def test_workflow_intelligence_confidence_blocks_missing_audits_for_claimed_fami
 
     issues = validate_workflow_intelligence_confidence(REPO_ROOT)
 
-    assert WorkflowIntelligenceConfidenceIssue(
-        code="decision-grade-intelligence-without-overconfidence-audit",
-        detail=(
-            "dda uses decision-grade intelligence language without a published "
-            "overconfidence audit row"
-        ),
-    ) in issues
-    assert WorkflowIntelligenceConfidenceIssue(
-        code="decision-grade-intelligence-without-underconfidence-audit",
-        detail=(
-            "dda uses decision-grade intelligence language without a published "
-            "underconfidence audit row"
-        ),
-    ) in issues
+    assert (
+        WorkflowIntelligenceConfidenceIssue(
+            code="decision-grade-intelligence-without-overconfidence-audit",
+            detail=(
+                "dda uses decision-grade intelligence language without a published "
+                "overconfidence audit row"
+            ),
+        )
+        in issues
+    )
+    assert (
+        WorkflowIntelligenceConfidenceIssue(
+            code="decision-grade-intelligence-without-underconfidence-audit",
+            detail=(
+                "dda uses decision-grade intelligence language without a published "
+                "underconfidence audit row"
+            ),
+        )
+        in issues
+    )

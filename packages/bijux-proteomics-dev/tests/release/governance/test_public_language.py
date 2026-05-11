@@ -26,15 +26,23 @@ def test_public_language_real_repo_has_no_retired_terms_left() -> None:
     assert validate_public_language(REPO_ROOT) == ()
 
 
-def test_public_language_flags_retired_phrase(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_public_language_flags_retired_phrase(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     repo_root = tmp_path
     (repo_root / "docs" / "01-bijux-proteomics" / "foundation").mkdir(parents=True)
-    (repo_root / "packages" / "bijux-proteomics-runtime" / "src" / "bijux_proteomics_runtime" / "api" / "routes").mkdir(
-        parents=True
-    )
-    (repo_root / "docs" / "08-bijux-proteomics-maintain" / "bijux-proteomics-dev").mkdir(
-        parents=True
-    )
+    (
+        repo_root
+        / "packages"
+        / "bijux-proteomics-runtime"
+        / "src"
+        / "bijux_proteomics_runtime"
+        / "api"
+        / "routes"
+    ).mkdir(parents=True)
+    (
+        repo_root / "docs" / "08-bijux-proteomics-maintain" / "bijux-proteomics-dev"
+    ).mkdir(parents=True)
     (repo_root / "packages" / "bijux-proteomics-foundation").mkdir(parents=True)
     (repo_root / "README.md").write_text("canonical workflow\n", encoding="utf-8")
     (repo_root / "docs" / "index.md").write_text("", encoding="utf-8")
@@ -55,14 +63,15 @@ def test_public_language_flags_retired_phrase(tmp_path: Path, monkeypatch: pytes
         / "routes"
         / "decision_briefs.py"
     ).write_text("", encoding="utf-8")
+    (repo_root / "packages" / "bijux-proteomics-foundation" / "README.md").write_text(
+        "", encoding="utf-8"
+    )
     (
         repo_root
-        / "packages"
-        / "bijux-proteomics-foundation"
-        / "README.md"
-    ).write_text("", encoding="utf-8")
-    (
-        repo_root / "docs" / "01-bijux-proteomics" / "foundation" / PUBLIC_LANGUAGE_GLOSSARY_PATH.name
+        / "docs"
+        / "01-bijux-proteomics"
+        / "foundation"
+        / PUBLIC_LANGUAGE_GLOSSARY_PATH.name
     ).write_text("", encoding="utf-8")
 
     issues = validate_public_language(repo_root)

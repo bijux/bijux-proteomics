@@ -13,9 +13,7 @@ def _read(path: str) -> str:
     return (REPO_ROOT / path).read_text(encoding="utf-8")
 
 
-def test_repository_shape_rationale_names_durable_splits_and_temporary_compat() -> (
-    None
-):
+def test_repository_shape_rationale_names_durable_splits_and_temporary_compat() -> None:
     text = _read("docs/01-bijux-proteomics/foundation/repository-shape-rationale.md")
 
     assert "# Repository Shape Rationale" in text

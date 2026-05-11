@@ -3,18 +3,18 @@ from __future__ import annotations
 import argparse
 import ast
 from dataclasses import dataclass
+from functools import cache
 import importlib
 import inspect
 from pathlib import Path
-from functools import lru_cache
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     src_root,
     tests_root,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PUBLIC_SYMBOL_LEDGER_PATH",
@@ -113,7 +113,7 @@ def _module_export_sources(
             for alias in node.names:
                 mapping[alias.asname or alias.name] = alias.name
         elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
-            for key, value in zip(node.value.keys, node.value.values):
+            for key, value in zip(node.value.keys, node.value.values, strict=False):
                 if not isinstance(key, ast.Constant) or not isinstance(key.value, str):
                     continue
                 if isinstance(value, ast.Constant) and isinstance(value.value, str):
@@ -140,7 +140,7 @@ def _module_export_sources(
     return mapping
 
 
-@lru_cache(maxsize=None)
+@cache
 def _root_export_sources(package_name: str) -> dict[str, str]:
     root_name = import_root(package_name)
     return _module_export_sources(root_name, src_root(package_name) / "__init__.py")

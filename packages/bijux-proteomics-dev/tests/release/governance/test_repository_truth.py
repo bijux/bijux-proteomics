@@ -10,6 +10,9 @@ from bijux_proteomics_dev.release.governance.repository_truth import (
     build_repository_truth_report,
     validate_repository_truth_report,
 )
+from bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims import (
+    build_package_reopened_completion_claim_report,
+)
 
 REPO_ROOT = next(
     parent
@@ -18,20 +21,26 @@ REPO_ROOT = next(
 )
 
 
-def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestly() -> None:
+def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestly() -> (
+    None
+):
     report = build_repository_truth_report(REPO_ROOT)
+    reopened_packages = tuple(
+        entry.distribution_name
+        for entry in build_package_reopened_completion_claim_report().entries
+        if entry.reopened_completion_claim
+    )
 
     assert report.flagship_workflow_undeniable is True
     assert report.reference_grade_claim_allowed is False
     assert report.elite_claim_allowed is False
-    assert report.reopened_completion_claim_package_names == ()
+    assert report.reopened_completion_claim_package_names == reopened_packages
     assert report.completion_claim_package_names == ()
     assert report.evidence_paths
     assert "docs/decision-support/workflow-consequence-maps.md" in report.evidence_paths
     assert "docs/lab-consequence/workflow-refusal-handbook.md" in report.evidence_paths
     assert any(
-        issue.code == "architectural-ready-floor-not-met"
-        for issue in report.blockers
+        issue.code == "architectural-ready-floor-not-met" for issue in report.blockers
     )
     assert any(
         issue.code == "governance-freshness-stale-generated-governance-report"
@@ -100,10 +109,13 @@ def test_repository_truth_report_blocks_fake_backed_runtime_authority(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="runtime-rerun-gate-fake-helper-still-present-in-flagship-path",
-        detail="dda import still depends on a fake helper",
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="runtime-rerun-gate-fake-helper-still-present-in-flagship-path",
+            detail="dda import still depends on a fake helper",
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_workflow_authority_doc_drift(
@@ -164,10 +176,13 @@ def test_repository_truth_report_blocks_workflow_authority_doc_drift(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-authority-docs-internal-support-family-has-trust-page",
-        detail="multiplex is internal-support only in the matrix but still has a trust page",
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-authority-docs-internal-support-family-has-trust-page",
+            detail="multiplex is internal-support only in the matrix but still has a trust page",
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_acceptance_claim_drift(
@@ -227,8 +242,12 @@ def test_repository_truth_report_blocks_acceptance_claim_drift(
             rows=(
                 SimpleNamespace(
                     workflow_family=SimpleNamespace(value="dia"),
-                    public_release_language=SimpleNamespace(value="outsider_auditable_bounded"),
-                    earned_release_language=SimpleNamespace(value="review_grade_bounded"),
+                    public_release_language=SimpleNamespace(
+                        value="outsider_auditable_bounded"
+                    ),
+                    earned_release_language=SimpleNamespace(
+                        value="review_grade_bounded"
+                    ),
                     claim_ahead_of_evidence=True,
                 ),
             ),
@@ -237,12 +256,15 @@ def test_repository_truth_report_blocks_acceptance_claim_drift(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-acceptance-dia-claim-ahead-of-evidence",
-        detail=(
-            "dia still claims outsider_auditable_bounded but only earns review_grade_bounded under the flagship acceptance sheet"
-        ),
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-acceptance-dia-claim-ahead-of-evidence",
+            detail=(
+                "dia still claims outsider_auditable_bounded but only earns review_grade_bounded under the flagship acceptance sheet"
+            ),
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_decision_grade_intelligence_without_audits(
@@ -317,13 +339,16 @@ def test_repository_truth_report_blocks_decision_grade_intelligence_without_audi
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-intelligence-decision-grade-intelligence-without-overconfidence-audit",
-        detail=(
-            "dda uses decision-grade intelligence language without a published "
-            "overconfidence audit row"
-        ),
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-intelligence-decision-grade-intelligence-without-overconfidence-audit",
+            detail=(
+                "dda uses decision-grade intelligence language without a published "
+                "overconfidence audit row"
+            ),
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_lab_consequence_without_outcome_evidence(
@@ -401,12 +426,15 @@ def test_repository_truth_report_blocks_lab_consequence_without_outcome_evidence
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-lab-consequence-lab-consequential-without-outcome-dossier",
-        detail=(
-            "dda is called lab-consequential without a shipped requested-versus-observed outcome dossier"
-        ),
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-lab-consequence-lab-consequential-without-outcome-dossier",
+            detail=(
+                "dda is called lab-consequential without a shipped requested-versus-observed outcome dossier"
+            ),
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_consequence_chain_drift(
@@ -490,7 +518,9 @@ def test_repository_truth_report_blocks_consequence_chain_drift(
         "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_index",
         lambda: SimpleNamespace(
             artifact_path="artifact_index.json",
-            entries=tuple(SimpleNamespace(entry_id=f"entry-{index}") for index in range(17)),
+            entries=tuple(
+                SimpleNamespace(entry_id=f"entry-{index}") for index in range(17)
+            ),
         ),
     )
     monkeypatch.setattr(
@@ -504,12 +534,15 @@ def test_repository_truth_report_blocks_consequence_chain_drift(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-consequence-coherence-family-posture-mismatch",
-        detail=(
-            "lfq allows recommend_with_downgrade in intelligence but the shared consequence map still pins do_not_recommend"
-        ),
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-consequence-coherence-family-posture-mismatch",
+            detail=(
+                "lfq allows recommend_with_downgrade in intelligence but the shared consequence map still pins do_not_recommend"
+            ),
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_public_scrutiny_drift(
@@ -587,7 +620,9 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
         "bijux_proteomics_dev.release.governance.repository_truth.build_public_artifact_index",
         lambda: SimpleNamespace(
             artifact_path="artifact_index.json",
-            entries=tuple(SimpleNamespace(entry_id=f"entry-{index}") for index in range(17)),
+            entries=tuple(
+                SimpleNamespace(entry_id=f"entry-{index}") for index in range(17)
+            ),
         ),
     )
     monkeypatch.setattr(
@@ -601,10 +636,13 @@ def test_repository_truth_report_blocks_public_scrutiny_drift(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="workflow-public-scrutiny-external-review-kit-not-ready",
-        detail="dia external review kit is not ready for outsider review",
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="workflow-public-scrutiny-external-review-kit-not-ready",
+            detail="dia external review kit is not ready for outsider review",
+        )
+        in report.blockers
+    )
 
 
 def test_repository_truth_report_blocks_public_artifact_governance_drift(
@@ -696,7 +734,10 @@ def test_repository_truth_report_blocks_public_artifact_governance_drift(
 
     report = build_repository_truth_report(REPO_ROOT)
 
-    assert RepositoryTruthIssue(
-        code="public-artifact-governance-public-artifact-count-growth",
-        detail="public artifact count grew beyond the governed budget",
-    ) in report.blockers
+    assert (
+        RepositoryTruthIssue(
+            code="public-artifact-governance-public-artifact-count-growth",
+            detail="public artifact count grew beyond the governed budget",
+        )
+        in report.blockers
+    )

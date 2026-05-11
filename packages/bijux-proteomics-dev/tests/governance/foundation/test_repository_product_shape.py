@@ -30,13 +30,10 @@ def test_repository_product_shape_covers_lifecycle_and_package_roles() -> None:
     assert by_stage["runtime-execution"].owner_package == "bijux-proteomics-runtime"
     assert by_stage["scientific-review"].owner_package == "bijux-proteomics-knowledge"
     assert by_stage["lab-consequence"].handoff_class == "lab-consequence-record"
-    assert (
-        by_handoff["runtime-run-bundle"].consumer_packages
-        == (
-            "bijux-proteomics-knowledge",
-            "bijux-proteomics-intelligence",
-            "bijux-proteomics-lab",
-        )
+    assert by_handoff["runtime-run-bundle"].consumer_packages == (
+        "bijux-proteomics-knowledge",
+        "bijux-proteomics-intelligence",
+        "bijux-proteomics-lab",
     )
     assert by_package["agentic-proteins"].role_kind == "compatibility"
     assert (

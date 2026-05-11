@@ -17,16 +17,20 @@ from bijux_proteomics_dev.quality.artifacts.package_root_hygiene import (
 from bijux_proteomics_dev.quality.artifacts.repository_drift_audit import (
     validate_repository_drift_audit,
 )
-from bijux_proteomics_dev.release.governance.hostile_review_pages import (
-    run as run_hostile_review_pages,
-)
 from bijux_proteomics_dev.release.governance.benchmark_flagship_status import (
     run as run_benchmark_flagship_status,
+)
+from bijux_proteomics_dev.release.governance.benchmark_flagship_status import (
     validate_benchmark_flagship_promotion,
 )
 from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     run as run_benchmark_rerun_governance,
+)
+from bijux_proteomics_dev.release.governance.benchmark_rerun_governance import (
     validate_black_box_benchmark_language,
+)
+from bijux_proteomics_dev.release.governance.hostile_review_pages import (
+    run as run_hostile_review_pages,
 )
 from bijux_proteomics_dev.release.governance.package_family_readiness import (
     validate_package_family_readiness,
@@ -34,17 +38,14 @@ from bijux_proteomics_dev.release.governance.package_family_readiness import (
 from bijux_proteomics_dev.release.governance.public_artifact_governance import (
     run as run_public_artifact_governance,
 )
-from bijux_proteomics_dev.release.governance.readme_truth import (
-    validate_readme_truth,
-)
 from bijux_proteomics_dev.release.governance.public_language import (
     run as run_public_language,
 )
+from bijux_proteomics_dev.release.governance.readme_truth import (
+    validate_readme_truth,
+)
 from bijux_proteomics_dev.release.governance.release_narrowing_protocol import (
     run as run_release_narrowing_protocol,
-)
-from bijux_proteomics_dev.release.governance.workflow_consequence_docs import (
-    run as run_workflow_consequence_docs,
 )
 from bijux_proteomics_dev.release.governance.runtime_black_box_docs import (
     run as run_runtime_black_box_docs,
@@ -61,6 +62,9 @@ from bijux_proteomics_dev.release.governance.workflow_claim_grounding import (
 from bijux_proteomics_dev.release.governance.workflow_consequence_chain import (
     validate_workflow_consequence_coherence,
 )
+from bijux_proteomics_dev.release.governance.workflow_consequence_docs import (
+    run as run_workflow_consequence_docs,
+)
 from bijux_proteomics_dev.release.governance.workflow_intelligence_confidence import (
     validate_workflow_intelligence_confidence,
 )
@@ -70,11 +74,11 @@ from bijux_proteomics_dev.release.governance.workflow_lab_consequence import (
 from bijux_proteomics_dev.release.governance.workflow_public_scrutiny import (
     validate_workflow_public_scrutiny,
 )
-from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
-    validate_flagship_workflow_manifest,
-)
 from bijux_proteomics_runtime.workflows.black_box_reproducibility import (
     build_runtime_black_box_rerun_gate,
+)
+from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
+    validate_flagship_workflow_manifest,
 )
 
 __all__ = [
@@ -82,6 +86,7 @@ __all__ = [
     "FinalPreflightIssue",
     "FinalPreflightReport",
     "FinalPreflightStage",
+    "REPO_ROOT",
     "build_final_preflight_report",
     "run",
 ]
@@ -137,7 +142,9 @@ def _normalize_issues(
     return tuple(issues)
 
 
-def _freshness_issue(module_label: str, check_result: int) -> tuple[FinalPreflightIssue, ...]:
+def _freshness_issue(
+    module_label: str, check_result: int
+) -> tuple[FinalPreflightIssue, ...]:
     if check_result == 0:
         return ()
     return (
@@ -150,7 +157,9 @@ def _freshness_issue(module_label: str, check_result: int) -> tuple[FinalPreflig
 
 def _docs_stage(repo_root: Path) -> FinalPreflightStage:
     issues = [
-        *_normalize_issues(validate_readme_truth(repo_root), default_code="readme-truth"),
+        *_normalize_issues(
+            validate_readme_truth(repo_root), default_code="readme-truth"
+        ),
         *_normalize_issues(
             validate_workflow_authority_docs(repo_root),
             default_code="workflow-authority-docs",

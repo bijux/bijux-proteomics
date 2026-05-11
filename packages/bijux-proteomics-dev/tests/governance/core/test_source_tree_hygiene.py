@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 CORE_SRC_ROOT = Path("packages/bijux-proteomics-core/src/bijux_proteomics")
 
 

@@ -30,7 +30,9 @@ def test_flagship_benchmark_assets_doc_names_product_owned_asset_root() -> None:
     assert "Benchmark Freshness Review" in text
 
 
-def test_flagship_benchmark_assets_doc_names_refresh_command_and_per_package_support_files() -> None:
+def test_flagship_benchmark_assets_doc_names_refresh_command_and_per_package_support_files() -> (
+    None
+):
     text = _read_doc()
 
     assert "flagship_asset_maintenance refresh" in text

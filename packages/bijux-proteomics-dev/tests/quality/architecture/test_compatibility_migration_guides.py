@@ -23,7 +23,7 @@ def test_compatibility_migration_guide_covers_agentic_runtime_bridge() -> None:
     entries = build_compatibility_migration_guide(REPO_ROOT)
     by_legacy_module = {entry.legacy_module: entry for entry in entries}
 
-    assert len(entries) == 116
+    assert len(entries) == 117
     assert by_legacy_module["agentic_proteins.interfaces.http.app"].status == "wrapper"
     assert by_legacy_module[
         "agentic_proteins.interfaces.http.app"

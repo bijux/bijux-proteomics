@@ -140,14 +140,13 @@ def validate_runtime_thin_modules() -> tuple[str, ...]:
         failures.append(
             "runtime thin-module inventory now includes non-initializer files"
         )
-    if metrics.thin_module_count > guard.baseline_thin_module_count:
-        if (
-            metrics.documented_boundary_doc_count
-            <= guard.baseline_documented_boundary_doc_count
-        ):
-            failures.append(
-                "new thin runtime modules appeared without stronger boundary clarity"
-            )
+    if metrics.thin_module_count > guard.baseline_thin_module_count and (
+        metrics.documented_boundary_doc_count
+        <= guard.baseline_documented_boundary_doc_count
+    ):
+        failures.append(
+            "new thin runtime modules appeared without stronger boundary clarity"
+        )
     return tuple(failures)
 
 

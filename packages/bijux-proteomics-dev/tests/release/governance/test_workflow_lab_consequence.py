@@ -48,20 +48,29 @@ def test_workflow_lab_consequence_blocks_missing_outcome_and_ledger_evidence(
     )
     monkeypatch.setattr(
         "bijux_proteomics_dev.release.governance.workflow_lab_consequence.build_flagship_assay_worth_ledger",
-        lambda: SimpleNamespace(entries=(), artifact_path="artifacts/lab/flagship-follow-up-outcomes/assay_worth_ledger.json"),
+        lambda: SimpleNamespace(
+            entries=(),
+            artifact_path="artifacts/lab/flagship-follow-up-outcomes/assay_worth_ledger.json",
+        ),
     )
 
     issues = validate_workflow_lab_consequence()
 
-    assert WorkflowLabConsequenceIssue(
-        code="lab-consequential-without-outcome-dossier",
-        detail=(
-            "dda is called lab-consequential without a shipped requested-versus-observed outcome dossier"
-        ),
-    ) in issues
-    assert WorkflowLabConsequenceIssue(
-        code="lab-consequential-without-worth-ledger",
-        detail=(
-            "dda is called lab-consequential without a shipped assay-worth-it ledger row"
-        ),
-    ) in issues
+    assert (
+        WorkflowLabConsequenceIssue(
+            code="lab-consequential-without-outcome-dossier",
+            detail=(
+                "dda is called lab-consequential without a shipped requested-versus-observed outcome dossier"
+            ),
+        )
+        in issues
+    )
+    assert (
+        WorkflowLabConsequenceIssue(
+            code="lab-consequential-without-worth-ledger",
+            detail=(
+                "dda is called lab-consequential without a shipped assay-worth-it ledger row"
+            ),
+        )
+        in issues
+    )

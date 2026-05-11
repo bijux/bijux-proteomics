@@ -3,18 +3,17 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
+from bijux_proteomics_dev.governance.package_shape.package_root_line_counts import (
+    PACKAGE_ROOT_LINE_COUNTS_PATH,
+    validate_package_root_line_count_report,
+)
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     public_symbol_count_from_init,
     root_api_policy_budget,
     src_root,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.package_shape.package_root_line_counts import (
-    PACKAGE_ROOT_LINE_COUNTS_PATH,
-    build_package_root_line_count_report,
-    validate_package_root_line_count_report,
-)
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "PACKAGE_ROOT_BUDGETS_PATH",

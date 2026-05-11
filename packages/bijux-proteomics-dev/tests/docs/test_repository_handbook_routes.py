@@ -10,9 +10,9 @@ REPO_ROOT = next(
 
 
 def test_repository_handbook_routes_product_owners_and_reader_intent() -> None:
-    handbook = (
-        REPO_ROOT / "docs" / "01-bijux-proteomics" / "index.md"
-    ).read_text(encoding="utf-8")
+    handbook = (REPO_ROOT / "docs" / "01-bijux-proteomics" / "index.md").read_text(
+        encoding="utf-8"
+    )
 
     assert "## Shared Reader Routes" in handbook
     assert "Product Architecture" in handbook

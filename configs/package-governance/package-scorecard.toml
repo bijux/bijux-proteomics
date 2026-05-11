@@ -95,7 +95,7 @@ architectural_ready = false
 
 [[package]]
 distribution_name = "bijux-proteomics-runtime"
-owner_logic_module_count = 130
+owner_logic_module_count = 131
 public_breadth_count = 4
 wrapper_module_count = 30
 missing_test_family_count = 0

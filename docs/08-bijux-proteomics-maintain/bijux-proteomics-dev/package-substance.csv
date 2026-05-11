@@ -4,6 +4,6 @@ bijux-proteomics-core,canonical_product,120,99,0,21,packages/bijux-proteomics-co
 bijux-proteomics-dev,maintainer_support,169,142,0,27,packages/bijux-proteomics-dev/src/bijux_proteomics_dev/,false
 bijux-proteomics-foundation,shared_kernel,25,24,0,1,packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/charter.py,true
 bijux-proteomics-intelligence,canonical_product,62,25,0,1,packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/charter.py,true
-bijux-proteomics-knowledge,canonical_product,57,21,0,13,packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py,true
-bijux-proteomics-lab,canonical_product,37,26,0,10,packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py,true
+bijux-proteomics-knowledge,canonical_product,57,44,0,13,packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/governance/charter.py,true
+bijux-proteomics-lab,canonical_product,37,27,0,10,packages/bijux-proteomics-lab/src/bijux_proteomics_lab/governance/charter.py,true
 bijux-proteomics-runtime,canonical_product,165,139,0,26,packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/governance/charter.py,true

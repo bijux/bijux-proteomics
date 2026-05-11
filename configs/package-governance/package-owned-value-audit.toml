@@ -3,7 +3,7 @@
 
 [guard]
 min_total_owned_value_bullet_count = 58
-min_total_owner_depth_count = 521
+min_total_owner_depth_count = 522
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -41,7 +41,7 @@ readme_sentence_count = 536
 distribution_name = "bijux-proteomics-runtime"
 owned_value_bullets = ["interfaces (CLI and HTTP API)", "execution control and orchestration coordination", "provider binding and provider invocation", "runtime state transitions", "workspace state and run artifacts", "replay and determinism enforcement"]
 owned_value_summary = "interfaces (CLI and HTTP API); execution control and orchestration coordination; provider binding and provider invocation; runtime state transitions; workspace state and run artifacts; replay and determinism enforcement"
-owner_depth_count = 130
+owner_depth_count = 131
 public_breadth_count = 4
 readme_sentence_count = 249
 

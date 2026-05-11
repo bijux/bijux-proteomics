@@ -16,4 +16,6 @@ def test_hostile_review_page_set_captures_live_release_blockers() -> None:
     assert len(pages.family_entries) == 5
     assert pages.blocked_categories
     assert any(group.title == "Workflow-family gaps" for group in pages.blocker_groups)
-    assert any("multiplex" in issue for group in pages.blocker_groups for issue in group.issues)
+    assert any(
+        "multiplex" in issue for group in pages.blocker_groups for issue in group.issues
+    )

@@ -21,12 +21,17 @@ def _envlist() -> set[str]:
     return {line.strip() for line in envlist.splitlines() if line.strip()}
 
 
-def test_root_tox_keeps_shared_env_families_and_treats_special_commands_as_make_only() -> None:
+def test_root_tox_keeps_shared_env_families_and_treats_special_commands_as_make_only() -> (
+    None
+):
     envlist = _envlist()
 
     assert "security" in envlist
     assert "docs" in envlist
-    assert "fmt-{dev,runtime,core,foundation,intelligence,knowledge,lab,agentic}" not in envlist
+    assert (
+        "fmt-{dev,runtime,core,foundation,intelligence,knowledge,lab,agentic}"
+        not in envlist
+    )
     assert "api-freeze-core" not in envlist
     assert "openapi-drift-core" not in envlist
 

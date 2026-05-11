@@ -71,10 +71,7 @@ def _resolve_relative_module(
     package_parts = _module_package_parts(package_name, path)
     if level <= 0 or level > len(package_parts):
         return None
-    if level == 1:
-        base_parts = package_parts
-    else:
-        base_parts = package_parts[: -(level - 1)]
+    base_parts = package_parts if level == 1 else package_parts[: -(level - 1)]
     suffix = tuple(module_name.split(".")) if module_name else ()
     target_parts = (*base_parts, *suffix)
     return ".".join(target_parts) if target_parts else None
@@ -123,10 +120,7 @@ def module_dependency_edges(
                     resolved_target_name = node.module
                     root_name = resolved_target_name.split(".")[0]
                     resolved_target_distribution = roots.get(root_name)
-                if (
-                    resolved_target_name is None
-                    or resolved_target_distribution is None
-                ):
+                if resolved_target_name is None or resolved_target_distribution is None:
                     continue
                 edges.add(
                     WorkspaceModuleDependencyEdge(

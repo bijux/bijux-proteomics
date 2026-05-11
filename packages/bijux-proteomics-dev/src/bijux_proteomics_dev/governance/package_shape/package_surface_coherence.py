@@ -42,7 +42,9 @@ _PRODUCT_PACKAGE_DOCS_PATHS = {
     "bijux-proteomics-knowledge": Path(
         "docs/06-bijux-proteomics-knowledge/this-package-does-not-own.md"
     ),
-    "bijux-proteomics-lab": Path("docs/07-bijux-proteomics-lab/this-package-does-not-own.md"),
+    "bijux-proteomics-lab": Path(
+        "docs/07-bijux-proteomics-lab/this-package-does-not-own.md"
+    ),
     "bijux-proteomics-runtime": Path(
         "docs/09-bijux-proteomics-runtime/this-package-does-not-own.md"
     ),
@@ -98,7 +100,9 @@ def build_package_surface_coherence_report() -> PackageSurfaceCoherenceReport:
             import_root=by_tree[distribution_name].import_root,
             docs_path=docs_path.as_posix(),
             public_surface_names=by_public[distribution_name],
-            allowed_outbound_edges=by_dependency[distribution_name].allowed_outbound_edges,
+            allowed_outbound_edges=by_dependency[
+                distribution_name
+            ].allowed_outbound_edges,
             excluded_responsibilities=by_tree[
                 distribution_name
             ].excluded_responsibilities,

@@ -4,14 +4,6 @@ import argparse
 from dataclasses import dataclass
 
 from bijux_proteomics_dev.governance.foundation.root_consumers import REPO_ROOT
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    DEFAULT_BENCHMARK_MANIFESTS,
-    KnowledgeWorkflowFamily,
-)
-from bijux_proteomics_knowledge.references.workflows.briefings import (
-    build_workflow_reference_briefing,
-    list_workflow_reference_briefings,
-)
 from bijux_proteomics_knowledge.references.grounding.citations import (
     DEFAULT_CITATION_REGISTRY,
 )
@@ -24,9 +16,6 @@ from bijux_proteomics_knowledge.references.grounding.corpora import (
 from bijux_proteomics_knowledge.references.grounding.literature import (
     DEFAULT_LITERATURE_GROUPS,
 )
-from bijux_proteomics_knowledge.references.workflows.narratives import (
-    DEFAULT_WORKFLOW_NARRATIVES,
-)
 from bijux_proteomics_knowledge.references.grounding.ontologies import (
     DEFAULT_ONTOLOGY_MAPPINGS,
 )
@@ -35,6 +24,17 @@ from bijux_proteomics_knowledge.references.grounding.problems import (
 )
 from bijux_proteomics_knowledge.references.grounding.rules import (
     DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
+    KnowledgeWorkflowFamily,
+)
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
+    list_workflow_reference_briefings,
+)
+from bijux_proteomics_knowledge.references.workflows.narratives import (
+    DEFAULT_WORKFLOW_NARRATIVES,
 )
 
 __all__ = [
@@ -272,13 +272,13 @@ def build_knowledge_provenance_completeness_report() -> tuple[
             ]
             if surface_name == "corpora":
                 has_location = _present(
-                    getattr(entry, "repo_relative_path")
-                ) or _present(getattr(entry, "reference_locator"))
+                    getattr(entry, "repo_relative_path", None)
+                ) or _present(getattr(entry, "reference_locator", None))
                 if not has_location:
                     missing_fields.append("repo_relative_path|reference_locator")
             if surface_name == "citations":
-                has_locator = _present(getattr(entry, "doi")) or _present(
-                    getattr(entry, "url")
+                has_locator = _present(getattr(entry, "doi", None)) or _present(
+                    getattr(entry, "url", None)
                 )
                 if not has_locator:
                     missing_fields.append("doi|url")

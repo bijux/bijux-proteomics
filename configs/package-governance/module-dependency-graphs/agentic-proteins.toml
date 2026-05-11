@@ -6,7 +6,7 @@ distribution_name = "agentic-proteins"
 [[module]]
 module_name = "agentic_proteins"
 outgoing_internal_modules = []
-outgoing_workspace_modules = []
+outgoing_workspace_modules = ["bijux_proteomics_runtime"]
 
 [[module]]
 module_name = "agentic_proteins.agents"

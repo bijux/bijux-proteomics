@@ -18,7 +18,6 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
 
-
 REPO_ROOT = next(
     parent
     for parent in Path(__file__).resolve().parents
@@ -55,7 +54,8 @@ def test_workflow_consequence_maps_keep_shared_posture_per_family() -> None:
 
 def test_workflow_recommendation_changes_capture_counterfactuals_and_outcomes() -> None:
     changes = {
-        entry.workflow_family: entry for entry in build_workflow_recommendation_changes()
+        entry.workflow_family: entry
+        for entry in build_workflow_recommendation_changes()
     }
 
     assert (
@@ -74,7 +74,8 @@ def test_workflow_recommendation_changes_capture_counterfactuals_and_outcomes() 
 
 def test_workflow_outcome_learning_loops_cover_all_families() -> None:
     loops = {
-        entry.workflow_family: entry for entry in build_workflow_outcome_learning_loops()
+        entry.workflow_family: entry
+        for entry in build_workflow_outcome_learning_loops()
     }
 
     assert tuple(loops) == (
@@ -120,7 +121,9 @@ def test_workflow_consequence_coherence_blocks_cross_package_posture_drift(
                 control_demands=(),
                 burden_tradeoffs=(),
                 cost_of_being_wrong=(),
-                evidence_paths=("artifacts/intelligence/recommendation-packets/dda.json",),
+                evidence_paths=(
+                    "artifacts/intelligence/recommendation-packets/dda.json",
+                ),
             ),
         ),
     )
@@ -139,22 +142,32 @@ def test_workflow_consequence_coherence_blocks_cross_package_posture_drift(
         )
     monkeypatch.setattr(chain_module, "WORKFLOW_CONSEQUENCE_MAPS_PATH", consequence_doc)
     monkeypatch.setattr(chain_module, "RECOMMENDATION_CHANGE_PATH", change_doc)
-    monkeypatch.setattr(chain_module, "LAB_CONSEQUENCE_OUTCOME_LEARNING_PATH", learning_doc)
-    monkeypatch.setattr(chain_module, "LAB_CONSEQUENCE_REFUSAL_HANDBOOK_PATH", refusal_doc)
+    monkeypatch.setattr(
+        chain_module, "LAB_CONSEQUENCE_OUTCOME_LEARNING_PATH", learning_doc
+    )
+    monkeypatch.setattr(
+        chain_module, "LAB_CONSEQUENCE_REFUSAL_HANDBOOK_PATH", refusal_doc
+    )
 
     issues = validate_workflow_consequence_coherence(REPO_ROOT)
 
-    assert WorkflowConsequenceCoherenceIssue(
-        code="cross-package-posture-disagreement",
-        detail=(
-            "dda disagrees across knowledge, intelligence, and lab: "
-            "recommend_with_downgrade, recommend, recommend_with_downgrade"
-        ),
-    ) in issues
-    assert WorkflowConsequenceCoherenceIssue(
-        code="recommendation-strength-exceeds-downstream-boundary",
-        detail=(
-            "dda intelligence posture recommend exceeds weakest downstream boundary "
-            "recommend_with_downgrade"
-        ),
-    ) in issues
+    assert (
+        WorkflowConsequenceCoherenceIssue(
+            code="cross-package-posture-disagreement",
+            detail=(
+                "dda disagrees across knowledge, intelligence, and lab: "
+                "recommend_with_downgrade, recommend, recommend_with_downgrade"
+            ),
+        )
+        in issues
+    )
+    assert (
+        WorkflowConsequenceCoherenceIssue(
+            code="recommendation-strength-exceeds-downstream-boundary",
+            detail=(
+                "dda intelligence posture recommend exceeds weakest downstream boundary "
+                "recommend_with_downgrade"
+            ),
+        )
+        in issues
+    )

@@ -178,8 +178,7 @@ def validate_package_topology_drift(
     )
     if contradictions:
         failures.append(
-            "docs and tree still contradict each other in "
-            + ", ".join(contradictions)
+            "docs and tree still contradict each other in " + ", ".join(contradictions)
         )
     total_top_level_root_file_count = sum(
         entry.top_level_root_file_count for entry in report.entries

@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import argparse
-import importlib
 from dataclasses import dataclass
+import importlib
 from pathlib import Path
 import re
 
+from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     package_docs,
     workspace_package_names,
 )
-from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 
 __all__ = [
     "DOCS_TOPOLOGY_REFERENCES_PATH",

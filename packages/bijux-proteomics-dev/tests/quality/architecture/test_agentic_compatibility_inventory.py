@@ -26,7 +26,7 @@ def test_agentic_compatibility_inventory_marks_every_live_module() -> None:
     entries = build_agentic_compatibility_inventory(REPO_ROOT)
     by_path = {entry.module_path: entry for entry in entries}
 
-    assert len(entries) == 116
+    assert len(entries) == 117
     assert "sandbox/__init__.py" not in by_path
     assert "design_loop/loop.py" not in by_path
     assert "domain/sequence/summary.py" not in by_path
