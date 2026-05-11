@@ -10,7 +10,6 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from bijux_proteomics_intelligence.candidates.quality import MetricValue
-
 from bijux_proteomics_runtime.support.primitives.decisions import Decision
 
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import AliasChoices, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_strings
@@ -33,18 +33,22 @@ class OperationRefusal(JsonModel):
     kind: RefusalKind
     code: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
-    support_state: SupportState = Field(
-        default=SupportState.REFUSED,
-        validation_alias=AliasChoices("support_state", "state"),
-        serialization_alias="support_state",
-    )
-    reason_details: tuple[str, ...] = Field(
-        default_factory=tuple,
-        validation_alias=AliasChoices("reason_details", "details"),
-        serialization_alias="reason_details",
-    )
+    support_state: SupportState = Field(default=SupportState.REFUSED)
+    reason_details: tuple[str, ...] = Field(default_factory=tuple)
     recommended_actions: tuple[str, ...] = Field(default_factory=tuple)
     provenance: tuple[ProvenancePointer, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_keys(cls, value: object) -> object:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        if "support_state" not in payload and "state" in payload:
+            payload["support_state"] = payload.pop("state")
+        if "reason_details" not in payload and "details" in payload:
+            payload["reason_details"] = payload.pop("details")
+        return payload
 
     @field_validator("code")
     @classmethod

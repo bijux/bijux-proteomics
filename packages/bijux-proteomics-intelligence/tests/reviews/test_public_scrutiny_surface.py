@@ -9,7 +9,9 @@ from bijux_proteomics_intelligence.reviews.public_scrutiny import (
 )
 
 
-def test_public_artifact_index_covers_repository_and_all_five_workflow_surfaces() -> None:
+def test_public_artifact_index_covers_repository_and_all_five_workflow_surfaces() -> (
+    None
+):
     index = build_public_artifact_index()
 
     assert index.index_id == "flagship-public-artifact-index"
@@ -40,7 +42,8 @@ def test_public_artifact_role_matrix_names_distinct_neighbors() -> None:
     assert matrix.doc_path.endswith("public-artifact-role-matrix.md")
     assert len(matrix.rows) == 20
     assert any(
-        row.workflow_family is None and row.decision_role == "repository-challenge-route"
+        row.workflow_family is None
+        and row.decision_role == "repository-challenge-route"
         for row in matrix.rows
     )
     assert any(

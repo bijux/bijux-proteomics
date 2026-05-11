@@ -21,8 +21,8 @@ from bijux_proteomics_runtime.execution.agents.schemas import (
     PlannerAgentInput,
     PlannerAgentOutput,
 )
-from bijux_proteomics_runtime.support.primitives.decisions import DecisionExplanation
 from bijux_proteomics_runtime.state.memory_records import MemoryScope
+from bijux_proteomics_runtime.support.primitives.decisions import DecisionExplanation
 
 
 class PlannerAgent(AgentRole):

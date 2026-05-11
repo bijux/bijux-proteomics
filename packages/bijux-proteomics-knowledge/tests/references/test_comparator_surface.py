@@ -86,6 +86,6 @@ def test_comparator_paths_keep_exact_behavior_status_values() -> None:
     valid_statuses = set(ComparatorBehaviorStatus)
 
     for path in DEFAULT_WORKFLOW_COMPARATOR_PATHS:
-        assert {
-            behavior.status for behavior in path.comparison_behaviors
-        }.issubset(valid_statuses)
+        assert {behavior.status for behavior in path.comparison_behaviors}.issubset(
+            valid_statuses
+        )

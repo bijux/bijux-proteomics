@@ -11,6 +11,12 @@ from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
+    WorkflowClaimCitationTable,
+    WorkflowUnsupportedClaimLedger,
+    build_workflow_claim_citation_table,
+    build_workflow_unsupported_claim_ledger,
+)
 from bijux_proteomics_knowledge.references.workflows.contradiction_dossiers import (
     WorkflowContradictionDossier,
     build_workflow_contradiction_dossier,
@@ -26,12 +32,6 @@ from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import
 from bijux_proteomics_knowledge.references.workflows.knowledge_deficits import (
     WorkflowKnowledgeDeficitReport,
     build_workflow_knowledge_deficit_report,
-)
-from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
-    WorkflowClaimCitationTable,
-    WorkflowUnsupportedClaimLedger,
-    build_workflow_claim_citation_table,
-    build_workflow_unsupported_claim_ledger,
 )
 from bijux_proteomics_knowledge.references.workflows.literature_audits import (
     WorkflowBibliographyExport,
@@ -118,8 +118,7 @@ def build_workflow_scientific_reading_pack(
         "finish with the deficit report and unsupported-claim ledger to see what public data, comparator, literature, runtime, and narrative proof still need to be added",
     )
     outsider_questions = tuple(
-        scenario.recommended_hold_reason
-        for scenario in contradiction_dossier.scenarios
+        scenario.recommended_hold_reason for scenario in contradiction_dossier.scenarios
     )
     return WorkflowScientificReadingPack(
         pack_id=f"scientific_reading_pack:{workflow_family.value}",
@@ -145,7 +144,9 @@ def build_workflow_scientific_reading_pack(
     )
 
 
-def list_workflow_scientific_reading_packs() -> tuple[WorkflowScientificReadingPack, ...]:
+def list_workflow_scientific_reading_packs() -> tuple[
+    WorkflowScientificReadingPack, ...
+]:
     """Return outsider-readable scientific reading packs across families."""
 
     return tuple(

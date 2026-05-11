@@ -322,7 +322,9 @@ def build_workflow_literature_freshness_audit(
     )
     groups_by_citation = {
         citation_id: tuple(
-            group for group in briefing.literature_groups if citation_id in group.citation_ids
+            group
+            for group in briefing.literature_groups
+            if citation_id in group.citation_ids
         )
         for citation_id in citation_ids
     }
@@ -369,9 +371,9 @@ def build_workflow_literature_freshness_audit(
     )
 
 
-def list_workflow_literature_freshness_audits() -> (
-    tuple[WorkflowLiteratureFreshnessAudit, ...]
-):
+def list_workflow_literature_freshness_audits() -> tuple[
+    WorkflowLiteratureFreshnessAudit, ...
+]:
     """Return freshness audits across workflow families."""
 
     return tuple(
@@ -388,12 +390,17 @@ def build_workflow_bibliography_export(
     manifest = get_benchmark_manifest_for_family(workflow_family)
     briefing = get_workflow_reference_briefing_for_family(workflow_family)
     freshness_audit = build_workflow_literature_freshness_audit(workflow_family)
-    freshness_by_citation = {entry.citation_id: entry for entry in freshness_audit.entries}
+    freshness_by_citation = {
+        entry.citation_id: entry for entry in freshness_audit.entries
+    }
     contradiction_dossier = build_workflow_contradiction_dossier(workflow_family)
     contradiction_groups = {
         group.group_id
         for group in briefing.literature_groups
-        if any(group.group_id.split(":")[-1] in scenario.tension_title for scenario in contradiction_dossier.scenarios)
+        if any(
+            group.group_id.split(":")[-1] in scenario.tension_title
+            for scenario in contradiction_dossier.scenarios
+        )
     }
     citation_ids = sorted(
         {
@@ -406,7 +413,9 @@ def build_workflow_bibliography_export(
     for citation_id in citation_ids:
         citation = get_citation_record(citation_id)
         groups = tuple(
-            group for group in briefing.literature_groups if citation_id in group.citation_ids
+            group
+            for group in briefing.literature_groups
+            if citation_id in group.citation_ids
         )
         contradiction_tags = tuple(
             f"focus:{group.focus_area.value}"

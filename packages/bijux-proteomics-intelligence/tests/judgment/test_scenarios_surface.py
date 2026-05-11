@@ -57,8 +57,8 @@ from bijux_proteomics_intelligence.reviews.decision_briefs import (
 )
 from bijux_proteomics_knowledge.memory.models.evidence import (
     DecisionReadiness,
-    EvidenceCoverage,
     EvidenceBundle,
+    EvidenceCoverage,
     EvidenceKind,
     EvidenceRecord,
     EvidenceSourceType,

@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_lab.design.protocols import (
     InstrumentMethodMetadata,
+    LabProtocolAttachment,
     ProtocolControlRequirement,
     ProtocolFailureCaveat,
     SamplePreparationMetadata,
@@ -25,14 +27,17 @@ from bijux_proteomics_lab.planning import LabExecutionRequest
 
 
 def _handoff_fixture(name: str) -> dict[str, object]:
-    return json.loads(
-        (
-            Path(__file__).resolve().parents[1] / "fixtures" / "handoffs" / name
-        ).read_text(encoding="utf-8")
+    return cast(
+        dict[str, object],
+        json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "fixtures" / "handoffs" / name
+            ).read_text(encoding="utf-8")
+        ),
     )
 
 
-def _protocol_attachment():
+def _protocol_attachment() -> LabProtocolAttachment:
     return build_protocol_attachment(
         sample_preparation=SamplePreparationMetadata(
             protocol_id="prep-targeted",
@@ -144,6 +149,8 @@ def test_compare_alternative_assay_plans_balances_evidence_cost_and_turnaround()
 
 def test_lims_loss_fixture_keeps_flattened_operator_notes_explicit() -> None:
     fixture = _handoff_fixture("lossy_lims_follow_up.json")
+    required_controls = cast(list[dict[str, object]], fixture["required_controls"])
+    failure_caveats = cast(list[dict[str, object]], fixture["failure_caveats"])
     protocol_attachment = build_protocol_attachment(
         sample_preparation=SamplePreparationMetadata.model_validate(
             fixture["sample_preparation"]
@@ -154,11 +161,10 @@ def test_lims_loss_fixture_keeps_flattened_operator_notes_explicit() -> None:
         protocol_version="3.1",
         required_controls=tuple(
             ProtocolControlRequirement.model_validate(item)
-            for item in fixture["required_controls"]
+            for item in required_controls
         ),
         failure_caveats=tuple(
-            ProtocolFailureCaveat.model_validate(item)
-            for item in fixture["failure_caveats"]
+            ProtocolFailureCaveat.model_validate(item) for item in failure_caveats
         ),
     )
 

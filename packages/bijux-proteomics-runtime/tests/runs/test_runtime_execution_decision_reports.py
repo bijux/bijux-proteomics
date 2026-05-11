@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runs.context import create_run_context
+from bijux_proteomics_runtime.runs.context import RunContext, create_run_context
 from bijux_proteomics_runtime.runs.execution_decisions import (
     ExecutionDecisionState,
     build_runtime_degraded_execution_report,
@@ -18,6 +18,7 @@ from bijux_proteomics_runtime.runs.failure_reports import (
 from bijux_proteomics_runtime.runs.preflight import (
     build_runtime_preflight_report,
 )
+from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 
@@ -97,7 +98,11 @@ def test_runtime_degraded_execution_report_is_written_for_cpu_fallback(
 ) -> None:
     real_create_run_context = create_run_context
 
-    def _create_run_context_with_cpu_fallback(base_dir, config=None, run_id=None):
+    def _create_run_context_with_cpu_fallback(
+        base_dir: Path,
+        config: RunConfig | None = None,
+        run_id: str | None = None,
+    ) -> tuple[RunContext, list[str]]:
         context, warnings = real_create_run_context(base_dir, config, run_id=run_id)
         return context, [*warnings, "cpu_fallback:local_esmfold_to_cpu"]
 

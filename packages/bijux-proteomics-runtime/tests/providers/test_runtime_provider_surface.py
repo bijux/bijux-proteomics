@@ -4,8 +4,8 @@ from typing import Any, cast
 
 import pytest
 
-from bijux_proteomics_runtime.providers.catalog import provider_requirements
 from bijux_proteomics_runtime.providers import selection as factory_module
+from bijux_proteomics_runtime.providers.catalog import provider_requirements
 from bijux_proteomics_runtime.providers.contracts import _time_left
 from bijux_proteomics_runtime.providers.errors import PredictionError
 from bijux_proteomics_runtime.providers.remote.colabfold import (

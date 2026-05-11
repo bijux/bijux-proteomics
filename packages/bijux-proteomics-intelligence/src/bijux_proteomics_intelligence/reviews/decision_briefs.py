@@ -33,12 +33,23 @@ from bijux_proteomics_intelligence.posture.evidence import (
     summarize_evidence_contradictions,
 )
 from bijux_proteomics_knowledge.memory.models.evidence import EvidenceBundle
-from bijux_proteomics_knowledge.references.workflows.briefings import (
-    build_workflow_reference_briefing,
-)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
+from bijux_proteomics_knowledge.references.workflows.briefings import (
+    build_workflow_reference_briefing,
+)
+
+
+def _coerce_explainability_pressure(value: object) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return 0.0
+    return 0.0
 
 
 class IntelligenceReviewPacket(JsonModel):
@@ -269,10 +280,12 @@ def build_review_board_packet(
     for ranked_candidate in ranking.ranked_candidates[:5]:
         assessment = assessment_map.get(ranked_candidate.candidate_id)
         explainability = ranked_candidate.explainability
-        contradiction_pressure = float(
+        contradiction_pressure = _coerce_explainability_pressure(
             explainability.get("contradiction_pressure", 0.0)
         )
-        freshness_pressure = float(explainability.get("freshness_pressure", 0.0))
+        freshness_pressure = _coerce_explainability_pressure(
+            explainability.get("freshness_pressure", 0.0)
+        )
         ranked_reasons = [str(reason) for reason in ranked_candidate.reasons[:4]]
         ranked_evidence.append(
             ReviewBoardEvidenceLine(

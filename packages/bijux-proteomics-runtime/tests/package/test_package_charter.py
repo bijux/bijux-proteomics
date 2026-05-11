@@ -15,7 +15,6 @@ from bijux_proteomics_runtime.governance.charter import (
     list_runtime_charter_entries,
 )
 
-
 RUNTIME_SRC_ROOT = Path(
     "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime"
 )

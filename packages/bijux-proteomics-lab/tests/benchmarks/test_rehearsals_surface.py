@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
 from bijux_proteomics_intelligence.judgment.paths import (
@@ -20,6 +20,7 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceRecord,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
@@ -27,6 +28,7 @@ from bijux_proteomics_knowledge.references.workflows.lookups import (
 )
 from bijux_proteomics_lab.benchmarks import (
     TargetedBenchmarkClaimSupport,
+    TargetedBenchmarkReport,
     TargetedExternalReviewReport,
     TargetedFailureRehearsalReport,
     TargetedOperatorRunReport,
@@ -37,6 +39,7 @@ from bijux_proteomics_lab.benchmarks import (
 )
 from bijux_proteomics_lab.design.protocols import (
     InstrumentMethodMetadata,
+    LabProtocolAttachment,
     ProtocolControlRequirement,
     ProtocolFailureCaveat,
     SamplePreparationMetadata,
@@ -52,6 +55,7 @@ from bijux_proteomics_lab.outcomes import (
     AssayOutcome,
     AssayResultState,
     ExperimentOutcome,
+    RerunPolicy,
 )
 from bijux_proteomics_lab.planning import ExecutableAssayPlan, ReviewPacket
 from bijux_proteomics_lab.reconciliation import (
@@ -81,7 +85,7 @@ def _handoff_fixture(name: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
 
-def _program_from_fixture(payload: dict[str, Any]) -> object:
+def _program_from_fixture(payload: dict[str, Any]) -> ProgramSpec:
     program_data = cast(dict[str, Any], payload["program"])
     criterion_data = cast(dict[str, Any], payload["criterion"])
     program = create_program_spec(
@@ -129,7 +133,7 @@ def _bundle_from_fixture(payload: dict[str, Any]) -> EvidenceBundle:
     )
 
 
-def _protocol_attachment():
+def _protocol_attachment() -> LabProtocolAttachment:
     return build_protocol_attachment(
         sample_preparation=SamplePreparationMetadata(
             protocol_id="prep-targeted-benchmark",
@@ -242,7 +246,7 @@ def _weak_operational_path() -> tuple[
     outcome = ExperimentOutcome(
         batch_id="batch-mapk-weak-1",
         assay_outcomes=[],
-        rerun_policy="never",
+        rerun_policy=RerunPolicy.NEVER,
     )
     path = build_operational_follow_up_path(
         candidate_id=cast(str, fixture["candidate_id"]),
@@ -256,7 +260,15 @@ def _weak_operational_path() -> tuple[
     return handoff_validation, transition_review, review_packet, executable_plan, path
 
 
-def _supported_benchmark_report():
+def _required_benchmark_manifest() -> BenchmarkManifest:
+    benchmark_manifest = get_benchmark_manifest(
+        "benchmark:targeted_transition_quality_control"
+    )
+    assert benchmark_manifest is not None
+    return benchmark_manifest
+
+
+def _supported_benchmark_report() -> TargetedBenchmarkReport:
     scenario = _review_scenario_fixture("targeted_assay_review")
     program = _program_from_fixture(scenario)
     assessments = _assessments_from_fixture(scenario)
@@ -317,9 +329,7 @@ def _supported_benchmark_report():
         executable_plan=executable_plan,
     )
     return build_targeted_benchmark_report(
-        benchmark_manifest=get_benchmark_manifest(
-            "benchmark:targeted_transition_quality_control"
-        ),
+        benchmark_manifest=_required_benchmark_manifest(),
         candidate_assessments=assessments,
         follow_up_path=follow_up_path,
         chromatogram_report=parse_chromatogram_qc_table(
@@ -380,9 +390,7 @@ def test_targeted_failure_and_external_review_reports_expose_weaknesses() -> Non
         executable_plan=executable_plan,
     )
     report = build_targeted_benchmark_report(
-        benchmark_manifest=get_benchmark_manifest(
-            "benchmark:targeted_transition_quality_control"
-        ),
+        benchmark_manifest=_required_benchmark_manifest(),
         candidate_assessments=assessments,
         follow_up_path=follow_up_path,
         chromatogram_report=parse_chromatogram_qc_table(

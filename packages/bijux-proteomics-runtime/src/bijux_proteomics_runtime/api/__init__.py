@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.support.primitives.stability import stable
 from bijux_proteomics_runtime.api.public import __all__, __getattr__
+from bijux_proteomics_runtime.support.primitives.stability import stable
 
 stable()

@@ -122,7 +122,10 @@ _TRIAGE_BLUEPRINTS: dict[
             "Multiplex chemistry pressure is public, but outsider authority remains blocked because the family still lacks its own outsider packet and lab consequence surface.",
             "This ranks first because it decides the authority boundary outright: multiplex stays internal support until the contradiction between public chemistry detail and missing outsider consequence closure is resolved.",
             "Keep multiplex internal support only until dedicated outsider review and lab consequence packets exist.",
-            ("contradiction_dossier:multiplex:1", "workflow_authority_matrix:multiplex"),
+            (
+                "contradiction_dossier:multiplex:1",
+                "workflow_authority_matrix:multiplex",
+            ),
         ),
         (
             ContradictionConsequenceLevel.CLAIM_NARROWING,
@@ -183,7 +186,10 @@ def build_workflow_contradiction_triage_report(
             summary=summary,
             why_it_is_ranked_here=why_it_is_ranked_here,
             next_action=next_action,
-            evidence_refs=(*evidence_refs, contradiction_dossier.scenarios[0].scenario_id),
+            evidence_refs=(
+                *evidence_refs,
+                contradiction_dossier.scenarios[0].scenario_id,
+            ),
         )
         for index, (
             consequence_level,
@@ -205,9 +211,9 @@ def build_workflow_contradiction_triage_report(
     )
 
 
-def list_workflow_contradiction_triage_reports() -> (
-    tuple[WorkflowContradictionTriageReport, ...]
-):
+def list_workflow_contradiction_triage_reports() -> tuple[
+    WorkflowContradictionTriageReport, ...
+]:
     """Return contradiction triage reports across workflow families."""
 
     return tuple(

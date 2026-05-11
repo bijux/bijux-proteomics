@@ -40,5 +40,8 @@ def test_workflow_scientific_reading_pack_keeps_outsider_questions_visible() -> 
     pack = build_workflow_scientific_reading_pack(KnowledgeWorkflowFamily.TARGETED)
 
     assert pack.outsider_questions
-    assert any("calibration" in question or "Decision-facing targeted support" in question for question in pack.outsider_questions)
+    assert any(
+        "calibration" in question or "Decision-facing targeted support" in question
+        for question in pack.outsider_questions
+    )
     assert "public scientific base" in pack.note

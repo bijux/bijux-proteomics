@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from bijux_proteomics_runtime.providers.contracts import ProviderCapabilities
 from bijux_proteomics_runtime.providers import capabilities
+from bijux_proteomics_runtime.providers.contracts import ProviderCapabilities
 
 
 def test_validate_runtime_capabilities_unknown_provider() -> None:

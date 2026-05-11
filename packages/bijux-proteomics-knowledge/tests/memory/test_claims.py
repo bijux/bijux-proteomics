@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 from bijux_proteomics_knowledge.memory.models.claims import (
-    ClaimQuery,
     ClaimEvidenceState,
     ClaimPolarity,
+    ClaimQuery,
     ClaimResolutionState,
     ClaimStatus,
     ClaimType,

@@ -104,6 +104,7 @@ from bijux_proteomics_knowledge.references.workflows.lookups import (
 )
 from bijux_proteomics_knowledge.references.workflows.registry import (
     BenchmarkAuthorityStatus,
+    BenchmarkRegistryEntry,
 )
 from bijux_proteomics_knowledge.references.workflows.scientific_release import (
     ScientificReleasePacket,
@@ -237,7 +238,7 @@ def _require_manifest(benchmark_id: str) -> BenchmarkManifest:
     return manifest
 
 
-def _require_registry_entry(benchmark_id: str):
+def _require_registry_entry(benchmark_id: str) -> BenchmarkRegistryEntry:
     entry = get_benchmark_registry_entry(benchmark_id)
     if entry is None:
         raise ValueError(f"unknown benchmark registry entry: {benchmark_id}")
@@ -278,7 +279,9 @@ def _build_public_claim_posture(
     tuple[str, ...],
     bool,
 ]:
-    failure_report = build_benchmark_comparator_failure_report(benchmark_id=benchmark_id)
+    failure_report = build_benchmark_comparator_failure_report(
+        benchmark_id=benchmark_id
+    )
     if not failure_report.entries:
         return (ComparatorClaimSupportState.SUPPORTED, (), (), False)
     if any(
@@ -329,9 +332,7 @@ def _build_vendor_caveat_ledger(
     entries: tuple[WorkflowVendorCaveatEntry, ...],
 ) -> WorkflowVendorCaveatLedger:
     vendor_support_state = (
-        SupportState.SUPPORTED
-        if not entries
-        else SupportState.ADVISORY
+        SupportState.SUPPORTED if not entries else SupportState.ADVISORY
     )
     return WorkflowVendorCaveatLedger(
         entries=entries,
@@ -344,9 +345,7 @@ def _workflow_minimum_controls(
 ) -> tuple[str, ...]:
     report = build_workflow_minimum_control_report()
     entry = next(
-        item
-        for item in report.entries
-        if item.workflow_family == workflow_family.value
+        item for item in report.entries if item.workflow_family == workflow_family.value
     )
     return entry.minimum_controls
 
@@ -492,14 +491,12 @@ def build_dda_benchmark_review(
         raise ValueError("DDA benchmark review requires a DDA workflow manifest")
     result_path = source_path or _resolve_primary_pipeline_export(manifest)
     adapter_kind = _infer_search_adapter_kind(result_path)
-    normalization_kwargs = {
-        "source_path": result_path,
-        "adapter_kind": adapter_kind,
-    }
     dialect_id = _infer_search_adapter_dialect_id(result_path)
-    if dialect_id is not None:
-        normalization_kwargs["dialect_id"] = dialect_id
-    normalization = normalize_search_results_with_adapter(**normalization_kwargs)
+    normalization = normalize_search_results_with_adapter(
+        source_path=result_path,
+        adapter_kind=adapter_kind,
+        dialect_id=dialect_id or "default",
+    )
     conformance = build_search_adapter_conformance_report(normalization)
     review_bundle = build_review_ready_evidence_bundle(
         normalization.normalized_records,
@@ -704,7 +701,8 @@ def build_dia_benchmark_review(
         expected_transition_precursor_count=review_bundle.psm_summary.total_psms,
         protein_group_count=review_bundle.protein_summary.total_proteins,
         expected_protein_group_count=max(
-            review_bundle.protein_summary.total_proteins + capability_matrix.partial_count,
+            review_bundle.protein_summary.total_proteins
+            + capability_matrix.partial_count,
             review_bundle.protein_summary.total_proteins,
             1,
         ),
@@ -768,9 +766,7 @@ def build_dia_benchmark_review(
                 f"ion_mobility_fraction={dia_support_report.ion_mobility_observed_fraction:.2f}",
                 f"absent_expected_fraction={dia_support_report.absent_expected_peptide_fraction:.2f}",
             ),
-            scientific_limits=(
-                dia_support_report.partial_support_definition,
-            ),
+            scientific_limits=(dia_support_report.partial_support_definition,),
         ),
         BenchmarkReviewClaim(
             claim_id="protein_group_reviewability",
@@ -1341,7 +1337,9 @@ def build_targeted_benchmark_review(
     )
     registry_entry = _require_registry_entry(manifest.benchmark_id)
     if manifest.workflow_family is not KnowledgeWorkflowFamily.TARGETED:
-        raise ValueError("targeted benchmark review requires a targeted workflow manifest")
+        raise ValueError(
+            "targeted benchmark review requires a targeted workflow manifest"
+        )
     active_qc_path = qc_path or _resolve_package_artifact_path(
         manifest,
         BenchmarkPackageArtifactKind.TARGETED_QC_TABLE,
@@ -1499,9 +1497,7 @@ def build_targeted_benchmark_review(
                 f"inflated_handoffs={targeted_bundle.inflated_handoff_count}",
                 f"unreconciled_outcomes={targeted_bundle.unreconciled_outcome_count}",
             ),
-            scientific_limits=(
-                targeted_bundle.note,
-            ),
+            scientific_limits=(targeted_bundle.note,),
         ),
         BenchmarkReviewClaim(
             claim_id="vendor_execution_boundary",
@@ -1531,9 +1527,7 @@ def build_targeted_benchmark_review(
                 platform_entry.support_state.value,
                 *platform_entry.missing_assumptions,
             ),
-            scientific_limits=(
-                platform_entry.partial_support_definition,
-            ),
+            scientific_limits=(platform_entry.partial_support_definition,),
         ),
     )
     artifact_id = fingerprint_model(benchmark)

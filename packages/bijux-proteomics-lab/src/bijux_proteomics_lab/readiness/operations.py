@@ -233,26 +233,26 @@ def build_operational_readiness_report(
         risk_notes.append(
             f"required controls are missing for execution: {missing_controls}"
         )
-    for signal in provenance_readiness:
-        if signal.lineage_complete:
+    for provenance_signal in provenance_readiness:
+        if provenance_signal.lineage_complete:
             continue
         missing_fields = (
-            ", ".join(signal.missing_fields)
-            if signal.missing_fields
+            ", ".join(provenance_signal.missing_fields)
+            if provenance_signal.missing_fields
             else "unknown fields"
         )
         risk_notes.append(
-            f"provenance is incomplete for {signal.artifact_id}: {missing_fields}"
+            f"provenance is incomplete for {provenance_signal.artifact_id}: {missing_fields}"
         )
-    for signal in evidence_readiness:
-        if signal.supports_execution and signal.confidence >= 0.6:
+    for evidence_signal in evidence_readiness:
+        if evidence_signal.supports_execution and evidence_signal.confidence >= 0.6:
             continue
         issue_summary = (
-            signal.issue_summary
+            evidence_signal.issue_summary
             or "evidence support is too weak for irreversible spend"
         )
         risk_notes.append(
-            f"{signal.evidence_id} remains weak for execution: {issue_summary}"
+            f"{evidence_signal.evidence_id} remains weak for execution: {issue_summary}"
         )
     if understaffed_roles:
         risk_notes.append(

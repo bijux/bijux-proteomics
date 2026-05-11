@@ -15,7 +15,9 @@ from bijux_proteomics_knowledge.references.workflows.literature_matrices import 
 def test_workflow_literature_matrices_cover_each_family() -> None:
     matrices = list_workflow_literature_matrices()
 
-    assert {matrix.workflow_family for matrix in matrices} == set(KnowledgeWorkflowFamily)
+    assert {matrix.workflow_family for matrix in matrices} == set(
+        KnowledgeWorkflowFamily
+    )
 
 
 def test_workflow_literature_matrix_keeps_supported_and_bounded_claims_together() -> (
@@ -39,5 +41,13 @@ def test_workflow_literature_matrix_tracks_targeted_and_ptm_limitations_explicit
     targeted = build_workflow_literature_matrix(KnowledgeWorkflowFamily.TARGETED)
     ptm = build_workflow_literature_matrix(KnowledgeWorkflowFamily.PTM)
 
-    assert any("vendor-parity targeted biology" in claim for entry in targeted.entries for claim in entry.bounded_claims)
-    assert any("mechanistic" in claim for entry in ptm.entries for claim in entry.bounded_claims)
+    assert any(
+        "vendor-parity targeted biology" in claim
+        for entry in targeted.entries
+        for claim in entry.bounded_claims
+    )
+    assert any(
+        "mechanistic" in claim
+        for entry in ptm.entries
+        for claim in entry.bounded_claims
+    )

@@ -12,12 +12,12 @@ from bijux_proteomics_intelligence.judgment.benchmark_blinded_challenges import 
     BlindedRecommendationRevealState,
     list_workflow_blinded_recommendation_challenges,
 )
+from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
+    BenchmarkDisposition,
+)
 from bijux_proteomics_intelligence.judgment.benchmark_counterfactuals import (
     CounterfactualRecommendationEntry,
     build_counterfactual_recommendation_report,
-)
-from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
-    BenchmarkDisposition,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
@@ -78,11 +78,15 @@ class WorkflowUnderconfidenceAudit(JsonModel):
 
     audit_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
-    entries: tuple[WorkflowUnderconfidenceAuditEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[WorkflowUnderconfidenceAuditEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
-def _counterfactuals_by_family() -> dict[KnowledgeWorkflowFamily, CounterfactualRecommendationEntry]:
+def _counterfactuals_by_family() -> dict[
+    KnowledgeWorkflowFamily, CounterfactualRecommendationEntry
+]:
     return {
         entry.workflow_family: entry
         for entry in build_counterfactual_recommendation_report().entries
@@ -155,18 +159,16 @@ def build_workflow_underconfidence_audit() -> WorkflowUnderconfidenceAudit:
         flagged = tuple(
             finding.finding_id
             for finding in report.findings
-            if finding.revealed_outcome is BlindedRecommendationRevealState.UNDERCONFIDENT
+            if finding.revealed_outcome
+            is BlindedRecommendationRevealState.UNDERCONFIDENT
         )
         total = max(len(report.findings), 1)
         counterfactual = counterfactuals[report.workflow_family]
-        unnecessarily_weakened = (
-            bool(flagged)
-            or (
-                next(finding.chosen_disposition for finding in report.findings)
-                is BenchmarkDisposition.DO_NOT_RECOMMEND
-                and report.hit_count == len(report.findings)
-                and _counterfactual_refusal_count(counterfactual) == 0
-            )
+        unnecessarily_weakened = bool(flagged) or (
+            next(finding.chosen_disposition for finding in report.findings)
+            is BenchmarkDisposition.DO_NOT_RECOMMEND
+            and report.hit_count == len(report.findings)
+            and _counterfactual_refusal_count(counterfactual) == 0
         )
         entries.append(
             WorkflowUnderconfidenceAuditEntry(

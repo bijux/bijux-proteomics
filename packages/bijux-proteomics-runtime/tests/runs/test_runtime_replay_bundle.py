@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
+from bijux_proteomics_runtime.runs.contracts import RunContextContract
 from bijux_proteomics_runtime.runs.ledger import (
     RuntimeArtifactLedger,
     refresh_runtime_artifact_ledger,
@@ -20,19 +22,27 @@ from bijux_proteomics_runtime.runs.replay import (
 from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
-def _contract(tmp_path: Path, *, run_id: str, provider_name: str = "heuristic_proxy"):
+def _contract(
+    tmp_path: Path,
+    *,
+    run_id: str,
+    provider_name: str = "heuristic_proxy",
+) -> RunContextContract:
     context, _ = create_run_context(tmp_path, run_id=run_id)
-    return build_run_context_contract(
-        run_id=context.run_id,
-        started_at=context.start_time.isoformat(),
-        base_dir=tmp_path,
-        config=context.config,
-        provider_name=provider_name,
-        artifact_policy=context.artifact_policy,
-        sequence="ACDEFGHIKLMNPQRSTVWY",
-        command="run",
-        workflow_family="structure_prediction",
-        candidate_id=f"{run_id}-c0",
+    return cast(
+        RunContextContract,
+        build_run_context_contract(
+            run_id=context.run_id,
+            started_at=context.start_time.isoformat(),
+            base_dir=tmp_path,
+            config=context.config,
+            provider_name=provider_name,
+            artifact_policy=context.artifact_policy,
+            sequence="ACDEFGHIKLMNPQRSTVWY",
+            command="run",
+            workflow_family="structure_prediction",
+            candidate_id=f"{run_id}-c0",
+        ),
     )
 
 

@@ -59,9 +59,15 @@ def test_benchmark_run_specs_keep_real_runtime_packages_visible() -> None:
     assert specs["lfq-cohort-review-corpus"].run_mode.value == "raw_executable"
     assert specs["lfq-sparse-contrast-review-corpus"].run_mode.value == "raw_executable"
     assert specs["multiplex-tmtpro-review-corpus"].workflow_family == "multiplex_review"
-    assert specs["multiplex-channel-stress-review-corpus"].workflow_family == "multiplex_generalization_review"
+    assert (
+        specs["multiplex-channel-stress-review-corpus"].workflow_family
+        == "multiplex_generalization_review"
+    )
     assert specs["ptm-localization-review-corpus"].workflow_family == "ptm_review"
-    assert specs["ptm-ambiguity-stress-review-corpus"].workflow_family == "ptm_generalization_review"
+    assert (
+        specs["ptm-ambiguity-stress-review-corpus"].workflow_family
+        == "ptm_generalization_review"
+    )
     assert specs["targeted-transition-review-corpus"].run_mode.value == "raw_executable"
     assert specs["targeted-carryover-review-corpus"].run_mode.value == "raw_executable"
 

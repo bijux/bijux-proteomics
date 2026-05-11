@@ -10,7 +10,6 @@ from bijux_proteomics_knowledge.references.grounding.corpora import (
     KnowledgeCorpusSourceKind,
 )
 
-
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 

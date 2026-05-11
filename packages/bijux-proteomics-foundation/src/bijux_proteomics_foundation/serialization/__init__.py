@@ -21,14 +21,6 @@ from bijux_proteomics_foundation.serialization.fingerprints import (
     build_parameter_set_fingerprint,
     build_run_context_fingerprint,
 )
-from bijux_proteomics_foundation.serialization.stable_hashes import (
-    StableHashAlgorithm,
-    StableHashPolicy,
-    default_hash_policy,
-    hash_model,
-    hash_payload,
-    hash_text,
-)
 from bijux_proteomics_foundation.serialization.json_contracts import (
     JsonModel,
     fingerprint_model,
@@ -42,6 +34,14 @@ from bijux_proteomics_foundation.serialization.scientific_values import (
     UtcTimestamp,
     absent_value,
     present_value,
+)
+from bijux_proteomics_foundation.serialization.stable_hashes import (
+    StableHashAlgorithm,
+    StableHashPolicy,
+    default_hash_policy,
+    hash_model,
+    hash_payload,
+    hash_text,
 )
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
 

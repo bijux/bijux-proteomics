@@ -167,20 +167,12 @@ def _map_holdout_outcome(
 
 def _note_for_outcome(outcome: BlindedRecommendationRevealState) -> str:
     if outcome is BlindedRecommendationRevealState.HIT:
-        return (
-            "The pre-reveal recommendation stayed inside the claim boundary that the hidden evidence later confirmed."
-        )
+        return "The pre-reveal recommendation stayed inside the claim boundary that the hidden evidence later confirmed."
     if outcome is BlindedRecommendationRevealState.OVERCONFIDENT:
-        return (
-            "The hidden reveal showed that current recommendation language still carries more confidence than the paired-package evidence earns."
-        )
+        return "The hidden reveal showed that current recommendation language still carries more confidence than the paired-package evidence earns."
     if outcome is BlindedRecommendationRevealState.UNDERCONFIDENT:
-        return (
-            "The hidden reveal showed that the current recommendation remained weaker than the evidence would have supported."
-        )
-    return (
-        "The hidden reveal showed that this recommendation should have been refused rather than carried forward as a bounded follow-up."
-    )
+        return "The hidden reveal showed that the current recommendation remained weaker than the evidence would have supported."
+    return "The hidden reveal showed that this recommendation should have been refused rather than carried forward as a bounded follow-up."
 
 
 def _holdout_family_findings(
@@ -232,10 +224,7 @@ def _targeted_family_findings(
             outcome = BlindedRecommendationRevealState.MISS
         findings.append(
             BlindedRecommendationChallengeFinding(
-                finding_id=(
-                    "blinded_recommendation:targeted:"
-                    f"{finding.claim_id}"
-                ),
+                finding_id=(f"blinded_recommendation:targeted:{finding.claim_id}"),
                 workflow_family=KnowledgeWorkflowFamily.TARGETED,
                 chosen_disposition=packet.disposition,
                 chosen_action_summary=_ACTION_SUMMARIES[
@@ -258,9 +247,9 @@ def _targeted_family_findings(
             finding_id="blinded_recommendation:targeted:interference-carryover-follow-up",
             workflow_family=KnowledgeWorkflowFamily.TARGETED,
             chosen_disposition=packet.disposition,
-            chosen_action_summary=_ACTION_SUMMARIES[
-                KnowledgeWorkflowFamily.TARGETED
-            ]["interference-carryover-follow-up"],
+            chosen_action_summary=_ACTION_SUMMARIES[KnowledgeWorkflowFamily.TARGETED][
+                "interference-carryover-follow-up"
+            ],
             hidden_truth_summary=perturbation.note,
             revealed_outcome=outcome,
             evidence_refs=perturbation.evidence_paths,
@@ -316,9 +305,9 @@ def build_workflow_blinded_recommendation_challenge(
     )
 
 
-def list_workflow_blinded_recommendation_challenges() -> (
-    tuple[BlindedRecommendationChallengeReport, ...]
-):
+def list_workflow_blinded_recommendation_challenges() -> tuple[
+    BlindedRecommendationChallengeReport, ...
+]:
     """Return blinded recommendation challenges across shipped flagship families."""
 
     return tuple(

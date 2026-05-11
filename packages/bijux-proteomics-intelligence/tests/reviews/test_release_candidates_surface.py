@@ -28,7 +28,10 @@ def test_flagship_workflow_trust_pages_cover_all_five_flagship_families() -> Non
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
     )
-    assert all(page.doc_path.endswith(f"why-trust-{page.workflow_family.value}.md") for page in pages)
+    assert all(
+        page.doc_path.endswith(f"why-trust-{page.workflow_family.value}.md")
+        for page in pages
+    )
 
 
 def test_flagship_workflow_distrust_pages_cover_only_incomplete_families() -> None:
@@ -37,7 +40,9 @@ def test_flagship_workflow_distrust_pages_cover_only_incomplete_families() -> No
     assert pages == ()
 
 
-def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_support_families() -> None:
+def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_support_families() -> (
+    None
+):
     bundle = build_flagship_release_candidate_bundle()
 
     assert bundle.bundle_id == "flagship-release-candidate-bundle"
@@ -53,7 +58,9 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
         KnowledgeWorkflowFamily.MULTIPLEX,
     )
     assert bundle.blocked_workflow_families == ()
-    assert bundle.workflow_authority_matrix_path.endswith("workflow_authority_matrix.json")
+    assert bundle.workflow_authority_matrix_path.endswith(
+        "workflow_authority_matrix.json"
+    )
     assert "flagship_follow_up_outcome:dda" in bundle.lab_outcome_dossier_ids
     assert "flagship_follow_up_outcome:targeted" in bundle.lab_outcome_dossier_ids
     assert "independent_rerun:dda" in bundle.independent_rerun_dossier_ids
@@ -68,11 +75,19 @@ def test_release_candidate_bundle_names_current_outsider_auditable_and_internal_
         path.endswith("dia_external_review_kit.json")
         for path in bundle.external_review_kit_paths
     )
-    assert "docs/01-bijux-proteomics/foundation/why-trust-dda.md" in bundle.trust_page_paths
-    assert "docs/01-bijux-proteomics/foundation/why-trust-dia.md" in bundle.trust_page_paths
+    assert (
+        "docs/01-bijux-proteomics/foundation/why-trust-dda.md"
+        in bundle.trust_page_paths
+    )
+    assert (
+        "docs/01-bijux-proteomics/foundation/why-trust-dia.md"
+        in bundle.trust_page_paths
+    )
 
 
-def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_language_blocked() -> None:
+def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_language_blocked() -> (
+    None
+):
     scorecard = build_elite_readiness_scorecard()
     entries = {entry.workflow_family: entry for entry in scorecard.entries}
 
@@ -84,7 +99,10 @@ def test_elite_readiness_scorecard_uses_public_substance_only_and_keeps_repo_lan
     assert entries[KnowledgeWorkflowFamily.LFQ].outsider_auditable_surface is True
     assert entries[KnowledgeWorkflowFamily.PTM].outsider_auditable_surface is True
     assert entries[KnowledgeWorkflowFamily.TARGETED].outsider_auditable_surface is True
-    assert entries[KnowledgeWorkflowFamily.DDA].overall_score < entries[KnowledgeWorkflowFamily.DIA].overall_score
+    assert (
+        entries[KnowledgeWorkflowFamily.DDA].overall_score
+        < entries[KnowledgeWorkflowFamily.DIA].overall_score
+    )
     assert entries[KnowledgeWorkflowFamily.PTM].elite_language_allowed is False
 
 
@@ -100,24 +118,39 @@ def test_workflow_authority_matrix_covers_all_six_workflow_families() -> None:
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
     )
-    assert rows[KnowledgeWorkflowFamily.MULTIPLEX].public_release_language == "internal_support_only"
-    assert next(
-        cell
-        for cell in rows[KnowledgeWorkflowFamily.DIA].cells
-        if cell.authority_kind == WorkflowAuthorityKind.RAW_EXECUTABLE
-    ).earned is True
-    assert next(
-        cell
-        for cell in rows[KnowledgeWorkflowFamily.TARGETED].cells
-        if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
-    ).earned is True
-    assert next(
-        cell
-        for cell in rows[KnowledgeWorkflowFamily.PTM].cells
-        if cell.authority_kind == WorkflowAuthorityKind.LAB_CONSEQUENTIAL
-    ).earned is True
-    assert next(
-        cell
-        for cell in rows[KnowledgeWorkflowFamily.MULTIPLEX].cells
-        if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
-    ).earned is False
+    assert (
+        rows[KnowledgeWorkflowFamily.MULTIPLEX].public_release_language
+        == "internal_support_only"
+    )
+    assert (
+        next(
+            cell
+            for cell in rows[KnowledgeWorkflowFamily.DIA].cells
+            if cell.authority_kind == WorkflowAuthorityKind.RAW_EXECUTABLE
+        ).earned
+        is True
+    )
+    assert (
+        next(
+            cell
+            for cell in rows[KnowledgeWorkflowFamily.TARGETED].cells
+            if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
+        ).earned
+        is True
+    )
+    assert (
+        next(
+            cell
+            for cell in rows[KnowledgeWorkflowFamily.PTM].cells
+            if cell.authority_kind == WorkflowAuthorityKind.LAB_CONSEQUENTIAL
+        ).earned
+        is True
+    )
+    assert (
+        next(
+            cell
+            for cell in rows[KnowledgeWorkflowFamily.MULTIPLEX].cells
+            if cell.authority_kind == WorkflowAuthorityKind.OUTSIDER_AUDITABLE
+        ).earned
+        is False
+    )

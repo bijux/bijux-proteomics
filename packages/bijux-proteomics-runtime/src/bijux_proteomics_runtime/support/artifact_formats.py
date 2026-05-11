@@ -9,11 +9,11 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_hashes import (
     StableHashPolicy,
     default_hash_policy,
 )
-from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 
 class ArtifactFormat(StrEnum):

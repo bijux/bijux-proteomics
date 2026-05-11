@@ -11,17 +11,22 @@ from bijux_proteomics_knowledge import (
     KnowledgeDecisionBrief,
     evaluate_schema_compatibility,
 )
+from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus
+from bijux_proteomics_knowledge.memory.models.evidence import (
+    EvidenceKind,
+    EvidenceStrength,
+)
 
 
 def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
     record = EvidenceRecord(
         evidence_id="public-root-record",
-        kind="literature",
+        kind=EvidenceKind.LITERATURE,
         title="public root record",
         source="PMID:1",
         claim="public root evidence stays typed",
         confidence=0.8,
-        strength="supporting",
+        strength=EvidenceStrength.SUPPORTING,
     )
     bundle = EvidenceBundle(
         bundle_id="public-root-bundle",
@@ -33,7 +38,7 @@ def test_knowledge_public_root_exposes_curated_memory_anchors() -> None:
         target_id="public-root-target",
         statement="public root claims stay typed",
         evidence_ids=[record.evidence_id],
-        status="supported",
+        status=ClaimStatus.SUPPORTED,
     )
 
     report = evaluate_schema_compatibility(

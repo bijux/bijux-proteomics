@@ -8,16 +8,23 @@ from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
+from bijux_proteomics_runtime.runs.context import RunContext
+from bijux_proteomics_runtime.runs.contracts import RunContextContract
 from bijux_proteomics_runtime.runs.launch_bundles import (
     ContainerRunBundle,
     SchedulerJobBundle,
     build_container_run_bundle,
     build_scheduler_job_bundle,
 )
-from bijux_proteomics_runtime.runs.replay import build_replay_contract
+from bijux_proteomics_runtime.runs.replay import ReplayContract, build_replay_contract
 
 
-def _contract(tmp_path: Path, *, run_id: str, config: RunConfig | None = None):
+def _contract(
+    tmp_path: Path,
+    *,
+    run_id: str,
+    config: RunConfig | None = None,
+) -> tuple[RunContext, RunContextContract, ReplayContract]:
     context, _ = create_run_context(tmp_path, config=config, run_id=run_id)
     run_context = build_run_context_contract(
         run_id=context.run_id,

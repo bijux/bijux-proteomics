@@ -8,8 +8,8 @@ import pytest
 from bijux_proteomics_lab.lifecycle import (
     AssayLifecycleStage,
     AssayLifecycleState,
-    CandidateLabAdvancementDisposition,
     CandidateFollowUpSignal,
+    CandidateLabAdvancementDisposition,
     PromotionDecisionState,
     ReviewQueueState,
     advance_assay_lifecycle,

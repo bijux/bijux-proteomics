@@ -375,7 +375,9 @@ def run_ranking_benchmark_corpus(
     """Run the ranking benchmark corpus for one policy."""
 
     corpus = corpus or build_reviewable_ranking_benchmark_corpus()
-    results = tuple(_evaluate_scenario(scenario, policy)[1] for scenario in corpus.scenarios)
+    results = tuple(
+        _evaluate_scenario(scenario, policy)[1] for scenario in corpus.scenarios
+    )
     solved_count = sum(result.solved for result in results)
     score = round(solved_count / len(results), 4) if results else 0.0
     return RankingBenchmarkReport(
@@ -416,7 +418,8 @@ def compare_ranking_policies_against_benchmark_corpus(
         if baseline_result.solved and not candidate_by_scenario[scenario_id].solved
     )
     decision_improved = (
-        candidate.solved_scenario_count > baseline.solved_scenario_count and not regressed
+        candidate.solved_scenario_count > baseline.solved_scenario_count
+        and not regressed
     )
     return RankingBenchmarkPolicyImprovementReport(
         corpus_id=corpus.corpus_id,

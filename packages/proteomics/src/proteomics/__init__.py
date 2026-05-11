@@ -26,7 +26,7 @@ for _name in getattr(_runtime_module, "__all__", ()):
 try:
     __version__ = metadata.version(_ALIAS_PACKAGE)
 except metadata.PackageNotFoundError:
-    __version__ = "0.3.7"
+    __version__ = "0.3.6"
 
 __all__ = list(getattr(_runtime_module, "__all__", ()))
 

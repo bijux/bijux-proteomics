@@ -45,9 +45,17 @@ def test_provider_capability_matrix_exposes_contract_and_validation_shape() -> N
 def test_execution_reality_matrix_distinguishes_cpu_safe_and_real_validation() -> None:
     rows = {row.provider_name: row for row in build_execution_reality_matrix()}
 
-    assert ProviderRealityTier.CPU_SAFE_CONFORMANCE in rows["heuristic_proxy"].reality_tiers
-    assert ProviderRealityTier.REAL_LOCAL_VALIDATION in rows["local_esmfold"].reality_tiers
-    assert ProviderRealityTier.REAL_REMOTE_VALIDATION in rows["api_colabfold"].reality_tiers
+    assert (
+        ProviderRealityTier.CPU_SAFE_CONFORMANCE
+        in rows["heuristic_proxy"].reality_tiers
+    )
+    assert (
+        ProviderRealityTier.REAL_LOCAL_VALIDATION in rows["local_esmfold"].reality_tiers
+    )
+    assert (
+        ProviderRealityTier.REAL_REMOTE_VALIDATION
+        in rows["api_colabfold"].reality_tiers
+    )
     assert rows["api_openprotein_esmfold"].simulation_only is False
 
 

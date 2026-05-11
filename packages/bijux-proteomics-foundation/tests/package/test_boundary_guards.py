@@ -7,7 +7,6 @@ import ast
 import importlib
 from pathlib import Path
 
-
 FOUNDATION_SRC_ROOT = Path(
     "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"
 )

@@ -173,10 +173,7 @@ def _external_review_kits() -> dict[KnowledgeWorkflowFamily, WorkflowExternalRev
 
 
 def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
-    return (
-        "docs/01-bijux-proteomics/foundation/"
-        f"why-trust-{workflow_family.value}.md"
-    )
+    return f"docs/01-bijux-proteomics/foundation/why-trust-{workflow_family.value}.md"
 
 
 def _distrust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
@@ -202,7 +199,10 @@ def build_flagship_workflow_trust_pages() -> tuple[FlagshipWorkflowTrustPage, ..
                 f"{packet.outcome_recommendation_disposition.value}"
             ),
         ]
-        if packet.runtime_package_id is not None and packet.runtime_run_mode is not None:
+        if (
+            packet.runtime_package_id is not None
+            and packet.runtime_run_mode is not None
+        ):
             trust_reasons.append(
                 f"runtime package {packet.runtime_package_id} is currently {packet.runtime_run_mode.value}"
             )
@@ -213,8 +213,7 @@ def build_flagship_workflow_trust_pages() -> tuple[FlagshipWorkflowTrustPage, ..
                 doc_path=_trust_page_path(workflow_family),
                 trust_reasons=tuple(trust_reasons),
                 artifact_refs=tuple(
-                    link.repo_relative_path
-                    for link in packet.review_artifact_links[:6]
+                    link.repo_relative_path for link in packet.review_artifact_links[:6]
                 ),
                 exact_claims=packet.exact_claims,
                 note=(
@@ -225,7 +224,9 @@ def build_flagship_workflow_trust_pages() -> tuple[FlagshipWorkflowTrustPage, ..
     return tuple(pages)
 
 
-def build_flagship_workflow_distrust_pages() -> tuple[FlagshipWorkflowDistrustPage, ...]:
+def build_flagship_workflow_distrust_pages() -> tuple[
+    FlagshipWorkflowDistrustPage, ...
+]:
     """Build reviewer-facing distrust pages for still-incomplete workflows."""
 
     return ()
@@ -309,7 +310,10 @@ def build_flagship_release_candidate_bundle() -> FlagshipReleaseCandidateBundle:
 
 
 def _score_public_package(packet: FlagshipOutsiderReviewPacket) -> float:
-    if packet.benchmark_evidence_tier is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE:
+    if (
+        packet.benchmark_evidence_tier
+        is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
+    ):
         return 1.0
     if packet.benchmark_package_id is not None:
         return 0.5
@@ -348,7 +352,10 @@ def _score_knowledge(workflow_family: KnowledgeWorkflowFamily) -> float:
 def _score_decision(packet: FlagshipOutsiderReviewPacket) -> float:
     if packet.recommendation_disposition is BenchmarkDisposition.RECOMMEND:
         return 1.0
-    if packet.recommendation_disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE:
+    if (
+        packet.recommendation_disposition
+        is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    ):
         return 0.75
     return 0.0
 
@@ -382,9 +389,11 @@ def build_elite_readiness_scorecard() -> EliteReadinessScorecard:
         ) / 6.0
         elite_language_allowed = (
             packet.complete_outsider_surface
-            and packet.public_claim_support_state is ComparatorClaimSupportState.SUPPORTED
+            and packet.public_claim_support_state
+            is ComparatorClaimSupportState.SUPPORTED
             and packet.reviewer_grounding_state is not ReviewerGroundingState.THIN
-            and packet.recommendation_disposition is not BenchmarkDisposition.DO_NOT_RECOMMEND
+            and packet.recommendation_disposition
+            is not BenchmarkDisposition.DO_NOT_RECOMMEND
             and packet.lab_posture is not FlagshipLabPacketPosture.NOT_WORTH_ASSAY
         )
         entries.append(

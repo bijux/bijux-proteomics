@@ -52,4 +52,7 @@ def test_workflow_reference_briefing_carries_richer_quant_ptm_and_targeted_conte
 
     assert "missingness" in lfq.interpretation_context_lines[0].lower()
     assert "localization ambiguity" in ptm.interpretation_context_lines[0].lower()
-    assert "chromatogram qc" in targeted.decision_grade_framework.criteria[0].summary.lower()
+    assert (
+        "chromatogram qc"
+        in targeted.decision_grade_framework.criteria[0].summary.lower()
+    )

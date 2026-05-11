@@ -10,14 +10,14 @@ from typing import ClassVar
 from pydantic import BaseModel
 
 from bijux_proteomics_runtime.execution.agents.base import AgentRole
+from bijux_proteomics_runtime.execution.agents.contracts import validate_critic_input
 from bijux_proteomics_runtime.execution.agents.schemas import (
     AgentMetadata,
     CriticAgentInput,
     CriticAgentOutput,
 )
-from bijux_proteomics_runtime.support.primitives.decisions import DecisionExplanation
 from bijux_proteomics_runtime.state.memory_records import MemoryScope
-from bijux_proteomics_runtime.execution.agents.contracts import validate_critic_input
+from bijux_proteomics_runtime.support.primitives.decisions import DecisionExplanation
 
 
 class CriticAgent(AgentRole):

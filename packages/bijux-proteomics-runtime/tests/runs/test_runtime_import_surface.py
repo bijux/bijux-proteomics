@@ -4,10 +4,12 @@ import json
 from pathlib import Path
 
 from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runs.import_lineage import ImportRunBundle
-from bijux_proteomics_runtime.runs.import_lineage import RuntimeImportTrace
-from bijux_proteomics_runtime.runs.import_lineage import load_import_run_bundle
-from bijux_proteomics_runtime.runs.import_lineage import load_import_trace
+from bijux_proteomics_runtime.runs.import_lineage import (
+    ImportRunBundle,
+    RuntimeImportTrace,
+    load_import_run_bundle,
+    load_import_trace,
+)
 
 from ..support.fixture_data import load_fixture
 

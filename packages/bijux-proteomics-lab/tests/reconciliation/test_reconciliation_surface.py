@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_lab.outcomes import (
     AssayOutcome,
@@ -18,10 +19,13 @@ from bijux_proteomics_lab.reconciliation import reconcile_planned_and_observed_o
 
 
 def _outcome_fixture(name: str) -> dict[str, object]:
-    return json.loads(
-        (
-            Path(__file__).resolve().parents[1] / "fixtures" / "outcomes" / name
-        ).read_text(encoding="utf-8")
+    return cast(
+        dict[str, object],
+        json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "fixtures" / "outcomes" / name
+            ).read_text(encoding="utf-8")
+        ),
     )
 
 
@@ -151,7 +155,7 @@ def test_reconciliation_fixtures_cover_confirm_weaken_and_overturn_feedback() ->
         ),
         outcome=ExperimentOutcome.model_validate(confirmed["outcome"]),
         target_id=str(confirmed["target_id"]),
-        claim_links=confirmed["claim_links"],
+        claim_links=cast(dict[str, list[str]], confirmed["claim_links"]),
     )
     weakened_report = reconcile_planned_and_observed_outcome(
         candidate_id=str(weakened["candidate_id"]),
@@ -160,7 +164,7 @@ def test_reconciliation_fixtures_cover_confirm_weaken_and_overturn_feedback() ->
         ),
         outcome=ExperimentOutcome.model_validate(weakened["outcome"]),
         target_id=str(weakened["target_id"]),
-        claim_links=weakened["claim_links"],
+        claim_links=cast(dict[str, list[str]], weakened["claim_links"]),
     )
     overturned_report = reconcile_planned_and_observed_outcome(
         candidate_id=str(overturned["candidate_id"]),
@@ -169,7 +173,7 @@ def test_reconciliation_fixtures_cover_confirm_weaken_and_overturn_feedback() ->
         ),
         outcome=ExperimentOutcome.model_validate(overturned["outcome"]),
         target_id=str(overturned["target_id"]),
-        claim_links=overturned["claim_links"],
+        claim_links=cast(dict[str, list[str]], overturned["claim_links"]),
     )
 
     assert confirmed_report.belief_posture == "reinforcing"

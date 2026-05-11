@@ -4,16 +4,16 @@
 from __future__ import annotations
 
 from bijux_proteomics_intelligence.governance.charter import (
-    DEFAULT_INTELLIGENCE_CHARTER,
     DEFAULT_INTELLIGENCE_CAPABILITY_MAP,
+    DEFAULT_INTELLIGENCE_CHARTER,
     DEFAULT_INTELLIGENCE_CHARTER_ENTRIES,
     DEFAULT_INTELLIGENCE_MODULE_AUDIT,
     IntelligenceAnalyticalBand,
     IntelligenceCharterCapability,
     IntelligenceModuleClassification,
     list_intelligence_analytical_bands,
-    list_intelligence_capability_map,
     list_intelligence_capabilities,
+    list_intelligence_capability_map,
     list_intelligence_charter_entries,
 )
 

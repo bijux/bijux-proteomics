@@ -51,7 +51,9 @@ class WorkflowReplayProofReport(JsonModel):
     benchmark_package_id: str | None = None
     replay_supported: bool
     validating_tests: tuple[str, ...] = Field(default_factory=tuple)
-    artifact_proofs: tuple[WorkflowReplayArtifactProof, ...] = Field(default_factory=tuple)
+    artifact_proofs: tuple[WorkflowReplayArtifactProof, ...] = Field(
+        default_factory=tuple
+    )
     replay_steps: tuple[WorkflowReplayStepProof, ...] = Field(default_factory=tuple)
     replay_limit_summary: tuple[str, ...] = Field(default_factory=tuple)
     bounded_by_external_execution: bool = False
@@ -168,5 +170,7 @@ def build_workflow_replay_proof_ledger(
         )
     )
     return WorkflowReplayProofLedger(
-        reports=tuple(build_workflow_replay_proof_report(manifest) for manifest in manifests)
+        reports=tuple(
+            build_workflow_replay_proof_report(manifest) for manifest in manifests
+        )
     )

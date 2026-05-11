@@ -16,13 +16,17 @@ from bijux_proteomics_knowledge.references.workflows.evidence_sufficiency import
 def test_workflow_evidence_sufficiency_rubrics_cover_each_family() -> None:
     rubrics = list_workflow_evidence_sufficiency_rubrics()
 
-    assert {rubric.workflow_family for rubric in rubrics} == set(KnowledgeWorkflowFamily)
+    assert {rubric.workflow_family for rubric in rubrics} == set(
+        KnowledgeWorkflowFamily
+    )
 
 
 def test_workflow_evidence_sufficiency_rubric_marks_targeted_cross_check_as_blocked() -> (
     None
 ):
-    rubric = build_workflow_evidence_sufficiency_rubric(KnowledgeWorkflowFamily.TARGETED)
+    rubric = build_workflow_evidence_sufficiency_rubric(
+        KnowledgeWorkflowFamily.TARGETED
+    )
 
     cross_check = next(
         check

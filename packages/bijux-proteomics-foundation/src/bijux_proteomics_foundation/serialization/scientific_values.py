@@ -9,7 +9,7 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any
 
-from pydantic import AliasChoices, ConfigDict, Field, field_validator, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
@@ -36,13 +36,21 @@ class NullableValue(JsonModel):
     )
     absence_reason: str | None = Field(
         default=None,
-        validation_alias=AliasChoices("absence_reason", "reason"),
-        serialization_alias="absence_reason",
         description="Optional reason for absent values.",
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_reason_key(cls, value: object) -> object:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        if "absence_reason" not in payload and "reason" in payload:
+            payload["absence_reason"] = payload.pop("reason")
+        return payload
+
     @model_validator(mode="after")
-    def _validate_presence(self) -> "NullableValue":
+    def _validate_presence(self) -> NullableValue:
         if self.presence is NullabilityState.PRESENT and self.value is None:
             raise ValueError("present values must carry a non-null payload")
         if self.presence is not NullabilityState.PRESENT and self.value is not None:
@@ -99,7 +107,7 @@ class DurationValue(JsonModel):
         return timedelta(seconds=self.seconds)
 
     @classmethod
-    def from_timedelta(cls, value: timedelta) -> "DurationValue":
+    def from_timedelta(cls, value: timedelta) -> DurationValue:
         """Build duration wrapper from a timedelta."""
         return cls(seconds=value.total_seconds())
 
@@ -123,7 +131,7 @@ class SequenceCoordinateRange(JsonModel):
     )
 
     @model_validator(mode="after")
-    def _validate_interval(self) -> "SequenceCoordinateRange":
+    def _validate_interval(self) -> SequenceCoordinateRange:
         if self.end < self.start:
             raise ValueError("end coordinate must be greater than or equal to start")
         return self

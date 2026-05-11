@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from pytest import MonkeyPatch
 
@@ -63,8 +64,9 @@ def _normalize_paths(value: object, base_dir: Path) -> object:
     if isinstance(value, list):
         normalized = [_normalize_paths(item, base_dir) for item in value]
         if normalized and all(isinstance(item, dict) for item in normalized):
+            normalized_dicts = cast(list[dict[str, object]], normalized)
             return sorted(
-                normalized,
+                normalized_dicts,
                 key=lambda item: (
                     str(item.get("run_id", "")),
                     str(item.get("artifact_key", "")),

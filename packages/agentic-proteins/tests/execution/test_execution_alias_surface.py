@@ -18,4 +18,3 @@ def test_execution_aliases_keep_runtime_owner_types_intact() -> None:
 
 def test_execution_runtime_executor_alias_keeps_runtime_owner_exports() -> None:
     assert legacy_executor.LocalExecutor is LocalExecutor
-

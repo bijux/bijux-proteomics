@@ -12,16 +12,6 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.criteria import MeasurementDirection
 from bijux_proteomics.domain.program_spec import ProgramSpec
 from bijux_proteomics_foundation import CandidateId, JsonModel, ProgramId, TargetId
-from bijux_proteomics_intelligence.posture.evidence import (
-    summarize_evidence_contradictions,
-    summarize_evidence_freshness,
-)
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    KnowledgeWorkflowFamily,
-)
-from bijux_proteomics_knowledge.references.grounding.rules import (
-    build_ranking_rule_grounding_ledger,
-)
 from bijux_proteomics_intelligence.judgment.policies import (
     RankingFactor,
     RankingPolicy,
@@ -31,9 +21,19 @@ from bijux_proteomics_intelligence.judgment.policies import (
     classify_metric_name,
     ranking_policy_lineage,
 )
+from bijux_proteomics_intelligence.posture.evidence import (
+    summarize_evidence_contradictions,
+    summarize_evidence_freshness,
+)
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     evidence_gaps,
+)
+from bijux_proteomics_knowledge.references.grounding.rules import (
+    build_ranking_rule_grounding_ledger,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    KnowledgeWorkflowFamily,
 )
 
 

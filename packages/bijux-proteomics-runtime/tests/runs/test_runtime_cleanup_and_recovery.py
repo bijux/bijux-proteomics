@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runs.cleanup import apply_runtime_cleanup_plan
-from bijux_proteomics_runtime.runs.cleanup import build_runtime_cleanup_plan
-from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
+from bijux_proteomics_runtime.runs.cleanup import (
+    apply_runtime_cleanup_plan,
+    build_runtime_cleanup_plan,
+)
+from bijux_proteomics_runtime.runs.context import RunContext
 from bijux_proteomics_runtime.runs.integrity import verify_runtime_artifact_integrity
+from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
 from bijux_proteomics_runtime.runs.recovery import build_runtime_failure_recovery_audit
 from bijux_proteomics_runtime.runs.replay import build_replay_contract
 from bijux_proteomics_runtime.support.workspace import write_json_atomic
@@ -20,7 +24,7 @@ def _seed_runtime_outputs(
     *,
     run_id: str,
     failure: str | None = None,
-) -> object:
+) -> RunContext:
     context, _ = create_run_context(tmp_path, run_id=run_id)
     run_context = build_run_context_contract(
         run_id=context.run_id,
@@ -78,7 +82,7 @@ def _seed_runtime_outputs(
         run_id=context.run_id,
         max_artifact_bytes=1_000_000,
     )
-    return context
+    return cast(RunContext, context)
 
 
 def test_runtime_cleanup_preserves_review_and_replay_outputs(tmp_path: Path) -> None:

@@ -45,7 +45,9 @@ class WorkflowComparatorRegressionReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    entries: tuple[WorkflowComparatorRegressionEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[WorkflowComparatorRegressionEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 def build_workflow_comparator_regression_report() -> WorkflowComparatorRegressionReport:

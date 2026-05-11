@@ -31,8 +31,8 @@ from bijux_proteomics_runtime.providers.catalog import (
     provider_metadata,
     provider_requirements,
 )
-from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from bijux_proteomics_runtime.support.identity import runtime_banner
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
 _MAX_ARTIFACT_LOAD_BYTES = 1_000_000

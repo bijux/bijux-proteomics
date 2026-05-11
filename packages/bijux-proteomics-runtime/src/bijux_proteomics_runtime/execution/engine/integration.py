@@ -8,16 +8,15 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from bijux_proteomics_runtime.execution.agents.planning.schemas import Plan
-from bijux_proteomics_runtime.support.primitives.decisions import Decision
 from bijux_proteomics_runtime.execution.tools.schemas import ToolResult
-from bijux_proteomics_runtime.state import MemoryStore
+from bijux_proteomics_runtime.state import MemoryStore, snapshot_state
 from bijux_proteomics_runtime.state.memory_records import (
     MemoryRecord,
     MemoryScope,
     ToolResultPayload,
 )
-from bijux_proteomics_runtime.state import snapshot_state
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
 
 
 def tool_result_to_memory(

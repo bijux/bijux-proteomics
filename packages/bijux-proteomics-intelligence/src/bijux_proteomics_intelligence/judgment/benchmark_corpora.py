@@ -350,7 +350,9 @@ def build_lab_burden_aware_decision_corpus() -> BenchmarkDecisionCorpus:
                 ),
                 expected_selected_option_id="dda_follow_up_path",
                 expected_disposition=BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE,
-                required_downgrade_reasons=("external comparator claim support is still advisory",),
+                required_downgrade_reasons=(
+                    "external comparator claim support is still advisory",
+                ),
             ),
             BenchmarkDecisionScenario(
                 scenario_id="borderline-dia-burden-still-confuses-current-policy",

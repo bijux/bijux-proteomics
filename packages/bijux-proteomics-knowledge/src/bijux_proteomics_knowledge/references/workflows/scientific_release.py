@@ -172,51 +172,81 @@ def build_repository_science_table_report() -> RepositoryScienceTableReport:
         tables=(
             PackageScienceTable(
                 package_name="agentic-proteins",
-                supported_science=("compatibility routing and owned-wrapper disclosure",),
+                supported_science=(
+                    "compatibility routing and owned-wrapper disclosure",
+                ),
                 bounded_science=("not a scientific authority package",),
                 future_science=("continued compatibility retirement",),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-core",
-                supported_science=("typed scientific kernels for identification, quantification, PTM, DIA, sequences, and QC",),
-                bounded_science=("broad vendor parity and universal workflow authority remain bounded by benchmark scope",),
+                supported_science=(
+                    "typed scientific kernels for identification, quantification, PTM, DIA, sequences, and QC",
+                ),
+                bounded_science=(
+                    "broad vendor parity and universal workflow authority remain bounded by benchmark scope",
+                ),
                 future_science=("stronger cross-engine and sample-realism proof",),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-foundation",
-                supported_science=("hashing, serialization, support-state, and contract mechanics",),
+                supported_science=(
+                    "hashing, serialization, support-state, and contract mechanics",
+                ),
                 bounded_science=("no direct scientific interpretation authority",),
                 future_science=("release-kernel support for scientific trust packets",),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-intelligence",
-                supported_science=("benchmark-backed release reviews and bounded recommendation logic",),
-                bounded_science=("ranking and interpretation remain blocked from overclaiming beyond benchmark and literature support",),
-                future_science=("decision-outcome learning under stronger real workflow proof",),
+                supported_science=(
+                    "benchmark-backed release reviews and bounded recommendation logic",
+                ),
+                bounded_science=(
+                    "ranking and interpretation remain blocked from overclaiming beyond benchmark and literature support",
+                ),
+                future_science=(
+                    "decision-outcome learning under stronger real workflow proof",
+                ),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-knowledge",
-                supported_science=("workflow references, provenance, disagreement, and scientific release packets",),
-                bounded_science=("knowledge replay and literature breadth remain bounded by current curated corpora",),
+                supported_science=(
+                    "workflow references, provenance, disagreement, and scientific release packets",
+                ),
+                bounded_science=(
+                    "knowledge replay and literature breadth remain bounded by current curated corpora",
+                ),
                 future_science=("richer replay and corpus freshness proof",),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-lab",
-                supported_science=("operational planning and reconciliation boundaries",),
-                bounded_science=("lab readiness is still constrained by current benchmark and workflow proof",),
-                future_science=("stronger observed-outcome and operator-trust closure",),
+                supported_science=(
+                    "operational planning and reconciliation boundaries",
+                ),
+                bounded_science=(
+                    "lab readiness is still constrained by current benchmark and workflow proof",
+                ),
+                future_science=(
+                    "stronger observed-outcome and operator-trust closure",
+                ),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-runtime",
-                supported_science=("workflow planning, reproducibility, and execution-artifact contracts",),
-                bounded_science=("real-tool execution parity remains narrower than the typed runtime surface",),
+                supported_science=(
+                    "workflow planning, reproducibility, and execution-artifact contracts",
+                ),
+                bounded_science=(
+                    "real-tool execution parity remains narrower than the typed runtime surface",
+                ),
                 future_science=("harder execution proof and reproducibility packs",),
             ),
             PackageScienceTable(
                 package_name="bijux-proteomics-dev",
                 supported_science=("governance, reports, and contract validation",),
                 bounded_science=("does not create scientific authority by itself",),
-                future_science=("freshness and integrity gating for generated governance reports",),
+                future_science=(
+                    "freshness and integrity gating for generated governance reports",
+                ),
             ),
         )
     )
@@ -264,18 +294,27 @@ def build_flagship_reproducibility_pack(
 ) -> FlagshipReproducibilityPack:
     """Build a third-party-oriented reproducibility pack for one workflow family."""
 
-    artifact_ids = tuple(
-        artifact.artifact_id
-        for artifact in manifest.benchmark_package.package_artifacts
-    ) if manifest.benchmark_package is not None else (manifest.dataset_id,)
+    artifact_ids = (
+        tuple(
+            artifact.artifact_id
+            for artifact in manifest.benchmark_package.package_artifacts
+        )
+        if manifest.benchmark_package is not None
+        else (manifest.dataset_id,)
+    )
     return FlagshipReproducibilityPack(
         pack_id=f"{manifest.benchmark_id}:flagship_reproducibility_pack",
         workflow_family=manifest.workflow_family,
         artifact_ids=artifact_ids,
         reviewer_entrypoints=(
             manifest.dataset_locator,
-            *(artifact.repo_relative_path for artifact in manifest.benchmark_package.package_artifacts[:2]),
-        ) if manifest.benchmark_package is not None else (manifest.dataset_locator,),
+            *(
+                artifact.repo_relative_path
+                for artifact in manifest.benchmark_package.package_artifacts[:2]
+            ),
+        )
+        if manifest.benchmark_package is not None
+        else (manifest.dataset_locator,),
         third_party_review_steps=(
             "Inspect the benchmark manifest and supported claim scope before reading summary language.",
             "Open the governed artifact set and compare the named realism limits against the current claim.",

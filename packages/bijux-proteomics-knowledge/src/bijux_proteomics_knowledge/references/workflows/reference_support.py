@@ -48,7 +48,9 @@ def get_citation_record(citation_id: str) -> CitationRecord:
     """Return one curated citation record by stable identifier."""
 
     return next(
-        record for record in DEFAULT_CITATION_REGISTRY if record.citation_id == citation_id
+        record
+        for record in DEFAULT_CITATION_REGISTRY
+        if record.citation_id == citation_id
     )
 
 
@@ -59,14 +61,20 @@ def list_literature_groups_for_family(
 
     benchmark_id = get_benchmark_manifest_for_family(workflow_family).benchmark_id
     return tuple(
-        group for group in DEFAULT_LITERATURE_GROUPS if benchmark_id in group.benchmark_ids
+        group
+        for group in DEFAULT_LITERATURE_GROUPS
+        if benchmark_id in group.benchmark_ids
     )
 
 
 def get_literature_group(literature_group_id: str) -> LiteratureGroup:
     """Return one curated literature group by stable identifier."""
 
-    return next(group for group in DEFAULT_LITERATURE_GROUPS if group.group_id == literature_group_id)
+    return next(
+        group
+        for group in DEFAULT_LITERATURE_GROUPS
+        if group.group_id == literature_group_id
+    )
 
 
 __all__ = [

@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runs.cache import RuntimeCacheClaim
-from bijux_proteomics_runtime.runs.cache import claim_runtime_cache
-from bijux_proteomics_runtime.runs.cache import release_runtime_cache_claim
+from bijux_proteomics_runtime.runs.cache import (
+    RuntimeCacheClaim,
+    claim_runtime_cache,
+    release_runtime_cache_claim,
+)
 
 
 def test_runtime_cache_claim_allows_matching_shared_reads(tmp_path: Path) -> None:

@@ -3,6 +3,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Any
+
 from bijux_proteomics_runtime.runs.replay import load_local_run_bundle
 from bijux_proteomics_runtime.workflows.plans import (
     build_workflow_runtime_export_bundle,
@@ -17,8 +20,8 @@ from .runtime_benchmark_fixtures import (
 
 
 def test_runtime_bundle_load_benchmark_reads_medium_local_bundle(
-    benchmark,
-    tmp_path,
+    benchmark: Any,
+    tmp_path: Path,
 ) -> None:
     workspace = build_medium_local_bundle_workspace(tmp_path)
 
@@ -29,7 +32,7 @@ def test_runtime_bundle_load_benchmark_reads_medium_local_bundle(
 
 
 def test_runtime_bundle_export_benchmark_serializes_medium_workflow_bundle(
-    benchmark,
+    benchmark: Any,
 ) -> None:
     runtime_bundle = build_medium_workflow_runtime_bundle_fixture()
 
@@ -42,7 +45,7 @@ def test_runtime_bundle_export_benchmark_serializes_medium_workflow_bundle(
 
 
 def test_runtime_import_normalization_benchmark_restores_medium_archive_payload(
-    benchmark,
+    benchmark: Any,
 ) -> None:
     payload = build_medium_workflow_archive_payload()
 

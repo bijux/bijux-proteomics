@@ -326,9 +326,7 @@ def list_workflow_comparator_paths(
     return tuple(
         path
         for path in DEFAULT_WORKFLOW_COMPARATOR_PATHS
-        if (
-            workflow_family is None or workflow_family in path.workflow_families
-        )
+        if (workflow_family is None or workflow_family in path.workflow_families)
         and (benchmark_id is None or benchmark_id in path.benchmark_ids)
     )
 
@@ -383,19 +381,23 @@ def _build_tool_status(
         if claim.status is ComparatorBehaviorStatus.DOES_NOT_ATTEMPT
     )
 
-    if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX and comparator_tool is ProteomicsComparatorTool.MAXQUANT:
+    if (
+        workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
+        and comparator_tool is ProteomicsComparatorTool.MAXQUANT
+    ):
         not_attempted_behaviors = (
             "the repository does not yet offer a MaxQuant-style multiplex comparator path for vendor-specific TMT parity",
         )
-    if workflow_family is KnowledgeWorkflowFamily.TARGETED and comparator_tool is ProteomicsComparatorTool.MAXQUANT:
+    if (
+        workflow_family is KnowledgeWorkflowFamily.TARGETED
+        and comparator_tool is ProteomicsComparatorTool.MAXQUANT
+    ):
         not_attempted_behaviors = (
             "MaxQuant is not treated as a targeted chromatogram comparator surface for this workflow family",
         )
     return WorkflowComparatorToolStatus(
         comparator_tool=comparator_tool,
-        comparator_path_ids=tuple(
-            path.comparator_path_id for path in relevant_paths
-        ),
+        comparator_path_ids=tuple(path.comparator_path_id for path in relevant_paths),
         matched_behaviors=matched_behaviors,
         partial_behaviors=partial_behaviors,
         refused_behaviors=refused_behaviors,

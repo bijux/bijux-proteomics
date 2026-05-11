@@ -21,7 +21,6 @@ from bijux_proteomics_lab.outcomes import (
     assess_batch_outcome,
     triage_batch_failures,
 )
-
 from bijux_proteomics_lab.planning.assays import (
     AssayObservation,
     ExperimentPlan,

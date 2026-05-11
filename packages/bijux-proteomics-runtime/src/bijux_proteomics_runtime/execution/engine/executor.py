@@ -9,12 +9,6 @@ from abc import ABC, abstractmethod
 from datetime import UTC, datetime
 import time
 
-from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
-from bijux_proteomics_runtime.support.primitives.observations import (
-    Observation,
-    ObservationMetric,
-    ObservationSource,
-)
 from bijux_proteomics_runtime.execution.compiler.boundary import ExecutionBoundary
 from bijux_proteomics_runtime.execution.schemas import (
     ExecutionContext,
@@ -22,6 +16,12 @@ from bijux_proteomics_runtime.execution.schemas import (
     ExecutionTrace,
 )
 from bijux_proteomics_runtime.execution.tools.schemas import ToolError, ToolResult
+from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
+from bijux_proteomics_runtime.support.primitives.observations import (
+    Observation,
+    ObservationMetric,
+    ObservationSource,
+)
 
 
 def build_trace(

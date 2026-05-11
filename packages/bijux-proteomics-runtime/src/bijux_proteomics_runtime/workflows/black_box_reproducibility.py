@@ -153,7 +153,9 @@ class RuntimeRerunRefusalEntry(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def build_runtime_black_box_verification_routes() -> tuple[RuntimeBlackBoxVerificationRoute, ...]:
+def build_runtime_black_box_verification_routes() -> tuple[
+    RuntimeBlackBoxVerificationRoute, ...
+]:
     """Return the shipped public-to-runtime verification route per family."""
 
     routes: list[RuntimeBlackBoxVerificationRoute] = []
@@ -236,12 +238,16 @@ def build_runtime_black_box_rerun_gate() -> RuntimeBlackBoxRerunGate:
     )
 
 
-def build_runtime_execution_mode_comparisons() -> tuple[RuntimeExecutionModeComparison, ...]:
+def build_runtime_execution_mode_comparisons() -> tuple[
+    RuntimeExecutionModeComparison, ...
+]:
     """Return the raw-versus-import boundary for every flagship family."""
 
     comparisons: list[RuntimeExecutionModeComparison] = []
     for registry, spec, truth in _family_records():
-        blocked_claims, claim_guard = _mode_guardrails(registry.workflow_family, spec, truth)
+        blocked_claims, claim_guard = _mode_guardrails(
+            registry.workflow_family, spec, truth
+        )
         comparisons.append(
             RuntimeExecutionModeComparison(
                 workflow_family=registry.workflow_family,
@@ -317,7 +323,9 @@ def build_runtime_environment_contracts() -> tuple[RuntimeEnvironmentContract, .
     return tuple(contracts)
 
 
-def build_runtime_artifact_stability_reports() -> tuple[RuntimeArtifactStabilityEntry, ...]:
+def build_runtime_artifact_stability_reports() -> tuple[
+    RuntimeArtifactStabilityEntry, ...
+]:
     """Return the artifact-stability contract across repeated reruns."""
 
     entries: list[RuntimeArtifactStabilityEntry] = []
@@ -386,7 +394,9 @@ def build_runtime_rerun_refusals() -> tuple[RuntimeRerunRefusalEntry, ...]:
     return tuple(refusals)
 
 
-def _family_records() -> tuple[tuple[FlagshipRunRegistryEntry, BenchmarkRunSpec, BenchmarkRuntimeTruthRow], ...]:
+def _family_records() -> tuple[
+    tuple[FlagshipRunRegistryEntry, BenchmarkRunSpec, BenchmarkRuntimeTruthRow], ...
+]:
     specs_by_id = {spec.package_id: spec for spec in build_benchmark_run_specs()}
     truth_by_workflow = {
         row.workflow_family: row for row in build_benchmark_runtime_truth_surface()
@@ -406,7 +416,9 @@ def _family_records() -> tuple[tuple[FlagshipRunRegistryEntry, BenchmarkRunSpec,
 
 def _preferred_package_manifest(spec: BenchmarkRunSpec) -> str:
     return next(
-        path for path in spec.public_package_paths if path.endswith("package_manifest.json")
+        path
+        for path in spec.public_package_paths
+        if path.endswith("package_manifest.json")
     )
 
 
@@ -420,12 +432,8 @@ def _imported_dependency_paths(spec: BenchmarkRunSpec) -> tuple[str, ...]:
 
 def _mode_difference_summary(workflow_family: str, spec: BenchmarkRunSpec) -> str:
     if spec.run_mode is BenchmarkRunMode.IMPORT_ONLY:
-        return (
-            f"{workflow_family} currently reruns through imported exported-result evidence instead of a raw in-repository execution lane."
-        )
-    return (
-        f"{workflow_family} executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity."
-    )
+        return f"{workflow_family} currently reruns through imported exported-result evidence instead of a raw in-repository execution lane."
+    return f"{workflow_family} executes inside the runtime package, but its benchmark package can still include imported or derived evidence that does not prove vendor-native parity."
 
 
 def _mode_guardrails(
@@ -479,16 +487,10 @@ def _clean_environment_requirements(spec: BenchmarkRunSpec) -> tuple[str, ...]:
 
 def _replay_limit(workflow_family: str, spec: BenchmarkRunSpec) -> str:
     if spec.run_mode is BenchmarkRunMode.IMPORT_ONLY:
-        return (
-            f"{workflow_family} replay is real for the shipped imported-result lane, but it still refuses broader raw-engine rerun claims."
-        )
+        return f"{workflow_family} replay is real for the shipped imported-result lane, but it still refuses broader raw-engine rerun claims."
     if workflow_family == "dia":
-        return (
-            "DIA replay is real for the shipped runtime lane, but it still refuses chromatogram-native and broader vendor-parity claims."
-        )
-    return (
-        f"{workflow_family} replay is real for the shipped runtime lane, but it still inherits the same benchmark and downstream claim limits as the checked bundle."
-    )
+        return "DIA replay is real for the shipped runtime lane, but it still refuses chromatogram-native and broader vendor-parity claims."
+    return f"{workflow_family} replay is real for the shipped runtime lane, but it still inherits the same benchmark and downstream claim limits as the checked bundle."
 
 
 def _external_dependencies(spec: BenchmarkRunSpec) -> tuple[str, ...]:
@@ -505,7 +507,9 @@ def _external_dependencies(spec: BenchmarkRunSpec) -> tuple[str, ...]:
     )
 
 
-def _supported_combinations(workflow_family: str, spec: BenchmarkRunSpec) -> tuple[str, ...]:
+def _supported_combinations(
+    workflow_family: str, spec: BenchmarkRunSpec
+) -> tuple[str, ...]:
     if spec.run_mode is BenchmarkRunMode.IMPORT_ONLY:
         return (
             "repository-managed python environment plus tracked imported benchmark exports",
@@ -520,7 +524,9 @@ def _supported_combinations(workflow_family: str, spec: BenchmarkRunSpec) -> tup
     )
 
 
-def _unsupported_combinations(workflow_family: str, spec: BenchmarkRunSpec) -> tuple[str, ...]:
+def _unsupported_combinations(
+    workflow_family: str, spec: BenchmarkRunSpec
+) -> tuple[str, ...]:
     if spec.run_mode is BenchmarkRunMode.IMPORT_ONLY:
         return (
             "claiming live external-engine parity from the shipped import lane",

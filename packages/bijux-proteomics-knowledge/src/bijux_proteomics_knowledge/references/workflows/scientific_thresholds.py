@@ -64,7 +64,9 @@ def build_workflow_threshold_evidence_report(
     """State which scientific thresholds are evidence-backed for a workflow family."""
 
     workflow_family = manifest.workflow_family
-    thresholds: dict[KnowledgeWorkflowFamily, tuple[WorkflowThresholdEvidenceAnchor, ...]] = {
+    thresholds: dict[
+        KnowledgeWorkflowFamily, tuple[WorkflowThresholdEvidenceAnchor, ...]
+    ] = {
         KnowledgeWorkflowFamily.DDA: (
             WorkflowThresholdEvidenceAnchor(
                 threshold_id="target_decoy_visibility",
@@ -160,7 +162,9 @@ def build_decision_outcome_audit_report(
     """Audit recommendation quality against observed or simulated outcomes."""
 
     workflow_family = manifest.workflow_family
-    entries_by_family: dict[KnowledgeWorkflowFamily, tuple[DecisionOutcomeAuditEntry, ...]] = {
+    entries_by_family: dict[
+        KnowledgeWorkflowFamily, tuple[DecisionOutcomeAuditEntry, ...]
+    ] = {
         KnowledgeWorkflowFamily.DDA: (
             DecisionOutcomeAuditEntry(
                 scenario_id="dda_adapter_loss_follow_up",

@@ -32,7 +32,11 @@ def test_workflow_literature_freshness_audit_tracks_last_checked_and_summary_pos
     assert all(entry.last_checked_on.startswith("20") for entry in audit.entries)
     assert all(entry.resolves_in_curated_audit for entry in audit.entries)
     assert any(
-        entry.freshness_state in {LiteratureFreshnessState.CURRENT, LiteratureFreshnessState.CURATED_BUT_AGING}
+        entry.freshness_state
+        in {
+            LiteratureFreshnessState.CURRENT,
+            LiteratureFreshnessState.CURATED_BUT_AGING,
+        }
         for entry in audit.entries
     )
 
@@ -43,7 +47,10 @@ def test_workflow_bibliography_export_is_machine_readable_and_tagged() -> None:
     assert export.export_id == "workflow_bibliography:ptm"
     assert export.entries
     assert all(entry.relevance_tags for entry in export.entries)
-    assert all(entry.freshness_state in set(LiteratureFreshnessState) for entry in export.entries)
+    assert all(
+        entry.freshness_state in set(LiteratureFreshnessState)
+        for entry in export.entries
+    )
 
 
 def test_gap_matrices_keep_benchmark_and_comparator_tension_explicit() -> None:
@@ -51,14 +58,16 @@ def test_gap_matrices_keep_benchmark_and_comparator_tension_explicit() -> None:
     comparator_gap_matrix = build_comparator_literature_gap_matrix()
 
     assert any(
-        entry.direction in {
+        entry.direction
+        in {
             GapDirection.BENCHMARK_OUTRUNS_LITERATURE,
             GapDirection.LITERATURE_OUTRUNS_BENCHMARK,
         }
         for entry in benchmark_gap_matrix.entries
     )
     assert any(
-        entry.direction in {
+        entry.direction
+        in {
             GapDirection.COMPARATOR_OUTRUNS_LITERATURE,
             GapDirection.LITERATURE_OUTRUNS_COMPARATOR,
         }

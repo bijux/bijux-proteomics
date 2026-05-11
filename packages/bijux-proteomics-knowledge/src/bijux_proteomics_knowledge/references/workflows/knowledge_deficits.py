@@ -106,7 +106,11 @@ def _comparator_gaps(
             summary=entry.failure_summary,
             why_it_matters="Without visible comparator confrontation, the knowledge layer risks becoming a self-consistent explanation surface instead of an externally pressured scientific base.",
             closure_condition=entry.improvement_target,
-            evidence_refs=(manifest.benchmark_id, *entry.comparator_path_ids, *entry.blocking_reasons),
+            evidence_refs=(
+                manifest.benchmark_id,
+                *entry.comparator_path_ids,
+                *entry.blocking_reasons,
+            ),
         ),
     )
 
@@ -130,7 +134,11 @@ def _literature_gaps(
             summary="the curated literature base is still narrow relative to the scientific surface this workflow family wants to support",
             why_it_matters="A workflow can look well-explained in code while still being under-curated in the literature it claims to honor, especially when only one or two citation anchors dominate the whole family.",
             closure_condition="Add broader paper coverage, contradiction-specific citations, and workflow-specific reading anchors until the family is not leaning on one small citation cluster.",
-            evidence_refs=(manifest.benchmark_id, *tuple(group.group_id for group in briefing.literature_groups), *tuple(sorted(unique_citations))),
+            evidence_refs=(
+                manifest.benchmark_id,
+                *tuple(group.group_id for group in briefing.literature_groups),
+                *tuple(sorted(unique_citations)),
+            ),
         ),
     )
 
@@ -152,7 +160,9 @@ def _runtime_proof_gaps(
             ),
         )
     outside_repo_steps = tuple(
-        step.step_id for step in package.reproduction_steps if step.outside_repo_execution
+        step.step_id
+        for step in package.reproduction_steps
+        if step.outside_repo_execution
     )
     if not outside_repo_steps:
         return ()
@@ -209,9 +219,9 @@ def build_workflow_knowledge_deficit_report(
     return draft.model_copy(update={"highest_severity": _highest_severity(draft)})
 
 
-def list_workflow_knowledge_deficit_reports() -> (
-    tuple[WorkflowKnowledgeDeficitReport, ...]
-):
+def list_workflow_knowledge_deficit_reports() -> tuple[
+    WorkflowKnowledgeDeficitReport, ...
+]:
     """Return knowledge deficit reports across workflow families."""
 
     return tuple(

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import string
+from typing import cast
 
 from hypothesis import given
 from hypothesis import strategies as st
@@ -34,7 +35,6 @@ from bijux_proteomics_foundation.serialization.fingerprints import (
     build_run_context_fingerprint,
 )
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_value
-
 
 JSON_SCALAR_STRATEGY = st.one_of(
     st.none(),
@@ -157,7 +157,7 @@ def test_hashing_and_ordering_are_deterministic_for_equivalent_payloads(
 def test_hashing_is_stable_under_recursive_ordering_noise(
     payload: dict[str, object],
 ) -> None:
-    equivalent = _structurally_equivalent_value(payload)
+    equivalent = cast(dict[str, object], _structurally_equivalent_value(payload))
 
     assert hash_payload(payload) == hash_payload(equivalent)
 
@@ -166,7 +166,7 @@ def test_hashing_is_stable_under_recursive_ordering_noise(
 def test_canonical_json_is_stable_for_structurally_equivalent_payloads(
     payload: dict[str, object],
 ) -> None:
-    equivalent = _structurally_equivalent_value(payload)
+    equivalent = cast(dict[str, object], _structurally_equivalent_value(payload))
 
     assert normalize_json_value(payload) == normalize_json_value(equivalent)
     assert to_canonical_json(payload) == to_canonical_json(equivalent)

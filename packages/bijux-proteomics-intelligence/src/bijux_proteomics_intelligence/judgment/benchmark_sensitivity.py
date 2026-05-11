@@ -9,6 +9,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
+    BenchmarkDecisionCorpus,
     BenchmarkDisposition,
     build_comparator_aware_decision_corpus,
     build_downgrade_chain_honesty_corpus,
@@ -68,7 +69,7 @@ class FlagshipBenchmarkSensitivityReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def _all_decision_corpora():
+def _all_decision_corpora() -> tuple[BenchmarkDecisionCorpus, ...]:
     return (
         build_recommendation_quality_corpus(),
         build_rejection_quality_corpus(),

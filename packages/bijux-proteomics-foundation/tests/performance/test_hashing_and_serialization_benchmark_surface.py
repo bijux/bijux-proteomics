@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import Any, cast
+
 from bijux_proteomics_foundation import hash_payload, to_canonical_json
 
 
@@ -92,7 +94,9 @@ def _medium_document_payload(record_count: int = 160) -> dict[str, object]:
     }
 
 
-def test_canonical_json_benchmark_handles_medium_document_payload(benchmark) -> None:
+def test_canonical_json_benchmark_handles_medium_document_payload(
+    benchmark: Any,
+) -> None:
     payload = _medium_document_payload()
 
     rendered = benchmark(to_canonical_json, payload)
@@ -101,7 +105,9 @@ def test_canonical_json_benchmark_handles_medium_document_payload(benchmark) -> 
     assert '"dataset_id":"dataset-benchmark-medium"' in rendered
 
 
-def test_hash_payload_benchmark_handles_medium_document_payload(benchmark) -> None:
+def test_hash_payload_benchmark_handles_medium_document_payload(
+    benchmark: Any,
+) -> None:
     payload = _medium_document_payload()
 
     digest = benchmark(hash_payload, payload)
@@ -111,10 +117,12 @@ def test_hash_payload_benchmark_handles_medium_document_payload(benchmark) -> No
 
 def test_medium_document_payload_stays_realistically_nested() -> None:
     payload = _medium_document_payload()
-    first_record = payload["dataset"]["records"][0]
+    dataset = cast(dict[str, object], payload["dataset"])
+    records = cast(list[dict[str, object]], dataset["records"])
+    first_record = records[0]
 
-    assert len(payload["dataset"]["records"]) == 160
-    assert sorted(first_record["measurements"]) == [
+    assert len(records) == 160
+    assert sorted(cast(dict[str, object], first_record["measurements"])) == [
         "fragment_mz",
         "intensity",
         "precursor_mz",
@@ -122,5 +130,7 @@ def test_medium_document_payload_stays_realistically_nested() -> None:
         "score",
         "signal_to_noise",
     ]
-    assert len(first_record["annotations"]["modifications"]) == 2
-    assert len(first_record["provenance"]["artifacts"]) == 2
+    annotations = cast(dict[str, object], first_record["annotations"])
+    provenance = cast(dict[str, object], first_record["provenance"])
+    assert len(cast(list[object], annotations["modifications"])) == 2
+    assert len(cast(list[object], provenance["artifacts"])) == 2

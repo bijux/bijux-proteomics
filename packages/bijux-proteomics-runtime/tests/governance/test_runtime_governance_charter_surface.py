@@ -45,4 +45,3 @@ def test_runtime_governance_module_audit_covers_source_tree() -> None:
     }
 
     assert audited_paths == source_paths
-

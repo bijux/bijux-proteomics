@@ -4,8 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from bijux_proteomics_runtime.runs import RunConfig
-from bijux_proteomics_runtime.runs import RunManager
+from bijux_proteomics_runtime.runs import RunConfig, RunManager
 from bijux_proteomics_runtime.runs.context import create_run_context
 from bijux_proteomics_runtime.runs.failure_reports import RuntimeFailureReport
 from bijux_proteomics_runtime.runs.preflight import (

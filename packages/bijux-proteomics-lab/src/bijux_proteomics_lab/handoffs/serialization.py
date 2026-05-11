@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import (
     DocumentSchema as SchemaMetadata,
+)
+from bijux_proteomics_foundation import (
     JsonModel,
     hash_payload,
 )

@@ -7,10 +7,6 @@ import hashlib
 import json
 from pathlib import Path
 
-from bijux_proteomics.sequences.digestion import (
-    digest_protein_records,
-    get_protease_rule,
-)
 from bijux_proteomics.identification import (
     SearchResultColumnMapping,
     apply_q_values,
@@ -25,6 +21,10 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.sequences.digestion import (
+    digest_protein_records,
+    get_protease_rule,
+)
 
 
 def _workflow_fixture(name: str) -> Path:

@@ -11,7 +11,7 @@ from functools import lru_cache
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_intelligence.judgment.benchmark_policies import (
+from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     BenchmarkDisposition,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
@@ -457,8 +457,7 @@ def build_flagship_follow_up_outcome_dossier(
     return FlagshipFollowUpOutcomeDossier(
         dossier_id=f"flagship_follow_up_outcome:{workflow_family.value}",
         artifact_path=(
-            "artifacts/lab/flagship-follow-up-outcomes/"
-            f"{workflow_family.value}.json"
+            f"artifacts/lab/flagship-follow-up-outcomes/{workflow_family.value}.json"
         ),
         benchmark_id=blueprint.benchmark_id,
         workflow_family=workflow_family,
@@ -537,7 +536,9 @@ def _overall_value_score(dossier: FlagshipFollowUpOutcomeDossier) -> float:
 
 
 @lru_cache(maxsize=1)
-def _dossiers_by_family() -> dict[KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier]:
+def _dossiers_by_family() -> dict[
+    KnowledgeWorkflowFamily, FlagshipFollowUpOutcomeDossier
+]:
     family = build_flagship_follow_up_outcome_dossier_family()
     return {dossier.workflow_family: dossier for dossier in family.dossiers}
 

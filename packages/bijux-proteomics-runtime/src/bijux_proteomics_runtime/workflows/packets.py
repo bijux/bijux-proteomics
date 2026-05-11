@@ -27,7 +27,9 @@ class WorkflowStagePacketBoundaryContract:
     notes: tuple[str, ...] = ()
 
 
-def build_workflow_stage_packet_boundary_contracts() -> tuple[WorkflowStagePacketBoundaryContract, ...]:
+def build_workflow_stage_packet_boundary_contracts() -> tuple[
+    WorkflowStagePacketBoundaryContract, ...
+]:
     """Return packet-boundary contracts for the flagship reviewable workflow."""
 
     return (
@@ -68,7 +70,10 @@ def build_workflow_stage_packet_boundary_contracts() -> tuple[WorkflowStagePacke
                 "missingness_profile",
                 "effect_size_da_report",
             ),
-            consumer_stage_ids=("knowledge-evidence-review", "intelligence-decision-review"),
+            consumer_stage_ids=(
+                "knowledge-evidence-review",
+                "intelligence-decision-review",
+            ),
         ),
         WorkflowStagePacketBoundaryContract(
             stage_id="core-ptm-review",

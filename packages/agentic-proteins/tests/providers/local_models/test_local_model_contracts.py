@@ -13,13 +13,13 @@ from typing import Any, cast
 
 import pytest
 
-from bijux_proteomics_runtime.support.primitives.fingerprints import hash_payload
-from bijux_proteomics.domain.structure.structure import kabsch_and_pairs, tm_score
 from agentic_proteins.providers.capabilities import (
     PROVIDER_CAPABILITIES,
     provider_requirements,
 )
 from agentic_proteins.providers.selection import cuda_available
+from bijux_proteomics.domain.structure.structure import kabsch_and_pairs, tm_score
+from bijux_proteomics_runtime.support.primitives.fingerprints import hash_payload
 from tests.support.artifacts import assert_valid_run_artifacts
 
 REAL_CASES = [

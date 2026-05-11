@@ -15,9 +15,11 @@ from bijux_proteomics_knowledge.references.workflows.replay_proof import (
 def test_replay_proof_report_keeps_governed_artifacts_and_tests_visible() -> None:
     manifest = DEFAULT_BENCHMARK_MANIFESTS[0]
     report = build_workflow_replay_proof_report(manifest)
+    benchmark_package = manifest.benchmark_package
+    assert benchmark_package is not None
 
     assert report.replay_supported is True
-    assert report.benchmark_package_id == manifest.benchmark_package.package_id
+    assert report.benchmark_package_id == benchmark_package.package_id
     assert report.validating_tests
     assert report.artifact_proofs
     assert report.replay_steps

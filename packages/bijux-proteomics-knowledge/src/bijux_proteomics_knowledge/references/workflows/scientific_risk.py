@@ -50,7 +50,9 @@ def build_recommendation_failure_trap_report(
 ) -> RecommendationFailureTrapReport:
     """State which intentionally wrong recommendations must be caught."""
 
-    entries_by_family: dict[KnowledgeWorkflowFamily, tuple[RecommendationFailureTrapEntry, ...]] = {
+    entries_by_family: dict[
+        KnowledgeWorkflowFamily, tuple[RecommendationFailureTrapEntry, ...]
+    ] = {
         KnowledgeWorkflowFamily.DDA: (
             RecommendationFailureTrapEntry(
                 scenario_id="dda_decoy_hidden",

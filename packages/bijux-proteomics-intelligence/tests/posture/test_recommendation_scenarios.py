@@ -6,13 +6,15 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
+    RankedCandidate,
     prioritize_candidates,
 )
 from bijux_proteomics_intelligence.judgment.recommendations import (
@@ -26,7 +28,9 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
 from bijux_proteomics_intelligence.posture.evidence import (
     assess_recommendation_readiness,
 )
-from bijux_proteomics_intelligence.reviews.decision_briefs import build_review_board_packet
+from bijux_proteomics_intelligence.reviews.decision_briefs import (
+    build_review_board_packet,
+)
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceRecord,
@@ -41,10 +45,12 @@ def _fixture_dir() -> Path:
 
 
 def _load_scenario_fixture(name: str) -> dict[str, object]:
-    return json.loads((_fixture_dir() / f"{name}.json").read_text())
+    return cast(
+        dict[str, object], json.loads((_fixture_dir() / f"{name}.json").read_text())
+    )
 
 
-def _program_from_fixture(payload: dict[str, object]) -> object:
+def _program_from_fixture(payload: dict[str, object]) -> ProgramSpec:
     program_data = payload["program"]
     assert isinstance(program_data, dict)
     criterion_data = payload["criterion"]
@@ -68,6 +74,13 @@ def _program_from_fixture(payload: dict[str, object]) -> object:
         )
     )
     return program
+
+
+def _priority_input(candidate: RankedCandidate, key: str) -> float:
+    priority_inputs = cast(
+        dict[str, object], candidate.explainability["priority_inputs"]
+    )
+    return float(cast(int | float, priority_inputs[key]))
 
 
 def _assessments_from_fixture(payload: dict[str, object]) -> list[CandidateAssessment]:
@@ -184,9 +197,8 @@ def test_novelty_trap_fixture_does_not_outrank_grounded_follow_up() -> None:
         == payload["expected_top_candidate_id"]
     )
     assert ranking.ranked_candidates[1].candidate_id == "novelty-trap"
-    assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
-        > (ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"])
+    assert _priority_input(ranking.ranked_candidates[1], "novelty") > _priority_input(
+        ranking.ranked_candidates[0], "novelty"
     )
 
 
@@ -208,18 +220,12 @@ def test_novelty_pressure_fixture_keeps_grounded_follow_up_on_top() -> None:
         == payload["expected_top_candidate_id"]
     )
     assert ranking.ranked_candidates[1].candidate_id == "novelty-pressure-candidate"
-    assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
-        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    assert _priority_input(ranking.ranked_candidates[1], "novelty") > _priority_input(
+        ranking.ranked_candidates[0], "novelty"
     )
-    assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"][
-            "evidence_strength"
-        ]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"][
-            "evidence_strength"
-        ]
-    )
+    assert _priority_input(
+        ranking.ranked_candidates[1], "evidence_strength"
+    ) < _priority_input(ranking.ranked_candidates[0], "evidence_strength")
 
 
 def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity() -> (
@@ -242,18 +248,12 @@ def test_ambiguity_fixture_keeps_grounded_follow_up_ahead_of_polished_ambiguity(
         == payload["expected_top_candidate_id"]
     )
     assert ranking.ranked_candidates[1].candidate_id == "ambiguity-polish-candidate"
-    assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"]["novelty"]
-        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    assert _priority_input(ranking.ranked_candidates[1], "novelty") > _priority_input(
+        ranking.ranked_candidates[0], "novelty"
     )
-    assert (
-        ranking.ranked_candidates[1].explainability["priority_inputs"][
-            "reproducibility"
-        ]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"][
-            "reproducibility"
-        ]
-    )
+    assert _priority_input(
+        ranking.ranked_candidates[1], "reproducibility"
+    ) < _priority_input(ranking.ranked_candidates[0], "reproducibility")
 
 
 @pytest.mark.parametrize(
@@ -296,17 +296,14 @@ def test_seductive_weak_candidate_fixtures_do_not_outrank_grounded_follow_up(
     grounded_candidate = ranking.ranked_candidates[0]
 
     assert grounded_candidate.candidate_id == payload["expected_top_candidate_id"]
-    assert (
-        seductive_candidate.explainability["priority_inputs"]["criteria_strength"]
-        > (grounded_candidate.explainability["priority_inputs"]["criteria_strength"])
+    assert _priority_input(seductive_candidate, "criteria_strength") > _priority_input(
+        grounded_candidate, "criteria_strength"
     )
-    assert (
-        seductive_candidate.explainability["priority_inputs"]["evidence_strength"]
-        < (grounded_candidate.explainability["priority_inputs"]["evidence_strength"])
+    assert _priority_input(seductive_candidate, "evidence_strength") < _priority_input(
+        grounded_candidate, "evidence_strength"
     )
-    assert (
-        seductive_candidate.explainability["priority_inputs"]["reproducibility"]
-        < (grounded_candidate.explainability["priority_inputs"]["reproducibility"])
+    assert _priority_input(seductive_candidate, "reproducibility") < _priority_input(
+        grounded_candidate, "reproducibility"
     )
 
 
@@ -433,15 +430,11 @@ def test_operational_fragility_fixture_prefers_executable_follow_up() -> None:
         for candidate in ranking.ranked_candidates
         if candidate.candidate_id == "operational-fragility-candidate"
     )
-    assert (
-        fragile_candidate.explainability["priority_inputs"]["novelty"]
-        > ranking.ranked_candidates[0].explainability["priority_inputs"]["novelty"]
+    assert _priority_input(fragile_candidate, "novelty") > _priority_input(
+        ranking.ranked_candidates[0], "novelty"
     )
-    assert (
-        fragile_candidate.explainability["priority_inputs"]["assay_feasibility"]
-        < ranking.ranked_candidates[0].explainability["priority_inputs"][
-            "assay_feasibility"
-        ]
+    assert _priority_input(fragile_candidate, "assay_feasibility") < _priority_input(
+        ranking.ranked_candidates[0], "assay_feasibility"
     )
     assert fragile_candidate.score < ranking.ranked_candidates[0].score
 

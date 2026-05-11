@@ -5,11 +5,13 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
+    RankedCandidate,
     build_ranking_sensitivity_report,
     prioritize_candidates,
 )
@@ -47,7 +49,7 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 )
 
 
-def _program():
+def _program() -> ProgramSpec:
     program = create_program_spec(
         program_id="prog-guard",
         name="judgment guard",
@@ -67,6 +69,13 @@ def _program():
         )
     )
     return program
+
+
+def _explainability_section(
+    candidate: RankedCandidate,
+    section: str,
+) -> dict[str, object]:
+    return cast(dict[str, object], candidate.explainability[section])
 
 
 def _bundle(*, contradictory: bool) -> EvidenceBundle:
@@ -149,9 +158,10 @@ def test_prioritization_guard_keeps_grounding_and_sensitivity_visible() -> None:
     sensitivity = build_ranking_sensitivity_report(top_candidate)
 
     assert top_candidate.explainability["knowledge_grounding_rule_ids"]
-    assert (
-        top_candidate.explainability["multi_objective_profile"]["scientific_value"] > 0
+    multi_objective_profile = _explainability_section(
+        top_candidate, "multi_objective_profile"
     )
+    assert float(cast(int | float, multi_objective_profile["scientific_value"])) > 0
     assert sensitivity.dominant_inputs
 
 

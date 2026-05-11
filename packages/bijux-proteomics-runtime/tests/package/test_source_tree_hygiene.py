@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 RUNTIME_SRC_ROOT = Path(
     "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime"
 )

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import parse_ms1_feature_table
@@ -27,6 +28,7 @@ from bijux_proteomics_lab.reconciliation.flagship_follow_up import (
     build_flagship_workflow_follow_up_packet,
 )
 from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
+    FlagshipWorkflowChain,
     FlagshipWorkflowStage,
     build_flagship_workflow_chain,
     compare_flagship_workflow_chains,
@@ -35,6 +37,7 @@ from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
 from bijux_proteomics_runtime.workflows.runs import (
     DdaSearchHitInput,
     KnowledgeEvidenceInput,
+    _PtmLabValidationPacketLike,
     run_dda_import_workflow_end_to_end,
     run_knowledge_review_workflow_end_to_end,
     run_lab_handoff_workflow_end_to_end,
@@ -62,7 +65,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _build_bundle():
+def _build_bundle() -> FlagshipWorkflowChain:
     sequence = run_sequence_to_digest_workflow_end_to_end(
         ">sp|P12345|PROT1 example\nMKWVTFISLLFLFSSAYSRGVFRR\n"
     )
@@ -98,7 +101,9 @@ END IONS
             ),
         ),
     )
-    features = parse_ms1_feature_table(_fixture_path("ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
     quant = run_quant_workflow_end_to_end(
         features,
         design_entries=(
@@ -194,7 +199,9 @@ END IONS
         ),
         unresolved_risk_count=0,
     )
-    lab_handoff = run_lab_handoff_workflow_end_to_end(lab_packet)
+    lab_handoff = run_lab_handoff_workflow_end_to_end(
+        cast(_PtmLabValidationPacketLike, lab_packet)
+    )
     follow_up = build_flagship_workflow_follow_up_packet(
         decision_review,
         planned_assay_count=lab_handoff.planned_assay_count,
@@ -220,12 +227,12 @@ def test_build_flagship_workflow_chain_tracks_all_owner_stages() -> None:
     assert bundle.proof_complete is True
     assert {stage.stage for stage in bundle.stages} == set(FlagshipWorkflowStage)
     assert bundle.scope_dossier.approved_workflow_families == ("flagship-workflows",)
-    assert all(claim.artifact_path.startswith("artifacts/") for claim in bundle.artifact_claims)
+    assert all(
+        claim.artifact_path.startswith("artifacts/") for claim in bundle.artifact_claims
+    )
 
 
-def test_compare_flagship_workflow_chains_is_deterministic_for_same_inputs() -> (
-    None
-):
+def test_compare_flagship_workflow_chains_is_deterministic_for_same_inputs() -> None:
     first = _build_bundle()
     second = _build_bundle()
 

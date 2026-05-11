@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from enum import StrEnum
 from functools import lru_cache
 
@@ -13,14 +14,12 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
+    BenchmarkDisposition,
     list_flagship_benchmark_reviews,
 )
 from bijux_proteomics_intelligence.judgment.benchmark_packets import (
     BenchmarkRecommendationPacket,
     build_flagship_benchmark_recommendation_packet_family,
-)
-from bijux_proteomics_intelligence.judgment.benchmark_policies import (
-    BenchmarkDisposition,
 )
 from bijux_proteomics_intelligence.reviews.benchmarks import (
     ReviewerGroundingState,
@@ -512,7 +511,7 @@ _FOLLOW_UP_BLUEPRINTS: dict[KnowledgeWorkflowFamily, _FollowUpBlueprint] = {
 }
 
 
-def _dedupe(values: tuple[str, ...]) -> tuple[str, ...]:
+def _dedupe(values: Iterable[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(values))
 
 
@@ -566,8 +565,7 @@ def build_flagship_lab_follow_up_packet(
     return FlagshipLabFollowUpPacket(
         packet_id=f"flagship_lab_packet:{workflow_family.value}",
         artifact_path=(
-            "artifacts/lab/flagship-follow-up-packets/"
-            f"{workflow_family.value}.json"
+            f"artifacts/lab/flagship-follow-up-packets/{workflow_family.value}.json"
         ),
         benchmark_id=review.benchmark_id,
         workflow_family=workflow_family,
@@ -751,8 +749,13 @@ def build_flagship_minimum_controls_table() -> FlagshipMinimumControlsTable:
         review = _reviews_by_family()[workflow_family]
         blueprint = _FOLLOW_UP_BLUEPRINTS[workflow_family]
         blockers: list[str] = list(review.improvement_targets[:2])
-        if review.public_claim_support_state is not ComparatorClaimSupportState.SUPPORTED:
-            blockers.append("comparator-backed public claim support is not yet supported")
+        if (
+            review.public_claim_support_state
+            is not ComparatorClaimSupportState.SUPPORTED
+        ):
+            blockers.append(
+                "comparator-backed public claim support is not yet supported"
+            )
         if review.reviewer_grounding_state is not ReviewerGroundingState.DECISION_GRADE:
             blockers.append("biological grounding is below decision-grade")
         entries.append(
@@ -803,10 +806,16 @@ def build_flagship_lab_review_board() -> FlagshipLabReviewBoardArtifact:
             ),
         )
         operational_feasibility_score = _operational_feasibility_score(burden_profile)
-        overall_priority_score = scientific_credibility_score * 0.65 + operational_feasibility_score * 0.35
+        overall_priority_score = (
+            scientific_credibility_score * 0.65 + operational_feasibility_score * 0.35
+        )
         if review.public_claim_support_state is ComparatorClaimSupportState.REFUSED:
             overall_priority_score *= 0.82
-        if overall_priority_score >= 0.55 and review.public_claim_support_state is not ComparatorClaimSupportState.REFUSED:
+        if (
+            overall_priority_score >= 0.55
+            and review.public_claim_support_state
+            is not ComparatorClaimSupportState.REFUSED
+        ):
             recommendation_posture = "advance_exploratory_slot"
         elif overall_priority_score >= 0.38:
             recommendation_posture = "hold_until_blockers_close"

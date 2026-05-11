@@ -59,7 +59,9 @@ def route_decision_brief_api(
             )
         )
     if payload.operation == "export":
-        result_pointer = f"decision-brief/export/{payload.packet_id}.{payload.export_format}"
+        result_pointer = (
+            f"decision-brief/export/{payload.packet_id}.{payload.export_format}"
+        )
     return DecisionBriefRouteResponse(
         operation=payload.operation,
         packet_id=payload.packet_id,

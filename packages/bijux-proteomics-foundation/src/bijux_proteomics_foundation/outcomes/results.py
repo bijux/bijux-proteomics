@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import AliasChoices, ConfigDict, Field, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_strings
-from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal
 from bijux_proteomics_foundation.support.provenance import ProvenancePointer
 from bijux_proteomics_foundation.support.states import SupportState
 
@@ -31,16 +31,22 @@ class OperationResult(JsonModel):
 
     operation: str = Field(..., min_length=1)
     disposition: OperationDisposition
-    support_state: SupportState = Field(
-        ...,
-        validation_alias=AliasChoices("support_state", "state"),
-        serialization_alias="support_state",
-    )
+    support_state: SupportState
     summary: str = Field(..., min_length=1)
     refusal: OperationRefusal | None = None
     degradation_reasons: tuple[str, ...] = Field(default_factory=tuple)
     provenance: tuple[ProvenancePointer, ...] = Field(default_factory=tuple)
     output_fingerprint: str | None = Field(default=None, min_length=64, max_length=64)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_state_key(cls, value: object) -> object:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        if "support_state" not in payload and "state" in payload:
+            payload["support_state"] = payload.pop("state")
+        return payload
 
     @model_validator(mode="after")
     def _validate_disposition(self) -> OperationResult:

@@ -10,6 +10,7 @@ from bijux_proteomics_runtime.runs.cache import (
 )
 from bijux_proteomics_runtime.runs.context import create_run_context
 from bijux_proteomics_runtime.runs.contracts import (
+    RunContextContract,
     RuntimeArtifactRetentionClass,
     build_run_context_contract,
 )
@@ -23,6 +24,7 @@ from bijux_proteomics_runtime.runs.ledger import (
 )
 from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.replay import (
+    ReplayContract,
     build_replay_contract,
     load_local_run_bundle,
 )
@@ -38,7 +40,7 @@ def _build_contract(
     run_id: str,
     sequence: str,
     provider_name: str,
-) -> tuple[object, object]:
+) -> tuple[RunContextContract, ReplayContract]:
     context, _ = create_run_context(tmp_path, run_id=run_id)
     run_context = build_run_context_contract(
         run_id=context.run_id,

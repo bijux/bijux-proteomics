@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 LAB_SRC_ROOT = Path("packages/bijux-proteomics-lab/src/bijux_proteomics_lab")
 LAB_TEST_ROOT = Path("packages/bijux-proteomics-lab/tests")
 LAB_TEST_FAMILIES = {

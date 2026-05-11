@@ -33,9 +33,7 @@ def test_dda_comparator_confrontation_keeps_peptide_protein_calibration_and_revi
 
     assert confrontation.benchmark_id == "benchmark:dda_search_reproducibility"
     assert len(confrontation.findings) == 4
-    assert {
-        finding.axis for finding in confrontation.findings
-    } == {
+    assert {finding.axis for finding in confrontation.findings} == {
         "peptide-level evidence",
         "protein-level evidence",
         "calibration and live-engine parity",
@@ -94,9 +92,7 @@ def test_multiplex_comparator_confrontation_keeps_blocked_channel_path_visible()
     assert "blocked" in blocked.scientific_difference.lower()
 
 
-def test_ptm_comparator_confrontation_keeps_localization_and_ambiguity_split() -> (
-    None
-):
+def test_ptm_comparator_confrontation_keeps_localization_and_ambiguity_split() -> None:
     confrontation = build_workflow_comparator_confrontation(KnowledgeWorkflowFamily.PTM)
 
     assert {finding.axis for finding in confrontation.findings} == {

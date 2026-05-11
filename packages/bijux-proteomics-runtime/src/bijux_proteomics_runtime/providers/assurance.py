@@ -201,7 +201,9 @@ def build_provider_capability_matrix() -> tuple[ProviderCapabilityMatrixRow, ...
                 cooperative_cancellation=contract.cooperative_cancellation,
                 expected_error_codes=contract.failure_guarantees.expected_error_codes,
                 required_raw_keys=contract.artifact_guarantees.required_raw_keys,
-                validation_lane_ids=tuple(sorted(lanes_by_provider.get(provider_name, []))),
+                validation_lane_ids=tuple(
+                    sorted(lanes_by_provider.get(provider_name, []))
+                ),
                 unmet_requirements=tuple(provider_requirements(provider_name)),
             )
         )
@@ -218,7 +220,10 @@ def build_execution_reality_matrix() -> tuple[ProviderExecutionRealityRow, ...]:
     rows: list[ProviderExecutionRealityRow] = []
     for provider_name in sorted(KNOWN_PROVIDERS):
         tiers = tuple(
-            sorted(set(lanes_by_provider.get(provider_name, [])), key=lambda item: item.value)
+            sorted(
+                set(lanes_by_provider.get(provider_name, [])),
+                key=lambda item: item.value,
+            )
         )
         rows.append(
             ProviderExecutionRealityRow(
@@ -228,7 +233,9 @@ def build_execution_reality_matrix() -> tuple[ProviderExecutionRealityRow, ...]:
                 notes=(
                     ("no governed real or CPU-safe validation lane is attached",)
                     if not tiers
-                    else ("provider execution posture is backed by explicit validation lanes",)
+                    else (
+                        "provider execution posture is backed by explicit validation lanes",
+                    )
                 ),
             )
         )

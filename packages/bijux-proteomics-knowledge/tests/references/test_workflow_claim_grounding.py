@@ -71,6 +71,4 @@ def test_claim_grounding_entries_keep_supported_and_thin_claims_distinguishable(
         entry.support_state is ClaimSupportState.THINNER_THAN_WORDING
         for entry in dda.entries
     )
-    assert any(
-        "target-decoy semantics" in entry.claim_text for entry in dda.entries
-    )
+    assert any("target-decoy semantics" in entry.claim_text for entry in dda.entries)

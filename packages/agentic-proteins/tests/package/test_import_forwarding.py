@@ -6,22 +6,31 @@ from typing import Any, cast
 
 from click.testing import CliRunner
 
-from agentic_proteins.interfaces.http import AppConfig as CompatAppConfig
-from agentic_proteins.interfaces.http import create_app as compat_create_app
-from agentic_proteins.interfaces.http.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
-from agentic_proteins.interfaces.structure_reports import Report as CompatReport
-from agentic_proteins.interfaces.structure_reports import (
-    nl_summary as compat_nl_summary,
+from agentic_proteins.agents.catalog import AgentCatalog as CompatAgentCatalog
+from agentic_proteins.agents.catalog import AgentRegistry as CompatAgentRegistry
+from agentic_proteins.agents.contracts import (
+    _minimal_payload as compat_minimal_payload,
 )
-from agentic_proteins.interfaces.structure_reports import (
-    confidence_summary as compat_confidence_summary,
+from agentic_proteins.agents.contracts import (
+    _placeholder_for_type as compat_placeholder_for_type,
 )
-from agentic_proteins.interfaces.structure_reports import (
-    format_pct as compat_format_pct,
+from agentic_proteins.execution.artifacts import (
+    _sign_payload as compat_sign_payload,
 )
-from agentic_proteins.interfaces.structure_reports import to_text as compat_to_text
 from agentic_proteins.execution.evaluation.observations import (
     EvaluationInput as CompatEvaluationInput,
+)
+from agentic_proteins.execution.manager import (
+    _build_run_summary as compat_build_run_summary,
+)
+from agentic_proteins.execution.manager import (
+    _ensure_telemetry_costs as compat_ensure_telemetry_costs,
+)
+from agentic_proteins.execution.manager import (
+    _select_structure_tool as compat_select_structure_tool,
+)
+from agentic_proteins.execution.manager import (
+    _version_info as compat_version_info,
 )
 from agentic_proteins.interfaces.cli import (
     _artifact_hashes as compat_artifact_hashes,
@@ -59,45 +68,33 @@ from agentic_proteins.interfaces.cli import (
 from agentic_proteins.interfaces.cli import (
     cli as compat_cli,
 )
+from agentic_proteins.interfaces.http import AppConfig as CompatAppConfig
+from agentic_proteins.interfaces.http import create_app as compat_create_app
+from agentic_proteins.interfaces.http.errors import _ERROR_TYPES as COMPAT_ERROR_TYPES
+from agentic_proteins.interfaces.structure_reports import Report as CompatReport
+from agentic_proteins.interfaces.structure_reports import (
+    confidence_summary as compat_confidence_summary,
+)
+from agentic_proteins.interfaces.structure_reports import (
+    format_pct as compat_format_pct,
+)
+from agentic_proteins.interfaces.structure_reports import (
+    nl_summary as compat_nl_summary,
+)
+from agentic_proteins.interfaces.structure_reports import to_text as compat_to_text
+from agentic_proteins.providers import capabilities as compat_capabilities
 from agentic_proteins.providers.base import _time_left as compat_time_left
-from agentic_proteins.providers.selection import (
-    _require_module as compat_require_module,
-)
-from agentic_proteins.agents.catalog import AgentCatalog as CompatAgentCatalog
-from agentic_proteins.agents.catalog import AgentRegistry as CompatAgentRegistry
-from agentic_proteins.tools.catalog import ToolCatalog as CompatToolCatalog
-from agentic_proteins.tools.catalog import ToolRegistry as CompatToolRegistry
-from agentic_proteins.execution.artifacts import (
-    _sign_payload as compat_sign_payload,
-)
-from agentic_proteins.execution.manager import (
-    _build_run_summary as compat_build_run_summary,
-)
-from agentic_proteins.execution.manager import (
-    _ensure_telemetry_costs as compat_ensure_telemetry_costs,
-)
-from agentic_proteins.execution.manager import (
-    _select_structure_tool as compat_select_structure_tool,
-)
-from agentic_proteins.execution.manager import (
-    _version_info as compat_version_info,
-)
 from agentic_proteins.providers.capabilities import (
     KNOWN_PROVIDERS as COMPAT_KNOWN_PROVIDERS,
 )
-from agentic_proteins.providers import capabilities as compat_capabilities
 from agentic_proteins.providers.capabilities import (
     validate_runtime_capabilities as compat_validate_runtime_capabilities,
 )
-from agentic_proteins.agents.contracts import (
-    _minimal_payload as compat_minimal_payload,
+from agentic_proteins.providers.selection import (
+    _require_module as compat_require_module,
 )
-from agentic_proteins.agents.contracts import (
-    _placeholder_for_type as compat_placeholder_for_type,
-)
-from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
-from bijux_proteomics_runtime.api import create_app as runtime_create_app
-from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
+from agentic_proteins.tools.catalog import ToolCatalog as CompatToolCatalog
+from agentic_proteins.tools.catalog import ToolRegistry as CompatToolRegistry
 from bijux_proteomics.review.structure_reports import Report as RuntimeReport
 from bijux_proteomics.review.structure_reports.render import (
     confidence_summary as runtime_confidence_summary,
@@ -109,9 +106,8 @@ from bijux_proteomics.review.structure_reports.render import (
     nl_summary as runtime_nl_summary,
 )
 from bijux_proteomics.review.structure_reports.render import to_text as runtime_to_text
-from bijux_proteomics_runtime.execution.evaluation.observations import (
-    EvaluationInput as RuntimeEvaluationInput,
-)
+from bijux_proteomics_runtime.api import AppConfig as RuntimeAppConfig
+from bijux_proteomics_runtime.api import create_app as runtime_create_app
 from bijux_proteomics_runtime.api.cli import (
     _artifact_hashes as runtime_artifact_hashes,
 )
@@ -148,15 +144,32 @@ from bijux_proteomics_runtime.api.cli import (
 from bijux_proteomics_runtime.api.cli import (
     cli as runtime_cli,
 )
-from bijux_proteomics_runtime.providers.contracts import _time_left as runtime_time_left
-from bijux_proteomics_runtime.providers.selection import (
-    _require_module as runtime_require_module,
-)
+from bijux_proteomics_runtime.api.errors import _ERROR_TYPES as RUNTIME_ERROR_TYPES
 from bijux_proteomics_runtime.execution.agents.catalog import (
     AgentCatalog as RuntimeAgentCatalog,
 )
+from bijux_proteomics_runtime.execution.agents.contracts import (
+    _minimal_payload as runtime_minimal_payload,
+)
+from bijux_proteomics_runtime.execution.agents.contracts import (
+    _placeholder_for_type as runtime_placeholder_for_type,
+)
+from bijux_proteomics_runtime.execution.evaluation.observations import (
+    EvaluationInput as RuntimeEvaluationInput,
+)
 from bijux_proteomics_runtime.execution.tools.catalog import (
     ToolCatalog as RuntimeToolCatalog,
+)
+from bijux_proteomics_runtime.providers import capabilities as runtime_capabilities
+from bijux_proteomics_runtime.providers.capabilities import (
+    KNOWN_PROVIDERS as RUNTIME_KNOWN_PROVIDERS,
+)
+from bijux_proteomics_runtime.providers.capabilities import (
+    validate_runtime_capabilities as runtime_validate_runtime_capabilities,
+)
+from bijux_proteomics_runtime.providers.contracts import _time_left as runtime_time_left
+from bijux_proteomics_runtime.providers.selection import (
+    _require_module as runtime_require_module,
 )
 from bijux_proteomics_runtime.runs.artifacts import (
     _sign_payload as runtime_sign_payload,
@@ -172,19 +185,6 @@ from bijux_proteomics_runtime.runs.manager import (
 )
 from bijux_proteomics_runtime.runs.manager import (
     _version_info as runtime_version_info,
-)
-from bijux_proteomics_runtime.providers import capabilities as runtime_capabilities
-from bijux_proteomics_runtime.providers.capabilities import (
-    KNOWN_PROVIDERS as RUNTIME_KNOWN_PROVIDERS,
-)
-from bijux_proteomics_runtime.providers.capabilities import (
-    validate_runtime_capabilities as runtime_validate_runtime_capabilities,
-)
-from bijux_proteomics_runtime.execution.agents.contracts import (
-    _minimal_payload as runtime_minimal_payload,
-)
-from bijux_proteomics_runtime.execution.agents.contracts import (
-    _placeholder_for_type as runtime_placeholder_for_type,
 )
 
 

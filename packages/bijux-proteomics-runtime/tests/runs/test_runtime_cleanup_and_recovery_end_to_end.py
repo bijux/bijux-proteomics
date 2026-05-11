@@ -2,15 +2,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.runs.checkpoints import write_resume_checkpoint
+from bijux_proteomics_runtime.runs.checkpoints import (
+    build_resume_checkpoint,
+    write_resume_checkpoint,
+)
 from bijux_proteomics_runtime.runs.cleanup import (
     apply_runtime_cleanup_plan,
     build_runtime_cleanup_plan,
 )
-from bijux_proteomics_runtime.runs.context import create_run_context
+from bijux_proteomics_runtime.runs.context import RunContext, create_run_context
 from bijux_proteomics_runtime.runs.contracts import build_run_context_contract
-from bijux_proteomics_runtime.runs.failure_reports import build_runtime_failure_report
-from bijux_proteomics_runtime.runs.failure_reports import write_runtime_failure_report
+from bijux_proteomics_runtime.runs.failure_reports import (
+    build_runtime_failure_report,
+    write_runtime_failure_report,
+)
 from bijux_proteomics_runtime.runs.integrity import verify_runtime_artifact_integrity
 from bijux_proteomics_runtime.runs.ledger import (
     load_artifact_ledger,
@@ -24,7 +29,6 @@ from bijux_proteomics_runtime.runs.replay import (
     write_local_run_bundle,
     write_replay_contract,
 )
-from bijux_proteomics_runtime.runs.checkpoints import build_resume_checkpoint
 from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 from ..support.fixture_data import load_fixture
@@ -38,7 +42,7 @@ def _seed_runtime_bundle(
     provider_name: str,
     failure_type: str | None = None,
     detail_codes: tuple[str, ...] = (),
-):
+) -> RunContext:
     context, _ = create_run_context(tmp_path, run_id=run_id)
     run_context = build_run_context_contract(
         run_id=context.run_id,

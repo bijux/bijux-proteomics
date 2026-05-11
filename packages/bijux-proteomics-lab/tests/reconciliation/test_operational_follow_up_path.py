@@ -70,12 +70,10 @@ def test_supported_fixture_builds_complete_operational_follow_up_path() -> None:
     handoff_validation = CandidateHandoffValidation.model_validate(
         fixture["handoff_validation"]
     )
-    transition_review = TargetedTransitionReview.model_validate(
-        fixture["transition_review"]
-    )
-    review_packet = ReviewPacket.model_validate(fixture["review_packet"])
-    executable_plan = ExecutableAssayPlan.model_validate(fixture["executable_plan"])
-    outcome = ExperimentOutcome.model_validate(fixture["outcome"])
+    TargetedTransitionReview.model_validate(fixture["transition_review"])
+    ReviewPacket.model_validate(fixture["review_packet"])
+    ExecutableAssayPlan.model_validate(fixture["executable_plan"])
+    ExperimentOutcome.model_validate(fixture["outcome"])
 
     path = _follow_up_path_from_fixture(fixture)
 

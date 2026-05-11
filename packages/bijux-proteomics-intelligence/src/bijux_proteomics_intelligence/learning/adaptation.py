@@ -32,7 +32,7 @@ class ObservedOutcomeSignal(JsonModel):
     decision_id: str = Field(..., min_length=1)
     matched_expectation: bool
     outcome_strength: float = Field(..., ge=0.0, le=1.0)
-    disposition: "OutcomeLearningDisposition | None" = None
+    disposition: OutcomeLearningDisposition | None = None
     follow_up_burden: float = Field(default=0.0, ge=0.0, le=1.0)
 
 

@@ -17,6 +17,7 @@ from bijux_proteomics_intelligence.candidates.quality import (
 )
 from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.execution.agents.planning.schemas import PlanDecision
+from bijux_proteomics_runtime.state.memory_records import MemoryScope
 from bijux_proteomics_runtime.support.primitives.decisions import (
     Decision,
     DecisionExplanation,
@@ -26,7 +27,6 @@ from bijux_proteomics_runtime.support.primitives.observations import (
     Observation,
     ReplanningTrigger,
 )
-from bijux_proteomics_runtime.state.memory_records import MemoryScope
 
 
 class AgentMetadata(BaseModel):
@@ -411,4 +411,7 @@ class ReportingAgentOutput(BaseModel):
     )
 
 
-from bijux_proteomics_runtime.support.primitives.execution import LoopLimits, LoopState  # noqa: E402
+from bijux_proteomics_runtime.support.primitives.execution import (  # noqa: E402
+    LoopLimits,
+    LoopState,
+)

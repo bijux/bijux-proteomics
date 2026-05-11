@@ -225,7 +225,9 @@ def build_flagship_workflow_manifest() -> FlagshipWorkflowManifest:
 
 
 def _render_tuple(values: tuple[str, ...]) -> str:
-    return ", ".join(f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values)
+    return ", ".join(
+        f'"{value.replace(chr(34), chr(92) + chr(34))}"' for value in values
+    )
 
 
 def _toml_text(manifest: FlagshipWorkflowManifest) -> str:
@@ -376,7 +378,9 @@ def validate_flagship_workflow_manifest(
                         detail=f"{stage.stage.value} validating test is not a pytest node id: {node_id}",
                     )
                 )
-            if any(token in node_id for token in ("simulated", "fake", "_fake_run_flow")):
+            if any(
+                token in node_id for token in ("simulated", "fake", "_fake_run_flow")
+            ):
                 issues.append(
                     FlagshipWorkflowManifestIssue(
                         code="fake-shortcut-validating-test",

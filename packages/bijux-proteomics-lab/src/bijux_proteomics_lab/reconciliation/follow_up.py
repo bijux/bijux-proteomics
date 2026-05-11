@@ -126,7 +126,7 @@ class OutcomeReconciliationReport(JsonModel):
     belief_posture: str = Field(..., min_length=1)
     belief_update_summary: tuple[str, ...] = Field(default_factory=tuple)
     operational_follow_through: tuple[str, ...] = Field(default_factory=tuple)
-    operator_actions: tuple["OperatorFollowThroughAction", ...] = Field(
+    operator_actions: tuple[OperatorFollowThroughAction, ...] = Field(
         default_factory=tuple
     )
     ready_for_feedback: bool = Field(

@@ -11,6 +11,13 @@ import time
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.io.spectra import parse_mgf
+from bijux_proteomics.quantification import (
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_label_free_intensity_table,
+    parse_ms1_feature_table,
+)
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study.qc import (
     QcEvidenceInputFile,
     build_lcms_run_qc_report,
@@ -19,13 +26,6 @@ from bijux_proteomics.study.qc import (
     build_run_qc_assessment,
     default_qc_threshold_policy,
 )
-from bijux_proteomics.quantification import (
-    QuantEntityLevel,
-    QuantRollupMethod,
-    build_label_free_intensity_table,
-    parse_ms1_feature_table,
-)
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics_runtime.workflows.plans import (
     WorkflowTemplateKind,
     build_proteomics_workflow_runtime_bundle,

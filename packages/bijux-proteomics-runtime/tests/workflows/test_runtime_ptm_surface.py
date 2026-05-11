@@ -6,8 +6,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.quantification import parse_ms1_feature_table
-from bijux_proteomics_runtime.workflows.runs import run_ptm_workflow_end_to_end
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics_runtime.workflows.runs import run_ptm_workflow_end_to_end
 
 
 def _ptm_fixture(name: str) -> Path:

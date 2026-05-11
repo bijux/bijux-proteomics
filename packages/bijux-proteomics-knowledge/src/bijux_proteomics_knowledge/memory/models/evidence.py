@@ -2059,9 +2059,9 @@ def assess_evidence_record(
         if len(group) > 1
         for evidence_id in group
     }
-    conflict_ids = {
-        conflict.left_evidence_id for conflict in conflicts
-    } | {conflict.right_evidence_id for conflict in conflicts}
+    conflict_ids = {conflict.left_evidence_id for conflict in conflicts} | {
+        conflict.right_evidence_id for conflict in conflicts
+    }
     quality = decompose_evidence_quality(record, now=now)
     artifact_risk = assess_artifact_risk(record)
     trust_score = round(score_evidence_record(record, now=now, policy=policy), 4)
@@ -2077,14 +2077,11 @@ def assess_evidence_record(
         or max_age_days is not None
         and age_days > max_age_days
     )
-    expires_soon = (
-        not is_stale
-        and (
-            record.expires_at is not None
-            and 0 <= (record.expires_at - now).total_seconds() / 86400.0 <= 30
-            or max_age_days is not None
-            and 0 <= max_age_days - age_days <= 30
-        )
+    expires_soon = not is_stale and (
+        record.expires_at is not None
+        and 0 <= (record.expires_at - now).total_seconds() / 86400.0 <= 30
+        or max_age_days is not None
+        and 0 <= max_age_days - age_days <= 30
     )
     if is_stale:
         freshness_state = EvidenceFreshnessState.STALE

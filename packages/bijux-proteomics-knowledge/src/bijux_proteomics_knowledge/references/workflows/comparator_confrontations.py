@@ -54,9 +54,7 @@ class WorkflowComparatorConfrontation(JsonModel):
     workflow_family: KnowledgeWorkflowFamily
     benchmark_id: str = Field(..., min_length=1)
     comparator_tool: ProteomicsComparatorTool
-    findings: tuple[ComparatorConfrontationFinding, ...] = Field(
-        default_factory=tuple
-    )
+    findings: tuple[ComparatorConfrontationFinding, ...] = Field(default_factory=tuple)
     overall_conclusion: str = Field(..., min_length=1)
     artifact_refs: tuple[str, ...] = Field(default_factory=tuple)
     next_escalation: str = Field(..., min_length=1)

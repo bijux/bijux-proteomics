@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.judgment.benchmark_policies import (
+from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     BenchmarkDisposition,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
@@ -36,9 +36,7 @@ def test_follow_up_outcome_dossier_family_covers_all_five_flagship_workflows() -
 
 
 def test_targeted_outcome_dossier_keeps_requested_vs_observed_value_visible() -> None:
-    dossier = build_flagship_follow_up_outcome_dossier(
-        KnowledgeWorkflowFamily.TARGETED
-    )
+    dossier = build_flagship_follow_up_outcome_dossier(KnowledgeWorkflowFamily.TARGETED)
 
     assert dossier.outcome_basis is FlagshipFollowUpOutcomeBasis.BENCHMARK_SIMULATED
     assert dossier.requested_assay_ids == ("prm-assay", "orthogonal-assay")
@@ -46,8 +44,14 @@ def test_targeted_outcome_dossier_keeps_requested_vs_observed_value_visible() ->
     assert dossier.matched_assay_ids == ("prm-assay", "orthogonal-assay")
     assert dossier.missing_requested_assay_ids == ()
     assert dossier.promoted_evidence_ids
-    assert dossier.initial_recommendation_disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
-    assert dossier.revised_recommendation_disposition is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    assert (
+        dossier.initial_recommendation_disposition
+        is BenchmarkDisposition.DO_NOT_RECOMMEND
+    )
+    assert (
+        dossier.revised_recommendation_disposition
+        is BenchmarkDisposition.RECOMMEND_WITH_DOWNGRADE
+    )
     assert dossier.recommendation_changed is True
     assert dossier.worth_it is True
     assert dossier.final_decision_impact is FlagshipFollowUpOutcomeImpact.CALIBRATED
@@ -59,7 +63,10 @@ def test_dia_outcome_dossier_marks_low_yield_follow_up_honestly() -> None:
     assert dossier.blocked_assay_ids == ("dia-library-bridge",)
     assert dossier.missing_requested_assay_ids == ("dia-library-bridge",)
     assert dossier.weakened_assay_ids == ("dia-matrix-shift-repeat",)
-    assert dossier.revised_recommendation_disposition is BenchmarkDisposition.DO_NOT_RECOMMEND
+    assert (
+        dossier.revised_recommendation_disposition
+        is BenchmarkDisposition.DO_NOT_RECOMMEND
+    )
     assert dossier.worth_it is False
     assert dossier.looked_justified_initially is True
     assert dossier.early_block_signals

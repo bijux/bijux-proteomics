@@ -279,7 +279,8 @@ def _raw_executable_cell(
     runtime_spec: BenchmarkRunSpec | None,
 ) -> WorkflowAuthorityCell:
     raw_executable = (
-        runtime_row is not None and runtime_row.run_mode is BenchmarkRunMode.RAW_EXECUTABLE
+        runtime_row is not None
+        and runtime_row.run_mode is BenchmarkRunMode.RAW_EXECUTABLE
     )
     artifact_paths = ()
     if runtime_spec is not None:
@@ -305,13 +306,20 @@ def _externally_cross_checked_cell(
     manifest: BenchmarkManifest,
     runtime_spec: BenchmarkRunSpec | None,
 ) -> WorkflowAuthorityCell:
-    earned = review.public_claim_support_state is not ComparatorClaimSupportState.REFUSED
+    earned = (
+        review.public_claim_support_state is not ComparatorClaimSupportState.REFUSED
+    )
     artifact_paths: list[str] = []
-    if manifest.benchmark_package is not None and manifest.benchmark_package.package_artifacts:
+    if (
+        manifest.benchmark_package is not None
+        and manifest.benchmark_package.package_artifacts
+    ):
         first_artifact = Path(
             manifest.benchmark_package.package_artifacts[0].repo_relative_path
         )
-        artifact_paths.append(f"{first_artifact.parent.parent.as_posix()}/package_manifest.json")
+        artifact_paths.append(
+            f"{first_artifact.parent.parent.as_posix()}/package_manifest.json"
+        )
     if runtime_spec is not None:
         artifact_paths.extend(runtime_spec.companion_input_paths[:2])
     return WorkflowAuthorityCell(
@@ -334,7 +342,11 @@ def _outsider_auditable_cell(
     runtime_spec: BenchmarkRunSpec | None,
 ) -> WorkflowAuthorityCell:
     acceptance_sheet = build_flagship_acceptance_sheet(workflow_family)
-    earned = outsider_packet.complete_outsider_surface if outsider_packet is not None else False
+    earned = (
+        outsider_packet.complete_outsider_surface
+        if outsider_packet is not None
+        else False
+    )
     artifact_paths = [
         link.repo_relative_path
         for link in (
@@ -370,14 +382,16 @@ def _lab_consequential_cell(
         and outcome_dossier is not None
         and worth_entry is not None
     )
-    artifact_paths = ()
+    artifact_paths: tuple[str, ...] = ()
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX or earned:
         artifact_paths = tuple(
             dict.fromkeys(
                 path
                 for path in (
                     "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/follow_up.py",
-                    outcome_dossier.artifact_path if outcome_dossier is not None else "",
+                    outcome_dossier.artifact_path
+                    if outcome_dossier is not None
+                    else "",
                     build_flagship_assay_worth_ledger().artifact_path
                     if worth_entry is not None
                     else "",

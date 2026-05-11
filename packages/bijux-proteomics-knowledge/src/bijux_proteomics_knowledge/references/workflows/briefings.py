@@ -162,7 +162,11 @@ def _decision_grade_framework(
                 WorkflowDecisionGradeCriterion(
                     criterion_id="dia_tier_alignment",
                     summary="Import, transition, protein, and biological interpretation tiers all remain above bounded scientific thresholds.",
-                    required_evidence_planes=("benchmark", "capability_matrix", "review_bundle"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "capability_matrix",
+                        "review_bundle",
+                    ),
                 ),
                 WorkflowDecisionGradeCriterion(
                     criterion_id="dia_library_and_mobility_coverage",
@@ -182,17 +186,29 @@ def _decision_grade_framework(
                 WorkflowDecisionGradeCriterion(
                     criterion_id="ptm_localization_confidence",
                     summary="Localization confidence remains high enough that ambiguous site groups do not dominate the claimed biology.",
-                    required_evidence_planes=("benchmark", "site_table", "localization"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "site_table",
+                        "localization",
+                    ),
                 ),
                 WorkflowDecisionGradeCriterion(
                     criterion_id="ptm_family_specific_scope",
                     summary="Only PTM families with explicit credibility tracks and scope limits can support decision-facing interpretation.",
-                    required_evidence_planes=("benchmark", "family_track", "references"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "family_track",
+                        "references",
+                    ),
                 ),
                 WorkflowDecisionGradeCriterion(
                     criterion_id="ptm_literature_bounded_interpretation",
                     summary="Motif and pathway interpretations remain aligned with literature and are blocked when ambiguity or comparator pressure stays unresolved.",
-                    required_evidence_planes=("benchmark", "literature", "review_packet"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "literature",
+                        "review_packet",
+                    ),
                 ),
             ),
         ),
@@ -227,7 +243,11 @@ def _decision_grade_framework(
                 WorkflowDecisionGradeCriterion(
                     criterion_id="multiplex_artifact_pressure",
                     summary="Ratio compression, overloaded carrier, and imbalance pressure remain explicit in the benchmark outcome.",
-                    required_evidence_planes=("benchmark", "chemistry", "review_bundle"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "chemistry",
+                        "review_bundle",
+                    ),
                 ),
                 WorkflowDecisionGradeCriterion(
                     criterion_id="multiplex_biological_scope",
@@ -242,7 +262,11 @@ def _decision_grade_framework(
                 WorkflowDecisionGradeCriterion(
                     criterion_id="targeted_qc_and_calibration",
                     summary="Chromatogram QC, calibration standards, and interference behavior all remain explicit before transition handoff.",
-                    required_evidence_planes=("benchmark", "chromatogram_qc", "calibration"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "chromatogram_qc",
+                        "calibration",
+                    ),
                 ),
                 WorkflowDecisionGradeCriterion(
                     criterion_id="targeted_control_coverage",
@@ -252,7 +276,11 @@ def _decision_grade_framework(
                 WorkflowDecisionGradeCriterion(
                     criterion_id="targeted_outcome_reconciliation",
                     summary="Observed failures are reconciled with corrective action instead of being hidden behind clean handoff prose.",
-                    required_evidence_planes=("benchmark", "reconciliation", "reporting"),
+                    required_evidence_planes=(
+                        "benchmark",
+                        "reconciliation",
+                        "reporting",
+                    ),
                 ),
             ),
         ),

@@ -62,9 +62,7 @@ _FAMILY_ORDER: tuple[str, ...] = (
     "targeted",
 )
 
-_FIXTURE_ROOT = (
-    "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs"
-)
+_FIXTURE_ROOT = "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs"
 
 
 class FlagshipRunArtifact(JsonModel):
@@ -236,7 +234,9 @@ def build_flagship_run_bundle(
     if workflow_family not in _FAMILY_ORDER:
         raise ValueError(f"unsupported flagship workflow family: {workflow_family}")
     if base_dir is None:
-        with tempfile.TemporaryDirectory(prefix=f"bijux-{workflow_family}-run-") as temp_dir:
+        with tempfile.TemporaryDirectory(
+            prefix=f"bijux-{workflow_family}-run-"
+        ) as temp_dir:
             return _build_flagship_run_bundle(workflow_family, Path(temp_dir))
     return _build_flagship_run_bundle(workflow_family, base_dir)
 
@@ -272,7 +272,9 @@ def build_flagship_run_failure_replay(
     spec = _runtime_spec_for_family(workflow_family)
     runtime_truth = _runtime_truth_for_family(spec.workflow_family)
     if base_dir is None:
-        with tempfile.TemporaryDirectory(prefix=f"bijux-{workflow_family}-failure-") as temp_dir:
+        with tempfile.TemporaryDirectory(
+            prefix=f"bijux-{workflow_family}-failure-"
+        ) as temp_dir:
             return _build_failure_replay_artifact(
                 workflow_family=workflow_family,
                 spec=spec,
@@ -316,9 +318,7 @@ def build_flagship_cross_family_run_bundle(
         intelligence_artifact_paths=tuple(
             recommendation_paths[family] for family in _FAMILY_ORDER
         ),
-        lab_artifact_paths=tuple(
-            lab_paths[family] for family in _FAMILY_ORDER
-        ),
+        lab_artifact_paths=tuple(lab_paths[family] for family in _FAMILY_ORDER),
         note=(
             "This bundle keeps the exact core, knowledge, intelligence, and lab artifacts visible beside the runtime-owned flagship run bundles so the workflow stops looking like adjacent islands."
         ),
@@ -397,12 +397,16 @@ def _build_flagship_run_bundle(
         benchmark_package_id=review.benchmark_package_id,
         runtime_package_id=spec.package_id,
         runtime_surface=runtime_surface,
-        authorized_claim_scope=tuple(str(item) for item in review.authorized_claim_scope),
+        authorized_claim_scope=tuple(
+            str(item) for item in review.authorized_claim_scope
+        ),
         remaining_blockers=_remaining_blockers(
             workflow_family=workflow_family,
             runtime_truth=runtime_truth,
             review_limits=tuple(str(item) for item in review.scientific_limits),
-            recommendation_blockers=tuple(str(item) for item in recommendation.blocker_set),
+            recommendation_blockers=tuple(
+                str(item) for item in recommendation.blocker_set
+            ),
         ),
         artifact_inventory=tuple(artifact_inventory),
         stage_lineage_artifact_path=stage_lineage.artifact_path,
@@ -547,7 +551,9 @@ def _import_runtime_surface_snapshot(
         )
     )
     execution_summary = (
-        browser.imported_results[0].summary if browser.imported_results else "no imported comparator payload",
+        browser.imported_results[0].summary
+        if browser.imported_results
+        else "no imported comparator payload",
         f"review_outputs={','.join(entry.artifact_kind for entry in browser.review_outputs)}",
         f"handoff_outputs={','.join(entry.artifact_kind for entry in browser.handoff_outputs)}",
     )
@@ -568,7 +574,9 @@ def _import_runtime_surface_snapshot(
             for artifact in (*_public_package_artifacts(spec), *_input_artifacts(spec))
             if artifact.artifact_role in {"primary_input", "companion_input"}
         ),
-        runtime_artifact_ids=tuple(artifact.artifact_id for artifact in runtime_artifacts),
+        runtime_artifact_ids=tuple(
+            artifact.artifact_id for artifact in runtime_artifacts
+        ),
         execution_summary=execution_summary,
         validating_test_paths=spec.validating_test_paths,
         note=(
@@ -617,7 +625,9 @@ def _report_runtime_surface_snapshot(
             for artifact in (*_public_package_artifacts(spec), *_input_artifacts(spec))
             if artifact.artifact_role in {"primary_input", "companion_input"}
         ),
-        runtime_artifact_ids=tuple(artifact.artifact_id for artifact in runtime_artifacts),
+        runtime_artifact_ids=tuple(
+            artifact.artifact_id for artifact in runtime_artifacts
+        ),
         execution_summary=report_summary,
         validating_test_paths=spec.validating_test_paths,
         note=(
@@ -634,7 +644,8 @@ def _build_stage_lineage_artifact(
     runtime_artifact_ids: tuple[str, ...],
 ) -> FlagshipRunStageLineageArtifact:
     input_ids = tuple(
-        artifact.artifact_id for artifact in (*_public_package_artifacts(spec), *_input_artifacts(spec))
+        artifact.artifact_id
+        for artifact in (*_public_package_artifacts(spec), *_input_artifacts(spec))
         if artifact.artifact_role in {"primary_input", "companion_input"}
     )
     midpoint = max(1, len(runtime_artifact_ids) // 2)
@@ -762,7 +773,8 @@ def _report_failure_replay_artifact(
             failure_kind="scientific_invalidation",
             surfaced_artifact_ids=(f"{workflow_family}:runtime:2",),
             blocked_artifact_ids=(),
-            invalidation_reasons=runtime_truth.blocker_notes or ("scientific_limits_remain",),
+            invalidation_reasons=runtime_truth.blocker_notes
+            or ("scientific_limits_remain",),
             note="runtime still records the run, but the review posture is downgraded when the scientific assumptions or claim boundaries fail.",
         ),
         FlagshipRunFailureReplayCase(
@@ -796,7 +808,9 @@ def _runtime_spec_for_family(workflow_family: str) -> BenchmarkRunSpec:
     }
     runtime_family = mapping[workflow_family]
     return next(
-        spec for spec in build_benchmark_run_specs() if spec.workflow_family == runtime_family
+        spec
+        for spec in build_benchmark_run_specs()
+        if spec.workflow_family == runtime_family
     )
 
 
@@ -808,7 +822,9 @@ def _runtime_truth_for_family(workflow_family: str) -> BenchmarkRuntimeTruthRow:
     )
 
 
-def _public_package_artifacts(spec: BenchmarkRunSpec) -> tuple[FlagshipRunArtifact, ...]:
+def _public_package_artifacts(
+    spec: BenchmarkRunSpec,
+) -> tuple[FlagshipRunArtifact, ...]:
     artifacts: list[FlagshipRunArtifact] = []
     for index, path in enumerate(spec.public_package_paths, start=1):
         artifacts.append(
@@ -871,7 +887,9 @@ def _remaining_blockers(
         *recommendation_blockers[:2],
     ]
     if workflow_family in {"lfq", "ptm", "targeted"}:
-        blockers.append("release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply")
+        blockers.append(
+            "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
+        )
     return tuple(dict.fromkeys(blockers))
 
 
@@ -891,33 +909,29 @@ def _downstream_context() -> dict[str, dict[str, Any]]:
     reading_packs_module = import_module(
         "bijux_proteomics_knowledge.references.workflows.scientific_reading_packs"
     )
-    lab_follow_up_module = import_module(
-        "bijux_proteomics_lab.benchmarks.follow_up"
-    )
+    lab_follow_up_module = import_module("bijux_proteomics_lab.benchmarks.follow_up")
 
-    list_flagship_benchmark_reviews = getattr(
-        benchmark_corpora_module, "list_flagship_benchmark_reviews"
+    list_flagship_benchmark_reviews = (
+        benchmark_corpora_module.list_flagship_benchmark_reviews
     )
-    build_flagship_benchmark_recommendation_packet_family = getattr(
-        benchmark_packets_module, "build_flagship_benchmark_recommendation_packet_family"
+    build_flagship_benchmark_recommendation_packet_family = (
+        benchmark_packets_module.build_flagship_benchmark_recommendation_packet_family
     )
-    knowledge_workflow_family = getattr(
-        knowledge_benchmarks_module, "KnowledgeWorkflowFamily"
+    knowledge_workflow_family = knowledge_benchmarks_module.KnowledgeWorkflowFamily
+    get_benchmark_manifest_for_family = (
+        reference_support_module.get_benchmark_manifest_for_family
     )
-    get_benchmark_manifest_for_family = getattr(
-        reference_support_module, "get_benchmark_manifest_for_family"
+    build_workflow_scientific_reading_pack = (
+        reading_packs_module.build_workflow_scientific_reading_pack
     )
-    build_workflow_scientific_reading_pack = getattr(
-        reading_packs_module, "build_workflow_scientific_reading_pack"
+    build_flagship_lab_follow_up_packet_family = (
+        lab_follow_up_module.build_flagship_lab_follow_up_packet_family
     )
-    build_flagship_lab_follow_up_packet_family = getattr(
-        lab_follow_up_module, "build_flagship_lab_follow_up_packet_family"
+    build_flagship_lab_review_board = (
+        lab_follow_up_module.build_flagship_lab_review_board
     )
-    build_flagship_lab_review_board = getattr(
-        lab_follow_up_module, "build_flagship_lab_review_board"
-    )
-    build_flagship_minimum_controls_table = getattr(
-        lab_follow_up_module, "build_flagship_minimum_controls_table"
+    build_flagship_minimum_controls_table = (
+        lab_follow_up_module.build_flagship_minimum_controls_table
     )
 
     families = {family.value: family for family in knowledge_workflow_family}

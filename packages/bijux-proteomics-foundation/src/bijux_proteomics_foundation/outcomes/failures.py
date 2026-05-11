@@ -8,12 +8,12 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
-from pydantic import AliasChoices, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
-from bijux_proteomics_foundation.support.provenance import ProvenancePointer
-from bijux_proteomics_foundation.support.states import SupportState
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_pairs
+from bijux_proteomics_foundation.support.provenance import ProvenancePointer
+from bijux_proteomics_foundation.support.states import SupportState
 
 
 class ErrorCategory(StrEnum):
@@ -34,15 +34,21 @@ class ErrorEnvelope(JsonModel):
     category: ErrorCategory
     code: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
-    support_state: SupportState = Field(
-        default=SupportState.INCOMPLETE,
-        validation_alias=AliasChoices("support_state", "state"),
-        serialization_alias="support_state",
-    )
+    support_state: SupportState = Field(default=SupportState.INCOMPLETE)
     retryable: bool = False
     context: tuple[tuple[str, Any], ...] = Field(default_factory=tuple)
     cause_chain: tuple[str, ...] = Field(default_factory=tuple)
     provenance: tuple[ProvenancePointer, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_keys(cls, value: object) -> object:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        if "support_state" not in payload and "state" in payload:
+            payload["support_state"] = payload.pop("state")
+        return payload
 
     @field_validator("code")
     @classmethod
@@ -87,13 +93,14 @@ def build_error_envelope_from_exception(
     state: SupportState = SupportState.INCOMPLETE,
 ) -> ErrorEnvelope:
     """Build one error envelope while preserving exception nesting order."""
+    normalized_context = stable_order_pairs(context)
     return ErrorEnvelope(
         category=category,
         code=code,
         message=message or str(error) or type(error).__name__,
         support_state=state,
         retryable=retryable,
-        context=context,
+        context=normalized_context,
         cause_chain=summarize_exception_chain(error),
         provenance=provenance,
     )

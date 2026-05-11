@@ -57,7 +57,10 @@ def build_flagship_workflow_follow_up_packet(
         raise ValueError("next_cycle_artifact_path must live under artifacts/")
 
     actions: list[FlagshipFollowUpAction] = []
-    if decision_review.decision_state is FlagshipDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT:
+    if (
+        decision_review.decision_state
+        is FlagshipDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
+    ):
         actions.append(
             FlagshipFollowUpAction(
                 action_id="resolve-scientific-conflict",

@@ -14,8 +14,8 @@ def test_provenance_pointer_orders_labels_and_keeps_alias_contracts() -> None:
     pointer = ProvenancePointer(
         pointer_kind=ProvenancePointerKind.DOCUMENT,
         locator="documents/review/report.json",
-        role="review_artifact",
-        labels=("zeta", "alpha", "beta"),
+        pointer_role="review_artifact",
+        pointer_labels=("zeta", "alpha", "beta"),
     )
 
     rendered = pointer.to_dict()

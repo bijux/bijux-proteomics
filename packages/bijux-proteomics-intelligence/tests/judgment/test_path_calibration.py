@@ -6,7 +6,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
 from bijux_proteomics_intelligence.judgment.paths import (
     build_follow_up_candidate_path,
@@ -24,7 +24,7 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
 )
 
 
-def _program() -> object:
+def _program() -> ProgramSpec:
     program = create_program_spec(
         program_id="prog-calibration",
         name="decision calibration",

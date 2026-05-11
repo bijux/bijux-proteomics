@@ -27,4 +27,6 @@ def test_flagship_benchmark_recommendation_packet_family_covers_all_workflow_fam
         KnowledgeWorkflowFamily.PTM,
         KnowledgeWorkflowFamily.TARGETED,
     }
-    assert all(packet.artifact_path.startswith("artifacts/") for packet in family.packets)
+    assert all(
+        packet.artifact_path.startswith("artifacts/") for packet in family.packets
+    )

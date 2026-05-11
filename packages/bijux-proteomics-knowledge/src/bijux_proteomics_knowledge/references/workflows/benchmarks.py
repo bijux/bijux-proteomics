@@ -106,9 +106,7 @@ class WorkflowBenchmarkPackage(JsonModel):
     transparent_assumptions: tuple[str, ...] = Field(..., min_length=1)
     governed_output_surfaces: tuple[str, ...] = Field(..., min_length=1)
     package_artifacts: tuple[BenchmarkPackageArtifact, ...] = Field(..., min_length=1)
-    reproduction_steps: tuple[BenchmarkReproductionStep, ...] = Field(
-        ..., min_length=1
-    )
+    reproduction_steps: tuple[BenchmarkReproductionStep, ...] = Field(..., min_length=1)
 
     @field_validator(
         "realism_pressures",

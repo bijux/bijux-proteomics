@@ -115,8 +115,7 @@ def build_benchmark_follow_up_learning_artifact(
     return BenchmarkFollowUpLearningArtifact(
         artifact_id=f"benchmark_follow_up_learning:{workflow_family.value}",
         artifact_path=(
-            "artifacts/lab/flagship-follow-up-learning/"
-            f"{workflow_family.value}.json"
+            f"artifacts/lab/flagship-follow-up-learning/{workflow_family.value}.json"
         ),
         benchmark_id=benchmark_id,
         workflow_family=workflow_family,

@@ -15,8 +15,8 @@ from bijux_proteomics_runtime.execution.agents.schemas import (
     SequenceAnalysisAgentInput,
     SequenceAnalysisAgentOutput,
 )
-from bijux_proteomics_runtime.support.primitives.decisions import Decision
 from bijux_proteomics_runtime.state.memory_records import MemoryScope
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
 
 
 class SequenceAnalysisAgent(AgentRole):

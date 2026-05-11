@@ -197,8 +197,7 @@ def build_workflow_contradiction_stress_suite(
     entries = tuple(
         WorkflowContradictionStressEntry(
             scenario_id=(
-                f"{workflow_family.value}:{entry.literature_group_id}:"
-                f"{index + 1}"
+                f"{workflow_family.value}:{entry.literature_group_id}:{index + 1}"
             ),
             benchmark_id=entry.benchmark_id,
             literature_group_id=entry.literature_group_id,

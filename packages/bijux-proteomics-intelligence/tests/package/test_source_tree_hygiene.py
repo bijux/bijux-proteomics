@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 INTELLIGENCE_TREE_ROOTS = (
     Path("packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence"),
     Path("packages/bijux-proteomics-intelligence/tests"),

@@ -11,8 +11,8 @@ from typing import ClassVar
 from pydantic import BaseModel
 
 from bijux_proteomics_runtime.execution.agents.schemas import AgentMetadata
-from bijux_proteomics_runtime.support.primitives.decisions import Decision
 from bijux_proteomics_runtime.state.memory_records import MemoryScope
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
 
 
 class AgentRole(ABC):

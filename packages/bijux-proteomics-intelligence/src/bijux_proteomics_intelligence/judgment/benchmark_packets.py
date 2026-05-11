@@ -86,15 +86,23 @@ class BenchmarkRecommendationPacketFamily(JsonModel):
     note: str = Field(..., min_length=1)
 
 
-def _build_evidence_state(review: WorkflowBenchmarkReview) -> FlagshipBenchmarkEvidenceState:
+def _build_evidence_state(
+    review: WorkflowBenchmarkReview,
+) -> FlagshipBenchmarkEvidenceState:
     supported = sum(
-        1 for claim in review.claim_summaries if claim.support_state is SupportState.SUPPORTED
+        1
+        for claim in review.claim_summaries
+        if claim.support_state is SupportState.SUPPORTED
     )
     advisory = sum(
-        1 for claim in review.claim_summaries if claim.support_state is SupportState.ADVISORY
+        1
+        for claim in review.claim_summaries
+        if claim.support_state is SupportState.ADVISORY
     )
     refused = sum(
-        1 for claim in review.claim_summaries if claim.support_state is SupportState.REFUSED
+        1
+        for claim in review.claim_summaries
+        if claim.support_state is SupportState.REFUSED
     )
     return FlagshipBenchmarkEvidenceState(
         benchmark_id=review.benchmark_id,

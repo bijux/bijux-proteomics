@@ -16,7 +16,9 @@ from bijux_proteomics_knowledge.references.workflows.knowledge_deficits import (
 def test_workflow_knowledge_deficit_reports_cover_each_family() -> None:
     reports = list_workflow_knowledge_deficit_reports()
 
-    assert {report.workflow_family for report in reports} == set(KnowledgeWorkflowFamily)
+    assert {report.workflow_family for report in reports} == set(
+        KnowledgeWorkflowFamily
+    )
 
 
 def test_workflow_knowledge_deficit_report_exposes_all_gap_planes() -> None:
@@ -35,7 +37,10 @@ def test_workflow_knowledge_deficit_report_marks_targeted_gap_as_release_blockin
     report = build_workflow_knowledge_deficit_report(KnowledgeWorkflowFamily.TARGETED)
 
     assert report.highest_severity is KnowledgeDeficitSeverity.HIGH
-    assert any("Skyline" in item.closure_condition or "comparator" in item.closure_condition for item in report.comparator_gaps)
+    assert any(
+        "Skyline" in item.closure_condition or "comparator" in item.closure_condition
+        for item in report.comparator_gaps
+    )
 
 
 def test_dda_knowledge_deficit_report_no_longer_claims_curated_mini_study_gap() -> None:

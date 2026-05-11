@@ -5,8 +5,8 @@ from __future__ import annotations
 
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_lab.handoffs.artifacts import (
-    LabArtifactSchemaContract,
     LabArtifactContractRegistry,
+    LabArtifactSchemaContract,
     build_lab_artifact_upgrade_advisory,
     evaluate_lab_artifact_compatibility,
     evaluate_lab_artifact_schema_contract,

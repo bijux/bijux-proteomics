@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation import JsonModel
 from bijux_proteomics_intelligence.judgment.benchmark_corpora import (
     BenchmarkDisposition,
 )
@@ -31,7 +32,6 @@ from bijux_proteomics_knowledge.references.workflows.literature_audits import (
 from bijux_proteomics_knowledge.references.workflows.reference_support import (
     get_benchmark_manifest_for_family,
 )
-from bijux_proteomics_foundation import JsonModel
 
 __all__ = [
     "CounterfactualRecommendationEntry",
@@ -65,7 +65,9 @@ class CounterfactualRecommendationReport(JsonModel):
 
     report_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
-    entries: tuple[CounterfactualRecommendationEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[CounterfactualRecommendationEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -86,7 +88,9 @@ def _packets() -> tuple[BenchmarkRecommendationPacket, ...]:
 
 def _lab_burden(packet: BenchmarkRecommendationPacket) -> str:
     burden_entry = next(
-        item for item in packet.operational_implications if item.startswith("lab_burden=")
+        item
+        for item in packet.operational_implications
+        if item.startswith("lab_burden=")
     )
     return burden_entry.split("=", 1)[1]
 
@@ -123,7 +127,8 @@ def _without_literature(
         for entry in triage.entries
     )
     severe_unsupported = any(
-        entry.scientific_severity in {ScientificClaimSeverity.MEDIUM, ScientificClaimSeverity.HIGH}
+        entry.scientific_severity
+        in {ScientificClaimSeverity.MEDIUM, ScientificClaimSeverity.HIGH}
         for entry in unsupported.entries
     )
     if outdated or release_blocking or severe_unsupported:
@@ -147,11 +152,15 @@ def _with_doubled_lab_burden(
         )
     current_burden = _lab_burden(packet)
     return (
-        BenchmarkDisposition.DO_NOT_RECOMMEND,
-        "Doubling lab burden turns the current bounded recommendation into an unjustified spend because the family still sits at review-grade rather than decision-grade evidence.",
-    ) if current_burden in {"medium", "high"} else (
-        packet.disposition,
-        "Lab burden remains low enough that doubling it would not change the current family disposition.",
+        (
+            BenchmarkDisposition.DO_NOT_RECOMMEND,
+            "Doubling lab burden turns the current bounded recommendation into an unjustified spend because the family still sits at review-grade rather than decision-grade evidence.",
+        )
+        if current_burden in {"medium", "high"}
+        else (
+            packet.disposition,
+            "Lab burden remains low enough that doubling it would not change the current family disposition.",
+        )
     )
 
 

@@ -563,7 +563,9 @@ def test_build_evidence_state_index_surfaces_trust_freshness_and_uncertainty() -
         ],
     )
 
-    state_index = build_evidence_state_index(bundle, decision_tag="progression", now=now)
+    state_index = build_evidence_state_index(
+        bundle, decision_tag="progression", now=now
+    )
 
     assert isinstance(state_index, EvidenceStateIndex)
     assert state_index.trusted_record_ids == ("fresh-support",)

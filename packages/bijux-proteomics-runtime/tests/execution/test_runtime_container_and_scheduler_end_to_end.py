@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
 
@@ -24,8 +26,10 @@ from bijux_proteomics_runtime.support.workspace import RunWorkspace
 from ..support.fixture_data import load_fixture
 
 
-def _fake_run_flow_from_fixture(fixture: dict[str, object]):
-    result_payload = dict(fixture["fake_run_flow_result"])
+def _fake_run_flow_from_fixture(
+    fixture: dict[str, object],
+) -> Callable[[Any, Any, Any], dict[str, object]]:
+    result_payload = dict(cast(dict[str, object], fixture["fake_run_flow_result"]))
 
     def _fake_run_flow(candidate, context, tool):  # type: ignore[no-untyped-def]
         result = dict(result_payload)

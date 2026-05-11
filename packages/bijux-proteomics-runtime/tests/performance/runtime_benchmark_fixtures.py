@@ -5,23 +5,31 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics.identification.search_adapters import SearchAdapterKind
 from bijux_proteomics_runtime.runs import (
-    RuntimeArtifactRetentionClass,
     RunConfig,
+    RuntimeArtifactRetentionClass,
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runs.ledger import refresh_runtime_artifact_ledger
-from bijux_proteomics_runtime.runs.replay import build_local_run_bundle
-from bijux_proteomics_runtime.runs.ledger import ArtifactLedgerEntry
-from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
-from bijux_proteomics_runtime.runs.replay import build_replay_contract
-from bijux_proteomics_runtime.runs.replay import write_local_run_bundle
-from bijux_proteomics_runtime.runs.replay import write_replay_contract
-from bijux_proteomics_runtime.support.workspace import write_json_atomic
+from bijux_proteomics_runtime.runs.contracts import RunContextContract
+from bijux_proteomics_runtime.runs.ledger import (
+    ArtifactLedgerEntry,
+    RuntimeArtifactLedger,
+    refresh_runtime_artifact_ledger,
+)
+from bijux_proteomics_runtime.runs.replay import (
+    ReplayContract,
+    build_local_run_bundle,
+    build_replay_contract,
+    write_local_run_bundle,
+    write_replay_contract,
+)
+from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 from bijux_proteomics_runtime.workflows.plans import (
+    ProteomicsWorkflowRuntimeBundle,
     WorkflowArchiveMedium,
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_archive_bundle,
@@ -141,7 +149,14 @@ def seed_medium_artifact_runs(base_dir: Path, *, run_count: int = 18) -> None:
             )
 
 
-def build_medium_rerun_fixture(tmp_path: Path):
+def build_medium_rerun_fixture(
+    tmp_path: Path,
+) -> tuple[
+    RunContextContract,
+    ReplayContract,
+    ReplayContract,
+    RuntimeArtifactLedger,
+]:
     config = build_medium_startup_config()
     previous_context, _ = create_run_context(
         tmp_path,
@@ -236,7 +251,7 @@ def write_medium_import_source(path: Path) -> None:
     )
 
 
-def build_medium_local_bundle_workspace(base_dir: Path):
+def build_medium_local_bundle_workspace(base_dir: Path) -> RunWorkspace:
     context, _ = create_run_context(
         base_dir,
         build_medium_startup_config(),
@@ -314,10 +329,10 @@ def build_medium_local_bundle_workspace(base_dir: Path):
         artifact_policy=context.artifact_policy,
         producer="benchmark",
     )
-    return context.workspace
+    return cast(RunWorkspace, context.workspace)
 
 
-def build_medium_workflow_runtime_bundle_fixture():
+def build_medium_workflow_runtime_bundle_fixture() -> ProteomicsWorkflowRuntimeBundle:
     return build_proteomics_workflow_runtime_bundle(
         proteins_path=_workflow_fixture("proteins.fasta"),
         spectra_path=_workflow_fixture("spectra.mgf"),

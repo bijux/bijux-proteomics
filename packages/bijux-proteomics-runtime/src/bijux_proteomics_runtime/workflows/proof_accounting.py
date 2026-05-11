@@ -81,7 +81,9 @@ class RuntimeExecutionShortcutAudit(JsonModel):
 
     audit_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
-    entries: tuple[RuntimeExecutionShortcutAuditEntry, ...] = Field(default_factory=tuple)
+    entries: tuple[RuntimeExecutionShortcutAuditEntry, ...] = Field(
+        default_factory=tuple
+    )
     note: str = Field(..., min_length=1)
 
 
@@ -175,7 +177,9 @@ def build_runtime_execution_shortcut_audit(
         content = (root / relative_path).read_text(encoding="utf-8")
         for match in _SHORTCUT_PATTERN.finditer(content):
             helper_name = match.group("name")
-            classification = _shortcut_classifications().get((relative_path, helper_name))
+            classification = _shortcut_classifications().get(
+                (relative_path, helper_name)
+            )
             if classification is None:
                 entries.append(
                     RuntimeExecutionShortcutAuditEntry(
@@ -226,7 +230,10 @@ def validate_runtime_execution_shortcut_audit(
     audit = build_runtime_execution_shortcut_audit(repo_root)
     issues: list[RuntimeExecutionShortcutAuditIssue] = []
     for entry in audit.entries:
-        if not entry.justified_exception and entry.proof_class is RuntimeProofClass.SIMULATION_ONLY:
+        if (
+            not entry.justified_exception
+            and entry.proof_class is RuntimeProofClass.SIMULATION_ONLY
+        ):
             issues.append(
                 RuntimeExecutionShortcutAuditIssue(
                     code="unclassified-fake-helper",
@@ -236,7 +243,9 @@ def validate_runtime_execution_shortcut_audit(
                     ),
                 )
             )
-        if any(token in entry.test_path for token in _PROHIBITED_FAMILY_TOKENS) and not (
+        if any(
+            token in entry.test_path for token in _PROHIBITED_FAMILY_TOKENS
+        ) and not (
             entry.proof_class is RuntimeProofClass.SIMULATION_ONLY
             and entry.justified_exception
             and not entry.counts_toward_flagship_proof
@@ -250,7 +259,10 @@ def validate_runtime_execution_shortcut_audit(
                     ),
                 )
             )
-        if entry.counts_toward_flagship_proof and entry.proof_class is RuntimeProofClass.SIMULATION_ONLY:
+        if (
+            entry.counts_toward_flagship_proof
+            and entry.proof_class is RuntimeProofClass.SIMULATION_ONLY
+        ):
             issues.append(
                 RuntimeExecutionShortcutAuditIssue(
                     code="simulation-counted-as-flagship-proof",
@@ -356,9 +368,7 @@ def build_runtime_flagship_proof_gate(
     audit = build_runtime_execution_shortcut_audit(repo_root)
     proof_map = build_runtime_proof_map()
     shortcut_tests = {
-        entry.test_path
-        for entry in audit.entries
-        if entry.counts_toward_flagship_proof
+        entry.test_path for entry in audit.entries if entry.counts_toward_flagship_proof
     }
     blocked: set[str] = set()
     for claim in proof_map.claims:

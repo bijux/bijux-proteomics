@@ -3,13 +3,15 @@
 
 from __future__ import annotations
 
-import json
 from itertools import count
+import json
 from pathlib import Path
+from typing import Any, cast
+
+import pytest
 
 from bijux_proteomics_runtime.api.catalog import build_artifact_lookup_response
-from bijux_proteomics_runtime.runs import RunManager
-from bijux_proteomics_runtime.runs import create_run_context
+from bijux_proteomics_runtime.runs import RunManager, create_run_context
 from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
 from bijux_proteomics_runtime.workflows.paths import run_reviewable_sequence_path
 
@@ -21,10 +23,13 @@ from .runtime_benchmark_fixtures import (
 
 
 def _load_execution_fixture(name: str) -> dict[str, object]:
-    return json.loads(
-        (
-            Path(__file__).resolve().parents[1] / "fixtures" / "execution" / name
-        ).read_text(encoding="utf-8")
+    return cast(
+        dict[str, object],
+        json.loads(
+            (
+                Path(__file__).resolve().parents[1] / "fixtures" / "execution" / name
+            ).read_text(encoding="utf-8")
+        ),
     )
 
 
@@ -49,7 +54,7 @@ def _fake_success(candidate, context, tool):  # type: ignore[no-untyped-def]
 
 
 def test_runtime_startup_benchmark_creates_context_layout_for_medium_config(
-    benchmark,
+    benchmark: Any,
     tmp_path: Path,
 ) -> None:
     startup_root = tmp_path / "startup"
@@ -66,7 +71,7 @@ def test_runtime_startup_benchmark_creates_context_layout_for_medium_config(
 
 
 def test_runtime_artifact_listing_benchmark_scales_across_medium_seeded_runs(
-    benchmark,
+    benchmark: Any,
     tmp_path: Path,
 ) -> None:
     seed_medium_artifact_runs(tmp_path)
@@ -83,7 +88,7 @@ def test_runtime_artifact_listing_benchmark_scales_across_medium_seeded_runs(
 
 
 def test_runtime_replay_planning_benchmark_measures_medium_invalidation_cost(
-    benchmark,
+    benchmark: Any,
     tmp_path: Path,
 ) -> None:
     run_context, expected, current, ledger = build_medium_rerun_fixture(tmp_path)
@@ -102,8 +107,8 @@ def test_runtime_replay_planning_benchmark_measures_medium_invalidation_cost(
 
 
 def test_runtime_medium_execution_benchmark_publishes_reviewable_path(
-    benchmark,
-    monkeypatch,
+    benchmark: Any,
+    monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     monkeypatch.setattr(
@@ -122,27 +127,31 @@ def test_runtime_medium_execution_benchmark_publishes_reviewable_path(
 
 
 def test_runtime_import_benchmark_processes_medium_fixture_payload(
-    benchmark,
+    benchmark: Any,
     tmp_path: Path,
 ) -> None:
     fixture = _load_execution_fixture("medium_import_benchmark.json")
+    source_payload = cast(dict[str, object], fixture["source_payload"])
     source_path = tmp_path / "external" / str(fixture["source_filename"])
     source_path.parent.mkdir(parents=True, exist_ok=True)
     source_path.write_text(
-        json.dumps(fixture["source_payload"], indent=2, sort_keys=True),
+        json.dumps(source_payload, indent=2, sort_keys=True),
         encoding="utf-8",
     )
     run_ids = count()
 
     def _import_medium_fixture() -> dict[str, object]:
         run_id = f"runtime-import-medium-{next(run_ids)}"
-        return RunManager(tmp_path).import_result(
-            sequence=str(fixture["sequence"]),
-            source_path=source_path,
-            imported_payload=dict(fixture["source_payload"]),
-            engine_name=str(fixture["engine_name"]),
-            engine_version=str(fixture["engine_version"]),
-            run_id=run_id,
+        return cast(
+            dict[str, object],
+            RunManager(tmp_path).import_result(
+                sequence=str(fixture["sequence"]),
+                source_path=source_path,
+                imported_payload=dict(source_payload),
+                engine_name=str(fixture["engine_name"]),
+                engine_version=str(fixture["engine_version"]),
+                run_id=run_id,
+            ),
         )
 
     result = benchmark.pedantic(_import_medium_fixture, rounds=3, iterations=1)

@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from typing import cast
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics_intelligence.candidates.lifecycle import CandidateRiskProfile
 from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
+    RankedCandidate,
     build_ranking_sensitivity_report,
     prioritize_candidates,
 )
@@ -22,18 +24,15 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     ScenarioSetEvaluation,
 )
 from bijux_proteomics_intelligence.posture.evidence import (
-    assess_recommendation_readiness,
     ContradictionPosture,
     FreshnessPosture,
+    assess_recommendation_readiness,
     summarize_evidence_contradictions,
     summarize_evidence_freshness,
 )
 from bijux_proteomics_intelligence.reviews.decision_briefs import (
     ComparativeCandidateReviewPacket,
     build_comparative_candidate_review_packet,
-)
-from bijux_proteomics_knowledge.references.grounding.rules import (
-    build_ranking_rule_grounding_ledger,
 )
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
@@ -42,12 +41,15 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceSourceType,
     EvidenceStrength,
 )
+from bijux_proteomics_knowledge.references.grounding.rules import (
+    build_ranking_rule_grounding_ledger,
+)
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
 
 
-def _program() -> object:
+def _program() -> ProgramSpec:
     program = create_program_spec(
         program_id="prog-judgment",
         name="judgment surface",
@@ -67,6 +69,13 @@ def _program() -> object:
         )
     )
     return program
+
+
+def _explainability_section(
+    candidate: RankedCandidate,
+    section: str,
+) -> dict[str, object]:
+    return cast(dict[str, object], candidate.explainability[section])
 
 
 def _grounded_bundle() -> EvidenceBundle:
@@ -281,14 +290,12 @@ def test_prioritize_candidates_exposes_grounded_multi_objective_judgment() -> No
 
     assert top_candidate.candidate_id == "candidate-a"
     assert top_candidate.explainability["knowledge_grounding_rule_ids"]
-    assert (
-        top_candidate.explainability["multi_objective_profile"]["scientific_value"]
-        > 0.8
+    multi_objective_profile = _explainability_section(
+        top_candidate, "multi_objective_profile"
     )
+    assert float(cast(int | float, multi_objective_profile["scientific_value"])) > 0.8
     assert (
-        top_candidate.explainability["multi_objective_profile"][
-            "operational_reliability"
-        ]
+        float(cast(int | float, multi_objective_profile["operational_reliability"]))
         > 0.8
     )
     assert sensitivity.dominant_inputs

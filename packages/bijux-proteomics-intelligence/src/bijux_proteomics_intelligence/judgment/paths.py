@@ -8,8 +8,8 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.program_spec import ProgramSpec
-from bijux_proteomics.study.qc import InstrumentBatchQcReport
 from bijux_proteomics.quantification import ReplicateCorrelationReport
+from bijux_proteomics.study.qc import InstrumentBatchQcReport
 from bijux_proteomics_foundation import JsonModel, ProgramId
 from bijux_proteomics_intelligence.candidates.lifecycle import (
     CandidateRiskProfile,
@@ -18,11 +18,15 @@ from bijux_proteomics_intelligence.candidates.lifecycle import (
 from bijux_proteomics_intelligence.candidates.ranking import (
     CandidateAssessment,
     CandidateRanking,
-    RankingPolicy,
     build_design_brief,
     prioritize_candidates,
     summarize_candidate_explainability,
 )
+from bijux_proteomics_intelligence.interpretation import (
+    OutlierInterpretationClass,
+    explain_outlier_samples,
+)
+from bijux_proteomics_intelligence.judgment.policies import RankingPolicy
 from bijux_proteomics_intelligence.judgment.recommendations import (
     summarize_unresolved_question_ledger,
 )
@@ -30,10 +34,6 @@ from bijux_proteomics_intelligence.judgment.scenarios import (
     EvaluatorPolicyBundle,
     ScenarioSetEvaluation,
     evaluate_all_scenarios,
-)
-from bijux_proteomics_intelligence.interpretation import (
-    OutlierInterpretationClass,
-    explain_outlier_samples,
 )
 from bijux_proteomics_intelligence.reviews.decision_briefs import (
     ReviewBoardPacket,

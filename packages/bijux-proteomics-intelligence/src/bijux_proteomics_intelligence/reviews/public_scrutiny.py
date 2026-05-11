@@ -114,10 +114,7 @@ def _external_review_kits() -> dict[KnowledgeWorkflowFamily, WorkflowExternalRev
 
 
 def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
-    return (
-        "docs/01-bijux-proteomics/foundation/"
-        f"why-trust-{workflow_family.value}.md"
-    )
+    return f"docs/01-bijux-proteomics/foundation/why-trust-{workflow_family.value}.md"
 
 
 def build_public_artifact_index() -> PublicArtifactIndex:

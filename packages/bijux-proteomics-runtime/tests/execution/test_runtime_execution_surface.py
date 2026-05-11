@@ -5,7 +5,6 @@ import importlib.metadata
 import pytest
 
 from bijux_proteomics_foundation import hash_text
-from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
 from bijux_proteomics_runtime.runs.artifacts import _sign_payload
 from bijux_proteomics_runtime.runs.manager import (
     _build_run_summary,
@@ -14,6 +13,7 @@ from bijux_proteomics_runtime.runs.manager import (
     _version_info,
 )
 from bijux_proteomics_runtime.runs.state_machine import RunStateMachine
+from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
 
 
 def test_runtime_replay_hash_contract() -> None:

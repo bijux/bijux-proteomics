@@ -51,8 +51,7 @@ def test_build_dda_benchmark_review_keeps_owner_surfaces_and_field_limits_visibl
     assert review.public_claim_support_state.value == "advisory"
     assert review.comparator_failure_summaries
     assert any(
-        position.comparator_tool.value == "msfragger"
-        and position.matched_behaviors
+        position.comparator_tool.value == "msfragger" and position.matched_behaviors
         for position in review.comparator_positions
     )
     assert review.supported_repo_claims
@@ -105,13 +104,11 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert review.benchmark_package_id is not None
     assert review.public_claim_support_state.value == "advisory"
     assert any(
-        position.comparator_tool.value == "spectronaut"
-        and position.partial_behaviors
+        position.comparator_tool.value == "spectronaut" and position.partial_behaviors
         for position in review.comparator_positions
     )
     assert any(
-        position.comparator_tool.value == "diann"
-        and position.matched_behaviors
+        position.comparator_tool.value == "diann" and position.matched_behaviors
         for position in review.comparator_positions
     )
     assert review.ready_for_release_review is True
@@ -131,7 +128,10 @@ def test_build_dia_benchmark_review_keeps_capability_scope_explicit() -> None:
     assert "partial DIA support means" in interpretation_claim.scientific_limits[0]
     assert "biological-interpretation tiers" in review.reviewer_summary
     assert review.reviewer_grounding_state.value == "review_grade"
-    assert review.scientific_release_packet.benchmark_metric_priorities.entries[0].weight == 5
+    assert (
+        review.scientific_release_packet.benchmark_metric_priorities.entries[0].weight
+        == 5
+    )
 
 
 def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
@@ -152,8 +152,7 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
     assert review.public_claim_support_state.value == "advisory"
     assert review.improvement_targets
     assert any(
-        position.comparator_tool.value == "maxquant"
-        and position.refused_behaviors
+        position.comparator_tool.value == "maxquant" and position.refused_behaviors
         for position in review.comparator_positions
     )
     ambiguity_claim = next(
@@ -165,7 +164,9 @@ def test_build_ptm_benchmark_review_keeps_ambiguity_explicit() -> None:
     assert "ambiguous site groups" in ambiguity_claim.scientific_limits[0]
     assert "ambiguity" in review.reviewer_summary
     assert review.supported_ptm_families == ("acetylation", "ubiquitin_remnant")
-    assert any(track.family_name == "glyco_adjacent" for track in review.ptm_family_tracks)
+    assert any(
+        track.family_name == "glyco_adjacent" for track in review.ptm_family_tracks
+    )
     assert review.curated_reference_context
     assert review.decision_grade_criteria
     assert review.scientific_release_packet.flagship_reproducibility_pack.artifact_ids
@@ -189,8 +190,7 @@ def test_build_lfq_benchmark_review_keeps_qc_and_missingness_limits_visible() ->
     assert review.benchmark_package_id is not None
     assert review.public_claim_support_state.value == "advisory"
     assert any(
-        position.comparator_tool.value == "maxquant"
-        and position.partial_behaviors
+        position.comparator_tool.value == "maxquant" and position.partial_behaviors
         for position in review.comparator_positions
     )
     assert review.ready_for_release_review is True

@@ -93,7 +93,7 @@ def _benchmark_backed_check(
         BenchmarkEvidenceTier.PUBLIC_TRUTH_SET,
         BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE,
     }
-    missing_requirements = ()
+    missing_requirements: tuple[str, ...] = ()
     if manifest.evidence_tier is BenchmarkEvidenceTier.CURATED_MINI_STUDY:
         missing_requirements = (
             "replace the current curated mini-study benchmark with a flagship public package that carries harder raw-data and cohort realism",
@@ -124,9 +124,13 @@ def _externally_cross_checked_check(
         and entry.public_claim_support_state is not ComparatorClaimSupportState.REFUSED
     )
     missing_requirements = (
-        entry.improvement_target,
-        *entry.blocking_reasons,
-    ) if entry is not None and not satisfied else ()
+        (
+            entry.improvement_target,
+            *entry.blocking_reasons,
+        )
+        if entry is not None and not satisfied
+        else ()
+    )
     return WorkflowEvidenceSufficiencyCheck(
         tier=WorkflowEvidenceTrustTier.EXTERNALLY_CROSS_CHECKED,
         satisfied=satisfied,
@@ -148,10 +152,11 @@ def _decision_grade_check(
     manifest = get_benchmark_manifest_for_family(workflow_family)
     briefing = get_workflow_reference_briefing_for_family(workflow_family)
     release_packet = build_scientific_release_packet(manifest)
-    missing_requirements = ()
+    missing_requirements: tuple[str, ...] = ()
     if not release_packet.evidence_quality_gate_passed:
         missing_requirements = tuple(
-            criterion.summary for criterion in briefing.decision_grade_framework.criteria
+            criterion.summary
+            for criterion in briefing.decision_grade_framework.criteria
         )
     return WorkflowEvidenceSufficiencyCheck(
         tier=WorkflowEvidenceTrustTier.DECISION_GRADE,
@@ -162,7 +167,10 @@ def _decision_grade_check(
         rationale=briefing.decision_grade_framework.decision_grade_definition,
         supporting_refs=(
             manifest.benchmark_id,
-            *tuple(entry.threshold_id for entry in release_packet.threshold_evidence.entries),
+            *tuple(
+                entry.threshold_id
+                for entry in release_packet.threshold_evidence.entries
+            ),
         ),
         missing_requirements=missing_requirements,
     )
@@ -194,9 +202,9 @@ def build_workflow_evidence_sufficiency_rubric(
     )
 
 
-def list_workflow_evidence_sufficiency_rubrics() -> (
-    tuple[WorkflowEvidenceSufficiencyRubric, ...]
-):
+def list_workflow_evidence_sufficiency_rubrics() -> tuple[
+    WorkflowEvidenceSufficiencyRubric, ...
+]:
     """Return evidence sufficiency rubrics across workflow families."""
 
     return tuple(

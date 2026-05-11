@@ -27,7 +27,6 @@ from bijux_proteomics_foundation.support.provenance import (
 )
 from bijux_proteomics_foundation.support.states import SupportState
 
-
 JSON_SCALAR_STRATEGY = st.one_of(
     st.none(),
     st.booleans(),
@@ -179,7 +178,7 @@ def test_support_state_refusal_and_error_models_serialize_deterministically() ->
         category=ErrorCategory.RUNTIME,
         code="Engine Timeout",
         message="external engine did not complete before timeout",
-        context={"step_id": "search", "run_id": "run-77"},
+        context=(("run_id", "run-77"), ("step_id", "search")),
         cause_chain=("timeout", "adapter"),
         provenance=(pointer,),
     )
@@ -221,7 +220,7 @@ def test_error_envelope_round_trips_nested_context_deterministically(
         message="context was preserved with explicit loss reporting",
         support_state=SupportState.LOSSY,
         retryable=True,
-        context=context,
+        context=tuple(sorted(context.items())),
         cause_chain=("outer failure", " inner detail ", ""),
     )
 

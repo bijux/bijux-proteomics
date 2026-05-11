@@ -15,7 +15,6 @@ from bijux_proteomics_foundation.support.charter import (
     list_foundation_charter_entries,
 )
 
-
 FOUNDATION_SRC_ROOT = Path(
     "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation"
 )

@@ -91,7 +91,10 @@ def test_runtime_surface_area_uses_workflow_assurance_ledgers() -> None:
         build_workflow_assurance_matrix,
     )
 
-    assert build_flagship_operator_path().path_id == "runtime-sequence-review-operator-path"
+    assert (
+        build_flagship_operator_path().path_id
+        == "runtime-sequence-review-operator-path"
+    )
     assert build_workflow_assurance_matrix()
 
 

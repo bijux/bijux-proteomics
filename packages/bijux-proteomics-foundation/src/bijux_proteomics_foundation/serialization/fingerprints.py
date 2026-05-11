@@ -10,12 +10,12 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_hashes import (
     StableHashPolicy,
     default_hash_policy,
     hash_payload,
 )
-from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_strings
 
 

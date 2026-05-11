@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from bijux_proteomics_runtime.api.app import AppConfig, create_app
 
 __all__ = ["AppConfig", "create_app"]
 

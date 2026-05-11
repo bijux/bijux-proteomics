@@ -98,4 +98,3 @@ def test_runtime_state_payloads_accept_typed_tool_results_and_replans() -> None:
 
     assert record.payload.schema_type == "tool_result"
     assert snapshot.parent_state_id == "parent-state"
-

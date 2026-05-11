@@ -7,12 +7,17 @@ from bijux_proteomics_runtime.runs import (
     build_run_context_contract,
     create_run_context,
 )
-from bijux_proteomics_runtime.runs.ledger import ArtifactLedgerEntry
-from bijux_proteomics_runtime.runs.ledger import RuntimeArtifactLedger
-from bijux_proteomics_runtime.runs.replay import build_replay_contract
-from bijux_proteomics_runtime.runs.reruns import PartialRerunPlan
-from bijux_proteomics_runtime.runs.reruns import build_partial_rerun_plan
-from bijux_proteomics_runtime.runs.reruns import build_runtime_partial_rerun_plan
+from bijux_proteomics_runtime.runs.contracts import RunContextContract
+from bijux_proteomics_runtime.runs.ledger import (
+    ArtifactLedgerEntry,
+    RuntimeArtifactLedger,
+)
+from bijux_proteomics_runtime.runs.replay import ReplayContract, build_replay_contract
+from bijux_proteomics_runtime.runs.reruns import (
+    PartialRerunPlan,
+    build_partial_rerun_plan,
+    build_runtime_partial_rerun_plan,
+)
 from bijux_proteomics_runtime.support.workspace import write_json_atomic
 
 
@@ -23,7 +28,7 @@ def _contract(
     provider_name: str = "heuristic_proxy",
     sequence: str = "MPEPTIDE",
     import_only: bool = False,
-) -> tuple[object, object]:
+) -> tuple[RunContextContract, ReplayContract]:
     context, _ = create_run_context(tmp_path, run_id=run_id)
     run_context = build_run_context_contract(
         run_id=context.run_id,

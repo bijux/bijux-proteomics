@@ -104,7 +104,7 @@ class DocumentSchema(JsonModel):
     def _normalize_schema_version(cls, value: str) -> str:
         return normalize_schema_version(value)
 
-    def touch(self, actor: str, *, tag: str | None = None) -> "DocumentSchema":
+    def touch(self, actor: str, *, tag: str | None = None) -> DocumentSchema:
         """Return a copy with updated audit metadata."""
         tags = list(self.tags)
         if tag is not None and tag not in tags:
@@ -118,7 +118,7 @@ class DocumentSchema(JsonModel):
             }
         )
 
-    def with_content_hash(self, payload: dict[str, object]) -> "DocumentSchema":
+    def with_content_hash(self, payload: dict[str, object]) -> DocumentSchema:
         """Return a copy with deterministic content hash from a payload."""
         return self.model_copy(update={"content_hash": hash_payload(payload)})
 

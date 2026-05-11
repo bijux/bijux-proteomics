@@ -40,14 +40,6 @@ from bijux_proteomics_lab.outcomes import (
     triage_batch_failures,
     validate_assay_observation_record,
 )
-from bijux_proteomics_lab.planning.queue import (
-    ReviewQueueEntry,
-    ReviewQueueQuery,
-    query_review_queue,
-    summarize_review_queue,
-    summarize_review_queue_sla,
-    summarize_review_queue_workload,
-)
 from bijux_proteomics_lab.outcomes.feedback import (
     LabFeedbackQuery,
     LabFeedbackRecord,
@@ -57,6 +49,14 @@ from bijux_proteomics_lab.outcomes.feedback import (
     summarize_feedback_cycle_latency,
     summarize_feedback_lineage_coverage,
     summarize_feedback_trend,
+)
+from bijux_proteomics_lab.planning.queue import (
+    ReviewQueueEntry,
+    ReviewQueueQuery,
+    query_review_queue,
+    summarize_review_queue,
+    summarize_review_queue_sla,
+    summarize_review_queue_workload,
 )
 
 

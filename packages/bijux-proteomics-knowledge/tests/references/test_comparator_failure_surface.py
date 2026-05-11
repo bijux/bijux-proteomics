@@ -31,7 +31,10 @@ def test_comparator_failure_report_blocks_public_claims_without_external_compari
     assert entry.workflow_family is KnowledgeWorkflowFamily.MULTIPLEX
     assert entry.public_claim_support_state is ComparatorClaimSupportState.REFUSED
     assert entry.severity is ComparatorFailureSeverity.RELEASE_BLOCKING
-    assert "no external implementation or output-set comparison" in entry.blocking_reasons[0]
+    assert (
+        "no external implementation or output-set comparison"
+        in entry.blocking_reasons[0]
+    )
 
 
 def test_comparator_failure_report_tracks_known_targeted_loss_dossier() -> None:
@@ -42,7 +45,10 @@ def test_comparator_failure_report_tracks_known_targeted_loss_dossier() -> None:
     assert isinstance(entry, BenchmarkComparatorFailureEntry)
     assert entry.known_loss_to_established_tool is True
     assert entry.public_claim_support_state is ComparatorClaimSupportState.ADVISORY
-    assert "Skyline" in entry.improvement_target or "Skyline".lower() in entry.improvement_target.lower()
+    assert (
+        "Skyline" in entry.improvement_target
+        or "Skyline".lower() in entry.improvement_target.lower()
+    )
 
 
 def test_comparator_failure_report_keeps_partial_external_paths_as_improvement_targets() -> (

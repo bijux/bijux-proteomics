@@ -6,23 +6,16 @@ from __future__ import annotations
 from datetime import date
 from pathlib import Path
 
-import pytest
 from pydantic import ValidationError
+import pytest
 
-from bijux_proteomics_knowledge.references.workflows.benchmarks import (
-    BenchmarkManifest,
-    BenchmarkCrossCheckStatus,
-    BenchmarkEvidenceTier,
-    DEFAULT_BENCHMARK_MANIFESTS,
-    KnowledgeWorkflowFamily,
-)
 from bijux_proteomics_knowledge.references.grounding.citations import (
-    CitationSourceKind,
     DEFAULT_CITATION_REGISTRY,
+    CitationSourceKind,
 )
 from bijux_proteomics_knowledge.references.grounding.corpora import (
-    CorpusManifest,
     DEFAULT_CORPUS_MANIFESTS,
+    CorpusManifest,
     KnowledgeCorpusSourceKind,
 )
 from bijux_proteomics_knowledge.references.grounding.rules import (
@@ -30,7 +23,13 @@ from bijux_proteomics_knowledge.references.grounding.rules import (
     KnowledgeRuleDomain,
     ScientificRuleReference,
 )
-
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
+    BenchmarkCrossCheckStatus,
+    BenchmarkEvidenceTier,
+    BenchmarkManifest,
+    KnowledgeWorkflowFamily,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
@@ -42,6 +41,8 @@ def test_scientific_rules_require_references_and_benchmark_rationale() -> None:
             domain=KnowledgeRuleDomain.FDR_CAVEAT,
             title="Missing references",
             rule_statement="This should fail because the registry must keep references explicit.",
+            version_trace=("Rule revision trace exists.",),
+            retrieval_trace=("Rule retrieval trace exists.",),
             citation_ids=(),
             benchmark_ids=("benchmark:dda_search_reproducibility",),
             benchmark_rationale="Explicit benchmark rationale still exists here.",
@@ -52,6 +53,8 @@ def test_scientific_rules_require_references_and_benchmark_rationale() -> None:
             domain=KnowledgeRuleDomain.FDR_CAVEAT,
             title="Missing benchmark context",
             rule_statement="This should fail because benchmark rationale is required.",
+            version_trace=("Rule revision trace exists.",),
+            retrieval_trace=("Rule retrieval trace exists.",),
             citation_ids=("citation:target_decoy_2007",),
             benchmark_ids=(),
             benchmark_rationale="",
@@ -201,6 +204,10 @@ def test_invalid_corpus_source_shapes_fail_validation() -> None:
             source_kind=KnowledgeCorpusSourceKind.BUNDLED_FIXTURE,
             format_family="tsv",
             scientific_scope="This should fail because bundled fixtures cannot point outward.",
+            source_version="Fixture snapshot",
+            version_trace=("Fixture version trace.",),
+            retrieval_trace=("Fixture retrieval trace.",),
+            license_and_reuse_note="Fixture reuse note.",
             repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant",
             reference_locator="https://example.org/not_allowed",
         )
@@ -211,6 +218,10 @@ def test_invalid_corpus_source_shapes_fail_validation() -> None:
             source_kind=KnowledgeCorpusSourceKind.EXTERNAL_REFERENCE,
             format_family="journal_article",
             scientific_scope="This should fail because external references need citations.",
+            source_version="External reference snapshot",
+            version_trace=("Reference version trace.",),
+            retrieval_trace=("Reference retrieval trace.",),
+            license_and_reuse_note="Reference reuse note.",
             reference_locator="https://example.org/reference",
         )
 

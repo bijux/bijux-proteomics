@@ -207,7 +207,9 @@ def _collect_review_blockers(review: WorkflowBenchmarkReview) -> tuple[str, ...]
     if review.reviewer_grounding_state is ReviewerGroundingState.THIN:
         blockers.append("biological grounding remains thin")
     elif review.reviewer_grounding_state is ReviewerGroundingState.REVIEW_GRADE:
-        blockers.append("claim support is not yet strong enough for an unqualified recommendation")
+        blockers.append(
+            "claim support is not yet strong enough for an unqualified recommendation"
+        )
     if not review.ready_for_release_review:
         blockers.append("benchmark review is not yet ready for release scrutiny")
     if review.improvement_targets:

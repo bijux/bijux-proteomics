@@ -102,7 +102,10 @@ _SCENARIO_BLUEPRINTS: dict[KnowledgeWorkflowFamily, tuple[_ScenarioBlueprint, ..
             benchmark_position="The bundled multiplex fixture keeps channel semantics explicit, but it does not yet carry the harshest chemistry burden seen in real public TMT data.",
             current_repo_trust_position="Trust the current multiplex surface only for review-grade channel interpretation with explicit chemistry caveats.",
             recommended_hold_reason="Stronger multiplex claims stay blocked until a public chemistry-heavy package and an external comparator path both exist.",
-            matrix_entry_ids=("literature_matrix:multiplex:1", "literature_matrix:multiplex:2"),
+            matrix_entry_ids=(
+                "literature_matrix:multiplex:1",
+                "literature_matrix:multiplex:2",
+            ),
         ),
     ),
     KnowledgeWorkflowFamily.PTM: (
@@ -122,7 +125,10 @@ _SCENARIO_BLUEPRINTS: dict[KnowledgeWorkflowFamily, tuple[_ScenarioBlueprint, ..
             benchmark_position="The current targeted package keeps QC and follow-up honesty visible, but it still lacks public calibration burden and Skyline-class confrontation.",
             current_repo_trust_position="Trust the current targeted surface for operator-facing QC interpretation only, not for decision-grade targeted biology.",
             recommended_hold_reason="Decision-facing targeted support stays blocked until calibration, interference, and comparator pressure are materially harder.",
-            matrix_entry_ids=("literature_matrix:targeted:1", "literature_matrix:targeted:2"),
+            matrix_entry_ids=(
+                "literature_matrix:targeted:1",
+                "literature_matrix:targeted:2",
+            ),
         ),
     ),
 }
@@ -156,7 +162,11 @@ def _scenarios_for_family(
                 recommended_hold_reason=blueprint.recommended_hold_reason,
                 evidence_refs=(
                     get_benchmark_manifest_for_family(workflow_family).benchmark_id,
-                    *tuple(entry_id for entry_id in blueprint.matrix_entry_ids if entry_id in matrix_entry_ids),
+                    *tuple(
+                        entry_id
+                        for entry_id in blueprint.matrix_entry_ids
+                        if entry_id in matrix_entry_ids
+                    ),
                 ),
             )
         )

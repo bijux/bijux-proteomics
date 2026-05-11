@@ -12,8 +12,8 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.review.collaboration import (
     ExternalReviewerBundle,
     ExternalReviewerBundleInput,
-    StandaloneVerifierReport,
     StandaloneVerifierInput,
+    StandaloneVerifierReport,
     build_external_reviewer_bundle,
     run_standalone_bundle_verifier,
 )
@@ -163,7 +163,8 @@ def build_workflow_external_review_kit(
         standalone_verifier_report=verifier_report,
         opening_sequence=artifact_paths[:5],
         shipped_artifact_paths=artifact_paths,
-        known_exclusions=packet.missing_surface_reasons + rerun_dossier.remaining_limits,
+        known_exclusions=packet.missing_surface_reasons
+        + rerun_dossier.remaining_limits,
         ready_for_outsider_review=ready_for_outsider_review,
         note=(
             "The external-review kit is not a promise of broad external reproducibility; it is a hostile-review bundle that lets one outsider challenge the current bounded claim with the same shipped files the maintainers rely on."

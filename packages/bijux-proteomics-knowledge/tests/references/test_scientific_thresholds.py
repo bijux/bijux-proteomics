@@ -20,7 +20,10 @@ def test_workflow_threshold_evidence_report_anchors_thresholds_to_manifest() -> 
 
     assert report.workflow_family.value == "targeted"
     assert report.entries
-    assert any(entry.threshold_id == "transition_interference_boundary" for entry in report.entries)
+    assert any(
+        entry.threshold_id == "transition_interference_boundary"
+        for entry in report.entries
+    )
     assert all(entry.benchmark_ids for entry in report.entries)
 
 

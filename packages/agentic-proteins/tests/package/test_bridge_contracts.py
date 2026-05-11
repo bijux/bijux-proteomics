@@ -12,9 +12,7 @@ from agentic_proteins.orchestration import (
     list_bridge_surface_contracts,
 )
 
-AGENTIC_SRC_ROOT = Path(
-    "packages/agentic-proteins/src/agentic_proteins"
-)
+AGENTIC_SRC_ROOT = Path("packages/agentic-proteins/src/agentic_proteins")
 EXPECTED_TOP_LEVEL_FAMILIES = {
     "agents",
     "execution",
@@ -52,9 +50,12 @@ def test_bridge_surface_contracts_name_canonical_owner_and_retirement_condition(
         contract.canonical_owner_package.startswith("bijux-proteomics-")
         for contract in contracts
     )
-    assert all(contract.canonical_owner_module.startswith("bijux_") for contract in contracts)
     assert all(
-        "retire" in contract.retirement_condition or "end" in contract.retirement_condition
+        contract.canonical_owner_module.startswith("bijux_") for contract in contracts
+    )
+    assert all(
+        "retire" in contract.retirement_condition
+        or "end" in contract.retirement_condition
         for contract in contracts
     )
 

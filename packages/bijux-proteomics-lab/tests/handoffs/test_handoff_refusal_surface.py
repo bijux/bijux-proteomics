@@ -117,8 +117,7 @@ def test_build_handoff_explanation_separates_supported_exploratory_and_blocked()
         for claim in explanation.authority_boundary.blocked_authority_claims
     )
     assert any(
-        "execution honesty" in note
-        for note in explanation.authority_boundary.notes
+        "execution honesty" in note for note in explanation.authority_boundary.notes
     )
 
 
@@ -165,7 +164,6 @@ def test_refuse_irresponsible_assay_handoff_emits_machine_readable_refusal() -> 
     )
     assert refusal.explanation.authority_boundary is not None
     assert any(
-        "cannot convert unresolved scientific blockers into execution approval"
-        in claim
+        "cannot convert unresolved scientific blockers into execution approval" in claim
         for claim in refusal.explanation.authority_boundary.blocked_authority_claims
     )

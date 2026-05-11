@@ -224,7 +224,9 @@ def build_benchmark_registry_entry(
             if manifest.benchmark_package is not None
             else None
         ),
-        replay_report_id=replay_report.report_id if replay_report.replay_supported else None,
+        replay_report_id=replay_report.report_id
+        if replay_report.replay_supported
+        else None,
         replay_validating_tests=replay_report.validating_tests,
         replay_limit_summary=replay_report.replay_limit_summary,
         benchmark_ledger_entry_id=benchmark_ledger.ledger_entry_id,

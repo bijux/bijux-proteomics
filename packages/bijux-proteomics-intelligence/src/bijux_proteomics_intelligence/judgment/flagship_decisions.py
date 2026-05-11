@@ -72,11 +72,15 @@ def build_flagship_decision_review(
 
     if scientific_kernel.blocked_reasons:
         decision_state = FlagshipDecisionState.HOLD_FOR_SCIENTIFIC_CONFLICT
-    elif evidence_review.contested_claim_count > 0 or not evidence_review.review_complete:
+    elif (
+        evidence_review.contested_claim_count > 0 or not evidence_review.review_complete
+    ):
         decision_state = FlagshipDecisionState.HOLD_FOR_EVIDENCE
     else:
         decision_state = FlagshipDecisionState.READY_FOR_LAB
-        ranking_rationale.append("no contested claims or blocking kernel conflicts remain")
+        ranking_rationale.append(
+            "no contested claims or blocking kernel conflicts remain"
+        )
 
     return FlagshipDecisionReview(
         workflow_id=evidence_review.workflow_id,

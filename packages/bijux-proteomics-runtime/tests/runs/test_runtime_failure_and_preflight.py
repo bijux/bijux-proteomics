@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from bijux_proteomics_runtime.runs import create_run_context
 from bijux_proteomics_runtime.runs.failure_reports import (
     RuntimeFailureCategory,
@@ -12,6 +11,7 @@ from bijux_proteomics_runtime.runs.preflight import (
     PreflightCheckState,
     build_runtime_preflight_report,
 )
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 
 
 def test_runtime_failure_report_classifies_subprocess_and_container_failures() -> None:

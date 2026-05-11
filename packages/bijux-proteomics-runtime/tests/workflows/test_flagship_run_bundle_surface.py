@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import cast
 
 from bijux_proteomics_runtime.workflows import (
     build_flagship_cross_family_run_bundle,
@@ -31,7 +32,7 @@ FIXTURE_ROOT = (
 
 
 def _read_fixture(path: Path) -> dict[str, object]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast(dict[str, object], json.loads(path.read_text(encoding="utf-8")))
 
 
 def test_flagship_run_bundle_family_covers_all_six_flagship_workflows(
@@ -73,7 +74,8 @@ def test_flagship_run_bundles_keep_runtime_and_downstream_artifacts_linked(
         "review_bundle_hash=" in line for line in lfq.runtime_surface.execution_summary
     )
     assert any(
-        artifact.artifact_role == "runtime-output" for artifact in lfq.artifact_inventory
+        artifact.artifact_role == "runtime-output"
+        for artifact in lfq.artifact_inventory
     )
 
     assert targeted.runtime_surface.run_mode.value == "raw_executable"
@@ -82,8 +84,7 @@ def test_flagship_run_bundles_keep_runtime_and_downstream_artifacts_linked(
         "targeted transition review corpus"
     )
     assert any(
-        "release-facing trust remains narrower than runtime execution"
-        in blocker
+        "release-facing trust remains narrower than runtime execution" in blocker
         for blocker in targeted.remaining_blockers
     )
 
@@ -126,16 +127,28 @@ def test_checked_flagship_run_snapshots_match_runtime_builders(tmp_path: Path) -
         for bundle in build_flagship_run_bundle_family(base_dir=tmp_path)
     }
     for workflow_family, bundle in bundles.items():
-        assert _read_fixture(FIXTURE_ROOT / workflow_family / "run_bundle.json") == bundle.to_dict()
+        assert (
+            _read_fixture(FIXTURE_ROOT / workflow_family / "run_bundle.json")
+            == bundle.to_dict()
+        )
         assert _read_fixture(FIXTURE_ROOT / workflow_family / "stage_lineage.json") == (
             build_flagship_run_stage_lineage(workflow_family).to_dict()
         )
-        assert _read_fixture(FIXTURE_ROOT / workflow_family / "failure_replay.json") == (
-            build_flagship_run_failure_replay(workflow_family, base_dir=tmp_path / f"{workflow_family}-failure").to_dict()
+        assert _read_fixture(
+            FIXTURE_ROOT / workflow_family / "failure_replay.json"
+        ) == (
+            build_flagship_run_failure_replay(
+                workflow_family, base_dir=tmp_path / f"{workflow_family}-failure"
+            ).to_dict()
         )
 
     cross_family = build_flagship_cross_family_run_bundle(base_dir=tmp_path)
     registry = build_flagship_run_registry(base_dir=tmp_path)
 
-    assert _read_fixture(FIXTURE_ROOT / "cross_family_run_bundle.json") == cross_family.to_dict()
-    assert _read_fixture(FIXTURE_ROOT / "runtime_run_registry.json") == registry.to_dict()
+    assert (
+        _read_fixture(FIXTURE_ROOT / "cross_family_run_bundle.json")
+        == cross_family.to_dict()
+    )
+    assert (
+        _read_fixture(FIXTURE_ROOT / "runtime_run_registry.json") == registry.to_dict()
+    )

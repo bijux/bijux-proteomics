@@ -16,11 +16,15 @@ from bijux_proteomics_knowledge.references.workflows.contradiction_triage import
 def test_workflow_contradiction_triage_reports_cover_each_family() -> None:
     reports = list_workflow_contradiction_triage_reports()
 
-    assert {report.workflow_family for report in reports} == set(KnowledgeWorkflowFamily)
+    assert {report.workflow_family for report in reports} == set(
+        KnowledgeWorkflowFamily
+    )
 
 
 def test_workflow_contradiction_triage_ranks_highest_consequence_first() -> None:
-    report = build_workflow_contradiction_triage_report(KnowledgeWorkflowFamily.TARGETED)
+    report = build_workflow_contradiction_triage_report(
+        KnowledgeWorkflowFamily.TARGETED
+    )
 
     assert report.entries
     assert report.entries[0].scientific_rank == 1

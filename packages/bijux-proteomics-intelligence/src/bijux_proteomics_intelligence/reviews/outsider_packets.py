@@ -62,8 +62,8 @@ from bijux_proteomics_runtime.workflows import (
     BenchmarkRuntimeTruthRow,
     build_benchmark_run_specs,
     build_benchmark_runtime_truth_surface,
+    build_runtime_flagship_proof_gate,
 )
-from bijux_proteomics_runtime.workflows import build_runtime_flagship_proof_gate
 
 __all__ = [
     "FlagshipOutsiderArtifactLink",
@@ -162,7 +162,9 @@ def _reviews_by_family() -> dict[KnowledgeWorkflowFamily, WorkflowBenchmarkRevie
 
 
 @lru_cache(maxsize=1)
-def _reading_packs_by_family() -> dict[KnowledgeWorkflowFamily, WorkflowScientificReadingPack]:
+def _reading_packs_by_family() -> dict[
+    KnowledgeWorkflowFamily, WorkflowScientificReadingPack
+]:
     return {
         workflow_family: build_workflow_scientific_reading_pack(workflow_family)
         for workflow_family in _WORKFLOW_FAMILIES
@@ -170,13 +172,17 @@ def _reading_packs_by_family() -> dict[KnowledgeWorkflowFamily, WorkflowScientif
 
 
 @lru_cache(maxsize=1)
-def _recommendation_packets_by_family() -> dict[KnowledgeWorkflowFamily, BenchmarkRecommendationPacket]:
+def _recommendation_packets_by_family() -> dict[
+    KnowledgeWorkflowFamily, BenchmarkRecommendationPacket
+]:
     family = build_flagship_benchmark_recommendation_packet_family()
     return {packet.workflow_family: packet for packet in family.packets}
 
 
 @lru_cache(maxsize=1)
-def _lab_packets_by_family() -> dict[KnowledgeWorkflowFamily, FlagshipLabFollowUpPacket]:
+def _lab_packets_by_family() -> dict[
+    KnowledgeWorkflowFamily, FlagshipLabFollowUpPacket
+]:
     family = build_flagship_lab_follow_up_packet_family()
     return {packet.workflow_family: packet for packet in family.packets}
 
@@ -329,7 +335,8 @@ def _complete_outsider_surface(
     runtime_gate_issues = _runtime_gate_issues(workflow_family)
     return (
         manifest.benchmark_package is not None
-        and manifest.evidence_tier is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
+        and manifest.evidence_tier
+        is BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
         and runtime_truth is not None
         and runtime_truth.run_mode is not BenchmarkRunMode.BLOCKED
         and not runtime_gate_issues
@@ -358,8 +365,13 @@ def _missing_surface_reasons(
 ) -> tuple[str, ...]:
     reasons: list[str] = []
     if manifest.benchmark_package is None:
-        reasons.append("no benchmark package is registered for this workflow family yet")
-    elif manifest.evidence_tier is not BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE:
+        reasons.append(
+            "no benchmark package is registered for this workflow family yet"
+        )
+    elif (
+        manifest.evidence_tier
+        is not BenchmarkEvidenceTier.EXTERNAL_REPRODUCTION_PACKAGE
+    ):
         reasons.append(
             f"benchmark evidence tier is {manifest.evidence_tier.value}, so the family still lacks a flagship outsider-readable public package"
         )
@@ -373,14 +385,19 @@ def _missing_surface_reasons(
             if not criterion.passed
         )
     if runtime_truth is None:
-        reasons.append("no flagship runtime truth row is published for this workflow family yet")
+        reasons.append(
+            "no flagship runtime truth row is published for this workflow family yet"
+        )
     elif runtime_truth.run_mode is BenchmarkRunMode.BLOCKED:
         reasons.extend(runtime_truth.blocker_notes)
     reasons.extend(_runtime_gate_issues(workflow_family))
     if review.public_claim_support_state is ComparatorClaimSupportState.REFUSED:
         reasons.append("public comparator-backed claim support is still refused")
     if recommendation.disposition is BenchmarkDisposition.DO_NOT_RECOMMEND:
-        reasons.extend(recommendation.blocker_set or ("the current benchmark recommendation posture is refusal",))
+        reasons.extend(
+            recommendation.blocker_set
+            or ("the current benchmark recommendation posture is refusal",)
+        )
     if lab_packet.posture is FlagshipLabPacketPosture.NOT_WORTH_ASSAY:
         reasons.extend(lab_packet.stop_reasons)
     if outcome_dossier is None:
@@ -463,10 +480,15 @@ def build_flagship_outsider_review_packet(
             )
         )
     )
+    runtime_validating_tests: tuple[str, ...] = ()
+    if runtime_links and runtime_package_id is not None:
+        runtime_spec = _runtime_specs_by_package_id().get(runtime_package_id)
+        if runtime_spec is not None:
+            runtime_validating_tests = runtime_spec.validating_test_paths
     validating_tests = tuple(
         dict.fromkeys(
             (
-                *(runtime_links and _runtime_specs_by_package_id()[runtime_package_id].validating_test_paths or ()),
+                *runtime_validating_tests,
                 "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
                 "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_recommendation_packet_surface.py",
                 "packages/bijux-proteomics-lab/tests/benchmarks/test_flagship_follow_up_surface.py",
@@ -554,13 +576,13 @@ def _runtime_gate_issues(workflow_family: KnowledgeWorkflowFamily) -> tuple[str,
         return ()
     gate = build_runtime_flagship_proof_gate()
     return tuple(
-        issue.detail
-        for issue in gate.issues
-        if issue.workflow_family == runtime_family
+        issue.detail for issue in gate.issues if issue.workflow_family == runtime_family
     )
 
 
-def build_flagship_outsider_review_packet_family() -> FlagshipOutsiderReviewPacketFamily:
+def build_flagship_outsider_review_packet_family() -> (
+    FlagshipOutsiderReviewPacketFamily
+):
     """Build outsider-auditable packets across flagship workflow families."""
 
     return FlagshipOutsiderReviewPacketFamily(

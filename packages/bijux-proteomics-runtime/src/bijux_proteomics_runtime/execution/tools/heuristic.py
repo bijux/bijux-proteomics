@@ -11,10 +11,10 @@ from bijux_proteomics_runtime.execution.tools.schemas import (
     ToolMetric,
     ToolResult,
 )
-from bijux_proteomics_runtime.providers.selection import create_provider
 from bijux_proteomics_runtime.providers.builtin.heuristic import (
     HeuristicStructureProvider,
 )
+from bijux_proteomics_runtime.providers.selection import create_provider
 
 
 class HeuristicStructureTool(Tool):

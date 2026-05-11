@@ -21,7 +21,6 @@ from bijux_proteomics_foundation.identity.identifiers import (
     ensure_identifier_kind,
 )
 
-
 IDENTIFIER_SUFFIX_STRATEGY = st.lists(
     st.text(alphabet=string.ascii_letters + string.digits, min_size=1, max_size=8),
     min_size=1,

@@ -12,7 +12,6 @@ from bijux_proteomics_knowledge.governance.charter import (
     KnowledgeModuleClassification,
 )
 
-
 KNOWLEDGE_SRC_ROOT = Path(
     "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge"
 )

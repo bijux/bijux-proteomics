@@ -29,6 +29,10 @@ from bijux_proteomics_knowledge.references.workflows.briefings import (
     WorkflowReferenceBriefing,
     build_workflow_reference_briefing,
 )
+from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
+    WorkflowClaimCitationTable,
+    WorkflowUnsupportedClaimLedger,
+)
 from bijux_proteomics_knowledge.references.workflows.comparator_confrontations import (
     WorkflowComparatorConfrontation,
     WorkflowComparatorConfrontationReport,
@@ -39,10 +43,6 @@ from bijux_proteomics_knowledge.references.workflows.comparator_failures import 
     ComparatorClaimSupportState,
     ComparatorFailureSeverity,
     build_benchmark_comparator_failure_report,
-)
-from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
-    WorkflowClaimCitationTable,
-    WorkflowUnsupportedClaimLedger,
 )
 from bijux_proteomics_knowledge.references.workflows.comparator_positions import (
     ComparatorPositionEntry,
@@ -93,8 +93,8 @@ from bijux_proteomics_knowledge.references.workflows.literature_matrices import 
     WorkflowLiteratureMatrixEntry,
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
-    get_benchmark_literature_gap_matrix,
     get_benchmark_comparator_failure,
+    get_benchmark_literature_gap_matrix,
     get_benchmark_manifest,
     get_benchmark_package,
     get_benchmark_registry_entry,

@@ -10,14 +10,14 @@ from typing import ClassVar
 from pydantic import BaseModel
 
 from bijux_proteomics_runtime.execution.agents.base import AgentRole
+from bijux_proteomics_runtime.execution.agents.contracts import validate_agent
 from bijux_proteomics_runtime.execution.agents.schemas import (
     AgentMetadata,
     FailureAnalysisAgentInput,
     FailureAnalysisAgentOutput,
 )
-from bijux_proteomics_runtime.support.primitives.failures import FailureType
 from bijux_proteomics_runtime.state.memory_records import MemoryScope
-from bijux_proteomics_runtime.execution.agents.contracts import validate_agent
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 
 
 class FailureAnalysisAgent(AgentRole):

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, cast
 
 from bijux_proteomics.domain.criteria import MeasurementDirection, SuccessCriterion
-from bijux_proteomics.domain.program_spec import create_program_spec
+from bijux_proteomics.domain.program_spec import ProgramSpec, create_program_spec
 from bijux_proteomics.io.ingestion import parse_chromatogram_qc_table
 from bijux_proteomics_intelligence.candidates.ranking import CandidateAssessment
 from bijux_proteomics_intelligence.judgment.paths import (
@@ -20,6 +20,7 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceRecord,
 )
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    BenchmarkManifest,
     KnowledgeWorkflowFamily,
 )
 from bijux_proteomics_knowledge.references.workflows.lookups import (
@@ -32,6 +33,7 @@ from bijux_proteomics_lab.benchmarks import (
 )
 from bijux_proteomics_lab.design.protocols import (
     InstrumentMethodMetadata,
+    LabProtocolAttachment,
     ProtocolControlRequirement,
     ProtocolFailureCaveat,
     SamplePreparationMetadata,
@@ -76,7 +78,7 @@ def _handoff_fixture(name: str) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
 
-def _program_from_fixture(payload: dict[str, Any]) -> object:
+def _program_from_fixture(payload: dict[str, Any]) -> ProgramSpec:
     program_data = cast(dict[str, Any], payload["program"])
     criterion_data = cast(dict[str, Any], payload["criterion"])
     program = create_program_spec(
@@ -124,7 +126,7 @@ def _bundle_from_fixture(payload: dict[str, Any]) -> EvidenceBundle:
     )
 
 
-def _protocol_attachment():
+def _protocol_attachment() -> LabProtocolAttachment:
     return build_protocol_attachment(
         sample_preparation=SamplePreparationMetadata(
             protocol_id="prep-targeted-benchmark",
@@ -278,10 +280,12 @@ def _supported_benchmark_report(*, cache_age_days: int) -> TargetedBenchmarkRepo
         review_packet=review_packet,
         executable_plan=executable_plan,
     )
+    benchmark_manifest: BenchmarkManifest | None = get_benchmark_manifest(
+        "benchmark:targeted_transition_quality_control"
+    )
+    assert benchmark_manifest is not None
     return build_targeted_benchmark_report(
-        benchmark_manifest=get_benchmark_manifest(
-            "benchmark:targeted_transition_quality_control"
-        ),
+        benchmark_manifest=benchmark_manifest,
         candidate_assessments=assessments,
         follow_up_path=follow_up_path,
         chromatogram_report=parse_chromatogram_qc_table(

@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from bijux_proteomics_runtime.support.primitives.tooling import ToolInvocationSpec
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
+from bijux_proteomics_runtime.support.primitives.tooling import ToolInvocationSpec
 
 
 class RetryPolicy(BaseModel):

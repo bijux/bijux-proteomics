@@ -269,6 +269,7 @@ _MATRIX_BLUEPRINTS: dict[KnowledgeWorkflowFamily, tuple[_MatrixBlueprint, ...]] 
     ),
 }
 
+
 def build_workflow_literature_matrix(
     workflow_family: KnowledgeWorkflowFamily,
 ) -> WorkflowLiteratureMatrix:
@@ -278,7 +279,9 @@ def build_workflow_literature_matrix(
     entries = []
     for index, blueprint in enumerate(_MATRIX_BLUEPRINTS[workflow_family], start=1):
         group = get_literature_group(blueprint.literature_group_id)
-        citations = tuple(get_citation_record(citation_id) for citation_id in group.citation_ids)
+        citations = tuple(
+            get_citation_record(citation_id) for citation_id in group.citation_ids
+        )
         entries.append(
             WorkflowLiteratureMatrixEntry(
                 entry_id=f"literature_matrix:{workflow_family.value}:{index}",
@@ -295,9 +298,7 @@ def build_workflow_literature_matrix(
                 reviewer_questions=blueprint.reviewer_questions,
             )
         )
-    coverage_note = (
-        "This matrix ties the flagship benchmark to exact paper-backed themes, and every bounded claim remains visible alongside the support claim instead of being pushed into a separate caveat bucket."
-    )
+    coverage_note = "This matrix ties the flagship benchmark to exact paper-backed themes, and every bounded claim remains visible alongside the support claim instead of being pushed into a separate caveat bucket."
     return WorkflowLiteratureMatrix(
         workflow_family=workflow_family,
         benchmark_id=manifest.benchmark_id,

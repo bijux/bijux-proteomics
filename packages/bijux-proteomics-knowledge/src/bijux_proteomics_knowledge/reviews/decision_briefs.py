@@ -379,9 +379,7 @@ def _build_executive_summary(
     if knowledge_gaps:
         summary.append(f"{len(knowledge_gaps)} unresolved knowledge gaps remain")
     if biological_takeaway is not None and biological_takeaway.downgrade_reasons:
-        summary.append(
-            f"grounding limits: {biological_takeaway.downgrade_reasons[0]}"
-        )
+        summary.append(f"grounding limits: {biological_takeaway.downgrade_reasons[0]}")
     if biological_takeaway is not None:
         summary.append(
             f"biological grounding: {biological_takeaway.grounding_state.value}"
@@ -416,12 +414,17 @@ def _build_biological_takeaway(
         )
     )
     downgrade_reasons: list[str] = []
-    contradiction_present = any(cluster.recommended_hold for cluster in conflict_clusters)
+    contradiction_present = any(
+        cluster.recommended_hold for cluster in conflict_clusters
+    )
     if contradiction_present:
         downgrade_reasons.append(
             "direct evidence conflict still forces a bounded biological reading"
         )
-    if reference_disagreement_report is not None and reference_disagreement_report.entries:
+    if (
+        reference_disagreement_report is not None
+        and reference_disagreement_report.entries
+    ):
         downgrade_reasons.append(
             "benchmark and literature still disagree on at least one workflow-facing claim"
         )

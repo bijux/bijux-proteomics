@@ -29,9 +29,7 @@ def test_build_reference_disagreement_report_surfaces_workflow_scope_pressure() 
     )
 
 
-def test_build_workflow_contradiction_stress_suite_requires_bounded_grounding() -> (
-    None
-):
+def test_build_workflow_contradiction_stress_suite_requires_bounded_grounding() -> None:
     suite = build_workflow_contradiction_stress_suite(KnowledgeWorkflowFamily.TARGETED)
 
     assert suite.workflow_family is KnowledgeWorkflowFamily.TARGETED

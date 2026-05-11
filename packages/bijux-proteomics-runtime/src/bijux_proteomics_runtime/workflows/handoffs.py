@@ -33,7 +33,9 @@ class WorkflowStageHandoffContract:
     notes: tuple[str, ...] = ()
 
 
-def build_flagship_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffContract, ...]:
+def build_flagship_workflow_handoff_contracts() -> tuple[
+    WorkflowStageHandoffContract, ...
+]:
     """Return the governed stage-to-stage handoff graph for the flagship workflow."""
 
     return (
@@ -90,7 +92,10 @@ def build_flagship_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffCon
                 "bijux_proteomics.quantification.review.build_quant_review_bundle"
             ),
             upstream_stage_ids=("core-identification-review",),
-            downstream_stage_ids=("knowledge-evidence-review", "intelligence-decision-review"),
+            downstream_stage_ids=(
+                "knowledge-evidence-review",
+                "intelligence-decision-review",
+            ),
             required_artifact_kinds=(
                 "quant-review-bundle",
                 "normalization-matrix",
@@ -153,7 +158,10 @@ def build_flagship_workflow_handoff_contracts() -> tuple[WorkflowStageHandoffCon
             review_packet_surface_ref=(
                 "bijux_proteomics_intelligence.reviews.decision_briefs.build_intelligence_review_packet"
             ),
-            upstream_stage_ids=("knowledge-evidence-review", "core-quantification-review"),
+            upstream_stage_ids=(
+                "knowledge-evidence-review",
+                "core-quantification-review",
+            ),
             downstream_stage_ids=("lab-review-packet",),
             required_artifact_kinds=(
                 "intelligence-review-packet",

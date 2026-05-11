@@ -22,10 +22,8 @@ from bijux_proteomics_lab.outcomes import (
     assess_batch_outcome,
     summarize_experiment_outcome,
 )
-
 from bijux_proteomics_lab.planning.assays import (
     AssayDependency,
-    AssayFamily,
     AssayIntent,
     AssayObservation,
     ClosedLoopPlan,
@@ -35,10 +33,6 @@ from bijux_proteomics_lab.planning.assays import (
     build_review_packet,
 )
 from bijux_proteomics_lab.planning.priorities import prioritize_next_assays
-from bijux_proteomics_lab.planning.scheduling import (
-    LabCapacity,
-    compare_schedule_scenarios,
-)
 
 
 class HypothesisFalsificationPlan(JsonModel):

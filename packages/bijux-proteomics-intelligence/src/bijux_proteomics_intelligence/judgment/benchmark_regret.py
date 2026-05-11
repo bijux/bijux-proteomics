@@ -100,16 +100,15 @@ def build_benchmark_recommendation_regret_ledger() -> (
                     change_needed=(
                         "Move this family to earlier refusal when interference, carryover, or comparable hidden execution debt is already visible in the open evidence."
                     ),
-                    evidence_refs=tuple(
-                        finding.finding_id for finding in misses
-                    ),
+                    evidence_refs=tuple(finding.finding_id for finding in misses),
                 )
             )
             continue
         overconfident = tuple(
             finding
             for finding in report.findings
-            if finding.revealed_outcome is BlindedRecommendationRevealState.OVERCONFIDENT
+            if finding.revealed_outcome
+            is BlindedRecommendationRevealState.OVERCONFIDENT
         )
         if overconfident:
             entries.append(

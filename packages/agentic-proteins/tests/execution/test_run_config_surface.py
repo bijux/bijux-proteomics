@@ -22,4 +22,3 @@ def test_legacy_tool_reliability_tracker_preserves_runtime_summary_behavior() ->
     assert summary.sample_count == 2
     assert summary.success_rate == 0.5
     assert summary.latency_p95_ms >= summary.latency_p50_ms
-

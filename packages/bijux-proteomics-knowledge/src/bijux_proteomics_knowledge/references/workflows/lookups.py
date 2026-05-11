@@ -14,6 +14,14 @@ from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
     WorkflowBenchmarkPackage,
 )
+from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
+    WorkflowClaimCitationTable,
+    WorkflowUnsupportedClaimLedger,
+    build_workflow_claim_citation_table,
+    build_workflow_unsupported_claim_ledger,
+    list_workflow_claim_citation_tables,
+    list_workflow_unsupported_claim_ledgers,
+)
 from bijux_proteomics_knowledge.references.workflows.comparator_confrontations import (
     WorkflowComparatorConfrontation,
     WorkflowComparatorConfrontationReport,
@@ -44,14 +52,6 @@ from bijux_proteomics_knowledge.references.workflows.comparator_scorecards impor
     WorkflowComparatorScorecardReport,
     build_workflow_comparator_scorecard,
     build_workflow_comparator_scorecard_report,
-)
-from bijux_proteomics_knowledge.references.workflows.claim_grounding import (
-    WorkflowClaimCitationTable,
-    WorkflowUnsupportedClaimLedger,
-    build_workflow_claim_citation_table,
-    build_workflow_unsupported_claim_ledger,
-    list_workflow_claim_citation_tables,
-    list_workflow_unsupported_claim_ledgers,
 )
 from bijux_proteomics_knowledge.references.workflows.comparators import (
     WorkflowComparatorMatrixEntry,

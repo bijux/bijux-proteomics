@@ -10,9 +10,9 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel, ProgramId
+from bijux_proteomics_foundation.outcomes.results import OperationDisposition
 from bijux_proteomics_intelligence.judgment.paths import ReviewBoardDecisionPath
 from bijux_proteomics_intelligence.judgment.scenarios import ScenarioAction
-from bijux_proteomics_foundation.outcomes.results import OperationDisposition
 
 
 class ReviewChallengeDomain(StrEnum):

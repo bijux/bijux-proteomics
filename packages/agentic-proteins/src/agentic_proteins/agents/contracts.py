@@ -5,9 +5,9 @@ from bijux_proteomics_runtime.execution.agents.contracts import (
     _minimal_payload,
     _placeholder_for_type,
     validate_agent,
+    validate_agent_catalog,
     validate_agents_and_tools,
     validate_critic_input,
-    validate_agent_catalog,
 )
 
 __all__ = [

@@ -17,13 +17,6 @@ from bijux_proteomics.ptm import (
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.study.qc import (
-    InstrumentBatchQcReport,
-    InstrumentBatchQcRunEntry,
-    build_lcms_run_qc_report,
-    build_run_qc_assessment,
-    default_qc_threshold_policy,
-)
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     NormalizationMethod,
@@ -39,6 +32,13 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.study.qc import (
+    InstrumentBatchQcReport,
+    InstrumentBatchQcRunEntry,
+    build_lcms_run_qc_report,
+    build_run_qc_assessment,
+    default_qc_threshold_policy,
+)
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_intelligence.interpretation import (
     AnalyticalContrastRejectionReason,

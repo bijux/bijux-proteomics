@@ -30,12 +30,12 @@ def providers_module(monkeypatch: pytest.MonkeyPatch) -> Generator[Any, None, No
 
     from agentic_proteins.providers import base as providers_base
     from agentic_proteins.providers import errors as providers_errors
+    from agentic_proteins.providers.local import esmfold as providers_esmfold
+    from agentic_proteins.providers.local import rosettafold as providers_rosettafold
     from agentic_proteins.providers.remote import colabfold as providers_colabfold
     from agentic_proteins.providers.remote import (
         openprotein as providers_openprotein,
     )
-    from agentic_proteins.providers.local import esmfold as providers_esmfold
-    from agentic_proteins.providers.local import rosettafold as providers_rosettafold
 
     # Mock transformers if not installed
     mock_transformers = types.ModuleType("transformers")

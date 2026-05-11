@@ -5,12 +5,6 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_foundation.outcomes.failures import (
-    ErrorCategory,
-    ErrorEnvelope,
-    build_error_envelope_from_exception,
-    summarize_exception_chain,
-)
 from bijux_proteomics_foundation.outcomes.exceptions import (
     ContractConflictError,
     ContractNotFoundError,
@@ -18,6 +12,12 @@ from bijux_proteomics_foundation.outcomes.exceptions import (
     FoundationContractError,
     MigrationExecutionError,
     MigrationPathError,
+)
+from bijux_proteomics_foundation.outcomes.failures import (
+    ErrorCategory,
+    ErrorEnvelope,
+    build_error_envelope_from_exception,
+    summarize_exception_chain,
 )
 from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
 from bijux_proteomics_foundation.outcomes.results import (

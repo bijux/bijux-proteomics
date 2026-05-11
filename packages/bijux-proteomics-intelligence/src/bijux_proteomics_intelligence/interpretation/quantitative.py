@@ -11,11 +11,14 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.study.qc import InstrumentBatchQcReport
 from bijux_proteomics.quantification import (
     LabelFreeQuantTable,
     MissingValueKind,
     ReplicateCorrelationReport,
+)
+from bijux_proteomics.study.qc import (
+    InstrumentBatchQcReport,
+    QcRunAssessmentReport,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -234,6 +237,7 @@ def explain_outlier_samples(
             reason for reason in reasons if reason in technical_reason_codes
         }
         biological_reasons: set[str] = set()
+        batch_median_abs_mass_error_ppm = batch_report.median_abs_mass_error_ppm
         if (
             not technical_reasons
             and between_condition
@@ -242,8 +246,8 @@ def explain_outlier_samples(
             and run.identification_rate >= batch_report.median_identification_rate
             and (
                 run.median_abs_mass_error_ppm is None
-                or run.median_abs_mass_error_ppm
-                <= batch_report.median_abs_mass_error_ppm
+                or batch_median_abs_mass_error_ppm is None
+                or run.median_abs_mass_error_ppm <= batch_median_abs_mass_error_ppm
             )
         ):
             biological_reasons.add("condition_separation_without_qc_failure")

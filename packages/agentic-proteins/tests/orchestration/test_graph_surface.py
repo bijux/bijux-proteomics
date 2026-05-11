@@ -9,6 +9,8 @@ from agentic_proteins.orchestration.graphs import (
 )
 from bijux_proteomics_runtime.execution.graph_validation import (
     validate_execution_graph as runtime_validate_execution_graph,
+)
+from bijux_proteomics_runtime.execution.graph_validation import (
     validate_state_snapshot as runtime_validate_state_snapshot,
 )
 

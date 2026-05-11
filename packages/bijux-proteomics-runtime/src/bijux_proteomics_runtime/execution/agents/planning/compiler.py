@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics_runtime.execution.agents.planning.schemas import Plan
 from bijux_proteomics_runtime.execution.agents.planning.validation import validate_plan
+from bijux_proteomics_runtime.execution.graph_validation import validate_execution_graph
 from bijux_proteomics_runtime.support.primitives.decisions import Decision
 from bijux_proteomics_runtime.support.primitives.execution import (
     ExecutionGraph,
@@ -14,7 +15,6 @@ from bijux_proteomics_runtime.support.primitives.execution import (
     RetryPolicy,
 )
 from bijux_proteomics_runtime.support.primitives.tooling import ToolInvocationSpec
-from bijux_proteomics_runtime.execution.graph_validation import validate_execution_graph
 
 
 def compile_plan_to_execution(plan: Plan, decisions: list[Decision]) -> ExecutionGraph:

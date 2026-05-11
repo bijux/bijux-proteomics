@@ -336,7 +336,10 @@ def build_flagship_workflow_chain(
         FlagshipWorkflowStageProof(
             stage=FlagshipWorkflowStage.FOLLOW_UP,
             owner_package="bijux-proteomics-lab",
-            artifact_paths=(follow_up.artifact_path, follow_up.next_cycle_artifact_path),
+            artifact_paths=(
+                follow_up.artifact_path,
+                follow_up.next_cycle_artifact_path,
+            ),
             evidence_pointers=("lab.flagship.follow_up", "lab.flagship.next_cycle"),
             note=follow_up.note,
         ),

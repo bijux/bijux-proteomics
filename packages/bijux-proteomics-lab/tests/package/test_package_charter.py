@@ -12,7 +12,6 @@ from bijux_proteomics_lab.governance.charter import (
     LabModuleClassification,
 )
 
-
 LAB_SRC_ROOT = Path("packages/bijux-proteomics-lab/src/bijux_proteomics_lab")
 
 

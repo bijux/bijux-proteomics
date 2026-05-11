@@ -3,7 +3,11 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_knowledge.memory.models.claims import ClaimStatus, build_claim
+from bijux_proteomics_knowledge.memory.models.claims import (
+    ClaimStatus,
+    EvidenceClaim,
+    build_claim,
+)
 from bijux_proteomics_knowledge.memory.models.evidence import (
     EvidenceBundle,
     EvidenceKind,
@@ -25,7 +29,7 @@ from bijux_proteomics_knowledge.reviews.decision_briefs import (
 
 def test_build_knowledge_decision_brief_returns_integrated_sections(
     supported_progression_bundle: EvidenceBundle,
-    supported_progression_claims: list[object],
+    supported_progression_claims: list[EvidenceClaim],
 ) -> None:
     packet = build_knowledge_decision_brief(
         supported_progression_bundle,
@@ -200,8 +204,8 @@ def test_knowledge_review_packet_flags_missing_bundle_links_in_claim_provenance(
 
 
 def test_knowledge_review_packet_downgrades_biological_takeaway_under_contradiction(
-    contradictory_progression_bundle,
-    contradictory_progression_claims,
+    contradictory_progression_bundle: EvidenceBundle,
+    contradictory_progression_claims: list[EvidenceClaim],
 ) -> None:
     packet = build_knowledge_decision_brief(
         contradictory_progression_bundle,

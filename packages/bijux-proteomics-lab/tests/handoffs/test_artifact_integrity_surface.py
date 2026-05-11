@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics_foundation import DocumentSchema
 from bijux_proteomics_lab.handoffs.artifacts import (
     default_lab_artifact_profile,
@@ -23,7 +25,8 @@ def test_lab_artifact_integrity_envelope_detects_payload_tampering() -> None:
 
     assert verify_canonical_artifact_envelope(envelope) is True
 
-    envelope["payload"]["state"] = "tampered"
+    payload = cast(dict[str, object], envelope["payload"])
+    payload["state"] = "tampered"
 
     assert verify_canonical_artifact_envelope(envelope) is False
 

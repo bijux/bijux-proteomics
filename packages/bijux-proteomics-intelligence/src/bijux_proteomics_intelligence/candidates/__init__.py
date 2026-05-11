@@ -8,6 +8,8 @@ from __future__ import annotations
 from bijux_proteomics_intelligence.candidates.filters import filter_candidates
 from bijux_proteomics_intelligence.candidates.records import (
     Candidate as RankedCandidate,
+)
+from bijux_proteomics_intelligence.candidates.records import (
     CandidateScore,
     CandidateSelection,
 )

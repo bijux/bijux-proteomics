@@ -53,9 +53,9 @@ def build_flagship_evidence_decision_brief(
 
     if not artifact_path.startswith("artifacts/"):
         raise ValueError("artifact_path must live under artifacts/")
-    review_complete = bool(evidence_pointers) and (
-        accepted_claim_count + contested_claim_count
-    ) > 0
+    review_complete = (
+        bool(evidence_pointers) and (accepted_claim_count + contested_claim_count) > 0
+    )
     return FlagshipEvidenceDecisionBrief(
         workflow_id=workflow_id,
         flagship_family_id=flagship_family_id,

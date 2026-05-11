@@ -169,5 +169,6 @@ def test_dda_manifest_now_points_to_public_package_artifacts() -> None:
     )
     assert manifest.benchmark_package is not None
     assert not any(
-        step.outside_repo_execution for step in manifest.benchmark_package.reproduction_steps
+        step.outside_repo_execution
+        for step in manifest.benchmark_package.reproduction_steps
     )

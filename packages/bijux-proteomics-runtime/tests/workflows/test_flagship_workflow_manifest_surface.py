@@ -5,7 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics_runtime.workflows.flagship_workflow_chain import FlagshipWorkflowStage
+from bijux_proteomics_runtime.workflows.flagship_workflow_chain import (
+    FlagshipWorkflowStage,
+)
 from bijux_proteomics_runtime.workflows.flagship_workflow_manifest import (
     FLAGSHIP_WORKFLOW_MANIFEST_PATH,
     build_flagship_workflow_manifest,
@@ -43,8 +45,14 @@ def test_flagship_workflow_manifest_matches_checked_bundle_shape() -> None:
         "bijux-proteomics-lab",
     }
     for stage in FlagshipWorkflowStage:
-        assert manifest_stage_map[stage].owner_package == bundle_stage_map[stage].owner_package
-        assert manifest_stage_map[stage].artifact_paths == bundle_stage_map[stage].artifact_paths
+        assert (
+            manifest_stage_map[stage].owner_package
+            == bundle_stage_map[stage].owner_package
+        )
+        assert (
+            manifest_stage_map[stage].artifact_paths
+            == bundle_stage_map[stage].artifact_paths
+        )
 
 
 def test_flagship_workflow_manifest_refuses_fake_only_shortcuts() -> None:

@@ -3,12 +3,17 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 from bijux_proteomics_lab.handoffs.ptm import (
     PtmLabAssayRisk,
     PtmLabValidationPacket,
     PtmLabValidationTargetEntry,
 )
-from bijux_proteomics_runtime.workflows.runs import run_lab_handoff_workflow_end_to_end
+from bijux_proteomics_runtime.workflows.runs import (
+    _PtmLabValidationPacketLike,
+    run_lab_handoff_workflow_end_to_end,
+)
 
 
 def test_run_lab_handoff_workflow_end_to_end_tracks_unresolved_risks() -> None:
@@ -34,7 +39,9 @@ def test_run_lab_handoff_workflow_end_to_end_tracks_unresolved_risks() -> None:
         unresolved_risk_count=1,
     )
 
-    report = run_lab_handoff_workflow_end_to_end(packet)
+    report = run_lab_handoff_workflow_end_to_end(
+        cast(_PtmLabValidationPacketLike, packet)
+    )
 
     assert report.status.value == "completed"
     assert report.review_target_count == 2

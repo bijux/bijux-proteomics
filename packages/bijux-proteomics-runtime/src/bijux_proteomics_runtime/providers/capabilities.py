@@ -101,6 +101,8 @@ def validate_runtime_capabilities(
 
 __all__ = [
     "KNOWN_PROVIDERS",
+    "PROVIDER_CAPABILITIES",
     "evaluate_runtime_capabilities",
+    "provider_requirements",
     "validate_runtime_capabilities",
 ]

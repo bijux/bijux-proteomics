@@ -158,9 +158,7 @@ def _entry_for_comparator_drift(
         comparator_tool=paths[0].comparator_tool,
         severity=severity,
         public_claim_support_state=claim_state,
-        comparator_path_ids=tuple(
-            path.comparator_path_id for path in paths
-        ),
+        comparator_path_ids=tuple(path.comparator_path_id for path in paths),
         known_loss_to_established_tool=(
             manifest.workflow_family is KnowledgeWorkflowFamily.TARGETED
         ),
@@ -187,9 +185,7 @@ def build_benchmark_comparator_failure_report(
     )
     entries = tuple(
         entry
-        for entry in (
-            _entry_for_comparator_drift(manifest) for manifest in manifests
-        )
+        for entry in (_entry_for_comparator_drift(manifest) for manifest in manifests)
         if entry is not None
     )
     return BenchmarkComparatorFailureReport(entries=entries)

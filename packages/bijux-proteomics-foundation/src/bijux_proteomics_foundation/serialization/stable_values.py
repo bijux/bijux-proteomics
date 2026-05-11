@@ -35,13 +35,12 @@ def stable_order_pairs(
 def stable_order_value(value: Any) -> Any:
     """Normalize one value into a deterministically ordered JSON-safe form."""
     if isinstance(value, Mapping):
-        return {
-            key: inner
-            for key, inner in stable_order_pairs(
+        return dict(
+            stable_order_pairs(
                 (str(mapping_key), mapping_value)
                 for mapping_key, mapping_value in value.items()
             )
-        }
+        )
     if isinstance(value, list):
         return [stable_order_value(item) for item in value]
     if isinstance(value, tuple):

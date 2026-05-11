@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import AliasChoices, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 from bijux_proteomics_foundation.serialization.stable_values import stable_order_strings
@@ -30,19 +30,22 @@ class ProvenancePointer(JsonModel):
 
     pointer_kind: ProvenancePointerKind
     locator: str = Field(..., min_length=1)
-    pointer_role: str = Field(
-        ...,
-        min_length=1,
-        validation_alias=AliasChoices("pointer_role", "role"),
-        serialization_alias="pointer_role",
-    )
+    pointer_role: str = Field(..., min_length=1)
     source_system: str = Field(default="bijux-proteomics", min_length=1)
     fingerprint: str | None = None
-    pointer_labels: tuple[str, ...] = Field(
-        default_factory=tuple,
-        validation_alias=AliasChoices("pointer_labels", "labels"),
-        serialization_alias="pointer_labels",
-    )
+    pointer_labels: tuple[str, ...] = Field(default_factory=tuple)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _normalize_legacy_keys(cls, value: object) -> object:
+        if not isinstance(value, dict):
+            return value
+        payload = dict(value)
+        if "pointer_role" not in payload and "role" in payload:
+            payload["pointer_role"] = payload.pop("role")
+        if "pointer_labels" not in payload and "labels" in payload:
+            payload["pointer_labels"] = payload.pop("labels")
+        return payload
 
     @field_validator("pointer_labels")
     @classmethod

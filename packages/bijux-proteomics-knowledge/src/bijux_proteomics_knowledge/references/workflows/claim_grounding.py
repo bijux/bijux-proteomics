@@ -139,10 +139,7 @@ def _ref(ref_id: str, evidence_kind: ClaimEvidenceKind, note: str) -> ClaimEvide
 def _trust_page_path(workflow_family: KnowledgeWorkflowFamily) -> str:
     if workflow_family is KnowledgeWorkflowFamily.MULTIPLEX:
         return "docs/01-bijux-proteomics/foundation/why-multiplex-stops-at-internal-support.md"
-    return (
-        "docs/01-bijux-proteomics/foundation/"
-        f"why-trust-{workflow_family.value}.md"
-    )
+    return f"docs/01-bijux-proteomics/foundation/why-trust-{workflow_family.value}.md"
 
 
 def _outsider_packet_id(workflow_family: KnowledgeWorkflowFamily) -> str | None:
@@ -841,7 +838,8 @@ _DOC_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "It has a real public package, a raw-executable runtime lane, and "
                 "explicit chemistry pressure, plus one companion stress package and "
                 "one published cross-package report, but it still lacks a dedicated "
-                "outsider decision brief and a dedicated lab consequence packet."
+                "outsider decision brief, a requested-versus-observed outcome "
+                "dossier, and an assay-worth-it ledger row."
             ),
             evidence_refs=(
                 _ref(
@@ -940,8 +938,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "across the pinned fixture corpus"
             ),
             evidence_refs=(
-                _ref("benchmark:dda_search_reproducibility", ClaimEvidenceKind.BENCHMARK, "Primary DDA benchmark owner."),
-                _ref("citation:target_decoy_2007", ClaimEvidenceKind.CITATION, "Target-decoy literature owner."),
+                _ref(
+                    "benchmark:dda_search_reproducibility",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary DDA benchmark owner.",
+                ),
+                _ref(
+                    "citation:target_decoy_2007",
+                    ClaimEvidenceKind.CITATION,
+                    "Target-decoy literature owner.",
+                ),
             ),
             note="The DDA outsider packet repeats the first exact public claim.",
         ),
@@ -951,8 +957,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "explicit field-loss accounting"
             ),
             evidence_refs=(
-                _ref("benchmark:dda_search_reproducibility", ClaimEvidenceKind.BENCHMARK, "Primary DDA benchmark owner."),
-                _ref("citation:uniprot_2025", ClaimEvidenceKind.CITATION, "Reviewed-proteome literature owner."),
+                _ref(
+                    "benchmark:dda_search_reproducibility",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary DDA benchmark owner.",
+                ),
+                _ref(
+                    "citation:uniprot_2025",
+                    ClaimEvidenceKind.CITATION,
+                    "Reviewed-proteome literature owner.",
+                ),
             ),
             note="The DDA outsider packet repeats the second exact public claim.",
         ),
@@ -962,8 +976,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "materially limits this public workflow claim"
             ),
             evidence_refs=(
-                _ref("comparator_confrontation:dda", ClaimEvidenceKind.COMPARATOR, "The DDA comparator confrontation keeps the main public limit explicit."),
-                _ref("workflow_knowledge_deficit:dda", ClaimEvidenceKind.GOVERNANCE, "The DDA deficit surface records the remaining parity gap."),
+                _ref(
+                    "comparator_confrontation:dda",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "The DDA comparator confrontation keeps the main public limit explicit.",
+                ),
+                _ref(
+                    "workflow_knowledge_deficit:dda",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DDA deficit surface records the remaining parity gap.",
+                ),
             ),
             note="This is the main repeated DDA limiting sentence across packet sections.",
         ),
@@ -973,8 +995,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "so claim trust does not stop at pinned export normalization"
             ),
             evidence_refs=(
-                _ref("workflow_knowledge_deficit:dda", ClaimEvidenceKind.GOVERNANCE, "The DDA deficit surface names the missing stronger replay and comparator path."),
-                _ref("benchmark_runtime_truth:dda_import", ClaimEvidenceKind.RUNTIME, "The import-backed runtime posture explains why live replay is still a gap."),
+                _ref(
+                    "workflow_knowledge_deficit:dda",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DDA deficit surface names the missing stronger replay and comparator path.",
+                ),
+                _ref(
+                    "benchmark_runtime_truth:dda_import",
+                    ClaimEvidenceKind.RUNTIME,
+                    "The import-backed runtime posture explains why live replay is still a gap.",
+                ),
             ),
             note="The DDA outsider packet states the next strongest proof upgrade rather than hiding it.",
         ),
@@ -984,8 +1014,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "fixture corpus, not arbitrary production exports."
             ),
             evidence_refs=(
-                _ref("narrative:dda_evidence_claim", ClaimEvidenceKind.GOVERNANCE, "The DDA narrative keeps the benchmark scope explicit."),
-                _ref("benchmark:dda_search_reproducibility", ClaimEvidenceKind.BENCHMARK, "The benchmark is bounded to the bundled fixture corpus."),
+                _ref(
+                    "narrative:dda_evidence_claim",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DDA narrative keeps the benchmark scope explicit.",
+                ),
+                _ref(
+                    "benchmark:dda_search_reproducibility",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "The benchmark is bounded to the bundled fixture corpus.",
+                ),
             ),
             note="The packet keeps the DDA benchmark scope explicit.",
         ),
@@ -996,8 +1034,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "remains stable under contaminant and adapter pressure."
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:dda", ClaimEvidenceKind.GOVERNANCE, "The DDA sufficiency rubric owns the decision-grade bar."),
-                _ref("comparator_confrontation:dda", ClaimEvidenceKind.COMPARATOR, "Cross-engine accountability is tied to the public confrontation surface."),
+                _ref(
+                    "workflow_evidence_sufficiency:dda",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DDA sufficiency rubric owns the decision-grade bar.",
+                ),
+                _ref(
+                    "comparator_confrontation:dda",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "Cross-engine accountability is tied to the public confrontation surface.",
+                ),
             ),
             note="The packet states the current DDA decision-grade bar explicitly.",
         ),
@@ -1005,14 +1051,31 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
             claim_text=(
                 "The outsider packet exists to let a skeptical reviewer inspect the "
                 "current flagship workflow posture from tracked files, runtime "
-                "evidence, scientific reading, recommendation logic, and lab "
-                "consequence without maintainer narration."
+                "evidence, scientific reading, recommendation logic, planned assay "
+                "boundaries, and shipped requested-versus-observed lab consequence "
+                "without maintainer narration."
             ),
             evidence_refs=(
-                _ref("outsider_review:dda", ClaimEvidenceKind.INTELLIGENCE, "The DDA outsider packet is itself the public inspection bundle."),
-                _ref("scientific_reading_pack:dda", ClaimEvidenceKind.GOVERNANCE, "The scientific reading pack is one of the required evidence owners named by the note."),
-                _ref("flagship_packet:dda", ClaimEvidenceKind.INTELLIGENCE, "The recommendation packet is one of the named packet owners."),
-                _ref("flagship_lab_packet:dda", ClaimEvidenceKind.LAB, "The lab packet is the named consequence owner."),
+                _ref(
+                    "outsider_review:dda",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The DDA outsider packet is itself the public inspection bundle.",
+                ),
+                _ref(
+                    "scientific_reading_pack:dda",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The scientific reading pack is one of the required evidence owners named by the note.",
+                ),
+                _ref(
+                    "flagship_packet:dda",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The recommendation packet is one of the named packet owners.",
+                ),
+                _ref(
+                    "flagship_lab_packet:dda",
+                    ClaimEvidenceKind.LAB,
+                    "The lab packet is the named consequence owner.",
+                ),
             ),
             note="The packet note is itself a public contract about what outsiders can inspect without narration.",
         ),
@@ -1024,8 +1087,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "semantics across the pinned export corpus"
             ),
             evidence_refs=(
-                _ref("benchmark:dia_library_extraction_consistency", ClaimEvidenceKind.BENCHMARK, "Primary DIA benchmark owner."),
-                _ref("citation:swath_2012", ClaimEvidenceKind.CITATION, "DIA method literature owner."),
+                _ref(
+                    "benchmark:dia_library_extraction_consistency",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary DIA benchmark owner.",
+                ),
+                _ref(
+                    "citation:swath_2012",
+                    ClaimEvidenceKind.CITATION,
+                    "DIA method literature owner.",
+                ),
             ),
             note="The DIA outsider packet repeats the first exact public claim.",
         ),
@@ -1035,8 +1106,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "implying vendor-pipeline parity"
             ),
             evidence_refs=(
-                _ref("outsider_review:dia", ClaimEvidenceKind.INTELLIGENCE, "The DIA packet keeps capability limits public."),
-                _ref("workflow_authority_matrix:dia", ClaimEvidenceKind.GOVERNANCE, "The bounded DIA authority call is published in the matrix."),
+                _ref(
+                    "outsider_review:dia",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The DIA packet keeps capability limits public.",
+                ),
+                _ref(
+                    "workflow_authority_matrix:dia",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The bounded DIA authority call is published in the matrix.",
+                ),
             ),
             note="The DIA outsider packet repeats the second exact public claim.",
         ),
@@ -1046,8 +1125,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "and vendor drift can change release posture explicitly"
             ),
             evidence_refs=(
-                _ref("workflow_knowledge_deficit:dia", ClaimEvidenceKind.GOVERNANCE, "The DIA deficit surface records the remaining comparator and vendor drift gap."),
-                _ref("comparator_confrontation:dia", ClaimEvidenceKind.COMPARATOR, "The current confrontation is the present comparator floor."),
+                _ref(
+                    "workflow_knowledge_deficit:dia",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DIA deficit surface records the remaining comparator and vendor drift gap.",
+                ),
+                _ref(
+                    "comparator_confrontation:dia",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "The current confrontation is the present comparator floor.",
+                ),
             ),
             note="The DIA packet names the next public proof step instead of hiding it.",
         ),
@@ -1057,8 +1144,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "explicit capability notes."
             ),
             evidence_refs=(
-                _ref("benchmark_runtime_truth:dia_import", ClaimEvidenceKind.RUNTIME, "The DIA runtime truth and packet limits explain the export-bounded posture."),
-                _ref("narrative:dia_limitation", ClaimEvidenceKind.GOVERNANCE, "The DIA limitation narrative keeps the export-bounded scope explicit."),
+                _ref(
+                    "benchmark_runtime_truth:dia_import",
+                    ClaimEvidenceKind.RUNTIME,
+                    "The DIA runtime truth and packet limits explain the export-bounded posture.",
+                ),
+                _ref(
+                    "narrative:dia_limitation",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DIA limitation narrative keeps the export-bounded scope explicit.",
+                ),
             ),
             note="The DIA packet states that checked-in exports remain the current proof boundary.",
         ),
@@ -1069,8 +1164,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "tiers with explicit comparator limits."
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:dia", ClaimEvidenceKind.GOVERNANCE, "The DIA sufficiency rubric owns the decision-grade bar."),
-                _ref("comparator_confrontation:dia", ClaimEvidenceKind.COMPARATOR, "Comparator limits remain a named part of the decision-grade threshold."),
+                _ref(
+                    "workflow_evidence_sufficiency:dia",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DIA sufficiency rubric owns the decision-grade bar.",
+                ),
+                _ref(
+                    "comparator_confrontation:dia",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "Comparator limits remain a named part of the decision-grade threshold.",
+                ),
             ),
             note="The DIA packet states the current decision-grade bar directly.",
         ),
@@ -1080,8 +1183,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "that remain outside the repository proof boundary"
             ),
             evidence_refs=(
-                _ref("outsider_review:dia", ClaimEvidenceKind.INTELLIGENCE, "The DIA outsider packet preserves this reproduction limit directly."),
-                _ref("workflow_knowledge_deficit:dia", ClaimEvidenceKind.GOVERNANCE, "The DIA deficit surface keeps the remaining reproduction gap visible."),
+                _ref(
+                    "outsider_review:dia",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The DIA outsider packet preserves this reproduction limit directly.",
+                ),
+                _ref(
+                    "workflow_knowledge_deficit:dia",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The DIA deficit surface keeps the remaining reproduction gap visible.",
+                ),
             ),
             note="The packet keeps the strongest non-comparator DIA limit explicit.",
         ),
@@ -1089,14 +1200,31 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
             claim_text=(
                 "The outsider packet exists to let a skeptical reviewer inspect the "
                 "current flagship workflow posture from tracked files, runtime "
-                "evidence, scientific reading, recommendation logic, and lab "
-                "consequence without maintainer narration."
+                "evidence, scientific reading, recommendation logic, planned assay "
+                "boundaries, and shipped requested-versus-observed lab consequence "
+                "without maintainer narration."
             ),
             evidence_refs=(
-                _ref("outsider_review:dia", ClaimEvidenceKind.INTELLIGENCE, "The DIA outsider packet is itself the public inspection bundle."),
-                _ref("scientific_reading_pack:dia", ClaimEvidenceKind.GOVERNANCE, "The scientific reading pack is one named evidence owner."),
-                _ref("flagship_packet:dia", ClaimEvidenceKind.INTELLIGENCE, "The recommendation packet is one named evidence owner."),
-                _ref("flagship_lab_packet:dia", ClaimEvidenceKind.LAB, "The lab packet is the named consequence owner."),
+                _ref(
+                    "outsider_review:dia",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The DIA outsider packet is itself the public inspection bundle.",
+                ),
+                _ref(
+                    "scientific_reading_pack:dia",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The scientific reading pack is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_packet:dia",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The recommendation packet is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_lab_packet:dia",
+                    ClaimEvidenceKind.LAB,
+                    "The lab packet is the named consequence owner.",
+                ),
             ),
             note="The shared outsider-packet note is still a public contract for DIA inspection.",
         ),
@@ -1108,8 +1236,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "visibility, and repeatable rollup behavior across the bundled fixture"
             ),
             evidence_refs=(
-                _ref("benchmark:lfq_cohort_repeatability", ClaimEvidenceKind.BENCHMARK, "Primary LFQ benchmark owner."),
-                _ref("citation:protein_inference_2012", ClaimEvidenceKind.CITATION, "LFQ rollup-caution literature owner."),
+                _ref(
+                    "benchmark:lfq_cohort_repeatability",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary LFQ benchmark owner.",
+                ),
+                _ref(
+                    "citation:protein_inference_2012",
+                    ClaimEvidenceKind.CITATION,
+                    "LFQ rollup-caution literature owner.",
+                ),
             ),
             note="The LFQ outsider packet repeats the first exact public claim.",
         ),
@@ -1119,8 +1255,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "interpretation when QC and replicate caveats remain explicit"
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:lfq", ClaimEvidenceKind.GOVERNANCE, "The LFQ rubric owns the review-grade threshold."),
-                _ref("benchmark:lfq_cohort_repeatability", ClaimEvidenceKind.BENCHMARK, "The primary LFQ benchmark is the empirical owner."),
+                _ref(
+                    "workflow_evidence_sufficiency:lfq",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The LFQ rubric owns the review-grade threshold.",
+                ),
+                _ref(
+                    "benchmark:lfq_cohort_repeatability",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "The primary LFQ benchmark is the empirical owner.",
+                ),
             ),
             note="The LFQ outsider packet repeats the second exact public claim.",
         ),
@@ -1130,8 +1274,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "and effect-size claims are not inferred from fixture stability alone"
             ),
             evidence_refs=(
-                _ref("workflow_knowledge_deficit:lfq", ClaimEvidenceKind.GOVERNANCE, "The LFQ deficit surface records the missing stronger comparator path."),
-                _ref("comparator_confrontation:lfq", ClaimEvidenceKind.COMPARATOR, "The current comparator confrontation is the present floor."),
+                _ref(
+                    "workflow_knowledge_deficit:lfq",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The LFQ deficit surface records the missing stronger comparator path.",
+                ),
+                _ref(
+                    "comparator_confrontation:lfq",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "The current comparator confrontation is the present floor.",
+                ),
             ),
             note="The LFQ packet states the next proof upgrade directly.",
         ),
@@ -1142,8 +1294,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "abundance claims."
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:lfq", ClaimEvidenceKind.GOVERNANCE, "The LFQ sufficiency rubric owns the decision-grade bar."),
-                _ref("scientific_reading_pack:lfq", ClaimEvidenceKind.GOVERNANCE, "The reading pack preserves the missingness and batch boundary."),
+                _ref(
+                    "workflow_evidence_sufficiency:lfq",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The LFQ sufficiency rubric owns the decision-grade bar.",
+                ),
+                _ref(
+                    "scientific_reading_pack:lfq",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The reading pack preserves the missingness and batch boundary.",
+                ),
             ),
             note="The LFQ packet states the current decision-grade bar directly.",
         ),
@@ -1153,7 +1313,11 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "fragile contrast."
             ),
             evidence_refs=(
-                _ref("flagship_lab_packet:lfq", ClaimEvidenceKind.LAB, "The LFQ lab packet owns the current operational refusal boundary."),
+                _ref(
+                    "flagship_lab_packet:lfq",
+                    ClaimEvidenceKind.LAB,
+                    "The LFQ lab packet owns the current operational refusal boundary.",
+                ),
             ),
             note="The LFQ packet ties assay refusal to a concrete operational boundary.",
         ),
@@ -1161,14 +1325,31 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
             claim_text=(
                 "The outsider packet exists to let a skeptical reviewer inspect the "
                 "current flagship workflow posture from tracked files, runtime "
-                "evidence, scientific reading, recommendation logic, and lab "
-                "consequence without maintainer narration."
+                "evidence, scientific reading, recommendation logic, planned assay "
+                "boundaries, and shipped requested-versus-observed lab consequence "
+                "without maintainer narration."
             ),
             evidence_refs=(
-                _ref("outsider_review:lfq", ClaimEvidenceKind.INTELLIGENCE, "The LFQ outsider packet is itself the public inspection bundle."),
-                _ref("scientific_reading_pack:lfq", ClaimEvidenceKind.GOVERNANCE, "The scientific reading pack is one named evidence owner."),
-                _ref("flagship_packet:lfq", ClaimEvidenceKind.INTELLIGENCE, "The recommendation packet is one named evidence owner."),
-                _ref("flagship_lab_packet:lfq", ClaimEvidenceKind.LAB, "The lab packet is the named consequence owner."),
+                _ref(
+                    "outsider_review:lfq",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The LFQ outsider packet is itself the public inspection bundle.",
+                ),
+                _ref(
+                    "scientific_reading_pack:lfq",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The scientific reading pack is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_packet:lfq",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The recommendation packet is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_lab_packet:lfq",
+                    ClaimEvidenceKind.LAB,
+                    "The lab packet is the named consequence owner.",
+                ),
             ),
             note="The shared outsider-packet note is still a public contract for LFQ inspection.",
         ),
@@ -1180,8 +1361,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "PSI-MOD grounding across the pinned phospho-oriented fixture"
             ),
             evidence_refs=(
-                _ref("benchmark:ptm_localization_consistency", ClaimEvidenceKind.BENCHMARK, "Primary PTM benchmark owner."),
-                _ref("citation:psi_mod_2008", ClaimEvidenceKind.CITATION, "PTM ontology owner."),
+                _ref(
+                    "benchmark:ptm_localization_consistency",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary PTM benchmark owner.",
+                ),
+                _ref(
+                    "citation:psi_mod_2008",
+                    ClaimEvidenceKind.CITATION,
+                    "PTM ontology owner.",
+                ),
             ),
             note="The PTM outsider packet repeats the first exact public claim.",
         ),
@@ -1191,8 +1380,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "occupancy or regulatory claims"
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:ptm", ClaimEvidenceKind.GOVERNANCE, "The PTM rubric keeps occupancy and regulation narrower than localization."),
-                _ref("citation:ascore_2006", ClaimEvidenceKind.CITATION, "Localization-confidence literature owner."),
+                _ref(
+                    "workflow_evidence_sufficiency:ptm",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The PTM rubric keeps occupancy and regulation narrower than localization.",
+                ),
+                _ref(
+                    "citation:ascore_2006",
+                    ClaimEvidenceKind.CITATION,
+                    "Localization-confidence literature owner.",
+                ),
             ),
             note="The PTM outsider packet repeats the second exact public claim.",
         ),
@@ -1202,8 +1399,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "localization trust is not limited to imported tables"
             ),
             evidence_refs=(
-                _ref("workflow_knowledge_deficit:ptm", ClaimEvidenceKind.GOVERNANCE, "The PTM deficit surface records the missing rescoring and comparator breadth."),
-                _ref("comparator_confrontation:ptm", ClaimEvidenceKind.COMPARATOR, "The PTM confrontation is the current comparator floor."),
+                _ref(
+                    "workflow_knowledge_deficit:ptm",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The PTM deficit surface records the missing rescoring and comparator breadth.",
+                ),
+                _ref(
+                    "comparator_confrontation:ptm",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "The PTM confrontation is the current comparator floor.",
+                ),
             ),
             note="The PTM packet states the next stronger proof path directly.",
         ),
@@ -1214,15 +1419,27 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "literature-bounded site interpretation."
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:ptm", ClaimEvidenceKind.GOVERNANCE, "The PTM sufficiency rubric owns the decision-grade bar."),
-                _ref("scientific_reading_pack:ptm", ClaimEvidenceKind.GOVERNANCE, "The PTM reading pack preserves the family-specific and site-interpretation boundaries."),
+                _ref(
+                    "workflow_evidence_sufficiency:ptm",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The PTM sufficiency rubric owns the decision-grade bar.",
+                ),
+                _ref(
+                    "scientific_reading_pack:ptm",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The PTM reading pack preserves the family-specific and site-interpretation boundaries.",
+                ),
             ),
             note="The PTM packet states the current decision-grade bar directly.",
         ),
         _ClaimBlueprint(
             claim_text="operational burden remains too high for a justified recommendation",
             evidence_refs=(
-                _ref("flagship_lab_packet:ptm", ClaimEvidenceKind.LAB, "The PTM lab packet owns the current operational burden refusal."),
+                _ref(
+                    "flagship_lab_packet:ptm",
+                    ClaimEvidenceKind.LAB,
+                    "The PTM lab packet owns the current operational burden refusal.",
+                ),
             ),
             note="The PTM packet keeps the current lab burden limit explicit.",
         ),
@@ -1230,14 +1447,31 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
             claim_text=(
                 "The outsider packet exists to let a skeptical reviewer inspect the "
                 "current flagship workflow posture from tracked files, runtime "
-                "evidence, scientific reading, recommendation logic, and lab "
-                "consequence without maintainer narration."
+                "evidence, scientific reading, recommendation logic, planned assay "
+                "boundaries, and shipped requested-versus-observed lab consequence "
+                "without maintainer narration."
             ),
             evidence_refs=(
-                _ref("outsider_review:ptm", ClaimEvidenceKind.INTELLIGENCE, "The PTM outsider packet is itself the public inspection bundle."),
-                _ref("scientific_reading_pack:ptm", ClaimEvidenceKind.GOVERNANCE, "The scientific reading pack is one named evidence owner."),
-                _ref("flagship_packet:ptm", ClaimEvidenceKind.INTELLIGENCE, "The recommendation packet is one named evidence owner."),
-                _ref("flagship_lab_packet:ptm", ClaimEvidenceKind.LAB, "The lab packet is the named consequence owner."),
+                _ref(
+                    "outsider_review:ptm",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The PTM outsider packet is itself the public inspection bundle.",
+                ),
+                _ref(
+                    "scientific_reading_pack:ptm",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The scientific reading pack is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_packet:ptm",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The recommendation packet is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_lab_packet:ptm",
+                    ClaimEvidenceKind.LAB,
+                    "The lab packet is the named consequence owner.",
+                ),
             ),
             note="The shared outsider-packet note is still a public contract for PTM inspection.",
         ),
@@ -1250,8 +1484,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "chromatogram fixture"
             ),
             evidence_refs=(
-                _ref("benchmark:targeted_transition_consistency", ClaimEvidenceKind.BENCHMARK, "Primary targeted benchmark owner."),
-                _ref("citation:protein_inference_2012", ClaimEvidenceKind.CITATION, "Targeted protein-caution literature owner."),
+                _ref(
+                    "benchmark:targeted_transition_consistency",
+                    ClaimEvidenceKind.BENCHMARK,
+                    "Primary targeted benchmark owner.",
+                ),
+                _ref(
+                    "citation:protein_inference_2012",
+                    ClaimEvidenceKind.CITATION,
+                    "Targeted protein-caution literature owner.",
+                ),
             ),
             note="The targeted outsider packet repeats the first exact public claim.",
         ),
@@ -1261,8 +1503,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "without pretending to prove vendor-parity targeted biology"
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:targeted", ClaimEvidenceKind.GOVERNANCE, "The targeted rubric owns the bounded operator-facing threshold."),
-                _ref("flagship_lab_packet:targeted", ClaimEvidenceKind.LAB, "The targeted lab packet keeps the outcome posture exploratory."),
+                _ref(
+                    "workflow_evidence_sufficiency:targeted",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The targeted rubric owns the bounded operator-facing threshold.",
+                ),
+                _ref(
+                    "flagship_lab_packet:targeted",
+                    ClaimEvidenceKind.LAB,
+                    "The targeted lab packet keeps the outcome posture exploratory.",
+                ),
             ),
             note="The targeted outsider packet repeats the second exact public claim.",
         ),
@@ -1273,8 +1523,16 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "calibration and interference realism"
             ),
             evidence_refs=(
-                _ref("workflow_knowledge_deficit:targeted", ClaimEvidenceKind.GOVERNANCE, "The targeted deficit surface records the missing Skyline-class confrontation."),
-                _ref("comparator_confrontation:targeted", ClaimEvidenceKind.COMPARATOR, "The targeted confrontation is the current comparator floor."),
+                _ref(
+                    "workflow_knowledge_deficit:targeted",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The targeted deficit surface records the missing Skyline-class confrontation.",
+                ),
+                _ref(
+                    "comparator_confrontation:targeted",
+                    ClaimEvidenceKind.COMPARATOR,
+                    "The targeted confrontation is the current comparator floor.",
+                ),
             ),
             note="The targeted packet states the next stronger proof path directly.",
         ),
@@ -1285,15 +1543,27 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
                 "handoff packets, and reconciled outcomes."
             ),
             evidence_refs=(
-                _ref("workflow_evidence_sufficiency:targeted", ClaimEvidenceKind.GOVERNANCE, "The targeted sufficiency rubric owns the decision-grade bar."),
-                _ref("flagship_lab_packet:targeted", ClaimEvidenceKind.LAB, "The targeted lab packet owns the handoff and reconciled-outcome boundary."),
+                _ref(
+                    "workflow_evidence_sufficiency:targeted",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The targeted sufficiency rubric owns the decision-grade bar.",
+                ),
+                _ref(
+                    "flagship_lab_packet:targeted",
+                    ClaimEvidenceKind.LAB,
+                    "The targeted lab packet owns the handoff and reconciled-outcome boundary.",
+                ),
             ),
             note="The targeted packet states the current decision-grade bar directly.",
         ),
         _ClaimBlueprint(
             claim_text="operational burden remains too high for a justified recommendation",
             evidence_refs=(
-                _ref("flagship_lab_packet:targeted", ClaimEvidenceKind.LAB, "The targeted lab packet owns the current operational burden refusal."),
+                _ref(
+                    "flagship_lab_packet:targeted",
+                    ClaimEvidenceKind.LAB,
+                    "The targeted lab packet owns the current operational burden refusal.",
+                ),
             ),
             note="The targeted packet keeps the current lab burden limit explicit.",
         ),
@@ -1301,14 +1571,31 @@ _PACKET_CLAIMS: dict[KnowledgeWorkflowFamily, tuple[_ClaimBlueprint, ...]] = {
             claim_text=(
                 "The outsider packet exists to let a skeptical reviewer inspect the "
                 "current flagship workflow posture from tracked files, runtime "
-                "evidence, scientific reading, recommendation logic, and lab "
-                "consequence without maintainer narration."
+                "evidence, scientific reading, recommendation logic, planned assay "
+                "boundaries, and shipped requested-versus-observed lab consequence "
+                "without maintainer narration."
             ),
             evidence_refs=(
-                _ref("outsider_review:targeted", ClaimEvidenceKind.INTELLIGENCE, "The targeted outsider packet is itself the public inspection bundle."),
-                _ref("scientific_reading_pack:targeted", ClaimEvidenceKind.GOVERNANCE, "The scientific reading pack is one named evidence owner."),
-                _ref("flagship_packet:targeted", ClaimEvidenceKind.INTELLIGENCE, "The recommendation packet is one named evidence owner."),
-                _ref("flagship_lab_packet:targeted", ClaimEvidenceKind.LAB, "The lab packet is the named consequence owner."),
+                _ref(
+                    "outsider_review:targeted",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The targeted outsider packet is itself the public inspection bundle.",
+                ),
+                _ref(
+                    "scientific_reading_pack:targeted",
+                    ClaimEvidenceKind.GOVERNANCE,
+                    "The scientific reading pack is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_packet:targeted",
+                    ClaimEvidenceKind.INTELLIGENCE,
+                    "The recommendation packet is one named evidence owner.",
+                ),
+                _ref(
+                    "flagship_lab_packet:targeted",
+                    ClaimEvidenceKind.LAB,
+                    "The lab packet is the named consequence owner.",
+                ),
             ),
             note="The shared outsider-packet note is still a public contract for targeted inspection.",
         ),
@@ -1362,7 +1649,7 @@ _UNSUPPORTED_CLAIM_BLUEPRINTS: dict[
     ),
     KnowledgeWorkflowFamily.MULTIPLEX: (
         (
-            "It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider decision brief and a dedicated lab consequence packet.",
+            "It has a real public package, a raw-executable runtime lane, and explicit chemistry pressure, plus one companion stress package and one published cross-package report, but it still lacks a dedicated outsider decision brief, a requested-versus-observed outcome dossier, and an assay-worth-it ledger row.",
             ScientificClaimSeverity.LOW,
             "The narrowing is honest, but the chemistry-pressure wording still depends on internal benchmark interpretation because multiplex lacks its own outsider packet and lab consequence surface.",
             "Ship a dedicated multiplex outsider decision brief and a dedicated multiplex lab consequence packet before promoting any stronger public chemistry-pressure language.",
@@ -1380,8 +1667,7 @@ def _entries_for_surface(
     return tuple(
         WorkflowClaimCitationEntry(
             entry_id=(
-                f"claim_grounding:{workflow_family.value}:"
-                f"{surface.value}:{index}"
+                f"claim_grounding:{workflow_family.value}:{surface.value}:{index}"
             ),
             workflow_family=workflow_family,
             surface=surface,
@@ -1488,7 +1774,9 @@ def build_workflow_unsupported_claim_ledger(
     )
 
 
-def list_workflow_unsupported_claim_ledgers() -> tuple[WorkflowUnsupportedClaimLedger, ...]:
+def list_workflow_unsupported_claim_ledgers() -> tuple[
+    WorkflowUnsupportedClaimLedger, ...
+]:
     """Return unsupported-claim ledgers across all workflow families."""
 
     return tuple(

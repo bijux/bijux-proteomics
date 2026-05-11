@@ -20,16 +20,27 @@ def test_comparator_position_report_contains_real_known_losses_and_wins() -> Non
 
 def test_comparator_position_report_names_multiple_specific_losses() -> None:
     report = build_comparator_position_report()
-    losses = [entry for entry in report.entries if entry.kind is ComparatorPositionKind.KNOWN_LOSS]
+    losses = [
+        entry
+        for entry in report.entries
+        if entry.kind is ComparatorPositionKind.KNOWN_LOSS
+    ]
 
     assert len(losses) >= 3
     assert any("calibration" in entry.title for entry in losses)
-    assert any("missingness" in entry.title or "evidence-loss" in entry.title for entry in losses)
+    assert any(
+        "missingness" in entry.title or "evidence-loss" in entry.title
+        for entry in losses
+    )
 
 
 def test_comparator_position_report_names_stricter_review_wins() -> None:
     report = build_comparator_position_report()
-    wins = [entry for entry in report.entries if entry.kind is ComparatorPositionKind.KNOWN_WIN]
+    wins = [
+        entry
+        for entry in report.entries
+        if entry.kind is ComparatorPositionKind.KNOWN_WIN
+    ]
 
     assert any("protein-level evidence" in entry.title for entry in wins)
     assert any("ambiguity divergence" in entry.title for entry in wins)

@@ -8,11 +8,11 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
+from bijux_proteomics_runtime.runs.replay import ReplayContract
 from bijux_proteomics_runtime.runs.reruns import (
     PartialRerunPlan,
     build_runtime_partial_rerun_plan,
 )
-from bijux_proteomics_runtime.runs.replay import ReplayContract
 from bijux_proteomics_runtime.support.workspace import RunWorkspace, write_json_atomic
 
 

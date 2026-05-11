@@ -689,7 +689,9 @@ def run_benchmark_multiplex_review_path() -> MultiplexRuntimeWorkflowRunReport:
     )
 
 
-def run_benchmark_multiplex_generalization_review_path() -> MultiplexRuntimeWorkflowRunReport:
+def run_benchmark_multiplex_generalization_review_path() -> (
+    MultiplexRuntimeWorkflowRunReport
+):
     """Execute the companion multiplex review corpus inside the runtime layer."""
 
     repo_root = _repo_root()
@@ -787,7 +789,9 @@ def run_benchmark_targeted_review_path() -> TargetedRuntimeWorkflowRunReport:
     )
 
 
-def run_benchmark_targeted_generalization_review_path() -> TargetedRuntimeWorkflowRunReport:
+def run_benchmark_targeted_generalization_review_path() -> (
+    TargetedRuntimeWorkflowRunReport
+):
     """Execute the companion targeted review corpus inside the runtime layer."""
 
     repo_root = _repo_root()
@@ -836,7 +840,9 @@ def build_benchmark_runtime_truth_surface() -> tuple[BenchmarkRuntimeTruthRow, .
                     replayable=False,
                     externally_cross_checked=False,
                     artifact_browser_ready=False,
-                    blocker_notes=(matrix_row.blocker_notes if matrix_row is not None else ())
+                    blocker_notes=(
+                        matrix_row.blocker_notes if matrix_row is not None else ()
+                    )
                     or (
                         "no flagship runtime benchmark path is wired for this workflow family yet",
                     ),
@@ -851,9 +857,12 @@ def build_benchmark_runtime_truth_surface() -> tuple[BenchmarkRuntimeTruthRow, .
                 run_mode=spec.run_mode,
                 proof_class=_proof_class_for_run_mode(spec.run_mode),
                 replayable=True,
-                externally_cross_checked=workflow_family in {"dda_import", "dia_import"},
+                externally_cross_checked=workflow_family
+                in {"dda_import", "dia_import"},
                 artifact_browser_ready=workflow_family in {"dda_import", "dia_import"},
-                blocker_notes=matrix_row.blocker_notes if matrix_row is not None else (),
+                blocker_notes=matrix_row.blocker_notes
+                if matrix_row is not None
+                else (),
                 notes=spec.notes + (matrix_row.notes if matrix_row is not None else ()),
             )
         )
@@ -881,7 +890,8 @@ def build_benchmark_artifact_browser(
     )
     imported_results: tuple[BenchmarkArtifactEntry, ...] = ()
     public_package_artifacts = tuple(
-        _summarize_source_path(_repo_root() / path) for path in spec.public_package_paths
+        _summarize_source_path(_repo_root() / path)
+        for path in spec.public_package_paths
     )
     handoff_outputs: list[BenchmarkArtifactEntry] = []
     if manifest.import_trace_path is not None:
@@ -895,8 +905,14 @@ def build_benchmark_artifact_browser(
             ),
         )
         for path, artifact_kind in (
-            (workspace.artifact_items_dir / "evidence_bundle.json", "runtime-evidence-bundle"),
-            (workspace.artifact_items_dir / "review_packet.json", "runtime-review-packet"),
+            (
+                workspace.artifact_items_dir / "evidence_bundle.json",
+                "runtime-evidence-bundle",
+            ),
+            (
+                workspace.artifact_items_dir / "review_packet.json",
+                "runtime-review-packet",
+            ),
         ):
             if path.exists():
                 handoff_outputs.append(
@@ -1009,7 +1025,9 @@ def build_benchmark_failure_recovery_bundle(
         manifest.run_id,
         artifacts_root_override=artifacts_dir,
     )
-    engineering = build_runtime_failure_recovery_audit(workspace, run_id=manifest.run_id)
+    engineering = build_runtime_failure_recovery_audit(
+        workspace, run_id=manifest.run_id
+    )
     replay_audit = build_benchmark_replay_audit(
         base_dir,
         package_id=package_id,
@@ -1079,8 +1097,7 @@ def build_benchmark_run_provenance_report(
             f"artifact_policy_fingerprint={replay_contract.artifact_policy_fingerprint}",
         ),
         input_digests=tuple(
-            _build_digest_record(label, path)
-            for label, path in _iter_input_paths(spec)
+            _build_digest_record(label, path) for label, path in _iter_input_paths(spec)
         ),
         artifact_digests=tuple(
             BenchmarkDigestRecord(
@@ -1088,7 +1105,9 @@ def build_benchmark_run_provenance_report(
                 path=entry.path,
                 sha256=entry.content_sha256,
             )
-            for entry in RuntimeArtifactLedger.load_json(workspace.artifact_ledger_path).entries
+            for entry in RuntimeArtifactLedger.load_json(
+                workspace.artifact_ledger_path
+            ).entries
         ),
         notes=(
             "runtime provenance fixes the exact input and artifact digests before downstream review consumers interpret benchmark results",
@@ -1240,7 +1259,9 @@ def _load_flagship_dia_precursor_rows() -> tuple[DiaPrecursorQuantInput, ...]:
                     DiaPrecursorQuantInput(
                         precursor_id=str(row[precursor_key]).strip(),
                         peptide=str(row[peptide_key]).strip(),
-                        protein_ref=protein_refs[0] if protein_refs else "unknown_protein",
+                        protein_ref=protein_refs[0]
+                        if protein_refs
+                        else "unknown_protein",
                         sample_id=sample_id,
                         intensity=None,
                     )
@@ -1281,7 +1302,9 @@ def _load_companion_dia_precursor_rows() -> tuple[DiaPrecursorQuantInput, ...]:
                     DiaPrecursorQuantInput(
                         precursor_id=str(row[precursor_key]).strip(),
                         peptide=str(row[peptide_key]).strip(),
-                        protein_ref=protein_refs[0] if protein_refs else "unknown_protein",
+                        protein_ref=protein_refs[0]
+                        if protein_refs
+                        else "unknown_protein",
                         sample_id=sample_id,
                         intensity=None,
                     )
@@ -1290,7 +1313,9 @@ def _load_companion_dia_precursor_rows() -> tuple[DiaPrecursorQuantInput, ...]:
 
 
 def _spec_by_id(package_id: str) -> BenchmarkRunSpec:
-    return next(spec for spec in build_benchmark_run_specs() if spec.package_id == package_id)
+    return next(
+        spec for spec in build_benchmark_run_specs() if spec.package_id == package_id
+    )
 
 
 def _repo_root() -> Path:
@@ -1363,9 +1388,7 @@ def _summarize_imported_payload(
     if isinstance(payload, dict) and "rows" in payload:
         columns = payload.get("columns", ())
         row_count = payload.get("row_count", 0)
-        preview_lines.append(
-            f"columns={','.join(str(column) for column in columns)}"
-        )
+        preview_lines.append(f"columns={','.join(str(column) for column in columns)}")
         preview_lines.append(f"row_count={row_count}")
         rows = payload.get("rows", [])
         if isinstance(rows, list) and rows:
@@ -1401,7 +1424,9 @@ def _summarize_runtime_output(path: Path, artifact_kind: str) -> BenchmarkArtifa
     )
 
 
-def _replay_decision(scenario_id: str, plan: PartialRerunPlan) -> BenchmarkReplayDecision:
+def _replay_decision(
+    scenario_id: str, plan: PartialRerunPlan
+) -> BenchmarkReplayDecision:
     return BenchmarkReplayDecision(
         scenario_id=scenario_id,
         eligible=plan.replay_eligibility.eligible,

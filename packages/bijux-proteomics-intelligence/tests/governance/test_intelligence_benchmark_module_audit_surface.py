@@ -20,7 +20,10 @@ def test_benchmark_module_audit_marks_review_owner_as_analytical_value() -> None
         if entry.module_path == "reviews/benchmarks.py"
     )
 
-    assert benchmark_entry.classification is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    assert (
+        benchmark_entry.classification
+        is IntelligenceModuleClassification.ANALYTICAL_VALUE
+    )
     assert benchmark_entry.anchor_capabilities == (
         IntelligenceCharterCapability.REVIEW_REASONING,
     )
@@ -31,4 +34,3 @@ def test_benchmark_module_audit_points_to_live_owner_module() -> None:
 
     assert benchmark_path.exists()
     assert benchmark_path.read_text(encoding="utf-8")
-

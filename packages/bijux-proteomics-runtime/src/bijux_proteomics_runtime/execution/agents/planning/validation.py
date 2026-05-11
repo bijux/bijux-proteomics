@@ -5,11 +5,10 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_intelligence.candidates.schema import Candidate
-
 from bijux_proteomics.domain.sequence.validation import validate_sequence
-from bijux_proteomics_runtime.execution.agents.planning.schemas import Plan
+from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
+from bijux_proteomics_runtime.execution.agents.planning.schemas import Plan
 
 
 class PlanningValidator:

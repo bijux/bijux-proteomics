@@ -61,7 +61,9 @@ from bijux_proteomics_knowledge.memory.models.evidence import (
 from bijux_proteomics_knowledge.references.workflows.benchmarks import (
     KnowledgeWorkflowFamily,
 )
-from bijux_proteomics_knowledge.reviews.decision_briefs import build_knowledge_decision_brief
+from bijux_proteomics_knowledge.reviews.decision_briefs import (
+    build_knowledge_decision_brief,
+)
 from bijux_proteomics_lab.handoffs import TargetedTransitionReview
 from bijux_proteomics_lab.lifecycle import CandidateHandoffValidation
 from bijux_proteomics_lab.outcomes import ExperimentOutcome
@@ -75,9 +77,9 @@ from bijux_proteomics_runtime.workflows import (
     WorkflowFailureCategory,
     WorkflowPacketSerializationMode,
     WorkflowStageAcceptance,
-    build_flagship_workflow_handoff_contracts,
     build_flagship_workflow_acceptance_dossier,
     build_flagship_workflow_failure_taxonomy,
+    build_flagship_workflow_handoff_contracts,
     build_minimum_real_workflow_proof_bar,
     build_workflow_stage_packet_boundary_contracts,
 )
@@ -236,7 +238,9 @@ def test_flagship_workflow_acceptance_dossier_distinguishes_real_proof_axes() ->
         contract.stage_id for contract in build_flagship_workflow_handoff_contracts()
     }
     manifest_stage = next(
-        stage for stage in dossier.stages if stage.stage_id == "runtime-workflow-manifest"
+        stage
+        for stage in dossier.stages
+        if stage.stage_id == "runtime-workflow-manifest"
     )
     assert isinstance(manifest_stage, WorkflowStageAcceptance)
     assert manifest_stage.typed_only is True
@@ -254,7 +258,9 @@ def test_flagship_workflow_acceptance_dossier_distinguishes_real_proof_axes() ->
     assert downstream_stage.lab_reviewed is True
 
 
-def test_flagship_workflow_failure_taxonomy_separates_scientific_and_engineering_breakage() -> None:
+def test_flagship_workflow_failure_taxonomy_separates_scientific_and_engineering_breakage() -> (
+    None
+):
     taxonomy = build_flagship_workflow_failure_taxonomy()
 
     assert taxonomy.workflow_family == "flagship-workflows"
@@ -266,10 +272,14 @@ def test_flagship_workflow_failure_taxonomy_separates_scientific_and_engineering
     assert WorkflowFailureCategory.EXTERNAL_CAPABILITY_GAP in categories
 
 
-def test_minimum_real_workflow_proof_bar_requires_reproducibility_reviews_limits_and_benchmarks() -> None:
+def test_minimum_real_workflow_proof_bar_requires_reproducibility_reviews_limits_and_benchmarks() -> (
+    None
+):
     proof_bar = build_minimum_real_workflow_proof_bar()
 
-    requirement_ids = {requirement.requirement_id for requirement in proof_bar.requirements}
+    requirement_ids = {
+        requirement.requirement_id for requirement in proof_bar.requirements
+    }
     assert requirement_ids == {
         "reproducible-run",
         "reviewed-artifacts",
@@ -281,7 +291,9 @@ def test_minimum_real_workflow_proof_bar_requires_reproducibility_reviews_limits
         assert requirement.validating_test_paths
 
 
-def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs() -> None:
+def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs() -> (
+    None
+):
     manifest = build_proteomics_workflow_manifest(
         proteins_path=_runtime_fixture("proteins.fasta"),
         spectra_path=_runtime_fixture("spectra.mgf"),
@@ -296,7 +308,9 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
         _core_fixture("psm", "protein_inference_results.tsv"),
         mapping=_default_mapping(),
     )
-    accepted = filter_psms_by_fdr(identification_report.accepted_records, threshold=0.05)
+    accepted = filter_psms_by_fdr(
+        identification_report.accepted_records, threshold=0.05
+    )
     identification_packet = build_review_ready_evidence_bundle(
         accepted,
         threshold=0.05,
@@ -312,7 +326,9 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
         aggregation_method=QuantRollupMethod.SUM,
     )
 
-    parsed = parse_ptm_localization_tsv(_core_fixture("ptm", "localization_results.tsv"))
+    parsed = parse_ptm_localization_tsv(
+        _core_fixture("ptm", "localization_results.tsv")
+    )
     fasta = parse_fasta_document(
         _core_fixture("fasta", "ptm_sites.fasta").read_text(),
         mode=FastaParseMode.STRICT,
@@ -325,7 +341,9 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
         protein_sequences=protein_sequences,
     )
     sites = build_ptm_site_table(mappings)
-    features = parse_ms1_feature_table(_core_fixture("ptm", "ptm_features.tsv")).accepted_records
+    features = parse_ms1_feature_table(
+        _core_fixture("ptm", "ptm_features.tsv")
+    ).accepted_records
     occupancy = build_ptm_occupancy_counterpart_report(sites, feature_records=features)
     ptm_packet = build_ptm_lab_validation_packet(sites, occupancy_report=occupancy)
 
@@ -375,9 +393,15 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
     )
     ranking = CandidateRanking(
         program_id="prog-packet",
-        ranked_candidates=[RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)],
+        ranked_candidates=[
+            RankedCandidate(candidate_id="candidate-1", score=1.2, rank=1)
+        ],
     )
-    risks = [CandidateRiskProfile(candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6)]
+    risks = [
+        CandidateRiskProfile(
+            candidate_id="candidate-1", residual_risk=0.6, safety_risk=0.6
+        )
+    ]
     grouped = evaluate_all_scenarios(
         program,
         ranking,
@@ -424,7 +448,9 @@ def test_stage_review_packets_survive_package_boundaries_as_serializable_outputs
         ),
         outcome=ExperimentOutcome.model_validate(follow_up_fixture["outcome"]),
         target_id=cast(str, follow_up_fixture["target_id"]),
-        claim_links=cast(dict[str, list[str]], follow_up_fixture.get("claim_links", {})),
+        claim_links=cast(
+            dict[str, list[str]], follow_up_fixture.get("claim_links", {})
+        ),
     )
 
     payloads = {

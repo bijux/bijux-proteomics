@@ -11,6 +11,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
+from bijux_proteomics_runtime.api.cli import (
+    _read_sequence,
+    _validate_sequence,
+)
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
 from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
@@ -18,11 +22,6 @@ from bijux_proteomics_runtime.api.v1.schema import (
     ErrorResponse,
     RunRequest,
     RunResponse,
-)
-from bijux_proteomics_runtime.support.primitives.status import WorkflowState
-from bijux_proteomics_runtime.api.cli import (
-    _read_sequence,
-    _validate_sequence,
 )
 from bijux_proteomics_runtime.runs.correlation import (
     build_request_correlation_meta,
@@ -32,6 +31,7 @@ from bijux_proteomics_runtime.runs.operations import (
     load_run_summary_operation,
     run_sequence_operation,
 )
+from bijux_proteomics_runtime.support.primitives.status import WorkflowState
 
 router = APIRouter()
 

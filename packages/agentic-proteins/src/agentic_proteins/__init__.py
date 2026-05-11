@@ -5,32 +5,13 @@
 
 from __future__ import annotations
 
-from importlib import import_module, metadata
-from typing import Any
+from importlib import metadata
 
-_RUNTIME_PACKAGE = "bijux_proteomics_runtime"
-_runtime_module = import_module(_RUNTIME_PACKAGE)
+from bijux_proteomics_runtime import AppConfig, RunManager, cli, create_app
 
-for _name in getattr(_runtime_module, "__all__", ()):
-    if _name == "__version__":
-        continue
-    globals()[_name] = getattr(_runtime_module, _name)
-
-__all__ = list(getattr(_runtime_module, "__all__", ()))
+__all__ = ["AppConfig", "RunManager", "cli", "create_app"]
 
 try:
     __version__ = metadata.version("agentic-proteins")
 except metadata.PackageNotFoundError:
-    __version__ = "0.3.7"
-
-
-def __getattr__(name: str) -> Any:
-    """Forward root-level compatibility lookups to the canonical runtime package."""
-
-    return getattr(_runtime_module, name)
-
-
-def __dir__() -> list[str]:
-    """Expose canonical runtime attributes for interactive discovery."""
-
-    return sorted(set(globals()) | set(dir(_runtime_module)))
+    __version__ = "0.3.6"

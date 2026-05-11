@@ -10,11 +10,6 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics_foundation import JsonModel
-from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
-from bijux_proteomics_knowledge.memory.models.evidence import (
-    EvidenceBundle,
-    EvidenceConflict,
-)
 from bijux_proteomics_knowledge.memory.integrity.graph import (
     DecisionTracePath,
     EvidenceGraph,
@@ -22,6 +17,11 @@ from bijux_proteomics_knowledge.memory.integrity.graph import (
     build_evidence_graph,
     extract_decision_subgraph,
     trace_decision_paths,
+)
+from bijux_proteomics_knowledge.memory.models.claims import EvidenceClaim
+from bijux_proteomics_knowledge.memory.models.evidence import (
+    EvidenceBundle,
+    EvidenceConflict,
 )
 from bijux_proteomics_knowledge.memory.reconciliation.resolution import (
     resolve_conflicts,

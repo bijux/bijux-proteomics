@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.support.primitives.execution import ExecutionGraph
 from bijux_proteomics_runtime.state.schemas import StateSnapshot
+from bijux_proteomics_runtime.support.primitives.execution import ExecutionGraph
 
 __all__ = ["validate_execution_graph", "validate_state_snapshot"]
 

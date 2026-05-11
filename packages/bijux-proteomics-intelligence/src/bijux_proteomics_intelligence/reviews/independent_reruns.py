@@ -80,9 +80,7 @@ class WorkflowIndependentRerunDossierFamily(JsonModel):
 
     family_id: str = Field(..., min_length=1)
     artifact_path: str = Field(..., min_length=1)
-    dossiers: tuple[WorkflowIndependentRerunDossier, ...] = Field(
-        default_factory=tuple
-    )
+    dossiers: tuple[WorkflowIndependentRerunDossier, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -146,25 +144,15 @@ def _lane_from_spec(spec: BenchmarkRunSpec) -> IndependentRerunLane:
 
 def _independence_question(workflow_family: KnowledgeWorkflowFamily) -> str:
     if workflow_family is KnowledgeWorkflowFamily.DDA:
-        return (
-            "Do the outsider-facing DDA claims survive a second checked package with a different search-engine pairing instead of one convenient import lane?"
-        )
+        return "Do the outsider-facing DDA claims survive a second checked package with a different search-engine pairing instead of one convenient import lane?"
     if workflow_family is KnowledgeWorkflowFamily.DIA:
-        return (
-            "Do the outsider-facing DIA claims survive a second execution lane with a different vendor-conditioned matrix surface?"
-        )
+        return "Do the outsider-facing DIA claims survive a second execution lane with a different vendor-conditioned matrix surface?"
     if workflow_family is KnowledgeWorkflowFamily.LFQ:
-        return (
-            "Do the outsider-facing LFQ claims survive a second cohort-shaped execution lane when the feature density gets sparser?"
-        )
+        return "Do the outsider-facing LFQ claims survive a second cohort-shaped execution lane when the feature density gets sparser?"
     if workflow_family is KnowledgeWorkflowFamily.PTM:
-        return (
-            "Do the outsider-facing PTM claims survive a harsher localization ambiguity lane instead of one clean flagship corpus?"
-        )
+        return "Do the outsider-facing PTM claims survive a harsher localization ambiguity lane instead of one clean flagship corpus?"
     if workflow_family is KnowledgeWorkflowFamily.TARGETED:
-        return (
-            "Do the outsider-facing targeted claims survive a carryover and reuse pressure lane instead of one convenient transition package?"
-        )
+        return "Do the outsider-facing targeted claims survive a carryover and reuse pressure lane instead of one convenient transition package?"
     raise ValueError(f"unsupported workflow family: {workflow_family.value}")
 
 
@@ -275,7 +263,9 @@ def build_workflow_independent_rerun_dossier(
     )
 
 
-def build_workflow_independent_rerun_dossier_family() -> WorkflowIndependentRerunDossierFamily:
+def build_workflow_independent_rerun_dossier_family() -> (
+    WorkflowIndependentRerunDossierFamily
+):
     """Build independent rerun dossiers across flagship workflow families."""
 
     dossiers = tuple(
