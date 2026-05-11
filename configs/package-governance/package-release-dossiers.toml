@@ -16,13 +16,13 @@ publishable = false
 [[package]]
 distribution_name = "bijux-proteomics-dev"
 strongest_value = "`bijux-proteomics-dev` owns repository maintenance behavior. It defines shared checks and helper entrypoints used by root automation and CI."
-weakest_value = "1 oversized mixed-responsibility modules still need owner splits"
-broadest_debt = "1 oversized mixed-responsibility modules still need owner splits"
+weakest_value = "2 oversized mixed-responsibility modules still need owner splits"
+broadest_debt = "2 oversized mixed-responsibility modules still need owner splits"
 strengths = ["owner domains: 6", "dependency dossier: 6 outbound edges and 0 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-dev.toml"]
 limits = ["runtime product APIs", "canonical proteomics domain models", "package-specific scientific semantics"]
 proofs = ["docs proof artifacts: 13", "scenario fixtures: medium=0 negative=0 ambiguity=0 contradiction=0", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-dev:mixed-responsibility-modules"]
-exact_not_ready_reasons = ["1 oversized mixed-responsibility modules still need owner splits"]
+exact_not_ready_reasons = ["2 oversized mixed-responsibility modules still need owner splits"]
 publishable = false
 
 [[package]]

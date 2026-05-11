@@ -410,7 +410,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_surfaces"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
 outgoing_workspace_modules = []
 
 [[module]]
@@ -420,7 +420,7 @@ outgoing_workspace_modules = []
 
 [[module]]
 module_name = "bijux_proteomics_dev.governance.package_shape.public_symbol_ownership"
-outgoing_internal_modules = []
+outgoing_internal_modules = ["bijux_proteomics_dev.governance.support.workspace_inventory"]
 outgoing_workspace_modules = []
 
 [[module]]

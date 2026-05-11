@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import ast
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 
 from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
@@ -137,6 +138,7 @@ def _classify_source_module(package_name: str, path: Path) -> str:
     return "owner_logic"
 
 
+@cache
 def build_package_module_ledger_report() -> PackageModuleLedgerReport:
     """Build the machine-readable module ledger across source and tests."""
 

@@ -5,6 +5,10 @@ from dataclasses import dataclass
 import importlib
 from pathlib import Path
 
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_import_path,
+)
+
 __all__ = [
     "CANONICAL_PUBLIC_SYMBOL_OWNERSHIP_PATH",
     "CanonicalPublicRoot",
@@ -90,16 +94,17 @@ def build_public_symbol_ownership() -> tuple[PublicSymbolOwnershipEntry, ...]:
     """Build the machine-readable canonical package-root symbol map."""
 
     entries: list[PublicSymbolOwnershipEntry] = []
-    for root in canonical_public_roots():
-        module = importlib.import_module(root.import_root)
-        for symbol_name in getattr(module, "__all__", ()):
-            entries.append(
-                PublicSymbolOwnershipEntry(
-                    symbol_name=symbol_name,
-                    owner_distribution_name=root.distribution_name,
-                    owner_import_root=root.import_root,
+    with workspace_import_path():
+        for root in canonical_public_roots():
+            module = importlib.import_module(root.import_root)
+            for symbol_name in getattr(module, "__all__", ()):
+                entries.append(
+                    PublicSymbolOwnershipEntry(
+                        symbol_name=symbol_name,
+                        owner_distribution_name=root.distribution_name,
+                        owner_import_root=root.import_root,
+                    )
                 )
-            )
     return tuple(
         sorted(
             entries,

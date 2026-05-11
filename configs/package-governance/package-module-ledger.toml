@@ -5069,7 +5069,7 @@ module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance
 module_import_path = "bijux_proteomics_dev.governance.package_shape.public_surfaces"
 module_kind = "owner_logic"
 public_definition_count = 3
-workspace_import_root_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -5085,7 +5085,7 @@ module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance
 module_import_path = "bijux_proteomics_dev.governance.package_shape.public_symbol_ownership"
 module_kind = "owner_logic"
 public_definition_count = 7
-workspace_import_root_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-dev"
@@ -5172,7 +5172,7 @@ distribution_name = "bijux-proteomics-dev"
 module_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/support/workspace_inventory.py"
 module_import_path = "bijux_proteomics_dev.governance.support.workspace_inventory"
 module_kind = "owner_logic"
-public_definition_count = 23
+public_definition_count = 25
 workspace_import_root_count = 1
 
 [[module]]

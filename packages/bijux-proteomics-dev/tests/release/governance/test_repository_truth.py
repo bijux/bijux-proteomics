@@ -5,13 +5,13 @@ from types import SimpleNamespace
 
 import pytest
 
+from bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims import (
+    build_package_reopened_completion_claim_report,
+)
 from bijux_proteomics_dev.release.governance.repository_truth import (
     RepositoryTruthIssue,
     build_repository_truth_report,
     validate_repository_truth_report,
-)
-from bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims import (
-    build_package_reopened_completion_claim_report,
 )
 
 REPO_ROOT = next(
@@ -42,7 +42,7 @@ def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestl
     assert any(
         issue.code == "architectural-ready-floor-not-met" for issue in report.blockers
     )
-    assert any(
+    assert not any(
         issue.code == "governance-freshness-stale-generated-governance-report"
         for issue in report.blockers
     )

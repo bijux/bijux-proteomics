@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from functools import cache
 import tomllib
 from typing import Any, cast
 
@@ -79,6 +80,7 @@ def _load_tree_dossiers() -> dict[str, dict[str, Any]]:
     }
 
 
+@cache
 def build_package_surface_pressure_report() -> PackageSurfacePressureReport:
     """Build the checked package surface pressure report."""
 

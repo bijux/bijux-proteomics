@@ -13,6 +13,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
     import_root,
     src_root,
     tests_root,
+    workspace_import_path,
     workspace_package_names,
 )
 
@@ -233,47 +234,49 @@ def _candidate_owner_test_paths(
     return tuple(preferred or fallback or module_owned or family_owned)
 
 
+@cache
 def build_public_symbol_ledger_report() -> PublicSymbolLedgerReport:
     """Build the public symbol ledger for every exported root symbol."""
 
     entries: list[PublicSymbolLedgerEntry] = []
     symbols_with_owner_tests = 0
-    for package_name in workspace_package_names():
-        root_name = import_root(package_name)
-        module = importlib.import_module(root_name)
-        source_map = _root_export_sources(package_name)
-        for symbol_name in getattr(module, "__all__", ()):
-            value = getattr(module, symbol_name)
-            owner_module_name = _owner_module_name(
-                root_name, symbol_name, value, source_map
-            )
-            owner_distribution_name = _owner_distribution_name(
-                owner_module_name, package_name
-            )
-            owner_module_path = _owner_module_path(
-                owner_distribution_name,
-                owner_module_name,
-            )
-            owner_test_paths = _candidate_owner_test_paths(
-                owner_package_name=owner_distribution_name,
-                symbol_name=symbol_name,
-                owner_module_name=owner_module_name,
-                owner_module_path=owner_module_path,
-            )
-            if owner_test_paths:
-                symbols_with_owner_tests += 1
-            entries.append(
-                PublicSymbolLedgerEntry(
-                    distribution_name=package_name,
-                    import_root=root_name,
+    with workspace_import_path():
+        for package_name in workspace_package_names():
+            root_name = import_root(package_name)
+            module = importlib.import_module(root_name)
+            source_map = _root_export_sources(package_name)
+            for symbol_name in getattr(module, "__all__", ()):
+                value = getattr(module, symbol_name)
+                owner_module_name = _owner_module_name(
+                    root_name, symbol_name, value, source_map
+                )
+                owner_distribution_name = _owner_distribution_name(
+                    owner_module_name, package_name
+                )
+                owner_module_path = _owner_module_path(
+                    owner_distribution_name,
+                    owner_module_name,
+                )
+                owner_test_paths = _candidate_owner_test_paths(
+                    owner_package_name=owner_distribution_name,
                     symbol_name=symbol_name,
-                    symbol_kind=_symbol_kind(value),
-                    owner_distribution_name=owner_distribution_name,
                     owner_module_name=owner_module_name,
                     owner_module_path=owner_module_path,
-                    owner_test_paths=owner_test_paths,
                 )
-            )
+                if owner_test_paths:
+                    symbols_with_owner_tests += 1
+                entries.append(
+                    PublicSymbolLedgerEntry(
+                        distribution_name=package_name,
+                        import_root=root_name,
+                        symbol_name=symbol_name,
+                        symbol_kind=_symbol_kind(value),
+                        owner_distribution_name=owner_distribution_name,
+                        owner_module_name=owner_module_name,
+                        owner_module_path=owner_module_path,
+                        owner_test_paths=owner_test_paths,
+                    )
+                )
     entries = sorted(
         entries,
         key=lambda entry: (

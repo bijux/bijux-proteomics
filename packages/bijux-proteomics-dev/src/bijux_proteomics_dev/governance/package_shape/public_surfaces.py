@@ -5,6 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 import importlib
 
+from bijux_proteomics_dev.governance.support.workspace_inventory import (
+    workspace_import_path,
+)
+
 __all__ = [
     "PackagePublicSurfaceContract",
     "default_public_surface_contracts",
@@ -183,24 +187,25 @@ def validate_public_surface_contracts(
     """Validate that every declared public surface is importable and present."""
     contracts = contracts or default_public_surface_contracts()
     failures: list[str] = []
-    for contract in contracts:
-        try:
-            root_module = importlib.import_module(contract.import_root)
-        except Exception as exc:  # noqa: BLE001
-            failures.append(
-                f"{contract.distribution_name}: failed to import {contract.import_root} ({exc})"
-            )
-            continue
-        for attribute in contract.supported_attributes:
-            if not hasattr(root_module, attribute):
-                failures.append(
-                    f"{contract.distribution_name}: missing public attribute {contract.import_root}.{attribute}"
-                )
-        for module_name in contract.supported_modules:
+    with workspace_import_path():
+        for contract in contracts:
             try:
-                importlib.import_module(module_name)
+                root_module = importlib.import_module(contract.import_root)
             except Exception as exc:  # noqa: BLE001
                 failures.append(
-                    f"{contract.distribution_name}: failed to import supported module {module_name} ({exc})"
+                    f"{contract.distribution_name}: failed to import {contract.import_root} ({exc})"
                 )
+                continue
+            for attribute in contract.supported_attributes:
+                if not hasattr(root_module, attribute):
+                    failures.append(
+                        f"{contract.distribution_name}: missing public attribute {contract.import_root}.{attribute}"
+                    )
+            for module_name in contract.supported_modules:
+                try:
+                    importlib.import_module(module_name)
+                except Exception as exc:  # noqa: BLE001
+                    failures.append(
+                        f"{contract.distribution_name}: failed to import supported module {module_name} ({exc})"
+                    )
     return failures

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from functools import cache
 import re
 
 from bijux_proteomics_dev.docs.governance.package_document_contracts import (
@@ -80,6 +81,7 @@ class PackageReadmeMaturityReport:
     guard: PackageReadmeMaturityGuard
 
 
+@cache
 def build_package_readme_maturity_report() -> PackageReadmeMaturityReport:
     """Build the checked README maturity report."""
 

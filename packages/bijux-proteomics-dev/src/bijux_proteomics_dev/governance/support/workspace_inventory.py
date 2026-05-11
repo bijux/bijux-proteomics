@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import ast
+from collections.abc import Iterator
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path
+import sys
 import tomllib
 from typing import Any, cast
 
@@ -51,6 +54,29 @@ def package_root(package_name: str) -> Path:
 
 def src_root(package_name: str) -> Path:
     return package_root(package_name) / "src" / import_root(package_name)
+
+
+def workspace_src_parents() -> tuple[Path, ...]:
+    return tuple(
+        src_root(package_name).parent for package_name in workspace_package_names()
+    )
+
+
+@contextmanager
+def workspace_import_path() -> Iterator[None]:
+    additions = [
+        str(path)
+        for path in reversed(workspace_src_parents())
+        if str(path) not in sys.path
+    ]
+    for path in reversed(additions):
+        sys.path.insert(0, path)
+    try:
+        yield
+    finally:
+        for path in additions:
+            if path in sys.path:
+                sys.path.remove(path)
 
 
 def tests_root(package_name: str) -> Path:

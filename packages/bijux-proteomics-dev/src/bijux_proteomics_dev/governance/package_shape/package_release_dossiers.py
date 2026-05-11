@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 import tomllib
 from typing import Any, cast
@@ -100,6 +101,7 @@ def _debt_priority(entry: dict[str, str]) -> tuple[int, str]:
     return (severity_rank.get(entry["severity"], 3), entry["debt_family"])
 
 
+@cache
 def build_package_release_dossier_report() -> PackageReleaseDossierReport:
     """Build reviewer-ready release dossiers for every workspace package."""
 

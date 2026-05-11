@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from functools import cache
 
 from bijux_proteomics_dev.docs.governance.package_document_contracts import (
     boundary_doc_path,
@@ -82,6 +83,7 @@ def _owned_value_bullets(package_name: str) -> tuple[str, ...]:
     )
 
 
+@cache
 def build_package_owned_value_audit_report() -> PackageOwnedValueAuditReport:
     """Build the checked owned-value audit across packages."""
 

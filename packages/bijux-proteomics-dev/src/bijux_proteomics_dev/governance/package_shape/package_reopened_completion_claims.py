@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from functools import cache
 
 from bijux_proteomics_dev.governance.package_shape.package_readme_maturity import (
     build_package_readme_maturity_report,
@@ -60,6 +61,7 @@ class PackageReopenedCompletionClaimReport:
     guard: PackageReopenedCompletionClaimGuard
 
 
+@cache
 def build_package_reopened_completion_claim_report() -> (
     PackageReopenedCompletionClaimReport
 ):
