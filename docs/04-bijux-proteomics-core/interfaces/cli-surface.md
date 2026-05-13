@@ -43,6 +43,7 @@ The owned FASTA CLI surface is:
 - `modified-peptide-parse`
 - `modification-resolve`
 - `maxquant-import`
+- `diann-import`
 - `comet-import`
 - `fragpipe-import`
 - `sage-import`
@@ -363,6 +364,31 @@ The `maxquant-import` JSON payload includes:
 - reviewer-facing protein-group rows with protein identities, peptide burden,
   sequence coverage, only-identified-by-site state, per-experiment LFQ
   intensities, and contaminant or reverse flags
+- any requested TSV export paths
+
+`diann-import` emits one governed review packet over a DIA-NN precursor report.
+
+- the positional argument is the DIA-NN report TSV path
+- `--config` optionally loads a DIA-NN configuration JSON file
+- `--summary-tsv-out` writes the one-row import summary
+- `--precursor-tsv-out` writes reviewer-facing precursor rows
+- `--protein-group-tsv-out` writes reviewer-facing protein-group rows
+
+The `diann-import` JSON payload includes:
+
+- one compact summary over accepted and rejected precursor rows, protein-group
+  row count, run names, sample names, `Precursor.Quantity` coverage,
+  `PG.Quantity` coverage, and target or decoy precursor burden
+- the DIA-NN normalization adapter identity plus accepted and rejected row
+  counts for the source report
+- an optional parsed DIA-NN parameter report when `--config` is supplied
+- reviewer-facing precursor rows with precursor identifier, peptide sequence,
+  canonical peptide, charge, q-value, `Protein.Group`, `Protein.Ids`, run,
+  sample, `Precursor.Quantity`, `PG.Quantity`, and target-decoy label
+- reviewer-facing protein-group rows with protein-group identity, protein
+  references, run, sample, q-value, `PG.Quantity`, source precursor count,
+  and target-decoy label
+- the derived DIA-native precursor and protein-group quantity import report
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
