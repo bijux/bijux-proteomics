@@ -43,6 +43,16 @@ def test_digest_sequence_honors_trypsin_proline_block() -> None:
     assert [peptide.sequence for peptide in peptides] == ["AK", "RPQK", "AAAR"]
 
 
+def test_digest_sequence_honors_aspn_previous_residue_block() -> None:
+    peptides = digest_sequence(
+        "PADPEPDQ",
+        source_accession="aspn-block-test",
+        protease="aspn",
+    )
+
+    assert [peptide.sequence for peptide in peptides] == ["PA", "DPEPDQ"]
+
+
 def test_digest_sequence_supports_missed_cleavages() -> None:
     peptides = digest_sequence(
         "AKAAKAAK",
@@ -120,6 +130,15 @@ def test_digest_sequence_preserves_edge_case_regressions() -> None:
             )
         peptides = digest_sequence(case["sequence"], protease=protease)
         assert [peptide.sequence for peptide in peptides] == case["expected_peptides"]
+
+
+def test_digest_sequence_supports_curated_custom_n_terminal_rule() -> None:
+    peptides = digest_sequence(
+        "MAEADAA",
+        protease=parse_custom_protease_rule("before=D;block_previous=P", name="acidic"),
+    )
+
+    assert [peptide.sequence for peptide in peptides] == ["MAEA", "DAA"]
 
 
 def test_filter_digested_peptides_supports_length_bounds() -> None:
