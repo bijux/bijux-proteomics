@@ -49,6 +49,7 @@ The owned FASTA CLI surface is:
 - `picked-protein-fdr`
 - `protein-groups`
 - `protein-coverage`
+- `protein-coverage-plot`
 - `protein-parsimony`
 - `maxquant-import`
 - `diann-import`
@@ -617,6 +618,42 @@ The `protein-coverage` JSON payload includes:
   contaminant flag
 - one flattened region row per contiguous covered interval
 - any requested summary, coverage-table, or region-ledger TSV output paths
+
+`protein-coverage-plot` emits one plot-ready peptide-to-protein coverage packet
+plus optional static coverage renderings.
+
+- the positional argument is the source PSM TSV path
+- `--fasta` is required and supplies the protein sequences used for positional
+  mapping
+- `--threshold` defaults to `0.05` and defines the accepted peptide evidence
+  that feeds the plot surface
+- `--high-q-value` and `--medium-q-value` define the confidence bands used for
+  plotted peptide labels
+- canonical-schema, optional modified-peptide, optional intensity, and
+  decoy-policy column controls stay available so lab-local PSM tables can be
+  plotted without a separate conversion pass
+- when every parsed PSM already carries a q-value, the plot surface preserves
+  those imported q-values for confidence labeling and threshold filtering;
+  otherwise it falls back to owned target-decoy filtering
+- `--positions-tsv-out` writes one reviewer-facing positional ledger
+- `--svg-out` writes one static SVG coverage plot
+- `--html-out` writes one static HTML wrapper around the same owned SVG view
+
+The `protein-coverage-plot` JSON payload includes:
+
+- the selected threshold, score orientation, and confidence-band cutoffs
+- accepted and rejected source-row counts from the parsed PSM table
+- one summary block with plotted-protein count, total positional rows,
+  modified/shared/intensity positional burden, and unmatched peptide count
+- one track per protein with coverage fraction, protein length, target-decoy
+  label, contaminant flag, and ordered peptide-position rows
+- one peptide-position row per matched sequence occurrence with start/end
+  residues, canonical peptide, modified peptide when present, peptide
+  confidence, peptide q-value, best score, optional intensity, charge states,
+  spectrum ids, and protein-group ids
+- explicit unmatched-peptide rows when one accepted peptide is assigned to one
+  protein but cannot be located in the supplied sequence
+- any requested positional-ledger, SVG, or HTML output paths
 
 `protein-parsimony` emits one direct review packet over a named parsimony
 protein set and the ambiguity that remains after selection.
