@@ -79,6 +79,7 @@ from bijux_proteomics.interfaces.runtime_plans import (
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,
 )
+from bijux_proteomics.io.ingestion import build_streaming_parse_profile
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     FormatConversionTarget,
@@ -2100,6 +2101,77 @@ def quantify_command(
         else None,
     }
     _emit_json(payload, out_path=report_out or out_path)
+
+
+@cli.command("spectrum-parse")
+@click.argument(
+    "input_mgf", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--chunk-size", type=int, default=500, show_default=True)
+@click.option(
+    "--accepted-jsonl-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-json-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def spectrum_parse_command(
+    input_mgf: Path,
+    chunk_size: int,
+    accepted_jsonl_out: Path | None,
+    rejected_json_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Parse one MGF file and report accepted spectra, rejections, and streaming facts."""
+    report = parse_mgf(input_mgf)
+    streaming_profile = build_streaming_parse_profile(
+        input_mgf,
+        format_name="mgf",
+        chunk_size=chunk_size,
+    )
+
+    if accepted_jsonl_out is not None:
+        accepted_jsonl_out.write_text(
+            "".join(
+                json.dumps(
+                    spectrum.to_dict(),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+                + "\n"
+                for spectrum in report.accepted_spectra
+            ),
+            encoding="utf-8",
+        )
+    if rejected_json_out is not None:
+        rejected_json_out.write_text(
+            json.dumps(
+                [block.to_dict() for block in report.rejected_blocks],
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    payload = {
+        "parse_report": report.to_dict(),
+        "summary": build_spectrum_collection_summary(report).to_dict(),
+        "streaming_profile": streaming_profile.to_dict(),
+        "accepted_jsonl_out": str(accepted_jsonl_out) if accepted_jsonl_out else None,
+        "rejected_json_out": str(rejected_json_out) if rejected_json_out else None,
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @cli.command("spectrum-stats")
