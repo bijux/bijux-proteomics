@@ -10,6 +10,7 @@ from bijux_proteomics.sequences import (
     FastaParseMode,
     ResiduePolicyState,
     build_decoy_generation_manifest,
+    build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
     build_sequence_residue_policy,
@@ -20,6 +21,9 @@ from bijux_proteomics.sequences import (
     parse_fasta_document,
     parse_fasta_records,
     parse_uniprot_accession,
+    render_fasta_profile_length_distribution_tsv,
+    render_fasta_profile_organism_distribution_tsv,
+    render_fasta_profile_summary_tsv,
     sequence_checksum,
     validate_protein_sequence,
     validate_target_decoy_database,
@@ -216,6 +220,80 @@ def test_build_fasta_stats_reports_target_and_decoy_counts(
     assert stats.target_count == 2
     assert stats.decoy_count == 2
     assert stats.accession_namespace_counts == {"uniprot": 4}
+
+
+def test_build_fasta_database_profile_reports_length_and_organism_distribution(
+    fasta_fixture_dir: Path,
+) -> None:
+    report = parse_fasta_document(
+        (fasta_fixture_dir / "production_grade_database.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+
+    profile = build_fasta_database_profile(
+        report.accepted_records,
+        rejected_records=report.rejected_records,
+    )
+
+    assert profile.summary.input_record_count == 9
+    assert profile.summary.protein_count == 6
+    assert profile.summary.rejected_record_count == 3
+    assert profile.summary.target_count == 5
+    assert profile.summary.decoy_count == 1
+    assert profile.summary.contaminant_count == 1
+    assert profile.summary.organism_annotated_count == 5
+    assert profile.summary.organism_missing_count == 1
+    assert profile.summary.accession_namespace_counts == {
+        "custom": 2,
+        "ensembl": 1,
+        "refseq": 1,
+        "uniprot": 2,
+    }
+    assert [row.bin_label for row in profile.length_distribution] == [
+        "1-99",
+        "100-249",
+        "250-499",
+        "500-999",
+        "1000+",
+    ]
+    assert profile.length_distribution[0].protein_count == 6
+    assert profile.length_distribution[1].protein_count == 0
+    assert [row.organism for row in profile.organism_distribution] == [
+        "Homo sapiens",
+        "Mus musculus",
+    ]
+    assert profile.organism_distribution[0].protein_count == 4
+    assert profile.organism_distribution[0].decoy_count == 1
+    assert profile.organism_distribution[0].contaminant_count == 1
+    assert profile.organism_distribution[1].protein_count == 1
+
+
+def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
+    fasta_fixture_dir: Path,
+) -> None:
+    report = parse_fasta_document(
+        (fasta_fixture_dir / "production_grade_database.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+    profile = build_fasta_database_profile(
+        report.accepted_records,
+        rejected_records=report.rejected_records,
+    )
+
+    summary_tsv = render_fasta_profile_summary_tsv(profile)
+    length_tsv = render_fasta_profile_length_distribution_tsv(profile)
+    organism_tsv = render_fasta_profile_organism_distribution_tsv(profile)
+
+    assert summary_tsv.splitlines()[0].startswith("input_record_count\tprotein_count")
+    assert "\t6\t3\t6\t5\t1\t1\t" in summary_tsv
+    assert length_tsv.splitlines()[0] == (
+        "bin_label\tmin_length\tmax_length\tprotein_count\tresidue_count"
+    )
+    assert "1-99\t1\t99\t6\t116" in length_tsv
+    assert organism_tsv.splitlines()[0] == (
+        "organism\tprotein_count\ttarget_count\tdecoy_count\tcontaminant_count"
+    )
+    assert "Homo sapiens\t4\t3\t1\t1" in organism_tsv
 
 
 def test_deduplicate_fasta_records_prefers_first_accession_then_sequence(
