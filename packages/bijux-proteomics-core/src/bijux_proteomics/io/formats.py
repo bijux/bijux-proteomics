@@ -45,6 +45,7 @@ _NS_MZML = "http://psi.hupo.org/ms/mzml"
 
 _CV_MZ_ARRAY = "MS:1000514"
 _CV_INTENSITY_ARRAY = "MS:1000515"
+_CV_TIME_ARRAY = "MS:1000595"
 _CV_FLOAT32 = "MS:1000521"
 _CV_FLOAT64 = "MS:1000523"
 _CV_ZLIB = "MS:1000574"
@@ -59,6 +60,8 @@ _CV_SCAN_START_TIME = "MS:1000016"
 _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
 _CV_ISOLATION_WINDOW_TARGET_MZ = "MS:1000827"
+_CV_TOTAL_ION_CURRENT_CHROMATOGRAM = "MS:1000235"
+_CV_BASE_PEAK_CHROMATOGRAM = "MS:1000628"
 
 
 class ProteomicsFormatKind(StrEnum):
@@ -122,6 +125,47 @@ class MzmlParseReport(JsonModel):
     accepted_spectra: tuple[SpectrumModel, ...] = Field(default_factory=tuple)
     rejected_spectra: tuple[RejectedMzmlSpectrum, ...] = Field(default_factory=tuple)
     metadata: MzmlRunMetadata
+
+
+class RejectedMzmlChromatogram(JsonModel):
+    """One rejected mzML chromatogram plus stable issues."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    chromatogram_id: str = Field(..., min_length=1)
+    issues: tuple[FormatValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class MzmlChromatogramPoint(JsonModel):
+    """One mzML chromatogram time or intensity point."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    time_seconds: float = Field(..., ge=0.0)
+    intensity: float = Field(..., ge=0.0)
+
+
+class MzmlChromatogramTrace(JsonModel):
+    """One accepted chromatogram trace from mzML."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    chromatogram_id: str = Field(..., min_length=1)
+    kind: str = Field(..., min_length=1)
+    point_count: int = Field(..., ge=0)
+    points: tuple[MzmlChromatogramPoint, ...] = Field(default_factory=tuple)
+
+
+class MzmlChromatogramReport(JsonModel):
+    """Stable mzML chromatogram extraction report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_chromatograms: int = Field(..., ge=0)
+    accepted_traces: tuple[MzmlChromatogramTrace, ...] = Field(default_factory=tuple)
+    rejected_chromatograms: tuple[RejectedMzmlChromatogram, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class ExperimentalDesignEntry(JsonModel):
@@ -402,6 +446,8 @@ def _parse_binary_values(
             accession = element.attrib.get("accession")
             if accession == _CV_MZ_ARRAY:
                 kind = "mz"
+            elif accession == _CV_TIME_ARRAY:
+                kind = "time"
             elif accession == _CV_INTENSITY_ARRAY:
                 kind = "intensity"
             elif accession == _CV_FLOAT32:
@@ -797,6 +843,127 @@ def stream_mzml_spectra(path: Path) -> Iterator[SpectrumModel]:
 def extract_mzml_metadata(path: Path) -> MzmlRunMetadata:
     """Extract stable run metadata from one mzML document."""
     return parse_mzml(path).metadata
+
+
+def _parse_chromatogram_element(
+    chromatogram: Any,
+) -> tuple[MzmlChromatogramTrace | None, list[FormatValidationIssue]]:
+    chromatogram_id = (
+        chromatogram.attrib.get("id")
+        or f"index={chromatogram.attrib.get('index', 'unknown')}"
+    )
+    issues: list[FormatValidationIssue] = []
+    expected_length = int(chromatogram.attrib.get("defaultArrayLength", "0") or "0")
+    trace_kind = "other"
+    time_values: tuple[float, ...] | None = None
+    intensity_values: tuple[float, ...] | None = None
+
+    for element in chromatogram.iter():
+        if _local_name(element.tag) != "cvParam":
+            continue
+        accession = element.attrib.get("accession")
+        if accession == _CV_TOTAL_ION_CURRENT_CHROMATOGRAM:
+            trace_kind = "tic"
+        elif accession == _CV_BASE_PEAK_CHROMATOGRAM:
+            trace_kind = "bpc"
+
+    for binary_data_array in chromatogram.iter():
+        if _local_name(binary_data_array.tag) != "binaryDataArray":
+            continue
+        kind, values, value_issues = _parse_binary_values(
+            binary_data_array,
+            expected_length=expected_length if expected_length else None,
+            spectrum_id=chromatogram_id,
+        )
+        issues.extend(value_issues)
+        if kind == "time":
+            time_values = values
+        elif kind == "intensity":
+            intensity_values = values
+
+    if time_values is None:
+        issues.append(
+            _issue(
+                "missing_time_array",
+                "mzML chromatogram is missing a time array",
+                field="time",
+                record_id=chromatogram_id,
+            )
+        )
+    if intensity_values is None:
+        issues.append(
+            _issue(
+                "missing_intensity_array",
+                "mzML chromatogram is missing an intensity array",
+                field="intensity",
+                record_id=chromatogram_id,
+            )
+        )
+    if (
+        time_values is not None
+        and intensity_values is not None
+        and len(time_values) != len(intensity_values)
+    ):
+        issues.append(
+            _issue(
+                "chromatogram_array_length_mismatch",
+                f"time array length {len(time_values)} does not match intensity array length {len(intensity_values)}",
+                record_id=chromatogram_id,
+            )
+        )
+    if issues:
+        return None, issues
+
+    points = tuple(
+        MzmlChromatogramPoint(time_seconds=time_value, intensity=intensity_value)
+        for time_value, intensity_value in zip(
+            time_values or (),
+            intensity_values or (),
+            strict=True,
+        )
+    )
+    return (
+        MzmlChromatogramTrace(
+            chromatogram_id=chromatogram_id,
+            kind=trace_kind,
+            point_count=len(points),
+            points=points,
+        ),
+        [],
+    )
+
+
+def extract_mzml_chromatograms(path: Path) -> MzmlChromatogramReport:
+    """Extract TIC/BPC and other chromatogram traces from one mzML document."""
+    accepted_traces: list[MzmlChromatogramTrace] = []
+    rejected_chromatograms: list[RejectedMzmlChromatogram] = []
+    total_chromatograms = 0
+
+    for event, element in ET.iterparse(path, events=("end",)):
+        if _local_name(element.tag) != "chromatogram":
+            continue
+        total_chromatograms += 1
+        trace, issues = _parse_chromatogram_element(element)
+        chromatogram_id = (
+            element.attrib.get("id")
+            or f"index={element.attrib.get('index', 'unknown')}"
+        )
+        if trace is None:
+            rejected_chromatograms.append(
+                RejectedMzmlChromatogram(
+                    chromatogram_id=chromatogram_id,
+                    issues=tuple(issues),
+                )
+            )
+        else:
+            accepted_traces.append(trace)
+        element.clear()
+
+    return MzmlChromatogramReport(
+        total_chromatograms=total_chromatograms,
+        accepted_traces=tuple(accepted_traces),
+        rejected_chromatograms=tuple(rejected_chromatograms),
+    )
 
 
 def build_mzml_collection_summary(

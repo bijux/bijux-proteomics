@@ -14,6 +14,12 @@ from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import parse_mzml, stream_mzml_spectra
+from bijux_proteomics.io.formats import (
+    MzmlChromatogramReport,
+    MzmlRunMetadata,
+    build_mzml_collection_summary,
+    extract_mzml_chromatograms,
+)
 from bijux_proteomics.io.spectra import SpectrumModel, iter_mgf_spectra
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
@@ -212,6 +218,18 @@ class RawSpectraDialectRealityReport(JsonModel):
     partial_count: int = Field(..., ge=0)
     refused_count: int = Field(..., ge=0)
     note: str = Field(..., min_length=1)
+
+
+class MzmlPracticalReviewReport(JsonModel):
+    """Practical mzML review contract over spectra, decoding, and chromatograms."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    metadata: MzmlRunMetadata
+    summary: dict[str, object] = Field(default_factory=dict)
+    decoding_support: MzmlDecodingSupportReport
+    chromatograms: MzmlChromatogramReport
+    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
@@ -425,6 +443,33 @@ def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
         compression_accessions=tuple(sorted(compression)),
         precision_accessions=tuple(sorted(precision)),
         diagnostics=diagnostics,
+    )
+
+
+def build_mzml_practical_review_report(path: Path) -> MzmlPracticalReviewReport:
+    """Build a practical mzML review surface without overclaiming vendor parity."""
+    parse_report = parse_mzml(path)
+    decoding_support = inspect_mzml_decoding_support(path)
+    chromatograms = extract_mzml_chromatograms(path)
+    summary = build_mzml_collection_summary(parse_report).to_dict()
+    diagnostics = [
+        "mzML review preserves accepted spectra, rejected spectra, and run metadata",
+        "binary-array decoding support is reported explicitly rather than assumed from file suffix alone",
+    ]
+    if chromatograms.total_chromatograms:
+        diagnostics.append(
+            "chromatogram traces preserve TIC/BPC arrays when present in the mzML run"
+        )
+    else:
+        diagnostics.append(
+            "no chromatogram traces were present in the mzML run; TIC/BPC support remains absent rather than guessed"
+        )
+    return MzmlPracticalReviewReport(
+        metadata=parse_report.metadata,
+        summary=summary,
+        decoding_support=decoding_support,
+        chromatograms=chromatograms,
+        diagnostics=tuple(diagnostics),
     )
 
 
