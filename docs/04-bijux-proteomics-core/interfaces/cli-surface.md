@@ -49,6 +49,7 @@ The owned FASTA CLI surface is:
 - `picked-protein-fdr`
 - `protein-ambiguity`
 - `protein-inference-benchmarks`
+- `peptide-matrix`
 - `protein-groups`
 - `protein-coverage`
 - `protein-coverage-plot`
@@ -644,6 +645,28 @@ The `protein-inference-benchmarks` JSON payload includes:
   expected-absent proteins, pressure flags, disagreement count, and one
   strategy assessment per inference method
 - any requested summary, scenario, or assessment TSV output paths
+
+`peptide-matrix` emits one owned peptide-by-sample intensity matrix over either
+precursor or feature evidence or intensity-bearing PSM evidence.
+
+- `--input-kind` accepts `feature` or `psm`
+- `--grouping-mode` accepts `peptide_sequence` or `modified_peptide`
+- `--separate-charge-states` keeps precursor charge states split into separate
+  peptide rows
+- `--aggregation` accepts the owned sum, median, or top-`n` policies
+- `--summary-tsv-out` writes one compact matrix-summary ledger
+- `--matrix-tsv-out` writes one wide peptide-by-sample abundance matrix
+- `--missingness-tsv-out` writes one per-sample missingness ledger
+
+The `peptide-matrix` JSON payload includes:
+
+- input kind
+- accepted and rejected source-record counts from the selected parser
+- one peptide-matrix report with grouping mode, charge policy, aggregation
+  method, sample identifiers, peptide rows, and missingness summary
+- report-level counts for accepted and skipped source rows after matrix
+  construction
+- any requested summary, matrix, or missingness TSV output paths
 
 `protein-coverage` emits one direct protein-coverage review packet over
 FDR-filtered PSM evidence plus a supplied FASTA sequence set.
