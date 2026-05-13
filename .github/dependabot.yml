@@ -37,15 +37,6 @@ updates:
       - python
 
   - package-ecosystem: pip
-    directory: "/packages/bijux-proteomics"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
     directory: "/packages/bijux-proteomics-core"
     schedule:
       interval: weekly
@@ -92,78 +83,6 @@ updates:
 
   - package-ecosystem: pip
     directory: "/packages/bijux-proteomics-lab"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/bijux-proteomics-runtime"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-core"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-foundation"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-intelligence"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-knowledge"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-lab"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    labels:
-      - dependencies
-      - python
-
-  - package-ecosystem: pip
-    directory: "/packages/proteomics-runtime"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
