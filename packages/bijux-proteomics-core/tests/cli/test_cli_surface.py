@@ -2925,6 +2925,97 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
 
 
+def test_peptide_matrix_command_emits_feature_backed_matrix_and_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "peptide_matrix_features.tsv",
+            "peptide_matrix_features.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-matrix",
+                "peptide_matrix_features.tsv",
+                "--input-kind",
+                "feature",
+                "--grouping-mode",
+                "modified_peptide",
+                "--separate-charge-states",
+                "--summary-tsv-out",
+                "peptide_matrix.summary.tsv",
+                "--matrix-tsv-out",
+                "peptide_matrix.matrix.tsv",
+                "--missingness-tsv-out",
+                "peptide_matrix.missingness.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "feature"
+        assert payload["accepted_source_records"] == 7
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["peptide_row_count"] == 4
+        assert Path("peptide_matrix.summary.tsv").exists()
+        assert Path("peptide_matrix.matrix.tsv").exists()
+        assert Path("peptide_matrix.missingness.tsv").exists()
+        assert "feature\tmodified_peptide\ttrue\tsum" in Path(
+            "peptide_matrix.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEM[Oxidation]TIDE/z2" in Path(
+            "peptide_matrix.matrix.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_peptide_matrix_command_emits_psm_backed_matrix_and_skipped_counts() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "peptide_matrix_psms.tsv",
+            "peptide_matrix_psms.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-matrix",
+                "peptide_matrix_psms.tsv",
+                "--input-kind",
+                "psm",
+                "--grouping-mode",
+                "modified_peptide",
+                "--run-column",
+                "run_id",
+                "--spectrum-id-column",
+                "spectrum_id",
+                "--modified-peptide-column",
+                "modified_peptide",
+                "--score-column",
+                "score",
+                "--summary-tsv-out",
+                "peptide_matrix_psm.summary.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "psm"
+        assert payload["accepted_source_records"] == 7
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["accepted_source_record_count"] == 5
+        assert payload["report"]["summary"]["skipped_source_record_count"] == 2
+        assert payload["report"]["rows"][0]["values"]
+        summary_tsv = Path("peptide_matrix_psm.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "skipped_source_record_count" in summary_tsv
+        assert "psm\tmodified_peptide\tfalse\tsum\t5\t2\t2\t2\t3\t0\t1\t0\t" in summary_tsv
+
+
 def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
