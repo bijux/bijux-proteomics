@@ -44,6 +44,7 @@ The owned FASTA CLI surface is:
 - `modification-resolve`
 - `psm-map`
 - `fdr-reference-check`
+- `fdr-levels`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -494,6 +495,25 @@ The `fdr-reference-check` JSON payload includes:
 - one ranked validation row per expected entry with expected-versus-observed
   cumulative counts, FDR, q-value, acceptance state, and explicit mismatch
   fields
+- any requested summary or entry TSV output paths
+
+`fdr-levels` compares accepted PSM, peptide, and protein evidence across
+explicit FDR thresholds.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` can be repeated and defaults to `0.01`, `0.05`, and `0.1`
+- `--summary-tsv-out` writes one threshold-by-level summary table
+- `--entries-tsv-out` writes one accepted-entity ledger across thresholds
+
+The `fdr-levels` JSON payload includes:
+
+- the selected score orientation and ordered thresholds
+- accepted and rejected source-row counts from the parsed PSM table
+- one threshold summary per evidence level with total and accepted counts for
+  target, decoy, mixed, unknown, and contaminant burden
+- one accepted-entry row per threshold and evidence level with entity identity,
+  q-value, rank, member count, target-decoy label, contaminant flag, and
+  protein references
 - any requested summary or entry TSV output paths
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
