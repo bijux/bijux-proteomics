@@ -326,6 +326,29 @@ This surface is intentionally comparative rather than identificatory. It helps
 review duplicate spectra, near-neighbor spectra, and lightweight library
 matches, but it does not by itself prove peptide correctness or FDR control.
 
+## Spectral-Library Import
+
+Use `spectral-library-import` when the question is whether a practical MSP or
+library-shaped MGF file can be imported into an explicit peptide-aware library
+contract before running similarity search or DIA-style review.
+
+- The importer supports practical MSP and MGF library inputs rather than
+  pretending every library exchange format is already normalized.
+- Imported entries preserve peptide identity, precursor m/z, precursor charge,
+  fragment peaks, and canonical modified-peptide notation when the library
+  entry provides a valid peptide string.
+- The importer builds stable peptide and precursor indexes so candidate
+  retrieval can happen before full similarity ranking.
+- Candidate lookup stays honest: it filters by precursor window and optional
+  peptide query, but it does not yet claim full library-search scoring by
+  itself.
+- Rejected entries remain visible with explicit reasons instead of being
+  silently skipped.
+
+This surface is intentionally import-and-index focused. It makes practical
+library evidence reviewable and searchable by precursor or peptide, but it does
+not yet replace the later ranked search mode.
+
 ## Spectrum Summary Tables
 
 Use the spectrum summary-table surface when the question is run quality and
