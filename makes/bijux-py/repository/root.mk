@@ -31,7 +31,6 @@ ROOT_FORBIDDEN_ARTIFACTS ?= \
 	"$(CURDIR)/.coverage."* \
 	"$(CURDIR)/.benchmarks" \
 	"$(CURDIR)/htmlcov" \
-	"$(CURDIR)/configs/artifacts" \
 	"$(CURDIR)/configs/.pytest_cache" \
 	"$(CURDIR)/configs/.ruff_cache" \
 	"$(CURDIR)/configs/.mypy_cache" \
