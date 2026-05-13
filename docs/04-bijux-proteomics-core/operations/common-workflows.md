@@ -78,3 +78,24 @@ search or digestion review on its own.
 After search import, use the contaminant-match review surface to separate
 contaminant-carrying PSMs from target-only evidence instead of letting those
 matches disappear into the general peptide summary.
+
+## Target-Decoy Database Preparation
+
+Use `fasta-decoy` when a target database is ready for search-space expansion
+and the question becomes whether the decoy construction is defensible rather
+than merely reproducible.
+
+- Reverse and shuffle decoy modes are both supported through one owned surface.
+- Input databases must be target-only. Mixed target-plus-decoy input is
+  rejected instead of silently generating a second decoy layer.
+- Generated decoy accessions preserve the source protein identity through a
+  stable operator-chosen prefix such as `DECOY_`.
+- Prefix choices that would collide with existing target accessions are refused
+  before output is written.
+- The generation report makes sequence-level caveats visible, including decoys
+  that are unchanged from their targets and decoys whose sequence content
+  collides with target sequence content.
+
+Shuffle decoys are useful only when operators review these caveats honestly.
+Low-complexity proteins can yield unchanged or target-colliding sequences even
+when the accession-level labeling is correct.
