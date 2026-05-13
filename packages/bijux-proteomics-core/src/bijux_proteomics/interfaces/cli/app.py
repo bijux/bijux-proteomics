@@ -47,6 +47,7 @@ from bijux_proteomics.identification import (
     assign_razor_peptides,
     build_calibration_plot_data,
     build_contaminant_peptide_match_report,
+    build_comet_import_report,
     build_fdr_audit_trail,
     build_fragpipe_import_report,
     build_peptide_summary_report,
@@ -64,6 +65,8 @@ from bijux_proteomics.identification import (
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     parse_psm_tsv,
+    render_comet_psm_tsv,
+    render_comet_summary_tsv,
     render_fragpipe_peptide_tsv,
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
@@ -1132,6 +1135,64 @@ def sage_import_command(
         "dialect_id": report.dialect_id,
         "summary": report.summary.to_dict(),
         "normalization": {
+            "adapter": report.normalization.adapter_manifest.to_dict(),
+            "accepted_rows": len(report.normalization.parse_report.accepted_records),
+            "rejected_rows": len(report.normalization.parse_report.rejected_rows),
+        },
+        "parameter_report": None
+        if report.parameter_report is None
+        else report.parameter_report.to_dict(),
+        "psm_rows": [row.to_dict() for row in report.psm_rows],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("comet-import")
+@click.argument(
+    "result_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def comet_import_command(
+    result_path: Path,
+    config_path: Path | None,
+    summary_tsv_out: Path | None,
+    psm_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one Comet tabular or pepXML result file with explicit score review."""
+    try:
+        report = build_comet_import_report(result_path, config_path=config_path)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_comet_summary_tsv(report.summary))
+    if psm_tsv_out is not None:
+        _write_text_output(psm_tsv_out, render_comet_psm_tsv(report.psm_rows))
+
+    payload = {
+        "import_kind": report.import_kind.value,
+        "summary": report.summary.to_dict(),
+        "normalization": None
+        if report.normalization is None
+        else {
             "adapter": report.normalization.adapter_manifest.to_dict(),
             "accepted_rows": len(report.normalization.parse_report.accepted_records),
             "rejected_rows": len(report.normalization.parse_report.rejected_rows),
