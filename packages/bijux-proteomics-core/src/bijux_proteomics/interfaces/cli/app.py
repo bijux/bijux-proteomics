@@ -98,11 +98,14 @@ from bijux_proteomics.io.formats import (
 from bijux_proteomics.io.spectra import (
     annotate_spectrum_fragments,
     build_spectrum_collection_summary,
+    build_spectrum_summary_table_report,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
     export_spectrum_annotation_tsv,
     parse_mgf,
+    render_spectrum_distribution_tsv,
+    render_spectrum_summary_tsv,
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
@@ -2213,6 +2216,124 @@ def spectrum_stats_command(
             for spectrum in report.accepted_spectra
         ],
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-summary")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--charge-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--precursor-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--peak-count-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def spectrum_summary_command(
+    input_path: Path,
+    kind: str,
+    summary_tsv_out: Path | None,
+    charge_tsv_out: Path | None,
+    precursor_tsv_out: Path | None,
+    peak_count_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build reviewable summary tables over one MGF or mzML spectra file."""
+    resolved_kind = kind
+    if resolved_kind == "auto":
+        suffix = input_path.suffix.lower()
+        if suffix == ".mgf":
+            resolved_kind = "mgf"
+        elif suffix == ".mzml":
+            resolved_kind = "mzml"
+        else:
+            raise click.ClickException(
+                "cannot infer spectrum summary kind; use --kind mgf or --kind mzml"
+            )
+
+    if resolved_kind == "mgf":
+        parse_report = parse_mgf(input_path)
+        report = build_spectrum_summary_table_report(
+            parse_report.accepted_spectra,
+            source_kind="mgf",
+            rejected_count=len(parse_report.rejected_blocks),
+        )
+    elif resolved_kind == "mzml":
+        parse_report = parse_mzml(input_path)
+        report = build_spectrum_summary_table_report(
+            parse_report.accepted_spectra,
+            source_kind="mzml",
+            rejected_count=len(parse_report.rejected_spectra),
+        )
+    else:
+        raise click.ClickException("spectrum-summary supports only mgf and mzml")
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_spectrum_summary_tsv(report),
+            encoding="utf-8",
+        )
+    if charge_tsv_out is not None:
+        charge_tsv_out.write_text(
+            render_spectrum_distribution_tsv(
+                report.charge_distribution,
+                distribution_name="charge",
+            ),
+            encoding="utf-8",
+        )
+    if precursor_tsv_out is not None:
+        precursor_tsv_out.write_text(
+            render_spectrum_distribution_tsv(
+                report.precursor_mz_distribution,
+                distribution_name="precursor_mz",
+            ),
+            encoding="utf-8",
+        )
+    if peak_count_tsv_out is not None:
+        peak_count_tsv_out.write_text(
+            render_spectrum_distribution_tsv(
+                report.peak_count_distribution,
+                distribution_name="peak_count",
+            ),
+            encoding="utf-8",
+        )
+
+    payload = report.to_dict()
+    payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
+    payload["charge_tsv_out"] = str(charge_tsv_out) if charge_tsv_out else None
+    payload["precursor_tsv_out"] = (
+        str(precursor_tsv_out) if precursor_tsv_out else None
+    )
+    payload["peak_count_tsv_out"] = (
+        str(peak_count_tsv_out) if peak_count_tsv_out else None
+    )
     _emit_json(payload, out_path=out_path)
 
 
