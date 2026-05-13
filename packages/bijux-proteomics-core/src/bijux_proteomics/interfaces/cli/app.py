@@ -80,6 +80,10 @@ from bijux_proteomics.identification import (
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
+    build_spectronaut_import_report,
+    render_spectronaut_precursor_tsv,
+    render_spectronaut_protein_group_tsv,
+    render_spectronaut_summary_tsv,
     build_sage_import_report,
     render_sage_psm_tsv,
     render_sage_summary_tsv,
@@ -1373,6 +1377,82 @@ def diann_import_command(
         "precursor_rows": [row.to_dict() for row in report.precursor_rows],
         "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
         "dia_native_report": report.dia_native_report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "precursor_tsv": None
+            if precursor_tsv_out is None
+            else str(precursor_tsv_out),
+            "protein_group_tsv": None
+            if protein_group_tsv_out is None
+            else str(protein_group_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectronaut-import")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--precursor-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--protein-group-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def spectronaut_import_command(
+    result_tsv: Path,
+    config_path: Path | None,
+    summary_tsv_out: Path | None,
+    precursor_tsv_out: Path | None,
+    protein_group_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one Spectronaut report with explicit precursor and protein-group review."""
+    try:
+        report = build_spectronaut_import_report(result_tsv, config_path=config_path)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_spectronaut_summary_tsv(report.summary),
+        )
+    if precursor_tsv_out is not None:
+        _write_text_output(
+            precursor_tsv_out,
+            render_spectronaut_precursor_tsv(report.precursor_rows),
+        )
+    if protein_group_tsv_out is not None:
+        _write_text_output(
+            protein_group_tsv_out,
+            render_spectronaut_protein_group_tsv(report.protein_group_rows),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "normalization": {
+            "adapter": report.normalization.adapter_manifest.to_dict(),
+            "accepted_rows": len(report.normalization.parse_report.accepted_records),
+            "rejected_rows": len(report.normalization.parse_report.rejected_rows),
+        },
+        "parameter_report": None
+        if report.parameter_report is None
+        else report.parameter_report.to_dict(),
+        "precursor_rows": [row.to_dict() for row in report.precursor_rows],
+        "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "precursor_tsv": None
