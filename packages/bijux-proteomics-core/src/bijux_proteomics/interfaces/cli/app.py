@@ -79,12 +79,16 @@ from bijux_proteomics.interfaces.runtime_plans import (
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,
 )
-from bijux_proteomics.io.ingestion import build_streaming_parse_profile
+from bijux_proteomics.io.ingestion import (
+    build_mzml_practical_review_report,
+    build_streaming_parse_profile,
+)
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     FormatConversionTarget,
     ProteomicsFormatKind,
     build_mzml_collection_summary,
+    export_spectra_jsonl,
     build_normalized_run_bundle,
     convert_proteomics_format,
     parse_experimental_design_table,
@@ -2209,6 +2213,55 @@ def spectrum_stats_command(
             for spectrum in report.accepted_spectra
         ],
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("mzml-inspect")
+@click.argument(
+    "input_mzml", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--spectra-jsonl-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--chromatograms-json-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def mzml_inspect_command(
+    input_mzml: Path,
+    spectra_jsonl_out: Path | None,
+    chromatograms_json_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Inspect one mzML run with practical spectra, decoding, and chromatogram review."""
+    review = build_mzml_practical_review_report(input_mzml)
+    parse_report = parse_mzml(input_mzml)
+
+    if spectra_jsonl_out is not None:
+        export_spectra_jsonl(parse_report.accepted_spectra, spectra_jsonl_out)
+    if chromatograms_json_out is not None:
+        chromatograms_json_out.write_text(
+            review.chromatograms.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+    payload = review.to_dict()
+    payload["spectra_jsonl_out"] = (
+        str(spectra_jsonl_out) if spectra_jsonl_out is not None else None
+    )
+    payload["chromatograms_json_out"] = (
+        str(chromatograms_json_out) if chromatograms_json_out is not None else None
+    )
     _emit_json(payload, out_path=out_path)
 
 
