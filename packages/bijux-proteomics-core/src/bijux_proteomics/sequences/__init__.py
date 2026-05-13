@@ -5,5 +5,6 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.sequences.contaminant_database import *  # noqa: F401,F403
 from bijux_proteomics.sequences.core import *  # noqa: F401,F403
 from bijux_proteomics.sequences.fasta_profile import *  # noqa: F401,F403
