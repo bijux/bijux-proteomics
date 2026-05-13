@@ -15,11 +15,20 @@ def _format_fixture(name: str) -> Path:
 
 
 def test_evaluate_spectrum_library_boundary_supports_msp_parse_mode() -> None:
-    report = evaluate_spectrum_library_boundary(_format_fixture("simple.msp"))
+    report = evaluate_spectrum_library_boundary(_format_fixture("review_library.msp"))
 
     assert report.format_name == "MSP"
     assert report.supported is True
-    assert report.support_mode == "parse_only"
+    assert report.support_mode == "importable"
+    assert report.entry_count == 2
+
+
+def test_evaluate_spectrum_library_boundary_supports_mgf_import_mode() -> None:
+    report = evaluate_spectrum_library_boundary(_format_fixture("review_library.mgf"))
+
+    assert report.format_name == "MGF"
+    assert report.supported is True
+    assert report.support_mode == "importable"
     assert report.entry_count == 2
 
 

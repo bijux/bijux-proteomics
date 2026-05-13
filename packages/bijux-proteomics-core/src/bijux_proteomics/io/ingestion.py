@@ -546,19 +546,30 @@ def evaluate_spectrum_library_boundary(path: Path) -> SpectrumLibraryBoundaryRep
     """Detect spectrum-library format boundaries and support/refusal modes."""
     suffix = path.suffix.lower()
     if suffix == ".msp":
-        text = path.read_text(encoding="utf-8")
-        entry_count = text.count("\nName:")
-        if text.startswith("Name:"):
-            entry_count += 1
         return SpectrumLibraryBoundaryReport(
             format_name="MSP",
             supported=True,
-            support_mode="parse_only",
-            entry_count=entry_count,
-            mapped_fields=("Name", "MW", "Comment", "Num peaks"),
+            support_mode="importable",
+            entry_count=path.read_text(encoding="utf-8").count("\nName:")
+            + int(path.read_text(encoding="utf-8").startswith("Name:")),
+            mapped_fields=("Name", "Comment", "Num peaks", "fragment peaks"),
             diagnostics=(
-                "MSP library detected with parse-only support mode",
-                "normalization preserves entry counting and key header fields",
+                "MSP library detected with importable support mode",
+                "library import preserves peptide, charge, precursor, and fragment peaks",
+            ),
+        )
+    if suffix == ".mgf":
+        text = path.read_text(encoding="utf-8")
+        entry_count = text.count("BEGIN IONS")
+        return SpectrumLibraryBoundaryReport(
+            format_name="MGF",
+            supported=True,
+            support_mode="importable",
+            entry_count=entry_count,
+            mapped_fields=("TITLE", "PEPMASS", "CHARGE", "fragment peaks"),
+            diagnostics=(
+                "MGF library detected with importable support mode",
+                "library import expects peptide identity in TITLE metadata",
             ),
         )
     if suffix in {".sptxt", ".traml", ".elib"}:
