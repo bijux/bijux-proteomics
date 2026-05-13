@@ -392,6 +392,29 @@ than an attempt to mirror every commercial project artifact. Its job is to
 preserve the useful exported precursor and protein-group evidence honestly
 enough for downstream DIA comparison and quantification work.
 
+## Generic PSM Mapping
+
+Use `psm-map` when a lab-local or lesser-known search export is still a usable
+PSM table, but its column names do not match any owned engine-specific import
+surface.
+
+- The mapper requires an explicit YAML or JSON column map instead of guessing
+  from header text.
+- Required fields stay narrow and stable: spectrum or scan identity, peptide,
+  charge, and score. Optional fields cover run identity, q-value, protein
+  references, and explicit decoy labels.
+- The mapper normalizes accepted rows through the owned generic search-adapter
+  path rather than creating a second inconsistent PSM parser.
+- Run identity is preserved in the mapped output when the source table carries
+  it, but scan or spectrum identity still stays explicit as the stable
+  spectrum-level key.
+- Unmapped source columns remain visible in the report so lab-local metadata is
+  not silently discarded during normalization.
+
+This surface is intentionally for governed mapping, not heuristic ingestion. If
+the operator cannot write a clear column map, the table is under-specified and
+should not be normalized as if it were already trusted search evidence.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
