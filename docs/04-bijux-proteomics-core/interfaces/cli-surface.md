@@ -38,6 +38,7 @@ The owned FASTA CLI surface is:
 - `target-decoy-validate`
 - `peptide-index`
 - `peptide-properties`
+- `precursor-mass-error`
 - `modified-peptide-parse`
 - `modification-resolve`
 - `summarize --kind fasta`
@@ -190,6 +191,30 @@ The `peptide-properties` JSON payload includes:
 - missed-cleavage count
 - hydrophobicity proxy
 - problem flags and a final problematic or not flag
+
+`precursor-mass-error` emits a reviewer-facing precursor calibration report from
+one TSV table of peptide, observed-m/z, and charge observations.
+
+- `--peptide-column`, `--observed-mz-column`, `--charge-column`, and
+  `--spectrum-id-column` map the input table.
+- `--max-isotope-offset` controls how many isotope-offset candidates are
+  ranked.
+- `--summary-tsv-out` writes the one-row report summary.
+- `--observations-tsv-out` writes one row per peptide observation.
+- `--ppm-distribution-tsv-out` writes the absolute-ppm distribution.
+- `--charge-distribution-tsv-out` writes the charge-state distribution.
+- `--isotope-distribution-tsv-out` writes the recommended isotope-offset
+  distribution.
+
+The `precursor-mass-error` JSON payload includes:
+
+- input row count and accepted observation count
+- mean and median ppm error plus mean Da error
+- median and maximum absolute ppm error
+- charge, absolute-ppm, and recommended isotope-offset distributions
+- per-observation peptide, canonical peptide, charge, theoretical m/z,
+  observed m/z, Da error, ppm error, and isotope advisory
+- any requested TSV export paths
 
 `modified-peptide-parse` normalizes one engine-specific modified peptide string
 into the owned canonical modified peptide contract.
