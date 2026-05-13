@@ -1254,6 +1254,64 @@ def test_protein_groups_command_reports_leading_proteins_and_group_table() -> No
         )
 
 
+def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        psm_fixture_dir = FIXTURE_ROOT / "psm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            psm_fixture_dir / "protein_inference_results.tsv",
+            "protein_inference_results.tsv",
+        )
+        shutil.copy(
+            fasta_fixture_dir / "protein_inference.fasta",
+            "protein_inference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-coverage",
+                "protein_inference_results.tsv",
+                "--fasta",
+                "protein_inference.fasta",
+                "--threshold",
+                "0.05",
+                "--summary-tsv-out",
+                "protein_coverage.summary.tsv",
+                "--coverage-tsv-out",
+                "protein_coverage.tsv",
+                "--regions-tsv-out",
+                "protein_coverage.regions.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 4
+        assert payload["summary"]["total_proteins"] == 4
+        assert payload["summary"]["proteins_with_shared_peptides"] == 3
+        p11111 = next(
+            entry for entry in payload["entries"] if entry["protein_ref"] == "P11111"
+        )
+        assert p11111["covered_ranges"] == [[2, 9], [13, 19]]
+        assert p11111["unique_peptides"] == ["PEPTIDEK"]
+        assert p11111["shared_peptides"] == ["SHAREDK"]
+        assert payload["regions"][0]["protein_ref"] == "P11111"
+        assert Path("protein_coverage.summary.tsv").exists()
+        assert Path("protein_coverage.tsv").exists()
+        assert Path("protein_coverage.regions.tsv").exists()
+        assert "proteins_with_shared_peptides\t3" in Path(
+            "protein_coverage.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P11111\t21\t15\t0.7142857142857143\t2-9;13-19" in Path(
+            "protein_coverage.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P11111\t2\t13\t19\t7" in Path(
+            "protein_coverage.regions.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_protein_parsimony_command_reports_selected_set_and_ambiguities() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
