@@ -566,6 +566,32 @@ This surface is intentionally grouping-facing rather than inferential. It
 shows which proteins collapse together under the observed peptide evidence, but
 it does not by itself choose the final minimal explanatory protein set.
 
+## Protein Coverage Review
+
+Use `protein-coverage` when the question is not yet which protein set wins the
+inference policy, but how much of each protein sequence is directly covered by
+accepted peptide evidence.
+
+- The coverage surface maps accepted peptides back onto explicit protein
+  sequences instead of inferring sequence coverage only from protein-group
+  membership.
+- Covered regions stay explicit as stable residue intervals, which makes it
+  possible to review whether one protein is supported by one short motif or by
+  multiple separated sequence segments.
+- Unique and shared peptide ledgers remain separate per protein, so a high
+  coverage fraction cannot hide the fact that much of the evidence is shared
+  across multiple proteins.
+- Peptides assigned to one protein but missing from the supplied FASTA sequence
+  stay visible as unmatched rows instead of silently disappearing from the
+  report.
+- Reviewer-facing summary, per-protein coverage, and region ledgers remain
+  available when coverage needs to move into downstream operator review or
+  release evidence.
+
+This surface is intentionally sequence-review-facing rather than inferential.
+It shows how accepted peptide evidence covers supplied protein sequences, but
+it does not decide final protein confidence on its own.
+
 ## Protein Parsimony Review
 
 Use `protein-parsimony` when the question is which minimal explanatory protein
