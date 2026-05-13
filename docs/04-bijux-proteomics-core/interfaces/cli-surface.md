@@ -50,6 +50,7 @@ The owned FASTA CLI surface is:
 - `protein-ambiguity`
 - `protein-inference-benchmarks`
 - `peptide-matrix`
+- `protein-matrix`
 - `protein-groups`
 - `protein-coverage`
 - `protein-coverage-plot`
@@ -666,6 +667,26 @@ The `peptide-matrix` JSON payload includes:
   method, sample identifiers, peptide rows, and missingness summary
 - report-level counts for accepted and skipped source rows after matrix
   construction
+- any requested summary, matrix, or missingness TSV output paths
+
+`protein-matrix` emits one owned protein-by-sample intensity matrix over either
+precursor or feature evidence or intensity-bearing PSM evidence.
+
+- `--input-kind` accepts `feature` or `psm`
+- `--grouping-mode` accepts `peptide_sequence` or `modified_peptide`
+- `--target-kind` accepts `protein` or `protein_group`
+- `--aggregation` accepts the owned sum, median, or top-`n` policies
+- `--unique-peptide-only` excludes shared-peptide rows before protein rollup
+- `--summary-tsv-out` writes one compact protein-matrix summary ledger
+- `--matrix-tsv-out` writes one wide protein-by-sample abundance matrix
+- `--missingness-tsv-out` writes one per-sample missingness ledger
+
+The `protein-matrix` JSON payload includes:
+
+- input kind
+- accepted and rejected source-record counts from the selected parser
+- one protein-matrix report with target kind, rollup policy, peptide counts,
+  unique/shared peptide burden, sample identifiers, and missingness summary
 - any requested summary, matrix, or missingness TSV output paths
 
 `protein-coverage` emits one direct protein-coverage review packet over
