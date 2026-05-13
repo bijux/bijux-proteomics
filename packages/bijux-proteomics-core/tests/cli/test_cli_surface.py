@@ -2059,6 +2059,52 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert Path("diann.protein_groups.tsv").exists()
 
 
+def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "spectronaut"
+        shutil.copy(fixture_dir / "spectronaut_report.tsv", "spectronaut_report.tsv")
+        shutil.copy(
+            fixture_dir / "spectronaut_settings.txt",
+            "spectronaut_settings.txt",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectronaut-import",
+                "spectronaut_report.tsv",
+                "--config",
+                "spectronaut_settings.txt",
+                "--summary-tsv-out",
+                "spectronaut.summary.tsv",
+                "--precursor-tsv-out",
+                "spectronaut.precursors.tsv",
+                "--protein-group-tsv-out",
+                "spectronaut.protein_groups.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_precursor_count"] == 4
+        assert payload["summary"]["protein_group_row_count"] == 4
+        assert payload["summary"]["modified_precursor_count"] == 3
+        assert payload["summary"]["sample_names"] == ["sample_A", "sample_B"]
+        assert payload["summary"]["run_names"] == ["raw_A", "raw_B"]
+        assert payload["summary"]["precursor_quantity_count"] == 4
+        assert payload["summary"]["protein_group_quantity_count"] == 4
+        assert payload["parameter_report"]["enzyme"] == "trypsin"
+        assert (
+            payload["normalization"]["adapter"]["display_name"]
+            == "Spectronaut review report"
+        )
+        assert payload["precursor_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
+        assert Path("spectronaut.summary.tsv").exists()
+        assert Path("spectronaut.precursors.tsv").exists()
+        assert Path("spectronaut.protein_groups.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
