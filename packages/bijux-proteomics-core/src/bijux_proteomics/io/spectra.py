@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from enum import StrEnum
 import hashlib
+import io
 import json
 from pathlib import Path
 import re
@@ -104,6 +105,40 @@ class SpectrumCollectionSummary(JsonModel):
     average_peak_count: float = Field(..., ge=0.0)
     counts_by_charge: dict[str, int] = Field(default_factory=dict)
     issue_counts: dict[str, int] = Field(default_factory=dict)
+
+
+class SpectrumDistributionRow(JsonModel):
+    """One stable distribution bucket for spectrum review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bucket: str = Field(..., min_length=1)
+    count: int = Field(..., ge=0)
+
+
+class SpectrumSummaryTableReport(JsonModel):
+    """Reviewer-facing spectrum summary tables over one run or collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_kind: str = Field(..., min_length=1)
+    ms_level_policy: str = Field(..., min_length=1)
+    spectrum_count: int = Field(..., ge=0)
+    rejected_count: int = Field(..., ge=0)
+    ms1_spectrum_count: int = Field(..., ge=0)
+    ms2_spectrum_count: int = Field(..., ge=0)
+    unknown_ms_level_count: int = Field(..., ge=0)
+    retention_time_min_seconds: float | None = Field(default=None, ge=0.0)
+    retention_time_max_seconds: float | None = Field(default=None, ge=0.0)
+    charge_distribution: tuple[SpectrumDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
+    precursor_mz_distribution: tuple[SpectrumDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
+    peak_count_distribution: tuple[SpectrumDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class SpectrumLookupIndex(JsonModel):
@@ -654,6 +689,173 @@ def build_spectrum_collection_summary(
         else 0.0,
         counts_by_charge=dict(sorted(counts_by_charge.items())),
         issue_counts=dict(sorted(issue_counts.items())),
+    )
+
+
+def _bucket_count(value: int, *, buckets: tuple[tuple[str, int, int | None], ...]) -> str:
+    for label, lower, upper in buckets:
+        if value < lower:
+            continue
+        if upper is None or value <= upper:
+            return label
+    return buckets[-1][0]
+
+
+def _bucket_float(
+    value: float, *, buckets: tuple[tuple[str, float, float | None], ...]
+) -> str:
+    for label, lower, upper in buckets:
+        if value < lower:
+            continue
+        if upper is None or value <= upper:
+            return label
+    return buckets[-1][0]
+
+
+def build_spectrum_summary_table_report(
+    spectra: tuple[SpectrumModel, ...],
+    *,
+    source_kind: str,
+    rejected_count: int = 0,
+) -> SpectrumSummaryTableReport:
+    """Build reviewer-facing spectrum summary tables over accepted spectra."""
+    ms1_count = 0
+    ms2_count = 0
+    unknown_ms_level_count = 0
+    charge_counts: dict[str, int] = {}
+    precursor_counts: dict[str, int] = {}
+    peak_counts: dict[str, int] = {}
+    retention_times: list[float] = []
+
+    mz_buckets = (
+        ("0-399", 0.0, 399.999999),
+        ("400-599", 400.0, 599.999999),
+        ("600-799", 600.0, 799.999999),
+        ("800-999", 800.0, 999.999999),
+        ("1000+", 1000.0, None),
+    )
+    peak_buckets = (
+        ("1-24", 1, 24),
+        ("25-49", 25, 49),
+        ("50-99", 50, 99),
+        ("100-199", 100, 199),
+        ("200+", 200, None),
+    )
+
+    ms_level_policy = "reported"
+    for spectrum in spectra:
+        ms_level = spectrum.ms_level
+        if source_kind == "mgf" and ms_level is None:
+            ms_level_policy = "mgf_assumed_ms2"
+            ms2_count += 1
+        elif ms_level == 1:
+            ms1_count += 1
+        elif ms_level == 2:
+            ms2_count += 1
+        else:
+            unknown_ms_level_count += 1
+
+        if spectrum.precursor_charge is None:
+            charge_key = "unknown"
+        elif spectrum.precursor_charge >= 5:
+            charge_key = "5+"
+        else:
+            charge_key = str(spectrum.precursor_charge)
+        charge_counts[charge_key] = charge_counts.get(charge_key, 0) + 1
+
+        precursor_bucket = _bucket_float(
+            spectrum.precursor_mz,
+            buckets=mz_buckets,
+        )
+        precursor_counts[precursor_bucket] = precursor_counts.get(precursor_bucket, 0) + 1
+
+        peak_bucket = _bucket_count(
+            len(spectrum.peaks),
+            buckets=peak_buckets,
+        )
+        peak_counts[peak_bucket] = peak_counts.get(peak_bucket, 0) + 1
+
+        if spectrum.retention_time_seconds is not None:
+            retention_times.append(spectrum.retention_time_seconds)
+
+    charge_distribution = tuple(
+        SpectrumDistributionRow(bucket=bucket, count=charge_counts.get(bucket, 0))
+        for bucket in ("unknown", "1", "2", "3", "4", "5+")
+        if bucket != "5+" or charge_counts.get("5+", 0) > 0
+    )
+
+    precursor_distribution = tuple(
+        SpectrumDistributionRow(bucket=label, count=precursor_counts.get(label, 0))
+        for label, _lower, _upper in mz_buckets
+    )
+    peak_distribution = tuple(
+        SpectrumDistributionRow(bucket=label, count=peak_counts.get(label, 0))
+        for label, _lower, _upper in peak_buckets
+    )
+
+    return SpectrumSummaryTableReport(
+        source_kind=source_kind,
+        ms_level_policy=ms_level_policy,
+        spectrum_count=len(spectra),
+        rejected_count=rejected_count,
+        ms1_spectrum_count=ms1_count,
+        ms2_spectrum_count=ms2_count,
+        unknown_ms_level_count=unknown_ms_level_count,
+        retention_time_min_seconds=min(retention_times) if retention_times else None,
+        retention_time_max_seconds=max(retention_times) if retention_times else None,
+        charge_distribution=charge_distribution,
+        precursor_mz_distribution=precursor_distribution,
+        peak_count_distribution=peak_distribution,
+    )
+
+
+def _render_tsv(header: tuple[str, ...], rows: tuple[tuple[object, ...], ...]) -> str:
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(header)
+    writer.writerows(rows)
+    return buffer.getvalue()
+
+
+def render_spectrum_summary_tsv(report: SpectrumSummaryTableReport) -> str:
+    """Render one compact summary table for a spectrum run report."""
+    return _render_tsv(
+        (
+            "source_kind",
+            "ms_level_policy",
+            "spectrum_count",
+            "rejected_count",
+            "ms1_spectrum_count",
+            "ms2_spectrum_count",
+            "unknown_ms_level_count",
+            "retention_time_min_seconds",
+            "retention_time_max_seconds",
+        ),
+        (
+            (
+                report.source_kind,
+                report.ms_level_policy,
+                report.spectrum_count,
+                report.rejected_count,
+                report.ms1_spectrum_count,
+                report.ms2_spectrum_count,
+                report.unknown_ms_level_count,
+                report.retention_time_min_seconds,
+                report.retention_time_max_seconds,
+            ),
+        ),
+    )
+
+
+def render_spectrum_distribution_tsv(
+    rows: tuple[SpectrumDistributionRow, ...],
+    *,
+    distribution_name: str,
+) -> str:
+    """Render one stable spectrum distribution table."""
+    return _render_tsv(
+        ("distribution", "bucket", "count"),
+        tuple((distribution_name, row.bucket, row.count) for row in rows),
     )
 
 
