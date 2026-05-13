@@ -600,7 +600,7 @@ def fasta_filter_command(
     help="Optional JSON report output path.",
 )
 def fasta_stats_command(input_fasta: Path, mode: str, out_path: Path | None) -> None:
-    """Report FASTA record, residue, duplication, and contaminant metrics."""
+    """Report FASTA record, composition, residue, duplication, and contaminant metrics."""
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
@@ -1722,8 +1722,13 @@ def summarize_command(
         )
         payload = {
             "input_kind": resolved_kind,
-            "summary": build_fasta_stats(fasta_report.accepted_records).to_dict(),
+            "summary": build_fasta_stats(
+                fasta_report.accepted_records,
+                rejected_records=fasta_report.rejected_records,
+            ).to_dict(),
+            "database_composition": fasta_report.database_composition.to_dict(),
             "rejected_records": len(fasta_report.rejected_records),
+            "duplicate_accessions": list(fasta_report.duplicate_accessions),
         }
     elif resolved_kind == "psm":
         psm_report = parse_psm_tsv(input_path, mapping=_default_psm_mapping())
