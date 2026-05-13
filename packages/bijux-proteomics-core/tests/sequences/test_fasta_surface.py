@@ -9,6 +9,7 @@ from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaParseMode,
     ResiduePolicyState,
+    append_contaminant_database,
     build_decoy_generation_manifest,
     build_fasta_database_profile,
     build_fasta_provenance_manifest,
@@ -18,9 +19,11 @@ from bijux_proteomics.sequences import (
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
+    load_builtin_contaminant_records,
     parse_fasta_document,
     parse_fasta_records,
     parse_uniprot_accession,
+    relabel_contaminant_records,
     render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
@@ -220,6 +223,59 @@ def test_build_fasta_stats_reports_target_and_decoy_counts(
     assert stats.target_count == 2
     assert stats.decoy_count == 2
     assert stats.accession_namespace_counts == {"uniprot": 4}
+
+
+def test_load_builtin_contaminant_records_returns_labeled_builtin_panel() -> None:
+    records = load_builtin_contaminant_records()
+
+    assert len(records) == 4
+    assert all(record.contaminant for record in records)
+    assert all(record.canonical_accession.startswith("CON__") for record in records)
+    assert any(record.gene == "ALB" for record in records)
+    assert any(record.gene == "PRSS1" for record in records)
+
+
+def test_append_contaminant_database_supports_builtin_and_external_fastas(
+    fasta_fixture_dir: Path,
+) -> None:
+    target_report = parse_fasta_document(
+        (fasta_fixture_dir / "valid_records.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+    external_report = parse_fasta_document(
+        (fasta_fixture_dir / "external_contaminants.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+
+    appended, build_report = append_contaminant_database(
+        target_report.accepted_records,
+        include_builtin=True,
+        external_contaminant_records=external_report.accepted_records,
+    )
+
+    assert build_report.input_target_record_count == 3
+    assert build_report.appended_builtin_record_count == 4
+    assert build_report.appended_external_record_count == 2
+    assert build_report.output_record_count == 9
+    assert all(record.contaminant for record in appended[3:])
+    assert all(record.source_header.startswith("CON__") for record in appended[3:])
+    assert "CON__trypsin_lab" in build_report.contaminant_accessions
+    assert build_report.contaminant_namespace_counts == {"custom": 2, "uniprot": 4}
+
+
+def test_relabel_contaminant_records_preserves_existing_prefixes(
+    fasta_fixture_dir: Path,
+) -> None:
+    report = parse_fasta_document(
+        (fasta_fixture_dir / "dedup_input.fasta").read_text(),
+        mode=FastaParseMode.PERMISSIVE,
+    )
+    relabeled = relabel_contaminant_records(report.accepted_records[-1:])
+
+    assert len(relabeled) == 1
+    assert relabeled[0].source_identifier == "CON__CRAP"
+    assert relabeled[0].canonical_accession == "CON__CRAP"
+    assert relabeled[0].contaminant is True
 
 
 def test_build_fasta_database_profile_reports_length_and_organism_distribution(
