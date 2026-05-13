@@ -1254,6 +1254,59 @@ def test_protein_groups_command_reports_leading_proteins_and_group_table() -> No
         )
 
 
+def test_protein_ambiguity_command_reports_ambiguous_groups_and_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "protein_ambiguity_cases.tsv",
+            "protein_ambiguity_cases.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-ambiguity",
+                "protein_ambiguity_cases.tsv",
+                "--threshold",
+                "0.05",
+                "--summary-tsv-out",
+                "protein_ambiguity.summary.tsv",
+                "--ambiguity-tsv-out",
+                "protein_ambiguity.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["threshold"] == 0.05
+        assert payload["accepted_rows"] == 4
+        assert payload["grouped_rows"] == 4
+        assert payload["ambiguity_rows"] == 3
+        assert payload["summary"]["total_ambiguity_groups"] == 3
+        assert payload["summary"]["indistinguishable_group_count"] == 1
+        mixed = next(
+            entry
+            for entry in payload["entries"]
+            if entry["protein_refs"] == ["P10001", "P20002"]
+        )
+        assert mixed["ambiguity_reason"] == "mixed"
+        assert mixed["outside_group_proteins"] == ["P30003"]
+        external = next(
+            entry for entry in payload["entries"] if entry["protein_refs"] == ["P30003"]
+        )
+        assert external["ambiguity_reason"] == "external_shared_peptides"
+        assert external["unique_peptides"] == ["UNIQUEB"]
+        assert Path("protein_ambiguity.summary.tsv").exists()
+        assert Path("protein_ambiguity.tsv").exists()
+        assert "total_ambiguity_groups\t3" in Path(
+            "protein_ambiguity.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            "P10001\tP10001;P20002\tP10001;P20002\tSHAREDX;SHAREDY\t\tP30003\tmixed"
+            in Path("protein_ambiguity.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
