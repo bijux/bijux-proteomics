@@ -934,6 +934,8 @@ def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
         payload = json.loads(result.output)
         assert payload["accepted_rows"] == 3
         assert payload["psm_summary"]["decoy_psms"] == 1
+        assert payload["inspection"]["accepted_rows"] == 3
+        assert payload["inspection"]["rejected_rows"] == 0
         assert Path("normalized.jsonl").exists()
         assert Path("normalized.tsv").exists()
         manifest = json.loads(Path("provenance.json").read_text())
@@ -989,6 +991,60 @@ def test_psm_inspect_command_supports_canonical_schema_columns() -> None:
         assert "modified_peptide" in normalized_tsv
         assert "contaminant_flag" in normalized_tsv
         assert "PES[Phospho]TIDE" in normalized_tsv
+
+
+def test_psm_inspect_command_reports_quality_distributions_and_writes_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("inspection.tsv").write_text(
+            "\n".join(
+                (
+                    "spectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins",
+                    "scan=1001\tPEPTIDE\t2\t55.0\t0.005\tP12345",
+                    "scan=1002\tAKTIDEK\t3\t44.0\t0.02\tP12345",
+                    "scan=1003\tLVVVVVVIKAKK\t2\t31.0\t0.08\tP12345",
+                    "scan=1004\tPEPTIDER\tbad\t20.0\t0.2\tP12345",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-inspect",
+                "inspection.tsv",
+                "--summary-tsv-out",
+                "inspection.summary.tsv",
+                "--score-distribution-tsv-out",
+                "inspection.score.tsv",
+                "--q-value-distribution-tsv-out",
+                "inspection.qvalue.tsv",
+                "--charge-distribution-tsv-out",
+                "inspection.charge.tsv",
+                "--peptide-length-distribution-tsv-out",
+                "inspection.length.tsv",
+                "--missed-cleavage-distribution-tsv-out",
+                "inspection.missed.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["inspection"]["total_rows"] == 4
+        assert payload["inspection"]["accepted_rows"] == 3
+        assert payload["inspection"]["rejected_rows"] == 1
+        assert payload["inspection"]["protease"] == "trypsin"
+        assert Path("inspection.summary.tsv").exists()
+        assert Path("inspection.score.tsv").exists()
+        assert Path("inspection.qvalue.tsv").exists()
+        assert Path("inspection.charge.tsv").exists()
+        assert Path("inspection.length.tsv").exists()
+        assert Path("inspection.missed.tsv").exists()
+        assert "0\t1" in Path("inspection.missed.tsv").read_text(encoding="utf-8")
+        assert "1\t1" in Path("inspection.missed.tsv").read_text(encoding="utf-8")
+        assert "2\t1" in Path("inspection.missed.tsv").read_text(encoding="utf-8")
 
 
 def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
@@ -1574,10 +1630,13 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
         assert fasta_payload["database_composition"]["target_count"] == 3
         assert fasta_payload["duplicate_accessions"] == []
         assert psm_result.exit_code == 0
-        assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
+        psm_payload = json.loads(psm_result.output)
+        assert psm_payload["psm_summary"]["total_psms"] == 3
+        assert psm_payload["inspection"]["accepted_rows"] == 3
         assert contaminant_psm_result.exit_code == 0
         contaminant_payload = json.loads(contaminant_psm_result.output)
         assert contaminant_payload["contaminant_report"]["contaminant_psm_count"] == 2
+        assert contaminant_payload["inspection"]["accepted_rows"] == 3
         assert (
             contaminant_payload["contaminant_report"]["mixed_reference_psm_count"] == 1
         )
