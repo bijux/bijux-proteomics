@@ -1111,6 +1111,57 @@ def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:
         )
 
 
+def test_fdr_levels_command_reports_threshold_counts_and_contaminants() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("levels.tsv").write_text(
+            "\n".join(
+                (
+                    "spectrum_id\tpeptide\tcharge\tscore\tproteins",
+                    "scan=1001\tPEPTIDE\t2\t100.0\tP11111",
+                    "scan=1002\tAKTIDEK\t2\t95.0\tCON__KERATIN_HUMAN",
+                    "scan=1003\tDECOYPEP\t2\t90.0\tDECOY_P99999",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr-levels",
+                "levels.tsv",
+                "--summary-tsv-out",
+                "levels.summary.tsv",
+                "--entries-tsv-out",
+                "levels.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["thresholds"] == [0.01, 0.05, 0.1]
+        assert payload["accepted_rows"] == 3
+        summary_rows = payload["summaries"]
+        psm_one_percent = next(
+            row
+            for row in summary_rows
+            if row["threshold"] == 0.01 and row["evidence_level"] == "psm"
+        )
+        assert psm_one_percent["accepted_count"] == 2
+        assert psm_one_percent["accepted_contaminant_count"] == 1
+        assert psm_one_percent["total_decoy_count"] == 1
+        assert Path("levels.summary.tsv").exists()
+        assert Path("levels.entries.tsv").exists()
+        assert "0.01\tpsm\t3\t2\t1\t0\t0\t1\t2\t2\t0\t0\t0\t1" in Path(
+            "levels.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "0.05\tprotein\tCON__KERATIN_HUMAN" in Path(
+            "levels.entries.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
