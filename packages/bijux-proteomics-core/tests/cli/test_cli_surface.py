@@ -1287,6 +1287,81 @@ def test_spectral_library_import_command_supports_mgf_library_indexing() -> None
         assert payload["candidates"] is None
 
 
+def test_spectral_library_search_command_reports_ranked_decoy_aware_matches() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "library_search_query.mgf",
+            "library_search_query.mgf",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "library_search_reference.msp",
+            "library_search_reference.msp",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectral-library-search",
+                "library_search_query.mgf",
+                "library_search_reference.msp",
+                "--query-kind",
+                "mgf",
+                "--library-kind",
+                "msp",
+                "--precursor-tolerance-da",
+                "0.03",
+                "--tolerance-da",
+                "0.02",
+                "--tsv-out",
+                "library_search.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["import_report"]["source_format"] == "msp"
+        assert payload["library_summary"]["decoy_entry_count"] == 1
+        assert payload["search_report"]["search_strategy"] == "concatenated"
+        assert payload["search_report"]["top_match_library_entry_id"] == "msp:1:PEPTIDE/2"
+        assert payload["search_report"]["matches"][0]["q_value"] == 0.0
+        assert Path("library_search.tsv").exists()
+
+
+def test_spectral_library_search_command_supports_mgf_library_search_without_decoys() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        query = _similarity_spectrum(
+            "review-query",
+            ((100.01, 1500.0), (250.01, 800.0)),
+        )
+        Path("query.mgf").write_text(render_mgf((query,)), encoding="utf-8")
+        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectral-library-search",
+                "query.mgf",
+                "review_library.mgf",
+                "--library-kind",
+                "mgf",
+                "--tolerance-da",
+                "0.02",
+                "--max-matches",
+                "1",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["import_report"]["source_format"] == "mgf"
+        assert payload["search_report"]["search_strategy"] == "no_decoy_advisory"
+        assert payload["search_report"]["candidate_count"] == 1
+        assert payload["search_report"]["top_match_canonical_peptide"] == "PEPTIDE"
+        assert payload["search_report"]["top_match_q_value"] is None
+
+
 def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
     fasta_fixture_dir: Path,
 ) -> None:
