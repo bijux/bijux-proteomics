@@ -330,6 +330,33 @@ The `spectrum-summary` JSON payload includes:
 - charge, precursor-m/z, and peak-count distributions
 - any requested TSV export paths
 
+`spectrum-qc` emits raw-spectrum run-QC ledgers over one MGF or mzML input.
+
+- `--kind` accepts `auto`, `mgf`, or `mzml`
+- `--time-bin-seconds` sets the MS/MS-count retention-time bin width
+- `--summary-tsv-out` writes the one-row run-QC summary
+- `--msms-tsv-out` writes the MS/MS-count-over-time table
+- `--tic-tsv-out` writes the TIC trace table
+- `--bpc-tsv-out` writes the BPC trace table
+- `--charge-tsv-out` writes the precursor-charge distribution
+- `--precursor-intensity-tsv-out` writes the precursor-intensity distribution
+- `--flagged-tsv-out` writes the empty and noisy spectrum table
+- `--plot-out` writes one plot-ready JSON payload for downstream rendering
+
+The `spectrum-qc` JSON payload includes:
+
+- source kind and chromatogram source
+- total, rejected, and MS/MS spectrum counts
+- precursor-intensity observation count
+- empty-spectrum count and noisy-spectrum count
+- MS/MS-count-over-time bins
+- TIC and BPC traces
+- charge and precursor-intensity distributions
+- flagged spectrum rows
+- reviewer-facing diagnostics when retention-time or precursor-intensity
+  evidence is incomplete
+- any requested TSV or plot export paths
+
 `spectrum-annotate` emits one matched-fragment review object plus a plot-ready
 payload for one accepted MGF spectrum.
 
