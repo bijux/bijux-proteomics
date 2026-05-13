@@ -1254,6 +1254,65 @@ def test_protein_groups_command_reports_leading_proteins_and_group_table() -> No
         )
 
 
+def test_protein_parsimony_command_reports_selected_set_and_ambiguities() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "protein_parsimony_variants.tsv",
+            "protein_parsimony_variants.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-parsimony",
+                "protein_parsimony_variants.tsv",
+                "--threshold",
+                "0.05",
+                "--variant",
+                "greedy_coverage",
+                "--review-variant",
+                "greedy_coverage",
+                "--review-variant",
+                "unique_evidence_priority",
+                "--summary-tsv-out",
+                "protein_parsimony.summary.tsv",
+                "--protein-tsv-out",
+                "protein_parsimony.proteins.tsv",
+                "--ambiguity-tsv-out",
+                "protein_parsimony.ambiguities.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["variant"] == "greedy_coverage"
+        assert payload["summary"]["selected_protein_count"] == 2
+        assert payload["summary"]["unresolved_ambiguity_count"] == 2
+        assert payload["unexplained_peptides"] == []
+        assert payload["selected_proteins"][0]["protein_ref"] == "P10001"
+        assert payload["selected_proteins"][1]["protein_ref"] == "P20002"
+        bravoq = next(
+            entry
+            for entry in payload["unresolved_ambiguities"]
+            if entry["subject_id"] == "BRAVOK"
+        )
+        assert bravoq["candidate_proteins"] == ["P10001", "P20002"]
+        assert Path("protein_parsimony.summary.tsv").exists()
+        assert Path("protein_parsimony.proteins.tsv").exists()
+        assert Path("protein_parsimony.ambiguities.tsv").exists()
+        assert "selected_protein_count\t2" in Path(
+            "protein_parsimony.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            "greedy_coverage\t1\tP10001\tpg-001\tP10001\tALPHAK;BRAVOK;CHARLIEK;DELTAK"
+            in Path("protein_parsimony.proteins.tsv").read_text(encoding="utf-8")
+        )
+        assert "BRAVOK\tpeptide_assignment\tP10001;P20002" in Path(
+            "protein_parsimony.ambiguities.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
