@@ -1,9 +1,11 @@
 run_id: run_name
 spectrum_id: scan_ref
 peptide: sequence_text
+modified_peptide: modified_sequence
 charge: z
 score: state_score
 q_value: qvalue
 protein_refs: accessions
 decoy_label: decoy_state
+contaminant_label: contaminant_state
 protein_separator: ";"
