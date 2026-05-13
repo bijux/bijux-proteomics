@@ -433,6 +433,70 @@ def test_digest_command_reports_invalid_output_path(
         assert "No such file or directory" in result.output
 
 
+def test_peptide_index_command_reports_groups_il_equivalence_and_missed_cleavages() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("database.fasta").write_text(
+            (
+                ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\n"
+                "MPEPTLDEKAK\n"
+                ">sp|P20001|BETA_HUMAN Beta OS=Homo sapiens GN=BETA\n"
+                "AKSHADEQKQQ\n"
+                ">sp|P20002|GAMMA_HUMAN Gamma OS=Homo sapiens GN=GAMMA\n"
+                "MKSHADEQKLL\n"
+            )
+        )
+        Path("groups.tsv").write_text(
+            "accession\tprotein_group\n"
+            "P20001\tGROUP_SHARED\n"
+            "P20002\tGROUP_SHARED\n"
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-index",
+                "database.fasta",
+                "--peptide",
+                "M[+15.9949]PEPTIDEK",
+                "--peptide",
+                "MPEPTLDEKAK",
+                "--peptide",
+                "SHADEQK",
+                "--protease",
+                "trypsin",
+                "--missed-cleavages",
+                "1",
+                "--digestion-mode",
+                "full",
+                "--il-equivalent",
+                "--protein-group-map",
+                "groups.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "trypsin"
+        assert payload["missed_cleavages"] == 1
+        assert payload["il_equivalent"] is True
+        assert payload["protein_group_map_supplied"] is True
+
+        by_query = {
+            entry["input_peptide"]: entry for entry in payload["report"]["entries"]
+        }
+        assert by_query["M[+15.9949]PEPTIDEK"]["canonical_peptide"] == "MPEPTIDEK"
+        assert by_query["M[+15.9949]PEPTIDEK"]["il_equivalence_applied"] is True
+        assert by_query["M[+15.9949]PEPTIDEK"]["modification_stripped"] is True
+        assert by_query["MPEPTLDEKAK"]["missed_cleavage_counts"] == [1]
+        assert by_query["SHADEQK"]["protein_groups"] == ["GROUP_SHARED"]
+        assert (
+            by_query["SHADEQK"]["audit_class"] == "protein_group_specific"
+        )
+
+
 def test_peptide_mass_command_reports_mass_fragments_and_localization() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
