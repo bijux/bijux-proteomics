@@ -1312,6 +1312,79 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_protein_coverage_plot_command_emits_positions_svg_and_html() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("protein_plot.tsv").write_text(
+            "\n".join(
+                (
+                    "spectrum_id\tpeptide\tmodified_peptide\tcharge\tscore\tintensity\tq_value\tproteins",
+                    "scan=1\tPEPTIDEK\tPEPTIDEK\t2\t90.0\t1000\t0.005\tP11111",
+                    "scan=2\tACDMK\tACDM[Oxidation]K\t2\t70.0\t500\t0.02\tP11111;P22222",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("protein_plot.fasta").write_text(
+            "\n".join(
+                (
+                    ">sp|P11111|PROT1 Example protein 1 OS=Homo sapiens GN=PROT1",
+                    "MPEPTIDEKAAACDMKGG",
+                    ">sp|P22222|PROT2 Example protein 2 OS=Homo sapiens GN=PROT2",
+                    "QQACDMKRR",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-coverage-plot",
+                "protein_plot.tsv",
+                "--fasta",
+                "protein_plot.fasta",
+                "--modified-peptide-column",
+                "modified_peptide",
+                "--intensity-column",
+                "intensity",
+                "--positions-tsv-out",
+                "protein_plot.positions.tsv",
+                "--svg-out",
+                "protein_plot.svg",
+                "--html-out",
+                "protein_plot.html",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 2
+        assert payload["summary"]["total_position_rows"] == 3
+        assert payload["summary"]["modified_position_count"] == 2
+        assert payload["summary"]["intensity_position_count"] == 3
+        modified = next(
+            entry
+            for track in payload["tracks"]
+            for entry in track["positions"]
+            if entry["canonical_peptide"] == "ACDM[Oxidation]K"
+            and entry["protein_ref"] == "P11111"
+        )
+        assert modified["start_residue"] == 12
+        assert modified["end_residue"] == 16
+        assert modified["confidence_label"] == "medium"
+        assert modified["peptide_q_value"] == 0.02
+        assert modified["best_intensity"] == 500.0
+        assert Path("protein_plot.positions.tsv").exists()
+        assert Path("protein_plot.svg").read_text(encoding="utf-8").startswith("<svg")
+        assert Path("protein_plot.html").read_text(encoding="utf-8").startswith("<html>")
+        assert "ACDM[Oxidation]K" in Path("protein_plot.positions.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_protein_parsimony_command_reports_selected_set_and_ambiguities() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
