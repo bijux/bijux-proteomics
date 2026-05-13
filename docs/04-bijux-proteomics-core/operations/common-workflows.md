@@ -190,6 +190,30 @@ adapter. It turns one engine-specific peptide string into the owned modified
 peptide contract so downstream chemistry, PTM, and attribution surfaces do not
 need five separate parsers.
 
+## Unimod-Aware Modification Resolution
+
+Use `modification-resolve` when the question is whether one modification token
+is recognized, chemically constrained to the claimed residue, or supplied by a
+custom registry rather than the built-in chemistry surface.
+
+- The built-in modification surface resolves durable names, common aliases, and
+  controlled identifiers such as `UNIMOD:35`.
+- Common review cases now cover oxidation, carbamidomethylation,
+  phosphorylation, acetylation, and deamidation without requiring a custom
+  registry.
+- Residue validation stays explicit. A token can be recognized and still be
+  reported as invalid for the claimed residue.
+- Unknown modification tokens are returned as reviewer-facing report rows
+  rather than being guessed or silently coerced.
+- Custom registries remain first-class. A team can supply local or
+  institution-specific modification definitions through the existing registry
+  document contract and resolve them through the same review surface.
+
+This surface is intentionally a resolution and validation layer, not a promise
+that every external search engine or vendor notation is already normalized.
+Its job is to make recognized versus unrecognized modification intent explicit
+before downstream chemistry or PTM analysis depends on it.
+
 ## Digestion Export Review
 
 Use `digest` when the peptide space itself needs to be handed off for search,
