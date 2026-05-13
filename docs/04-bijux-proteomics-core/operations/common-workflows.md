@@ -122,3 +122,23 @@ or decoy hypotheses under a specific digestion policy.
 This surface is reviewer-facing on purpose. A peptide can be biologically
 interesting and still be weak for protein attribution if it only appears under
 decoy, contaminant, or broad shared-peptide conditions.
+
+## Protease-Governed Digestion
+
+Use the digestion surface when peptide-space generation needs to stay explicit
+about cleavage assumptions instead of being treated as a black-box
+preprocessing step.
+
+- Built-in proteases now cover trypsin, Lys-C, Glu-C, Arg-C, chymotrypsin, and
+  Asp-N.
+- Blocked-cleavage behavior is part of the rule contract rather than an
+  undocumented implementation detail.
+- Semi-specific and non-specific digestion remain available when the peptide
+  search space must be widened intentionally.
+- Custom proteases use an explicit rule string such as
+  `after=KR;block_next=P` or `before=D;block_previous=P`.
+- Custom rules should be named deliberately because that name survives into the
+  digestion manifest and downstream review surfaces.
+
+The digestion contract is honest about scope: a peptide list is only as
+defensible as the protease rule and specificity mode that generated it.
