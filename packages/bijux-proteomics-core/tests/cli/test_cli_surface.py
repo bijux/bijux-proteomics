@@ -642,6 +642,56 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
         assert "not valid on residue" in result.output
 
 
+def test_peptide_properties_command_reports_filtering_metrics() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-properties",
+                "LVVVVVVIKAKK",
+                "--charge",
+                "3",
+                "--protease",
+                "trypsin",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["charge"] == 3
+        assert payload["protease"] == "trypsin"
+        assert payload["length"] == 12
+        assert payload["missed_cleavages"] == 2
+        assert payload["flagged_problematic"] is True
+        assert "high_hydrophobicity_proxy" in payload["problem_flags"]
+        assert "high_missed_cleavages" in payload["problem_flags"]
+
+
+def test_peptide_properties_command_supports_modifications_and_custom_protease() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-properties",
+                "MPEPTIDE",
+                "--mod",
+                "Oxidation@1",
+                "--custom-protease",
+                "before=D;block_previous=P",
+                "--custom-protease-name",
+                "acidic",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["canonical_notation"] == "M[Oxidation]PEPTIDE"
+        assert payload["protease"] == "acidic"
+        assert payload["custom_protease"] == "before=D;block_previous=P"
+
+
 def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
