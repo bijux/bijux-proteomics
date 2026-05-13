@@ -18,7 +18,18 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
+from bijux_proteomics.identification.contracts import (
+    PsmRecord,
+    TargetDecoyLabel,
+    apply_q_values,
+)
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, parse_mgf
+from bijux_proteomics.io.spectra import (
+    SpectralSimilarityMethod,
+    SpectrumSimilarityClassification,
+    SpectrumSimilarityMode,
+    build_spectrum_similarity_comparison_report,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -53,6 +64,7 @@ class SpectralLibraryEntry(JsonModel):
     peptide_sequence: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     modification_count: int = Field(..., ge=0)
+    target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     spectrum: SpectrumModel
 
 
@@ -81,6 +93,7 @@ class SpectralLibrarySummary(JsonModel):
     entry_count: int = Field(..., ge=0)
     unique_peptide_count: int = Field(..., ge=0)
     modified_entry_count: int = Field(..., ge=0)
+    decoy_entry_count: int = Field(..., ge=0)
     charge_counts: dict[str, int] = Field(default_factory=dict)
 
 
@@ -104,6 +117,7 @@ class SpectralLibraryCandidateMatch(JsonModel):
     canonical_peptide: str = Field(..., min_length=1)
     precursor_mz: float = Field(..., gt=0.0)
     precursor_charge: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     precursor_delta_da: float = Field(..., ge=0.0)
 
 
@@ -117,6 +131,57 @@ class SpectralLibraryCandidateReport(JsonModel):
     peptide_query: str | None = None
     candidate_count: int = Field(..., ge=0)
     matches: tuple[SpectralLibraryCandidateMatch, ...] = Field(default_factory=tuple)
+
+
+class SpectralLibrarySearchStrategy(StrEnum):
+    """Supported confidence strategies for practical spectral-library search."""
+
+    CONCATENATED = "concatenated"
+    NO_DECOY_ADVISORY = "no_decoy_advisory"
+
+
+class SpectralLibrarySearchMatch(JsonModel):
+    """One scored spectral-library match for a query spectrum."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rank: int = Field(..., ge=1)
+    library_entry_id: str = Field(..., min_length=1)
+    spectrum_id: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    precursor_charge: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
+    precursor_delta_da: float = Field(..., ge=0.0)
+    similarity_score: float = Field(..., ge=0.0)
+    matched_peak_count: int = Field(..., ge=0)
+    reference_explained_intensity_fraction: float = Field(..., ge=0.0, le=1.0)
+    query_explained_intensity_fraction: float = Field(..., ge=0.0, le=1.0)
+    similarity_classification: SpectrumSimilarityClassification
+    q_value: float | None = Field(default=None, ge=0.0)
+
+
+class SpectralLibrarySearchReport(JsonModel):
+    """Practical library-search report for one query spectrum."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    document_schema: DocumentSchema
+    query_spectrum_id: str = Field(..., min_length=1)
+    query_precursor_mz: float = Field(..., gt=0.0)
+    precursor_tolerance_da: float = Field(..., gt=0.0)
+    similarity_method: SpectralSimilarityMethod
+    similarity_mode: SpectrumSimilarityMode
+    similarity_tolerance_da: float | None = Field(default=None, gt=0.0)
+    similarity_bin_width_da: float | None = Field(default=None, gt=0.0)
+    top_n: int | None = Field(default=None, ge=1)
+    candidate_count: int = Field(..., ge=0)
+    decoy_candidate_count: int = Field(..., ge=0)
+    search_strategy: SpectralLibrarySearchStrategy
+    top_match_library_entry_id: str | None = None
+    top_match_canonical_peptide: str | None = None
+    top_match_similarity_score: float | None = Field(default=None, ge=0.0)
+    top_match_q_value: float | None = Field(default=None, ge=0.0)
+    matches: tuple[SpectralLibrarySearchMatch, ...] = Field(default_factory=tuple)
 
 
 def import_spectral_library(
@@ -159,6 +224,7 @@ def build_spectral_library_summary(
     """Build a compact summary over an imported spectral library."""
     charge_counts: dict[str, int] = {}
     modified_entry_count = 0
+    decoy_entry_count = 0
     unique_peptides: set[str] = set()
     for entry in report.entries:
         charge_key = str(entry.precursor_charge)
@@ -166,11 +232,14 @@ def build_spectral_library_summary(
         unique_peptides.add(entry.canonical_peptide)
         if entry.modification_count > 0:
             modified_entry_count += 1
+        if entry.target_decoy_label is TargetDecoyLabel.DECOY:
+            decoy_entry_count += 1
     return SpectralLibrarySummary(
         source_format=report.source_format,
         entry_count=len(report.entries),
         unique_peptide_count=len(unique_peptides),
         modified_entry_count=modified_entry_count,
+        decoy_entry_count=decoy_entry_count,
         charge_counts=dict(sorted(charge_counts.items())),
     )
 
@@ -231,6 +300,7 @@ def find_spectral_library_candidates(
             canonical_peptide=entry.canonical_peptide,
             precursor_mz=entry.precursor_mz,
             precursor_charge=entry.precursor_charge,
+            target_decoy_label=entry.target_decoy_label,
             precursor_delta_da=abs(entry.precursor_mz - precursor_mz),
         )
         for entry_id in sorted(candidate_ids)
@@ -259,6 +329,152 @@ def find_spectral_library_candidates(
     )
 
 
+def search_spectral_library(
+    query_spectrum: SpectrumModel,
+    index: SpectralLibraryIndex,
+    *,
+    precursor_tolerance_da: float = 0.5,
+    similarity_tolerance_da: float | None = 0.02,
+    similarity_bin_width_da: float | None = None,
+    method: SpectralSimilarityMethod = SpectralSimilarityMethod.COSINE,
+    mode: SpectrumSimilarityMode = SpectrumSimilarityMode.NORMALIZED,
+    top_n: int | None = None,
+    max_matches: int | None = 10,
+) -> SpectralLibrarySearchReport:
+    """Rank precursor-compatible library spectra against one query spectrum."""
+    if precursor_tolerance_da <= 0:
+        raise ValueError("precursor_tolerance_da must be greater than zero")
+    if similarity_tolerance_da is None and similarity_bin_width_da is None:
+        raise ValueError(
+            "spectral-library search requires either similarity_tolerance_da or "
+            "similarity_bin_width_da"
+        )
+    if similarity_tolerance_da is not None and similarity_tolerance_da <= 0:
+        raise ValueError("similarity_tolerance_da must be greater than zero")
+    if similarity_bin_width_da is not None and similarity_bin_width_da <= 0:
+        raise ValueError("similarity_bin_width_da must be greater than zero")
+    if max_matches is not None and max_matches <= 0:
+        raise ValueError("max_matches must be greater than zero when provided")
+
+    candidate_report = find_spectral_library_candidates(
+        index,
+        precursor_mz=query_spectrum.precursor_mz,
+        tolerance_da=precursor_tolerance_da,
+    )
+    entries_by_id = {entry.library_entry_id: entry for entry in index.entries}
+    scored_matches = [
+        (
+            entries_by_id[candidate.library_entry_id],
+            build_spectrum_similarity_comparison_report(
+                entries_by_id[candidate.library_entry_id].spectrum,
+                query_spectrum,
+                tolerance_da=similarity_tolerance_da,
+                bin_width_da=similarity_bin_width_da,
+                method=method,
+                mode=mode,
+                top_n=top_n,
+            ),
+            candidate,
+        )
+        for candidate in candidate_report.matches
+    ]
+    scored_matches.sort(
+        key=lambda item: (
+            -item[1].score,
+            -item[1].matched_peak_count,
+            item[2].precursor_delta_da,
+            item[0].library_entry_id,
+        )
+    )
+    ranked_records = tuple(
+        PsmRecord(
+            spectrum_id=query_spectrum.spectrum_id,
+            peptide=entry.canonical_peptide,
+            canonical_peptide=entry.canonical_peptide,
+            charge=entry.precursor_charge,
+            score=report.score,
+            protein_refs=(entry.library_entry_id,),
+            target_decoy_label=entry.target_decoy_label,
+        )
+        for entry, report, _candidate in scored_matches
+    )
+    scored_q_values = _score_library_search_matches(ranked_records)
+    q_values_by_entry_id = {
+        record.protein_refs[0]: record.q_value
+        for record in scored_q_values
+        if record.protein_refs
+    }
+    displayed_matches = (
+        scored_matches[:max_matches] if max_matches is not None else scored_matches
+    )
+
+    matches = tuple(
+        SpectralLibrarySearchMatch(
+            rank=rank,
+            library_entry_id=entry.library_entry_id,
+            spectrum_id=entry.spectrum_id,
+            canonical_peptide=entry.canonical_peptide,
+            precursor_charge=entry.precursor_charge,
+            target_decoy_label=entry.target_decoy_label,
+            precursor_delta_da=candidate.precursor_delta_da,
+            similarity_score=report.score,
+            matched_peak_count=report.matched_peak_count,
+            reference_explained_intensity_fraction=(
+                report.reference_explained_intensity_fraction
+            ),
+            query_explained_intensity_fraction=(
+                report.query_explained_intensity_fraction
+            ),
+            similarity_classification=report.classification,
+            q_value=q_values_by_entry_id.get(entry.library_entry_id),
+        )
+        for rank, (entry, report, candidate) in enumerate(displayed_matches, start=1)
+    )
+    decoy_candidate_count = sum(
+        1
+        for entry, _report, _candidate in scored_matches
+        if entry.target_decoy_label is TargetDecoyLabel.DECOY
+    )
+    top_match = matches[0] if matches else None
+    search_strategy = _resolve_search_strategy(index.entries)
+    report = SpectralLibrarySearchReport(
+        document_schema=DocumentSchema(
+            created_by="bijux-proteomics-core",
+            document_kind="spectral_library_search_report",
+            package_name="bijux-proteomics-core",
+            status="generated",
+        ),
+        query_spectrum_id=query_spectrum.spectrum_id,
+        query_precursor_mz=query_spectrum.precursor_mz,
+        precursor_tolerance_da=precursor_tolerance_da,
+        similarity_method=method,
+        similarity_mode=mode,
+        similarity_tolerance_da=similarity_tolerance_da,
+        similarity_bin_width_da=similarity_bin_width_da,
+        top_n=top_n,
+        candidate_count=len(scored_matches),
+        decoy_candidate_count=decoy_candidate_count,
+        search_strategy=search_strategy,
+        top_match_library_entry_id=(
+            top_match.library_entry_id if top_match is not None else None
+        ),
+        top_match_canonical_peptide=(
+            top_match.canonical_peptide if top_match is not None else None
+        ),
+        top_match_similarity_score=(
+            top_match.similarity_score if top_match is not None else None
+        ),
+        top_match_q_value=top_match.q_value if top_match is not None else None,
+        matches=matches,
+    )
+    payload = report.to_dict()
+    return report.model_copy(
+        update={
+            "document_schema": report.document_schema.with_content_hash(payload),
+        }
+    )
+
+
 def render_spectral_library_summary_tsv(summary: SpectralLibrarySummary) -> str:
     """Render one compact spectral-library summary row."""
     return _render_tsv(
@@ -267,6 +483,7 @@ def render_spectral_library_summary_tsv(summary: SpectralLibrarySummary) -> str:
             "entry_count",
             "unique_peptide_count",
             "modified_entry_count",
+            "decoy_entry_count",
         ),
         (
             (
@@ -274,6 +491,7 @@ def render_spectral_library_summary_tsv(summary: SpectralLibrarySummary) -> str:
                 summary.entry_count,
                 summary.unique_peptide_count,
                 summary.modified_entry_count,
+                summary.decoy_entry_count,
             ),
         ),
     )
@@ -290,6 +508,7 @@ def render_spectral_library_candidates_tsv(
             "canonical_peptide",
             "precursor_mz",
             "precursor_charge",
+            "target_decoy_label",
             "precursor_delta_da",
         ),
         tuple(
@@ -299,7 +518,47 @@ def render_spectral_library_candidates_tsv(
                 row.canonical_peptide,
                 row.precursor_mz,
                 row.precursor_charge,
+                row.target_decoy_label.value,
                 row.precursor_delta_da,
+            )
+            for row in report.matches
+        ),
+    )
+
+
+def render_spectral_library_search_tsv(report: SpectralLibrarySearchReport) -> str:
+    """Render one ranked spectral-library search table."""
+    return _render_tsv(
+        (
+            "rank",
+            "library_entry_id",
+            "spectrum_id",
+            "canonical_peptide",
+            "precursor_charge",
+            "target_decoy_label",
+            "precursor_delta_da",
+            "similarity_score",
+            "matched_peak_count",
+            "reference_explained_intensity_fraction",
+            "query_explained_intensity_fraction",
+            "similarity_classification",
+            "q_value",
+        ),
+        tuple(
+            (
+                row.rank,
+                row.library_entry_id,
+                row.spectrum_id,
+                row.canonical_peptide,
+                row.precursor_charge,
+                row.target_decoy_label.value,
+                row.precursor_delta_da,
+                row.similarity_score,
+                row.matched_peak_count,
+                row.reference_explained_intensity_fraction,
+                row.query_explained_intensity_fraction,
+                row.similarity_classification.value,
+                row.q_value,
             )
             for row in report.matches
         ),
@@ -379,7 +638,8 @@ def _parse_msp_entry(
     name = fields.get("name")
     if not name:
         raise ValueError("MSP entry must declare a Name field")
-    precursor_mz = _parse_parent_mz_from_comment(fields.get("comment", ""))
+    comment_fields = _parse_msp_comment_fields(fields.get("comment", ""))
+    precursor_mz = _parse_parent_mz_from_comment(comment_fields)
     if precursor_mz is None:
         raise ValueError("MSP entry must declare Parent in Comment")
     peptide_text, charge = _parse_name_peptide_and_charge(name)
@@ -402,6 +662,7 @@ def _parse_msp_entry(
         peptide_sequence=parsed_peptide.sequence,
         canonical_peptide=canonicalize_modified_peptide(parsed_peptide, registry=registry),
         modification_count=len(parsed_peptide.modifications),
+        target_decoy_label=_parse_explicit_decoy_label(comment_fields),
         spectrum=spectrum,
     )
 
@@ -472,6 +733,7 @@ def _build_library_entry_from_mgf_spectrum(
         peptide_sequence=parsed_peptide.sequence,
         canonical_peptide=canonicalize_modified_peptide(parsed_peptide, registry=registry),
         modification_count=len(parsed_peptide.modifications),
+        target_decoy_label=_parse_explicit_decoy_label(header_fields),
         spectrum=spectrum,
     )
 
@@ -487,13 +749,20 @@ def _parse_name_peptide_and_charge(name: str) -> tuple[str, int]:
     return peptide_text.strip(), charge
 
 
-def _parse_parent_mz_from_comment(comment: str) -> float | None:
+def _parse_msp_comment_fields(comment: str) -> dict[str, str]:
+    fields: dict[str, str] = {}
     for token in comment.split():
         if "=" not in token:
             continue
         key, value = token.split("=", 1)
-        if key.strip().lower() == "parent":
-            return float(value.strip().strip('"'))
+        fields[key.strip().lower()] = value.strip().strip('"')
+    return fields
+
+
+def _parse_parent_mz_from_comment(comment_fields: dict[str, str]) -> float | None:
+    value = comment_fields.get("parent")
+    if value is not None:
+        return float(value)
     return None
 
 
@@ -543,6 +812,52 @@ def _normalize_library_peptide_query(
 
 def _precursor_centimass_key(precursor_mz: float) -> int:
     return int(round(precursor_mz * 100))
+
+
+def _parse_explicit_decoy_label(fields: dict[str, str]) -> TargetDecoyLabel:
+    normalized_fields = {key.lower(): value.strip().lower() for key, value in fields.items()}
+    for key in (
+        "decoy",
+        "is_decoy",
+        "targetdecoylabel",
+        "target_decoy_label",
+    ):
+        value = normalized_fields.get(key)
+        if value is None:
+            continue
+        if value in {"1", "true", "yes", "decoy"}:
+            return TargetDecoyLabel.DECOY
+        if value in {"0", "false", "no", "target"}:
+            return TargetDecoyLabel.TARGET
+    return TargetDecoyLabel.UNKNOWN
+
+
+def _resolve_search_strategy(
+    entries: tuple[SpectralLibraryEntry, ...],
+) -> SpectralLibrarySearchStrategy:
+    if any(entry.target_decoy_label is TargetDecoyLabel.DECOY for entry in entries):
+        return SpectralLibrarySearchStrategy.CONCATENATED
+    return SpectralLibrarySearchStrategy.NO_DECOY_ADVISORY
+
+
+def _score_library_search_matches(
+    records: tuple[PsmRecord, ...],
+) -> tuple[PsmRecord, ...]:
+    if not records:
+        return ()
+    has_target = any(
+        record.target_decoy_label is TargetDecoyLabel.TARGET for record in records
+    )
+    has_decoy = any(
+        record.target_decoy_label is TargetDecoyLabel.DECOY for record in records
+    )
+    if not (has_target and has_decoy):
+        return records
+    return apply_q_values(
+        records,
+        score_orientation="higher_better",
+        tie_handling="score_group",
+    )
 
 
 def _render_tsv(header: tuple[str, ...], rows: tuple[tuple[object, ...], ...]) -> str:
