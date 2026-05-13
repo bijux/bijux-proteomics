@@ -1207,6 +1207,53 @@ def test_picked_protein_fdr_command_reports_pairs_groups_and_ledgers() -> None:
         )
 
 
+def test_protein_groups_command_reports_leading_proteins_and_group_table() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "protein_inference_results.tsv",
+            "protein_inference_results.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-groups",
+                "protein_inference_results.tsv",
+                "--threshold",
+                "0.05",
+                "--summary-tsv-out",
+                "protein_groups.summary.tsv",
+                "--group-tsv-out",
+                "protein_groups.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["threshold"] == 0.05
+        assert payload["grouped_rows"] == 4
+        assert payload["summary"]["total_groups"] == 3
+        assert payload["summary"]["ambiguous_group_count"] == 1
+        ambiguous = next(
+            entry
+            for entry in payload["groups"]
+            if entry["protein_refs"] == ["P22222", "P44444"]
+        )
+        assert ambiguous["leading_protein"] == "P22222"
+        assert ambiguous["leading_rationale"] == "lexicographic_tiebreak"
+        assert ambiguous["shared_peptides"] == ["GLYGLYK", "SHAREDK"]
+        assert Path("protein_groups.summary.tsv").exists()
+        assert Path("protein_groups.tsv").exists()
+        assert "ambiguous_group_count\t1" in Path(
+            "protein_groups.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            "P22222\tlexicographic_tiebreak\tP22222;P44444\tGLYGLYK;SHAREDK\t\tGLYGLYK;SHAREDK"
+            in Path("protein_groups.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
