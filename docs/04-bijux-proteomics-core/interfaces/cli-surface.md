@@ -46,6 +46,7 @@ The owned FASTA CLI surface is:
 - `fdr-reference-check`
 - `fdr-levels`
 - `picked-protein-fdr`
+- `protein-groups`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -538,6 +539,29 @@ The `picked-protein-fdr` JSON payload includes:
   q-value, FDR, rank, acceptance state, contaminant flag, and supporting
   peptides
 - any requested summary or entry TSV output paths
+
+`protein-groups` emits one direct protein-grouping review packet over
+FDR-filtered PSM evidence.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` defaults to `0.05` and defines the accepted PSM evidence that
+  feeds grouping
+- canonical-schema and decoy-policy column controls stay available so
+  lab-local PSM tables can be grouped without a separate conversion pass
+- `--summary-tsv-out` writes one compact protein-grouping summary ledger
+- `--group-tsv-out` writes the reviewer-facing protein group table
+
+The `protein-groups` JSON payload includes:
+
+- the selected threshold and score orientation
+- accepted and rejected source-row counts from the parsed PSM table
+- grouped-row count after FDR filtering
+- one summary block with total groups, singleton groups, ambiguous groups,
+  grouped proteins, target/decoy/mixed/unknown burden, and contaminant burden
+- one protein-group row per group with representative protein, leading
+  protein, leading rationale, protein members, all peptides, unique peptides,
+  shared peptides, score, q-value, target-decoy label, and contaminant flag
+- any requested summary or group-table TSV output paths
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
 identification evidence plus one exported feature table.
