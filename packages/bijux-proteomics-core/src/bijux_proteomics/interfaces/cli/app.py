@@ -126,7 +126,9 @@ from bijux_proteomics.io.spectral_library import (
     find_spectral_library_candidates,
     import_spectral_library,
     render_spectral_library_candidates_tsv,
+    render_spectral_library_search_tsv,
     render_spectral_library_summary_tsv,
+    search_spectral_library,
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
@@ -3009,6 +3011,121 @@ def spectral_library_import_command(
             "candidates_tsv_out": (
                 str(candidates_tsv_out) if candidates_tsv_out else None
             ),
+        }
+        _emit_json(payload, out_path=out_path)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+@cli.command("spectral-library-search")
+@click.argument(
+    "query_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "library_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--query-kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option(
+    "--library-kind",
+    type=click.Choice(["auto", "msp", "mgf"]),
+    default="auto",
+    show_default=True,
+)
+@click.option("--query-spectrum-id", default=None)
+@click.option(
+    "--precursor-tolerance-da",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--tolerance-da",
+    type=float,
+    default=0.02,
+    show_default=True,
+    help="Fragment matching tolerance in Daltons for spectrum similarity.",
+)
+@click.option("--bin-width-da", type=float, default=None)
+@click.option(
+    "--method",
+    type=click.Choice([item.value for item in SpectralSimilarityMethod]),
+    default=SpectralSimilarityMethod.COSINE.value,
+    show_default=True,
+)
+@click.option(
+    "--mode",
+    type=click.Choice([item.value for item in SpectrumSimilarityMode]),
+    default=SpectrumSimilarityMode.NORMALIZED.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=None)
+@click.option("--max-matches", type=int, default=10, show_default=True)
+@click.option(
+    "--tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON spectral-library search output path.",
+)
+def spectral_library_search_command(
+    query_path: Path,
+    library_path: Path,
+    query_kind: str,
+    library_kind: str,
+    query_spectrum_id: str | None,
+    precursor_tolerance_da: float,
+    tolerance_da: float,
+    bin_width_da: float | None,
+    method: str,
+    mode: str,
+    top_n: int | None,
+    max_matches: int,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Search one query spectrum against a practical MSP or MGF library."""
+    try:
+        query_spectra = _load_similarity_spectra(query_path, kind=query_kind)
+        query_spectrum = _select_similarity_spectrum(
+            query_spectra,
+            input_path=query_path,
+            spectrum_id=query_spectrum_id,
+        )
+        active_library_kind = None if library_kind == "auto" else library_kind
+        import_report = import_spectral_library(
+            library_path,
+            library_format=active_library_kind,
+        )
+        summary = build_spectral_library_summary(import_report)
+        index = build_spectral_library_index(import_report.entries)
+        search_report = search_spectral_library(
+            query_spectrum,
+            index,
+            precursor_tolerance_da=precursor_tolerance_da,
+            similarity_tolerance_da=tolerance_da,
+            similarity_bin_width_da=bin_width_da,
+            method=SpectralSimilarityMethod(method),
+            mode=SpectrumSimilarityMode(mode),
+            top_n=top_n,
+            max_matches=max_matches,
+        )
+        if tsv_out is not None:
+            _write_text_output(tsv_out, render_spectral_library_search_tsv(search_report))
+        payload = {
+            "import_report": import_report.to_dict(),
+            "library_summary": summary.to_dict(),
+            "search_report": search_report.to_dict(),
+            "tsv_out": str(tsv_out) if tsv_out else None,
         }
         _emit_json(payload, out_path=out_path)
     except ValueError as exc:
