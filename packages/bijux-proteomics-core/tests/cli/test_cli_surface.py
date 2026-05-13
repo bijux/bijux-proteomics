@@ -1076,6 +1076,41 @@ def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
         assert manifest["fdr_policy"]["threshold"] == 0.5
 
 
+def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "identification" / "target_decoy_reference_cases.json",
+            "reference_cases.json",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr-reference-check",
+                "reference_cases.json",
+                "--summary-tsv-out",
+                "reference.summary.tsv",
+                "--entries-tsv-out",
+                "reference.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["valid"] is True
+        assert payload["case_count"] == 2
+        assert payload["failed_entry_count"] == 0
+        assert Path("reference.summary.tsv").exists()
+        assert Path("reference.entries.tsv").exists()
+        assert "concatenated_higher_better_reference" in Path(
+            "reference.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "scan=5005" in Path("reference.entries.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
