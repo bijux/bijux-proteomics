@@ -153,8 +153,8 @@ from bijux_proteomics.sequences.digestion import (
     export_peptides_jsonl,
     export_peptides_parquet,
     export_peptides_tsv,
-    get_protease_rule,
     peptide_export_fingerprint,
+    resolve_protease_rule,
 )
 from bijux_proteomics.sequences.peptide_uniqueness_audit import (
     build_peptide_database_lookup_report,
@@ -211,6 +211,27 @@ def _load_protein_group_map(path: Path) -> dict[str, str]:
                 )
             mapping[accession] = protein_group
     return mapping
+
+
+def _resolve_cli_protease_rule(
+    *,
+    protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
+) -> tuple[object, str | None]:
+    specification = custom_protease.strip() if custom_protease is not None else ""
+    if not specification:
+        rule = resolve_protease_rule(protease)
+        return rule, None
+    if protease != "trypsin":
+        raise ValueError(
+            "custom protease rules cannot be combined with a second built-in protease name"
+        )
+    rule = resolve_protease_rule(
+        custom_specification=specification,
+        custom_name=custom_protease_name,
+    )
+    return rule, specification
 
 
 def _emit_fasta_profile(
@@ -1015,6 +1036,17 @@ def target_decoy_validate_command(
     show_default=True,
 )
 @click.option("--protease", default="trypsin", show_default=True)
+@click.option(
+    "--custom-protease",
+    default=None,
+    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+)
+@click.option(
+    "--custom-protease-name",
+    default="custom",
+    show_default=True,
+    help="Stable name recorded for a custom protease rule.",
+)
 @click.option("--missed-cleavages", type=int, default=0, show_default=True)
 @click.option(
     "--digestion-mode",
@@ -1043,6 +1075,8 @@ def digest_command(
     input_fasta: Path,
     mode: str,
     protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
     missed_cleavages: int,
     digestion_mode: str,
     min_length: int,
@@ -1055,7 +1089,11 @@ def digest_command(
 ) -> None:
     """Digest FASTA records into peptide exports."""
     try:
-        protease_rule = get_protease_rule(protease)
+        protease_rule, custom_specification = _resolve_cli_protease_rule(
+            protease=protease,
+            custom_protease=custom_protease,
+            custom_protease_name=custom_protease_name,
+        )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
@@ -1087,7 +1125,7 @@ def digest_command(
 
     manifest = build_digest_manifest(
         peptides=peptides,
-        protease=protease_rule.name,
+        protease=protease_rule,
         digestion_mode=PeptideDigestionMode(digestion_mode),
         missed_cleavages=missed_cleavages,
         min_length=min_length,
@@ -1105,6 +1143,7 @@ def digest_command(
             "input_record_count": report.total_records,
             "output_peptide_count": len(peptides),
             "protease": protease_rule.name,
+            "custom_protease": custom_specification,
             "digestion_mode": digestion_mode,
             "policy_hash": manifest.policy_hash,
             "export_format": export_format,
@@ -1132,6 +1171,17 @@ def digest_command(
     show_default=True,
 )
 @click.option("--protease", default="trypsin", show_default=True)
+@click.option(
+    "--custom-protease",
+    default=None,
+    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+)
+@click.option(
+    "--custom-protease-name",
+    default="custom",
+    show_default=True,
+    help="Stable name recorded for a custom protease rule.",
+)
 @click.option("--missed-cleavages", type=int, default=0, show_default=True)
 @click.option(
     "--digestion-mode",
@@ -1159,6 +1209,8 @@ def peptide_index_command(
     peptides: tuple[str, ...],
     mode: str,
     protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
     missed_cleavages: int,
     digestion_mode: str,
     il_equivalent: bool,
@@ -1167,7 +1219,11 @@ def peptide_index_command(
 ) -> None:
     """Index peptide queries against a digested FASTA database."""
     try:
-        protease_rule = get_protease_rule(protease)
+        protease_rule, custom_specification = _resolve_cli_protease_rule(
+            protease=protease,
+            custom_protease=custom_protease,
+            custom_protease_name=custom_protease_name,
+        )
         report = _load_fasta_report(
             input_fasta,
             mode=FastaParseMode(mode),
@@ -1195,6 +1251,7 @@ def peptide_index_command(
             "input_record_count": report.total_records,
             "query_peptide_count": len(peptides),
             "protease": protease_rule.name,
+            "custom_protease": custom_specification,
             "digestion_mode": digestion_mode,
             "missed_cleavages": missed_cleavages,
             "il_equivalent": il_equivalent,
