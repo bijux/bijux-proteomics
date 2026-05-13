@@ -1139,6 +1139,58 @@ def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> Non
         assert json.loads(summarize_design.output)["accepted_entries"] == 1
 
 
+def test_mzml_inspect_command_reports_decoding_and_chromatograms() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "practical_review.mzml",
+            "practical_review.mzml",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "mzml-inspect",
+                "practical_review.mzml",
+                "--spectra-jsonl-out",
+                "spectra.jsonl",
+                "--chromatograms-json-out",
+                "chromatograms.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["metadata"]["run_id"] == "RUN_PRACTICAL_01"
+        assert payload["decoding_support"]["supported"] is True
+        assert payload["chromatograms"]["total_chromatograms"] == 2
+        assert Path("spectra.jsonl").exists()
+        assert Path("chromatograms.json").exists()
+
+
+def test_mzml_inspect_command_surfaces_tic_and_bpc_trace_kinds() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "practical_review.mzml",
+            "practical_review.mzml",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "mzml-inspect",
+                "practical_review.mzml",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        kinds = {trace["kind"] for trace in payload["chromatograms"]["accepted_traces"]}
+        assert kinds == {"tic", "bpc"}
+        assert payload["summary"]["spectrum_count"] == 2
+
+
 def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs() -> (
     None
 ):
