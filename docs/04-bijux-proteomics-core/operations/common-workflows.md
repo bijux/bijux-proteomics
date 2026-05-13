@@ -301,6 +301,31 @@ This surface is intentionally evidence-facing. It helps reviewers see which
 peaks support a peptide assignment, but it does not claim broader search-level
 confidence by itself.
 
+## Spectrum Similarity Review
+
+Use `spectrum-similarity` when the question is whether two spectra are
+duplicate-like, broadly similar, or the best available match inside a small
+reference library.
+
+- The similarity surface computes cosine or dot-product evidence over explicit
+  preprocessing modes rather than hiding normalization choices inside one
+  opaque score.
+- Matching can happen through direct m/z tolerance alignment or through
+  reviewer-visible m/z binning, depending on whether the comparison needs
+  tight fragment agreement or more library-style coarse matching.
+- Duplicate-like and similar labels are reviewer-facing interpretations over
+  score, matched-peak count, and explained-intensity fractions. They are not
+  search-level confidence claims.
+- The ranked library report keeps every candidate row explicit, so operators
+  can see where one query spectrum sits among strong, weak, and distinct
+  references instead of receiving only one winner.
+- Empty or peakless spectra stay explicit as insufficient signal rather than
+  being forced into a misleading similarity class.
+
+This surface is intentionally comparative rather than identificatory. It helps
+review duplicate spectra, near-neighbor spectra, and lightweight library
+matches, but it does not by itself prove peptide correctness or FDR control.
+
 ## Spectrum Summary Tables
 
 Use the spectrum summary-table surface when the question is run quality and
