@@ -392,6 +392,30 @@ than an attempt to mirror every commercial project artifact. Its job is to
 preserve the useful exported precursor and protein-group evidence honestly
 enough for downstream DIA comparison and quantification work.
 
+## OpenMS Import
+
+Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
+native identification evidence plus practical feature-level quant evidence.
+
+- The identification surface reads native `idXML` directly and preserves PSM
+  rows with run identity, spectrum reference, peptide sequence, charge, score,
+  q-value when the score family supports it, precursor m/z, retention time,
+  protein references, and target-decoy state.
+- Protein evidence is kept separate from PSM rows so protein-level score and
+  target-decoy burden remain visible instead of being flattened into peptide
+  summaries.
+- Quant evidence is imported through an exported feature table rather than
+  pretending full owned `consensusXML` coverage already exists.
+- The feature-table surface preserves feature identity, sample identity,
+  peptide text, canonical peptide, intensity, protein accessions, charge, m/z,
+  retention time, and missing-reason state.
+- Accepted and rejected feature-row counts remain explicit so malformed export
+  rows do not silently disappear.
+
+This surface is intentionally practical and explicit. It owns native `idXML`
+for peptide and protein evidence and exported feature tables for quant review.
+It does not yet claim full native `consensusXML` import coverage.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
