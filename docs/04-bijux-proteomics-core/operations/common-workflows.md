@@ -462,6 +462,30 @@ analysis. It proves that the owned target-decoy implementation still behaves
 like the curated examples it claims to match, but it does not replace search
 result inspection or biological-confidence interpretation.
 
+## Evidence-Level FDR Review
+
+Use `fdr-levels` when the question is how PSM-, peptide-, and protein-level
+acceptance diverge at standard confidence cutoffs instead of assuming one level
+stands in for the others.
+
+- The review surface compares the owned PSM, peptide, and protein FDR reports
+  directly across explicit thresholds rather than leaving that comparison
+  implicit inside a larger inference payload.
+- Standard thresholds default to 1%, 5%, and 10%, which makes the comparison
+  stable and easy to review across runs.
+- Each threshold summary keeps total and accepted counts separate so decoy-rich
+  or contaminant-heavy evidence cannot disappear behind one accepted-count line.
+- Contaminant burden stays visible at every evidence level through explicit
+  contaminant counts instead of being flattened into target-only summaries.
+- Accepted-entry ledgers stay available so an operator can inspect which
+  peptide or protein entities remain after each threshold instead of trusting
+  one aggregate table.
+
+This surface is intentionally review-oriented rather than inferential. It helps
+operators see why PSM, peptide, and protein confidence differ, but it does not
+replace later grouping, picked-protein competition, or biological
+interpretation.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
