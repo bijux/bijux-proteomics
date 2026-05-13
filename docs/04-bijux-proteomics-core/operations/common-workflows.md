@@ -41,3 +41,22 @@ styles, contaminants, decoys, or lab-local records.
 The parser contract is intentionally stricter than a line reader. Its job is
 to tell the operator whether the database is usable for downstream proteomics
 work, not just whether the file is syntactically FASTA-like.
+
+## FASTA Database Profiling
+
+Use `fasta-profile` when the question is not just whether a database parses,
+but what kind of search or digestion burden it will create.
+
+- The profile summary reports total input records, accepted proteins, rejected
+  records, unique accessions, target count, decoy count, contaminant count,
+  and organism annotation coverage.
+- The length-distribution ledger bins proteins into stable ranges so long-form
+  sequence burden is visible before digestion or search.
+- The organism-distribution ledger aggregates proteins by parsed organism name
+  when the header carries that evidence.
+- The profile can be exported as one JSON object plus dedicated TSV ledgers for
+  summary, length distribution, and organism distribution.
+
+This profiling surface is intentionally reviewer-facing. It helps operators
+decide whether a database is appropriately scoped and annotated before they
+commit to downstream evidence generation.
