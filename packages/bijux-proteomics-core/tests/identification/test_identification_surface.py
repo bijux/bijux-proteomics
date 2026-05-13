@@ -120,6 +120,50 @@ def test_search_result_column_mapping_supports_engine_specific_headers() -> None
     assert report.accepted_records[2].target_decoy_label is TargetDecoyLabel.DECOY
 
 
+def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
+    source = tmp_path / "canonical_psm.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "run_name\tscan_ref\tsequence_text\tmodified_sequence\tz\tstate_score\tqvalue\taccessions\tdecoy_state\tcontaminant_state",
+                "run_A\tgeneric-1001\tPESTIDE\tPES[Phospho]TIDE\t2\t55.0\t0.002\tP12345\ttarget\tfalse",
+                "run_B\tgeneric-1002\tDECOYPEP\tDECOYPEP\t2\t12.0\t0.05\tCON__P54321\tdecoy\tcontaminant",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        run_id="run_name",
+        spectrum_id="scan_ref",
+        peptide="sequence_text",
+        modified_peptide="modified_sequence",
+        charge="z",
+        score="state_score",
+        q_value="qvalue",
+        protein_refs="accessions",
+        decoy_label="decoy_state",
+        contaminant_label="contaminant_state",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 2
+    first = report.accepted_records[0]
+    assert first.run_id == "run_A"
+    assert first.peptide == "PESTIDE"
+    assert first.peptide_sequence == "PESTIDE"
+    assert first.modified_peptide == "PES[Phospho]TIDE"
+    assert first.canonical_peptide == "PES[Phospho]TIDE"
+    assert first.contaminant_flag is False
+    second = report.accepted_records[1]
+    assert second.run_id == "run_B"
+    assert second.peptide_sequence == "DECOYPEP"
+    assert second.modified_peptide is None
+    assert second.target_decoy_label is TargetDecoyLabel.DECOY
+    assert second.contaminant_flag is True
+
+
 def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
     report = parse_psm_tsv(
         _psm_fixture("malformed_results.tsv"), mapping=_default_mapping()
