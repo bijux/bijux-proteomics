@@ -1893,6 +1893,40 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert Path("fragpipe.protein.tsv").exists()
 
 
+def test_sage_import_command_reports_scores_and_modifications() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "sage"
+        shutil.copy(fixture_dir / "sage_psm.tsv", "sage_psm.tsv")
+        shutil.copy(fixture_dir / "sage_search.json", "sage_search.json")
+
+        result = runner.invoke(
+            cli,
+            [
+                "sage-import",
+                "sage_psm.tsv",
+                "--config",
+                "sage_search.json",
+                "--summary-tsv-out",
+                "sage.summary.tsv",
+                "--psm-tsv-out",
+                "sage.psm.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["dialect_id"] == "sage-psm"
+        assert payload["summary"]["accepted_psm_count"] == 3
+        assert payload["summary"]["modified_psm_count"] == 2
+        assert payload["summary"]["hyperscore_psm_count"] == 3
+        assert payload["summary"]["multi_protein_psm_count"] == 1
+        assert payload["parameter_report"]["enzyme"] == "trypsin"
+        assert payload["psm_rows"][0]["hyperscore"] == 41.2
+        assert Path("sage.summary.tsv").exists()
+        assert Path("sage.psm.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
