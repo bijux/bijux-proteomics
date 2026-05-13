@@ -42,6 +42,7 @@ The owned FASTA CLI surface is:
 - `precursor-mass-error`
 - `modified-peptide-parse`
 - `modification-resolve`
+- `psm-map`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -419,6 +420,24 @@ The `spectronaut-import` JSON payload includes:
   references, run, sample, q-value, `PG.Quantity`, source precursor count,
   and target-decoy label
 - any requested TSV export paths
+
+`psm-map` emits one governed generic-mapping report for a lab-local PSM table.
+
+- the positional argument is the source PSM TSV path
+- `--mapping` is required and accepts one YAML or JSON column-map file
+- `--normalized-tsv-out` writes the normalized mapped PSM table
+
+The `psm-map` JSON payload includes:
+
+- the validated column map used for normalization
+- the observed source columns from the input table
+- one compact summary over total, accepted, and rejected rows, mapped run
+  coverage, q-value coverage, protein-reference coverage, and unmapped source
+  columns
+- rejected rows with stable issue details
+- mapped rows with run identity, spectrum identity, peptide, canonical
+  peptide, charge, score, q-value, protein references, and target-decoy label
+- any requested normalized TSV output path
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
 identification evidence plus one exported feature table.
