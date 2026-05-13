@@ -42,6 +42,7 @@ The owned FASTA CLI surface is:
 - `precursor-mass-error`
 - `modified-peptide-parse`
 - `modification-resolve`
+- `fragpipe-import`
 - `summarize --kind fasta`
 
 The owned spectrum CLI surface is:
@@ -260,6 +261,31 @@ The `modified-peptide-parse` JSON payload includes:
 - the canonical modified peptide notation
 - explicit protein-terminal context flags
 - the full normalized modification rows with preserved site positions
+
+`fragpipe-import` emits one governed review packet over a FragPipe `psm.tsv`,
+peptide table, and protein table bundle.
+
+- the positional argument is the FragPipe `psm.tsv` path
+- `--peptide-tsv` is required and supplies the peptide-level table
+- `--protein-tsv` is required and supplies the protein-level table
+- `--summary-tsv-out` writes the one-row bundle summary
+- `--psm-tsv-out` writes reviewer-facing PSM rows with modification and
+  mass-difference evidence
+- `--peptide-review-tsv-out` writes the peptide-level review table
+- `--protein-review-tsv-out` writes the protein-level review table
+
+The `fragpipe-import` JSON payload includes:
+
+- one compact bundle summary over accepted PSMs, peptide rows, protein rows,
+  q-value coverage, modified rows, open-search-like rows, and mapped proteins
+- the PSM normalization adapter identity plus accepted and rejected PSM counts
+- reviewer-facing PSM rows with hyperscore, q-value, target-decoy state,
+  protein references, modification evidence, and mass-difference state
+- reviewer-facing peptide rows with mapped proteins, probability, q-value,
+  spectral count, modification evidence, and mass-difference state
+- reviewer-facing protein rows with identity, annotation, coverage, peptide
+  burden, spectral count, probability, and target-decoy state
+- any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
 registry and any optional custom registry supplied at runtime.
