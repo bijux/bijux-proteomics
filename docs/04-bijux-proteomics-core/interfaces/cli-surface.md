@@ -44,6 +44,7 @@ The owned FASTA CLI surface is:
 - `modification-resolve`
 - `maxquant-import`
 - `diann-import`
+- `spectronaut-import`
 - `comet-import`
 - `fragpipe-import`
 - `sage-import`
@@ -389,6 +390,33 @@ The `diann-import` JSON payload includes:
   references, run, sample, q-value, `PG.Quantity`, source precursor count,
   and target-decoy label
 - the derived DIA-native precursor and protein-group quantity import report
+- any requested TSV export paths
+
+`spectronaut-import` emits one governed review packet over a Spectronaut
+precursor export table.
+
+- the positional argument is the Spectronaut report TSV path
+- `--config` optionally loads a Spectronaut settings file
+- `--summary-tsv-out` writes the one-row import summary
+- `--precursor-tsv-out` writes reviewer-facing precursor rows
+- `--protein-group-tsv-out` writes reviewer-facing protein-group rows
+
+The `spectronaut-import` JSON payload includes:
+
+- one compact summary over accepted and rejected precursor rows, protein-group
+  row count, modified precursor count, sample names, run names,
+  `FG.Quantity` coverage, `PG.Quantity` coverage, and target or decoy
+  precursor burden
+- the Spectronaut normalization adapter identity plus accepted and rejected row
+  counts for the source report
+- an optional parsed Spectronaut parameter report when `--config` is supplied
+- reviewer-facing precursor rows with precursor identifier, stripped peptide,
+  modified peptide, canonical modified peptide, charge, confidence score,
+  q-value, protein group, protein accessions, run, sample, `FG.Quantity`,
+  `PG.Quantity`, and target-decoy label
+- reviewer-facing protein-group rows with protein-group identity, protein
+  references, run, sample, q-value, `PG.Quantity`, source precursor count,
+  and target-decoy label
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
