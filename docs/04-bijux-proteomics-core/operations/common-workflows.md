@@ -486,6 +486,32 @@ operators see why PSM, peptide, and protein confidence differ, but it does not
 replace later grouping, picked-protein competition, or biological
 interpretation.
 
+## Picked-Protein FDR Review
+
+Use `picked-protein-fdr` when the question is whether target-versus-decoy
+protein competition is behaving defensibly before final protein-confidence
+interpretation.
+
+- The review surface reuses the owned picked-protein FDR engine instead of
+  rebuilding target-versus-decoy pairing logic in a second reporting path.
+- Target proteins and their paired decoy partners stay explicit per threshold,
+  so the kept-versus-discarded competition remains reviewable instead of being
+  flattened into one accepted-protein count.
+- Shared-peptide protein-group context stays visible through explicit
+  group identifiers on the review entries, which makes ambiguous protein-space
+  evidence visible during picked competition rather than only after inference.
+- Threshold summaries keep total, accepted, target, decoy, contaminant, and
+  grouped-protein burden separate, so one strong target count cannot hide weak
+  protein-space structure elsewhere in the report.
+- Reviewer-facing summary and entry ledgers remain available when a change,
+  release, or search-policy review needs concrete known-example proof instead
+  of a generic protein FDR statement.
+
+This surface is intentionally competition-facing rather than biological. It
+shows how target and decoy proteins compete under the owned picked-protein
+policy, but it does not replace later protein-group interpretation or broader
+confidence discussion.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
