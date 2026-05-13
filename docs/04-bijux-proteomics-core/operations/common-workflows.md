@@ -616,6 +616,32 @@ This surface is intentionally credibility-facing. It does not invent a new
 protein-inference policy; it pressure-tests the owned inference policies
 against explicit hard examples before broader claims are promoted.
 
+## Peptide Intensity Matrix Review
+
+Use `peptide-matrix` when the question is whether precursor, feature, or
+intensity-bearing PSM evidence can be turned into one reviewable
+peptide-by-sample abundance matrix without hiding grouping policy.
+
+- The matrix surface keeps the grouping rule explicit as either residue
+  sequence or modified-peptide identity instead of silently flattening one into
+  the other.
+- Charge separation stays optional and reviewer-visible, which matters when one
+  peptide is observed across multiple precursor states and the analyst needs to
+  decide whether those states should remain separate.
+- Multiple source rows per peptide and sample are aggregated through one named
+  policy rather than one ad hoc spreadsheet collapse.
+- Missingness is preserved per sample after matrix construction, so sparse
+  peptides and filtered evidence remain visible instead of turning into smooth
+  abundance prose.
+- The current PSM path is intentionally limited to rows that already carry
+  intensity plus run identity; missing intensities are skipped and reported
+  instead of guessed.
+
+This surface is intentionally peptide-level and matrix-level. It prepares one
+serious abundance bed for later protein rollup and normalization work, but it
+does not pretend peptide matrix construction resolves those later decisions by
+itself.
+
 ## Protein Coverage Review
 
 Use `protein-coverage` when the question is not yet which protein set wins the
