@@ -14,7 +14,7 @@ from bijux_proteomics.identification.confidence import (
     ProteinInferenceStrategyKind,
     compare_protein_inference_strategies,
 )
-from bijux_proteomics.identification.contracts import PsmRecord
+from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -23,6 +23,9 @@ class ProteinInferenceBenchmarkScenarioKind(StrEnum):
 
     SHARED_PEPTIDE_HEAVY = "shared_peptide_heavy"
     ISOFORM_HEAVY = "isoform_heavy"
+    HOMOLOG_FAMILY_HEAVY = "homolog_family_heavy"
+    CONTAMINANT_HEAVY = "contaminant_heavy"
+    DECOY_PRESSURE = "decoy_pressure"
     FALSE_POSITIVE_PRESSURE = "false_positive_pressure"
     FALSE_NEGATIVE_PRESSURE = "false_negative_pressure"
 
@@ -74,6 +77,9 @@ class ProteinInferenceBenchmarkReport(JsonModel):
     expected_absent_proteins: tuple[str, ...] = Field(default_factory=tuple)
     shared_peptide_pressure: bool
     isoform_pressure: bool
+    homolog_family_pressure: bool
+    contaminant_pressure: bool
+    decoy_pressure: bool
     method_assessments: tuple[ProteinInferenceMethodAssessment, ...] = Field(
         default_factory=tuple
     )
@@ -94,9 +100,15 @@ class ProteinInferenceBenchmarkSuiteReport(JsonModel):
     scenario_kinds: tuple[ProteinInferenceBenchmarkScenarioKind, ...] = Field(
         default_factory=tuple
     )
+    shared_peptide_scenario_count: int = Field(..., ge=0)
+    isoform_scenario_count: int = Field(..., ge=0)
+    homolog_family_scenario_count: int = Field(..., ge=0)
+    contaminant_scenario_count: int = Field(..., ge=0)
+    decoy_scenario_count: int = Field(..., ge=0)
     worst_precision_lower_bound: float = Field(..., ge=0.0, le=1.0)
     worst_recall_lower_bound: float = Field(..., ge=0.0, le=1.0)
     scenario_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
 
 
 class PickedGroupBenchmarkPressure(StrEnum):
@@ -182,6 +194,176 @@ def _base_accession(protein_ref: str) -> str:
     return token
 
 
+def _benchmark_record(
+    *,
+    spectrum_id: str,
+    peptide: str,
+    score: float,
+    protein_refs: tuple[str, ...],
+    q_value: float = 0.001,
+    target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.TARGET,
+) -> PsmRecord:
+    return PsmRecord(
+        spectrum_id=spectrum_id,
+        peptide=peptide,
+        canonical_peptide=peptide,
+        charge=2,
+        score=score,
+        q_value=q_value,
+        protein_refs=protein_refs,
+        target_decoy_label=target_decoy_label,
+    )
+
+
+def build_core_protein_inference_benchmark_scenarios() -> tuple[
+    ProteinInferenceBenchmarkScenario, ...
+]:
+    """Build the owned protein-inference benchmark catalog."""
+
+    return (
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="shared-peptide-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.SHARED_PEPTIDE_HEAVY,
+            records=(
+                _benchmark_record(
+                    spectrum_id="s001",
+                    peptide="ACDEFGK",
+                    score=120.0,
+                    protein_refs=("P11111",),
+                ),
+                _benchmark_record(
+                    spectrum_id="s002",
+                    peptide="SHAREDK",
+                    score=115.0,
+                    q_value=0.002,
+                    protein_refs=("P11111", "P22222"),
+                ),
+                _benchmark_record(
+                    spectrum_id="s003",
+                    peptide="MNPQRST",
+                    score=110.0,
+                    q_value=0.003,
+                    protein_refs=("P33333",),
+                ),
+            ),
+            expected_present_proteins=("P11111", "P33333"),
+            expected_absent_proteins=("P22222",),
+            note="One absent protein is attractive only because it borrows shared-peptide support.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="isoform-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY,
+            records=(
+                _benchmark_record(
+                    spectrum_id="i001",
+                    peptide="MELTIK",
+                    score=130.0,
+                    protein_refs=("P55555-1",),
+                ),
+                _benchmark_record(
+                    spectrum_id="i002",
+                    peptide="SHAREDIS",
+                    score=118.0,
+                    q_value=0.002,
+                    protein_refs=("P55555-1", "P55555-2"),
+                ),
+            ),
+            expected_present_proteins=("P55555-1",),
+            expected_absent_proteins=("P55555-2",),
+            note="Isoform-specific evidence should keep the silent sibling isoform out.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="homolog-family-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY,
+            records=(
+                _benchmark_record(
+                    spectrum_id="h001",
+                    peptide="FAMILYK",
+                    score=128.0,
+                    protein_refs=("Q11111",),
+                ),
+                _benchmark_record(
+                    spectrum_id="h002",
+                    peptide="FAMILYSH",
+                    score=116.0,
+                    q_value=0.002,
+                    protein_refs=("Q11111", "Q22222", "Q33333"),
+                ),
+            ),
+            expected_present_proteins=("Q11111",),
+            expected_absent_proteins=("Q22222", "Q33333"),
+            note="Homolog-family sharing should not inflate silent family members into accepted proteins.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="contaminant-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY,
+            records=(
+                _benchmark_record(
+                    spectrum_id="c001",
+                    peptide="TARGETAK",
+                    score=126.0,
+                    protein_refs=("P77777",),
+                ),
+                _benchmark_record(
+                    spectrum_id="c002",
+                    peptide="KERATIN",
+                    score=119.0,
+                    q_value=0.002,
+                    protein_refs=("P77777", "CON__KERATIN1"),
+                ),
+            ),
+            expected_present_proteins=("P77777",),
+            expected_absent_proteins=("CON__KERATIN1",),
+            note="Contaminant-borrowed evidence must remain explicit instead of promoting the contaminant alongside the target.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="decoy-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE,
+            records=(
+                _benchmark_record(
+                    spectrum_id="d001",
+                    peptide="TARGETDK",
+                    score=124.0,
+                    protein_refs=("P88888",),
+                ),
+                _benchmark_record(
+                    spectrum_id="d002",
+                    peptide="DECADYK",
+                    score=122.0,
+                    q_value=0.002,
+                    protein_refs=("DECOY_P88888",),
+                    target_decoy_label=TargetDecoyLabel.DECOY,
+                ),
+            ),
+            expected_present_proteins=("P88888",),
+            expected_absent_proteins=("DECOY_P88888",),
+            note="A decoy-only protein should stay absent from accepted inference surfaces even when its score is competitive.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="false-negative-pressure",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE,
+            records=(
+                _benchmark_record(
+                    spectrum_id="f001",
+                    peptide="ANCHRPK",
+                    score=125.0,
+                    protein_refs=("P10101",),
+                ),
+                _benchmark_record(
+                    spectrum_id="f002",
+                    peptide="RIDGEPK",
+                    score=112.0,
+                    q_value=0.003,
+                    protein_refs=("P10101", "P20202"),
+                ),
+            ),
+            expected_present_proteins=("P10101", "P20202"),
+            expected_absent_proteins=(),
+            note="A conservative unique-only policy should make false-negative pressure visible when one present protein has only shared support.",
+        ),
+    )
+
+
 def build_protein_inference_benchmark_report(
     scenario: ProteinInferenceBenchmarkScenario,
     *,
@@ -259,6 +441,20 @@ def build_protein_inference_benchmark_report(
             and len(record.protein_refs) > 1
             for record in scenario.records
         ),
+        homolog_family_pressure=(
+            scenario.scenario_kind
+            is ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY
+        ),
+        contaminant_pressure=any(
+            protein_ref.startswith("CON__")
+            for record in scenario.records
+            for protein_ref in record.protein_refs
+        ),
+        decoy_pressure=any(
+            record.target_decoy_label is TargetDecoyLabel.DECOY
+            or any(protein_ref.startswith(("DECOY_", "REV__")) for protein_ref in record.protein_refs)
+            for record in scenario.records
+        ),
         method_assessments=tuple(method_assessments),
         disagreement_count=disagreement_count,
         scenario_note=scenario.note,
@@ -304,12 +500,174 @@ def build_protein_inference_benchmark_suite(
         covered_strategy_kinds=covered_strategy_kinds,
         scenario_ids=tuple(report.scenario_id for report in reports),
         scenario_kinds=tuple(report.scenario_kind for report in reports),
+        shared_peptide_scenario_count=sum(
+            report.scenario_kind
+            is ProteinInferenceBenchmarkScenarioKind.SHARED_PEPTIDE_HEAVY
+            for report in reports
+        ),
+        isoform_scenario_count=sum(
+            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY
+            for report in reports
+        ),
+        homolog_family_scenario_count=sum(
+            report.scenario_kind
+            is ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY
+            for report in reports
+        ),
+        contaminant_scenario_count=sum(
+            report.scenario_kind
+            is ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
+            for report in reports
+        ),
+        decoy_scenario_count=sum(
+            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+            for report in reports
+        ),
         worst_precision_lower_bound=min(lower_bounds) if lower_bounds else 0.0,
         worst_recall_lower_bound=min(recall_lower_bounds)
         if recall_lower_bounds
         else 0.0,
         scenario_count=len(reports),
+        note=(
+            "protein-inference benchmark suite keeps shared-peptide, isoform, homolog-family, contaminant, decoy, and false-negative pressure explicit across named truth scenarios"
+            if reports
+            else "protein-inference benchmark suite has no scenarios to evaluate"
+        ),
     )
+
+
+def build_core_protein_inference_benchmark_suite(
+    *,
+    picked_threshold: float = 0.05,
+) -> ProteinInferenceBenchmarkSuiteReport:
+    """Build the owned benchmark suite over the full protein-inference catalog."""
+
+    return build_protein_inference_benchmark_suite(
+        build_core_protein_inference_benchmark_scenarios(),
+        picked_threshold=picked_threshold,
+    )
+
+
+def render_protein_inference_benchmark_summary_tsv(
+    suite: ProteinInferenceBenchmarkSuiteReport,
+) -> str:
+    """Render one compact suite summary ledger as TSV."""
+
+    rows = (
+        ("scenario_count", suite.scenario_count),
+        ("shared_peptide_scenario_count", suite.shared_peptide_scenario_count),
+        ("isoform_scenario_count", suite.isoform_scenario_count),
+        ("homolog_family_scenario_count", suite.homolog_family_scenario_count),
+        ("contaminant_scenario_count", suite.contaminant_scenario_count),
+        ("decoy_scenario_count", suite.decoy_scenario_count),
+        ("worst_precision_lower_bound", suite.worst_precision_lower_bound),
+        ("worst_recall_lower_bound", suite.worst_recall_lower_bound),
+        ("covered_strategy_kinds", ";".join(kind.value for kind in suite.covered_strategy_kinds)),
+        ("scenario_ids", ";".join(suite.scenario_ids)),
+        ("note", suite.note),
+    )
+    return "field\tvalue\n" + "\n".join(f"{field}\t{value}" for field, value in rows) + "\n"
+
+
+def render_protein_inference_benchmark_scenarios_tsv(
+    suite: ProteinInferenceBenchmarkSuiteReport,
+) -> str:
+    """Render the named benchmark scenarios as TSV."""
+
+    lines = [
+        "\t".join(
+            (
+                "scenario_id",
+                "scenario_kind",
+                "expected_present_proteins",
+                "expected_absent_proteins",
+                "shared_peptide_pressure",
+                "isoform_pressure",
+                "homolog_family_pressure",
+                "contaminant_pressure",
+                "decoy_pressure",
+                "disagreement_count",
+                "scenario_note",
+            )
+        )
+    ]
+    for report in suite.reports:
+        lines.append(
+            "\t".join(
+                (
+                    report.scenario_id,
+                    report.scenario_kind.value,
+                    ";".join(report.expected_present_proteins),
+                    ";".join(report.expected_absent_proteins),
+                    str(report.shared_peptide_pressure).lower(),
+                    str(report.isoform_pressure).lower(),
+                    str(report.homolog_family_pressure).lower(),
+                    str(report.contaminant_pressure).lower(),
+                    str(report.decoy_pressure).lower(),
+                    str(report.disagreement_count),
+                    report.scenario_note,
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_protein_inference_benchmark_assessments_tsv(
+    suite: ProteinInferenceBenchmarkSuiteReport,
+) -> str:
+    """Render one method-assessment ledger across all benchmark scenarios."""
+
+    lines = [
+        "\t".join(
+            (
+                "scenario_id",
+                "scenario_kind",
+                "strategy_kind",
+                "strategy_label",
+                "selected_proteins",
+                "true_positive_count",
+                "false_positive_count",
+                "false_negative_count",
+                "precision",
+                "precision_interval_low",
+                "precision_interval_high",
+                "recall",
+                "recall_interval_low",
+                "recall_interval_high",
+                "false_positive_proteins",
+                "missed_proteins",
+                "trustworthy_for_review",
+                "trust_note",
+            )
+        )
+    ]
+    for report in suite.reports:
+        for assessment in report.method_assessments:
+            lines.append(
+                "\t".join(
+                    (
+                        report.scenario_id,
+                        report.scenario_kind.value,
+                        assessment.strategy_kind.value,
+                        assessment.strategy_label,
+                        ";".join(assessment.selected_proteins),
+                        str(assessment.true_positive_count),
+                        str(assessment.false_positive_count),
+                        str(assessment.false_negative_count),
+                        f"{assessment.precision:.6g}",
+                        f"{assessment.precision_interval_low:.6g}",
+                        f"{assessment.precision_interval_high:.6g}",
+                        f"{assessment.recall:.6g}",
+                        f"{assessment.recall_interval_low:.6g}",
+                        f"{assessment.recall_interval_high:.6g}",
+                        ";".join(assessment.false_positive_proteins),
+                        ";".join(assessment.missed_proteins),
+                        str(assessment.trustworthy_for_review).lower(),
+                        assessment.trust_note,
+                    )
+                )
+            )
+    return "\n".join(lines) + "\n"
 
 
 def build_picked_group_fdr_benchmark_plan() -> PickedGroupFdrBenchmarkPlan:
@@ -392,6 +750,23 @@ def build_identification_workflow_claim_review(
             passed=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY
             in scenario_kinds,
             detail="isoform-heavy truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="homolog-family-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.HOMOLOG_FAMILY_HEAVY
+            in scenario_kinds,
+            detail="homolog-family truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="contaminant-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
+            in scenario_kinds,
+            detail="contaminant-heavy truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="decoy-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE in scenario_kinds,
+            detail="decoy-pressure truth pressure is present in the benchmark suite",
         ),
         WorkflowTrustCriterionResult(
             criterion_id="precision-lower-bound-supported",
