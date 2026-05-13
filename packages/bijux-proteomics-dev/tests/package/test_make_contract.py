@@ -17,4 +17,4 @@ def test_root_make_uses_shared_check_venv_location() -> None:
 
     assert "ROOT_CHECK_VENV := $(ROOT_ARTIFACTS_DIR)/check-venv" in root_make
     assert "ROOT_CHECK_VENV := $(CURDIR)/artifacts/.venv" not in root_make
-    assert '"$(CURDIR)/configs/artifacts"' in repository_root_make
+    assert '"$(CURDIR)/configs/.pytest_cache"' in repository_root_make

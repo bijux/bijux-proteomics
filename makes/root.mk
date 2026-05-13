@@ -17,6 +17,11 @@ DEV_RUN = PYTHONPATH="$(CURDIR)/packages/bijux-proteomics-dev/src$${PYTHONPATH:+
 DOCS_RENDER_SERVE_CONFIG := 0
 ROOT_TARGET_POST_quality = @$(MAKE) bijux-standard-check && $(MAKE) quality-docs-links && $(MAKE) quality-docs-consistency && $(MAKE) quality-runtime-boundaries && $(MAKE) quality-runtime-migration-ledger && $(MAKE) quality-runtime-migration-validation && $(MAKE) quality-artifact-governance
 ROOT_TARGET_POST_security = @$(MAKE) security-dependency-allowlist
+ROOT_PACKAGE_TARGETS += test-all test-all-plus-run-time
+ROOT_TARGET_GROUPS_test-all ?= check
+ROOT_TARGET_GROUPS_test-all-plus-run-time ?= check
+ROOT_TARGET_SHARED_ENV_test-all ?= 1
+ROOT_TARGET_SHARED_ENV_test-all-plus-run-time ?= 1
 
 -include .env
 export
@@ -24,6 +29,8 @@ export
 include $(ROOT_MAKEFILE_DIR)/bijux-py/repository/root.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/package-dispatch.mk
+ROOT_TARGET_PACKAGES_test-all := $(CHECK_PACKAGES)
+ROOT_TARGET_PACKAGES_test-all-plus-run-time := $(CHECK_PACKAGES)
 include $(ROOT_MAKEFILE_DIR)/bijux-py/root/docs.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-docs.mk
 include $(ROOT_MAKEFILE_DIR)/bijux-std.mk
@@ -36,7 +43,7 @@ DOCS_CHECK_PREPARE_TARGETS := bijux-docs-sync docs-prepare-source
 DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 
 .PHONY: \
-	help list list-all install lock lock-check lint quality security test docs docs-check docs-serve api build sbom clean all \
+	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
 	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist \
 	clean-root-artifacts root-check-env check-shared-bijux-py

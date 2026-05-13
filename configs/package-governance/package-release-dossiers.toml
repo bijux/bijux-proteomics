@@ -44,7 +44,7 @@ weakest_value = "22 oversized mixed-responsibility modules still need owner spli
 broadest_debt = "22 oversized mixed-responsibility modules still need owner splits"
 strengths = ["owner domains: 15", "dependency dossier: 5 outbound edges and 7 inbound consumers are explicitly mapped", "module graph: configs/package-governance/module-dependency-graphs/bijux-proteomics-core.toml"]
 limits = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
-proofs = ["docs proof artifacts: 49", "scenario fixtures: medium=17 negative=9 ambiguity=2 contradiction=2", "compatibility surfaces: 0"]
+proofs = ["docs proof artifacts: 49", "scenario fixtures: medium=23 negative=9 ambiguity=3 contradiction=2", "compatibility surfaces: 0"]
 unresolved_debt_ids = ["bijux-proteomics-core:mixed-responsibility-modules"]
 exact_not_ready_reasons = ["22 oversized mixed-responsibility modules still need owner splits"]
 publishable = false
