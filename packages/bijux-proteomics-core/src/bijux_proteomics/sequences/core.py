@@ -280,6 +280,23 @@ class DecoyGenerationManifest(JsonModel):
     output_sha256: str = Field(..., min_length=64, max_length=64)
 
 
+class DecoyGenerationReport(JsonModel):
+    """Reviewer-facing summary of one target-decoy generation step."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    decoy_mode: DecoyGenerationMode
+    prefix: str = Field(..., min_length=1)
+    seed: int
+    input_target_count: int = Field(..., ge=0)
+    generated_decoy_count: int = Field(..., ge=0)
+    unchanged_sequence_count: int = Field(..., ge=0)
+    target_sequence_collision_count: int = Field(..., ge=0)
+    unchanged_sequence_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    target_sequence_collision_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    valid: bool
+
+
 class TargetDecoyValidationReport(JsonModel):
     """Validation report for a target/decoy FASTA collection."""
 
@@ -749,6 +766,15 @@ def _stable_record_accession(record: NormalizedProteinRecord) -> str:
     return f"{record.accession_namespace}:{record.canonical_accession}-{record.isoform}"
 
 
+def _stable_generated_accession(
+    record: NormalizedProteinRecord, *, prefix: str
+) -> str:
+    accession = f"{prefix}{record.canonical_accession}"
+    if record.isoform is None:
+        return f"{record.accession_namespace}:{accession}"
+    return f"{record.accession_namespace}:{accession}-{record.isoform}"
+
+
 def filter_fasta_records(
     records: tuple[NormalizedProteinRecord, ...],
     *,
@@ -911,6 +937,73 @@ def build_decoy_generation_manifest(
     )
 
 
+def build_decoy_generation_report(
+    input_records: tuple[NormalizedProteinRecord, ...],
+    decoy_records: tuple[NormalizedProteinRecord, ...],
+    *,
+    mode: DecoyGenerationMode,
+    prefix: str,
+    seed: int,
+) -> DecoyGenerationReport:
+    """Summarize decoy-generation outcomes and sequence-level caveats."""
+    target_sequence_checksums = {
+        record.sequence_checksum for record in input_records
+    }
+    unchanged_sequence_accessions = tuple(
+        sorted(
+            decoy.canonical_accession
+            for target, decoy in zip(input_records, decoy_records, strict=False)
+            if decoy.sequence_checksum == target.sequence_checksum
+        )
+    )
+    target_sequence_collision_accessions = tuple(
+        sorted(
+            decoy.canonical_accession
+            for decoy in decoy_records
+            if decoy.sequence_checksum in target_sequence_checksums
+        )
+    )
+    return DecoyGenerationReport(
+        decoy_mode=mode,
+        prefix=prefix,
+        seed=seed,
+        input_target_count=len(input_records),
+        generated_decoy_count=len(decoy_records),
+        unchanged_sequence_count=len(unchanged_sequence_accessions),
+        target_sequence_collision_count=len(target_sequence_collision_accessions),
+        unchanged_sequence_accessions=unchanged_sequence_accessions,
+        target_sequence_collision_accessions=target_sequence_collision_accessions,
+        valid=len(input_records) == len(decoy_records),
+    )
+
+
+def _validate_decoy_generation_inputs(
+    records: tuple[NormalizedProteinRecord, ...],
+    *,
+    prefix: str,
+) -> None:
+    existing_decoys = tuple(
+        sorted(record.canonical_accession for record in records if record.decoy)
+    )
+    if existing_decoys:
+        joined = ", ".join(existing_decoys)
+        raise ValueError(
+            f"decoy generation requires target-only inputs; found decoy records: {joined}"
+        )
+
+    stable_accessions = {_stable_record_accession(record) for record in records}
+    generated_accessions = {
+        _stable_generated_accession(record, prefix=prefix) for record in records
+    }
+    colliding_accessions = tuple(sorted(stable_accessions & generated_accessions))
+    if colliding_accessions:
+        joined = ", ".join(colliding_accessions)
+        raise ValueError(
+            "decoy generation prefix would collide with existing target accessions: "
+            f"{joined}"
+        )
+
+
 def generate_decoy_database(
     records: tuple[NormalizedProteinRecord, ...],
     *,
@@ -919,6 +1012,7 @@ def generate_decoy_database(
     seed: int = 17,
 ) -> tuple[NormalizedProteinRecord, ...]:
     """Generate one decoy record per input record."""
+    _validate_decoy_generation_inputs(records, prefix=prefix)
     generated: list[NormalizedProteinRecord] = []
     for index, record in enumerate(records):
         if mode is DecoyGenerationMode.REVERSE:
