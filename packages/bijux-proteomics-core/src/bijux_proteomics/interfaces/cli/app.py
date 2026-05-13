@@ -2676,7 +2676,8 @@ def mzml_inspect_command(
     default=None,
     help="Optional target spectrum id; defaults to the first accepted spectrum.",
 )
-@click.option("--tolerance-da", type=float, default=0.02, show_default=True)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
 @click.option(
     "--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
@@ -2694,12 +2695,14 @@ def spectrum_annotate_command(
     input_mgf: Path,
     peptide: str,
     spectrum_id: str | None,
-    tolerance_da: float,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
     tsv_out: Path | None,
     plot_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Annotate one spectrum against a peptide sequence."""
+    effective_tolerance_da = 0.02 if tolerance_da is None and tolerance_ppm is None else tolerance_da
     report = parse_mgf(input_mgf)
     if not report.accepted_spectra:
         raise click.ClickException(
@@ -2720,7 +2723,8 @@ def spectrum_annotate_command(
         annotation = annotate_spectrum_fragments(
             spectrum,
             peptide=peptide,
-            tolerance_da=tolerance_da,
+            tolerance_da=effective_tolerance_da,
+            tolerance_ppm=tolerance_ppm,
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
