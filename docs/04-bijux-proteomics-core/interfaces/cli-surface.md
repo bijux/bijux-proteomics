@@ -47,6 +47,7 @@ The owned spectrum CLI surface is:
 - `spectrum-parse`
 - `spectrum-stats`
 - `spectrum-annotate`
+- `mzml-inspect`
 - `summarize --kind mgf`
 
 `fasta-parse` emits the full parser report, including:
@@ -257,6 +258,23 @@ The `spectrum-parse` JSON payload includes:
 - summary counts over accepted spectra and rejected blocks
 - per-spectrum TIC or base-peak metrics
 - a provenance manifest when `--provenance-out` is requested
+
+`mzml-inspect` reports one practical mzML review object without claiming full
+vendor-native replacement.
+
+- `--spectra-jsonl-out` writes accepted spectra as normalized JSONL.
+- `--chromatograms-json-out` writes the extracted chromatogram report as JSON.
+- the command reports decoding support and chromatogram presence explicitly
+  instead of assuming every mzML file is equally supported
+
+The `mzml-inspect` JSON payload includes:
+
+- run metadata
+- the compact accepted-spectrum summary
+- binary decoding support with accepted and rejected spectrum counts
+- extracted chromatogram traces, including TIC and BPC when present
+- reviewer-facing diagnostics about practical scope and missing chromatograms
+- any accepted-spectrum JSONL or chromatogram JSON export paths
 
 `digest` and `peptide-index` both report:
 
