@@ -778,6 +778,36 @@ _COMET_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     ),
 )
 
+_COMET_PSM_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.COMET,
+    dialect_id="comet-psm",
+    display_name="Comet psm export",
+    description="Normalize a realistic Comet tabular export into stable PSM records.",
+    score_family=SearchScoreFamily.EXPECTATION_VALUE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
+    native_columns=(
+        "scan",
+        "plain_peptide",
+        "modified_peptide",
+        "charge",
+        "expect",
+        "xcorr",
+        "delta_cn",
+        "sp_score",
+        "protein",
+        "target_decoy",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="scan",
+        peptide="plain_peptide",
+        charge="charge",
+        score="expect",
+        protein_refs="protein",
+        decoy_label="target_decoy",
+        protein_separator=";",
+    ),
+)
+
 _MSFRAGGER_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     adapter_kind=SearchAdapterKind.MSFRAGGER,
     dialect_id="pipeline-export",
@@ -1036,6 +1066,7 @@ def search_adapter_dialect_registry() -> dict[
     dialects.extend(
         [
             _COMET_PIPELINE_DIALECT,
+            _COMET_PSM_DIALECT,
             _MSFRAGGER_PIPELINE_DIALECT,
             _FRAGPIPE_PSM_DIALECT,
             _SAGE_PSM_DIALECT,
