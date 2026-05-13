@@ -170,6 +170,41 @@ The digestion-oriented CLI surfaces share one protease contract:
 - the digestion mode
 - the missed-cleavage allowance
 
+`digest` exports one theoretical peptide database under the selected digestion
+policy.
+
+- `--format` accepts `tsv`, `jsonl`, `parquet`, or `fasta`.
+- `--out` writes the main peptide export.
+- `--manifest-out` writes the digestion policy manifest.
+- `--peptide-protein-table-out` optionally writes a peptide-to-protein TSV
+  sidecar with one row per peptide occurrence.
+
+The main peptide exports preserve:
+
+- source accession and source identifier
+- peptide sequence
+- peptide length
+- start and end coordinates
+- missed-cleavage count
+- protease and digestion mode
+- cleavage type
+- neutral mass
+
+The peptide FASTA export writes the peptide sequence body and records source
+coordinates, missed-cleavage count, peptide length, neutral mass, and protease
+in the header.
+
+The peptide-to-protein sidecar preserves:
+
+- peptide sequence
+- peptide length
+- neutral mass
+- source accession and source identifier
+- source protein family and isoform
+- start and end coordinates
+- missed-cleavage count
+- protease, digestion mode, and cleavage type
+
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
 and sequence-length summary values.
