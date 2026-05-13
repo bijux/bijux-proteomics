@@ -14,6 +14,8 @@ from bijux_proteomics.sequences.digestion import (
     build_digest_policy,
     compute_digest_policy_hash,
     digest_protein_records,
+    export_peptide_protein_table_tsv,
+    export_peptides_fasta,
     export_peptides_jsonl,
     export_peptides_parquet,
     export_peptides_tsv,
@@ -73,7 +75,7 @@ def test_digest_policy_hash_captures_exact_cleavage_and_filter_assumptions() -> 
     assert compute_digest_policy_hash(policy) == compute_digest_policy_hash(policy)
 
 
-def test_digest_exports_write_stable_tsv_and_jsonl(
+def test_digest_exports_write_stable_tsv_jsonl_fasta_and_peptide_protein_table(
     fasta_fixture_dir: Path,
     tmp_path: Path,
 ) -> None:
@@ -88,17 +90,36 @@ def test_digest_exports_write_stable_tsv_and_jsonl(
     )
     tsv_path = tmp_path / "peptides.tsv"
     jsonl_path = tmp_path / "peptides.jsonl"
+    fasta_path = tmp_path / "peptides.fasta"
+    protein_table_path = tmp_path / "peptide_protein_table.tsv"
 
     export_peptides_tsv(peptides, tsv_path)
     export_peptides_jsonl(peptides, jsonl_path)
+    export_peptides_fasta(peptides, fasta_path)
+    export_peptide_protein_table_tsv(peptides, protein_table_path)
 
     tsv_lines = tsv_path.read_text().splitlines()
     assert tsv_lines[0].startswith("source_accession\tsource_identifier\tsequence")
+    assert "\tlength\t" in tsv_lines[0]
     assert len(tsv_lines) == len(peptides) + 1
 
     jsonl_rows = [json.loads(line) for line in jsonl_path.read_text().splitlines()]
     assert len(jsonl_rows) == len(peptides)
-    assert {"sequence", "neutral_mass", "protease"} <= set(jsonl_rows[0])
+    assert {"sequence", "length", "neutral_mass", "protease"} <= set(jsonl_rows[0])
+    assert jsonl_rows[0]["length"] == len(jsonl_rows[0]["sequence"])
+
+    fasta_lines = fasta_path.read_text().splitlines()
+    assert fasta_lines[0].startswith(">")
+    assert "|mc=" in fasta_lines[0]
+    assert "|len=" in fasta_lines[0]
+    assert fasta_lines[1] == peptides[0].sequence
+
+    protein_table_lines = protein_table_path.read_text().splitlines()
+    assert protein_table_lines[0].startswith("sequence\tlength\tneutral_mass")
+    first_table_row = protein_table_lines[1].split("\t")
+    assert first_table_row[0] == peptides[0].sequence
+    assert int(first_table_row[1]) == len(peptides[0].sequence)
+    assert int(first_table_row[9]) == peptides[0].missed_cleavages
 
 
 def test_digest_export_fingerprint_is_reproducible(fasta_fixture_dir: Path) -> None:
