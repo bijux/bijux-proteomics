@@ -39,6 +39,7 @@ The owned FASTA CLI surface is:
 - `peptide-index`
 - `peptide-properties`
 - `modified-peptide-parse`
+- `modification-resolve`
 - `summarize --kind fasta`
 
 `fasta-parse` emits the full parser report, including:
@@ -198,6 +199,27 @@ The `modified-peptide-parse` JSON payload includes:
 - the canonical modified peptide notation
 - explicit protein-terminal context flags
 - the full normalized modification rows with preserved site positions
+
+`modification-resolve` checks one modification token against the built-in
+registry and any optional custom registry supplied at runtime.
+
+- `--residue` optionally asks for residue-compatibility review instead of name
+  resolution alone.
+- `--registry` loads a JSON modification registry so local or
+  institution-specific definitions stay explicit.
+- `--out` writes the resolution report as JSON.
+
+The `modification-resolve` JSON payload includes:
+
+- the original query token and normalized token
+- whether the token resolved successfully
+- builtin, custom-registry, or unknown source classification
+- the resolved modification name and controlled identifier when known
+- static or variable application class
+- allowed site position and residue scope
+- monoisotopic and average mass deltas
+- optional residue query plus residue-allowed status
+- reviewer-facing issues for unknown tokens or residue mismatches
 
 The digestion-oriented CLI surfaces share one protease contract:
 
