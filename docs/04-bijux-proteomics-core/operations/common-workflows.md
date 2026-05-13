@@ -164,6 +164,32 @@ This surface is intentionally honest about scope. It helps triage peptide
 candidates before search or analysis, but it does not claim to predict
 ionization efficiency, retention time, or identification success directly.
 
+## Search-Engine Modified Peptide Normalization
+
+Use `modified-peptide-parse` when modified peptide strings arrive from
+different search engines and the problem is notation drift rather than peptide
+chemistry itself.
+
+- The normalization surface accepts MaxQuant, MSFragger, FragPipe, Sage, and
+  Comet dialect labels explicitly.
+- MaxQuant-style parenthetical modification strings are translated into the
+  owned canonical bracket notation, including protein-terminal assignments when
+  the engine string states them.
+- MSFragger, FragPipe, and Comet bracket-delta dialects are normalized through
+  one shared numeric-bracket path because their review burden is the same:
+  recover peptide-localized and terminal modification intent into the owned
+  contract.
+- Sage notation is normalized through the owned bracket parser and then
+  canonicalized so known deltas resolve to the stable modification names the
+  package already owns.
+- The output keeps residue sequence, site positions, terminal context, and the
+  final canonical modified peptide string explicit.
+
+This surface is intentionally a notation normalizer, not a search-result
+adapter. It turns one engine-specific peptide string into the owned modified
+peptide contract so downstream chemistry, PTM, and attribution surfaces do not
+need five separate parsers.
+
 ## Digestion Export Review
 
 Use `digest` when the peptide space itself needs to be handed off for search,
