@@ -108,6 +108,58 @@ def test_mgf_parser_rejects_ambiguous_charge_lists_explicitly() -> None:
     }
 
 
+def test_mgf_parser_handles_missing_optional_fields_and_rt_minutes(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "practical_metadata_cases.mgf"
+    path.write_text(
+        "\n".join(
+            [
+                "BEGIN IONS",
+                "SPECTRUMID=controllerType=0 controllerNumber=1 scan=7001",
+                "PEPMASS=612.3 1000",
+                "RTINMINUTES=2.5",
+                "110.1 15.0",
+                "220.2 35.0",
+                "END IONS",
+                "BEGIN IONS",
+                "PEPMASS=455.2",
+                "150.0 40.0",
+                "END IONS",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_mgf(path)
+
+    assert report.total_blocks == 2
+    assert len(report.accepted_spectra) == 2
+    assert report.accepted_spectra[0].spectrum_id.endswith("scan=7001")
+    assert report.accepted_spectra[0].retention_time_seconds == 150.0
+    assert report.accepted_spectra[0].precursor_charge is None
+    assert report.accepted_spectra[1].title is None
+    assert report.accepted_spectra[1].retention_time_seconds is None
+
+
+def test_mgf_parser_streams_without_path_read_text(monkeypatch) -> None:
+    fixture = _spectrum_fixture("simple.mgf")
+    original_read_text = Path.read_text
+
+    def _forbid_read_text(self: Path, *args: object, **kwargs: object) -> str:
+        if self == fixture:
+            raise AssertionError("parse_mgf should not use Path.read_text")
+        return original_read_text(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", _forbid_read_text)
+
+    report = parse_mgf(fixture)
+
+    assert len(report.accepted_spectra) == 1
+    assert report.accepted_spectra[0].precursor_mz == 500.2
+
+
 def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
     report = parse_mgf(_spectrum_fixture("multi.mgf"))
     rendered = render_mgf(report.accepted_spectra)
