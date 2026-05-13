@@ -35,6 +35,7 @@ _GENE_FIELD_RE = re.compile(r"\bGN=(?P<gene>[A-Za-z0-9_.-]+)")
 _ORGANISM_FIELD_RE = re.compile(r"\bOS=(?P<organism>.+?)(?=\s(?:OX|GN|PE|SV)=|$)")
 _ENSEMBL_GENE_SYMBOL_RE = re.compile(r"\bgene_symbol:(?P<gene>[A-Za-z0-9_.-]+)")
 _ENSEMBL_DESCRIPTION_RE = re.compile(r"\bdescription:(?P<description>.+)")
+_DECOY_PREFIXES = ("DECOY_", "REV_", "REVERSE_", "SHUFFLED_")
 
 
 @dataclass(frozen=True)
@@ -150,6 +151,7 @@ class NormalizedProteinRecord(JsonModel):
     residue_count: int = Field(..., ge=1)
     sequence_checksum: str = Field(..., min_length=64, max_length=64)
     contaminant: bool = False
+    decoy: bool = False
     validation_issues: tuple[SequenceValidationIssue, ...] = Field(
         default_factory=tuple
     )
@@ -173,6 +175,18 @@ class RejectedFastaRecord(JsonModel):
     issues: tuple[SequenceValidationIssue, ...]
 
 
+class FastaDatabaseComposition(JsonModel):
+    """Parser-level composition summary over accepted FASTA records."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    accepted_record_count: int = Field(..., ge=0)
+    target_count: int = Field(..., ge=0)
+    decoy_count: int = Field(..., ge=0)
+    contaminant_count: int = Field(..., ge=0)
+    accession_namespace_counts: dict[str, int] = Field(default_factory=dict)
+
+
 class FastaParseReport(JsonModel):
     """Result of parsing one FASTA payload under a parser policy."""
 
@@ -183,6 +197,8 @@ class FastaParseReport(JsonModel):
     accepted_records: tuple[NormalizedProteinRecord, ...] = Field(default_factory=tuple)
     rejected_records: tuple[RejectedFastaRecord, ...] = Field(default_factory=tuple)
     duplicate_identifiers: tuple[str, ...] = Field(default_factory=tuple)
+    duplicate_accessions: tuple[str, ...] = Field(default_factory=tuple)
+    database_composition: FastaDatabaseComposition
 
 
 class FastaStatsReport(JsonModel):
@@ -198,7 +214,10 @@ class FastaStatsReport(JsonModel):
     max_length: int | None = None
     invalid_record_count: int = Field(default=0, ge=0)
     duplicate_identifier_count: int = Field(default=0, ge=0)
+    duplicate_accession_count: int = Field(default=0, ge=0)
     duplicate_sequence_count: int = Field(default=0, ge=0)
+    decoy_count: int = Field(default=0, ge=0)
+    target_count: int = Field(default=0, ge=0)
     contaminant_count: int = Field(default=0, ge=0)
     accession_namespace_counts: dict[str, int] = Field(default_factory=dict)
 
@@ -416,13 +435,18 @@ def parse_fasta_document(
     """Parse FASTA payload into normalized records with explicit rejection details."""
     raw_records = _parse_raw_fasta_records(payload)
     duplicates = _duplicate_identifiers(record.identifier for record in raw_records)
+    duplicate_accessions = _duplicate_accessions(
+        _stable_accession_key_from_identifier(record.identifier) for record in raw_records
+    )
     seen_identifiers: set[str] = set()
+    seen_accessions: set[str] = set()
     accepted: list[NormalizedProteinRecord] = []
     rejected: list[RejectedFastaRecord] = []
 
     for record in raw_records:
         validation = validate_protein_sequence(record.residues, mode=mode)
         issues = list(validation.issues)
+        accession_key = _stable_accession_key_from_identifier(record.identifier)
         if record.identifier in seen_identifiers:
             issues.append(
                 SequenceValidationIssue(
@@ -436,6 +460,19 @@ def parse_fasta_document(
                 )
             )
         seen_identifiers.add(record.identifier)
+        if accession_key in seen_accessions:
+            issues.append(
+                SequenceValidationIssue(
+                    code="duplicate_accession",
+                    severity=(
+                        SequenceIssueSeverity.ERROR
+                        if mode is FastaParseMode.STRICT
+                        else SequenceIssueSeverity.WARNING
+                    ),
+                    message=f"duplicate normalized accession {accession_key!r}",
+                )
+            )
+        seen_accessions.add(accession_key)
         if any(issue.severity is SequenceIssueSeverity.ERROR for issue in issues):
             rejected.append(
                 RejectedFastaRecord(
@@ -459,6 +496,8 @@ def parse_fasta_document(
         accepted_records=tuple(accepted),
         rejected_records=tuple(rejected),
         duplicate_identifiers=tuple(sorted(duplicates)),
+        duplicate_accessions=tuple(sorted(duplicate_accessions)),
+        database_composition=_build_fasta_database_composition(tuple(accepted)),
     )
 
 
@@ -629,6 +668,7 @@ def normalize_protein_record(
         residue_count=len(residues),
         sequence_checksum=sequence_checksum(residues),
         contaminant=_is_contaminant_record(record),
+        decoy=_is_decoy_record(record),
         validation_issues=validation_issues,
     )
 
@@ -646,6 +686,11 @@ def build_fasta_stats(
         for count in Counter(record.source_identifier for record in records).values()
         if count > 1
     )
+    duplicate_accession_count = sum(
+        count - 1
+        for count in Counter(_stable_record_accession(record) for record in records).values()
+        if count > 1
+    )
     duplicate_sequence_count = sum(
         count - 1
         for count in Counter(record.sequence_checksum for record in records).values()
@@ -660,7 +705,10 @@ def build_fasta_stats(
         max_length=max(lengths) if lengths else None,
         invalid_record_count=len(rejected_records),
         duplicate_identifier_count=duplicate_identifier_count,
+        duplicate_accession_count=duplicate_accession_count,
         duplicate_sequence_count=duplicate_sequence_count,
+        decoy_count=sum(1 for record in records if record.decoy),
+        target_count=sum(1 for record in records if not record.decoy),
         contaminant_count=sum(1 for record in records if record.contaminant),
         accession_namespace_counts=dict(sorted(namespace_counts.items())),
     )
@@ -897,6 +945,7 @@ def generate_decoy_database(
                     "residues": decoy_sequence,
                     "residue_count": len(decoy_sequence),
                     "sequence_checksum": sequence_checksum(decoy_sequence),
+                    "decoy": True,
                     "validation_issues": (),
                 }
             )
@@ -1013,8 +1062,6 @@ def _parse_raw_fasta_records(payload: str) -> tuple[FastaSequenceRecord, ...]:
 
 def _build_fasta_record(header: str, residues: list[str]) -> FastaSequenceRecord:
     sequence = "".join(part.strip() for part in residues if part.strip())
-    if not sequence:
-        raise ValueError(f"FASTA record {header!r} must contain sequence residues")
     identifier, _, description = header.partition(" ")
     return FastaSequenceRecord(
         header=header,
@@ -1033,26 +1080,45 @@ def _duplicate_identifiers(
     return {identifier for identifier, count in counts.items() if count > 1}
 
 
+def _duplicate_accessions(
+    accessions: Iterable[str],
+) -> set[str]:
+    counts: Counter[str] = Counter(accessions)
+    return {accession for accession, count in counts.items() if count > 1}
+
+
 def _normalize_accession(identifier: str) -> tuple[str, str, int | None]:
     token = identifier.strip()
-    if "|" in token:
-        parts = token.split("|")
+    decoy_prefix = next(
+        (prefix for prefix in _DECOY_PREFIXES if token.upper().startswith(prefix)),
+        "",
+    )
+    normalized_token = token[len(decoy_prefix) :] if decoy_prefix else token
+    if "|" in normalized_token:
+        parts = normalized_token.split("|")
         if len(parts) >= 3 and parts[0] in {"sp", "tr"}:
             accession = parse_uniprot_accession(parts[1])
-            return "uniprot", accession.accession, accession.isoform
+            return "uniprot", f"{decoy_prefix}{accession.accession}", accession.isoform
         if len(parts) >= 3 and parts[0] in {"ref", "gb"}:
             refseq = parts[1].upper()
             if _REFSEQ_ACCESSION_RE.fullmatch(refseq):
-                return "refseq", refseq, None
-    candidate = token.upper()
+                return "refseq", f"{decoy_prefix}{refseq}", None
+    candidate = normalized_token.upper()
     if _UNIPROT_ACCESSION_RE.fullmatch(candidate):
         accession = parse_uniprot_accession(candidate)
-        return "uniprot", accession.accession, accession.isoform
+        return "uniprot", f"{decoy_prefix}{accession.accession}", accession.isoform
     if _REFSEQ_ACCESSION_RE.fullmatch(candidate):
-        return "refseq", candidate, None
+        return "refseq", f"{decoy_prefix}{candidate}", None
     if _ENSEMBL_ACCESSION_RE.fullmatch(candidate):
-        return "ensembl", candidate, None
+        return "ensembl", f"{decoy_prefix}{candidate}", None
     return "custom", token, None
+
+
+def _stable_accession_key_from_identifier(identifier: str) -> str:
+    namespace, accession, isoform = _normalize_accession(identifier)
+    if isoform is None:
+        return f"{namespace}:{accession}"
+    return f"{namespace}:{accession}-{isoform}"
 
 
 def _extract_gene(record: FastaSequenceRecord) -> str | None:
@@ -1103,6 +1169,26 @@ def _build_display_name(
 def _is_contaminant_record(record: FastaSequenceRecord) -> bool:
     header = record.header.upper()
     return header.startswith("CON__") or "CONTAMINANT" in header or "CRAP" in header
+
+
+def _is_decoy_record(record: FastaSequenceRecord) -> bool:
+    token = record.identifier.upper()
+    return token.startswith(_DECOY_PREFIXES)
+
+
+def _build_fasta_database_composition(
+    records: tuple[NormalizedProteinRecord, ...],
+) -> FastaDatabaseComposition:
+    namespace_counts = Counter(record.accession_namespace for record in records)
+    decoy_count = sum(1 for record in records if record.decoy)
+    contaminant_count = sum(1 for record in records if record.contaminant)
+    return FastaDatabaseComposition(
+        accepted_record_count=len(records),
+        target_count=len(records) - decoy_count,
+        decoy_count=decoy_count,
+        contaminant_count=contaminant_count,
+        accession_namespace_counts=dict(sorted(namespace_counts.items())),
+    )
 
 
 def _normalize_decoy_key(value: str) -> str:
