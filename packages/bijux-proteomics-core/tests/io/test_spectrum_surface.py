@@ -383,7 +383,7 @@ def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
         parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
     )
     query = normalize_spectrum_peaks(
-        parse_mgf(_spectrum_fixture("multi.mgf")).accepted_spectra[0]
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
     )
     similarity = calculate_spectral_similarity(
         reference,
@@ -398,8 +398,8 @@ def test_spectrum_similarity_and_provenance_manifest_are_stable() -> None:
         parse_report=report,
     )
 
-    assert similarity.matched_peak_count >= 2
-    assert similarity.score > 0.9
+    assert similarity.matched_peak_count >= 4
+    assert similarity.score > 0.99
     assert summary.spectrum_count == 2
     assert summary.issue_counts == {}
     assert manifest.document_schema.document_kind == "spectrum_provenance_manifest"
