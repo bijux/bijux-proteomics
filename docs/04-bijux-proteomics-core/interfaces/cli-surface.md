@@ -437,6 +437,12 @@ lab-local TSV needs direct inspection without a separate mapping document.
 - `--contaminant-label-column` maps one explicit contaminant-state column when
   contaminant status is supplied directly instead of inferred only from protein
   references
+- `--protease` defines the missed-cleavage policy used in the inspection report
+- `--summary-tsv-out`, `--score-distribution-tsv-out`,
+  `--q-value-distribution-tsv-out`, `--charge-distribution-tsv-out`,
+  `--peptide-length-distribution-tsv-out`, and
+  `--missed-cleavage-distribution-tsv-out` write reviewer-facing inspection
+  ledgers
 
 The `psm-map` JSON payload includes:
 
@@ -451,6 +457,24 @@ The `psm-map` JSON payload includes:
   score, q-value, protein references, target-decoy label, and contaminant
   flag
 - any requested normalized TSV output path
+
+`psm-inspect` emits one direct quality-inspection packet over the parsed PSM
+table.
+
+- accepted and rejected row counts remain explicit at the top level
+- `inspection` adds total, accepted, and rejected row counts together with the
+  named protease used for missed-cleavage review
+- `inspection.score_distribution` reports accepted PSM counts across stable
+  score bins
+- `inspection.q_value_distribution` reports accepted PSM counts across stable
+  q-value buckets plus missing-q-value rows when present
+- `inspection.charge_distribution` reports accepted PSM counts by charge state
+- `inspection.peptide_length_distribution` reports accepted PSM counts across
+  stable peptide-length buckets
+- `inspection.missed_cleavage_distribution` reports accepted PSM counts by
+  missed-cleavage burden under the selected protease
+- any requested summary or distribution TSV outputs are reported under
+  `outputs`
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
 identification evidence plus one exported feature table.
