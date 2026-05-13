@@ -233,6 +233,36 @@ adapter. It turns one engine-specific peptide string into the owned modified
 peptide contract so downstream chemistry, PTM, and attribution surfaces do not
 need five separate parsers.
 
+## FragPipe Bundle Import
+
+Use `fragpipe-import` when the question is whether one FragPipe export bundle
+can be reviewed coherently as PSM, peptide, and protein evidence instead of as
+three disconnected TSV files.
+
+- The PSM surface reuses the owned MSFragger normalization machinery through a
+  dedicated FragPipe dialect rather than inventing a second PSM parser for the
+  same score family.
+- The importer keeps the `psm.tsv` row contract explicit, including
+  hyperscore, q-value, target-decoy state, protein mapping, assigned or
+  observed modifications, and open-search-style mass-difference evidence when
+  it is present.
+- The peptide table stays separate instead of being flattened into the PSM
+  layer, so peptide-level probability, spectral count, mapped proteins, and
+  mass-shift evidence remain reviewable in their own right.
+- The protein table also stays explicit, preserving protein identity,
+  annotation, coverage, peptide burden, spectral count, and probability.
+- Modified-peptide notation is normalized through the owned FragPipe peptide
+  dialect so residue-localized PTM intent is preserved while the bundle is
+  imported.
+- The summary surface counts modified rows, q-value coverage, open-search-like
+  rows, and mapped proteins so reviewers can spot whether a bundle is a simple
+  closed-search export or a more complicated shifted-mass result set.
+
+This surface is intentionally an import and review contract, not a claim that
+every FragPipe or Philosopher downstream table is already modeled. It covers
+the core PSM, peptide, and protein tables honestly and keeps their evidence
+burden explicit for later confidence, PTM, or protein-inference work.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
