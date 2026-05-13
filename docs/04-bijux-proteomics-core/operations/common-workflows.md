@@ -315,6 +315,32 @@ search runner. Its job is to preserve the evidence burden already present in
 classic Comet exports so downstream confidence, PTM, and protein analysis can
 start from an honest normalized record.
 
+## MaxQuant Bundle Import
+
+Use `maxquant-import` when one MaxQuant project needs to stay reviewable as its
+native `evidence.txt`, `peptides.txt`, and `proteinGroups.txt` bundle instead
+of being flattened into one generic evidence table.
+
+- The evidence surface preserves experiment names, score, posterior error
+  probability, protein mappings, reverse state, contaminant state, and native
+  modified-peptide notation in one owned review row.
+- The importer keeps `peptides.txt` separate from evidence rows so peptide
+  intensity, peptide-level score burden, leading razor proteins, and modified
+  sequence intent remain explicit in their own table.
+- The importer also keeps `proteinGroups.txt` explicit, including majority
+  protein identifiers, peptide burden, sequence coverage, only-identified-by-
+  site state, and LFQ intensity ledgers per experiment.
+- Reverse and contaminant flags remain visible at every table layer instead of
+  being collapsed into a single target-only summary.
+- When a MaxQuant settings file is available, the same surface preserves
+  enzyme, tolerance, decoy-prefix, and modification provenance so project
+  review can stay tied to the search assumptions that produced the bundle.
+
+This surface is intentionally a MaxQuant import and review contract rather than
+an orchestration wrapper around the original tool. Its job is to keep the
+native project evidence honest and structured enough for downstream confidence,
+quantification, and protein-analysis work.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
