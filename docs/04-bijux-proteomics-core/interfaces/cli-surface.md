@@ -43,6 +43,7 @@ The owned FASTA CLI surface is:
 - `modified-peptide-parse`
 - `modification-resolve`
 - `psm-map`
+- `peptide-evidence`
 - `fdr-reference-check`
 - `fdr-levels`
 - `picked-protein-fdr`
@@ -480,6 +481,29 @@ table.
   missed-cleavage burden under the selected protease
 - any requested summary or distribution TSV outputs are reported under
   `outputs`
+
+`peptide-evidence` emits one direct peptide-evidence review packet over the
+parsed PSM table after peptide-level rollup and peptide-level FDR review.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` defaults to `0.05` and defines the peptide-level FDR threshold
+- `--strong-q-value` defaults to `0.01` and defines the stricter threshold for
+  the `strong` primary class
+- canonical-schema and decoy-policy column controls stay available so
+  lab-local PSM tables can be reviewed without a separate conversion pass
+- `--summary-tsv-out` writes one compact peptide-evidence summary ledger
+- `--entries-tsv-out` writes one per-peptide evidence review ledger
+
+The `peptide-evidence` JSON payload includes:
+
+- the selected threshold, score orientation, and strong-evidence q-value
+- accepted and rejected source-row counts from the parsed PSM table
+- one summary block with total, accepted, rejected, strong, weak, unique,
+  shared, modified, contaminant, and decoy peptide counts
+- one peptide review row per canonical peptide with primary class, orthogonal
+  tags, peptide-level q-value, acceptance state, counts, protein references,
+  target-decoy label, contaminant flag, and explanation
+- any requested summary or entry TSV output paths
 
 `fdr-reference-check` validates curated target-decoy reference cases against
 the owned FDR implementation.
