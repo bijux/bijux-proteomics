@@ -42,6 +42,13 @@ The owned FASTA CLI surface is:
 - `modification-resolve`
 - `summarize --kind fasta`
 
+The owned spectrum CLI surface is:
+
+- `spectrum-parse`
+- `spectrum-stats`
+- `spectrum-annotate`
+- `summarize --kind mgf`
+
 `fasta-parse` emits the full parser report, including:
 
 - accepted and rejected records
@@ -229,6 +236,27 @@ The digestion-oriented CLI surfaces share one protease contract:
   `after=KR;block_next=P` or `before=D;block_previous=P`
 - `--custom-protease-name` supplies the durable rule name recorded in outputs
 - custom protease rules cannot be combined with a second built-in protease name
+
+`spectrum-parse` emits the full MGF parse contract plus a chunk-aware streaming
+profile for larger file review.
+
+- `--chunk-size` controls the chunk accounting used in the streaming profile.
+- `--accepted-jsonl-out` writes one accepted spectrum object per line.
+- `--rejected-json-out` writes the rejected-block ledger as JSON.
+
+The `spectrum-parse` JSON payload includes:
+
+- the full parse report with accepted spectra and rejected blocks
+- the compact collection summary
+- the streaming profile with chunk size, spectrum count, chunk count, and
+  first or last accepted spectrum identifiers
+- any accepted-spectrum JSONL or rejected-block JSON export paths
+
+`spectrum-stats` keeps the lighter review surface for one accepted collection:
+
+- summary counts over accepted spectra and rejected blocks
+- per-spectrum TIC or base-peak metrics
+- a provenance manifest when `--provenance-out` is requested
 
 `digest` and `peptide-index` both report:
 
