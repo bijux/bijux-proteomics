@@ -48,6 +48,7 @@ class SpectrumModel(JsonModel):
     parent_spectrum_id: str | None = None
     product_isolation_mz: float | None = Field(default=None, gt=0.0)
     precursor_mz: float = Field(..., gt=0.0)
+    precursor_intensity: float | None = Field(default=None, ge=0.0)
     precursor_charge: int | None = Field(default=None, ge=1)
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
     peaks: tuple[SpectrumPeak, ...] = Field(default_factory=tuple)
@@ -534,6 +535,7 @@ class _MgfBlock:
         self.title: str | None = None
         self.spectrum_id: str | None = None
         self.precursor_mz: float | None = None
+        self.precursor_intensity: float | None = None
         self.precursor_charge: int | None = None
         self.retention_time_seconds: float | None = None
         self.peaks: list[SpectrumPeak] = []
@@ -666,6 +668,9 @@ def _parse_mgf_metadata_line(
             block.spectrum_id = value
         elif key == "PEPMASS":
             block.precursor_mz = float(value.split()[0])
+            pieces = value.split()
+            if len(pieces) >= 2:
+                block.precursor_intensity = float(pieces[1])
         elif key == "CHARGE":
             block.precursor_charge = _parse_charge(value)
         elif key == "RTINSECONDS":
@@ -709,6 +714,7 @@ def _finalize_mgf_block(block: _MgfBlock) -> _ParsedMgfBlockResult:
             native_id=block.spectrum_id,
             scan_number=_scan_number_from_text(block.spectrum_id or block.title),
             precursor_mz=block.precursor_mz or 1.0,
+            precursor_intensity=block.precursor_intensity,
             precursor_charge=block.precursor_charge,
             retention_time_seconds=block.retention_time_seconds,
             peaks=tuple(block.peaks),
@@ -1162,7 +1168,13 @@ def render_mgf(spectra: tuple[SpectrumModel, ...]) -> str:
         lines.append(f"TITLE={spectrum.title or spectrum.spectrum_id}")
         if spectrum.title is None or spectrum.title != spectrum.spectrum_id:
             lines.append(f"SCANS={spectrum.spectrum_id}")
-        lines.append(f"PEPMASS={spectrum.precursor_mz:.6f}".rstrip("0").rstrip("."))
+        pepmass = f"PEPMASS={spectrum.precursor_mz:.6f}".rstrip("0").rstrip(".")
+        if spectrum.precursor_intensity is not None:
+            pepmass += (
+                " "
+                + f"{spectrum.precursor_intensity:.6f}".rstrip("0").rstrip(".")
+            )
+        lines.append(pepmass)
         if spectrum.precursor_charge is not None:
             lines.append(f"CHARGE={spectrum.precursor_charge}+")
         if spectrum.retention_time_seconds is not None:

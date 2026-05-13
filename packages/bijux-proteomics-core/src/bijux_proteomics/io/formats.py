@@ -59,6 +59,7 @@ _CV_MS_LEVEL = "MS:1000511"
 _CV_SCAN_START_TIME = "MS:1000016"
 _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
+_CV_SELECTED_ION_INTENSITY = "MS:1000042"
 _CV_ISOLATION_WINDOW_TARGET_MZ = "MS:1000827"
 _CV_TOTAL_ION_CURRENT_CHROMATOGRAM = "MS:1000235"
 _CV_BASE_PEAK_CHROMATOGRAM = "MS:1000628"
@@ -602,6 +603,7 @@ def _parse_spectrum_element(
     ms_level: int | None = None
     retention_time_seconds: float | None = None
     precursor_mz: float | None = None
+    precursor_intensity: float | None = None
     precursor_charge: int | None = None
     parent_spectrum_id: str | None = None
     product_isolation_mz: float | None = None
@@ -657,6 +659,18 @@ def _parse_spectrum_element(
                         "invalid_precursor_charge",
                         str(exc),
                         field="precursor_charge",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_SELECTED_ION_INTENSITY:
+            try:
+                precursor_intensity = float(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_precursor_intensity",
+                        str(exc),
+                        field="precursor_intensity",
                         record_id=spectrum_id,
                     )
                 )
@@ -757,6 +771,7 @@ def _parse_spectrum_element(
             parent_spectrum_id=parent_spectrum_id,
             product_isolation_mz=product_isolation_mz,
             precursor_mz=precursor_mz or 1.0,
+            precursor_intensity=precursor_intensity,
             precursor_charge=precursor_charge,
             retention_time_seconds=retention_time_seconds,
             peaks=peaks,
