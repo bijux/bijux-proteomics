@@ -99,3 +99,26 @@ than merely reproducible.
 Shuffle decoys are useful only when operators review these caveats honestly.
 Low-complexity proteins can yield unchanged or target-colliding sequences even
 when the accession-level labeling is correct.
+
+## Peptide Database Indexing
+
+Use `peptide-index` when the question is whether one peptide sequence can
+support one protein, several proteins, one protein group, or only contaminant
+or decoy hypotheses under a specific digestion policy.
+
+- The lookup report is built from a real digest of the supplied FASTA, not from
+  naive substring search across whole proteins.
+- Missed-cleavage settings change the searchable peptide space and are recorded
+  explicitly.
+- Modified peptide notation is reduced to the underlying residue sequence for
+  database lookup instead of being treated as a second protein-space alphabet.
+- Optional I/L-equivalent lookup makes leucine or isoleucine ambiguity visible
+  instead of hiding it inside ad hoc downstream matching.
+- Optional protein-group mapping lets one peptide remain shared at the protein
+  level while still being specific to one indistinguishable group.
+- Database membership remains explicit: target-only, decoy-only,
+  contaminant-only, mixed, or missing.
+
+This surface is reviewer-facing on purpose. A peptide can be biologically
+interesting and still be weak for protein attribution if it only appears under
+decoy, contaminant, or broad shared-peptide conditions.
