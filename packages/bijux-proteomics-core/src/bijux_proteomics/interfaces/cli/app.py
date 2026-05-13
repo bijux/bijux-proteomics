@@ -124,8 +124,10 @@ from bijux_proteomics.quantification import (
 )
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
+    FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
+    build_fasta_database_profile,
     build_decoy_generation_manifest,
     build_fasta_provenance_manifest,
     build_fasta_stats,
@@ -133,6 +135,9 @@ from bijux_proteomics.sequences import (
     filter_fasta_records,
     generate_decoy_records,
     parse_fasta_document,
+    render_fasta_profile_length_distribution_tsv,
+    render_fasta_profile_organism_distribution_tsv,
+    render_fasta_profile_summary_tsv,
     render_fasta_records,
     sequence_checksum,
     validate_target_decoy_database,
@@ -174,6 +179,27 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
 
 def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def _emit_fasta_profile(
+    profile: FastaDatabaseProfile,
+    *,
+    out_path: Path | None,
+    summary_tsv_out: Path | None,
+    length_tsv_out: Path | None,
+    organism_tsv_out: Path | None,
+) -> None:
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_fasta_profile_summary_tsv(profile))
+    if length_tsv_out is not None:
+        _write_text_output(
+            length_tsv_out, render_fasta_profile_length_distribution_tsv(profile)
+        )
+    if organism_tsv_out is not None:
+        _write_text_output(
+            organism_tsv_out, render_fasta_profile_organism_distribution_tsv(profile)
+        )
+    _emit_json(profile, out_path=out_path)
 
 
 def _file_sha256(path: Path) -> str:
@@ -611,6 +637,68 @@ def fasta_stats_command(input_fasta: Path, mode: str, out_path: Path | None) -> 
         rejected_records=report.rejected_records,
     )
     _emit_json(stats, out_path=out_path)
+
+
+@cli.command("fasta-profile")
+@click.argument(
+    "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--mode",
+    type=_mode_choice(),
+    default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON profile output path.",
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional summary TSV output path.",
+)
+@click.option(
+    "--length-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional length-distribution TSV output path.",
+)
+@click.option(
+    "--organism-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional organism-distribution TSV output path.",
+)
+def fasta_profile_command(
+    input_fasta: Path,
+    mode: str,
+    out_path: Path | None,
+    summary_tsv_out: Path | None,
+    length_tsv_out: Path | None,
+    organism_tsv_out: Path | None,
+) -> None:
+    """Profile one FASTA database with composition, length, and organism ledgers."""
+    report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode(mode),
+        allow_rejected=True,
+    )
+    profile = build_fasta_database_profile(
+        report.accepted_records,
+        rejected_records=report.rejected_records,
+    )
+    _emit_fasta_profile(
+        profile,
+        out_path=out_path,
+        summary_tsv_out=summary_tsv_out,
+        length_tsv_out=length_tsv_out,
+        organism_tsv_out=organism_tsv_out,
+    )
 
 
 @cli.command("fasta-provenance")
@@ -1723,6 +1811,10 @@ def summarize_command(
         payload = {
             "input_kind": resolved_kind,
             "summary": build_fasta_stats(
+                fasta_report.accepted_records,
+                rejected_records=fasta_report.rejected_records,
+            ).to_dict(),
+            "profile": build_fasta_database_profile(
                 fasta_report.accepted_records,
                 rejected_records=fasta_report.rejected_records,
             ).to_dict(),
