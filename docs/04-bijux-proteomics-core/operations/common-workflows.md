@@ -214,6 +214,28 @@ This surface is intentionally honest about scope. MGF remains a practical
 exchange format for MS/MS peak lists and bounded metadata, not a replacement
 for richer instrument-native acquisition provenance.
 
+## Practical mzML Review
+
+Use the mzML review surface when an open-format LC-MS/MS run needs practical
+inspection without claiming full vendor-native parity.
+
+- The owned parser reads accepted MS1 and MS2 spectra, precursor assignments,
+  retention time, and binary peak arrays into the stable spectrum contract.
+- Binary decoding support is reported explicitly, including support for
+  zlib-compressed float arrays and explicit refusal of unsupported compression
+  or precision settings.
+- TIC and BPC chromatogram traces are extracted when the mzML run actually
+  carries them, rather than being inferred from spectrum intensities.
+- The review surface stays honest when chromatograms are absent. Missing TIC or
+  BPC traces are reported as absent, not synthesized.
+- The shipped practical fixture proves the parser against one real compressed
+  mzML shape with MS1, MS2, precursor context, retention-time normalization,
+  and chromatogram traces in one run.
+
+This surface is intentionally practical rather than maximal. It is designed for
+reviewable open mzML runs and explicit decoding boundaries, not for pretending
+that every vendor-native raw nuance is fully reproduced after conversion.
+
 ## Unimod-Aware Modification Resolution
 
 Use `modification-resolve` when the question is whether one modification token
