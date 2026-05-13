@@ -1,0 +1,5 @@
+EG.PrecursorId	PEP.StrippedSequence	FG.LabeledSequence	FG.Charge	EG.Cscore	EG.Qvalue	PG.ProteinGroups	PG.ProteinAccessions	R.FileName	R.Condition	FG.Quantity	PG.Quantity	EG.IsDecoy
+sn_rawA_pestide_2	PESTIDE	PES[Phospho]TIDE	2	0.985	0.0022	PG001	P11111;P11112	raw_A	sample_A	1420000	3800000	false
+sn_rawB_pestide_2	PESTIDE	PES[Phospho]TIDE	2	0.981	0.0028	PG001	P11111;P11112	raw_B	sample_B	1470000	3950000	false
+sn_rawA_acdmk_3	ACDMK	ACDM[Oxidation]K	3	0.941	0.0058	PG002	P22222	raw_A	sample_A	910000	1230000	false
+sn_rawB_decaypep_2	DECAYPEP	DECAYPEP	2	0.510	0.0420	PGD01	DECOY_P83333	raw_B	sample_B	70000	95000	true
