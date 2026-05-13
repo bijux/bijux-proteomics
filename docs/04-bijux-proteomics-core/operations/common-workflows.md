@@ -401,13 +401,15 @@ surface.
 - The mapper requires an explicit YAML or JSON column map instead of guessing
   from header text.
 - Required fields stay narrow and stable: spectrum or scan identity, peptide,
-  charge, and score. Optional fields cover run identity, q-value, protein
-  references, and explicit decoy labels.
+  charge, and score. Optional fields cover run identity, modified peptide,
+  q-value, protein references, explicit decoy labels, and explicit contaminant
+  labels.
 - The mapper normalizes accepted rows through the owned generic search-adapter
   path rather than creating a second inconsistent PSM parser.
-- Run identity is preserved in the mapped output when the source table carries
-  it, but scan or spectrum identity still stays explicit as the stable
-  spectrum-level key.
+- Accepted rows land on one canonical PSM schema with explicit run identity,
+  spectrum identity, residue-only peptide sequence, canonical modified peptide
+  when present, charge, score, q-value, protein references, target-decoy
+  label, and contaminant flag.
 - Unmapped source columns remain visible in the report so lab-local metadata is
   not silently discarded during normalization.
 
