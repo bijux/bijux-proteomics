@@ -1848,6 +1848,51 @@ def test_search_adapter_params_compare_and_conformance_commands_work() -> None:
         assert conformance_payload["rejection_issue_counts"]["invalid_q_value"] == 1
 
 
+def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "fragpipe"
+        shutil.copy(fixture_dir / "psm.tsv", "psm.tsv")
+        shutil.copy(fixture_dir / "combined_peptide.tsv", "combined_peptide.tsv")
+        shutil.copy(fixture_dir / "combined_protein.tsv", "combined_protein.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fragpipe-import",
+                "psm.tsv",
+                "--peptide-tsv",
+                "combined_peptide.tsv",
+                "--protein-tsv",
+                "combined_protein.tsv",
+                "--summary-tsv-out",
+                "fragpipe.summary.tsv",
+                "--psm-tsv-out",
+                "fragpipe.psm.tsv",
+                "--peptide-review-tsv-out",
+                "fragpipe.peptide.tsv",
+                "--protein-review-tsv-out",
+                "fragpipe.protein.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_psm_count"] == 3
+        assert payload["summary"]["open_search_psm_count"] == 1
+        assert payload["summary"]["peptide_row_count"] == 2
+        assert payload["summary"]["protein_row_count"] == 3
+        assert (
+            payload["psm_normalization"]["adapter"]["display_name"]
+            == "FragPipe psm export"
+        )
+        assert payload["psm_rows"][1]["open_search_candidate"] is True
+        assert Path("fragpipe.summary.tsv").exists()
+        assert Path("fragpipe.psm.tsv").exists()
+        assert Path("fragpipe.peptide.tsv").exists()
+        assert Path("fragpipe.protein.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
