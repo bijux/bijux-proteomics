@@ -12,6 +12,8 @@ top of normalized PSM evidence.
 - razor peptide assignment
 - picked target-decoy protein FDR
 - confidence labels with explicit explanations
+- one owned benchmark catalog over shared-peptide, isoform, homolog-family,
+  contaminant, decoy, and false-negative pressure
 - optional FASTA-backed coverage and peptide uniqueness checks
 - direct sequence-backed protein coverage review through `protein-coverage`
 - plot-ready sequence-backed coverage payloads through `protein-coverage-plot`
@@ -68,6 +70,23 @@ That plot surface emits:
 - preserved modified-peptide notation, peptide confidence, and optional
   intensity when the source evidence carries them
 - one positional TSV ledger plus static SVG and HTML outputs for operator review
+
+For direct benchmark review of the owned inference strategies:
+
+```bash
+bijux-proteomics protein-inference-benchmarks \
+  --summary-tsv-out protein-inference-benchmarks.summary.tsv \
+  --scenarios-tsv-out protein-inference-benchmarks.scenarios.tsv \
+  --assessments-tsv-out protein-inference-benchmarks.assessments.tsv
+```
+
+That benchmark surface emits:
+
+- one named suite over the owned hard-case catalog
+- one summary ledger with explicit case-family counts and worst lower bounds
+- one scenario ledger with expected-present and expected-absent proteins
+- one strategy-assessment ledger with false positives, false negatives,
+  precision, recall, and interval bounds per method and scenario
 
 ## Interpretation boundaries
 
