@@ -2105,6 +2105,47 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
         assert Path("spectronaut.protein_groups.tsv").exists()
 
 
+def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "openms"
+        shutil.copy(fixture_dir / "openms.idxml", "openms.idxml")
+        shutil.copy(fixture_dir / "openms_features.tsv", "openms_features.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "openms-import",
+                "openms.idxml",
+                "--feature-table",
+                "openms_features.tsv",
+                "--summary-tsv-out",
+                "openms.summary.tsv",
+                "--psm-tsv-out",
+                "openms.psm.tsv",
+                "--protein-tsv-out",
+                "openms.protein.tsv",
+                "--feature-tsv-out",
+                "openms.feature.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_psm_count"] == 3
+        assert payload["summary"]["accepted_feature_count"] == 4
+        assert payload["summary"]["rejected_feature_count"] == 1
+        assert payload["summary"]["feature_sample_count"] == 2
+        assert payload["feature_parse_summary"]["rejected_rows"] == 1
+        assert payload["psm_rows"][0]["spectrum_id"].endswith("scan=1002")
+        assert payload["protein_rows"][0]["target_decoy_label"] == "decoy"
+        assert payload["feature_rows"][2]["peptide_sequence"] == "M[Oxidation]PEPTIDE"
+        assert Path("openms.summary.tsv").exists()
+        assert Path("openms.psm.tsv").exists()
+        assert Path("openms.protein.tsv").exists()
+        assert Path("openms.feature.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
