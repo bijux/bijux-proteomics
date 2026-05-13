@@ -14,6 +14,7 @@ from bijux_proteomics.identification.peptide_evidence_review import *  # noqa: F
 from bijux_proteomics.identification.parsimony_review import *  # noqa: F401,F403
 from bijux_proteomics.identification.picked_protein_fdr_review import *  # noqa: F401,F403
 from bijux_proteomics.identification.protein_coverage_review import *  # noqa: F401,F403
+from bijux_proteomics.identification.protein_coverage_visualization import *  # noqa: F401,F403
 from bijux_proteomics.identification.protein_grouping_review import *  # noqa: F401,F403
 from bijux_proteomics.identification.psm_inspection import *  # noqa: F401,F403
 from bijux_proteomics.identification.search_adapters import *  # noqa: F401,F403
