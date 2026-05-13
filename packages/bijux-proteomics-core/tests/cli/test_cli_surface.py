@@ -692,6 +692,51 @@ def test_peptide_properties_command_supports_modifications_and_custom_protease()
         assert payload["custom_protease"] == "before=D;block_previous=P"
 
 
+def test_precursor_mass_error_command_reports_summary_and_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("precursors.tsv").write_text(
+            "\n".join(
+                (
+                    "spectrum_id\tpeptide\tobserved_mz\tcharge",
+                    "scan=1\tPEPTIDE\t400.0\t2",
+                    "scan=2\tPEPM[Oxidation]IDE\t500.0\t2",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "precursor-mass-error",
+                "precursors.tsv",
+                "--summary-tsv-out",
+                "summary.tsv",
+                "--observations-tsv-out",
+                "observations.tsv",
+                "--ppm-distribution-tsv-out",
+                "ppm.tsv",
+                "--charge-distribution-tsv-out",
+                "charge.tsv",
+                "--isotope-distribution-tsv-out",
+                "isotope.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["observation_count"] == 2
+        assert payload["input_row_count"] == 2
+        assert len(payload["observations"]) == 2
+        assert Path("summary.tsv").exists()
+        assert Path("observations.tsv").exists()
+        assert Path("ppm.tsv").exists()
+        assert Path("charge.tsv").exists()
+        assert Path("isotope.tsv").exists()
+
+
 def test_modified_peptide_parse_command_normalizes_engine_dialects() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
