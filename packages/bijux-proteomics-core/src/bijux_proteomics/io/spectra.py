@@ -19,7 +19,9 @@ from pydantic import ConfigDict, Field, field_validator
 from bijux_proteomics.chemistry import (
     FragmentIon,
     ParsedModifiedPeptide,
+    ModificationRegistryDocument,
     calculate_fragment_ions,
+    calculate_peptide_mz,
     canonicalize_modified_peptide,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
@@ -268,6 +270,69 @@ class PrecursorIsotopeOffsetAdvisory(JsonModel):
         default_factory=tuple
     )
     note: str = Field(..., min_length=1)
+
+
+class PrecursorMassErrorQuery(JsonModel):
+    """One precursor observation to compare against a theoretical peptide m/z."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide: str = Field(..., min_length=1)
+    observed_mz: float = Field(..., gt=0.0)
+    charge: int = Field(..., ge=1)
+    spectrum_id: str | None = None
+
+
+class PrecursorMassErrorDistributionRow(JsonModel):
+    """One stable distribution bucket for precursor mass-error review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    bucket: str = Field(..., min_length=1)
+    count: int = Field(..., ge=0)
+
+
+class PrecursorMassErrorObservation(JsonModel):
+    """One fully interpreted precursor mass-error observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    observed_mz: float = Field(..., gt=0.0)
+    theoretical_mz: float = Field(..., gt=0.0)
+    charge: int = Field(..., ge=1)
+    spectrum_id: str | None = None
+    delta_da: float
+    delta_ppm: float
+    absolute_delta_da: float = Field(..., ge=0.0)
+    absolute_delta_ppm: float = Field(..., ge=0.0)
+    isotope_offset_advisory: PrecursorIsotopeOffsetAdvisory
+
+
+class PrecursorMassErrorReport(JsonModel):
+    """Reviewer-facing precursor mass-error report over one observation set."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    observation_count: int = Field(..., ge=0)
+    charge_distribution: tuple[PrecursorMassErrorDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
+    ppm_error_distribution: tuple[PrecursorMassErrorDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
+    isotope_offset_distribution: tuple[PrecursorMassErrorDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
+    mean_delta_ppm: float | None = None
+    mean_delta_da: float | None = None
+    median_delta_ppm: float | None = None
+    median_abs_delta_ppm: float | None = Field(default=None, ge=0.0)
+    max_abs_delta_ppm: float | None = Field(default=None, ge=0.0)
+    observations: tuple[PrecursorMassErrorObservation, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class SpectrumAnnotationMatch(JsonModel):
@@ -1162,6 +1227,199 @@ def detect_precursor_isotope_offset_advisory(
         recommended_offset=best.isotope_offset,
         candidates=ranked,
         note=note,
+    )
+
+
+def build_precursor_mass_error_report(
+    queries: tuple[PrecursorMassErrorQuery, ...],
+    *,
+    registry: ModificationRegistryDocument | None = None,
+    max_isotope_offset: int = 3,
+) -> PrecursorMassErrorReport:
+    """Build a precursor mass-error report over one set of observations."""
+    observations: list[PrecursorMassErrorObservation] = []
+    charge_counts: dict[str, int] = {}
+    ppm_counts: dict[str, int] = {}
+    isotope_counts: dict[str, int] = {}
+    delta_ppm_values: list[float] = []
+    delta_da_values: list[float] = []
+    abs_ppm_values: list[float] = []
+
+    ppm_buckets = (
+        ("0-5", 0.0, 5.0),
+        ("5-10", 5.0, 10.0),
+        ("10-20", 10.0, 20.0),
+        ("20-50", 20.0, 50.0),
+        ("50+", 50.0, None),
+    )
+
+    for query in queries:
+        theoretical_mz = calculate_peptide_mz(
+            query.peptide,
+            charge=query.charge,
+            registry=registry,
+        )
+        error = calculate_precursor_mass_error(
+            observed_mz=query.observed_mz,
+            theoretical_mz=theoretical_mz,
+        )
+        advisory = detect_precursor_isotope_offset_advisory(
+            observed_mz=query.observed_mz,
+            theoretical_mz=theoretical_mz,
+            charge=query.charge,
+            max_offset=max_isotope_offset,
+        )
+        observations.append(
+            PrecursorMassErrorObservation(
+                peptide=query.peptide,
+                canonical_peptide=canonicalize_modified_peptide(
+                    query.peptide,
+                    registry=registry,
+                ),
+                observed_mz=query.observed_mz,
+                theoretical_mz=theoretical_mz,
+                charge=query.charge,
+                spectrum_id=query.spectrum_id,
+                delta_da=error.delta_da,
+                delta_ppm=error.delta_ppm,
+                absolute_delta_da=abs(error.delta_da),
+                absolute_delta_ppm=abs(error.delta_ppm),
+                isotope_offset_advisory=advisory,
+            )
+        )
+        charge_key = str(query.charge) if query.charge < 5 else "5+"
+        charge_counts[charge_key] = charge_counts.get(charge_key, 0) + 1
+
+        ppm_bucket = _bucket_float(abs(error.delta_ppm), buckets=ppm_buckets)
+        ppm_counts[ppm_bucket] = ppm_counts.get(ppm_bucket, 0) + 1
+
+        isotope_key = str(advisory.recommended_offset)
+        isotope_counts[isotope_key] = isotope_counts.get(isotope_key, 0) + 1
+
+        delta_ppm_values.append(error.delta_ppm)
+        delta_da_values.append(error.delta_da)
+        abs_ppm_values.append(abs(error.delta_ppm))
+
+    charge_distribution = tuple(
+        PrecursorMassErrorDistributionRow(
+            bucket=bucket,
+            count=charge_counts.get(bucket, 0),
+        )
+        for bucket in ("1", "2", "3", "4", "5+")
+        if bucket != "5+" or charge_counts.get("5+", 0) > 0
+    )
+    ppm_distribution = tuple(
+        PrecursorMassErrorDistributionRow(
+            bucket=label,
+            count=ppm_counts.get(label, 0),
+        )
+        for label, _lower, _upper in ppm_buckets
+    )
+    isotope_distribution = tuple(
+        PrecursorMassErrorDistributionRow(
+            bucket=str(offset),
+            count=isotope_counts.get(str(offset), 0),
+        )
+        for offset in range(max_isotope_offset + 1)
+    )
+
+    sorted_delta_ppm = sorted(delta_ppm_values)
+    sorted_abs_ppm = sorted(abs_ppm_values)
+
+    return PrecursorMassErrorReport(
+        observation_count=len(observations),
+        charge_distribution=charge_distribution,
+        ppm_error_distribution=ppm_distribution,
+        isotope_offset_distribution=isotope_distribution,
+        mean_delta_ppm=(
+            sum(delta_ppm_values) / len(delta_ppm_values) if delta_ppm_values else None
+        ),
+        mean_delta_da=(
+            sum(delta_da_values) / len(delta_da_values) if delta_da_values else None
+        ),
+        median_delta_ppm=(
+            sorted_delta_ppm[len(sorted_delta_ppm) // 2]
+            if sorted_delta_ppm
+            else None
+        ),
+        median_abs_delta_ppm=(
+            sorted_abs_ppm[len(sorted_abs_ppm) // 2] if sorted_abs_ppm else None
+        ),
+        max_abs_delta_ppm=max(sorted_abs_ppm) if sorted_abs_ppm else None,
+        observations=tuple(observations),
+    )
+
+
+def render_precursor_mass_error_summary_tsv(report: PrecursorMassErrorReport) -> str:
+    """Render one summary row for a precursor mass-error report."""
+    return _render_tsv(
+        (
+            "observation_count",
+            "mean_delta_ppm",
+            "mean_delta_da",
+            "median_delta_ppm",
+            "median_abs_delta_ppm",
+            "max_abs_delta_ppm",
+        ),
+        (
+            (
+                report.observation_count,
+                report.mean_delta_ppm,
+                report.mean_delta_da,
+                report.median_delta_ppm,
+                report.median_abs_delta_ppm,
+                report.max_abs_delta_ppm,
+            ),
+        ),
+    )
+
+
+def render_precursor_mass_error_distribution_tsv(
+    rows: tuple[PrecursorMassErrorDistributionRow, ...],
+    *,
+    distribution_name: str,
+) -> str:
+    """Render one stable precursor mass-error distribution table."""
+    return _render_tsv(
+        ("distribution", "bucket", "count"),
+        tuple((distribution_name, row.bucket, row.count) for row in rows),
+    )
+
+
+def render_precursor_mass_error_observations_tsv(
+    observations: tuple[PrecursorMassErrorObservation, ...],
+) -> str:
+    """Render per-observation precursor mass-error rows."""
+    return _render_tsv(
+        (
+            "spectrum_id",
+            "peptide",
+            "canonical_peptide",
+            "charge",
+            "observed_mz",
+            "theoretical_mz",
+            "delta_da",
+            "delta_ppm",
+            "absolute_delta_da",
+            "absolute_delta_ppm",
+            "recommended_isotope_offset",
+        ),
+        tuple(
+            (
+                observation.spectrum_id,
+                observation.peptide,
+                observation.canonical_peptide,
+                observation.charge,
+                observation.observed_mz,
+                observation.theoretical_mz,
+                observation.delta_da,
+                observation.delta_ppm,
+                observation.absolute_delta_da,
+                observation.absolute_delta_ppm,
+                observation.isotope_offset_advisory.recommended_offset,
+            )
+            for observation in observations
+        ),
     )
 
 
