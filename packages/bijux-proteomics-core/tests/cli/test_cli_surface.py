@@ -244,6 +244,9 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         decoy_payload = json.loads(decoy_result.output)
         assert decoy_payload["valid"] is True
         assert len(decoy_payload["reproducibility_hash"]) == 64
+        assert decoy_payload["generation_report"]["input_target_count"] == 3
+        assert decoy_payload["generation_report"]["generated_decoy_count"] == 3
+        assert decoy_payload["generation_report"]["decoy_mode"] == "reverse"
         assert Path("target_decoy.fasta").read_text().count(">") == 6
         decoy_manifest = json.loads(Path("target_decoy.manifest.json").read_text())
         assert (
@@ -280,6 +283,53 @@ def test_sequence_checksum_and_target_decoy_validate_commands(
         assert validation_result.exit_code == 0
         validation_payload = json.loads(validation_result.output)
         assert validation_payload["valid"] is True
+
+
+def test_fasta_decoy_command_reports_shuffle_caveats_and_prefix_collisions() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("homopolymer.fasta").write_text(
+            ">sp|P00001|HOMO_HUMAN Homopolymer OS=Homo sapiens GN=HOMO\nAAAAAA\n"
+        )
+        shuffle_result = runner.invoke(
+            cli,
+            [
+                "fasta-decoy",
+                "homopolymer.fasta",
+                "--mode",
+                "strict",
+                "--decoy-mode",
+                "shuffle",
+                "--seed",
+                "11",
+                "--out-fasta",
+                "homopolymer_decoy.fasta",
+            ],
+        )
+        assert shuffle_result.exit_code == 0
+        shuffle_payload = json.loads(shuffle_result.output)
+        assert shuffle_payload["generation_report"]["unchanged_sequence_count"] == 1
+        assert shuffle_payload["generation_report"]["target_sequence_collision_count"] == 1
+
+        Path("collision.fasta").write_text(
+            ">target_one Alpha target [Homo sapiens]\nMPEPTIDE\n"
+            ">LAB_target_one Existing prefixed target [Homo sapiens]\nMSEQENCE\n"
+        )
+        collision_result = runner.invoke(
+            cli,
+            [
+                "fasta-decoy",
+                "collision.fasta",
+                "--mode",
+                "strict",
+                "--prefix",
+                "LAB_",
+                "--out-fasta",
+                "collision_decoy.fasta",
+            ],
+        )
+        assert collision_result.exit_code != 0
+        assert "collide with existing target accessions" in collision_result.output
 
 
 def test_digest_command_writes_export_and_manifest(
