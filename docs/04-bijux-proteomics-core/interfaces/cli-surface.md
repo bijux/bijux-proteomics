@@ -37,6 +37,7 @@ The owned FASTA CLI surface is:
 - `fasta-decoy`
 - `target-decoy-validate`
 - `peptide-index`
+- `fragment-ions`
 - `peptide-properties`
 - `precursor-mass-error`
 - `modified-peptide-parse`
@@ -191,6 +192,29 @@ The `peptide-properties` JSON payload includes:
 - missed-cleavage count
 - hydrophobicity proxy
 - problem flags and a final problematic or not flag
+
+`fragment-ions` emits a dedicated theoretical fragment-ion review report for
+one peptide or modified peptide.
+
+- `--mod` accepts repeatable modification assignments in the same style as
+  `peptide-mass`.
+- `--charge` is repeatable and defaults to both `1` and `2`.
+- `--fragment-series` accepts the owned series labels and defaults to `b` plus
+  `y`.
+- `--include-neutral-losses` adds supported residue and modification losses.
+- `--tsv-out` writes one row per theoretical fragment ion.
+
+The `fragment-ions` JSON payload includes:
+
+- canonical notation and residue sequence
+- selected charge states and fragment series
+- whether neutral losses were included
+- total fragment-ion count
+- counts by series
+- counts by charge
+- neutral-loss ion count
+- the full fragment-ion rows with series, ordinal, charge, neutral loss, and
+  monoisotopic or average mass and m/z values
 
 `precursor-mass-error` emits a reviewer-facing precursor calibration report from
 one TSV table of peptide, observed-m/z, and charge observations.
