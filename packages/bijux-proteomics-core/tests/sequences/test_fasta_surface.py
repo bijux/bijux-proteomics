@@ -61,6 +61,38 @@ def test_parse_fasta_document_strict_rejects_duplicates_and_ambiguous_sequences(
     }
 
 
+def test_parse_fasta_document_reports_empty_sequence_duplicate_accession_and_database_composition(
+    fasta_fixture_dir: Path,
+) -> None:
+    report = parse_fasta_document(
+        (fasta_fixture_dir / "production_grade_database.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+
+    assert report.total_records == 9
+    assert len(report.accepted_records) == 6
+    assert len(report.rejected_records) == 3
+    assert report.duplicate_identifiers == ()
+    assert report.duplicate_accessions == ("uniprot:P04637",)
+    rejected_by_identifier = {
+        item.source_identifier: {issue.code for issue in item.issues}
+        for item in report.rejected_records
+    }
+    assert rejected_by_identifier["P04637"] == {"duplicate_accession"}
+    assert rejected_by_identifier["custom_empty"] == {"empty_sequence"}
+    assert rejected_by_identifier["custom_invalid"] == {"unsupported_residue", "invalid_character"}
+    assert report.database_composition.accepted_record_count == 6
+    assert report.database_composition.target_count == 5
+    assert report.database_composition.decoy_count == 1
+    assert report.database_composition.contaminant_count == 1
+    assert report.database_composition.accession_namespace_counts == {
+        "custom": 2,
+        "ensembl": 1,
+        "refseq": 1,
+        "uniprot": 2,
+    }
+
+
 def test_parse_fasta_document_permissive_accepts_ambiguous_terminal_stop_with_warnings(
     fasta_fixture_dir: Path,
 ) -> None:
@@ -166,8 +198,24 @@ def test_build_fasta_stats_reports_lengths_duplicates_and_contaminants(
         record.residue_count for record in report.accepted_records
     )
     assert stats.duplicate_identifier_count == 1
+    assert stats.duplicate_accession_count == 1
     assert stats.duplicate_sequence_count == 2
     assert stats.contaminant_count == 1
+
+
+def test_build_fasta_stats_reports_target_and_decoy_counts(
+    fasta_fixture_dir: Path,
+) -> None:
+    report = parse_fasta_document(
+        (fasta_fixture_dir / "target_decoy_valid.fasta").read_text(),
+        mode=FastaParseMode.STRICT,
+    )
+    stats = build_fasta_stats(report.accepted_records)
+
+    assert stats.total_records == 4
+    assert stats.target_count == 2
+    assert stats.decoy_count == 2
+    assert stats.accession_namespace_counts == {"uniprot": 4}
 
 
 def test_deduplicate_fasta_records_prefers_first_accession_then_sequence(
