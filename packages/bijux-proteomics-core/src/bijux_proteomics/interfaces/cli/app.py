@@ -48,6 +48,7 @@ from bijux_proteomics.identification import (
     build_calibration_plot_data,
     build_contaminant_peptide_match_report,
     build_fdr_audit_trail,
+    build_fragpipe_import_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -63,6 +64,10 @@ from bijux_proteomics.identification import (
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     parse_psm_tsv,
+    render_fragpipe_peptide_tsv,
+    render_fragpipe_protein_tsv,
+    render_fragpipe_psm_tsv,
+    render_fragpipe_summary_tsv,
 )
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
@@ -993,6 +998,95 @@ def psm_contaminants_command(
         contaminant_prefixes=tuple(contaminant_prefixes),
     )
     _emit_json(contaminant_report, out_path=out_path)
+
+
+@cli.command("fragpipe-import")
+@click.argument(
+    "psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--peptide-tsv",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--protein-tsv",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--peptide-review-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-review-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def fragpipe_import_command(
+    psm_tsv: Path,
+    peptide_tsv: Path,
+    protein_tsv: Path,
+    summary_tsv_out: Path | None,
+    psm_tsv_out: Path | None,
+    peptide_review_tsv_out: Path | None,
+    protein_review_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one FragPipe result bundle with explicit PSM, peptide, and protein review."""
+    try:
+        report = build_fragpipe_import_report(
+            psm_tsv,
+            peptide_tsv_path=peptide_tsv,
+            protein_tsv_path=protein_tsv,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_fragpipe_summary_tsv(report.summary))
+    if psm_tsv_out is not None:
+        _write_text_output(psm_tsv_out, render_fragpipe_psm_tsv(report.psm_rows))
+    if peptide_review_tsv_out is not None:
+        _write_text_output(
+            peptide_review_tsv_out,
+            render_fragpipe_peptide_tsv(report.peptide_rows),
+        )
+    if protein_review_tsv_out is not None:
+        _write_text_output(
+            protein_review_tsv_out,
+            render_fragpipe_protein_tsv(report.protein_rows),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "psm_normalization": {
+            "adapter": report.psm_normalization.adapter_manifest.to_dict(),
+            "accepted_rows": len(report.psm_normalization.parse_report.accepted_records),
+            "rejected_rows": len(report.psm_normalization.parse_report.rejected_rows),
+        },
+        "psm_rows": [row.to_dict() for row in report.psm_rows],
+        "peptide_rows": [row.to_dict() for row in report.peptide_rows],
+        "protein_rows": [row.to_dict() for row in report.protein_rows],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+            "peptide_review_tsv": None
+            if peptide_review_tsv_out is None
+            else str(peptide_review_tsv_out),
+            "protein_review_tsv": None
+            if protein_review_tsv_out is None
+            else str(protein_review_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @cli.command("fasta-provenance")
