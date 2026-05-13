@@ -51,6 +51,7 @@ def test_spectrum_model_and_mgf_parser_accept_simple_fixture() -> None:
     spectrum = report.accepted_spectra[0]
     assert spectrum.spectrum_id == "scan=5001"
     assert spectrum.precursor_mz == 500.2
+    assert spectrum.precursor_intensity is None
     assert spectrum.precursor_charge == 2
     assert spectrum.retention_time_seconds == 123.4
     assert len(spectrum.peaks) == 6
@@ -138,9 +139,11 @@ def test_mgf_parser_handles_missing_optional_fields_and_rt_minutes(
     assert len(report.accepted_spectra) == 2
     assert report.accepted_spectra[0].spectrum_id.endswith("scan=7001")
     assert report.accepted_spectra[0].retention_time_seconds == 150.0
+    assert report.accepted_spectra[0].precursor_intensity == 1000.0
     assert report.accepted_spectra[0].precursor_charge is None
     assert report.accepted_spectra[1].title is None
     assert report.accepted_spectra[1].retention_time_seconds is None
+    assert report.accepted_spectra[1].precursor_intensity is None
 
 
 def test_mgf_parser_streams_without_path_read_text(monkeypatch) -> None:
@@ -172,6 +175,7 @@ def test_mgf_writer_roundtrip_preserves_spectrum_contracts() -> None:
             roundtrip.accepted_spectra[0].precursor_mz
             == report.accepted_spectra[0].precursor_mz
         )
+        assert roundtrip.accepted_spectra[0].precursor_intensity is None
         assert roundtrip.accepted_spectra[1].precursor_charge == 3
     finally:
         output_path.unlink(missing_ok=True)

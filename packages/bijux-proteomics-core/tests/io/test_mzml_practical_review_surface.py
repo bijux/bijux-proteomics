@@ -24,10 +24,12 @@ def test_practical_mzml_fixture_preserves_ms1_ms2_and_precursor_context() -> Non
     assert report.accepted_spectra[0].ms_level == 1
     assert report.accepted_spectra[0].retention_time_seconds == 60.0
     assert report.accepted_spectra[0].precursor_mz == 445.3
+    assert report.accepted_spectra[0].precursor_intensity == 120000.0
     assert report.accepted_spectra[0].peaks[0].mz == 100.0
     assert report.accepted_spectra[1].ms_level == 2
     assert report.accepted_spectra[1].parent_spectrum_id == "scan=6000"
     assert report.accepted_spectra[1].precursor_charge == 3
+    assert report.accepted_spectra[1].precursor_intensity == 45000.0
     assert report.accepted_spectra[1].peaks[-1].intensity == 50.0
 
 
