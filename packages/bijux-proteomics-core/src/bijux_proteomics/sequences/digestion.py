@@ -607,6 +607,7 @@ def export_peptides_tsv(peptides: tuple[DigestedPeptide, ...], path: Path) -> Pa
             "source_accession",
             "source_identifier",
             "sequence",
+            "length",
             "start",
             "end",
             "missed_cleavages",
@@ -618,23 +619,44 @@ def export_peptides_tsv(peptides: tuple[DigestedPeptide, ...], path: Path) -> Pa
     )
     lines = [header]
     for peptide in peptides:
+        neutral_mass = _peptide_neutral_mass(peptide.sequence)
         lines.append(
             "\t".join(
                 [
                     peptide.source_accession,
                     peptide.source_identifier,
                     peptide.sequence,
+                    str(len(peptide.sequence)),
                     str(peptide.start),
                     str(peptide.end),
                     str(peptide.missed_cleavages),
                     peptide.protease,
                     peptide.digestion_mode.value,
                     peptide.cleavage_type,
-                    f"{_peptide_neutral_mass(peptide.sequence):.5f}",
+                    f"{neutral_mass:.5f}",
                 ]
             )
         )
     path.write_text("\n".join(lines) + "\n")
+    return path
+
+
+def export_peptides_fasta(peptides: tuple[DigestedPeptide, ...], path: Path) -> Path:
+    """Write one stable FASTA entry per peptide occurrence."""
+    lines: list[str] = []
+    for peptide in peptides:
+        neutral_mass = _peptide_neutral_mass(peptide.sequence)
+        lines.append(
+            (
+                f">{peptide.source_accession}|{peptide.start}-{peptide.end}"
+                f"|mc={peptide.missed_cleavages}"
+                f"|len={len(peptide.sequence)}"
+                f"|mass={neutral_mass:.5f}"
+                f"|protease={peptide.protease}"
+            )
+        )
+        lines.append(peptide.sequence)
+    path.write_text("\n".join(lines) + ("\n" if lines else ""))
     return path
 
 
@@ -643,6 +665,7 @@ def export_peptides_jsonl(peptides: tuple[DigestedPeptide, ...], path: Path) -> 
     payload = []
     for peptide in peptides:
         entry = peptide.to_dict()
+        entry["length"] = len(peptide.sequence)
         entry["neutral_mass"] = round(_peptide_neutral_mass(peptide.sequence), 5)
         payload.append(entry)
     path.write_text(
@@ -668,6 +691,7 @@ def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -
                 "source_accession": peptide.source_accession,
                 "source_identifier": peptide.source_identifier,
                 "sequence": peptide.sequence,
+                "length": len(peptide.sequence),
                 "start": peptide.start,
                 "end": peptide.end,
                 "missed_cleavages": peptide.missed_cleavages,
@@ -682,6 +706,54 @@ def export_peptides_parquet(peptides: tuple[DigestedPeptide, ...], path: Path) -
     return path
 
 
+def export_peptide_protein_table_tsv(
+    peptides: tuple[DigestedPeptide, ...],
+    path: Path,
+) -> Path:
+    """Write one stable peptide-to-protein occurrence table."""
+    header = "\t".join(
+        [
+            "sequence",
+            "length",
+            "neutral_mass",
+            "source_accession",
+            "source_identifier",
+            "source_protein_family",
+            "source_isoform",
+            "start",
+            "end",
+            "missed_cleavages",
+            "protease",
+            "digestion_mode",
+            "cleavage_type",
+        ]
+    )
+    lines = [header]
+    for peptide in peptides:
+        neutral_mass = _peptide_neutral_mass(peptide.sequence)
+        lines.append(
+            "\t".join(
+                [
+                    peptide.sequence,
+                    str(len(peptide.sequence)),
+                    f"{neutral_mass:.5f}",
+                    peptide.source_accession,
+                    peptide.source_identifier,
+                    peptide.source_protein_family,
+                    "" if peptide.source_isoform is None else str(peptide.source_isoform),
+                    str(peptide.start),
+                    str(peptide.end),
+                    str(peptide.missed_cleavages),
+                    peptide.protease,
+                    peptide.digestion_mode.value,
+                    peptide.cleavage_type,
+                ]
+            )
+        )
+    path.write_text("\n".join(lines) + "\n")
+    return path
+
+
 def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
     """Return a stable digest over peptide export content."""
     payload = [
@@ -689,6 +761,7 @@ def peptide_export_fingerprint(peptides: tuple[DigestedPeptide, ...]) -> str:
             "source_accession": peptide.source_accession,
             "source_identifier": peptide.source_identifier,
             "sequence": peptide.sequence,
+            "length": len(peptide.sequence),
             "start": peptide.start,
             "end": peptide.end,
             "missed_cleavages": peptide.missed_cleavages,
