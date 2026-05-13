@@ -373,11 +373,11 @@ def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryRepor
         count = len(root.findall(".//{*}PeptideIdentification"))
         return XmlIdentificationBoundaryReport(
             detected_format="idXML",
-            supported=False,
-            required_conversion="convert idXML to normalized PSM TSV or mzIdentML before ingestion",
+            supported=True,
+            required_conversion=None,
             diagnostics=(
                 "idXML root detected",
-                "native idXML mapping is not yet guaranteed to preserve all metadata fields",
+                "native idXML import preserves peptide and protein evidence through the owned OpenMS import surface",
             ),
             record_count=count,
         )
