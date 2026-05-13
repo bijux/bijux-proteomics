@@ -296,6 +296,8 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
 
     assert annotation.document_schema.document_kind == "spectrum_annotation"
     assert annotation.peptide == "PEPTIDE"
+    assert annotation.matched_peak_count > 0
+    assert annotation.explained_intensity_fraction > 0.0
     labels = {match.fragment_label for match in annotation.matches}
     assert "b2+1" in labels
     assert "y3+1" in labels
@@ -313,6 +315,40 @@ def test_theoretical_fragment_matching_annotation_and_plot_payload_are_stable() 
     assert rendered["document_schema"]["document_kind"] == "spectrum_plot_payload"
     labeled_peaks = [peak for peak in rendered["peaks"] if peak["labels"]]
     assert labeled_peaks
+
+
+def test_spectrum_annotation_supports_ppm_tolerance_and_reports_explained_intensity() -> (
+    None
+):
+    fragment = calculate_fragment_ions(
+        "PEPTIDE",
+        include_neutral_losses=False,
+    )[0]
+    observed_mz = fragment.mz_monoisotopic * (1.0 + (10.0 / 1_000_000.0))
+    spectrum = SpectrumModel(
+        spectrum_id="scan=ppm",
+        precursor_mz=500.2,
+        precursor_charge=2,
+        peaks=(
+            SpectrumPeak(mz=observed_mz, intensity=80.0),
+            SpectrumPeak(mz=700.0, intensity=20.0),
+        ),
+    )
+
+    annotation = annotate_spectrum_fragments(
+        spectrum,
+        peptide="PEPTIDE",
+        tolerance_da=None,
+        tolerance_ppm=20.0,
+        include_neutral_losses=False,
+    )
+
+    assert annotation.tolerance_unit.value == "ppm"
+    assert annotation.tolerance_da is None
+    assert annotation.tolerance_ppm == 20.0
+    assert annotation.matched_peak_count == 1
+    assert annotation.unmatched_peak_count == 1
+    assert annotation.explained_intensity_fraction == 0.8
 
 
 def test_spectrum_annotation_reports_tolerance_driven_ambiguity_warnings() -> None:
@@ -442,3 +478,20 @@ def test_annotated_spectrum_bundle_exports_raw_and_theoretical_evidence() -> Non
         assert payload["theoretical_fragments"]
     finally:
         output_path.unlink(missing_ok=True)
+
+
+def test_annotated_spectrum_bundle_preserves_ppm_annotation_parameters() -> None:
+    spectrum = normalize_spectrum_peaks(
+        parse_mgf(_spectrum_fixture("simple.mgf")).accepted_spectra[0]
+    )
+    bundle = build_annotated_spectrum_bundle(
+        spectrum,
+        peptide="PEPTIDE",
+        tolerance_da=None,
+        tolerance_ppm=20.0,
+        include_neutral_losses=False,
+    )
+
+    assert bundle.parameters.tolerance_unit.value == "ppm"
+    assert bundle.parameters.tolerance_da is None
+    assert bundle.parameters.tolerance_ppm == 20.0
