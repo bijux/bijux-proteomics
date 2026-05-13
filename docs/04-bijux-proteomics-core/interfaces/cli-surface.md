@@ -45,6 +45,7 @@ The owned FASTA CLI surface is:
 - `psm-map`
 - `fdr-reference-check`
 - `fdr-levels`
+- `picked-protein-fdr`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -514,6 +515,28 @@ The `fdr-levels` JSON payload includes:
 - one accepted-entry row per threshold and evidence level with entity identity,
   q-value, rank, member count, target-decoy label, contaminant flag, and
   protein references
+- any requested summary or entry TSV output paths
+
+`picked-protein-fdr` compares target-versus-decoy protein competition across
+explicit picked-protein thresholds.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` can be repeated and defaults to `0.01`, `0.05`, and `0.1`
+- canonical-schema and decoy-policy column controls stay available so lab-local
+  PSM tables can be reviewed without a separate conversion pass
+- `--summary-tsv-out` writes one threshold-level competition summary table
+- `--entries-tsv-out` writes one picked-protein ledger across thresholds
+
+The `picked-protein-fdr` JSON payload includes:
+
+- the selected score orientation and ordered thresholds
+- accepted and rejected source-row counts from the parsed PSM table
+- one threshold summary with total and accepted target, decoy, contaminant,
+  and grouped-protein burden
+- one picked-protein review row per threshold with protein identity,
+  target-versus-decoy partner identity, protein-group identifiers, score,
+  q-value, FDR, rank, acceptance state, contaminant flag, and supporting
+  peptides
 - any requested summary or entry TSV output paths
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
