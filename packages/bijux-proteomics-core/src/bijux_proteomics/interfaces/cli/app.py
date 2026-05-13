@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import csv
 import hashlib
 import json
 from pathlib import Path
@@ -155,6 +156,9 @@ from bijux_proteomics.sequences.digestion import (
     get_protease_rule,
     peptide_export_fingerprint,
 )
+from bijux_proteomics.sequences.peptide_uniqueness_audit import (
+    build_peptide_database_lookup_report,
+)
 from bijux_proteomics.study.qc import (
     QcEvidenceInputFile,
     build_batch_qc_assessment,
@@ -182,6 +186,31 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
 
 def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def _load_protein_group_map(path: Path) -> dict[str, str]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("protein group map must include a header row")
+        required = {"accession", "protein_group"}
+        missing = required.difference(reader.fieldnames)
+        if missing:
+            missing_columns = ", ".join(sorted(missing))
+            raise ValueError(
+                "protein group map must include the columns "
+                f"'accession' and 'protein_group'; missing: {missing_columns}"
+            )
+        mapping: dict[str, str] = {}
+        for row in reader:
+            accession = str(row.get("accession", "")).strip()
+            protein_group = str(row.get("protein_group", "")).strip()
+            if not accession or not protein_group:
+                raise ValueError(
+                    "protein group map rows must provide both accession and protein_group"
+                )
+            mapping[accession] = protein_group
+    return mapping
 
 
 def _emit_fasta_profile(
@@ -1082,6 +1111,97 @@ def digest_command(
             "output_sha256": peptide_export_fingerprint(peptides),
             "output_path": str(out_path),
         }
+    )
+
+
+@cli.command("peptide-index")
+@click.argument(
+    "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--peptide",
+    "peptides",
+    multiple=True,
+    required=True,
+    help="Repeat for each peptide or modified peptide query to index.",
+)
+@click.option(
+    "--mode",
+    type=_mode_choice(),
+    default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option("--missed-cleavages", type=int, default=0, show_default=True)
+@click.option(
+    "--digestion-mode",
+    type=_digestion_mode_choice(),
+    default=PeptideDigestionMode.FULL.value,
+    show_default=True,
+)
+@click.option(
+    "--il-equivalent/--exact-il",
+    default=False,
+    show_default=True,
+    help="Optionally collapse isoleucine and leucine during peptide lookup.",
+)
+@click.option(
+    "--protein-group-map",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional TSV with accession and protein_group columns.",
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def peptide_index_command(
+    input_fasta: Path,
+    peptides: tuple[str, ...],
+    mode: str,
+    protease: str,
+    missed_cleavages: int,
+    digestion_mode: str,
+    il_equivalent: bool,
+    protein_group_map: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Index peptide queries against a digested FASTA database."""
+    try:
+        protease_rule = get_protease_rule(protease)
+        report = _load_fasta_report(
+            input_fasta,
+            mode=FastaParseMode(mode),
+            allow_rejected=False,
+        )
+        group_map = (
+            _load_protein_group_map(protein_group_map)
+            if protein_group_map is not None
+            else {}
+        )
+        lookup = build_peptide_database_lookup_report(
+            peptides,
+            report.accepted_records,
+            protease=protease_rule,
+            missed_cleavages=missed_cleavages,
+            digestion_mode=PeptideDigestionMode(digestion_mode),
+            treat_isoleucine_as_leucine=il_equivalent,
+            protein_group_by_accession=group_map,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    _emit_json(
+        {
+            "input_record_count": report.total_records,
+            "query_peptide_count": len(peptides),
+            "protease": protease_rule.name,
+            "digestion_mode": digestion_mode,
+            "missed_cleavages": missed_cleavages,
+            "il_equivalent": il_equivalent,
+            "protein_group_map_supplied": protein_group_map is not None,
+            "report": lookup.to_dict(),
+        },
+        out_path=out_path,
     )
 
 
