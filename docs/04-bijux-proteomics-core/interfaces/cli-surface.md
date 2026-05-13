@@ -47,6 +47,7 @@ The owned spectrum CLI surface is:
 - `spectrum-parse`
 - `spectrum-stats`
 - `spectrum-annotate`
+- `spectrum-summary`
 - `mzml-inspect`
 - `summarize --kind mgf`
 
@@ -258,6 +259,24 @@ The `spectrum-parse` JSON payload includes:
 - summary counts over accepted spectra and rejected blocks
 - per-spectrum TIC or base-peak metrics
 - a provenance manifest when `--provenance-out` is requested
+
+`spectrum-summary` emits reviewer-facing run summary tables over one MGF or
+mzML input.
+
+- `--kind` accepts `auto`, `mgf`, or `mzml`
+- `--summary-tsv-out` writes the one-row run summary
+- `--charge-tsv-out` writes the precursor-charge distribution
+- `--precursor-tsv-out` writes the precursor-m/z distribution
+- `--peak-count-tsv-out` writes the peak-count distribution
+
+The `spectrum-summary` JSON payload includes:
+
+- source kind
+- ms-level policy
+- total, rejected, MS1, MS2, and unknown-ms-level counts
+- retention-time minimum and maximum when available
+- charge, precursor-m/z, and peak-count distributions
+- any requested TSV export paths
 
 `mzml-inspect` reports one practical mzML review object without claiming full
 vendor-native replacement.
