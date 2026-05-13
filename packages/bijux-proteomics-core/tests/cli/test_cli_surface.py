@@ -1927,6 +1927,46 @@ def test_sage_import_command_reports_scores_and_modifications() -> None:
         assert Path("sage.psm.tsv").exists()
 
 
+def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "comet"
+        shutil.copy(fixture_dir / "comet_psm.tsv", "comet_psm.tsv")
+        shutil.copy(fixture_dir / "comet.params", "comet.params")
+        shutil.copy(fixture_dir / "comet_results.pepxml", "comet_results.pepxml")
+
+        tabular_result = runner.invoke(
+            cli,
+            [
+                "comet-import",
+                "comet_psm.tsv",
+                "--config",
+                "comet.params",
+                "--summary-tsv-out",
+                "comet.summary.tsv",
+                "--psm-tsv-out",
+                "comet.psm.tsv",
+            ],
+        )
+        pepxml_result = runner.invoke(cli, ["comet-import", "comet_results.pepxml"])
+
+        assert tabular_result.exit_code == 0
+        tabular_payload = json.loads(tabular_result.output)
+        assert tabular_payload["import_kind"] == "tabular"
+        assert tabular_payload["summary"]["accepted_psm_count"] == 3
+        assert tabular_payload["summary"]["modified_psm_count"] == 2
+        assert tabular_payload["summary"]["xcorr_psm_count"] == 3
+        assert tabular_payload["parameter_report"]["enzyme"] == "trypsin"
+        assert Path("comet.summary.tsv").exists()
+        assert Path("comet.psm.tsv").exists()
+
+        assert pepxml_result.exit_code == 0
+        pepxml_payload = json.loads(pepxml_result.output)
+        assert pepxml_payload["import_kind"] == "pepxml"
+        assert pepxml_payload["summary"]["accepted_psm_count"] == 3
+        assert pepxml_payload["psm_rows"][0]["xcorr"] == 3.52
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
