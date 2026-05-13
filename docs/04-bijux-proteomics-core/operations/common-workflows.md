@@ -4,7 +4,7 @@ audience: mixed
 type: explanation
 status: canonical
 owner: bijux-proteomics-core-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-05-13
 ---
 
 # Common Workflows
@@ -22,3 +22,22 @@ Common workflows should sound like the real jobs people do with the package, not
 - `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
 - `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
 - `packages/bijux-proteomics-core/tests`
+
+## FASTA Intake
+
+Use the FASTA intake surface before digestion, target-decoy preparation, or
+search-database review whenever a protein database may contain mixed header
+styles, contaminants, decoys, or lab-local records.
+
+- `fasta-parse` returns accepted and rejected records, duplicate identifiers,
+  duplicate normalized accessions, and parser-level database composition.
+- Empty-sequence records are rejected explicitly instead of aborting the whole
+  file.
+- UniProt, RefSeq, Ensembl, and custom lab headers can coexist in one parse
+  report.
+- Target-decoy and contaminant-heavy databases remain reviewable because the
+  accepted-record composition reports target, decoy, and contaminant counts.
+
+The parser contract is intentionally stricter than a line reader. Its job is
+to tell the operator whether the database is usable for downstream proteomics
+work, not just whether the file is syntactically FASTA-like.
