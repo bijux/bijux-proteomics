@@ -41,6 +41,7 @@ from bijux_proteomics.domain.program_spec import (
 from bijux_proteomics.identification import (
     FdrPolicy,
     ParsimonyVariant,
+    PsmRecord,
     SearchResultColumnMapping,
     TargetDecoyReferenceCase,
     TargetDecoyLabelPolicy,
@@ -54,6 +55,7 @@ from bijux_proteomics.identification import (
     build_peptide_evidence_review_report,
     build_parsimony_review_report,
     build_picked_protein_fdr_review_report,
+    build_protein_coverage_plot_report,
     build_fdr_audit_trail,
     build_fragpipe_import_report,
     build_generic_psm_mapper_report,
@@ -108,6 +110,9 @@ from bijux_proteomics.identification import (
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
     render_parsimony_review_summary_tsv,
+    render_protein_coverage_plot_html,
+    render_protein_coverage_plot_positions_tsv,
+    render_protein_coverage_plot_svg,
     render_protein_coverage_entries_tsv,
     render_protein_coverage_regions_tsv,
     render_protein_coverage_summary_tsv,
@@ -636,6 +641,22 @@ def _build_decoy_policy(
     return TargetDecoyLabelPolicy(
         protein_prefix=decoy_prefix,
         protein_suffix=decoy_suffix,
+    )
+
+
+def _filter_review_psms(
+    records: tuple[PsmRecord, ...],
+    *,
+    threshold: float,
+    score_orientation: str,
+) -> tuple[PsmRecord, ...]:
+    """Preserve imported q-values for review surfaces when they are complete."""
+    if records and all(record.q_value is not None for record in records):
+        return tuple(record for record in records if record.q_value <= threshold)
+    return filter_psms_by_fdr(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
     )
 
 
@@ -3472,7 +3493,7 @@ def protein_coverage_command(
             mapping=mapping,
             decoy_policy=decoy_policy,
         )
-        accepted_records = filter_psms_by_fdr(
+        accepted_records = _filter_review_psms(
             report.accepted_records,
             threshold=threshold,
             score_orientation=score_orientation,
@@ -3524,6 +3545,154 @@ def protein_coverage_command(
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "coverage_tsv": None if coverage_tsv_out is None else str(coverage_tsv_out),
         "regions_tsv": None if regions_tsv_out is None else str(regions_tsv_out),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("protein-coverage-plot")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--fasta",
+    "fasta_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--threshold", type=float, default=0.05, show_default=True)
+@click.option(
+    "--score-orientation",
+    type=_score_orientation_choice(),
+    default=ScoreOrientation.HIGHER_BETTER.value,
+    show_default=True,
+)
+@click.option("--high-q-value", type=float, default=0.01, show_default=True)
+@click.option("--medium-q-value", type=float, default=0.05, show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default=None)
+@click.option("--modified-peptide-column", default=None)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--intensity-column", default=None)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option(
+    "--positions-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--svg-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--html-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def protein_coverage_plot_command(
+    input_tsv: Path,
+    fasta_path: Path,
+    threshold: float,
+    score_orientation: str,
+    high_q_value: float,
+    medium_q_value: float,
+    spectrum_id_column: str,
+    peptide_column: str,
+    run_id_column: str | None,
+    modified_peptide_column: str | None,
+    charge_column: str,
+    score_column: str,
+    intensity_column: str | None,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    contaminant_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    positions_tsv_out: Path | None,
+    svg_out: Path | None,
+    html_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build plot-ready peptide-to-protein coverage payloads and static plots."""
+    try:
+        mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
+            protein_separator=protein_separator,
+            intensity_column=intensity_column,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        accepted_records = _filter_review_psms(
+            report.accepted_records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        fasta_report = parse_fasta_document(
+            fasta_path.read_text(),
+            mode=FastaParseMode.STRICT,
+        )
+        if fasta_report.rejected_records:
+            rejected = ", ".join(
+                row.source_identifier for row in fasta_report.rejected_records
+            )
+            raise click.ClickException(
+                f"FASTA input contains rejected records under strict mode: {rejected}"
+            )
+        protein_sequences = {
+            record.canonical_accession: record.residues
+            for record in fasta_report.accepted_records
+        }
+        plot = build_protein_coverage_plot_report(
+            accepted_records,
+            protein_sequences=protein_sequences,
+            threshold=threshold,
+            score_orientation=score_orientation,
+            high_q_value=high_q_value,
+            medium_q_value=medium_q_value,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if positions_tsv_out is not None:
+        _write_text_output(
+            positions_tsv_out,
+            render_protein_coverage_plot_positions_tsv(plot),
+        )
+    if svg_out is not None:
+        _write_text_output(svg_out, render_protein_coverage_plot_svg(plot))
+    if html_out is not None:
+        _write_text_output(html_out, render_protein_coverage_plot_html(plot))
+
+    payload = plot.to_dict()
+    payload["accepted_rows"] = len(accepted_records)
+    payload["rejected_rows"] = len(report.rejected_rows)
+    payload["outputs"] = {
+        "positions_tsv": None if positions_tsv_out is None else str(positions_tsv_out),
+        "svg": None if svg_out is None else str(svg_out),
+        "html": None if html_out is None else str(html_out),
     }
     _emit_json(payload, out_path=out_path)
 
