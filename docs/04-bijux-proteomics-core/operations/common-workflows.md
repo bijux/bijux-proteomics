@@ -512,6 +512,31 @@ shows how target and decoy proteins compete under the owned picked-protein
 policy, but it does not replace later protein-group interpretation or broader
 confidence discussion.
 
+## Protein Grouping Review
+
+Use `protein-groups` when observed peptides already support proteins, but the
+question is which proteins remain indistinguishable and which one is only a
+stable leading representative inside that group.
+
+- The grouping surface collapses proteins by the exact peptide evidence they
+  share instead of reporting every accession as if it were independently
+  identified.
+- Unique and shared peptide ledgers stay explicit per group, so the operator
+  can see whether one group is supported by one protein-specific peptide or
+  only by broad shared evidence.
+- A deterministic leading protein is reported for each group using the same
+  unique-evidence, best-score, then accession tie-break policy used elsewhere
+  in the package.
+- The leading protein remains a reviewer-facing representative, not a claim
+  that the rest of the group vanished biologically.
+- Reviewer-facing summary and group-table ledgers remain available so ambiguous
+  and singleton groups can be inspected directly before parsimony or later
+  confidence interpretation.
+
+This surface is intentionally grouping-facing rather than inferential. It
+shows which proteins collapse together under the observed peptide evidence, but
+it does not by itself choose the final minimal explanatory protein set.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
