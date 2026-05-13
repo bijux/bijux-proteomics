@@ -427,6 +427,17 @@ The `spectronaut-import` JSON payload includes:
 - `--mapping` is required and accepts one YAML or JSON column-map file
 - `--normalized-tsv-out` writes the normalized mapped PSM table
 
+`psm-inspect` also accepts explicit canonical-schema column controls when a
+lab-local TSV needs direct inspection without a separate mapping document.
+
+- `--run-id-column` maps one run-identity column when the source export carries
+  repeated scan identifiers across runs
+- `--modified-peptide-column` maps one source column that carries modified
+  peptide notation separate from the stripped peptide column
+- `--contaminant-label-column` maps one explicit contaminant-state column when
+  contaminant status is supplied directly instead of inferred only from protein
+  references
+
 The `psm-map` JSON payload includes:
 
 - the validated column map used for normalization
@@ -435,8 +446,10 @@ The `psm-map` JSON payload includes:
   coverage, q-value coverage, protein-reference coverage, and unmapped source
   columns
 - rejected rows with stable issue details
-- mapped rows with run identity, spectrum identity, peptide, canonical
-  peptide, charge, score, q-value, protein references, and target-decoy label
+- mapped rows with run identity, spectrum identity, residue-only peptide
+  sequence, peptide text, canonical modified peptide when present, charge,
+  score, q-value, protein references, target-decoy label, and contaminant
+  flag
 - any requested normalized TSV output path
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
