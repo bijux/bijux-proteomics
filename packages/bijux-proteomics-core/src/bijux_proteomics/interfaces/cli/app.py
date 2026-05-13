@@ -100,19 +100,25 @@ from bijux_proteomics.io.formats import (
 from bijux_proteomics.io.spectra import (
     PrecursorMassErrorQuery,
     annotate_spectrum_fragments,
+    build_spectrum_library_similarity_report,
+    build_spectrum_similarity_comparison_report,
     build_precursor_mass_error_report,
     build_spectrum_collection_summary,
-    build_spectrum_summary_table_report,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
+    build_spectrum_summary_table_report,
     export_spectrum_annotation_tsv,
     parse_mgf,
+    render_spectrum_similarity_tsv,
     render_precursor_mass_error_distribution_tsv,
     render_precursor_mass_error_observations_tsv,
     render_precursor_mass_error_summary_tsv,
     render_spectrum_distribution_tsv,
     render_spectrum_summary_tsv,
+    SpectralSimilarityMethod,
+    SpectrumModel,
+    SpectrumSimilarityMode,
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
@@ -207,6 +213,44 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
 
 def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def _load_similarity_spectra(input_path: Path, *, kind: str) -> tuple[SpectrumModel, ...]:
+    resolved_kind = kind
+    if resolved_kind == "auto":
+        suffix = input_path.suffix.lower()
+        if suffix == ".mgf":
+            resolved_kind = "mgf"
+        elif suffix == ".mzml":
+            resolved_kind = "mzml"
+        else:
+            raise ValueError(
+                f"cannot infer spectrum input kind for {input_path.name!r}; "
+                "use --query-kind/--reference-kind mgf or mzml"
+            )
+    if resolved_kind == "mgf":
+        return parse_mgf(input_path).accepted_spectra
+    if resolved_kind == "mzml":
+        return parse_mzml(input_path).accepted_spectra
+    raise ValueError("spectrum similarity supports only mgf and mzml inputs")
+
+
+def _select_similarity_spectrum(
+    spectra: tuple[SpectrumModel, ...],
+    *,
+    input_path: Path,
+    spectrum_id: str | None,
+) -> SpectrumModel:
+    if not spectra:
+        raise ValueError(
+            f"{input_path.name!r} does not contain an accepted spectrum for comparison"
+        )
+    if spectrum_id is None:
+        return spectra[0]
+    try:
+        return next(item for item in spectra if item.spectrum_id == spectrum_id)
+    except StopIteration as exc:
+        raise ValueError(f"unknown spectrum id {spectrum_id!r} in {input_path.name!r}") from exc
 
 
 def _load_protein_group_map(path: Path) -> dict[str, str]:
@@ -2738,6 +2782,140 @@ def spectrum_annotate_command(
         "plot_payload": plot_payload.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-similarity")
+@click.argument(
+    "query_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "reference_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--query-kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option(
+    "--reference-kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option("--query-spectrum-id", default=None)
+@click.option("--reference-spectrum-id", default=None)
+@click.option(
+    "--method",
+    type=click.Choice([item.value for item in SpectralSimilarityMethod]),
+    default=SpectralSimilarityMethod.COSINE.value,
+    show_default=True,
+)
+@click.option(
+    "--mode",
+    type=click.Choice([item.value for item in SpectrumSimilarityMode]),
+    default=SpectrumSimilarityMode.NORMALIZED.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=None)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--bin-width-da", type=float, default=None)
+@click.option("--max-matches", type=int, default=None)
+@click.option(
+    "--tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON similarity output path.",
+)
+def spectrum_similarity_command(
+    query_path: Path,
+    reference_path: Path,
+    query_kind: str,
+    reference_kind: str,
+    query_spectrum_id: str | None,
+    reference_spectrum_id: str | None,
+    method: str,
+    mode: str,
+    top_n: int | None,
+    tolerance_da: float | None,
+    bin_width_da: float | None,
+    max_matches: int | None,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare one query spectrum against one spectrum or a reference library."""
+    try:
+        query_spectra = _load_similarity_spectra(query_path, kind=query_kind)
+        reference_spectra = _load_similarity_spectra(
+            reference_path,
+            kind=reference_kind,
+        )
+        query_spectrum = _select_similarity_spectrum(
+            query_spectra,
+            input_path=query_path,
+            spectrum_id=query_spectrum_id,
+        )
+        active_method = SpectralSimilarityMethod(method)
+        active_mode = SpectrumSimilarityMode(mode)
+        if top_n is not None and top_n <= 0:
+            raise ValueError("top_n must be greater than zero when provided")
+        if max_matches is not None and max_matches <= 0:
+            raise ValueError("max_matches must be greater than zero when provided")
+
+        if reference_spectrum_id is not None:
+            reference_spectrum = _select_similarity_spectrum(
+                reference_spectra,
+                input_path=reference_path,
+                spectrum_id=reference_spectrum_id,
+            )
+            comparison = build_spectrum_similarity_comparison_report(
+                reference_spectrum,
+                query_spectrum,
+                tolerance_da=tolerance_da,
+                bin_width_da=bin_width_da,
+                method=active_method,
+                mode=active_mode,
+                top_n=top_n,
+            )
+            library_report = build_spectrum_library_similarity_report(
+                query_spectrum,
+                (reference_spectrum,),
+                tolerance_da=tolerance_da,
+                bin_width_da=bin_width_da,
+                method=active_method,
+                mode=active_mode,
+                top_n=top_n,
+                max_matches=1,
+            )
+            payload = {
+                "comparison": comparison.to_dict(),
+                "library_report": library_report.to_dict(),
+            }
+        else:
+            library_report = build_spectrum_library_similarity_report(
+                query_spectrum,
+                reference_spectra,
+                tolerance_da=tolerance_da,
+                bin_width_da=bin_width_da,
+                method=active_method,
+                mode=active_mode,
+                top_n=top_n,
+                max_matches=max_matches,
+            )
+            payload = {
+                "comparison": None,
+                "library_report": library_report.to_dict(),
+            }
+        if tsv_out is not None:
+            _write_text_output(tsv_out, render_spectrum_similarity_tsv(library_report))
+        payload["tsv_out"] = str(tsv_out) if tsv_out is not None else None
+        _emit_json(payload, out_path=out_path)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 @cli.command("validate")
