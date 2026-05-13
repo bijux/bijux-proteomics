@@ -41,6 +41,7 @@ from bijux_proteomics.domain.program_spec import (
 from bijux_proteomics.identification import (
     FdrPolicy,
     SearchResultColumnMapping,
+    TargetDecoyReferenceCase,
     TargetDecoyLabelPolicy,
     apply_q_values,
     assign_confidence_labels,
@@ -65,11 +66,14 @@ from bijux_proteomics.identification import (
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
+    build_target_decoy_reference_validation_report,
     export_psm_jsonl,
     export_psm_tsv,
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     parse_psm_tsv,
+    render_target_decoy_reference_entries_tsv,
+    render_target_decoy_reference_summary_tsv,
     render_comet_psm_tsv,
     render_comet_summary_tsv,
     render_diann_precursor_tsv,
@@ -2836,6 +2840,58 @@ def fdr_command(
         "audit_trail": audit_trail.to_dict(),
         "calibration_plot": calibration_plot.to_dict(),
         "provenance": provenance.to_dict(),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("fdr-reference-check")
+@click.argument(
+    "reference_json", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--entries-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def fdr_reference_check_command(
+    reference_json: Path,
+    summary_tsv_out: Path | None,
+    entries_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Validate curated target-decoy reference cases against the owned FDR surface."""
+    try:
+        raw_cases = json.loads(reference_json.read_text(encoding="utf-8"))
+        cases = tuple(
+            TargetDecoyReferenceCase.model_validate(case) for case in raw_cases
+        )
+        report = build_target_decoy_reference_validation_report(cases)
+    except (ValueError, TypeError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_target_decoy_reference_summary_tsv(report),
+        )
+    if entries_tsv_out is not None:
+        _write_text_output(
+            entries_tsv_out,
+            render_target_decoy_reference_entries_tsv(report),
+        )
+
+    payload = report.to_dict()
+    payload["outputs"] = {
+        "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+        "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
 
