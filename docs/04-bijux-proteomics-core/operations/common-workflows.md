@@ -417,6 +417,27 @@ This surface is intentionally for governed mapping, not heuristic ingestion. If
 the operator cannot write a clear column map, the table is under-specified and
 should not be normalized as if it were already trusted search evidence.
 
+## PSM Evidence Inspection
+
+Use `psm-inspect` when one normalized or lab-local PSM table needs a direct
+quality review before FDR filtering, peptide rollup, or protein inference.
+
+- The inspection surface reports total, accepted, and rejected row counts
+  explicitly instead of hiding parser loss inside downstream summaries.
+- Score and q-value distributions stay reviewer-facing so unusual score ranges
+  or weak-confidence tails are visible before thresholding.
+- Charge-state and peptide-length distributions show whether the search result
+  shape matches the expected acquisition and digest space.
+- Missed-cleavage distributions are computed under an explicit protease instead
+  of being guessed from generic peptide text.
+- The same command can still export normalized JSONL or TSV evidence and the
+  provenance manifest, so review does not fork into a separate incompatible
+  surface.
+
+This surface is intentionally descriptive rather than declarative. It helps the
+operator understand search-result quality honestly, but it does not replace
+later FDR policy, contaminant review, or protein-level inference.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
