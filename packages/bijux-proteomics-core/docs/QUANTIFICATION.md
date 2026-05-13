@@ -22,6 +22,10 @@ run identity is explicit.
 Protein-level matrix construction is now explicit too, rather than being
 treated as an implicit follow-on spreadsheet collapse.
 
+It now also carries one owned MaxLFQ-like protein surface that preserves
+pairwise peptide ratios across samples instead of stopping at direct protein
+rollup.
+
 ## Input contract
 
 The quantification parser expects a delimited table with these canonical
@@ -78,6 +82,7 @@ from bijux_proteomics.quantification import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_protein_lfq_report_from_psms,
     build_peptide_intensity_matrix_from_psms,
     build_protein_intensity_matrix_from_peptides,
     build_replicate_correlation_report,
@@ -141,6 +146,13 @@ protein_matrix = build_protein_intensity_matrix_from_peptides(
     peptide_matrix,
     target_kind=ProteinMatrixTargetKind.PROTEIN,
     unique_only=True,
+)
+protein_lfq = build_protein_lfq_report_from_psms(
+    psm_report.accepted_records,
+    grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+    target_kind=ProteinMatrixTargetKind.PROTEIN,
+    aggregation_method=QuantRollupMethod.SUM,
+    minimum_shared_peptides=2,
 )
 ```
 
@@ -211,6 +223,31 @@ That protein-matrix surface emits:
 - peptide count plus unique/shared peptide burden per protein row
 - a protein-by-sample abundance matrix and a per-sample missingness ledger
 
+For direct MaxLFQ-like review:
+
+```bash
+bijux-proteomics protein-lfq search_with_intensity.tsv \
+  --input-kind psm \
+  --grouping-mode modified_peptide \
+  --target-kind protein \
+  --aggregation sum \
+  --minimum-shared-peptides 2 \
+  --summary-tsv-out protein-lfq.summary.tsv \
+  --matrix-tsv-out protein-lfq.matrix.tsv \
+  --pairwise-tsv-out protein-lfq.pairwise.tsv \
+  --missingness-tsv-out protein-lfq.missingness.tsv \
+  --out protein-lfq.report.json
+```
+
+That protein-LFQ surface emits:
+
+- explicit peptide grouping, charge policy, and pre-LFQ aggregation policy
+- pairwise sample-ratio ledgers per protein or exact protein group
+- component-aware least-squares LFQ values across the observed sample graph
+- explicit disconnected-component visibility when missing peptides prevent one
+  fully connected sample network
+- a protein-by-sample LFQ matrix together with summary and missingness ledgers
+
 ## Current limits
 
 - differential abundance is intentionally limited to two-condition comparisons
@@ -218,6 +255,10 @@ That protein-matrix surface emits:
   model
 - batch and replicate surfaces are advisory and do not change quant values
 - TMT/DIA quantification is not part of this slice
+- the current protein-LFQ surface is intentionally MaxLFQ-like rather than a
+  claim of byte-for-byte parity with external tools
+- disconnected sample components are reported explicitly instead of being
+  forced into one synthetic fully observed profile
 - the current PSM matrix path requires intensity-bearing rows and does not infer
   missing abundance from score-only search evidence
 - protein-group rollup is intentionally exact-membership based at this stage; it
