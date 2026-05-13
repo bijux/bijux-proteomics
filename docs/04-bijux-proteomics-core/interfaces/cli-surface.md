@@ -49,6 +49,7 @@ The owned spectrum CLI surface is:
 - `spectrum-parse`
 - `spectrum-stats`
 - `spectrum-annotate`
+- `spectrum-similarity`
 - `spectrum-summary`
 - `mzml-inspect`
 - `summarize --kind mgf`
@@ -348,6 +349,33 @@ The `spectrum-annotate` JSON payload includes:
 - ambiguity warnings when one fragment matches multiple peaks or one peak
   matches multiple fragments
 - one plot-ready payload with labeled peaks
+
+`spectrum-similarity` compares one accepted query spectrum against either one
+selected reference spectrum or an accepted spectrum library from MGF or mzML.
+
+- `--query-kind` and `--reference-kind` accept `auto`, `mgf`, or `mzml`.
+- `--query-spectrum-id` optionally selects one accepted query spectrum by
+  identifier.
+- `--reference-spectrum-id` switches the command into explicit pairwise
+  comparison against one selected reference spectrum.
+- `--method` accepts `cosine` or `dot_product`.
+- `--mode` accepts `raw`, `normalized`, `top_n`, or `transformed`.
+- `--tolerance-da` enables direct fragment matching by mass tolerance.
+- `--bin-width-da` enables coarse m/z-binned comparison instead of
+  tolerance-based matching.
+- `--max-matches` limits the ranked library output.
+- `--tsv-out` writes the ranked candidate table.
+
+The `spectrum-similarity` JSON payload includes:
+
+- an optional pairwise comparison report when `--reference-spectrum-id` is
+  supplied
+- a ranked library report for the selected query spectrum
+- the explicit preprocessing and matching parameters
+- matched-peak count plus explained-intensity fractions
+- reviewer-facing classifications such as `duplicate_like`, `similar`,
+  `distinct`, or `insufficient_signal`
+- any requested TSV export path
 
 `mzml-inspect` reports one practical mzML review object without claiming full
 vendor-native replacement.
