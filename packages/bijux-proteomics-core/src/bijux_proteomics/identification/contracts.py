@@ -2578,8 +2578,8 @@ def _entity_fdr_entries(
     pseudo_records = tuple(
         PsmRecord(
             spectrum_id=entity_id,
-            peptide=entity_id,
-            canonical_peptide=entity_id,
+            peptide="A",
+            canonical_peptide="A",
             charge=1,
             score=score,
             protein_refs=protein_refs,
@@ -2599,15 +2599,15 @@ def _entity_fdr_entries(
     return tuple(
         FdrLevelEntry(
             evidence_level=evidence_level,
-            entity_id=entry.psm.canonical_peptide,
+            entity_id=entry.psm.spectrum_id,
             score=entry.psm.score,
             q_value=entry.q_value,
             fdr=entry.fdr,
             rank=entry.rank,
             accepted=entry.accepted,
             target_decoy_label=entry.psm.target_decoy_label,
-            member_count=entity_index[entry.psm.canonical_peptide][0],
-            protein_refs=entity_index[entry.psm.canonical_peptide][1],
+            member_count=entity_index[entry.psm.spectrum_id][0],
+            protein_refs=entity_index[entry.psm.spectrum_id][1],
         )
         for entry in annotated
     )
@@ -3666,8 +3666,8 @@ def calculate_picked_protein_fdr(
     pseudo_records = tuple(
         PsmRecord(
             spectrum_id=protein_ref,
-            peptide=protein_ref,
-            canonical_peptide=protein_ref,
+            peptide="A",
+            canonical_peptide="A",
             charge=1,
             score=score,
             protein_refs=(protein_ref,),
@@ -3688,15 +3688,15 @@ def calculate_picked_protein_fdr(
     }
     return tuple(
         PickedProteinFdrEntry(
-            protein_ref=entry.psm.protein_refs[0],
-            partner_ref=selected_index[entry.psm.protein_refs[0]][1],
+            protein_ref=entry.psm.spectrum_id,
+            partner_ref=selected_index[entry.psm.spectrum_id][1],
             score=entry.psm.score,
             q_value=entry.q_value,
             fdr=entry.fdr,
             rank=entry.rank,
             accepted=entry.accepted,
             target_decoy_label=entry.psm.target_decoy_label,
-            supporting_peptides=selected_index[entry.psm.protein_refs[0]][0],
+            supporting_peptides=selected_index[entry.psm.spectrum_id][0],
         )
         for entry in annotated
     )
