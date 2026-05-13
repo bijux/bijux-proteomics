@@ -14,6 +14,7 @@ top of normalized PSM evidence.
 - confidence labels with explicit explanations
 - optional FASTA-backed coverage and peptide uniqueness checks
 - direct sequence-backed protein coverage review through `protein-coverage`
+- plot-ready sequence-backed coverage payloads through `protein-coverage-plot`
 
 ## Core workflow
 
@@ -50,6 +51,24 @@ That coverage surface emits:
   unique/shared peptides, and unmatched-peptide visibility
 - one region ledger that keeps each contiguous covered interval explicit
 
+For static sequence-backed coverage visualizations:
+
+```bash
+bijux-proteomics protein-coverage-plot results.tsv \
+  --threshold 0.05 \
+  --fasta proteins.fasta \
+  --positions-tsv-out protein-coverage.positions.tsv \
+  --svg-out protein-coverage.svg \
+  --html-out protein-coverage.html
+```
+
+That plot surface emits:
+
+- one plot-ready track per protein with explicit peptide start/end positions
+- preserved modified-peptide notation, peptide confidence, and optional
+  intensity when the source evidence carries them
+- one positional TSV ledger plus static SVG and HTML outputs for operator review
+
 ## Interpretation boundaries
 
 This is a serious reusable inference layer, but it is still intentionally
@@ -60,4 +79,4 @@ It does not yet claim:
 - picked-group FDR across indistinguishable protein groups
 - alternative inference strategies beyond the current greedy parsimony policy
 - protein-level competition models tuned to specific upstream engines
-- operator-facing HTML reports or interactive coverage views
+- interactive coverage views

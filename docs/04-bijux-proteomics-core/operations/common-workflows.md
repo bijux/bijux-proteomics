@@ -592,6 +592,30 @@ This surface is intentionally sequence-review-facing rather than inferential.
 It shows how accepted peptide evidence covers supplied protein sequences, but
 it does not decide final protein confidence on its own.
 
+## Protein Coverage Plots
+
+Use `protein-coverage-plot` when one sequence-backed coverage review also needs
+one durable plot payload or static rendering surface for operator review.
+
+- The plot surface keeps peptide start and end positions explicit for every
+  matched sequence occurrence instead of flattening coverage to one fraction
+  per protein.
+- Modified peptide notation stays attached to plotted rows, so positional
+  evidence does not lose the chemistry that made the peptide distinct.
+- Peptide confidence remains visible through preserved peptide-level q-values
+  when the source table already carries them, with fallback to owned target-
+  decoy filtering when it does not.
+- Optional intensity stays attached to plotted positions when the source PSM
+  table provides it, so abundance context can travel with the coverage view.
+- Reviewer-facing position ledgers plus static SVG or HTML outputs remain
+  available when the coverage review needs to move into reports or release
+  evidence without claiming a richer interactive UI than the runtime owns.
+
+This surface is intentionally plot-ready rather than interactive. It exports
+stable coordinates, confidence, modification state, and optional intensity for
+sequence-backed coverage review, but it does not claim a browser-side coverage
+application.
+
 ## Protein Parsimony Review
 
 Use `protein-parsimony` when the question is which minimal explanatory protein
