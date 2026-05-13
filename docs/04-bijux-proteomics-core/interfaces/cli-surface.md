@@ -51,6 +51,7 @@ The owned FASTA CLI surface is:
 - `protein-inference-benchmarks`
 - `peptide-matrix`
 - `protein-matrix`
+- `protein-lfq`
 - `protein-groups`
 - `protein-coverage`
 - `protein-coverage-plot`
@@ -688,6 +689,33 @@ The `protein-matrix` JSON payload includes:
 - one protein-matrix report with target kind, rollup policy, peptide counts,
   unique/shared peptide burden, sample identifiers, and missingness summary
 - any requested summary, matrix, or missingness TSV output paths
+
+`protein-lfq` emits one owned MaxLFQ-like protein abundance matrix over either
+precursor or feature evidence or intensity-bearing PSM evidence.
+
+- `--input-kind` accepts `feature` or `psm`
+- `--grouping-mode` accepts `peptide_sequence` or `modified_peptide`
+- `--target-kind` accepts `protein` or `protein_group`
+- `--aggregation` accepts the owned sum, median, or top-`n` peptide-collapse
+  policies used before pairwise ratio construction
+- `--unique-peptide-only` excludes shared-peptide rows before LFQ solving
+- `--minimum-shared-peptides` requires a minimum number of shared peptides
+  before one sample-pair ratio is retained
+- `--summary-tsv-out` writes one compact protein-LFQ summary ledger
+- `--matrix-tsv-out` writes one wide protein-by-sample LFQ abundance matrix
+- `--pairwise-tsv-out` writes one reviewer-facing pairwise-ratio ledger
+- `--missingness-tsv-out` writes one per-sample missingness ledger
+
+The `protein-lfq` JSON payload includes:
+
+- input kind
+- accepted and rejected source-record counts from the selected parser
+- one protein-LFQ report with target kind, grouping mode, charge policy,
+  aggregation method, sample identifiers, protein rows, and missingness summary
+- one per-protein row with pairwise-ratio counts, connected-component counts,
+  fully-connected status, contributing peptides, and sample-specific LFQ values
+- any requested summary, matrix, pairwise-ratio, or missingness TSV output
+  paths
 
 `protein-coverage` emits one direct protein-coverage review packet over
 FDR-filtered PSM evidence plus a supplied FASTA sequence set.
