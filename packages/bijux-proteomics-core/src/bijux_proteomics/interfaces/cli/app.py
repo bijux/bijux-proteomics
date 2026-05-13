@@ -16,10 +16,12 @@ import click
 
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
+    SearchEngineModifiedPeptideDialect,
     approximate_peptide_isotope_envelope,
     build_modification_localization_advisory,
     build_modified_peptide,
     build_peptide_charge_state,
+    build_search_engine_modified_peptide_report,
     calculate_fragment_ions,
     canonicalize_modified_peptide,
     load_modification_registry,
@@ -304,6 +306,13 @@ def _export_format_choice() -> click.Choice[str]:
 def _fragment_series_choice() -> click.Choice[str]:
     return click.Choice(
         [series.value for series in FragmentIonSeries], case_sensitive=False
+    )
+
+
+def _modified_peptide_dialect_choice() -> click.Choice[str]:
+    return click.Choice(
+        [dialect.value for dialect in SearchEngineModifiedPeptideDialect],
+        case_sensitive=False,
     )
 
 
@@ -1439,6 +1448,52 @@ def peptide_properties_command(
     payload = report.to_dict()
     payload["custom_protease"] = custom_specification
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("modified-peptide-parse")
+@click.argument("notation")
+@click.option(
+    "--dialect",
+    type=_modified_peptide_dialect_choice(),
+    required=True,
+    help="Search-engine peptide notation dialect to normalize.",
+)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def modified_peptide_parse_command(
+    notation: str,
+    dialect: str,
+    registry_path: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Normalize one search-engine modified peptide notation."""
+    try:
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        report = build_search_engine_modified_peptide_report(
+            notation,
+            dialect=dialect,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    _emit_json(report.to_dict(), out_path=out_path)
 
 
 @cli.command("psm-inspect")
