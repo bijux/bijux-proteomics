@@ -327,6 +327,28 @@ The `spectrum-summary` JSON payload includes:
 - charge, precursor-m/z, and peak-count distributions
 - any requested TSV export paths
 
+`spectrum-annotate` emits one matched-fragment review object plus a plot-ready
+payload for one accepted MGF spectrum.
+
+- `--peptide` is required and accepts the owned peptide notation surface.
+- `--spectrum-id` optionally selects one accepted spectrum by identifier.
+- `--tolerance-da` and `--tolerance-ppm` select the fragment-match tolerance
+  mode.
+- `--tsv-out` writes the matched-ion evidence table.
+- `--plot-out` writes the plot-ready JSON payload.
+
+The `spectrum-annotate` JSON payload includes:
+
+- the full annotation object
+- explicit matched-ion rows
+- matched-peak count
+- explained-intensity fraction
+- unmatched-peak count
+- the selected tolerance unit plus tolerance value
+- ambiguity warnings when one fragment matches multiple peaks or one peak
+  matches multiple fragments
+- one plot-ready payload with labeled peaks
+
 `mzml-inspect` reports one practical mzML review object without claiming full
 vendor-native replacement.
 
