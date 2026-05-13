@@ -78,6 +78,54 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         assert stats_payload["duplicate_accession_count"] == 1
         assert stats_payload["duplicate_sequence_count"] == 2
 
+        profile_result = runner.invoke(
+            cli,
+            [
+                "fasta-profile",
+                "production.fasta",
+                "--mode",
+                "strict",
+                "--summary-tsv-out",
+                "production.summary.tsv",
+                "--length-tsv-out",
+                "production.length.tsv",
+                "--organism-tsv-out",
+                "production.organism.tsv",
+            ],
+        )
+        assert profile_result.exit_code == 0
+        profile_payload = json.loads(profile_result.output)
+        assert profile_payload["summary"]["input_record_count"] == 9
+        assert profile_payload["summary"]["protein_count"] == 6
+        assert profile_payload["summary"]["target_count"] == 5
+        assert profile_payload["summary"]["decoy_count"] == 1
+        assert profile_payload["summary"]["contaminant_count"] == 1
+        assert profile_payload["summary"]["organism_annotated_count"] == 5
+        assert profile_payload["organism_distribution"] == [
+            {
+                "organism": "Homo sapiens",
+                "protein_count": 4,
+                "target_count": 3,
+                "decoy_count": 1,
+                "contaminant_count": 1,
+            },
+            {
+                "organism": "Mus musculus",
+                "protein_count": 1,
+                "target_count": 1,
+                "decoy_count": 0,
+                "contaminant_count": 0,
+            },
+        ]
+        assert Path("production.summary.tsv").read_text().splitlines()[0].startswith(
+            "input_record_count\tprotein_count\trejected_record_count"
+        )
+        assert "1-99\t1\t99\t6\t116" in Path("production.length.tsv").read_text()
+        assert (
+            "Homo sapiens\t4\t3\t1\t1"
+            in Path("production.organism.tsv").read_text()
+        )
+
         dedup_result = runner.invoke(
             cli,
             [
@@ -525,6 +573,8 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
         assert fasta_result.exit_code == 0
         fasta_payload = json.loads(fasta_result.output)
         assert fasta_payload["summary"]["total_records"] == 3
+        assert fasta_payload["profile"]["summary"]["protein_count"] == 3
+        assert fasta_payload["profile"]["summary"]["organism_annotated_count"] == 2
         assert fasta_payload["database_composition"]["target_count"] == 3
         assert fasta_payload["duplicate_accessions"] == []
         assert psm_result.exit_code == 0
