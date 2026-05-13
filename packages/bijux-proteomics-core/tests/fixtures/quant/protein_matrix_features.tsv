@@ -1,0 +1,9 @@
+feature_id	sample_id	peptide	proteins	intensity	charge	mz	retention_time_seconds	missing_reason
+prf001	S1	PEPAAK	P1	1000	2	500.2	1200	""
+prf002	S1	PEPMTK	P1	600	2	500.3	1205	""
+prf003	S1	SHAREDK	P1;P2	300	2	500.4	1210	""
+prf004	S1	PEPCAR	P2	500	2	500.5	1215	""
+prf005	S2	PEPAAK	P1	1200	2	500.2	1220	""
+prf006	S2	PEPMTK	P1	900	2	500.3	1225	""
+prf007	S2	SHAREDK	P1;P2	450	2	500.4	1230	""
+prf008	S2	PEPCAR	P2		2	500.5	1235	""
