@@ -37,6 +37,7 @@ The owned FASTA CLI surface is:
 - `fasta-decoy`
 - `target-decoy-validate`
 - `peptide-index`
+- `peptide-properties`
 - `summarize --kind fasta`
 
 `fasta-parse` emits the full parser report, including:
@@ -153,6 +154,31 @@ Each lookup entry reports:
 - target, decoy, contaminant, mixed, or missing database membership
 - missed-cleavage counts observed among the matching peptide instances
 - a reviewer-facing explanation string
+
+`peptide-properties` reports one peptide-level screening object for filtering
+or review before search and downstream analysis.
+
+- `--mod` accepts repeatable modification assignments in the same style as
+  `peptide-mass`.
+- `--charge` chooses the precursor charge state used for m/z calculation.
+- `--protease`, `--custom-protease`, and `--custom-protease-name` define the
+  missed-cleavage context.
+- `--registry` optionally loads a modification registry for named
+  modifications.
+
+The `peptide-properties` JSON payload includes:
+
+- canonical notation
+- underlying residue sequence
+- protease
+- charge
+- residue length
+- monoisotopic mass
+- average mass
+- monoisotopic precursor m/z for the selected charge state
+- missed-cleavage count
+- hydrophobicity proxy
+- problem flags and a final problematic or not flag
 
 The digestion-oriented CLI surfaces share one protease contract:
 
