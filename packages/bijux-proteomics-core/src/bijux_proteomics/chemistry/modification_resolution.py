@@ -91,7 +91,9 @@ def build_modification_resolution_report(
         source=source,
         modification_name=definition.name,
         controlled_id=definition.controlled_id,
-        application="static" if isinstance(definition, StaticModification) else "variable",
+        application="static"
+        if isinstance(definition, StaticModification)
+        else "variable",
         position=definition.position,
         residues=definition.residues,
         mass_delta_monoisotopic=definition.mass_delta_monoisotopic,

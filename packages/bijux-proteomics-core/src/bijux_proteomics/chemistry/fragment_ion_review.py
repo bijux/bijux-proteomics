@@ -65,7 +65,9 @@ def build_fragment_ion_review_report(
     neutral_loss_count = 0
 
     for ion in ions:
-        counts_by_series[ion.series.value] = counts_by_series.get(ion.series.value, 0) + 1
+        counts_by_series[ion.series.value] = (
+            counts_by_series.get(ion.series.value, 0) + 1
+        )
         charge_key = str(ion.charge)
         counts_by_charge[charge_key] = counts_by_charge.get(charge_key, 0) + 1
         if ion.neutral_loss is not None:
@@ -79,7 +81,9 @@ def build_fragment_ion_review_report(
         include_neutral_losses=include_neutral_losses,
         fragment_ion_count=len(ions),
         counts_by_series=dict(sorted(counts_by_series.items())),
-        counts_by_charge=dict(sorted(counts_by_charge.items(), key=lambda item: int(item[0]))),
+        counts_by_charge=dict(
+            sorted(counts_by_charge.items(), key=lambda item: int(item[0]))
+        ),
         neutral_loss_count=neutral_loss_count,
         ions=ions,
     )

@@ -155,7 +155,9 @@ def _parse_maxquant_modified_peptide(
             assignments.append(f"{normalized_token}@{site_label}")
             at_protein_c_term = at_protein_c_term or site_label == "protein-c-term"
             continue
-        raise ValueError(f"unsupported MaxQuant modified peptide character {character!r}")
+        raise ValueError(
+            f"unsupported MaxQuant modified peptide character {character!r}"
+        )
 
     return build_modified_peptide(
         "".join(residues),
@@ -237,7 +239,9 @@ def _normalize_maxquant_token(token: str, *, default_site: str) -> tuple[str, st
             return normalized_name, "protein-c-term"
         return normalized_name, "anywhere"
     if suffix in {"n-term", "protein n-term"}:
-        return normalized_name, "protein-n-term" if suffix.startswith("protein") else "n-term"
+        return normalized_name, "protein-n-term" if suffix.startswith(
+            "protein"
+        ) else "n-term"
     if suffix in {"c-term"}:
         return normalized_name, "c-term"
     if suffix in {"protein cterm", "protein c-term"}:

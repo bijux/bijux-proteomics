@@ -845,9 +845,9 @@ def _registry_lookup(
     for variable_modification in builtin_registry.variable_modifications:
         mapping[variable_modification.name.strip().lower()] = variable_modification
         if variable_modification.controlled_id is not None:
-            mapping[
-                variable_modification.controlled_id.strip().lower()
-            ] = variable_modification
+            mapping[variable_modification.controlled_id.strip().lower()] = (
+                variable_modification
+            )
     if registry is None:
         return mapping
     for modification in registry.static_modifications:
@@ -857,9 +857,9 @@ def _registry_lookup(
     for variable_modification in registry.variable_modifications:
         mapping[variable_modification.name.strip().lower()] = variable_modification
         if variable_modification.controlled_id is not None:
-            mapping[
-                variable_modification.controlled_id.strip().lower()
-            ] = variable_modification
+            mapping[variable_modification.controlled_id.strip().lower()] = (
+                variable_modification
+            )
     return mapping
 
 

@@ -65,7 +65,9 @@ def test_search_engine_modified_peptide_cases_normalize_to_owned_canonical_surfa
         assert observed_sites == case["sites"]
 
 
-def test_search_engine_modified_peptide_parser_rejects_unknown_maxquant_suffix() -> None:
+def test_search_engine_modified_peptide_parser_rejects_unknown_maxquant_suffix() -> (
+    None
+):
     with pytest.raises(ValueError, match="unsupported MaxQuant modification token"):
         parse_search_engine_modified_peptide(
             "_PEPTIDE(Phospho (Unknown term))_",

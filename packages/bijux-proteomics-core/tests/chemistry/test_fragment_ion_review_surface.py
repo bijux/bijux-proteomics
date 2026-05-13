@@ -10,7 +10,9 @@ from bijux_proteomics.chemistry import (
 )
 
 
-def test_fragment_ion_review_report_covers_b_y_charges_losses_and_modifications() -> None:
+def test_fragment_ion_review_report_covers_b_y_charges_losses_and_modifications() -> (
+    None
+):
     report = build_fragment_ion_review_report(
         "PEPM[Oxidation]TIDE",
         charges=(1, 2),
