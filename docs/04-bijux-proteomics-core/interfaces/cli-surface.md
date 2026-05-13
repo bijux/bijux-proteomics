@@ -48,6 +48,7 @@ The owned FASTA CLI surface is:
 - `fdr-levels`
 - `picked-protein-fdr`
 - `protein-groups`
+- `protein-coverage`
 - `protein-parsimony`
 - `maxquant-import`
 - `diann-import`
@@ -587,6 +588,35 @@ The `protein-groups` JSON payload includes:
   protein, leading rationale, protein members, all peptides, unique peptides,
   shared peptides, score, q-value, target-decoy label, and contaminant flag
 - any requested summary or group-table TSV output paths
+
+`protein-coverage` emits one direct protein-coverage review packet over
+FDR-filtered PSM evidence plus a supplied FASTA sequence set.
+
+- the positional argument is the source PSM TSV path
+- `--fasta` is required and supplies the protein sequences used for coverage
+  mapping
+- `--threshold` defaults to `0.05` and defines the accepted PSM evidence that
+  feeds sequence coverage
+- canonical-schema and decoy-policy column controls stay available so
+  lab-local PSM tables can be reviewed without a separate conversion pass
+- `--summary-tsv-out` writes one compact protein-coverage summary ledger
+- `--coverage-tsv-out` writes one reviewer-facing per-protein coverage table
+- `--regions-tsv-out` writes one covered-region ledger with explicit residue
+  intervals
+
+The `protein-coverage` JSON payload includes:
+
+- the selected threshold and score orientation
+- accepted and rejected source-row counts from the parsed PSM table
+- one summary block with total observed proteins, proteins with or without
+  sequence, unique/shared-peptide burden, unmatched-peptide burden, total
+  covered regions, total residues, and total covered residues
+- one protein row per sequence-backed protein with coverage fraction, covered
+  residue count, covered regions, matched and unmatched peptides,
+  unique/shared-peptide ledgers, score, q-value, target-decoy label, and
+  contaminant flag
+- one flattened region row per contiguous covered interval
+- any requested summary, coverage-table, or region-ledger TSV output paths
 
 `protein-parsimony` emits one direct review packet over a named parsimony
 protein set and the ambiguity that remains after selection.
