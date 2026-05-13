@@ -50,6 +50,7 @@ The owned spectrum CLI surface is:
 - `spectrum-stats`
 - `spectrum-annotate`
 - `spectrum-similarity`
+- `spectral-library-import`
 - `spectrum-summary`
 - `mzml-inspect`
 - `summarize --kind mgf`
@@ -376,6 +377,28 @@ The `spectrum-similarity` JSON payload includes:
 - reviewer-facing classifications such as `duplicate_like`, `similar`,
   `distinct`, or `insufficient_signal`
 - any requested TSV export path
+
+`spectral-library-import` imports one practical MSP or library-shaped MGF file
+into an explicit peptide-aware library contract.
+
+- `--kind` accepts `auto`, `msp`, or `mgf`.
+- `--precursor-mz` optionally runs candidate retrieval against the imported
+  precursor index.
+- `--tolerance-da` sets the precursor candidate window.
+- `--peptide` optionally narrows candidate retrieval to one peptide query.
+- `--summary-tsv-out` writes a compact one-row library summary.
+- `--candidates-tsv-out` writes the precursor-compatible candidate table and
+  requires `--precursor-mz`.
+
+The `spectral-library-import` JSON payload includes:
+
+- the full import report with accepted and rejected entries
+- a compact summary over entry count, unique peptides, modified entries, and
+  charge distribution
+- compact index facts, including peptide lookup content and precursor-index
+  size
+- an optional candidate report over precursor and peptide-filtered entries
+- any requested summary or candidate TSV export paths
 
 `mzml-inspect` reports one practical mzML review object without claiming full
 vendor-native replacement.
