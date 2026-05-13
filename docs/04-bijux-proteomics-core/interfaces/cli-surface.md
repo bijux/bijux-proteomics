@@ -28,6 +28,7 @@ CLI documentation should describe the commands the package truly owns, not the c
 The owned FASTA CLI surface is:
 
 - `fasta-parse`
+- `fasta-profile`
 - `fasta-stats`
 - `fasta-dedup`
 - `fasta-filter`
@@ -51,10 +52,26 @@ The database composition surface reports:
 - contaminant count
 - accession-namespace counts
 
+`fasta-profile` emits a richer database-review object with:
+
+- a summary block covering input records, accepted proteins, rejected records,
+  unique accessions, target count, decoy count, contaminant count, total
+  residues, length extremes, and organism annotation coverage
+- a stable length-distribution ledger across the bins `1-99`, `100-249`,
+  `250-499`, `500-999`, and `1000+`
+- an organism-distribution ledger when organism evidence is present in the
+  accepted records
+
+`fasta-profile` also supports reviewer-facing TSV exports through:
+
+- `--summary-tsv-out`
+- `--length-tsv-out`
+- `--organism-tsv-out`
+
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
 and sequence-length summary values.
 
-`summarize --kind fasta` returns both the higher-level FASTA summary and the
-parser-level database composition so operators can distinguish structural file
-quality from biological database makeup.
+`summarize --kind fasta` returns the higher-level FASTA summary, the parser-level
+database composition, and the richer FASTA profile so operators can distinguish
+structural file quality from biological database makeup and annotation burden.
