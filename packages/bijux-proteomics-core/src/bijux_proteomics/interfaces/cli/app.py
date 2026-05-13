@@ -55,6 +55,7 @@ from bijux_proteomics.identification import (
     build_peptide_evidence_review_report,
     build_parsimony_review_report,
     build_picked_protein_fdr_review_report,
+    build_core_protein_inference_benchmark_suite,
     build_protein_ambiguity_review_report,
     build_protein_coverage_plot_report,
     build_fdr_audit_trail,
@@ -113,6 +114,9 @@ from bijux_proteomics.identification import (
     render_parsimony_review_summary_tsv,
     render_protein_ambiguity_entries_tsv,
     render_protein_ambiguity_summary_tsv,
+    render_protein_inference_benchmark_assessments_tsv,
+    render_protein_inference_benchmark_scenarios_tsv,
+    render_protein_inference_benchmark_summary_tsv,
     render_protein_coverage_plot_html,
     render_protein_coverage_plot_positions_tsv,
     render_protein_coverage_plot_svg,
@@ -3534,6 +3538,67 @@ def protein_ambiguity_command(
                 None if ambiguity_tsv_out is None else str(ambiguity_tsv_out)
             ),
         },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("protein-inference-benchmarks")
+@click.option("--picked-threshold", type=float, default=0.05, show_default=True)
+@click.option(
+    "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--scenarios-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--assessments-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def protein_inference_benchmarks_command(
+    picked_threshold: float,
+    summary_tsv_out: Path | None,
+    scenarios_tsv_out: Path | None,
+    assessments_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review the owned protein-inference benchmark catalog."""
+    try:
+        suite = build_core_protein_inference_benchmark_suite(
+            picked_threshold=picked_threshold
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_protein_inference_benchmark_summary_tsv(suite),
+        )
+    if scenarios_tsv_out is not None:
+        _write_text_output(
+            scenarios_tsv_out,
+            render_protein_inference_benchmark_scenarios_tsv(suite),
+        )
+    if assessments_tsv_out is not None:
+        _write_text_output(
+            assessments_tsv_out,
+            render_protein_inference_benchmark_assessments_tsv(suite),
+        )
+
+    payload = suite.to_dict()
+    payload["picked_threshold"] = picked_threshold
+    payload["outputs"] = {
+        "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+        "scenarios_tsv": None if scenarios_tsv_out is None else str(scenarios_tsv_out),
+        "assessments_tsv": (
+            None if assessments_tsv_out is None else str(assessments_tsv_out)
+        ),
     }
     _emit_json(payload, out_path=out_path)
 
