@@ -22,8 +22,7 @@ from bijux_proteomics.identification.contaminant_audit import (
 )
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.protein_inference_benchmarks import (
-    ProteinInferenceBenchmarkScenario,
-    ProteinInferenceBenchmarkScenarioKind,
+    build_core_protein_inference_benchmark_scenarios,
     build_identification_workflow_claim_review,
     build_protein_inference_benchmark_suite,
 )
@@ -53,106 +52,8 @@ def _adapter_input(
     )
 
 
-def _protein_inference_scenarios() -> tuple[ProteinInferenceBenchmarkScenario, ...]:
-    return (
-        ProteinInferenceBenchmarkScenario(
-            scenario_id="shared-peptide-pressure",
-            scenario_kind=ProteinInferenceBenchmarkScenarioKind.SHARED_PEPTIDE_HEAVY,
-            records=(
-                PsmRecord(
-                    spectrum_id="s001",
-                    peptide="UNIQUEP1",
-                    canonical_peptide="UNIQUEP1",
-                    charge=2,
-                    score=120.0,
-                    q_value=0.001,
-                    protein_refs=("P11111",),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-                PsmRecord(
-                    spectrum_id="s002",
-                    peptide="SHAREDK",
-                    canonical_peptide="SHAREDK",
-                    charge=2,
-                    score=115.0,
-                    q_value=0.002,
-                    protein_refs=("P11111", "P22222"),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-                PsmRecord(
-                    spectrum_id="s003",
-                    peptide="UNIQUEP3",
-                    canonical_peptide="UNIQUEP3",
-                    charge=2,
-                    score=110.0,
-                    q_value=0.003,
-                    protein_refs=("P33333",),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-            ),
-            expected_present_proteins=("P11111", "P33333"),
-            expected_absent_proteins=("P22222",),
-            note="Shared-peptide pressure keeps absent-protein promotion visible.",
-        ),
-        ProteinInferenceBenchmarkScenario(
-            scenario_id="isoform-pressure",
-            scenario_kind=ProteinInferenceBenchmarkScenarioKind.ISOFORM_HEAVY,
-            records=(
-                PsmRecord(
-                    spectrum_id="i001",
-                    peptide="ISOFORM1K",
-                    canonical_peptide="ISOFORM1K",
-                    charge=2,
-                    score=130.0,
-                    q_value=0.001,
-                    protein_refs=("P55555-1",),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-                PsmRecord(
-                    spectrum_id="i002",
-                    peptide="SHAREDISO",
-                    canonical_peptide="SHAREDISO",
-                    charge=2,
-                    score=118.0,
-                    q_value=0.002,
-                    protein_refs=("P55555-1", "P55555-2"),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-            ),
-            expected_present_proteins=("P55555-1",),
-            expected_absent_proteins=("P55555-2",),
-            note="Isoform-specific support should keep the silent sibling isoform out.",
-        ),
-        ProteinInferenceBenchmarkScenario(
-            scenario_id="false-negative-pressure",
-            scenario_kind=ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE,
-            records=(
-                PsmRecord(
-                    spectrum_id="f001",
-                    peptide="ANCHORP1",
-                    canonical_peptide="ANCHORP1",
-                    charge=2,
-                    score=125.0,
-                    q_value=0.001,
-                    protein_refs=("P10101",),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-                PsmRecord(
-                    spectrum_id="f002",
-                    peptide="BRIDGEP",
-                    canonical_peptide="BRIDGEP",
-                    charge=2,
-                    score=112.0,
-                    q_value=0.003,
-                    protein_refs=("P10101", "P20202"),
-                    target_decoy_label=TargetDecoyLabel.TARGET,
-                ),
-            ),
-            expected_present_proteins=("P10101", "P20202"),
-            expected_absent_proteins=(),
-            note="False-negative pressure stays visible for conservative strategies.",
-        ),
-    )
+def _protein_inference_scenarios():
+    return build_core_protein_inference_benchmark_scenarios()
 
 
 def test_calibration_pressure_corpus_report_tracks_real_adapter_family_identities() -> (
@@ -228,8 +129,8 @@ def test_protein_inference_pressure_corpus_report_keeps_contaminant_and_trust_pr
         (
             PsmRecord(
                 spectrum_id="c001",
-                peptide="UNIQUEC",
-                canonical_peptide="UNIQUEC",
+                peptide="ACDEFGK",
+                canonical_peptide="ACDEFGK",
                 charge=2,
                 score=120.0,
                 q_value=0.001,
@@ -238,8 +139,8 @@ def test_protein_inference_pressure_corpus_report_keeps_contaminant_and_trust_pr
             ),
             PsmRecord(
                 spectrum_id="c002",
-                peptide="CONTAMK",
-                canonical_peptide="CONTAMK",
+                peptide="KERATIN",
+                canonical_peptide="KERATIN",
                 charge=2,
                 score=118.0,
                 q_value=0.002,
