@@ -48,6 +48,7 @@ The owned FASTA CLI surface is:
 - `fdr-levels`
 - `picked-protein-fdr`
 - `protein-ambiguity`
+- `protein-inference-benchmarks`
 - `protein-groups`
 - `protein-coverage`
 - `protein-coverage-plot`
@@ -619,6 +620,30 @@ The `protein-ambiguity` JSON payload includes:
   explanation, score, q-value, confidence label, target-decoy label, and
   contaminant flag
 - any requested summary or ambiguity-table TSV output paths
+
+`protein-inference-benchmarks` emits one owned benchmark review packet over the
+named protein-inference pressure catalog.
+
+- there is no positional input; the command runs the repository-owned benchmark
+  scenarios directly
+- `--picked-threshold` defaults to `0.05` and defines the protein threshold
+  used by the picked strategy inside the benchmark suite
+- `--summary-tsv-out` writes one compact suite-summary ledger
+- `--scenarios-tsv-out` writes one benchmark-scenario ledger
+- `--assessments-tsv-out` writes one strategy-assessment ledger across every
+  scenario
+
+The `protein-inference-benchmarks` JSON payload includes:
+
+- the selected picked threshold
+- scenario count together with explicit shared-peptide, isoform,
+  homolog-family, contaminant, and decoy case counts
+- worst strategy precision and recall lower bounds across the suite
+- covered inference-strategy kinds
+- one benchmark report per named scenario with expected-present and
+  expected-absent proteins, pressure flags, disagreement count, and one
+  strategy assessment per inference method
+- any requested summary, scenario, or assessment TSV output paths
 
 `protein-coverage` emits one direct protein-coverage review packet over
 FDR-filtered PSM evidence plus a supplied FASTA sequence set.
