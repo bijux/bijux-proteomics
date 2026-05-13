@@ -290,6 +290,31 @@ full workflow runner. Its job is to preserve the useful evidence already
 present in realistic Sage exports so downstream confidence, PTM, and protein
 analysis can start from an honest normalized record.
 
+## Comet Import
+
+Use `comet-import` when the question is whether one classic Comet result file
+can be reviewed as governed identification evidence instead of being treated as
+just another generic score table.
+
+- The import surface accepts either practical pepXML evidence or a realistic
+  tabular Comet PSM export through one owned report contract.
+- XCorr, DeltaCn, expectation value, and Sp score remain explicit reviewer
+  fields instead of being collapsed into one generic ranking number.
+- Modified peptide notation is normalized through the owned Comet peptide
+  dialect so residue sequence and canonical modified-peptide intent stay
+  visible across both input shapes.
+- Protein mappings remain explicit, including multi-protein rows and
+  target-decoy labels derived from the source evidence rather than guessed
+  afterward.
+- Optional Comet parameter provenance can be attached to the same import
+  report so enzyme, tolerance, and modification settings remain reviewable in
+  context.
+
+This surface is intentionally a Comet import and review contract rather than a
+search runner. Its job is to preserve the evidence burden already present in
+classic Comet exports so downstream confidence, PTM, and protein analysis can
+start from an honest normalized record.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
