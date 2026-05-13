@@ -236,6 +236,26 @@ This surface is intentionally practical rather than maximal. It is designed for
 reviewable open mzML runs and explicit decoding boundaries, not for pretending
 that every vendor-native raw nuance is fully reproduced after conversion.
 
+## Spectrum Summary Tables
+
+Use the spectrum summary-table surface when the question is run quality and
+shape rather than single-spectrum inspection.
+
+- The summary report works across both MGF and mzML accepted spectrum
+  contracts.
+- mzML summaries preserve reported MS1 versus MS2 counts directly from the
+  parsed spectra.
+- MGF summaries stay explicit about scope by marking the MS-level policy as an
+  MS2 review assumption rather than pretending the file reported MS levels.
+- Reviewer-facing tables cover precursor-m/z distribution, precursor-charge
+  distribution, retention-time range, and peak-count distribution.
+- The summary contract is table-shaped on purpose so operators can review one
+  run quickly or export the same ledgers into later QC packets.
+
+This surface is intentionally descriptive rather than inferential. It helps
+operators see run structure and burden quickly, but it does not claim a full
+instrument-QC diagnosis by itself.
+
 ## Unimod-Aware Modification Resolution
 
 Use `modification-resolve` when the question is whether one modification token
