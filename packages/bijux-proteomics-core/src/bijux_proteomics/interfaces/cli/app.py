@@ -54,6 +54,7 @@ from bijux_proteomics.identification import (
     build_generic_psm_mapper_report,
     build_maxquant_import_report,
     build_openms_import_report,
+    build_psm_evidence_inspection_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -87,6 +88,8 @@ from bijux_proteomics.identification import (
     render_openms_protein_tsv,
     render_openms_psm_tsv,
     render_openms_summary_tsv,
+    render_psm_evidence_inspection_summary_tsv,
+    render_psm_inspection_distribution_tsv,
     build_spectronaut_import_report,
     render_spectronaut_precursor_tsv,
     render_spectronaut_protein_group_tsv,
@@ -2516,6 +2519,7 @@ def psm_map_command(
 @click.option("--decoy-label-column", default=None)
 @click.option("--contaminant-label-column", default=None)
 @click.option("--protein-separator", default=";", show_default=True)
+@click.option("--protease", default="trypsin", show_default=True)
 @click.option("--decoy-prefix", default="DECOY_", show_default=True)
 @click.option("--decoy-suffix", default=None)
 @click.option(
@@ -2526,6 +2530,34 @@ def psm_map_command(
 )
 @click.option(
     "--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--score-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--q-value-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--charge-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--peptide-length-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--missed-cleavage-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
 )
 @click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
@@ -2543,11 +2575,18 @@ def psm_inspect_command(
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
     protein_separator: str,
+    protease: str,
     decoy_prefix: str | None,
     decoy_suffix: str | None,
     jsonl_out: Path | None,
     tsv_out: Path | None,
     provenance_out: Path | None,
+    summary_tsv_out: Path | None,
+    score_distribution_tsv_out: Path | None,
+    q_value_distribution_tsv_out: Path | None,
+    charge_distribution_tsv_out: Path | None,
+    peptide_length_distribution_tsv_out: Path | None,
+    missed_cleavage_distribution_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Inspect a generic PSM TSV and emit normalized summaries."""
@@ -2575,6 +2614,7 @@ def psm_inspect_command(
             decoy_policy=decoy_policy,
         )
         normalized = apply_q_values(report.accepted_records)
+        inspection = build_psm_evidence_inspection_report(report, protease=protease)
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
 
@@ -2582,6 +2622,40 @@ def psm_inspect_command(
         export_psm_jsonl(normalized, jsonl_out)
     if tsv_out is not None:
         export_psm_tsv(normalized, tsv_out)
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_psm_evidence_inspection_summary_tsv(inspection),
+        )
+    if score_distribution_tsv_out is not None:
+        _write_text_output(
+            score_distribution_tsv_out,
+            render_psm_inspection_distribution_tsv(inspection.score_distribution),
+        )
+    if q_value_distribution_tsv_out is not None:
+        _write_text_output(
+            q_value_distribution_tsv_out,
+            render_psm_inspection_distribution_tsv(inspection.q_value_distribution),
+        )
+    if charge_distribution_tsv_out is not None:
+        _write_text_output(
+            charge_distribution_tsv_out,
+            render_psm_inspection_distribution_tsv(inspection.charge_distribution),
+        )
+    if peptide_length_distribution_tsv_out is not None:
+        _write_text_output(
+            peptide_length_distribution_tsv_out,
+            render_psm_inspection_distribution_tsv(
+                inspection.peptide_length_distribution
+            ),
+        )
+    if missed_cleavage_distribution_tsv_out is not None:
+        _write_text_output(
+            missed_cleavage_distribution_tsv_out,
+            render_psm_inspection_distribution_tsv(
+                inspection.missed_cleavage_distribution
+            ),
+        )
 
     provenance = build_search_result_provenance_manifest(
         source_path=input_tsv,
@@ -2594,10 +2668,29 @@ def psm_inspect_command(
     payload = {
         "accepted_rows": len(report.accepted_records),
         "rejected_rows": len(report.rejected_rows),
+        "inspection": inspection.to_dict(),
         "psm_summary": build_psm_summary_report(normalized).to_dict(),
         "peptide_summary": build_peptide_summary_report(normalized).to_dict(),
         "protein_summary": build_protein_summary_report(normalized).to_dict(),
         "provenance": provenance.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "score_distribution_tsv": None
+            if score_distribution_tsv_out is None
+            else str(score_distribution_tsv_out),
+            "q_value_distribution_tsv": None
+            if q_value_distribution_tsv_out is None
+            else str(q_value_distribution_tsv_out),
+            "charge_distribution_tsv": None
+            if charge_distribution_tsv_out is None
+            else str(charge_distribution_tsv_out),
+            "peptide_length_distribution_tsv": None
+            if peptide_length_distribution_tsv_out is None
+            else str(peptide_length_distribution_tsv_out),
+            "missed_cleavage_distribution_tsv": None
+            if missed_cleavage_distribution_tsv_out is None
+            else str(missed_cleavage_distribution_tsv_out),
+        },
     }
     _emit_json(payload, out_path=out_path)
 
@@ -4030,6 +4123,7 @@ def summarize_command(
         normalized = apply_q_values(psm_report.accepted_records)
         payload = {
             "input_kind": resolved_kind,
+            "inspection": build_psm_evidence_inspection_report(psm_report).to_dict(),
             "psm_summary": build_psm_summary_report(normalized).to_dict(),
             "peptide_summary": build_peptide_summary_report(normalized).to_dict(),
             "protein_summary": build_protein_summary_report(normalized).to_dict(),
