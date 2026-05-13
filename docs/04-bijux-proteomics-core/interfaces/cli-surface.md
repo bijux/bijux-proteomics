@@ -47,6 +47,7 @@ The owned FASTA CLI surface is:
 - `fdr-levels`
 - `picked-protein-fdr`
 - `protein-groups`
+- `protein-parsimony`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -562,6 +563,38 @@ The `protein-groups` JSON payload includes:
   protein, leading rationale, protein members, all peptides, unique peptides,
   shared peptides, score, q-value, target-decoy label, and contaminant flag
 - any requested summary or group-table TSV output paths
+
+`protein-parsimony` emits one direct review packet over a named parsimony
+protein set and the ambiguity that remains after selection.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` defaults to `0.05` and defines the accepted PSM evidence that
+  feeds protein inference
+- `--variant` selects the named parsimony policy used for the main selected set
+- `--review-variant` is repeatable and defines which named policies are
+  compared for unresolved ambiguity review
+- canonical-schema and decoy-policy column controls stay available so
+  lab-local PSM tables can be inferred without a separate conversion pass
+- `--summary-tsv-out` writes one compact parsimony summary ledger
+- `--protein-tsv-out` writes the selected-protein table
+- `--ambiguity-tsv-out` writes unresolved shared-peptide and
+  variant-difference rows
+
+The `protein-parsimony` JSON payload includes:
+
+- the selected threshold and score orientation
+- accepted and rejected source-row counts from the parsed PSM table
+- grouped-row count after FDR filtering
+- one summary block with observed peptide count, explained peptide count,
+  unexplained peptide count, selected protein count, shared selected-peptide
+  count, variant-difference count, and unresolved ambiguity count
+- one selected-protein row per chosen protein with source group, covered
+  peptides, newly explained peptides, unresolved shared peptides, score,
+  q-value, and target-decoy label
+- explicit unresolved ambiguity rows for shared peptides that still map to more
+  than one selected protein and for parsimony variants that diverge in ranking
+  or membership
+- any requested summary, protein, or ambiguity TSV output paths
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
 identification evidence plus one exported feature table.
