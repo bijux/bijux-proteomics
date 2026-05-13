@@ -139,6 +139,7 @@ from bijux_proteomics.sequences import (
     filter_fasta_records,
     generate_decoy_records,
     parse_fasta_document,
+    build_peptide_property_report,
     render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
@@ -1365,6 +1366,78 @@ def peptide_mass_command(
         "fragment_ion_count": len(fragments),
         "fragments": [fragment.to_dict() for fragment in fragments],
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("peptide-properties")
+@click.argument("sequence")
+@click.option(
+    "--mod",
+    "modifications",
+    multiple=True,
+    help="Modification assignment like Oxidation@3 or Acetyl@n-term.",
+)
+@click.option("--charge", type=int, default=2, show_default=True)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option(
+    "--custom-protease",
+    default=None,
+    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+)
+@click.option(
+    "--custom-protease-name",
+    default="custom",
+    show_default=True,
+    help="Stable name recorded for a custom protease rule.",
+)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def peptide_properties_command(
+    sequence: str,
+    modifications: tuple[str, ...],
+    charge: int,
+    protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
+    registry_path: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Emit peptide property diagnostics for filtering and review."""
+    try:
+        protease_rule, custom_specification = _resolve_cli_protease_rule(
+            protease=protease,
+            custom_protease=custom_protease,
+            custom_protease_name=custom_protease_name,
+        )
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        report = build_peptide_property_report(
+            sequence,
+            modification_assignments=modifications,
+            charge=charge,
+            protease=protease_rule,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    payload = report.to_dict()
+    payload["custom_protease"] = custom_specification
     _emit_json(payload, out_path=out_path)
 
 
