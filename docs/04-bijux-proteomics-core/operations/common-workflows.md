@@ -143,6 +143,27 @@ preprocessing step.
 The digestion contract is honest about scope: a peptide list is only as
 defensible as the protease rule and specificity mode that generated it.
 
+## Peptide Property Screening
+
+Use `peptide-properties` when the question is whether one peptide is sensible
+to carry forward into search-space design, targeted review, or downstream
+analysis.
+
+- The property report combines monoisotopic mass, average mass, charge-state
+  precursor m/z, residue length, protease-specific missed-cleavage count, and
+  a simple hydrophobicity proxy in one review object.
+- Missed-cleavage counting stays tied to the selected protease rule, including
+  custom rules, instead of assuming trypsin silently.
+- The hydrophobicity value is a Kyte-Doolittle average proxy, not a retention
+  time predictor or chromatographic model.
+- Problem flags are heuristic and reviewer-facing. They currently surface short
+  peptides, long peptides, high missed-cleavage burden, and strongly
+  hydrophobic peptides so filtering decisions remain explicit.
+
+This surface is intentionally honest about scope. It helps triage peptide
+candidates before search or analysis, but it does not claim to predict
+ionization efficiency, retention time, or identification success directly.
+
 ## Digestion Export Review
 
 Use `digest` when the peptide space itself needs to be handed off for search,
