@@ -804,6 +804,38 @@ _MSFRAGGER_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     ),
 )
 
+_FRAGPIPE_PSM_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.MSFRAGGER,
+    dialect_id="fragpipe-psm",
+    display_name="FragPipe psm export",
+    description="Normalize a FragPipe psm.tsv export into stable PSM records.",
+    score_family=SearchScoreFamily.HYPERSCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
+    native_columns=(
+        "Spectrum",
+        "Peptide",
+        "Modified Peptide",
+        "Charge",
+        "Hyperscore",
+        "Protein",
+        "IsDecoy",
+        "QValue",
+        "Assigned Modifications",
+        "Observed Modifications",
+        "Mass Difference",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="Spectrum",
+        peptide="Peptide",
+        charge="Charge",
+        score="Hyperscore",
+        protein_refs="Protein",
+        q_value="QValue",
+        decoy_label="IsDecoy",
+        protein_separator=";",
+    ),
+)
+
 _SAGE_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     adapter_kind=SearchAdapterKind.SAGE,
     dialect_id="pipeline-export",
@@ -961,6 +993,7 @@ def search_adapter_dialect_registry() -> dict[
         [
             _COMET_PIPELINE_DIALECT,
             _MSFRAGGER_PIPELINE_DIALECT,
+            _FRAGPIPE_PSM_DIALECT,
             _SAGE_PIPELINE_DIALECT,
             _MAXQUANT_PIPELINE_DIALECT,
             _DIANN_PIPELINE_DIALECT,
