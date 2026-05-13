@@ -943,6 +943,54 @@ def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
         )
 
 
+def test_psm_inspect_command_supports_canonical_schema_columns() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_adapters"
+        shutil.copy(
+            fixture_dir / "generic_mapper_results.tsv",
+            "generic_mapper_results.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-inspect",
+                "generic_mapper_results.tsv",
+                "--run-id-column",
+                "run_name",
+                "--spectrum-id-column",
+                "scan_ref",
+                "--peptide-column",
+                "sequence_text",
+                "--modified-peptide-column",
+                "modified_sequence",
+                "--charge-column",
+                "z",
+                "--score-column",
+                "state_score",
+                "--q-value-column",
+                "qvalue",
+                "--protein-refs-column",
+                "accessions",
+                "--decoy-label-column",
+                "decoy_state",
+                "--contaminant-label-column",
+                "contaminant_state",
+                "--tsv-out",
+                "normalized.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        normalized_tsv = Path("normalized.tsv").read_text(encoding="utf-8")
+        assert "run_id" in normalized_tsv
+        assert "peptide_sequence" in normalized_tsv
+        assert "modified_peptide" in normalized_tsv
+        assert "contaminant_flag" in normalized_tsv
+        assert "PES[Phospho]TIDE" in normalized_tsv
+
+
 def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -2139,7 +2187,10 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
             "instrument",
         ]
         assert payload["mapped_rows"][0]["run_id"] == "run_A"
+        assert payload["mapped_rows"][0]["peptide_sequence"] == "PESTIDE"
+        assert payload["mapped_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
         assert payload["mapped_rows"][1]["target_decoy_label"] == "decoy"
+        assert payload["mapped_rows"][1]["contaminant_flag"] is True
         assert Path("mapped.tsv").exists()
 
 
