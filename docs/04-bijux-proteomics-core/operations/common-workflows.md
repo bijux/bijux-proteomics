@@ -164,6 +164,28 @@ This surface is intentionally honest about scope. It helps triage peptide
 candidates before search or analysis, but it does not claim to predict
 ionization efficiency, retention time, or identification success directly.
 
+## Precursor Mass-Error Review
+
+Use `precursor-mass-error` when the question is whether observed precursor
+assignments are consistent with the claimed peptide identities and charge
+states.
+
+- The surface compares observed precursor m/z values against theoretical
+  peptide m/z values under the supplied charge state instead of collapsing
+  everything to neutral mass.
+- Modified peptide notation stays valid input, so theoretical m/z can reflect
+  the same owned modification registry used elsewhere in the package.
+- The report keeps both Dalton and ppm error visible per observation.
+- Isotope-offset review stays advisory and explicit. The command ranks offset
+  candidates rather than silently correcting precursor assignments.
+- Reviewer-facing summaries include charge distribution, absolute-ppm
+  distribution, and recommended isotope-offset distribution across the input
+  table.
+
+This surface is intentionally diagnostic rather than corrective. It helps
+operators see calibration drift or monoisotopic-assignment problems, but it
+does not rewrite the source evidence automatically.
+
 ## Search-Engine Modified Peptide Normalization
 
 Use `modified-peptide-parse` when modified peptide strings arrive from
