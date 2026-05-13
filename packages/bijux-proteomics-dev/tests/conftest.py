@@ -10,7 +10,7 @@ import sys
 import pytest
 
 sys.dont_write_bytecode = True
-PACKAGE_TREES = tuple(Path("packages").glob("*/src"))
+PACKAGE_TREES = tuple(Path("packages").glob("*"))
 
 
 def _remove_workspace_bytecode_artifacts() -> None:

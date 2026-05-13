@@ -9,7 +9,10 @@ from bijux_proteomics_dev.governance.runtime.topology import REPO_ROOT
 from bijux_proteomics_dev.governance.support.workspace_inventory import (
     workspace_package_names,
 )
-from bijux_proteomics_dev.tools.cache_hygiene import find_forbidden_cache_dirs
+from bijux_proteomics_dev.tools.cache_hygiene import (
+    find_forbidden_cache_dirs,
+    purge_forbidden_cache_dirs,
+)
 
 __all__ = [
     "FORBIDDEN_PACKAGE_ROOT_SPILLOVER",
@@ -57,12 +60,16 @@ def _package_names(repo_root: Path) -> tuple[str, ...]:
 
 def build_package_root_hygiene_report(
     repo_root: Path = REPO_ROOT,
+    *,
+    purge_transient_caches: bool = False,
 ) -> tuple[PackageRootHygieneReportEntry, ...]:
     """Inspect publishable package roots for cache spillover and transient state."""
 
     entries: list[PackageRootHygieneReportEntry] = []
     for package_name in _package_names(repo_root):
         root = repo_root / "packages" / package_name
+        if purge_transient_caches:
+            purge_forbidden_cache_dirs(root)
         cache_paths = tuple(
             path.relative_to(repo_root).as_posix()
             for path in find_forbidden_cache_dirs(root)
@@ -86,11 +93,16 @@ def build_package_root_hygiene_report(
 
 def validate_package_root_hygiene(
     repo_root: Path = REPO_ROOT,
+    *,
+    purge_transient_caches: bool = True,
 ) -> tuple[PackageRootHygieneIssue, ...]:
     """Fail when publishable package roots still hold transient execution state."""
 
     issues: list[PackageRootHygieneIssue] = []
-    for entry in build_package_root_hygiene_report(repo_root):
+    for entry in build_package_root_hygiene_report(
+        repo_root,
+        purge_transient_caches=purge_transient_caches,
+    ):
         for path in entry.cache_paths:
             issues.append(
                 PackageRootHygieneIssue(
