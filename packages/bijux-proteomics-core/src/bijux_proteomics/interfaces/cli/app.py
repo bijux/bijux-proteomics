@@ -18,6 +18,7 @@ from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     SearchEngineModifiedPeptideDialect,
     approximate_peptide_isotope_envelope,
+    build_modification_resolution_report,
     build_modification_localization_advisory,
     build_modified_peptide,
     build_peptide_charge_state,
@@ -1488,6 +1489,51 @@ def modified_peptide_parse_command(
         report = build_search_engine_modified_peptide_report(
             notation,
             dialect=dialect,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    _emit_json(report.to_dict(), out_path=out_path)
+
+
+@cli.command("modification-resolve")
+@click.argument("token")
+@click.option(
+    "--residue",
+    default=None,
+    help="Optional residue for residue-compatibility review.",
+)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def modification_resolve_command(
+    token: str,
+    residue: str | None,
+    registry_path: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Resolve one modification token against builtin or custom registries."""
+    try:
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        report = build_modification_resolution_report(
+            token,
+            residue=residue,
             registry=registry,
         )
     except ValueError as exc:
