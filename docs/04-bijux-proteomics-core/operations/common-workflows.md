@@ -367,6 +367,31 @@ full DIA workflow runner. Its job is to preserve precursor-level DIA evidence,
 run/sample context, and quantity burden honestly enough for downstream
 quantification and comparison work.
 
+## Spectronaut Report Import
+
+Use `spectronaut-import` when one Spectronaut export table needs to remain
+reviewable as precursor-level DIA evidence instead of being reduced to a
+generic score table.
+
+- The precursor surface preserves precursor identifier, stripped peptide,
+  modified peptide, q-value, confidence score, protein group, protein
+  accessions, sample name, run name, `FG.Quantity`, and `PG.Quantity`.
+- Modified peptide notation remains explicit through a dedicated review row so
+  stripped sequence and modified sequence do not get conflated.
+- Protein-group evidence stays separate through a reviewer-facing ledger keyed
+  by protein group together with run and sample context.
+- The import keeps library-style target-decoy state explicit instead of
+  inferring it later from a downstream summary.
+- When a Spectronaut settings file is available, the same surface preserves
+  digestion, tolerance, library, decoy-prefix, and modification provenance so
+  the imported report stays tied to the acquisition-conditioned assumptions
+  that produced it.
+
+This surface is intentionally a Spectronaut import and review contract rather
+than an attempt to mirror every commercial project artifact. Its job is to
+preserve the useful exported precursor and protein-group evidence honestly
+enough for downstream DIA comparison and quantification work.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
