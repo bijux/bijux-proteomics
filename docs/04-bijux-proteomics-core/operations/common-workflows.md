@@ -438,6 +438,35 @@ This surface is intentionally descriptive rather than declarative. It helps the
 operator understand search-result quality honestly, but it does not replace
 later FDR policy, contaminant review, or protein-level inference.
 
+## Peptide Evidence Review
+
+Use `peptide-evidence` when the question is not whether one peptide exists in a
+database, but how strong the observed peptide evidence looks after peptide-level
+rollup and peptide-level FDR review.
+
+- The surface assigns one primary class per observed peptide: `strong`, `weak`,
+  `contaminant`, or `decoy`.
+- `strong` is intentionally strict. It currently means the peptide is accepted
+  at peptide-level FDR, passes the explicit strong-evidence q-value threshold,
+  and is unique across the observed protein references in the input evidence.
+- `weak` stays explicit instead of disappearing. Shared peptides, lower-quality
+  accepted peptides, and rejected non-decoy peptides all remain reviewable
+  under one reviewer-facing class with an explanation string.
+- Orthogonal tags preserve the evidence shape separately from the primary
+  class: `unique` or `shared`, plus `modified`, `contaminant`, and `decoy`
+  where applicable.
+- The summary surface keeps accepted versus rejected peptide counts visible
+  alongside strong, weak, shared, modified, contaminant, and decoy totals.
+- Reviewer-facing TSV ledgers remain available for both the summary and the
+  per-peptide review rows when the evidence classification needs to move into
+  downstream review or release documentation.
+
+This surface is intentionally observed-evidence-facing rather than
+database-uniqueness-facing. A peptide can be `strong` here because it is
+uniquely supported by the imported protein references, while a separate peptide
+index or database audit may still show broader sequence ambiguity in a larger
+search database.
+
 ## Target-Decoy Reference Validation
 
 Use `fdr-reference-check` when the question is whether the owned target-decoy
