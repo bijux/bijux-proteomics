@@ -51,6 +51,7 @@ The owned spectrum CLI surface is:
 - `spectrum-annotate`
 - `spectrum-similarity`
 - `spectral-library-import`
+- `spectral-library-search`
 - `spectrum-summary`
 - `mzml-inspect`
 - `summarize --kind mgf`
@@ -393,12 +394,43 @@ into an explicit peptide-aware library contract.
 The `spectral-library-import` JSON payload includes:
 
 - the full import report with accepted and rejected entries
-- a compact summary over entry count, unique peptides, modified entries, and
-  charge distribution
+- a compact summary over entry count, unique peptides, modified entries, decoy
+  entries, and charge distribution
 - compact index facts, including peptide lookup content and precursor-index
   size
 - an optional candidate report over precursor and peptide-filtered entries
 - any requested summary or candidate TSV export paths
+
+`spectral-library-search` ranks one selected query spectrum against one
+practical MSP or MGF library.
+
+- `--query-kind` accepts `auto`, `mgf`, or `mzml`.
+- `--library-kind` accepts `auto`, `msp`, or `mgf`.
+- `--query-spectrum-id` optionally selects one accepted query spectrum by
+  identifier.
+- `--precursor-tolerance-da` sets the precursor candidate window before any
+  similarity scoring happens.
+- `--tolerance-da` sets the fragment-matching tolerance for the similarity
+  stage.
+- `--bin-width-da` optionally switches the similarity stage onto coarse m/z
+  binning.
+- `--method` accepts `cosine` or `dot_product`.
+- `--mode` accepts `raw`, `normalized`, `top_n`, or `transformed`.
+- `--top-n` optionally limits preprocessing to the most intense peaks.
+- `--max-matches` limits the ranked output table.
+- `--tsv-out` writes the ranked match table with target-decoy label, score,
+  explained-intensity fractions, and optional q-value.
+
+The `spectral-library-search` JSON payload includes:
+
+- the imported library report used for search
+- a compact library summary that keeps decoy-entry count explicit
+- one search report with precursor policy, similarity policy, candidate count,
+  decoy-candidate count, and ranked matches
+- the top-match identifier, peptide, score, and q-value when available
+- a search strategy field that stays explicit as either `concatenated` or
+  `no_decoy_advisory`
+- any requested ranked-TSV export path
 
 `mzml-inspect` reports one practical mzML review object without claiming full
 vendor-native replacement.
