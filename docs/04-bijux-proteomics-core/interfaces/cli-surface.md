@@ -79,6 +79,46 @@ The database composition surface reports:
 - writing a build report with separate built-in and external append counts plus
   skipped duplicate contaminant accessions
 
+`fasta-decoy` builds a target-decoy database and reports both accession-level
+and sequence-level review signals.
+
+- `--decoy-mode reverse` and `--decoy-mode shuffle` select the owned decoy
+  construction method.
+- `--prefix` preserves target protein identity inside the decoy accession while
+  enforcing collision-free accession generation.
+- Mixed target-plus-decoy inputs are rejected instead of being re-expanded.
+- Prefix choices that would collide with existing target accessions fail before
+  output is written.
+
+The `fasta-decoy` JSON payload includes:
+
+- `mode`
+- `prefix`
+- `seed`
+- `output_fasta`
+- `target_count`
+- `decoy_count`
+- `report`
+- `generation_report`
+- `output_sha256`
+- `reproducibility_hash`
+
+`generation_report` adds reviewer-facing target-decoy construction details:
+
+- input target count
+- generated decoy count
+- unchanged sequence count and accession list
+- target-sequence collision count and accession list
+- validity flag for the generated decoy surface
+
+`target-decoy-validate` checks a finished database after generation and reports:
+
+- target and decoy counts
+- prefix and mode compatibility
+- duplicate accession and duplicate sequence burden
+- target-versus-decoy sequence overlap signals
+- overall validity of the target-decoy database
+
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
 and sequence-length summary values.
