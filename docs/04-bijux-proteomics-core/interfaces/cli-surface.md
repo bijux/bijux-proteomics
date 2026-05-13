@@ -47,6 +47,7 @@ The owned FASTA CLI surface is:
 - `fdr-reference-check`
 - `fdr-levels`
 - `picked-protein-fdr`
+- `protein-ambiguity`
 - `protein-groups`
 - `protein-coverage`
 - `protein-coverage-plot`
@@ -589,6 +590,35 @@ The `protein-groups` JSON payload includes:
   protein, leading rationale, protein members, all peptides, unique peptides,
   shared peptides, score, q-value, target-decoy label, and contaminant flag
 - any requested summary or group-table TSV output paths
+
+`protein-ambiguity` emits one direct protein-ambiguity review packet over
+FDR-filtered PSM evidence.
+
+- the positional argument is the source PSM TSV path
+- `--threshold` defaults to `0.05` and defines the accepted PSM evidence that
+  feeds ambiguity review
+- `--high-q-value` and `--medium-q-value` define the confidence bands applied
+  to each ambiguous group
+- canonical-schema and decoy-policy column controls stay available so
+  lab-local PSM tables can be reviewed without a separate conversion pass
+- `--summary-tsv-out` writes one compact protein-ambiguity summary ledger
+- `--ambiguity-tsv-out` writes one reviewer-facing ambiguity table
+
+The `protein-ambiguity` JSON payload includes:
+
+- the selected threshold, score orientation, and confidence-band cutoffs
+- accepted and rejected source-row counts from the parsed PSM table
+- grouped-row count after FDR filtering and ambiguity-row count after the
+  review surface isolates unresolved groups
+- one summary block with ambiguous-group count, ambiguous-protein count,
+  indistinguishable versus external-shared versus mixed-group burden, and
+  confidence-label counts
+- one ambiguity row per unresolved protein group with representative protein,
+  all protein members, indistinguishable-member ledger, shared peptides,
+  unique peptides, outside-group proteins, ambiguity reason, ambiguity
+  explanation, score, q-value, confidence label, target-decoy label, and
+  contaminant flag
+- any requested summary or ambiguity-table TSV output paths
 
 `protein-coverage` emits one direct protein-coverage review packet over
 FDR-filtered PSM evidence plus a supplied FASTA sequence set.
