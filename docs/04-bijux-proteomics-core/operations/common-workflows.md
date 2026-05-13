@@ -164,6 +164,27 @@ This surface is intentionally honest about scope. It helps triage peptide
 candidates before search or analysis, but it does not claim to predict
 ionization efficiency, retention time, or identification success directly.
 
+## Fragment-Ion Review
+
+Use `fragment-ions` when the question is whether one peptide has the expected
+theoretical b/y fragmentation pattern before moving on to spectrum annotation
+or PSM review.
+
+- The surface stays explicit about charge state and can emit both `1+` and `2+`
+  fragment ions in one report.
+- Neutral losses remain opt-in so reviewers can decide when water, ammonia, or
+  modification-specific loss channels should be part of the comparison space.
+- Modified peptides are handled through the same owned modification registry
+  and canonical peptide contract used elsewhere in the package.
+- The report is intentionally separate from spectrum matching so operators can
+  inspect the theoretical evidence surface before discussing peak support.
+- Curated reference cases validate the generator against known unmodified,
+  acetylated, and phosphorylated examples.
+
+This surface is intentionally theoretical. It generates the fragment evidence
+space honestly, but it does not claim that any individual fragment is observed
+until the later annotation surface matches it to real peaks.
+
 ## Precursor Mass-Error Review
 
 Use `precursor-mass-error` when the question is whether observed precursor
