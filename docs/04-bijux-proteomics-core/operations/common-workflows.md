@@ -60,3 +60,21 @@ but what kind of search or digestion burden it will create.
 This profiling surface is intentionally reviewer-facing. It helps operators
 decide whether a database is appropriately scoped and annotated before they
 commit to downstream evidence generation.
+
+## Contaminant Database Assembly
+
+Use `fasta-contaminants` when a target-only FASTA is not realistic enough for
+search or digestion review on its own.
+
+- The owned built-in contaminant panel appends common carryover proteins such
+  as albumin, trypsin, and keratins.
+- External contaminant FASTA files can be appended in the same run for
+  lab-local contaminants.
+- Appended contaminant proteins are relabeled with the stable `CON__` prefix so
+  downstream search evidence can distinguish them from targets.
+- The build report separates built-in versus external contaminant counts and
+  records skipped duplicate contaminant accessions.
+
+After search import, use the contaminant-match review surface to separate
+contaminant-carrying PSMs from target-only evidence instead of letting those
+matches disappear into the general peptide summary.
