@@ -40,6 +40,7 @@ from bijux_proteomics.identification import (
     assign_confidence_labels,
     assign_razor_peptides,
     build_calibration_plot_data,
+    build_contaminant_peptide_match_report,
     build_fdr_audit_trail,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
@@ -127,6 +128,7 @@ from bijux_proteomics.sequences import (
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
+    append_contaminant_database,
     build_fasta_database_profile,
     build_decoy_generation_manifest,
     build_fasta_provenance_manifest,
@@ -546,6 +548,72 @@ def fasta_dedup_command(
     _emit_json(dedup_report, out_path=report_out)
 
 
+@cli.command("fasta-contaminants")
+@click.argument(
+    "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--mode",
+    type=_mode_choice(),
+    default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--include-builtin/--no-include-builtin",
+    default=True,
+    show_default=True,
+    help="Append the owned built-in contaminant panel.",
+)
+@click.option(
+    "--contaminant-fasta",
+    "contaminant_fastas",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    multiple=True,
+    help="Optional external contaminant FASTA path to append after relabeling.",
+)
+@click.option(
+    "--out-fasta",
+    type=click.Path(path_type=Path, dir_okay=False),
+    required=True,
+    help="Where to write the combined target-plus-contaminant FASTA.",
+)
+@click.option(
+    "--report-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON build report output path.",
+)
+def fasta_contaminants_command(
+    input_fasta: Path,
+    mode: str,
+    include_builtin: bool,
+    contaminant_fastas: tuple[Path, ...],
+    out_fasta: Path,
+    report_out: Path | None,
+) -> None:
+    """Append labeled contaminant proteins to one target FASTA database."""
+    target_report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode(mode),
+        allow_rejected=False,
+    )
+    external_records = []
+    for contaminant_fasta in contaminant_fastas:
+        contaminant_report = _load_fasta_report(
+            contaminant_fasta,
+            mode=FastaParseMode(mode),
+            allow_rejected=False,
+        )
+        external_records.extend(contaminant_report.accepted_records)
+    combined, build_report = append_contaminant_database(
+        target_report.accepted_records,
+        include_builtin=include_builtin,
+        external_contaminant_records=tuple(external_records),
+    )
+    out_fasta.write_text(render_fasta_records(combined))
+    _emit_json(build_report, out_path=report_out)
+
+
 @cli.command("fasta-filter")
 @click.argument(
     "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -699,6 +767,39 @@ def fasta_profile_command(
         length_tsv_out=length_tsv_out,
         organism_tsv_out=organism_tsv_out,
     )
+
+
+@cli.command("psm-contaminants")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--contaminant-prefix",
+    "contaminant_prefixes",
+    multiple=True,
+    default=("CON__",),
+    show_default=True,
+    help="Protein-reference prefixes that mark contaminant evidence.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON contaminant-match report output path.",
+)
+def psm_contaminants_command(
+    input_tsv: Path,
+    contaminant_prefixes: tuple[str, ...],
+    out_path: Path | None,
+) -> None:
+    """Separate contaminant-carrying peptide-spectrum matches from target-only evidence."""
+    report = parse_psm_tsv(input_tsv, mapping=_default_psm_mapping())
+    contaminant_report = build_contaminant_peptide_match_report(
+        report.accepted_records,
+        contaminant_prefixes=tuple(contaminant_prefixes),
+    )
+    _emit_json(contaminant_report, out_path=out_path)
 
 
 @cli.command("fasta-provenance")
@@ -1830,6 +1931,9 @@ def summarize_command(
             "psm_summary": build_psm_summary_report(normalized).to_dict(),
             "peptide_summary": build_peptide_summary_report(normalized).to_dict(),
             "protein_summary": build_protein_summary_report(normalized).to_dict(),
+            "contaminant_report": build_contaminant_peptide_match_report(
+                normalized
+            ).to_dict(),
             "rejected_rows": len(psm_report.rejected_rows),
         }
     elif resolved_kind == "mgf":
