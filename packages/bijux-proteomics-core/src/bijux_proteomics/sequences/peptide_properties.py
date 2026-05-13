@@ -18,8 +18,8 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
 )
 from bijux_proteomics.sequences.digestion import (
-    ProteaseCleavageMode,
     ProteaseRule,
+    count_missed_cleavages,
     resolve_protease_rule,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -113,7 +113,7 @@ def build_peptide_property_report(
         resolve_protease_rule(protease) if isinstance(protease, str) else protease
     )
     hydrophobicity_proxy = calculate_peptide_hydrophobicity_proxy(parsed.sequence)
-    missed_cleavages = _count_missed_cleavages(parsed.sequence, protease_rule)
+    missed_cleavages = count_missed_cleavages(parsed.sequence, protease_rule)
     problem_flags = _build_problem_flags(
         sequence=parsed.sequence,
         hydrophobicity_proxy=hydrophobicity_proxy,
@@ -133,33 +133,6 @@ def build_peptide_property_report(
         problem_flags=problem_flags,
         flagged_problematic=bool(problem_flags),
     )
-
-
-def _count_missed_cleavages(sequence: str, rule: ProteaseRule) -> int:
-    if len(sequence) < 2:
-        return 0
-    count = 0
-    if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
-        for index in range(len(sequence) - 1):
-            residue = sequence[index]
-            next_residue = sequence[index + 1]
-            if (
-                residue in rule.cleavage_residues
-                and next_residue not in rule.blocked_by_next
-            ):
-                count += 1
-        return count
-    for index in range(1, len(sequence)):
-        residue = sequence[index]
-        previous_residue = sequence[index - 1]
-        if (
-            residue in rule.cleavage_residues
-            and previous_residue not in rule.blocked_by_previous
-        ):
-            count += 1
-    return count
-
-
 def _build_problem_flags(
     *,
     sequence: str,

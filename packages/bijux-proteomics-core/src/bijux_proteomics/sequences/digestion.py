@@ -890,6 +890,37 @@ def build_digest_benchmark_report(
     )
 
 
+def count_missed_cleavages(
+    sequence: str,
+    protease: ProteaseRule | str,
+) -> int:
+    """Count internal missed-cleavage sites for one peptide sequence."""
+    residues = sequence.strip().upper()
+    if len(residues) < 2:
+        return 0
+    rule = resolve_protease_rule(protease) if isinstance(protease, str) else protease
+    count = 0
+    if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
+        for index in range(len(residues) - 1):
+            residue = residues[index]
+            next_residue = residues[index + 1]
+            if (
+                residue in rule.cleavage_residues
+                and next_residue not in rule.blocked_by_next
+            ):
+                count += 1
+        return count
+    for index in range(1, len(residues)):
+        residue = residues[index]
+        previous_residue = residues[index - 1]
+        if (
+            residue in rule.cleavage_residues
+            and previous_residue not in rule.blocked_by_previous
+        ):
+            count += 1
+    return count
+
+
 def _classify_peptide_uniqueness_members(
     peptides: list[DigestedPeptide] | tuple[DigestedPeptide, ...],
 ) -> PeptideUniqueness:
