@@ -733,6 +733,95 @@ def test_modified_peptide_parse_command_rejects_malformed_engine_notation() -> N
         assert "unterminated bracket modification token" in result.output
 
 
+def test_modification_resolve_command_reports_builtin_and_unknown_tokens() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        resolved = runner.invoke(
+            cli,
+            [
+                "modification-resolve",
+                "deamidation",
+                "--residue",
+                "N",
+            ],
+        )
+        unknown = runner.invoke(
+            cli,
+            [
+                "modification-resolve",
+                "NoSuchModification",
+                "--residue",
+                "M",
+            ],
+        )
+
+        assert resolved.exit_code == 0
+        resolved_payload = json.loads(resolved.output)
+        assert resolved_payload["resolved"] is True
+        assert resolved_payload["modification_name"] == "Deamidated"
+        assert resolved_payload["controlled_id"] == "UNIMOD:7"
+        assert resolved_payload["source"] == "builtin"
+        assert resolved_payload["residue_allowed"] is True
+
+        assert unknown.exit_code == 0
+        unknown_payload = json.loads(unknown.output)
+        assert unknown_payload["resolved"] is False
+        assert unknown_payload["source"] == "unknown"
+        assert unknown_payload["issues"]
+
+
+def test_modification_resolve_command_supports_custom_registry() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("registry.json").write_text(
+            json.dumps(
+                {
+                    "document_schema": {
+                        "created_by": "bijux-proteomics-core-tests",
+                        "document_kind": "peptide_modification_registry",
+                        "package_name": "bijux-proteomics-core",
+                        "schema_version": "1.0.0",
+                        "status": "generated",
+                    },
+                    "static_modifications": [],
+                    "variable_modifications": [
+                        {
+                            "application": "variable",
+                            "controlled_id": "CUSTOM:LYSTAG",
+                            "mass_delta_average": 114.1,
+                            "mass_delta_monoisotopic": 114.042927,
+                            "max_occurrences": 1,
+                            "name": "LysTag",
+                            "neutral_losses": [],
+                            "position": "anywhere",
+                            "residues": ["K"],
+                        }
+                    ],
+                }
+            )
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "modification-resolve",
+                "CUSTOM:LYSTAG",
+                "--residue",
+                "K",
+                "--registry",
+                "registry.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["resolved"] is True
+        assert payload["source"] == "registry"
+        assert payload["modification_name"] == "LysTag"
+        assert payload["controlled_id"] == "CUSTOM:LYSTAG"
+        assert payload["residue_allowed"] is True
+
+
 def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
