@@ -85,6 +85,15 @@ from bijux_proteomics.io.ingestion import (
     build_mzml_practical_review_report,
     build_streaming_parse_profile,
 )
+from bijux_proteomics.io.run_qc import (
+    build_spectrum_run_qc_plot_payload,
+    build_spectrum_run_qc_report,
+    render_spectrum_run_qc_distribution_tsv,
+    render_spectrum_run_qc_flagged_spectra_tsv,
+    render_spectrum_run_qc_summary_tsv,
+    render_spectrum_run_qc_time_bins_tsv,
+    render_spectrum_run_qc_trace_tsv,
+)
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     FormatConversionTarget,
@@ -93,6 +102,7 @@ from bijux_proteomics.io.formats import (
     export_spectra_jsonl,
     build_normalized_run_bundle,
     convert_proteomics_format,
+    extract_mzml_chromatograms,
     parse_experimental_design_table,
     parse_mzml,
     validate_proteomics_input,
@@ -2668,6 +2678,169 @@ def spectrum_summary_command(
     payload["peak_count_tsv_out"] = (
         str(peak_count_tsv_out) if peak_count_tsv_out else None
     )
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("spectrum-qc")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--kind",
+    type=click.Choice(["auto", "mgf", "mzml"]),
+    default="auto",
+    show_default=True,
+)
+@click.option(
+    "--time-bin-seconds",
+    type=float,
+    default=60.0,
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--msms-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--tic-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--bpc-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--charge-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--precursor-intensity-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--flagged-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--plot-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON run-QC output path.",
+)
+def spectrum_qc_command(
+    input_path: Path,
+    kind: str,
+    time_bin_seconds: float,
+    summary_tsv_out: Path | None,
+    msms_tsv_out: Path | None,
+    tic_tsv_out: Path | None,
+    bpc_tsv_out: Path | None,
+    charge_tsv_out: Path | None,
+    precursor_intensity_tsv_out: Path | None,
+    flagged_tsv_out: Path | None,
+    plot_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build run-level QC directly from one MGF or mzML spectra file."""
+    resolved_kind = kind
+    if resolved_kind == "auto":
+        suffix = input_path.suffix.lower()
+        if suffix == ".mgf":
+            resolved_kind = "mgf"
+        elif suffix == ".mzml":
+            resolved_kind = "mzml"
+        else:
+            raise click.ClickException(
+                "cannot infer spectrum QC kind; use --kind mgf or --kind mzml"
+            )
+
+    if resolved_kind == "mgf":
+        parse_report = parse_mgf(input_path)
+        report = build_spectrum_run_qc_report(
+            parse_report.accepted_spectra,
+            source_kind="mgf",
+            rejected_count=len(parse_report.rejected_blocks),
+            time_bin_seconds=time_bin_seconds,
+        )
+    elif resolved_kind == "mzml":
+        parse_report = parse_mzml(input_path)
+        report = build_spectrum_run_qc_report(
+            parse_report.accepted_spectra,
+            source_kind="mzml",
+            rejected_count=len(parse_report.rejected_spectra),
+            chromatograms=extract_mzml_chromatograms(input_path),
+            time_bin_seconds=time_bin_seconds,
+        )
+    else:
+        raise click.ClickException("spectrum-qc supports only mgf and mzml")
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_spectrum_run_qc_summary_tsv(report))
+    if msms_tsv_out is not None:
+        _write_text_output(msms_tsv_out, render_spectrum_run_qc_time_bins_tsv(report))
+    if tic_tsv_out is not None:
+        _write_text_output(
+            tic_tsv_out,
+            render_spectrum_run_qc_trace_tsv(report.tic_trace, trace_name="tic"),
+        )
+    if bpc_tsv_out is not None:
+        _write_text_output(
+            bpc_tsv_out,
+            render_spectrum_run_qc_trace_tsv(report.bpc_trace, trace_name="bpc"),
+        )
+    if charge_tsv_out is not None:
+        _write_text_output(
+            charge_tsv_out,
+            render_spectrum_run_qc_distribution_tsv(
+                report.charge_distribution,
+                distribution_name="charge",
+            ),
+        )
+    if precursor_intensity_tsv_out is not None:
+        _write_text_output(
+            precursor_intensity_tsv_out,
+            render_spectrum_run_qc_distribution_tsv(
+                report.precursor_intensity_distribution,
+                distribution_name="precursor_intensity",
+            ),
+        )
+    if flagged_tsv_out is not None:
+        _write_text_output(
+            flagged_tsv_out,
+            render_spectrum_run_qc_flagged_spectra_tsv(report),
+        )
+    plot_payload = build_spectrum_run_qc_plot_payload(report)
+    if plot_out is not None:
+        plot_out.write_text(plot_payload.to_stable_json() + "\n", encoding="utf-8")
+
+    payload = report.to_dict()
+    payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
+    payload["msms_tsv_out"] = str(msms_tsv_out) if msms_tsv_out else None
+    payload["tic_tsv_out"] = str(tic_tsv_out) if tic_tsv_out else None
+    payload["bpc_tsv_out"] = str(bpc_tsv_out) if bpc_tsv_out else None
+    payload["charge_tsv_out"] = str(charge_tsv_out) if charge_tsv_out else None
+    payload["precursor_intensity_tsv_out"] = (
+        str(precursor_intensity_tsv_out) if precursor_intensity_tsv_out else None
+    )
+    payload["flagged_tsv_out"] = str(flagged_tsv_out) if flagged_tsv_out else None
+    payload["plot_out"] = str(plot_out) if plot_out else None
     _emit_json(payload, out_path=out_path)
 
 
