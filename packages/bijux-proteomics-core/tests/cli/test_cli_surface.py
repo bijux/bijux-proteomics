@@ -911,6 +911,65 @@ def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> N
         )
 
 
+def test_spectrum_parse_command_reports_rejections_and_streaming_profile() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "spectra" / "malformed.mgf", "malformed.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-parse",
+                "malformed.mgf",
+                "--chunk-size",
+                "2",
+                "--accepted-jsonl-out",
+                "accepted.jsonl",
+                "--rejected-json-out",
+                "rejected.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["parse_report"]["total_blocks"] == 2
+        assert len(payload["parse_report"]["accepted_spectra"]) == 0
+        assert len(payload["parse_report"]["rejected_blocks"]) == 2
+        assert payload["streaming_profile"]["chunk_size"] == 2
+        assert payload["streaming_profile"]["spectrum_count"] == 0
+        assert Path("accepted.jsonl").exists()
+        assert Path("rejected.json").exists()
+        assert json.loads(Path("rejected.json").read_text())[0]["issues"]
+
+
+def test_spectrum_parse_command_exports_accepted_spectra_details() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-parse",
+                "multi.mgf",
+                "--chunk-size",
+                "1",
+                "--accepted-jsonl-out",
+                "accepted.jsonl",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["spectrum_count"] == 2
+        assert payload["streaming_profile"]["chunk_count"] == 2
+        accepted_rows = Path("accepted.jsonl").read_text().strip().splitlines()
+        assert len(accepted_rows) == 2
+        first_row = json.loads(accepted_rows[0])
+        assert first_row["precursor_mz"] > 0.0
+        assert first_row["peaks"]
+
+
 def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
