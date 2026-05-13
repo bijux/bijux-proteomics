@@ -50,6 +50,7 @@ from bijux_proteomics.identification import (
     build_comet_import_report,
     build_fdr_audit_trail,
     build_fragpipe_import_report,
+    build_maxquant_import_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -71,6 +72,10 @@ from bijux_proteomics.identification import (
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
     render_fragpipe_summary_tsv,
+    render_maxquant_evidence_tsv,
+    render_maxquant_peptide_tsv,
+    render_maxquant_protein_group_tsv,
+    render_maxquant_summary_tsv,
     build_sage_import_report,
     render_sage_psm_tsv,
     render_sage_summary_tsv,
@@ -1204,6 +1209,100 @@ def comet_import_command(
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("maxquant-import")
+@click.argument(
+    "evidence_txt", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--peptides-txt",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--protein-groups-txt",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--evidence-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--protein-group-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def maxquant_import_command(
+    evidence_txt: Path,
+    peptides_txt: Path,
+    protein_groups_txt: Path,
+    config_path: Path | None,
+    summary_tsv_out: Path | None,
+    evidence_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_group_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one MaxQuant evidence, peptide, and protein-group bundle."""
+    try:
+        report = build_maxquant_import_report(
+            evidence_txt,
+            peptides_txt_path=peptides_txt,
+            protein_groups_txt_path=protein_groups_txt,
+            config_path=config_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_maxquant_summary_tsv(report.summary))
+    if evidence_tsv_out is not None:
+        _write_text_output(
+            evidence_tsv_out,
+            render_maxquant_evidence_tsv(report.evidence_rows),
+        )
+    if peptide_tsv_out is not None:
+        _write_text_output(peptide_tsv_out, render_maxquant_peptide_tsv(report.peptide_rows))
+    if protein_group_tsv_out is not None:
+        _write_text_output(
+            protein_group_tsv_out,
+            render_maxquant_protein_group_tsv(report.protein_group_rows),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "evidence_normalization": {
+            "adapter": report.evidence_normalization.adapter_manifest.to_dict(),
+            "accepted_rows": len(report.evidence_normalization.parse_report.accepted_records),
+            "rejected_rows": len(report.evidence_normalization.parse_report.rejected_rows),
+        },
+        "parameter_report": None
+        if report.parameter_report is None
+        else report.parameter_report.to_dict(),
+        "evidence_rows": [row.to_dict() for row in report.evidence_rows],
+        "peptide_rows": [row.to_dict() for row in report.peptide_rows],
+        "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "evidence_tsv": None if evidence_tsv_out is None else str(evidence_tsv_out),
+            "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+            "protein_group_tsv": None
+            if protein_group_tsv_out is None
+            else str(protein_group_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
