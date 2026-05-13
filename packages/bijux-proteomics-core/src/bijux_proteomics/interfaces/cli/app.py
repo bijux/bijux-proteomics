@@ -52,6 +52,7 @@ from bijux_proteomics.identification import (
     build_fdr_audit_trail,
     build_fragpipe_import_report,
     build_maxquant_import_report,
+    build_openms_import_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_protein_coverage_map,
@@ -80,6 +81,10 @@ from bijux_proteomics.identification import (
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
+    render_openms_feature_tsv,
+    render_openms_protein_tsv,
+    render_openms_psm_tsv,
+    render_openms_summary_tsv,
     build_spectronaut_import_report,
     render_spectronaut_precursor_tsv,
     render_spectronaut_protein_group_tsv,
@@ -1461,6 +1466,75 @@ def spectronaut_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("openms-import")
+@click.argument(
+    "idxml_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--feature-table",
+    "feature_table_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--feature-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def openms_import_command(
+    idxml_path: Path,
+    feature_table_path: Path,
+    summary_tsv_out: Path | None,
+    psm_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    feature_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one OpenMS idXML bundle with practical exported feature evidence."""
+    try:
+        report = build_openms_import_report(
+            idxml_path,
+            feature_table_path=feature_table_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_openms_summary_tsv(report.summary))
+    if psm_tsv_out is not None:
+        _write_text_output(psm_tsv_out, render_openms_psm_tsv(report.psm_rows))
+    if protein_tsv_out is not None:
+        _write_text_output(
+            protein_tsv_out,
+            render_openms_protein_tsv(report.protein_rows),
+        )
+    if feature_tsv_out is not None:
+        _write_text_output(
+            feature_tsv_out,
+            render_openms_feature_tsv(report.feature_rows),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "feature_parse_summary": report.feature_parse_summary.to_dict(),
+        "psm_rows": [row.to_dict() for row in report.psm_rows],
+        "protein_rows": [row.to_dict() for row in report.protein_rows],
+        "feature_rows": [row.to_dict() for row in report.feature_rows],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+            "feature_tsv": None if feature_tsv_out is None else str(feature_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
