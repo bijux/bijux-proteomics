@@ -3493,7 +3493,7 @@ def protein_coverage_command(
             mapping=mapping,
             decoy_policy=decoy_policy,
         )
-        accepted_records = _filter_review_psms(
+        accepted_records = filter_psms_by_fdr(
             report.accepted_records,
             threshold=threshold,
             score_orientation=score_orientation,
