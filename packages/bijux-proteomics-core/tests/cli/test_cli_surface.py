@@ -3016,6 +3016,101 @@ def test_peptide_matrix_command_emits_psm_backed_matrix_and_skipped_counts() -> 
         assert "psm\tmodified_peptide\tfalse\tsum\t5\t2\t2\t2\t3\t0\t1\t0\t" in summary_tsv
 
 
+def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "protein_matrix_features.tsv",
+            "protein_matrix_features.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-matrix",
+                "protein_matrix_features.tsv",
+                "--input-kind",
+                "feature",
+                "--target-kind",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--unique-peptide-only",
+                "--summary-tsv-out",
+                "protein_matrix.summary.tsv",
+                "--matrix-tsv-out",
+                "protein_matrix.matrix.tsv",
+                "--missingness-tsv-out",
+                "protein_matrix.missingness.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "feature"
+        assert payload["accepted_source_records"] == 8
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["protein_row_count"] == 2
+        assert payload["report"]["summary"]["unique_only"] is True
+        assert Path("protein_matrix.summary.tsv").exists()
+        assert Path("protein_matrix.matrix.tsv").exists()
+        assert Path("protein_matrix.missingness.tsv").exists()
+        assert "feature\tmodified_peptide\tprotein\tfalse\ttop_n\ttrue" in Path(
+            "protein_matrix.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P1\tprotein\tP1\t2\t2\t0\tPEPAAK;PEPMTK\t1600\t2100" in Path(
+            "protein_matrix.matrix.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_protein_matrix_command_emits_psm_backed_group_rollup() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "peptide_matrix_psms.tsv",
+            "peptide_matrix_psms.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-matrix",
+                "peptide_matrix_psms.tsv",
+                "--input-kind",
+                "psm",
+                "--target-kind",
+                "protein_group",
+                "--run-column",
+                "run_id",
+                "--spectrum-id-column",
+                "spectrum_id",
+                "--modified-peptide-column",
+                "modified_peptide",
+                "--score-column",
+                "score",
+                "--summary-tsv-out",
+                "protein_matrix_psm.summary.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "psm"
+        assert payload["accepted_source_records"] == 7
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["protein_row_count"] == 1
+        assert payload["report"]["rows"][0]["target_kind"] == "protein_group"
+        summary_tsv = Path("protein_matrix_psm.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "target_kind" in summary_tsv
+        assert "psm\tmodified_peptide\tprotein_group\tfalse\tsum\tfalse" in summary_tsv
+
+
 def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
