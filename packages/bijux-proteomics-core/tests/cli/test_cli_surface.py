@@ -1967,6 +1967,58 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
         assert pepxml_payload["psm_rows"][0]["xcorr"] == 3.52
 
 
+def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "maxquant"
+        shutil.copy(fixture_dir / "evidence.txt", "evidence.txt")
+        shutil.copy(fixture_dir / "peptides.txt", "peptides.txt")
+        shutil.copy(fixture_dir / "proteinGroups.txt", "proteinGroups.txt")
+        shutil.copy(fixture_dir / "maxquant_settings.txt", "maxquant_settings.txt")
+
+        result = runner.invoke(
+            cli,
+            [
+                "maxquant-import",
+                "evidence.txt",
+                "--peptides-txt",
+                "peptides.txt",
+                "--protein-groups-txt",
+                "proteinGroups.txt",
+                "--config",
+                "maxquant_settings.txt",
+                "--summary-tsv-out",
+                "maxquant.summary.tsv",
+                "--evidence-tsv-out",
+                "maxquant.evidence.tsv",
+                "--peptide-tsv-out",
+                "maxquant.peptides.tsv",
+                "--protein-group-tsv-out",
+                "maxquant.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_evidence_count"] == 4
+        assert payload["summary"]["peptide_row_count"] == 4
+        assert payload["summary"]["protein_group_row_count"] == 4
+        assert payload["summary"]["experiment_names"] == ["raw_A", "raw_B"]
+        assert payload["summary"]["lfq_experiment_names"] == ["raw_A", "raw_B"]
+        assert payload["summary"]["contaminant_evidence_count"] == 1
+        assert payload["summary"]["reverse_evidence_count"] == 1
+        assert payload["parameter_report"]["enzyme"] == "trypsin"
+        assert (
+            payload["evidence_normalization"]["adapter"]["display_name"]
+            == "MaxQuant bundle evidence"
+        )
+        assert payload["protein_group_rows"][0]["lfq_intensities"][0]["experiment_name"] == "raw_A"
+        assert Path("maxquant.summary.tsv").exists()
+        assert Path("maxquant.evidence.tsv").exists()
+        assert Path("maxquant.peptides.tsv").exists()
+        assert Path("maxquant.proteins.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
