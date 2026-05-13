@@ -692,6 +692,47 @@ def test_peptide_properties_command_supports_modifications_and_custom_protease()
         assert payload["custom_protease"] == "before=D;block_previous=P"
 
 
+def test_modified_peptide_parse_command_normalizes_engine_dialects() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "modified-peptide-parse",
+                "_(Acetyl (Protein N-term))M(Oxidation (M))PEPTIDE_",
+                "--dialect",
+                "maxquant",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["dialect"] == "maxquant"
+        assert payload["residue_sequence"] == "MPEPTIDE"
+        assert (
+            payload["canonical_notation"]
+            == "[Acetyl@protein-n-term]-M[Oxidation]PEPTIDE"
+        )
+        assert payload["at_protein_n_term"] is True
+
+
+def test_modified_peptide_parse_command_rejects_malformed_engine_notation() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "modified-peptide-parse",
+                "M[15.994915PEPTIDE",
+                "--dialect",
+                "comet",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "unterminated bracket modification token" in result.output
+
+
 def test_psm_inspect_command_reports_summaries_and_writes_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
