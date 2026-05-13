@@ -642,6 +642,36 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
         assert "not valid on residue" in result.output
 
 
+def test_fragment_ions_command_reports_b_y_ions_with_charge_and_tsv() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "fragment-ions",
+                "PESMTIDE",
+                "--mod",
+                "Phospho@3",
+                "--charge",
+                "1",
+                "--charge",
+                "2",
+                "--include-neutral-losses",
+                "--tsv-out",
+                "fragments.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["counts_by_series"]["b"] > 0
+        assert payload["counts_by_series"]["y"] > 0
+        assert payload["counts_by_charge"]["1"] > 0
+        assert payload["counts_by_charge"]["2"] > 0
+        assert payload["neutral_loss_count"] > 0
+        assert Path("fragments.tsv").exists()
+
+
 def test_peptide_properties_command_reports_filtering_metrics() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
