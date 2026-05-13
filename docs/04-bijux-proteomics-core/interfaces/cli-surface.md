@@ -28,6 +28,7 @@ CLI documentation should describe the commands the package truly owns, not the c
 The owned FASTA CLI surface is:
 
 - `fasta-parse`
+- `fasta-contaminants`
 - `fasta-profile`
 - `fasta-stats`
 - `fasta-dedup`
@@ -68,6 +69,16 @@ The database composition surface reports:
 - `--length-tsv-out`
 - `--organism-tsv-out`
 
+`fasta-contaminants` builds a more realistic search database by:
+
+- appending the owned built-in contaminant panel unless `--no-include-builtin`
+  is selected
+- appending one or more user-provided contaminant FASTA files through repeated
+  `--contaminant-fasta`
+- relabeling appended contaminant proteins with the stable `CON__` prefix
+- writing a build report with separate built-in and external append counts plus
+  skipped duplicate contaminant accessions
+
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
 and sequence-length summary values.
@@ -75,3 +86,19 @@ and sequence-length summary values.
 `summarize --kind fasta` returns the higher-level FASTA summary, the parser-level
 database composition, and the richer FASTA profile so operators can distinguish
 structural file quality from biological database makeup and annotation burden.
+
+For PSM evidence, the contaminant-review surface is:
+
+- `psm-contaminants`
+
+`psm-contaminants` emits a separate contaminant-match report with:
+
+- contaminant PSM count
+- pure-contaminant versus mixed-reference PSM counts
+- contaminant peptide count
+- contaminant protein counts
+- row-level entries listing contaminant and target protein references for each
+  contaminant-carrying match
+
+`summarize --kind psm` now includes the same contaminant report alongside the
+standard PSM, peptide, and protein summaries.
