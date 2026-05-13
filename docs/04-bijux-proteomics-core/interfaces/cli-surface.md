@@ -43,6 +43,7 @@ The owned FASTA CLI surface is:
 - `modified-peptide-parse`
 - `modification-resolve`
 - `fragpipe-import`
+- `sage-import`
 - `summarize --kind fasta`
 
 The owned spectrum CLI surface is:
@@ -285,6 +286,27 @@ The `fragpipe-import` JSON payload includes:
   spectral count, modification evidence, and mass-difference state
 - reviewer-facing protein rows with identity, annotation, coverage, peptide
   burden, spectral count, probability, and target-decoy state
+- any requested TSV export paths
+
+`sage-import` emits one governed review packet over a realistic Sage PSM
+export.
+
+- the positional argument is the Sage result TSV path
+- `--config` optionally loads a Sage search configuration JSON file
+- `--summary-tsv-out` writes the one-row import summary
+- `--psm-tsv-out` writes reviewer-facing Sage PSM rows
+
+The `sage-import` JSON payload includes:
+
+- the detected Sage dialect identifier
+- one compact summary over accepted or rejected rows, modified PSMs,
+  hyperscore coverage, q-value coverage, multi-protein rows, and target or
+  decoy burden
+- the normalization adapter identity plus accepted and rejected row counts
+- an optional parsed Sage parameter report when `--config` is supplied
+- reviewer-facing PSM rows with discriminant score, hyperscore, q-values,
+  posterior error, protein mappings, modification burden, matched-peak shape,
+  and mass-accuracy fields
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
