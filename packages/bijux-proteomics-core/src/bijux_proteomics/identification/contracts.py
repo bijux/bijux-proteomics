@@ -322,6 +322,18 @@ class CalibrationPlotData(JsonModel):
     bins: tuple[CalibrationPlotBin, ...] = Field(default_factory=tuple)
 
 
+class _CalibrationEvidenceRecord(JsonModel):
+    """Internal scored evidence row for calibration across supported levels."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    sort_token: str = Field(..., min_length=1)
+    score: float
+    q_value: float | None = Field(default=None, ge=0.0)
+    target_decoy_label: TargetDecoyLabel
+
+
 class ScoreOrientationAdvisoryCandidate(JsonModel):
     """One candidate explanation for a score-orientation recommendation."""
 
@@ -1935,6 +1947,27 @@ def normalize_psm_score_orientation(
     score_orientation: str = "higher_better",
 ) -> tuple[NormalizedScoreEntry, ...]:
     """Normalize scores onto a stable best-to-worst rank scale."""
+    return _normalize_calibration_score_orientation(
+        tuple(
+            _CalibrationEvidenceRecord(
+                entity_id=record.spectrum_id,
+                sort_token=record.canonical_peptide,
+                score=record.score,
+                q_value=record.q_value,
+                target_decoy_label=record.target_decoy_label,
+            )
+            for record in records
+        ),
+        score_orientation=score_orientation,
+    )
+
+
+def _normalize_calibration_score_orientation(
+    records: tuple[_CalibrationEvidenceRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+) -> tuple[NormalizedScoreEntry, ...]:
+    """Normalize generic calibration evidence onto a stable rank scale."""
     if score_orientation not in {"higher_better", "lower_better"}:
         raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
 
@@ -1945,18 +1978,16 @@ def normalize_psm_score_orientation(
                 (
                     lambda record: (
                         -record.score,
-                        record.spectrum_id,
-                        record.canonical_peptide,
-                        record.charge,
+                        record.entity_id,
+                        record.sort_token,
                     )
                 )
                 if score_orientation == "higher_better"
                 else (
                     lambda record: (
                         record.score,
-                        record.spectrum_id,
-                        record.canonical_peptide,
-                        record.charge,
+                        record.entity_id,
+                        record.sort_token,
                     )
                 )
             ),
@@ -1973,8 +2004,8 @@ def normalize_psm_score_orientation(
         )
         normalized_entries.append(
             NormalizedScoreEntry(
-                spectrum_id=record.spectrum_id,
-                canonical_peptide=record.canonical_peptide,
+                spectrum_id=record.entity_id,
+                canonical_peptide=record.sort_token,
                 raw_score=record.score,
                 normalized_score=normalized_score,
                 rank=rank,
@@ -2076,34 +2107,37 @@ def _records_for_confidence_calibration(
     records: tuple[PsmRecord, ...],
     *,
     evidence_level: ConfidenceCalibrationLevel,
-) -> tuple[PsmRecord, ...]:
+) -> tuple[_CalibrationEvidenceRecord, ...]:
     if evidence_level is ConfidenceCalibrationLevel.PSM:
-        return records
+        return tuple(
+            _CalibrationEvidenceRecord(
+                entity_id=record.spectrum_id,
+                sort_token=record.canonical_peptide,
+                score=record.score,
+                q_value=record.q_value,
+                target_decoy_label=record.target_decoy_label,
+            )
+            for record in records
+        )
     if evidence_level is ConfidenceCalibrationLevel.PEPTIDE:
         rollups = rollup_peptide_evidence(records)
         return tuple(
-            PsmRecord(
-                spectrum_id=entry.canonical_peptide,
-                peptide=entry.peptide,
-                canonical_peptide=entry.canonical_peptide,
-                charge=max(entry.charge_states) if entry.charge_states else 1,
+            _CalibrationEvidenceRecord(
+                entity_id=entry.canonical_peptide,
+                sort_token=entry.canonical_peptide,
                 score=entry.best_score,
                 q_value=entry.best_q_value,
-                protein_refs=entry.protein_refs,
                 target_decoy_label=entry.target_decoy_label,
             )
             for entry in rollups
         )
     protein_rollups = rollup_protein_evidence(records)
     return tuple(
-        PsmRecord(
-            spectrum_id=entry.protein_ref,
-            peptide=entry.protein_ref,
-            canonical_peptide=entry.protein_ref,
-            charge=1,
+        _CalibrationEvidenceRecord(
+            entity_id=entry.protein_ref,
+            sort_token=entry.protein_ref,
             score=entry.best_score,
             q_value=entry.best_q_value,
-            protein_refs=(entry.protein_ref,),
             target_decoy_label=entry.target_decoy_label,
         )
         for entry in protein_rollups
@@ -2122,15 +2156,18 @@ def build_confidence_calibration_report(
         records,
         evidence_level=evidence_level,
     )
-    calibration_plot = build_calibration_plot_data(
+    calibration_plot = _build_calibration_plot_data_for_records(
         calibration_records,
         score_orientation=score_orientation,
         bin_count=bin_count,
     )
-    normalized_entries = normalize_psm_score_orientation(
+    normalized_entries = _normalize_calibration_score_orientation(
         calibration_records,
         score_orientation=score_orientation,
     )
+    q_value_by_entity_id = {
+        record.entity_id: record.q_value for record in calibration_records
+    }
     entries: list[ConfidenceCalibrationEntry] = []
     for entry in normalized_entries:
         bin_match = next(
@@ -2147,14 +2184,7 @@ def build_confidence_calibration_report(
         )
         if bin_match is None:
             continue
-        q_value = next(
-            (
-                record.q_value
-                for record in calibration_records
-                if record.spectrum_id == entry.spectrum_id
-            ),
-            None,
-        )
+        q_value = q_value_by_entity_id.get(entry.spectrum_id)
         q_component = 1.0 - min(q_value if q_value is not None else 0.5, 1.0)
         support_score = max(
             0.0,
@@ -2196,10 +2226,34 @@ def build_calibration_plot_data(
     bin_count: int = 10,
 ) -> CalibrationPlotData:
     """Build plot-ready score calibration bins over target-decoy evidence."""
+    calibration_records = tuple(
+        _CalibrationEvidenceRecord(
+            entity_id=record.spectrum_id,
+            sort_token=record.canonical_peptide,
+            score=record.score,
+            q_value=record.q_value,
+            target_decoy_label=record.target_decoy_label,
+        )
+        for record in records
+    )
+    return _build_calibration_plot_data_for_records(
+        calibration_records,
+        score_orientation=score_orientation,
+        bin_count=bin_count,
+    )
+
+
+def _build_calibration_plot_data_for_records(
+    records: tuple[_CalibrationEvidenceRecord, ...],
+    *,
+    score_orientation: str = "higher_better",
+    bin_count: int = 10,
+) -> CalibrationPlotData:
+    """Build plot-ready score calibration bins over generic evidence rows."""
     if bin_count < 1:
         raise ValueError("bin_count must be at least 1")
 
-    normalized_entries = normalize_psm_score_orientation(
+    normalized_entries = _normalize_calibration_score_orientation(
         records,
         score_orientation=score_orientation,
     )
