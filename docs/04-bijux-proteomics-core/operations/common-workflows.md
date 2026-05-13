@@ -566,6 +566,30 @@ This surface is intentionally grouping-facing rather than inferential. It
 shows which proteins collapse together under the observed peptide evidence, but
 it does not by itself choose the final minimal explanatory protein set.
 
+## Protein Ambiguity Review
+
+Use `protein-ambiguity` when the grouping question is no longer just which
+proteins collapse together, but why the ambiguity persists and how much
+confidence the ambiguous evidence still carries.
+
+- The ambiguity surface focuses only on unresolved protein groups instead of
+  repeating singleton protein rows that are no longer the review problem.
+- Indistinguishable members stay explicit as full accession ledgers, so the
+  reviewer can see when several proteins are supported by the same observed
+  peptide set.
+- Shared peptides that create ambiguity stay separate from unique peptides
+  that anchor one protein to the group boundary, which prevents one anchored
+  singleton from looking identical to a fully indistinguishable pair.
+- Outside-group proteins remain explicit when one shared peptide links the
+  current group to evidence elsewhere in protein space.
+- Group confidence stays reviewer-facing through preserved group q-values plus
+  high, medium, low, rejected, or decoy labels, so ambiguity strength is not
+  flattened into one generic warning.
+
+This surface is intentionally anti-overclaiming. It explains why one protein
+identity cannot be promoted cleanly from the observed peptide evidence, but it
+does not pretend to resolve the ambiguity by itself.
+
 ## Protein Coverage Review
 
 Use `protein-coverage` when the question is not yet which protein set wins the
