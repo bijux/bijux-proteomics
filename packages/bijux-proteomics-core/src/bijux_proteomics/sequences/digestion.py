@@ -242,6 +242,13 @@ _PROTEASE_REGISTRY: dict[str, ProteaseRule] = {
         blocked_by_next="P",
         description="Cleaves after aromatic residues unless followed by proline.",
     ),
+    "aspn": ProteaseRule(
+        name="aspn",
+        cleavage_mode=ProteaseCleavageMode.N_TERMINAL,
+        cleavage_residues="D",
+        blocked_by_previous="P",
+        description="Cleaves before aspartate unless preceded by proline.",
+    ),
 }
 
 
@@ -257,6 +264,28 @@ def get_protease_rule(name: str) -> ProteaseRule:
         return _PROTEASE_REGISTRY[normalized]
     except KeyError as exc:
         raise ValueError(f"unknown protease rule {name!r}") from exc
+
+
+def resolve_protease_rule(
+    name: str | None = None,
+    *,
+    custom_specification: str | None = None,
+    custom_name: str = "custom",
+) -> ProteaseRule:
+    """Resolve either one built-in protease or one explicit custom rule."""
+    has_name = name is not None and name.strip() != ""
+    has_custom = custom_specification is not None and custom_specification.strip() != ""
+    if has_name == has_custom:
+        raise ValueError(
+            "provide exactly one of a built-in protease name or a custom protease specification"
+        )
+    if has_custom:
+        return parse_custom_protease_rule(
+            str(custom_specification),
+            name=custom_name,
+        )
+    assert name is not None
+    return get_protease_rule(name)
 
 
 def parse_custom_protease_rule(
@@ -712,7 +741,7 @@ def compute_digest_policy_hash(policy: DigestPolicy) -> str:
 def build_digest_manifest(
     *,
     peptides: tuple[DigestedPeptide, ...],
-    protease: str,
+    protease: ProteaseRule | str,
     digestion_mode: PeptideDigestionMode,
     missed_cleavages: int,
     min_length: int | None,
@@ -723,8 +752,9 @@ def build_digest_manifest(
     input_record_count: int,
 ) -> PeptideDigestManifest:
     """Build a stable digestion manifest."""
+    rule = get_protease_rule(protease) if isinstance(protease, str) else protease
     digest_policy = build_digest_policy(
-        protease=protease,
+        protease=rule,
         digestion_mode=digestion_mode,
         missed_cleavages=missed_cleavages,
         min_length=min_length,
@@ -747,7 +777,7 @@ def build_digest_manifest(
         document_schema=schema,
         digest_policy=digest_policy,
         policy_hash=compute_digest_policy_hash(digest_policy),
-        protease=protease,
+        protease=rule.name,
         digestion_mode=digestion_mode,
         missed_cleavages=missed_cleavages,
         min_length=min_length,
