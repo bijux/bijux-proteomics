@@ -15,6 +15,10 @@ This slice is intentionally focused:
   - batch effect reporting
   - replicate correlation reporting
 
+It also now carries one owned peptide-intensity matrix surface that can start
+from either precursor or feature tables or intensity-bearing PSM tables when
+run identity is explicit.
+
 ## Input contract
 
 The quantification parser expects a delimited table with these canonical
@@ -62,12 +66,15 @@ Batch advisories prefer the explicit `batch` field and fall back to
 ```python
 from pathlib import Path
 
+from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
+    PeptideMatrixGroupingMode,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_peptide_intensity_matrix_from_psms,
     build_replicate_correlation_report,
     normalize_label_free_table,
     NormalizationMethod,
@@ -106,6 +113,25 @@ differential = apply_benjamini_hochberg(
         condition_b="treatment",
     )
 )
+
+psm_report = parse_psm_tsv(
+    Path("search_with_intensity.tsv"),
+    mapping=SearchResultColumnMapping(
+        run_id="run_id",
+        spectrum_id="spectrum_id",
+        peptide="peptide",
+        modified_peptide="modified_peptide",
+        charge="charge",
+        score="score",
+        intensity="intensity",
+        protein_refs="proteins",
+    ),
+)
+peptide_matrix = build_peptide_intensity_matrix_from_psms(
+    psm_report.accepted_records,
+    grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+    separate_charge_states=True,
+)
 ```
 
 ## CLI workflow
@@ -131,6 +157,27 @@ The report includes:
 - replicate correlation report
 - differential abundance report with adjusted p-values
 
+For direct peptide-matrix review:
+
+```bash
+bijux-proteomics peptide-matrix ms1_features.tsv \
+  --input-kind feature \
+  --grouping-mode modified_peptide \
+  --separate-charge-states \
+  --summary-tsv-out peptide-matrix.summary.tsv \
+  --matrix-tsv-out peptide-matrix.matrix.tsv \
+  --missingness-tsv-out peptide-matrix.missingness.tsv \
+  --out peptide-matrix.report.json
+```
+
+That matrix surface emits:
+
+- accepted and rejected parser counts from the selected input kind
+- explicit grouping mode and charge-separation policy
+- a peptide-by-sample abundance matrix with one row per peptide grouping
+- a per-sample missingness ledger
+- skipped-source counts when PSM rows lack run identity or intensity
+
 ## Current limits
 
 - differential abundance is intentionally limited to two-condition comparisons
@@ -138,3 +185,5 @@ The report includes:
   model
 - batch and replicate surfaces are advisory and do not change quant values
 - TMT/DIA quantification is not part of this slice
+- the current PSM matrix path requires intensity-bearing rows and does not infer
+  missing abundance from score-only search evidence
