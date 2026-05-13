@@ -610,6 +610,7 @@ def _build_psm_mapping(
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
     protein_separator: str,
+    intensity_column: str | None = None,
 ) -> SearchResultColumnMapping:
     return SearchResultColumnMapping(
         run_id=run_id_column,
@@ -618,6 +619,7 @@ def _build_psm_mapping(
         modified_peptide=modified_peptide_column,
         charge=charge_column,
         score=score_column,
+        intensity=intensity_column,
         q_value=q_value_column,
         protein_refs=protein_refs_column,
         decoy_label=decoy_label_column,

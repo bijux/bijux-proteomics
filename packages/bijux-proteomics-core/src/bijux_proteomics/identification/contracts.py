@@ -52,6 +52,7 @@ class SearchResultColumnMapping(JsonModel):
     modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
+    intensity: str | None = None
     protein_refs: str | None = None
     q_value: str | None = None
     decoy_label: str | None = None
@@ -96,6 +97,7 @@ class PsmRecord(JsonModel):
     canonical_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     score: float
+    intensity: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
@@ -1434,6 +1436,19 @@ def _parse_psm_row(
         issues.append(_row_issue("invalid_score", "invalid score value", row_number))
         score = 0.0
 
+    intensity: float | None = None
+    if mapping.intensity:
+        intensity_token = row.get(mapping.intensity, "").strip()
+        if intensity_token:
+            try:
+                intensity = float(intensity_token)
+                if intensity < 0:
+                    raise ValueError
+            except ValueError:
+                issues.append(
+                    _row_issue("invalid_intensity", "invalid intensity value", row_number)
+                )
+
     q_value: float | None = None
     if mapping.q_value:
         q_token = row.get(mapping.q_value, "").strip()
@@ -1504,6 +1519,7 @@ def _parse_psm_row(
         canonical_peptide=canonical_peptide,
         charge=charge,
         score=score,
+        intensity=intensity,
         q_value=q_value,
         protein_refs=protein_refs,
         target_decoy_label=parse_target_decoy_label(
@@ -1606,6 +1622,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                 "canonical_peptide",
                 "charge",
                 "score",
+                "intensity",
                 "q_value",
                 "protein_refs",
                 "target_decoy_label",
@@ -1623,6 +1640,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                     record.canonical_peptide,
                     record.charge,
                     record.score,
+                    "" if record.intensity is None else record.intensity,
                     "" if record.q_value is None else record.q_value,
                     ";".join(record.protein_refs),
                     record.target_decoy_label.value,

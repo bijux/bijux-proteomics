@@ -125,9 +125,9 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     source.write_text(
         "\n".join(
             (
-                "run_name\tscan_ref\tsequence_text\tmodified_sequence\tz\tstate_score\tqvalue\taccessions\tdecoy_state\tcontaminant_state",
-                "run_A\tgeneric-1001\tPESTIDE\tPES[Phospho]TIDE\t2\t55.0\t0.002\tP12345\ttarget\tfalse",
-                "run_B\tgeneric-1002\tDECOYPEP\tDECOYPEP\t2\t12.0\t0.05\tCON__P54321\tdecoy\tcontaminant",
+                "run_name\tscan_ref\tsequence_text\tmodified_sequence\tz\tstate_score\tarea\tqvalue\taccessions\tdecoy_state\tcontaminant_state",
+                "run_A\tgeneric-1001\tPESTIDE\tPES[Phospho]TIDE\t2\t55.0\t1200.5\t0.002\tP12345\ttarget\tfalse",
+                "run_B\tgeneric-1002\tDECOYPEP\tDECOYPEP\t2\t12.0\t\t0.05\tCON__P54321\tdecoy\tcontaminant",
             )
         )
         + "\n",
@@ -140,6 +140,7 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
         modified_peptide="modified_sequence",
         charge="z",
         score="state_score",
+        intensity="area",
         q_value="qvalue",
         protein_refs="accessions",
         decoy_label="decoy_state",
@@ -155,11 +156,13 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert first.peptide_sequence == "PESTIDE"
     assert first.modified_peptide == "PES[Phospho]TIDE"
     assert first.canonical_peptide == "PES[Phospho]TIDE"
+    assert first.intensity == 1200.5
     assert first.contaminant_flag is False
     second = report.accepted_records[1]
     assert second.run_id == "run_B"
     assert second.peptide_sequence == "DECOYPEP"
     assert second.modified_peptide is None
+    assert second.intensity is None
     assert second.target_decoy_label is TargetDecoyLabel.DECOY
     assert second.contaminant_flag is True
 
@@ -618,10 +621,37 @@ def test_psm_export_tsv_and_jsonl_are_stable() -> None:
         export_psm_jsonl(report.accepted_records, jsonl_path)
         export_psm_tsv(report.accepted_records, tsv_path)
         assert len(jsonl_path.read_text().strip().splitlines()) == 3
-        assert tsv_path.read_text().splitlines()[0].startswith("spectrum_id\tpeptide")
+        assert "intensity" in tsv_path.read_text().splitlines()[0]
     finally:
         jsonl_path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)
+
+
+def test_psm_parser_rejects_invalid_negative_intensity(tmp_path: Path) -> None:
+    source = tmp_path / "invalid_intensity.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "spectrum_id\tpeptide\tcharge\tscore\tintensity\tproteins",
+                "scan=1\tPEPTIDE\t2\t50.0\t-5\tP11111",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        spectrum_id="spectrum_id",
+        peptide="peptide",
+        charge="charge",
+        score="score",
+        intensity="intensity",
+        protein_refs="proteins",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 0
+    assert report.rejected_rows[0].issues[0].code == "invalid_intensity"
 
 
 def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels() -> (
