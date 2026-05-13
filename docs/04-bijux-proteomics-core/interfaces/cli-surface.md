@@ -38,6 +38,7 @@ The owned FASTA CLI surface is:
 - `target-decoy-validate`
 - `peptide-index`
 - `peptide-properties`
+- `modified-peptide-parse`
 - `summarize --kind fasta`
 
 `fasta-parse` emits the full parser report, including:
@@ -179,6 +180,24 @@ The `peptide-properties` JSON payload includes:
 - missed-cleavage count
 - hydrophobicity proxy
 - problem flags and a final problematic or not flag
+
+`modified-peptide-parse` normalizes one engine-specific modified peptide string
+into the owned canonical modified peptide contract.
+
+- `--dialect` is required and accepts `maxquant`, `msfragger`, `fragpipe`,
+  `sage`, or `comet`.
+- `--registry` optionally loads a modification registry for named
+  modifications.
+- `--out` writes the normalization report as JSON.
+
+The `modified-peptide-parse` JSON payload includes:
+
+- the named engine dialect
+- the original notation
+- the stripped residue sequence
+- the canonical modified peptide notation
+- explicit protein-terminal context flags
+- the full normalized modification rows with preserved site positions
 
 The digestion-oriented CLI surfaces share one protease contract:
 
