@@ -142,3 +142,28 @@ preprocessing step.
 
 The digestion contract is honest about scope: a peptide list is only as
 defensible as the protease rule and specificity mode that generated it.
+
+## Digestion Export Review
+
+Use `digest` when the peptide space itself needs to be handed off for search,
+inspection, or downstream reuse instead of staying trapped inside one runtime
+object.
+
+- TSV export writes one peptide occurrence per row with source accession,
+  source identifier, coordinates, missed-cleavage count, protease, digestion
+  mode, peptide length, and neutral mass.
+- FASTA export writes one peptide occurrence per entry and preserves the source
+  coordinate plus digestion facts in the header.
+- `--peptide-protein-table-out` writes a second reviewer-facing TSV that keeps
+  the peptide-to-protein mapping explicit instead of forcing later tools to
+  reverse-engineer it.
+- The peptide-to-protein table preserves source accession, source family,
+  isoform, coordinates, missed-cleavage count, length, and neutral mass for
+  each peptide occurrence.
+- The manifest and output fingerprint still bind the digestion policy to the
+  exported peptide content, so the export remains reviewable as evidence rather
+  than just a convenience file.
+
+This export surface is intentionally occurrence-based. Shared peptides appear
+once per source protein context so peptide reuse across proteins stays visible
+instead of being collapsed away.
