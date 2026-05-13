@@ -2105,6 +2105,44 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
         assert Path("spectronaut.protein_groups.tsv").exists()
 
 
+def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_adapters"
+        shutil.copy(
+            fixture_dir / "generic_mapper_results.tsv",
+            "generic_mapper_results.tsv",
+        )
+        shutil.copy(
+            fixture_dir / "generic_mapper_mapping.yaml",
+            "generic_mapper_mapping.yaml",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-map",
+                "generic_mapper_results.tsv",
+                "--mapping",
+                "generic_mapper_mapping.yaml",
+                "--normalized-tsv-out",
+                "mapped.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_rows"] == 2
+        assert payload["summary"]["mapped_run_count"] == 2
+        assert payload["summary"]["unmapped_source_columns"] == [
+            "analyst_note",
+            "instrument",
+        ]
+        assert payload["mapped_rows"][0]["run_id"] == "run_A"
+        assert payload["mapped_rows"][1]["target_decoy_label"] == "decoy"
+        assert Path("mapped.tsv").exists()
+
+
 def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
