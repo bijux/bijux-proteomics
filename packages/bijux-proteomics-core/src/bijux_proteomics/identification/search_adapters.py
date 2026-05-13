@@ -966,6 +966,35 @@ _MAXQUANT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     ),
 )
 
+_MAXQUANT_BUNDLE_EVIDENCE_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
+    dialect_id="bundle-evidence",
+    display_name="MaxQuant bundle evidence",
+    description="Normalize a native MaxQuant evidence table by stripped sequence while preserving modified notation in the raw row.",
+    score_family=SearchScoreFamily.ENGINE_SCORE,
+    result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
+    native_columns=(
+        "MS/MS scan number",
+        "Sequence",
+        "Modified sequence",
+        "Charge",
+        "Score",
+        "Proteins",
+        "Reverse",
+        "PEP",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="MS/MS scan number",
+        peptide="Sequence",
+        charge="Charge",
+        score="Score",
+        protein_refs="Proteins",
+        q_value="PEP",
+        decoy_label="Reverse",
+        protein_separator=";",
+    ),
+)
+
 _DIANN_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     adapter_kind=SearchAdapterKind.DIANN,
     dialect_id="pipeline-export",
@@ -1072,6 +1101,7 @@ def search_adapter_dialect_registry() -> dict[
             _SAGE_PSM_DIALECT,
             _SAGE_PIPELINE_DIALECT,
             _MAXQUANT_PIPELINE_DIALECT,
+            _MAXQUANT_BUNDLE_EVIDENCE_DIALECT,
             _DIANN_PIPELINE_DIALECT,
             _SPECTRONAUT_PIPELINE_DIALECT,
         ]
