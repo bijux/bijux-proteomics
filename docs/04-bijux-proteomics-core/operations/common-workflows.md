@@ -438,6 +438,30 @@ This surface is intentionally descriptive rather than declarative. It helps the
 operator understand search-result quality honestly, but it does not replace
 later FDR policy, contaminant review, or protein-level inference.
 
+## Target-Decoy Reference Validation
+
+Use `fdr-reference-check` when the question is whether the owned target-decoy
+FDR implementation still matches curated known examples after runtime changes.
+
+- The validation surface reuses the same owned FDR engine used by direct PSM
+  filtering instead of maintaining a second hand-computed benchmark path.
+- Reference cases preserve explicit score orientation, optional threshold, and
+  fully labeled target-decoy PSM rows so the proof surface stays readable and
+  reproducible.
+- Validation rows check ranked cumulative target and decoy counts, FDR, q-value,
+  and acceptance state one entry at a time rather than collapsing everything
+  into one boolean.
+- Case reports keep a reproducibility hash and explicit q-value monotonicity
+  status so drift is visible even when a mismatch only appears late in the
+  ranking.
+- Reviewer-facing summary and entry TSV ledgers are available when the proof
+  needs to be attached to a change review or release packet.
+
+This surface is intentionally regression-facing rather than user-facing search
+analysis. It proves that the owned target-decoy implementation still behaves
+like the curated examples it claims to match, but it does not replace search
+result inspection or biological-confidence interpretation.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
