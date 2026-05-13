@@ -43,6 +43,7 @@ The owned FASTA CLI surface is:
 - `modified-peptide-parse`
 - `modification-resolve`
 - `psm-map`
+- `fdr-reference-check`
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
@@ -475,6 +476,25 @@ table.
   missed-cleavage burden under the selected protease
 - any requested summary or distribution TSV outputs are reported under
   `outputs`
+
+`fdr-reference-check` validates curated target-decoy reference cases against
+the owned FDR implementation.
+
+- the positional argument is one JSON file containing a list of curated
+  reference cases
+- `--summary-tsv-out` writes one case-level validation summary table
+- `--entries-tsv-out` writes one ranked entry-level validation table
+
+The `fdr-reference-check` JSON payload includes:
+
+- overall validity across all curated cases
+- case and entry counts plus total failed-entry count
+- one case report per curated reference with score orientation, tie handling,
+  optional threshold, reproducibility hash, and q-value monotonicity status
+- one ranked validation row per expected entry with expected-versus-observed
+  cumulative counts, FDR, q-value, acceptance state, and explicit mismatch
+  fields
+- any requested summary or entry TSV output paths
 
 `openms-import` emits one governed review packet over native OpenMS `idXML`
 identification evidence plus one exported feature table.
