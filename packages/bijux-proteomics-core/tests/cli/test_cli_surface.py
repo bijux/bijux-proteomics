@@ -1090,6 +1090,102 @@ def test_spectrum_summary_command_reports_mgf_tables_and_exports() -> None:
         assert Path("peak.tsv").exists()
 
 
+def test_spectrum_qc_command_reports_mgf_run_qc_and_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        spectra = (
+            SpectrumModel(
+                spectrum_id="scan=1",
+                precursor_mz=500.2,
+                precursor_intensity=500.0,
+                precursor_charge=2,
+                retention_time_seconds=15.0,
+                peaks=(
+                    SpectrumPeak(mz=100.0, intensity=50.0),
+                    SpectrumPeak(mz=150.0, intensity=40.0),
+                    SpectrumPeak(mz=200.0, intensity=30.0),
+                ),
+            ),
+            SpectrumModel(
+                spectrum_id="scan=2",
+                precursor_mz=600.2,
+                precursor_intensity=5000.0,
+                precursor_charge=3,
+                retention_time_seconds=75.0,
+                peaks=(SpectrumPeak(mz=250.0, intensity=15.0),),
+            ),
+        )
+        Path("qc.mgf").write_text(render_mgf(spectra), encoding="utf-8")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-qc",
+                "qc.mgf",
+                "--summary-tsv-out",
+                "summary.tsv",
+                "--msms-tsv-out",
+                "msms.tsv",
+                "--tic-tsv-out",
+                "tic.tsv",
+                "--bpc-tsv-out",
+                "bpc.tsv",
+                "--charge-tsv-out",
+                "charge.tsv",
+                "--precursor-intensity-tsv-out",
+                "precursor.tsv",
+                "--flagged-tsv-out",
+                "flagged.tsv",
+                "--plot-out",
+                "plot.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "mgf"
+        assert payload["chromatogram_source"] == "spectrum_derived"
+        assert payload["precursor_intensity_observation_count"] == 2
+        assert payload["noisy_spectrum_count"] == 1
+        assert Path("summary.tsv").exists()
+        assert Path("msms.tsv").exists()
+        assert Path("tic.tsv").exists()
+        assert Path("bpc.tsv").exists()
+        assert Path("charge.tsv").exists()
+        assert Path("precursor.tsv").exists()
+        assert Path("flagged.tsv").exists()
+        assert Path("plot.json").exists()
+
+
+def test_spectrum_qc_command_prefers_reported_mzml_chromatograms() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "practical_review.mzml",
+            "practical_review.mzml",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-qc",
+                "practical_review.mzml",
+                "--kind",
+                "mzml",
+                "--plot-out",
+                "plot.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "mzml"
+        assert payload["chromatogram_source"] == "reported_mzml_chromatograms"
+        assert payload["precursor_intensity_observation_count"] == 2
+        assert len(payload["tic_trace"]) == 3
+        assert Path("plot.json").exists()
+
+
 def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
