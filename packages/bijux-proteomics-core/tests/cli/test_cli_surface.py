@@ -2019,6 +2019,46 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
         assert Path("maxquant.proteins.tsv").exists()
 
 
+def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        shutil.copy(fixture_dir / "diann_report.tsv", "diann_report.tsv")
+        shutil.copy(fixture_dir / "diann_config.json", "diann_config.json")
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-import",
+                "diann_report.tsv",
+                "--config",
+                "diann_config.json",
+                "--summary-tsv-out",
+                "diann.summary.tsv",
+                "--precursor-tsv-out",
+                "diann.precursors.tsv",
+                "--protein-group-tsv-out",
+                "diann.protein_groups.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_precursor_count"] == 4
+        assert payload["summary"]["protein_group_row_count"] == 4
+        assert payload["summary"]["run_names"] == ["raw_A", "raw_B"]
+        assert payload["summary"]["sample_names"] == ["sample_A", "sample_B"]
+        assert payload["summary"]["precursor_quantity_count"] == 4
+        assert payload["summary"]["protein_group_quantity_count"] == 4
+        assert payload["parameter_report"]["enzyme"] == "trypsin"
+        assert payload["normalization"]["adapter"]["display_name"] == "DIA-NN"
+        assert payload["precursor_rows"][0]["run_name"] == "raw_A"
+        assert payload["dia_native_report"]["imported_count"] == 4
+        assert Path("diann.summary.tsv").exists()
+        assert Path("diann.precursors.tsv").exists()
+        assert Path("diann.protein_groups.tsv").exists()
+
+
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
