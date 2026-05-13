@@ -11,6 +11,7 @@ from bijux_proteomics.sequences import (
     ResiduePolicyState,
     append_contaminant_database,
     build_decoy_generation_manifest,
+    build_decoy_generation_report,
     build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
@@ -434,6 +435,51 @@ def test_generate_decoy_records_supports_reverse_and_shuffle_modes(
     assert shuffled_decoys[0].residues != report.accepted_records[0].residues
 
 
+def test_build_decoy_generation_report_flags_unchanged_shuffle_sequences() -> None:
+    report = parse_fasta_document(
+        ">sp|P00001|HOMO_HUMAN Homopolymer OS=Homo sapiens GN=HOMO\nAAAAAA\n",
+        mode=FastaParseMode.STRICT,
+    )
+    decoys = generate_decoy_records(
+        report.accepted_records,
+        mode=DecoyGenerationMode.SHUFFLE,
+        seed=11,
+    )
+
+    generation_report = build_decoy_generation_report(
+        report.accepted_records,
+        decoys,
+        mode=DecoyGenerationMode.SHUFFLE,
+        prefix="DECOY_",
+        seed=11,
+    )
+
+    assert generation_report.generated_decoy_count == 1
+    assert generation_report.unchanged_sequence_count == 1
+    assert generation_report.unchanged_sequence_accessions == ("DECOY_P00001",)
+    assert generation_report.target_sequence_collision_count == 1
+
+
+def test_generate_decoy_records_rejects_prefix_collisions_with_existing_targets() -> None:
+    report = parse_fasta_document(
+        (
+            ">target_one Alpha target [Homo sapiens]\nMPEPTIDE\n"
+            ">LAB_target_one Existing prefixed target [Homo sapiens]\nMSEQENCE\n"
+        ),
+        mode=FastaParseMode.STRICT,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="prefix would collide with existing target accessions",
+    ):
+        generate_decoy_records(
+            report.accepted_records,
+            mode=DecoyGenerationMode.REVERSE,
+            prefix="LAB_",
+        )
+
+
 def test_decoy_generation_manifest_captures_reproducibility_hash(
     fasta_fixture_dir: Path,
 ) -> None:
@@ -498,3 +544,17 @@ def test_validate_target_decoy_database_reports_missing_decoys(
         "NP_000537.3",
         "ENSP00000354587",
     }
+
+
+def test_generate_decoy_records_rejects_target_plus_decoy_input() -> None:
+    report = parse_fasta_document(
+        (
+            ">sp|P00001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\nMPEPTIDE\n"
+            ">DECOY_sp|P00001|ALPHA_HUMAN Alpha decoy OS=Homo sapiens GN=ALPHA\n"
+            "EDITPEPM\n"
+        ),
+        mode=FastaParseMode.STRICT,
+    )
+
+    with pytest.raises(ValueError, match="requires target-only inputs"):
+        generate_decoy_records(report.accepted_records, mode=DecoyGenerationMode.REVERSE)
