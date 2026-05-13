@@ -190,6 +190,30 @@ adapter. It turns one engine-specific peptide string into the owned modified
 peptide contract so downstream chemistry, PTM, and attribution surfaces do not
 need five separate parsers.
 
+## Strong MGF Parsing
+
+Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
+reviewed as spectra evidence rather than treated as opaque search-engine
+attachments.
+
+- The parser reads one block at a time instead of loading the full file into
+  one `read_text().splitlines()` pass.
+- The accepted spectrum contract preserves title, spectrum identifier,
+  precursor m/z, precursor charge, retention time, and peak arrays when those
+  fields are present.
+- Missing optional fields such as title, charge, or retention time do not
+  invalidate an otherwise usable spectrum block.
+- Retention time can be recovered from either `RTINSECONDS` or
+  `RTINMINUTES`, with minute values normalized onto seconds.
+- Rejected blocks remain explicit with stable issue codes and raw-block
+  context, so malformed spectra are reviewable instead of disappearing.
+- The same streaming parser underlies both the full parse report and the
+  chunk-aware streaming profile used for larger file review.
+
+This surface is intentionally honest about scope. MGF remains a practical
+exchange format for MS/MS peak lists and bounded metadata, not a replacement
+for richer instrument-native acquisition provenance.
+
 ## Unimod-Aware Modification Resolution
 
 Use `modification-resolve` when the question is whether one modification token
