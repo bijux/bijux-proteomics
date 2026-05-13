@@ -150,6 +150,8 @@ from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_manifest,
     digest_protein_records,
+    export_peptide_protein_table_tsv,
+    export_peptides_fasta,
     export_peptides_jsonl,
     export_peptides_parquet,
     export_peptides_tsv,
@@ -295,7 +297,7 @@ def _digestion_mode_choice() -> click.Choice[str]:
 
 
 def _export_format_choice() -> click.Choice[str]:
-    return click.Choice(["tsv", "jsonl", "parquet"], case_sensitive=False)
+    return click.Choice(["tsv", "jsonl", "parquet", "fasta"], case_sensitive=False)
 
 
 def _fragment_series_choice() -> click.Choice[str]:
@@ -1071,6 +1073,11 @@ def target_decoy_validate_command(
 @click.option(
     "--manifest-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
+@click.option(
+    "--peptide-protein-table-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
 def digest_command(
     input_fasta: Path,
     mode: str,
@@ -1086,6 +1093,7 @@ def digest_command(
     export_format: str,
     out_path: Path,
     manifest_out: Path | None,
+    peptide_protein_table_out: Path | None,
 ) -> None:
     """Digest FASTA records into peptide exports."""
     try:
@@ -1118,8 +1126,12 @@ def digest_command(
             export_peptides_tsv(peptides, out_path)
         elif export_format == "jsonl":
             export_peptides_jsonl(peptides, out_path)
+        elif export_format == "fasta":
+            export_peptides_fasta(peptides, out_path)
         else:
             export_peptides_parquet(peptides, out_path)
+        if peptide_protein_table_out is not None:
+            export_peptide_protein_table_tsv(peptides, peptide_protein_table_out)
     except (RuntimeError, OSError) as exc:
         raise click.ClickException(str(exc)) from exc
 
@@ -1138,19 +1150,23 @@ def digest_command(
     if manifest_out is not None:
         manifest_out.write_text(manifest.to_stable_json() + "\n")
 
-    _emit_json(
-        {
-            "input_record_count": report.total_records,
-            "output_peptide_count": len(peptides),
-            "protease": protease_rule.name,
-            "custom_protease": custom_specification,
-            "digestion_mode": digestion_mode,
-            "policy_hash": manifest.policy_hash,
-            "export_format": export_format,
-            "output_sha256": peptide_export_fingerprint(peptides),
-            "output_path": str(out_path),
-        }
-    )
+    payload = {
+        "input_record_count": report.total_records,
+        "output_peptide_count": len(peptides),
+        "protease": protease_rule.name,
+        "custom_protease": custom_specification,
+        "digestion_mode": digestion_mode,
+        "policy_hash": manifest.policy_hash,
+        "export_format": export_format,
+        "output_sha256": peptide_export_fingerprint(peptides),
+        "output_path": str(out_path),
+    }
+    if peptide_protein_table_out is not None:
+        payload["peptide_protein_table_path"] = str(peptide_protein_table_out)
+        payload["peptide_protein_table_sha256"] = hashlib.sha256(
+            peptide_protein_table_out.read_bytes()
+        ).hexdigest()
+    _emit_json(payload)
 
 
 @cli.command("peptide-index")
