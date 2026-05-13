@@ -3111,6 +3111,105 @@ def test_protein_matrix_command_emits_psm_backed_group_rollup() -> None:
         assert "psm\tmodified_peptide\tprotein_group\tfalse\tsum\tfalse" in summary_tsv
 
 
+def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "protein_lfq_features.tsv",
+            "protein_lfq_features.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-lfq",
+                "protein_lfq_features.tsv",
+                "--input-kind",
+                "feature",
+                "--target-kind",
+                "protein",
+                "--minimum-shared-peptides",
+                "2",
+                "--summary-tsv-out",
+                "protein_lfq.summary.tsv",
+                "--matrix-tsv-out",
+                "protein_lfq.matrix.tsv",
+                "--pairwise-tsv-out",
+                "protein_lfq.pairwise.tsv",
+                "--missingness-tsv-out",
+                "protein_lfq.missingness.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "feature"
+        assert payload["accepted_source_records"] == 10
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["aggregation_method"] == "sum"
+        assert payload["report"]["summary"]["protein_row_count"] == 2
+        assert payload["report"]["summary"]["total_pairwise_ratio_count"] == 2
+        assert Path("protein_lfq.summary.tsv").exists()
+        assert Path("protein_lfq.matrix.tsv").exists()
+        assert Path("protein_lfq.pairwise.tsv").exists()
+        assert Path("protein_lfq.missingness.tsv").exists()
+        assert "feature\tmodified_peptide\tprotein\tfalse\tsum\tfalse\t2" in Path(
+            "protein_lfq.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P1\tprotein\tP1\t3\t3\t0\t2\t1\tPEPAAK;PEPCCK;PEPVVK\t447.214\t894.427\t223.607" in Path(
+            "protein_lfq.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P1\tprotein\tS1\tS2\t2\t1\t2\tPEPAAK;PEPVVK" in Path(
+            "protein_lfq.pairwise.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_protein_lfq_command_emits_psm_backed_group_rollup_and_skipped_rows() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "protein_lfq_psms.tsv",
+            "protein_lfq_psms.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-lfq",
+                "protein_lfq_psms.tsv",
+                "--input-kind",
+                "psm",
+                "--target-kind",
+                "protein",
+                "--run-column",
+                "run_id",
+                "--spectrum-id-column",
+                "spectrum_id",
+                "--modified-peptide-column",
+                "modified_peptide",
+                "--score-column",
+                "score",
+                "--summary-tsv-out",
+                "protein_lfq_psm.summary.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["input_kind"] == "psm"
+        assert payload["accepted_source_records"] == 9
+        assert payload["rejected_source_records"] == 0
+        assert payload["report"]["summary"]["protein_row_count"] == 1
+        assert payload["report"]["summary"]["total_pairwise_ratio_count"] == 3
+        summary_tsv = Path("protein_lfq_psm.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "aggregation_method" in summary_tsv
+        assert "psm\tmodified_peptide\tprotein\tfalse\tsum\tfalse\t1" in summary_tsv
+
+
 def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
