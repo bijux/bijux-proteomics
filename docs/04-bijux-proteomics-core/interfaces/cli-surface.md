@@ -42,6 +42,7 @@ The owned FASTA CLI surface is:
 - `precursor-mass-error`
 - `modified-peptide-parse`
 - `modification-resolve`
+- `maxquant-import`
 - `comet-import`
 - `fragpipe-import`
 - `sage-import`
@@ -330,6 +331,38 @@ The `comet-import` JSON payload includes:
 - reviewer-facing PSM rows with modified peptide notation, residue sequence,
   canonical peptide, charge, expectation value, XCorr, DeltaCn, Sp score,
   protein mappings, and target-decoy label
+- any requested TSV export paths
+
+`maxquant-import` emits one governed review packet over a MaxQuant
+`evidence.txt`, `peptides.txt`, and `proteinGroups.txt` bundle.
+
+- the positional argument is the MaxQuant `evidence.txt` path
+- `--peptides-txt` is required and supplies the `peptides.txt` table
+- `--protein-groups-txt` is required and supplies the `proteinGroups.txt`
+  table
+- `--config` optionally loads a MaxQuant settings file
+- `--summary-tsv-out` writes the one-row import summary
+- `--evidence-tsv-out` writes reviewer-facing evidence rows
+- `--peptide-tsv-out` writes reviewer-facing peptide rows
+- `--protein-group-tsv-out` writes reviewer-facing protein-group rows
+
+The `maxquant-import` JSON payload includes:
+
+- one compact summary over accepted and rejected evidence rows, peptide and
+  protein-group row counts, modified evidence burden, experiment names, LFQ
+  experiment names, and contaminant or reverse counts across the bundle
+- the evidence normalization adapter identity plus accepted and rejected row
+  counts for the native MaxQuant evidence surface
+- an optional parsed MaxQuant parameter report when `--config` is supplied
+- reviewer-facing evidence rows with experiment name, modified peptide
+  notation, residue sequence, canonical peptide, charge, score, posterior
+  error probability, protein mappings, and contaminant or reverse flags
+- reviewer-facing peptide rows with modified sequence, leading razor protein,
+  protein mappings, score, posterior error probability, intensity, MS/MS
+  count, and contaminant or reverse flags
+- reviewer-facing protein-group rows with protein identities, peptide burden,
+  sequence coverage, only-identified-by-site state, per-experiment LFQ
+  intensities, and contaminant or reverse flags
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
