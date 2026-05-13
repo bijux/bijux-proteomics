@@ -970,6 +970,38 @@ def test_spectrum_parse_command_exports_accepted_spectra_details() -> None:
         assert first_row["peaks"]
 
 
+def test_spectrum_summary_command_reports_mgf_tables_and_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-summary",
+                "multi.mgf",
+                "--summary-tsv-out",
+                "summary.tsv",
+                "--charge-tsv-out",
+                "charge.tsv",
+                "--precursor-tsv-out",
+                "precursor.tsv",
+                "--peak-count-tsv-out",
+                "peak.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "mgf"
+        assert payload["ms_level_policy"] == "mgf_assumed_ms2"
+        assert payload["ms2_spectrum_count"] == 2
+        assert Path("summary.tsv").exists()
+        assert Path("charge.tsv").exists()
+        assert Path("precursor.tsv").exists()
+        assert Path("peak.tsv").exists()
+
+
 def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -1189,6 +1221,32 @@ def test_mzml_inspect_command_surfaces_tic_and_bpc_trace_kinds() -> None:
         kinds = {trace["kind"] for trace in payload["chromatograms"]["accepted_traces"]}
         assert kinds == {"tic", "bpc"}
         assert payload["summary"]["spectrum_count"] == 2
+
+
+def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "practical_review.mzml",
+            "practical_review.mzml",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-summary",
+                "practical_review.mzml",
+                "--kind",
+                "mzml",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "mzml"
+        assert payload["ms_level_policy"] == "reported"
+        assert payload["ms1_spectrum_count"] == 1
+        assert payload["ms2_spectrum_count"] == 1
 
 
 def test_format_convert_and_bundle_run_commands_materialize_normalized_outputs() -> (
