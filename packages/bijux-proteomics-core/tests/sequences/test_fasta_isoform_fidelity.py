@@ -33,11 +33,12 @@ def test_fasta_deduplication_keeps_distinct_isoform_accessions() -> None:
             ">sp|P12345-2|PROT_HUMAN isoform 2\nMPEPTIDER\n"
             ">sp|P12345-2|PROT_HUMAN_DUP isoform 2 duplicate\nMPEPTIDER\n"
         ),
-        mode=FastaParseMode.STRICT,
+        mode=FastaParseMode.PERMISSIVE,
     )
 
     records, dedup_report = deduplicate_fasta_records(report.accepted_records)
 
+    assert report.duplicate_accessions == ("uniprot:P12345-2",)
     assert len(records) == 2
     assert {record.isoform for record in records} == {None, 2}
     assert dedup_report.duplicate_accessions == ("sp|P12345-2|PROT_HUMAN_DUP",)
