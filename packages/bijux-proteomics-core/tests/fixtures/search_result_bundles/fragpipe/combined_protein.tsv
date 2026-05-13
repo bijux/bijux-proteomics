@@ -1,0 +1,4 @@
+Protein	Entry Name	Gene	Protein Description	Coverage	Total Peptides	Unique Peptides	Spectral Count	Probability
+sp|P12345|KINASE_HUMAN	KINASE_HUMAN	KIN1	Serine kinase alpha	0.21	1	1	1	0.998
+sp|P23456|TRANSFER_HUMAN	TRANSFER_HUMAN	TRF1	Transferase beta	0.18	1	0	1	0.994
+DECOY_sp|P99999|DECOY_PROT	DECOY_PROT		Reversed decoy protein	0.12	1	1	1	0.210
