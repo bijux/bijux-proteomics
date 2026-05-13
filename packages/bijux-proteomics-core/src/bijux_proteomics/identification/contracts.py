@@ -14,9 +14,12 @@ import json
 import math
 from pathlib import Path
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
-from bijux_proteomics.chemistry import canonicalize_modified_peptide
+from bijux_proteomics.chemistry import (
+    canonicalize_modified_peptide,
+    parse_modified_peptide,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -43,13 +46,16 @@ class SearchResultColumnMapping(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    run_id: str | None = None
     spectrum_id: str = Field(..., min_length=1)
     peptide: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
     protein_refs: str | None = None
     q_value: str | None = None
     decoy_label: str | None = None
+    contaminant_label: str | None = None
     protein_separator: str = ";"
 
 
@@ -82,22 +88,41 @@ class PsmRecord(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    run_id: str | None = None
     spectrum_id: str = Field(..., min_length=1)
     peptide: str = Field(..., min_length=1)
+    peptide_sequence: str | None = None
+    modified_peptide: str | None = None
     canonical_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     score: float
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
+    contaminant_flag: bool = False
 
-    @field_validator("spectrum_id", "peptide", "canonical_peptide", mode="before")
+    @field_validator(
+        "run_id",
+        "spectrum_id",
+        "peptide",
+        "peptide_sequence",
+        "modified_peptide",
+        "canonical_peptide",
+        mode="before",
+    )
     @classmethod
-    def _strip_required_text(cls, value: object) -> str:
+    def _strip_text_fields(cls, value: object) -> str | None:
+        if value is None:
+            return None
         text = str(value).strip()
-        if not text:
+        return text or None
+
+    @field_validator("spectrum_id", "peptide", "canonical_peptide")
+    @classmethod
+    def _require_text(cls, value: str | None) -> str:
+        if value is None:
             raise ValueError("field must not be blank")
-        return text
+        return value
 
     @field_validator("protein_refs", mode="before")
     @classmethod
@@ -112,6 +137,36 @@ class PsmRecord(JsonModel):
             refs = [str(token) for token in value]
         normalized = tuple(token.strip() for token in refs if token.strip())
         return tuple(dict.fromkeys(normalized))
+
+    @model_validator(mode="after")
+    def _derive_canonical_fields(self) -> PsmRecord:
+        canonical_peptide, peptide_sequence, modified_peptide = (
+            _derive_canonical_psm_peptide_fields(self.canonical_peptide)
+        )
+
+        if (
+            self.peptide_sequence is not None
+            and self.peptide_sequence.upper() != peptide_sequence
+        ):
+            raise ValueError(
+                "peptide_sequence must match the residue sequence of canonical_peptide"
+            )
+        if self.modified_peptide is not None:
+            _, _, provided_modified = _derive_canonical_psm_peptide_fields(
+                self.modified_peptide
+            )
+            if provided_modified != modified_peptide:
+                raise ValueError(
+                    "modified_peptide must match canonical_peptide when both are provided"
+                )
+
+        self.run_id = self.run_id or None
+        self.canonical_peptide = canonical_peptide
+        self.peptide_sequence = peptide_sequence
+        self.modified_peptide = modified_peptide
+        if any(protein_ref.startswith("CON__") for protein_ref in self.protein_refs):
+            self.contaminant_flag = True
+        return self
 
 
 class SearchResultValidationIssue(JsonModel):
@@ -1023,6 +1078,29 @@ def _parse_protein_refs(raw_value: str | None, separator: str) -> tuple[str, ...
     return tuple(dict.fromkeys(refs))
 
 
+def _parse_contaminant_label(raw_value: str | None) -> bool | None:
+    if raw_value is None:
+        return None
+    token = raw_value.strip().lower()
+    if not token:
+        return None
+    if token in {"contaminant", "true", "1", "yes"}:
+        return True
+    if token in {"target", "false", "0", "no", "clean", "noncontaminant"}:
+        return False
+    raise ValueError("invalid contaminant label")
+
+
+def _derive_canonical_psm_peptide_fields(
+    peptide: str,
+) -> tuple[str, str, str | None]:
+    canonical_peptide = canonicalize_modified_peptide(peptide)
+    if "[" not in canonical_peptide and "-[" not in canonical_peptide:
+        return canonical_peptide, canonical_peptide, None
+    parsed = parse_modified_peptide(canonical_peptide)
+    return parsed.canonical_notation, parsed.sequence, parsed.canonical_notation
+
+
 def _rank_label(label: TargetDecoyLabel) -> int:
     if label is TargetDecoyLabel.DECOY:
         return 3
@@ -1322,6 +1400,10 @@ def _parse_psm_row(
 ) -> PsmRecord:
     issues: list[SearchResultValidationIssue] = []
 
+    run_id = None
+    if mapping.run_id:
+        run_id = row.get(mapping.run_id, "").strip() or None
+
     spectrum_id = row.get(mapping.spectrum_id, "").strip()
     if not spectrum_id:
         issues.append(
@@ -1333,6 +1415,10 @@ def _parse_psm_row(
         issues.append(
             _row_issue("missing_peptide", "missing peptide sequence", row_number)
         )
+
+    modified_peptide_token = None
+    if mapping.modified_peptide:
+        modified_peptide_token = row.get(mapping.modified_peptide, "").strip() or None
 
     try:
         charge = int(row.get(mapping.charge, "").strip())
@@ -1366,11 +1452,39 @@ def _parse_psm_row(
         mapping.protein_separator,
     )
     explicit_label = row.get(mapping.decoy_label) if mapping.decoy_label else None
+    contaminant_flag = any(protein_ref.startswith("CON__") for protein_ref in protein_refs)
+    if mapping.contaminant_label:
+        try:
+            explicit_contaminant = _parse_contaminant_label(
+                row.get(mapping.contaminant_label)
+            )
+        except ValueError:
+            issues.append(
+                _row_issue(
+                    "invalid_contaminant_label",
+                    "invalid contaminant label",
+                    row_number,
+                )
+            )
+        else:
+            if explicit_contaminant:
+                contaminant_flag = True
 
     canonical_peptide = peptide
-    if peptide:
+    peptide_sequence = None
+    modified_peptide = None
+    if modified_peptide_token:
         try:
-            canonical_peptide = canonicalize_modified_peptide(peptide)
+            canonical_peptide, peptide_sequence, modified_peptide = (
+                _derive_canonical_psm_peptide_fields(modified_peptide_token)
+            )
+        except ValueError as exc:
+            issues.append(_row_issue("invalid_peptide_notation", str(exc), row_number))
+    elif peptide:
+        try:
+            canonical_peptide, peptide_sequence, modified_peptide = (
+                _derive_canonical_psm_peptide_fields(peptide)
+            )
         except ValueError as exc:
             issues.append(_row_issue("invalid_peptide_notation", str(exc), row_number))
 
@@ -1382,8 +1496,11 @@ def _parse_psm_row(
         )
 
     return PsmRecord(
+        run_id=run_id,
         spectrum_id=spectrum_id,
         peptide=peptide,
+        peptide_sequence=peptide_sequence,
+        modified_peptide=modified_peptide,
         canonical_peptide=canonical_peptide,
         charge=charge,
         score=score,
@@ -1394,6 +1511,7 @@ def _parse_psm_row(
             explicit_label=explicit_label,
             policy=decoy_policy,
         ),
+        contaminant_flag=contaminant_flag,
     )
 
 
@@ -1451,6 +1569,7 @@ def normalize_psm_records(records: tuple[PsmRecord, ...]) -> tuple[PsmRecord, ..
         sorted(
             records,
             key=lambda record: (
+                record.run_id or "",
                 record.spectrum_id,
                 record.q_value if record.q_value is not None else float("inf"),
                 -record.score,
@@ -1479,27 +1598,35 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
         writer = csv.writer(handle, delimiter="\t")
         writer.writerow(
             [
+                "run_id",
                 "spectrum_id",
+                "peptide_sequence",
                 "peptide",
+                "modified_peptide",
                 "canonical_peptide",
                 "charge",
                 "score",
                 "q_value",
                 "protein_refs",
                 "target_decoy_label",
+                "contaminant_flag",
             ]
         )
         for record in normalized:
             writer.writerow(
                 [
+                    record.run_id or "",
                     record.spectrum_id,
+                    record.peptide_sequence or "",
                     record.peptide,
+                    record.modified_peptide or "",
                     record.canonical_peptide,
                     record.charge,
                     record.score,
                     "" if record.q_value is None else record.q_value,
                     ";".join(record.protein_refs),
                     record.target_decoy_label.value,
+                    "true" if record.contaminant_flag else "false",
                 ]
             )
 

@@ -1295,13 +1295,16 @@ def _mapped_column_names(mapping: SearchResultColumnMapping) -> tuple[str, ...]:
         dict.fromkeys(
             column_name
             for column_name in (
+                mapping.run_id,
                 mapping.spectrum_id,
                 mapping.peptide,
+                mapping.modified_peptide,
                 mapping.charge,
                 mapping.score,
                 mapping.q_value,
                 mapping.protein_refs,
                 mapping.decoy_label,
+                mapping.contaminant_label,
             )
             if column_name is not None
         )
@@ -1314,13 +1317,16 @@ def _mapped_field_values(
 ) -> dict[str, str]:
     values: dict[str, str] = {}
     for role_name, column_name in (
+        ("run_id", mapping.run_id),
         ("spectrum_id", mapping.spectrum_id),
         ("peptide", mapping.peptide),
+        ("modified_peptide", mapping.modified_peptide),
         ("charge", mapping.charge),
         ("score", mapping.score),
         ("q_value", mapping.q_value),
         ("protein_refs", mapping.protein_refs),
         ("decoy_label", mapping.decoy_label),
+        ("contaminant_label", mapping.contaminant_label),
     ):
         if column_name is None or column_name not in row:
             continue
