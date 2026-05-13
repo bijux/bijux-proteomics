@@ -56,6 +56,10 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     with runner.isolated_filesystem():
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(fasta_fixture_dir / "dedup_input.fasta", "dedup.fasta")
+        shutil.copy(
+            fasta_fixture_dir / "production_grade_database.fasta",
+            "production.fasta",
+        )
 
         parse_result = runner.invoke(
             cli, ["fasta-parse", "valid.fasta", "--mode", "strict"]
@@ -63,12 +67,15 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         assert parse_result.exit_code == 0
         parse_payload = json.loads(parse_result.output)
         assert parse_payload["total_records"] == 3
+        assert parse_payload["database_composition"]["accepted_record_count"] == 3
+        assert parse_payload["duplicate_accessions"] == []
 
         stats_result = runner.invoke(
             cli, ["fasta-stats", "dedup.fasta", "--mode", "permissive"]
         )
         assert stats_result.exit_code == 0
         stats_payload = json.loads(stats_result.output)
+        assert stats_payload["duplicate_accession_count"] == 1
         assert stats_payload["duplicate_sequence_count"] == 2
 
         dedup_result = runner.invoke(
@@ -123,6 +130,25 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
             provenance_payload["document_schema"]["document_kind"]
             == "fasta_provenance_manifest"
         )
+
+        production_result = runner.invoke(
+            cli, ["fasta-parse", "production.fasta", "--mode", "strict"]
+        )
+        assert production_result.exit_code == 0
+        production_payload = json.loads(production_result.output)
+        assert production_payload["duplicate_accessions"] == ["uniprot:P04637"]
+        assert production_payload["database_composition"] == {
+            "accepted_record_count": 6,
+            "target_count": 5,
+            "decoy_count": 1,
+            "contaminant_count": 1,
+            "accession_namespace_counts": {
+                "custom": 2,
+                "ensembl": 1,
+                "refseq": 1,
+                "uniprot": 2,
+            },
+        }
 
         decoy_result = runner.invoke(
             cli,
@@ -497,7 +523,10 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
         mgf_result = runner.invoke(cli, ["summarize", "multi.mgf", "--kind", "mgf"])
 
         assert fasta_result.exit_code == 0
-        assert json.loads(fasta_result.output)["summary"]["total_records"] == 3
+        fasta_payload = json.loads(fasta_result.output)
+        assert fasta_payload["summary"]["total_records"] == 3
+        assert fasta_payload["database_composition"]["target_count"] == 3
+        assert fasta_payload["duplicate_accessions"] == []
         assert psm_result.exit_code == 0
         assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
         assert mgf_result.exit_code == 0
