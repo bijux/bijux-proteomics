@@ -1228,6 +1228,65 @@ def test_spectrum_similarity_command_supports_library_ranking_with_binning() -> 
         assert payload["library_report"]["matches"][0]["classification"] == "duplicate_like"
 
 
+def test_spectral_library_import_command_reports_msp_summary_and_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.msp", "review_library.msp")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectral-library-import",
+                "review_library.msp",
+                "--precursor-mz",
+                "508.18",
+                "--tolerance-da",
+                "0.05",
+                "--peptide",
+                "PEPM[Oxidation]TIDE",
+                "--summary-tsv-out",
+                "summary.tsv",
+                "--candidates-tsv-out",
+                "candidates.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["import_report"]["source_format"] == "msp"
+        assert payload["summary"]["modified_entry_count"] == 1
+        assert payload["candidates"]["candidate_count"] == 1
+        assert (
+            payload["candidates"]["matches"][0]["canonical_peptide"]
+            == "PEPM[Oxidation]TIDE"
+        )
+        assert Path("summary.tsv").exists()
+        assert Path("candidates.tsv").exists()
+
+
+def test_spectral_library_import_command_supports_mgf_library_indexing() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectral-library-import",
+                "review_library.mgf",
+                "--kind",
+                "mgf",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["import_report"]["source_format"] == "mgf"
+        assert payload["index"]["entry_count"] == 2
+        assert "PEPM[Oxidation]TIDE" in payload["index"]["peptide_index"]
+        assert payload["candidates"] is None
+
+
 def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
     fasta_fixture_dir: Path,
 ) -> None:
