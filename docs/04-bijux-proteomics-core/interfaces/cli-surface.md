@@ -36,6 +36,7 @@ The owned FASTA CLI surface is:
 - `fasta-provenance`
 - `fasta-decoy`
 - `target-decoy-validate`
+- `peptide-index`
 - `summarize --kind fasta`
 
 `fasta-parse` emits the full parser report, including:
@@ -118,6 +119,40 @@ The `fasta-decoy` JSON payload includes:
 - duplicate accession and duplicate sequence burden
 - target-versus-decoy sequence overlap signals
 - overall validity of the target-decoy database
+
+`peptide-index` digests a FASTA database and reports how one or more peptide
+queries map back to proteins under the selected digestion assumptions.
+
+- `--peptide` is repeatable and accepts plain or modified peptide notation.
+- `--protease`, `--missed-cleavages`, and `--digestion-mode` define the digest
+  policy used to build the searchable peptide space.
+- `--il-equivalent` optionally collapses isoleucine and leucine during lookup.
+- `--protein-group-map` accepts a TSV with `accession` and `protein_group`
+  columns so group-specific peptides stay explicit.
+
+The `peptide-index` JSON payload includes:
+
+- input record count
+- query peptide count
+- protease
+- digestion mode
+- missed cleavages
+- I/L-equivalence flag
+- protein-group-map presence flag
+- one report object with per-peptide lookup entries and summary counts
+
+Each lookup entry reports:
+
+- the original query peptide
+- the canonical residue sequence used for lookup
+- the final lookup sequence after optional I/L normalization
+- whether modification stripping or I/L-equivalent lookup was applied
+- matched protein accessions, families, and groups
+- protein-group count
+- uniqueness and audit class when the peptide is present
+- target, decoy, contaminant, mixed, or missing database membership
+- missed-cleavage counts observed among the matching peptide instances
+- a reviewer-facing explanation string
 
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
