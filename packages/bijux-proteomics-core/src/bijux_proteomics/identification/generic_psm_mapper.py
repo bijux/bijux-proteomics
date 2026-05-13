@@ -32,24 +32,29 @@ class GenericPsmTableColumnMapping(JsonModel):
 
     spectrum_id: str = Field(..., min_length=1)
     peptide: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
     run_id: str | None = None
     protein_refs: str | None = None
     q_value: str | None = None
     decoy_label: str | None = None
+    contaminant_label: str | None = None
     protein_separator: str = ";"
 
     def to_search_result_mapping(self) -> SearchResultColumnMapping:
         """Convert the generic mapper config into the base search-result mapping."""
         return SearchResultColumnMapping(
+            run_id=self.run_id,
             spectrum_id=self.spectrum_id,
             peptide=self.peptide,
+            modified_peptide=self.modified_peptide,
             charge=self.charge,
             score=self.score,
             protein_refs=self.protein_refs,
             q_value=self.q_value,
             decoy_label=self.decoy_label,
+            contaminant_label=self.contaminant_label,
             protein_separator=self.protein_separator,
         )
 
@@ -61,13 +66,16 @@ class GenericMappedPsmRow(JsonModel):
 
     run_id: str | None = None
     spectrum_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
     peptide: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
     canonical_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     score: float
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
+    contaminant_flag: bool = False
 
 
 class GenericPsmMapperSummary(JsonModel):
@@ -161,13 +169,16 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
             (
                 "run_id",
                 "spectrum_id",
+                "peptide_sequence",
                 "peptide",
+                "modified_peptide",
                 "canonical_peptide",
                 "charge",
                 "score",
                 "q_value",
                 "protein_refs",
                 "target_decoy_label",
+                "contaminant_flag",
             )
         )
     ]
@@ -177,13 +188,16 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                 (
                     row.run_id or "",
                     row.spectrum_id,
+                    row.peptide_sequence,
                     row.peptide,
+                    row.modified_peptide or "",
                     row.canonical_peptide,
                     str(row.charge),
                     f"{row.score:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
                     ";".join(row.protein_refs),
                     row.target_decoy_label.value,
+                    "true" if row.contaminant_flag else "false",
                 )
             )
         )
@@ -208,13 +222,16 @@ def _build_mapped_rows(
             GenericMappedPsmRow(
                 run_id=run_id,
                 spectrum_id=record.spectrum_id,
+                peptide_sequence=record.peptide_sequence or record.peptide,
                 peptide=record.peptide,
+                modified_peptide=record.modified_peptide,
                 canonical_peptide=record.canonical_peptide,
                 charge=record.charge,
                 score=record.score,
                 q_value=record.q_value,
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
+                contaminant_flag=record.contaminant_flag,
             )
         )
     return tuple(
@@ -240,11 +257,13 @@ def _mapped_source_columns(
             mapping.run_id,
             mapping.spectrum_id,
             mapping.peptide,
+            mapping.modified_peptide,
             mapping.charge,
             mapping.score,
             mapping.protein_refs,
             mapping.q_value,
             mapping.decoy_label,
+            mapping.contaminant_label,
         )
         if column_name is not None
     }
