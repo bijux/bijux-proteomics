@@ -1048,6 +1048,40 @@ _SPECTRONAUT_PIPELINE_DIALECT = SearchAdapterDialectManifest(
     ),
 )
 
+_SPECTRONAUT_REVIEW_REPORT_DIALECT = SearchAdapterDialectManifest(
+    adapter_kind=SearchAdapterKind.SPECTRONAUT,
+    dialect_id="review-report",
+    display_name="Spectronaut review report",
+    description="Normalize a Spectronaut export that preserves q-value alongside the confidence score.",
+    score_family=SearchScoreFamily.CONFIDENCE_SCORE,
+    result_family=SearchResultFamily.MIXED_TARGET_LIBRARY,
+    native_columns=(
+        "EG.PrecursorId",
+        "PEP.StrippedSequence",
+        "FG.LabeledSequence",
+        "FG.Charge",
+        "EG.Cscore",
+        "EG.Qvalue",
+        "PG.ProteinGroups",
+        "PG.ProteinAccessions",
+        "R.FileName",
+        "R.Condition",
+        "FG.Quantity",
+        "PG.Quantity",
+        "EG.IsDecoy",
+    ),
+    mapping=SearchResultColumnMapping(
+        spectrum_id="EG.PrecursorId",
+        peptide="PEP.StrippedSequence",
+        charge="FG.Charge",
+        score="EG.Cscore",
+        protein_refs="PG.ProteinAccessions",
+        q_value="EG.Qvalue",
+        decoy_label="EG.IsDecoy",
+        protein_separator=";",
+    ),
+)
+
 
 def _default_dialect_from_manifest(
     manifest: SearchAdapterManifest,
@@ -1104,6 +1138,7 @@ def search_adapter_dialect_registry() -> dict[
             _MAXQUANT_BUNDLE_EVIDENCE_DIALECT,
             _DIANN_PIPELINE_DIALECT,
             _SPECTRONAUT_PIPELINE_DIALECT,
+            _SPECTRONAUT_REVIEW_REPORT_DIALECT,
         ]
     )
     return {(dialect.adapter_kind, dialect.dialect_id): dialect for dialect in dialects}
