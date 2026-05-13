@@ -279,6 +279,28 @@ This surface is intentionally practical rather than maximal. It is designed for
 reviewable open mzML runs and explicit decoding boundaries, not for pretending
 that every vendor-native raw nuance is fully reproduced after conversion.
 
+## Spectrum Annotation
+
+Use `spectrum-annotate` when the question is which observed peaks support one
+candidate peptide assignment for one spectrum.
+
+- The annotation surface matches theoretical fragment ions against observed
+  peaks under either an explicit Dalton tolerance or an explicit ppm
+  tolerance.
+- The report keeps the matched-ion rows explicit instead of collapsing them
+  into one black-box score.
+- Matched-peak count and explained-intensity fraction are part of the owned
+  annotation contract, so downstream review surfaces do not need to recompute
+  those summary numbers.
+- The exported TSV remains the row-oriented evidence table, while the JSON plot
+  payload stays dedicated to rendering and inspection.
+- The annotation bundle preserves the selected tolerance mode and value
+  alongside the raw spectrum, matches, and theoretical fragment set.
+
+This surface is intentionally evidence-facing. It helps reviewers see which
+peaks support a peptide assignment, but it does not claim broader search-level
+confidence by itself.
+
 ## Spectrum Summary Tables
 
 Use the spectrum summary-table surface when the question is run quality and
