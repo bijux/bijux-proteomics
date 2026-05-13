@@ -19,6 +19,9 @@ It also now carries one owned peptide-intensity matrix surface that can start
 from either precursor or feature tables or intensity-bearing PSM tables when
 run identity is explicit.
 
+Protein-level matrix construction is now explicit too, rather than being
+treated as an implicit follow-on spreadsheet collapse.
+
 ## Input contract
 
 The quantification parser expects a delimited table with these canonical
@@ -70,11 +73,13 @@ from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     PeptideMatrixGroupingMode,
+    ProteinMatrixTargetKind,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
     build_peptide_intensity_matrix_from_psms,
+    build_protein_intensity_matrix_from_peptides,
     build_replicate_correlation_report,
     normalize_label_free_table,
     NormalizationMethod,
@@ -132,6 +137,11 @@ peptide_matrix = build_peptide_intensity_matrix_from_psms(
     grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
     separate_charge_states=True,
 )
+protein_matrix = build_protein_intensity_matrix_from_peptides(
+    peptide_matrix,
+    target_kind=ProteinMatrixTargetKind.PROTEIN,
+    unique_only=True,
+)
 ```
 
 ## CLI workflow
@@ -178,6 +188,29 @@ That matrix surface emits:
 - a per-sample missingness ledger
 - skipped-source counts when PSM rows lack run identity or intensity
 
+For direct protein-matrix review:
+
+```bash
+bijux-proteomics protein-matrix ms1_features.tsv \
+  --input-kind feature \
+  --target-kind protein \
+  --aggregation top_n \
+  --top-n 2 \
+  --unique-peptide-only \
+  --summary-tsv-out protein-matrix.summary.tsv \
+  --matrix-tsv-out protein-matrix.matrix.tsv \
+  --missingness-tsv-out protein-matrix.missingness.tsv \
+  --out protein-matrix.report.json
+```
+
+That protein-matrix surface emits:
+
+- explicit protein versus protein-group targeting
+- named sum, median, or top-`n` peptide rollup policy
+- optional unique-peptide-only rollup
+- peptide count plus unique/shared peptide burden per protein row
+- a protein-by-sample abundance matrix and a per-sample missingness ledger
+
 ## Current limits
 
 - differential abundance is intentionally limited to two-condition comparisons
@@ -187,3 +220,5 @@ That matrix surface emits:
 - TMT/DIA quantification is not part of this slice
 - the current PSM matrix path requires intensity-bearing rows and does not infer
   missing abundance from score-only search evidence
+- protein-group rollup is intentionally exact-membership based at this stage; it
+  does not yet claim later MaxLFQ-like cross-sample reconciliation
