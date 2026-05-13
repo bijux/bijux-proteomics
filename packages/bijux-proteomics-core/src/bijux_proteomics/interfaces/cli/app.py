@@ -18,6 +18,7 @@ from bijux_proteomics.chemistry import (
     FragmentIonSeries,
     SearchEngineModifiedPeptideDialect,
     approximate_peptide_isotope_envelope,
+    build_fragment_ion_review_report,
     build_modification_resolution_report,
     build_modification_localization_advisory,
     build_modified_peptide,
@@ -26,6 +27,7 @@ from bijux_proteomics.chemistry import (
     calculate_fragment_ions,
     canonicalize_modified_peptide,
     load_modification_registry,
+    render_fragment_ion_report_tsv,
 )
 from bijux_proteomics.domain.errors import (
     ProteomicsOperatorError,
@@ -1439,6 +1441,91 @@ def peptide_mass_command(
         "fragment_ion_count": len(fragments),
         "fragments": [fragment.to_dict() for fragment in fragments],
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("fragment-ions")
+@click.argument("sequence")
+@click.option(
+    "--mod",
+    "modifications",
+    multiple=True,
+    help="Modification assignment like Oxidation@3 or Acetyl@n-term.",
+)
+@click.option(
+    "--charge",
+    "charges",
+    multiple=True,
+    type=int,
+    default=(1, 2),
+    show_default=True,
+)
+@click.option(
+    "--fragment-series",
+    multiple=True,
+    type=_fragment_series_choice(),
+    default=("b", "y"),
+    show_default=True,
+)
+@click.option("--include-neutral-losses", is_flag=True, default=False)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def fragment_ions_command(
+    sequence: str,
+    modifications: tuple[str, ...],
+    charges: tuple[int, ...],
+    fragment_series: tuple[str, ...],
+    include_neutral_losses: bool,
+    registry_path: Path | None,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Emit one dedicated theoretical fragment-ion review report."""
+    try:
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        peptide = build_modified_peptide(
+            sequence,
+            assignments=tuple(modifications),
+            registry=registry,
+        )
+        report = build_fragment_ion_review_report(
+            peptide,
+            charges=tuple(charges),
+            series=tuple(
+                FragmentIonSeries(series_name) for series_name in fragment_series
+            ),
+            include_neutral_losses=include_neutral_losses,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if tsv_out is not None:
+        _write_text_output(tsv_out, render_fragment_ion_report_tsv(report))
+
+    payload = report.to_dict()
+    payload["tsv_out"] = str(tsv_out) if tsv_out else None
     _emit_json(payload, out_path=out_path)
 
 
