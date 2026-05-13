@@ -1,0 +1,3 @@
+run_name	scan_ref	sequence_text	z	state_score	qvalue	accessions	decoy_state	instrument	analyst_note
+run_A	generic-1001	PEPTIDE	2	55.0	0.002	P12345	target	orbitrap	stable
+run_B	generic-1002	DECOYPEP	2	12.0	0.05	DECOY_P54321	decoy	tof	review
