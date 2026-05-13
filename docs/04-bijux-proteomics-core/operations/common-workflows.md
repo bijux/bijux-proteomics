@@ -337,6 +337,8 @@ contract before running similarity search or DIA-style review.
 - Imported entries preserve peptide identity, precursor m/z, precursor charge,
   fragment peaks, and canonical modified-peptide notation when the library
   entry provides a valid peptide string.
+- Explicit decoy labels are preserved when the library metadata states them, so
+  later ranked search can distinguish target and decoy competition honestly.
 - The importer builds stable peptide and precursor indexes so candidate
   retrieval can happen before full similarity ranking.
 - Candidate lookup stays honest: it filters by precursor window and optional
@@ -348,6 +350,31 @@ contract before running similarity search or DIA-style review.
 This surface is intentionally import-and-index focused. It makes practical
 library evidence reviewable and searchable by precursor or peptide, but it does
 not yet replace the later ranked search mode.
+
+## Spectral-Library Search
+
+Use `spectral-library-search` when the question is no longer whether a library
+imports, but which imported entry is the best explanation for one query
+spectrum under an explicit precursor and fragment-matching policy.
+
+- The search surface starts with precursor-window candidate retrieval instead of
+  pretending every library entry is equally relevant.
+- Candidate spectra are then ranked through the same owned spectrum-similarity
+  surface used for pairwise and small-library comparison, so scoring policy
+  stays explicit.
+- The report exposes the top match directly, but it also keeps the ranked table
+  visible so a near-neighbor or decoy competitor cannot disappear behind one
+  winner line.
+- When imported entries carry explicit decoy labels, the search report keeps a
+  concatenated target-decoy strategy visible and fills q-values from that local
+  ranking.
+- When no decoy evidence is available, the report stays honest and marks the
+  search as a no-decoy advisory surface instead of inventing confidence.
+
+This surface is intentionally practical rather than grandiose. It supports
+library-style identification or validation over imported MSP or MGF evidence,
+but it does not claim a high-scale indexed search engine or a full global
+library-FDR calibration model.
 
 ## Spectrum Summary Tables
 
