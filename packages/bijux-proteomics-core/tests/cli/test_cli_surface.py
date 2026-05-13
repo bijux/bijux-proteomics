@@ -1104,8 +1104,35 @@ def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
             == "spectrum_annotation"
         )
         assert payload["annotation"]["matches"]
+        assert payload["annotation"]["matched_peak_count"] > 0
+        assert payload["annotation"]["explained_intensity_fraction"] > 0.0
         assert Path("annotation.tsv").exists()
         assert Path("plot.json").exists()
+
+
+def test_spectrum_annotate_command_supports_ppm_tolerance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = FIXTURE_ROOT / "spectra" / "simple.mgf"
+        shutil.copy(source, "simple.mgf")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-annotate",
+                "simple.mgf",
+                "--peptide",
+                "PEPTIDE",
+                "--tolerance-ppm",
+                "20",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["annotation"]["tolerance_unit"] == "ppm"
+        assert payload["annotation"]["tolerance_da"] is None
+        assert payload["annotation"]["tolerance_ppm"] == 20.0
 
 
 def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
