@@ -57,6 +57,10 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
         shutil.copy(fasta_fixture_dir / "dedup_input.fasta", "dedup.fasta")
         shutil.copy(
+            fasta_fixture_dir / "external_contaminants.fasta",
+            "external_contaminants.fasta",
+        )
+        shutil.copy(
             fasta_fixture_dir / "production_grade_database.fasta",
             "production.fasta",
         )
@@ -77,6 +81,29 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         stats_payload = json.loads(stats_result.output)
         assert stats_payload["duplicate_accession_count"] == 1
         assert stats_payload["duplicate_sequence_count"] == 2
+
+        contaminant_build_result = runner.invoke(
+            cli,
+            [
+                "fasta-contaminants",
+                "valid.fasta",
+                "--mode",
+                "strict",
+                "--contaminant-fasta",
+                "external_contaminants.fasta",
+                "--out-fasta",
+                "target_with_contaminants.fasta",
+            ],
+        )
+        assert contaminant_build_result.exit_code == 0
+        contaminant_build_payload = json.loads(contaminant_build_result.output)
+        assert contaminant_build_payload["appended_builtin_record_count"] == 4
+        assert contaminant_build_payload["appended_external_record_count"] == 2
+        assert contaminant_build_payload["output_record_count"] == 9
+        combined_fasta = Path("target_with_contaminants.fasta").read_text()
+        assert combined_fasta.count(">") == 9
+        assert ">CON__trypsin_lab" in combined_fasta
+        assert ">CON__sp|P02769|ALBU_BOVIN" in combined_fasta
 
         profile_result = runner.invoke(
             cli,
@@ -562,12 +589,19 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
             FIXTURE_ROOT / "psm" / "representative_results.tsv",
             "results.tsv",
         )
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "contaminant_results.tsv",
+            "contaminant_results.tsv",
+        )
         shutil.copy(FIXTURE_ROOT / "spectra" / "multi.mgf", "multi.mgf")
 
         fasta_result = runner.invoke(
             cli, ["summarize", "valid.fasta", "--kind", "fasta"]
         )
         psm_result = runner.invoke(cli, ["summarize", "results.tsv", "--kind", "psm"])
+        contaminant_psm_result = runner.invoke(
+            cli, ["summarize", "contaminant_results.tsv", "--kind", "psm"]
+        )
         mgf_result = runner.invoke(cli, ["summarize", "multi.mgf", "--kind", "mgf"])
 
         assert fasta_result.exit_code == 0
@@ -579,8 +613,38 @@ def test_summarize_command_supports_fasta_psm_and_mgf(fasta_fixture_dir: Path) -
         assert fasta_payload["duplicate_accessions"] == []
         assert psm_result.exit_code == 0
         assert json.loads(psm_result.output)["psm_summary"]["total_psms"] == 3
+        assert contaminant_psm_result.exit_code == 0
+        contaminant_payload = json.loads(contaminant_psm_result.output)
+        assert contaminant_payload["contaminant_report"]["contaminant_psm_count"] == 2
+        assert (
+            contaminant_payload["contaminant_report"]["mixed_reference_psm_count"] == 1
+        )
         assert mgf_result.exit_code == 0
         assert json.loads(mgf_result.output)["summary"]["spectrum_count"] == 2
+
+
+def test_psm_contaminants_command_reports_contaminant_matches() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "contaminant_results.tsv",
+            "contaminant_results.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            ["psm-contaminants", "contaminant_results.tsv"],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["contaminant_psm_count"] == 2
+        assert payload["pure_contaminant_psm_count"] == 1
+        assert payload["mixed_reference_psm_count"] == 1
+        assert payload["contaminant_protein_counts"] == {
+            "CON__K1C10_HUMAN": 1,
+            "CON__TRYP_PIG": 1,
+        }
 
 
 def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> None:
