@@ -396,6 +396,32 @@ This surface is intentionally descriptive rather than inferential. It helps
 operators see run structure and burden quickly, but it does not claim a full
 instrument-QC diagnosis by itself.
 
+## Spectrum Run QC
+
+Use `spectrum-qc` when the question is whether one raw or exchange-format run
+already looks unhealthy before peptide identification or study-level
+aggregation.
+
+- The report bins accepted MS/MS spectra over retention time so sparse or
+  collapsed acquisition windows stay visible.
+- mzML inputs prefer reported TIC and BPC chromatograms when the run actually
+  carries them.
+- MGF inputs and mzML runs without reported chromatograms still produce
+  reviewer-facing TIC and BPC traces derived directly from accepted spectra.
+- When precursor intensity is present in the source evidence, the report keeps
+  a precursor-intensity burden table instead of hiding that signal.
+- Charge-state distribution stays explicit so a run with unexpected precursor
+  charge structure can be spotted quickly.
+- Empty spectra and low-information spectra are flagged directly rather than
+  being averaged away into one summary line.
+- The command writes table-shaped ledgers and one plot-ready payload so the
+  same QC surface can support review, export, and later report assembly.
+
+This surface is intentionally raw-spectrum QC rather than identification-aware
+quality assessment. It helps operators judge LC-MS/MS run health from spectra
+alone, but it does not claim peptide-level confidence, calibration
+certification, or broader study comparability by itself.
+
 ## Unimod-Aware Modification Resolution
 
 Use `modification-resolve` when the question is whether one modification token
