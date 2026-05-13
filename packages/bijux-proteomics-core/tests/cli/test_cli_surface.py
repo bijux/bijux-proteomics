@@ -410,6 +410,72 @@ def test_digest_command_reports_invalid_protease_and_invalid_fasta(
         assert "rejected records" in invalid_fasta.output
 
 
+def test_digest_command_supports_builtin_aspn_and_custom_rules() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("proteins.fasta").write_text(
+            (
+                ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\n"
+                "MPEPDADAA\n"
+            )
+        )
+
+        aspn_result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "proteins.fasta",
+                "--protease",
+                "Asp-N",
+                "--out",
+                "aspn.tsv",
+            ],
+        )
+        assert aspn_result.exit_code == 0
+        aspn_payload = json.loads(aspn_result.output)
+        assert aspn_payload["protease"] == "aspn"
+        assert aspn_payload["custom_protease"] is None
+        aspn_lines = Path("aspn.tsv").read_text().splitlines()
+        assert any("\tMPEPDA\t" in line for line in aspn_lines[1:])
+        assert any("\tDAA\t" in line for line in aspn_lines[1:])
+
+        custom_result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "proteins.fasta",
+                "--custom-protease",
+                "before=D;block_previous=P",
+                "--custom-protease-name",
+                "acidic",
+                "--out",
+                "custom.tsv",
+            ],
+        )
+        assert custom_result.exit_code == 0
+        custom_payload = json.loads(custom_result.output)
+        assert custom_payload["protease"] == "acidic"
+        assert custom_payload["custom_protease"] == "before=D;block_previous=P"
+        custom_lines = Path("custom.tsv").read_text().splitlines()
+        assert any("\tMPEPDA\t" in line for line in custom_lines[1:])
+
+        conflict_result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "proteins.fasta",
+                "--protease",
+                "lysc",
+                "--custom-protease",
+                "before=D;block_previous=P",
+                "--out",
+                "conflict.tsv",
+            ],
+        )
+        assert conflict_result.exit_code != 0
+        assert "cannot be combined" in conflict_result.output
+
+
 def test_digest_command_reports_invalid_output_path(
     fasta_fixture_dir: Path,
 ) -> None:
