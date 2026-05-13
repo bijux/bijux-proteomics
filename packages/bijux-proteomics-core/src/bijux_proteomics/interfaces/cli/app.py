@@ -120,6 +120,14 @@ from bijux_proteomics.io.spectra import (
     SpectrumModel,
     SpectrumSimilarityMode,
 )
+from bijux_proteomics.io.spectral_library import (
+    build_spectral_library_index,
+    build_spectral_library_summary,
+    find_spectral_library_candidates,
+    import_spectral_library,
+    render_spectral_library_candidates_tsv,
+    render_spectral_library_summary_tsv,
+)
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
     build_ptm_enrichment_input,
@@ -2913,6 +2921,95 @@ def spectrum_similarity_command(
         if tsv_out is not None:
             _write_text_output(tsv_out, render_spectrum_similarity_tsv(library_report))
         payload["tsv_out"] = str(tsv_out) if tsv_out is not None else None
+        _emit_json(payload, out_path=out_path)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+
+@cli.command("spectral-library-import")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--kind",
+    type=click.Choice(["auto", "msp", "mgf"]),
+    default="auto",
+    show_default=True,
+)
+@click.option("--precursor-mz", type=float, default=None)
+@click.option("--tolerance-da", type=float, default=0.5, show_default=True)
+@click.option("--peptide", default=None)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--candidates-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON library import output path.",
+)
+def spectral_library_import_command(
+    input_path: Path,
+    kind: str,
+    precursor_mz: float | None,
+    tolerance_da: float,
+    peptide: str | None,
+    summary_tsv_out: Path | None,
+    candidates_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import one practical spectral library and optionally retrieve candidates."""
+    try:
+        active_kind = None if kind == "auto" else kind
+        report = import_spectral_library(input_path, library_format=active_kind)
+        summary = build_spectral_library_summary(report)
+        index = build_spectral_library_index(report.entries)
+        candidates = (
+            find_spectral_library_candidates(
+                index,
+                precursor_mz=precursor_mz,
+                tolerance_da=tolerance_da,
+                peptide_query=peptide,
+            )
+            if precursor_mz is not None
+            else None
+        )
+        if summary_tsv_out is not None:
+            _write_text_output(
+                summary_tsv_out,
+                render_spectral_library_summary_tsv(summary),
+            )
+        if candidates_tsv_out is not None:
+            if candidates is None:
+                raise ValueError(
+                    "candidates-tsv-out requires --precursor-mz candidate lookup input"
+                )
+            _write_text_output(
+                candidates_tsv_out,
+                render_spectral_library_candidates_tsv(candidates),
+            )
+        payload = {
+            "import_report": report.to_dict(),
+            "summary": summary.to_dict(),
+            "index": {
+                "entry_count": len(index.entries),
+                "peptide_index": index.peptide_index,
+                "precursor_centimass_index_size": len(index.precursor_centimass_index),
+            },
+            "candidates": candidates.to_dict() if candidates is not None else None,
+            "summary_tsv_out": str(summary_tsv_out) if summary_tsv_out else None,
+            "candidates_tsv_out": (
+                str(candidates_tsv_out) if candidates_tsv_out else None
+            ),
+        }
         _emit_json(payload, out_path=out_path)
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
