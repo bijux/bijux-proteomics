@@ -537,6 +537,30 @@ This surface is intentionally grouping-facing rather than inferential. It
 shows which proteins collapse together under the observed peptide evidence, but
 it does not by itself choose the final minimal explanatory protein set.
 
+## Protein Parsimony Review
+
+Use `protein-parsimony` when the question is which minimal explanatory protein
+set should be carried forward from grouped evidence, while still keeping the
+remaining ambiguity explicit.
+
+- The parsimony surface reuses the owned greedy and named-variant inference
+  policies instead of introducing a second ungoverned minimal-set algorithm.
+- Selected proteins keep both their full covered-peptide set and their
+  newly-explained peptide set, so reviewers can see what each chosen protein
+  actually adds to the explanation.
+- Shared peptides that remain covered by more than one selected protein stay
+  visible as unresolved ambiguity instead of being flattened into a falsely
+  exact protein call.
+- Variant-level disagreements also stay explicit, including cases where two
+  parsimony policies choose the same final protein set but rank it differently.
+- The report distinguishes selected proteins, unexplained peptides, and
+  unresolved ambiguity so minimal explanation and residual uncertainty remain
+  separate concepts.
+
+This surface is intentionally inferential but still reviewer-facing. It chooses
+one minimal explanatory protein set under a named policy, but it does not hide
+shared-peptide uncertainty or alternative valid parsimony paths.
+
 ## OpenMS Import
 
 Use `openms-import` when one OpenMS result bundle needs to stay reviewable as
