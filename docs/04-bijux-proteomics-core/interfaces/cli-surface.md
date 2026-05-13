@@ -154,6 +154,22 @@ Each lookup entry reports:
 - missed-cleavage counts observed among the matching peptide instances
 - a reviewer-facing explanation string
 
+The digestion-oriented CLI surfaces share one protease contract:
+
+- built-in proteases include `trypsin`, `lysc`, `gluc`, `argc`,
+  `chymotrypsin`, and `aspn`
+- `--custom-protease` accepts explicit rule fragments such as
+  `after=KR;block_next=P` or `before=D;block_previous=P`
+- `--custom-protease-name` supplies the durable rule name recorded in outputs
+- custom protease rules cannot be combined with a second built-in protease name
+
+`digest` and `peptide-index` both report:
+
+- the resolved protease name
+- the custom protease specification when one was supplied
+- the digestion mode
+- the missed-cleavage allowance
+
 `fasta-stats` reports FASTA-wide review metrics such as duplicate accession
 count, duplicate sequence count, target count, decoy count, contaminant count,
 and sequence-length summary values.
