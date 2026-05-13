@@ -642,6 +642,30 @@ serious abundance bed for later protein rollup and normalization work, but it
 does not pretend peptide matrix construction resolves those later decisions by
 itself.
 
+## Protein Intensity Matrix Review
+
+Use `protein-matrix` when the question has moved from peptide abundance into
+protein or protein-group abundance, but the operator still needs the rollup
+policy and peptide burden to remain explicit.
+
+- The surface keeps the target level explicit as either protein accession or
+  exact protein-group membership instead of flattening grouped evidence into
+  one accession-only story.
+- Sum, median, and top-`n` peptide rollups stay named and reviewable, so the
+  matrix does not pretend there is one universally correct protein abundance
+  collapse.
+- Unique-peptide-only rollup remains optional and visible, which matters when
+  shared peptide evidence would otherwise dominate one protein call.
+- Each protein row preserves peptide count together with unique/shared peptide
+  burden, so a strong abundance number cannot hide that it came from one weak
+  or highly shared peptide set.
+- Missingness remains per sample after rollup, which keeps sparse proteins
+  visible before later normalization or differential claims are promoted.
+
+This surface is intentionally one protein-level quant bed, not a final LFQ
+authority claim. It makes rollup choices and peptide burden explicit before
+later MaxLFQ-style and normalization work arrives.
+
 ## Protein Coverage Review
 
 Use `protein-coverage` when the question is not yet which protein set wins the
