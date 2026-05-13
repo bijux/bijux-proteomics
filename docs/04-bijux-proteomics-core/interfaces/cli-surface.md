@@ -42,6 +42,7 @@ The owned FASTA CLI surface is:
 - `precursor-mass-error`
 - `modified-peptide-parse`
 - `modification-resolve`
+- `comet-import`
 - `fragpipe-import`
 - `sage-import`
 - `summarize --kind fasta`
@@ -307,6 +308,28 @@ The `sage-import` JSON payload includes:
 - reviewer-facing PSM rows with discriminant score, hyperscore, q-values,
   posterior error, protein mappings, modification burden, matched-peak shape,
   and mass-accuracy fields
+- any requested TSV export paths
+
+`comet-import` emits one governed review packet over practical Comet tabular
+or pepXML result evidence.
+
+- the positional argument is the Comet result file path
+- `--config` optionally loads a Comet parameter file
+- `--summary-tsv-out` writes the one-row import summary
+- `--psm-tsv-out` writes reviewer-facing Comet PSM rows
+
+The `comet-import` JSON payload includes:
+
+- the detected import kind as `tabular` or `pepxml`
+- one compact summary over accepted or rejected rows, modified PSMs, XCorr
+  coverage, DeltaCn coverage, expectation-value coverage, multi-protein rows,
+  and target or decoy burden
+- the normalization adapter identity plus accepted and rejected row counts for
+  tabular imports
+- an optional parsed Comet parameter report when `--config` is supplied
+- reviewer-facing PSM rows with modified peptide notation, residue sequence,
+  canonical peptide, charge, expectation value, XCorr, DeltaCn, Sp score,
+  protein mappings, and target-decoy label
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
