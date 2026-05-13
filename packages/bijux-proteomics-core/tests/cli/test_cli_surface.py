@@ -1307,6 +1307,46 @@ def test_protein_ambiguity_command_reports_ambiguous_groups_and_ledgers() -> Non
         )
 
 
+def test_protein_inference_benchmarks_command_emits_catalog_and_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "protein-inference-benchmarks",
+                "--picked-threshold",
+                "0.05",
+                "--summary-tsv-out",
+                "protein_inference_benchmarks.summary.tsv",
+                "--scenarios-tsv-out",
+                "protein_inference_benchmarks.scenarios.tsv",
+                "--assessments-tsv-out",
+                "protein_inference_benchmarks.assessments.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["picked_threshold"] == 0.05
+        assert payload["scenario_count"] == 6
+        assert payload["homolog_family_scenario_count"] == 1
+        assert payload["contaminant_scenario_count"] == 1
+        assert payload["decoy_scenario_count"] == 1
+        assert payload["reports"][0]["method_assessments"]
+        assert Path("protein_inference_benchmarks.summary.tsv").exists()
+        assert Path("protein_inference_benchmarks.scenarios.tsv").exists()
+        assert Path("protein_inference_benchmarks.assessments.tsv").exists()
+        assert "homolog_family_scenario_count\t1" in Path(
+            "protein_inference_benchmarks.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "homolog-family-pressure" in Path(
+            "protein_inference_benchmarks.scenarios.tsv"
+        ).read_text(encoding="utf-8")
+        assert "false_positive_proteins" in Path(
+            "protein_inference_benchmarks.assessments.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
