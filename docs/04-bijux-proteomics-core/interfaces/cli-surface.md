@@ -45,6 +45,7 @@ The owned FASTA CLI surface is:
 - `maxquant-import`
 - `diann-import`
 - `spectronaut-import`
+- `openms-import`
 - `comet-import`
 - `fragpipe-import`
 - `sage-import`
@@ -417,6 +418,33 @@ The `spectronaut-import` JSON payload includes:
 - reviewer-facing protein-group rows with protein-group identity, protein
   references, run, sample, q-value, `PG.Quantity`, source precursor count,
   and target-decoy label
+- any requested TSV export paths
+
+`openms-import` emits one governed review packet over native OpenMS `idXML`
+identification evidence plus one exported feature table.
+
+- the positional argument is the OpenMS `idXML` path
+- `--feature-table` is required and supplies the exported feature-table path
+- `--summary-tsv-out` writes the one-row import summary
+- `--psm-tsv-out` writes reviewer-facing PSM rows
+- `--protein-tsv-out` writes reviewer-facing protein rows
+- `--feature-tsv-out` writes reviewer-facing feature rows
+
+The `openms-import` JSON payload includes:
+
+- one compact summary over accepted PSM rows, protein rows, accepted and
+  rejected feature rows, q-value coverage, target or decoy burden, and feature
+  sample coverage
+- one explicit feature-parse summary with total, accepted, and rejected
+  feature-table row counts
+- reviewer-facing PSM rows with run identity, spectrum reference, peptide
+  sequence, charge, score, q-value, precursor m/z, retention time, protein
+  references, and target-decoy label
+- reviewer-facing protein rows with run identity, protein reference, score,
+  q-value, and target-decoy label
+- reviewer-facing feature rows with feature identity, sample identity, peptide
+  text, canonical peptide, intensity, protein references, charge, m/z,
+  retention time, and missing reason
 - any requested TSV export paths
 
 `modification-resolve` checks one modification token against the built-in
