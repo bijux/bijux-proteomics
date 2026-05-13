@@ -664,7 +664,35 @@ policy and peptide burden to remain explicit.
 
 This surface is intentionally one protein-level quant bed, not a final LFQ
 authority claim. It makes rollup choices and peptide burden explicit before
-later MaxLFQ-style and normalization work arrives.
+pairwise-ratio LFQ solving or later normalization claims are promoted.
+
+## Protein LFQ Review
+
+Use `protein-lfq` when the question is not just how peptides were rolled up to
+proteins, but whether shared peptide ratios across samples support one
+component-aware label-free protein profile.
+
+- The surface keeps peptide grouping, charge policy, and pre-LFQ aggregation
+  policy explicit, so the solved profile cannot hide how peptide evidence was
+  collapsed before pairwise constraints were built.
+- Pairwise sample ratios are preserved per protein row instead of being hidden
+  inside one black-box abundance solver, which makes it possible to inspect
+  whether a profile is supported by one peptide pair or by broader peptide
+  agreement.
+- Disconnected sample components remain visible when missing peptides prevent
+  one full cross-sample network, so sparse evidence does not masquerade as one
+  confidently anchored global profile.
+- Unique-peptide-only mode and minimum shared-peptide thresholds stay explicit,
+  which matters when operators need a conservative LFQ view that drops weak
+  or poorly shared ratio support.
+- Reviewer-facing summary, matrix, pairwise-ratio, and missingness ledgers
+  remain available when LFQ evidence needs to move into downstream release or
+  scientific review.
+
+This surface is intentionally one owned MaxLFQ-like review bed rather than a
+claim of full commercial-tool equivalence. It strengthens protein abundance
+estimation beyond simple rollup, but it does not replace later normalization,
+experimental-design, or broader benchmarking work.
 
 ## Protein Coverage Review
 
