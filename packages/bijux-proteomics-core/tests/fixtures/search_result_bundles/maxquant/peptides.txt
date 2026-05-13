@@ -1,0 +1,5 @@
+Sequence	Modified sequence	Proteins	Leading razor protein	Score	PEP	Intensity	MS/MS Count	Reverse	Potential contaminant
+PESTIDE	_PEST(Phospho (STY))IDE_	P11111	P11111	121.4	0.0012	1500000	5		0
+ACDMK	_(Acetyl (Protein N-term))ACDM(Oxidation (M))K_	P22222;P22223	P22222	109.8	0.0038	980000	3		0
+KERATIN	_KERATIN_	CON__KRT1	CON__KRT1	78.6	0.0210	250000	2		+
+DECOYPEP	_DECOYPEP_	REV__P33333	REV__P33333	66.2	0.0470	110000	1	+	0

@@ -1,0 +1,5 @@
+Protein IDs	Majority protein IDs	Gene names	Fasta headers	Peptides	Razor + unique peptides	Sequence coverage [%]	MS/MS count	Reverse	Potential contaminant	Only identified by site	LFQ intensity raw_A	LFQ intensity raw_B
+P11111	P11111	KIN1	sp|P11111|KINASE_HUMAN Kinase 1	3	2	45.2	5		0	0	1200000	0
+P22222;P22223	P22222	TRX1;TRX2	sp|P22222|TRANSFER_HUMAN Transfer 1;sp|P22223|TRANSFER_MOUSE Transfer 2	4	2	38.6	3		0	0	0	910000
+CON__KRT1	CON__KRT1	KRT1	sp|CON__KRT1|KERATIN_CONTAM Keratin contaminant	2	1	22.4	2		+	0	240000	180000
+REV__P33333	REV__P33333	DECOY1	sp|REV__P33333|DECOY_PROTEIN Decoy protein	1	1	12.0	1	+	0	0	0	95000
