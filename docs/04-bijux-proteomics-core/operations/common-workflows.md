@@ -263,6 +263,33 @@ every FragPipe or Philosopher downstream table is already modeled. It covers
 the core PSM, peptide, and protein tables honestly and keeps their evidence
 burden explicit for later confidence, PTM, or protein-inference work.
 
+## Sage Import
+
+Use `sage-import` when the question is whether one Sage result table can be
+reviewed as explicit identification evidence instead of being flattened into a
+single generic PSM score column.
+
+- The import surface keeps Sage discriminant score as the ranking score while
+  still preserving hyperscore alongside it for reviewer-facing comparison.
+- Modified peptide strings are normalized through the owned Sage peptide
+  dialect so stripped residue sequence and canonical modified-peptide intent
+  stay explicit.
+- Protein mappings remain first-class instead of being reduced to one winning
+  accession, so shared evidence and multi-protein rows remain visible.
+- The import report keeps q-value, peptide-q-value, protein-q-value, and
+  posterior error separate when the export actually carries them.
+- Match-shape evidence such as matched peaks, longest b or y series,
+  explained-intensity fraction, and mass-accuracy fields remains attached to
+  each row instead of disappearing during normalization.
+- When a Sage configuration file is available, the same surface also preserves
+  enzyme, tolerance, decoy, and modification provenance so the result table can
+  be reviewed in the context that produced it.
+
+This surface is intentionally a Sage import and review contract rather than a
+full workflow runner. Its job is to preserve the useful evidence already
+present in realistic Sage exports so downstream confidence, PTM, and protein
+analysis can start from an honest normalized record.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
