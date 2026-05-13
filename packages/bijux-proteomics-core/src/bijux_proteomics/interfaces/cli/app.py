@@ -96,7 +96,9 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io.spectra import (
+    PrecursorMassErrorQuery,
     annotate_spectrum_fragments,
+    build_precursor_mass_error_report,
     build_spectrum_collection_summary,
     build_spectrum_summary_table_report,
     build_spectrum_metrics,
@@ -104,6 +106,9 @@ from bijux_proteomics.io.spectra import (
     build_spectrum_provenance_manifest,
     export_spectrum_annotation_tsv,
     parse_mgf,
+    render_precursor_mass_error_distribution_tsv,
+    render_precursor_mass_error_observations_tsv,
+    render_precursor_mass_error_summary_tsv,
     render_spectrum_distribution_tsv,
     render_spectrum_summary_tsv,
 )
@@ -288,6 +293,56 @@ def _load_fasta_report(
             f"FASTA input contains rejected records under {mode.value} mode: {rejected}"
         )
     return report
+
+
+def _load_precursor_mass_error_queries(
+    input_tsv: Path,
+    *,
+    peptide_column: str,
+    observed_mz_column: str,
+    charge_column: str,
+    spectrum_id_column: str | None,
+) -> tuple[PrecursorMassErrorQuery, ...]:
+    queries: list[PrecursorMassErrorQuery] = []
+    with input_tsv.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise click.ClickException("precursor mass-error TSV must include a header row")
+        for required_column in (peptide_column, observed_mz_column, charge_column):
+            if required_column not in reader.fieldnames:
+                raise click.ClickException(
+                    f"missing required precursor mass-error column {required_column!r}"
+                )
+
+        for row_number, row in enumerate(reader, start=2):
+            try:
+                peptide = str(row.get(peptide_column, "")).strip()
+                observed_mz = float(str(row.get(observed_mz_column, "")).strip())
+                charge = int(str(row.get(charge_column, "")).strip())
+                if not peptide:
+                    raise ValueError("peptide must not be blank")
+                if observed_mz <= 0:
+                    raise ValueError("observed_mz must be greater than zero")
+                if charge < 1:
+                    raise ValueError("charge must be at least 1")
+                spectrum_id = (
+                    str(row.get(spectrum_id_column, "")).strip()
+                    if spectrum_id_column is not None
+                    else ""
+                )
+                queries.append(
+                    PrecursorMassErrorQuery(
+                        peptide=peptide,
+                        observed_mz=observed_mz,
+                        charge=charge,
+                        spectrum_id=spectrum_id or None,
+                    )
+                )
+            except (TypeError, ValueError) as exc:
+                raise click.ClickException(
+                    f"invalid precursor mass-error row at line {row_number}: {exc}"
+                ) from exc
+    return tuple(queries)
 
 
 def _mode_choice() -> click.Choice[str]:
@@ -1456,6 +1511,144 @@ def peptide_properties_command(
 
     payload = report.to_dict()
     payload["custom_protease"] = custom_specification
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("precursor-mass-error")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--observed-mz-column", default="observed_mz", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--max-isotope-offset", type=int, default=3, show_default=True)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--observations-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--ppm-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--charge-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--isotope-distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def precursor_mass_error_command(
+    input_tsv: Path,
+    peptide_column: str,
+    observed_mz_column: str,
+    charge_column: str,
+    spectrum_id_column: str,
+    max_isotope_offset: int,
+    registry_path: Path | None,
+    summary_tsv_out: Path | None,
+    observations_tsv_out: Path | None,
+    ppm_distribution_tsv_out: Path | None,
+    charge_distribution_tsv_out: Path | None,
+    isotope_distribution_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Report precursor mass error from peptide plus observed-m/z tables."""
+    try:
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        queries = _load_precursor_mass_error_queries(
+            input_tsv,
+            peptide_column=peptide_column,
+            observed_mz_column=observed_mz_column,
+            charge_column=charge_column,
+            spectrum_id_column=spectrum_id_column,
+        )
+        report = build_precursor_mass_error_report(
+            queries,
+            registry=registry,
+            max_isotope_offset=max_isotope_offset,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_precursor_mass_error_summary_tsv(report),
+        )
+    if observations_tsv_out is not None:
+        _write_text_output(
+            observations_tsv_out,
+            render_precursor_mass_error_observations_tsv(report.observations),
+        )
+    if ppm_distribution_tsv_out is not None:
+        _write_text_output(
+            ppm_distribution_tsv_out,
+            render_precursor_mass_error_distribution_tsv(
+                report.ppm_error_distribution,
+                distribution_name="abs_ppm",
+            ),
+        )
+    if charge_distribution_tsv_out is not None:
+        _write_text_output(
+            charge_distribution_tsv_out,
+            render_precursor_mass_error_distribution_tsv(
+                report.charge_distribution,
+                distribution_name="charge",
+            ),
+        )
+    if isotope_distribution_tsv_out is not None:
+        _write_text_output(
+            isotope_distribution_tsv_out,
+            render_precursor_mass_error_distribution_tsv(
+                report.isotope_offset_distribution,
+                distribution_name="recommended_isotope_offset",
+            ),
+        )
+
+    payload = report.to_dict()
+    payload["input_row_count"] = len(queries)
+    payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
+    payload["observations_tsv_out"] = (
+        str(observations_tsv_out) if observations_tsv_out else None
+    )
+    payload["ppm_distribution_tsv_out"] = (
+        str(ppm_distribution_tsv_out) if ppm_distribution_tsv_out else None
+    )
+    payload["charge_distribution_tsv_out"] = (
+        str(charge_distribution_tsv_out) if charge_distribution_tsv_out else None
+    )
+    payload["isotope_distribution_tsv_out"] = (
+        str(isotope_distribution_tsv_out) if isotope_distribution_tsv_out else None
+    )
     _emit_json(payload, out_path=out_path)
 
 
