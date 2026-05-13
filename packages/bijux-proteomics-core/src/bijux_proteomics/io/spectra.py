@@ -355,6 +355,13 @@ class SpectrumAnnotationAmbiguityKind(StrEnum):
     FRAGMENT_TO_MULTIPLE_PEAKS = "fragment_to_multiple_peaks"
 
 
+class SpectrumAnnotationToleranceUnit(StrEnum):
+    """Supported tolerance units for fragment annotation."""
+
+    DA = "da"
+    PPM = "ppm"
+
+
 class SpectrumAnnotationAmbiguityWarning(JsonModel):
     """One ambiguity warning caused by a permissive annotation tolerance."""
 
@@ -363,7 +370,9 @@ class SpectrumAnnotationAmbiguityWarning(JsonModel):
     kind: SpectrumAnnotationAmbiguityKind
     fragment_labels: tuple[str, ...] = Field(default_factory=tuple)
     peak_mzs: tuple[float, ...] = Field(default_factory=tuple)
-    tolerance_da: float = Field(..., gt=0.0)
+    tolerance_unit: SpectrumAnnotationToleranceUnit
+    tolerance_da: float | None = Field(default=None, gt=0.0)
+    tolerance_ppm: float | None = Field(default=None, gt=0.0)
     note: str = Field(..., min_length=1)
 
 
@@ -377,11 +386,15 @@ class SpectrumAnnotation(JsonModel):
     peptide: str = Field(..., min_length=1)
     precursor_mz: float = Field(..., gt=0.0)
     precursor_charge: int | None = Field(default=None, ge=1)
-    tolerance_da: float = Field(..., gt=0.0)
+    tolerance_unit: SpectrumAnnotationToleranceUnit
+    tolerance_da: float | None = Field(default=None, gt=0.0)
+    tolerance_ppm: float | None = Field(default=None, gt=0.0)
     matches: tuple[SpectrumAnnotationMatch, ...] = Field(default_factory=tuple)
     ambiguity_warnings: tuple[SpectrumAnnotationAmbiguityWarning, ...] = Field(
         default_factory=tuple
     )
+    matched_peak_count: int = Field(..., ge=0)
+    explained_intensity_fraction: float = Field(..., ge=0.0, le=1.0)
     unmatched_peak_count: int = Field(..., ge=0)
 
 
@@ -413,7 +426,9 @@ class SpectrumAnnotationParameters(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     peptide: str = Field(..., min_length=1)
-    tolerance_da: float = Field(..., gt=0.0)
+    tolerance_unit: SpectrumAnnotationToleranceUnit
+    tolerance_da: float | None = Field(default=None, gt=0.0)
+    tolerance_ppm: float | None = Field(default=None, gt=0.0)
     include_neutral_losses: bool
 
 
@@ -1554,15 +1569,54 @@ def _fragment_label(fragment: FragmentIon) -> str:
     return f"{fragment.series.value}{fragment.ordinal}+{fragment.charge}"
 
 
+def _resolve_annotation_tolerance(
+    *,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+) -> tuple[SpectrumAnnotationToleranceUnit, float | None, float | None]:
+    if tolerance_da is not None and tolerance_ppm is not None:
+        raise ValueError("choose either tolerance_da or tolerance_ppm, not both")
+    if tolerance_ppm is not None:
+        if tolerance_ppm <= 0:
+            raise ValueError("tolerance_ppm must be greater than zero")
+        return SpectrumAnnotationToleranceUnit.PPM, None, tolerance_ppm
+    if tolerance_da is None or tolerance_da <= 0:
+        raise ValueError("tolerance_da must be greater than zero")
+    return SpectrumAnnotationToleranceUnit.DA, tolerance_da, None
+
+
+def _matches_fragment_tolerance(
+    *,
+    observed_mz: float,
+    fragment_mz: float,
+    tolerance_unit: SpectrumAnnotationToleranceUnit,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+) -> bool:
+    error_da = observed_mz - fragment_mz
+    if tolerance_unit is SpectrumAnnotationToleranceUnit.PPM:
+        assert tolerance_ppm is not None
+        return abs((error_da / fragment_mz) * 1_000_000.0) <= tolerance_ppm
+    assert tolerance_da is not None
+    return abs(error_da) <= tolerance_da
+
+
 def annotate_spectrum_fragments(
     spectrum: SpectrumModel,
     *,
     peptide: str | ParsedModifiedPeptide,
-    tolerance_da: float = 0.5,
+    tolerance_da: float | None = 0.5,
+    tolerance_ppm: float | None = None,
     include_neutral_losses: bool = True,
 ) -> SpectrumAnnotation:
-    """Match theoretical fragments against observed peaks within a Dalton tolerance."""
+    """Match theoretical fragments against observed peaks within one tolerance."""
     canonical = _canonical_peptide_text(peptide)
+    tolerance_unit, resolved_tolerance_da, resolved_tolerance_ppm = (
+        _resolve_annotation_tolerance(
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+        )
+    )
     fragments = calculate_fragment_ions(
         peptide,
         include_neutral_losses=include_neutral_losses,
@@ -1575,7 +1629,13 @@ def annotate_spectrum_fragments(
         candidate_peaks = tuple(
             peak
             for peak in spectrum.peaks
-            if abs(peak.mz - fragment.mz_monoisotopic) <= tolerance_da
+            if _matches_fragment_tolerance(
+                observed_mz=peak.mz,
+                fragment_mz=fragment.mz_monoisotopic,
+                tolerance_unit=tolerance_unit,
+                tolerance_da=resolved_tolerance_da,
+                tolerance_ppm=resolved_tolerance_ppm,
+            )
         )
         fragment_label = _fragment_label(fragment)
         if len(candidate_peaks) > 1:
@@ -1584,7 +1644,9 @@ def annotate_spectrum_fragments(
                     kind=SpectrumAnnotationAmbiguityKind.FRAGMENT_TO_MULTIPLE_PEAKS,
                     fragment_labels=(fragment_label,),
                     peak_mzs=tuple(sorted(peak.mz for peak in candidate_peaks)),
-                    tolerance_da=tolerance_da,
+                    tolerance_unit=tolerance_unit,
+                    tolerance_da=resolved_tolerance_da,
+                    tolerance_ppm=resolved_tolerance_ppm,
                     note="one fragment is compatible with multiple observed peaks under the requested tolerance",
                 )
             )
@@ -1596,7 +1658,13 @@ def annotate_spectrum_fragments(
         best_error: float | None = None
         for peak in spectrum.peaks:
             error = peak.mz - fragment.mz_monoisotopic
-            if abs(error) > tolerance_da:
+            if not _matches_fragment_tolerance(
+                observed_mz=peak.mz,
+                fragment_mz=fragment.mz_monoisotopic,
+                tolerance_unit=tolerance_unit,
+                tolerance_da=resolved_tolerance_da,
+                tolerance_ppm=resolved_tolerance_ppm,
+            ):
                 continue
             if (
                 best_peak is None
@@ -1634,7 +1702,9 @@ def annotate_spectrum_fragments(
                 kind=SpectrumAnnotationAmbiguityKind.PEAK_TO_MULTIPLE_FRAGMENTS,
                 fragment_labels=unique_labels,
                 peak_mzs=(peak_key[0],),
-                tolerance_da=tolerance_da,
+                tolerance_unit=tolerance_unit,
+                tolerance_da=resolved_tolerance_da,
+                tolerance_ppm=resolved_tolerance_ppm,
                 note="one observed peak is compatible with multiple theoretical fragments under the requested tolerance",
             )
         )
@@ -1650,7 +1720,9 @@ def annotate_spectrum_fragments(
         peptide=canonical,
         precursor_mz=spectrum.precursor_mz,
         precursor_charge=spectrum.precursor_charge,
-        tolerance_da=tolerance_da,
+        tolerance_unit=tolerance_unit,
+        tolerance_da=resolved_tolerance_da,
+        tolerance_ppm=resolved_tolerance_ppm,
         matches=tuple(
             sorted(
                 matches,
@@ -1670,6 +1742,19 @@ def annotate_spectrum_fragments(
                     warning.peak_mzs,
                 ),
             )
+        ),
+        matched_peak_count=len(matched_peak_keys),
+        explained_intensity_fraction=(
+            (
+                sum(
+                    peak.intensity
+                    for peak in spectrum.peaks
+                    if (peak.mz, peak.intensity) in matched_peak_keys
+                )
+                / sum(peak.intensity for peak in spectrum.peaks)
+            )
+            if spectrum.peaks and sum(peak.intensity for peak in spectrum.peaks) > 0
+            else 0.0
         ),
         unmatched_peak_count=sum(
             1
@@ -1768,7 +1853,8 @@ def build_annotated_spectrum_bundle(
     spectrum: SpectrumModel,
     *,
     peptide: str | ParsedModifiedPeptide,
-    tolerance_da: float = 0.5,
+    tolerance_da: float | None = 0.5,
+    tolerance_ppm: float | None = None,
     include_neutral_losses: bool = True,
 ) -> AnnotatedSpectrumBundle:
     """Build one self-contained annotation bundle with raw and theoretical evidence."""
@@ -1781,7 +1867,14 @@ def build_annotated_spectrum_bundle(
         spectrum,
         peptide=peptide,
         tolerance_da=tolerance_da,
+        tolerance_ppm=tolerance_ppm,
         include_neutral_losses=include_neutral_losses,
+    )
+    tolerance_unit, resolved_tolerance_da, resolved_tolerance_ppm = (
+        _resolve_annotation_tolerance(
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+        )
     )
     schema = DocumentSchema(
         created_by="bijux-proteomics-core",
@@ -1796,7 +1889,9 @@ def build_annotated_spectrum_bundle(
         theoretical_fragments=theoretical_fragments,
         parameters=SpectrumAnnotationParameters(
             peptide=canonical,
-            tolerance_da=tolerance_da,
+            tolerance_unit=tolerance_unit,
+            tolerance_da=resolved_tolerance_da,
+            tolerance_ppm=resolved_tolerance_ppm,
             include_neutral_losses=include_neutral_losses,
         ),
     )
