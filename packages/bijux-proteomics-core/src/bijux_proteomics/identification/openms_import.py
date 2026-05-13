@@ -6,18 +6,19 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.quantification import (
-    Ms1FeatureColumnMapping,
-    Ms1FeatureParseReport,
-    Ms1FeatureRecord,
-    parse_ms1_feature_table,
-)
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.quantification import (
+        Ms1FeatureParseReport,
+        Ms1FeatureRecord,
+    )
 
 
 class OpenMsPsmReviewEntry(JsonModel):
@@ -397,6 +398,11 @@ def _parse_openms_idxml(
 
 
 def _parse_openms_feature_table(feature_table_path: Path) -> Ms1FeatureParseReport:
+    from bijux_proteomics.quantification import (
+        Ms1FeatureColumnMapping,
+        parse_ms1_feature_table,
+    )
+
     mapping = Ms1FeatureColumnMapping(
         sample_id="sample_id",
         peptide="sequence",
