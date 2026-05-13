@@ -341,6 +341,32 @@ an orchestration wrapper around the original tool. Its job is to keep the
 native project evidence honest and structured enough for downstream confidence,
 quantification, and protein-analysis work.
 
+## DIA-NN Report Import
+
+Use `diann-import` when one DIA-NN report needs to remain reviewable as
+precursor-level DIA evidence instead of being flattened into a generic peptide
+or PSM table.
+
+- The precursor surface preserves run and sample columns, q-values, target-
+  decoy state, `Precursor.Quantity`, and the corresponding `PG.Quantity`
+  carried in the report row.
+- Protein-group evidence remains explicit through a separate reviewer-facing
+  ledger keyed by protein group together with run and sample context.
+- `Protein.Group` and `Protein.Ids` are preserved directly so the report stays
+  useful for later DIA-native quantification and protein-group review instead
+  of collapsing into one accession string.
+- The importer also builds the existing DIA-native precursor and protein-group
+  quantity report so identification review stays connected to the package's
+  owned DIA quant surfaces.
+- When a DIA-NN configuration file is available, the same surface preserves
+  enzyme, tolerance, decoy-prefix, and modification provenance so the imported
+  report stays tied to the search assumptions that produced it.
+
+This surface is intentionally a DIA-NN import and review contract rather than a
+full DIA workflow runner. Its job is to preserve precursor-level DIA evidence,
+run/sample context, and quantity burden honestly enough for downstream
+quantification and comparison work.
+
 ## Strong MGF Parsing
 
 Use the MGF parsing surface when tandem-mass-spectra exchange files need to be
