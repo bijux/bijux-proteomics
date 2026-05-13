@@ -372,6 +372,44 @@ def test_digest_command_writes_export_and_manifest(
         assert manifest["policy_hash"] == payload["policy_hash"]
 
 
+def test_digest_command_supports_fasta_export_and_peptide_protein_sidecar(
+    fasta_fixture_dir: Path,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(fasta_fixture_dir / "valid_records.fasta", "valid.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "valid.fasta",
+                "--protease",
+                "trypsin",
+                "--format",
+                "fasta",
+                "--out",
+                "peptides.fasta",
+                "--peptide-protein-table-out",
+                "peptide_protein_table.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["export_format"] == "fasta"
+        assert payload["peptide_protein_table_path"] == "peptide_protein_table.tsv"
+        assert len(payload["peptide_protein_table_sha256"]) == 64
+
+        fasta_lines = Path("peptides.fasta").read_text().splitlines()
+        assert fasta_lines[0].startswith(">")
+        assert "|len=" in fasta_lines[0]
+        assert "|mass=" in fasta_lines[0]
+
+        table_lines = Path("peptide_protein_table.tsv").read_text().splitlines()
+        assert table_lines[0].startswith("sequence\tlength\tneutral_mass")
+
+
 def test_digest_command_reports_invalid_protease_and_invalid_fasta(
     fasta_fixture_dir: Path,
 ) -> None:
