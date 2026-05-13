@@ -1162,6 +1162,51 @@ def test_fdr_levels_command_reports_threshold_counts_and_contaminants() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_picked_protein_fdr_command_reports_pairs_groups_and_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "grouped_picked_fdr_edge_cases.tsv",
+            "picked.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "picked-protein-fdr",
+                "picked.tsv",
+                "--summary-tsv-out",
+                "picked.summary.tsv",
+                "--entries-tsv-out",
+                "picked.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["thresholds"] == [0.01, 0.05, 0.1]
+        assert payload["accepted_rows"] == 10
+        summary_rows = payload["summaries"]
+        threshold_tenth = next(
+            row for row in summary_rows if row["threshold"] == 0.1
+        )
+        assert threshold_tenth["total_count"] == 5
+        assert threshold_tenth["grouped_protein_count"] == 2
+        assert threshold_tenth["accepted_count"] == 4
+        entries = payload["entries"]
+        picked_p22222 = next(row for row in entries if row["protein_ref"] == "P22222")
+        assert picked_p22222["partner_ref"] == "DECOY_P22222"
+        assert picked_p22222["protein_group_ids"]
+        assert Path("picked.summary.tsv").exists()
+        assert Path("picked.entries.tsv").exists()
+        assert "0.1\t5\t4\t1\t0\t2\t4\t4\t0\t0\t2" in Path(
+            "picked.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P22222\tDECOY_P22222\tpg-" in Path("picked.entries.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
