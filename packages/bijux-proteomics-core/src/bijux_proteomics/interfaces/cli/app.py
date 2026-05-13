@@ -128,6 +128,7 @@ from bijux_proteomics.sequences import (
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
+    build_decoy_generation_report,
     append_contaminant_database,
     build_fasta_database_profile,
     build_decoy_generation_manifest,
@@ -904,14 +905,24 @@ def fasta_decoy_command(
         mode=FastaParseMode(mode),
         allow_rejected=False,
     )
-    decoys = generate_decoy_records(
+    try:
+        decoys = generate_decoy_records(
+            report.accepted_records,
+            mode=DecoyGenerationMode(decoy_mode),
+            prefix=prefix,
+            seed=seed,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    output_records = decoys if decoys_only else (*report.accepted_records, *decoys)
+    out_fasta.write_text(render_fasta_records(tuple(output_records)))
+    generation_report = build_decoy_generation_report(
         report.accepted_records,
+        decoys,
         mode=DecoyGenerationMode(decoy_mode),
         prefix=prefix,
         seed=seed,
     )
-    output_records = decoys if decoys_only else (*report.accepted_records, *decoys)
-    out_fasta.write_text(render_fasta_records(tuple(output_records)))
     manifest = build_decoy_generation_manifest(
         input_records=report.accepted_records,
         output_records=tuple(output_records),
@@ -926,6 +937,7 @@ def fasta_decoy_command(
     payload = validation.to_dict()
     payload["reproducibility_hash"] = manifest.reproducibility_hash
     payload["output_sha256"] = manifest.output_sha256
+    payload["generation_report"] = generation_report.to_dict()
     _emit_json(payload, out_path=report_out)
 
 
