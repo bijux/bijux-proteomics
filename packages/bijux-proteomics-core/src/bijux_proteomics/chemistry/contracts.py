@@ -501,13 +501,10 @@ def _build_applied_modification(
     at_protein_c_term: bool = False,
     labeling_policy: IsotopicLabelingPolicy | None = None,
 ) -> AppliedModification:
-    mapping = _registry_lookup(registry)
     stripped_token = token.strip()
-    definition = (
-        None
-        if _DELTA_TOKEN_RE.fullmatch(stripped_token)
-        else mapping.get(stripped_token.lower())
-    )
+    definition = None
+    if not _DELTA_TOKEN_RE.fullmatch(stripped_token):
+        definition = get_modification(stripped_token, registry=registry)
     _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
     residue = _validate_definition_site(
         definition=definition,
@@ -766,6 +763,14 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 controlled_id="UNIMOD:1",
             ),
             VariableModification(
+                name="Deamidated",
+                residues=("N", "Q"),
+                position=ModificationPosition.ANYWHERE,
+                mass_delta_monoisotopic=0.984016,
+                mass_delta_average=0.9848,
+                controlled_id="UNIMOD:7",
+            ),
+            VariableModification(
                 name="Amidated",
                 position=ModificationPosition.PEPTIDE_C_TERM,
                 mass_delta_monoisotopic=-0.984016,
@@ -782,6 +787,14 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
 
 
 _BUILTIN_REGISTRY = _build_builtin_registry()
+_MODIFICATION_TOKEN_ALIASES = {
+    "acetylation": "acetyl",
+    "carbamidomethylation": "carbamidomethyl",
+    "deamidation": "deamidated",
+    "deamidated": "deamidated",
+    "oxidation": "oxidation",
+    "phosphorylation": "phospho",
+}
 
 
 def build_modification_registry(
@@ -823,12 +836,30 @@ def load_modification_registry(path: Path) -> ModificationRegistryDocument:
 def _registry_lookup(
     registry: ModificationRegistryDocument | None,
 ) -> dict[str, StaticModification | VariableModification]:
-    active_registry = registry or modification_registry()
     mapping: dict[str, StaticModification | VariableModification] = {}
-    for modification in active_registry.static_modifications:
+    builtin_registry = modification_registry()
+    for modification in builtin_registry.static_modifications:
         mapping[modification.name.strip().lower()] = modification
-    for variable_modification in active_registry.variable_modifications:
+        if modification.controlled_id is not None:
+            mapping[modification.controlled_id.strip().lower()] = modification
+    for variable_modification in builtin_registry.variable_modifications:
         mapping[variable_modification.name.strip().lower()] = variable_modification
+        if variable_modification.controlled_id is not None:
+            mapping[
+                variable_modification.controlled_id.strip().lower()
+            ] = variable_modification
+    if registry is None:
+        return mapping
+    for modification in registry.static_modifications:
+        mapping[modification.name.strip().lower()] = modification
+        if modification.controlled_id is not None:
+            mapping[modification.controlled_id.strip().lower()] = modification
+    for variable_modification in registry.variable_modifications:
+        mapping[variable_modification.name.strip().lower()] = variable_modification
+        if variable_modification.controlled_id is not None:
+            mapping[
+                variable_modification.controlled_id.strip().lower()
+            ] = variable_modification
     return mapping
 
 
@@ -839,9 +870,16 @@ def get_modification(
 ) -> StaticModification | VariableModification:
     """Return one modification definition from the active registry."""
     normalized = name.strip().lower()
+    alias = _MODIFICATION_TOKEN_ALIASES.get(normalized)
+    mapping = _registry_lookup(registry)
     try:
-        return _registry_lookup(registry)[normalized]
+        return mapping[normalized]
     except KeyError as exc:
+        if alias is not None:
+            try:
+                return mapping[alias]
+            except KeyError:
+                pass
         raise ValueError(f"unknown modification {name!r}") from exc
 
 
