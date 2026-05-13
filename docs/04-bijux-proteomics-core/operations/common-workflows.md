@@ -590,6 +590,32 @@ This surface is intentionally anti-overclaiming. It explains why one protein
 identity cannot be promoted cleanly from the observed peptide evidence, but it
 does not pretend to resolve the ambiguity by itself.
 
+## Protein Inference Benchmark Review
+
+Use `protein-inference-benchmarks` when the question is whether the owned
+protein-inference logic has actually been exercised against the hard cases that
+make protein calls scientifically fragile.
+
+- The benchmark surface ships one named catalog of truth-scored pressure
+  scenarios instead of leaving shared-peptide, isoform, homolog-family,
+  contaminant, and decoy pressure scattered across test-only helpers.
+- Each scenario keeps expected-present and expected-absent proteins explicit,
+  so false positive and false negative behavior is reviewable per inference
+  strategy rather than hidden inside one aggregate score.
+- Strategy assessments preserve precision and recall together with Wilson lower
+  bounds, which makes weak-case behavior visible even when one method looks
+  acceptable by point estimate alone.
+- Reviewer-facing summary, scenario, and assessment ledgers remain available so
+  the benchmark surface can travel into operator review or later workflow trust
+  decisions without pretending benchmark coverage is broader than it is.
+- The current suite intentionally keeps false-negative pressure alongside the
+  five requested hard-case families, because conservative under-calling is also
+  one real failure mode of protein inference.
+
+This surface is intentionally credibility-facing. It does not invent a new
+protein-inference policy; it pressure-tests the owned inference policies
+against explicit hard examples before broader claims are promoted.
+
 ## Protein Coverage Review
 
 Use `protein-coverage` when the question is not yet which protein set wins the
