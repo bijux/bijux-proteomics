@@ -57,6 +57,7 @@ from bijux_proteomics.identification import (
     build_evidence_level_fdr_review_report,
     build_maxquant_import_report,
     build_openms_import_report,
+    build_protein_grouping_review_report,
     build_psm_evidence_inspection_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
@@ -98,6 +99,8 @@ from bijux_proteomics.identification import (
     render_openms_protein_tsv,
     render_openms_psm_tsv,
     render_openms_summary_tsv,
+    render_protein_grouping_entries_tsv,
+    render_protein_grouping_summary_tsv,
     render_psm_evidence_inspection_summary_tsv,
     render_psm_inspection_distribution_tsv,
     build_spectronaut_import_report,
@@ -3135,6 +3138,123 @@ def picked_protein_fdr_command(
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("protein-groups")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--threshold", type=float, default=0.05, show_default=True)
+@click.option(
+    "--score-orientation",
+    type=_score_orientation_choice(),
+    default=ScoreOrientation.HIGHER_BETTER.value,
+    show_default=True,
+)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default=None)
+@click.option("--modified-peptide-column", default=None)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--group-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def protein_groups_command(
+    input_tsv: Path,
+    threshold: float,
+    score_orientation: str,
+    spectrum_id_column: str,
+    peptide_column: str,
+    run_id_column: str | None,
+    modified_peptide_column: str | None,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    contaminant_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    summary_tsv_out: Path | None,
+    group_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review grouped protein evidence from FDR-filtered PSM rows."""
+    try:
+        mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
+            protein_separator=protein_separator,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        parse_report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        filtered_records = filter_psms_by_fdr(
+            parse_report.accepted_records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        review = build_protein_grouping_review_report(filtered_records)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_protein_grouping_summary_tsv(review),
+        )
+    if group_tsv_out is not None:
+        _write_text_output(
+            group_tsv_out,
+            render_protein_grouping_entries_tsv(review),
+        )
+
+    payload = {
+        "threshold": threshold,
+        "score_orientation": score_orientation,
+        "accepted_rows": len(parse_report.accepted_records),
+        "rejected_rows": len(parse_report.rejected_rows),
+        "grouped_rows": len(filtered_records),
+        **review.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "group_tsv": None if group_tsv_out is None else str(group_tsv_out),
+        },
     }
     _emit_json(payload, out_path=out_path)
 
