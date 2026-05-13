@@ -10,8 +10,21 @@ import shutil
 from click.testing import CliRunner
 
 from bijux_proteomics.interfaces.cli import cli
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, render_mgf
 
 FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures"
+
+
+def _similarity_spectrum(
+    spectrum_id: str,
+    peaks: tuple[tuple[float, float], ...],
+) -> SpectrumModel:
+    return SpectrumModel(
+        spectrum_id=spectrum_id,
+        precursor_mz=500.2,
+        precursor_charge=2,
+        peaks=tuple(SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks),
+    )
 
 
 def test_program_template_writes_manifest() -> None:
@@ -1133,6 +1146,86 @@ def test_spectrum_annotate_command_supports_ppm_tolerance() -> None:
         assert payload["annotation"]["tolerance_unit"] == "ppm"
         assert payload["annotation"]["tolerance_da"] is None
         assert payload["annotation"]["tolerance_ppm"] == 20.0
+
+
+def test_spectrum_similarity_command_reports_pairwise_comparison() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        query = _similarity_spectrum(
+            "query",
+            ((100.01, 1.0), (150.01, 0.9), (200.01, 0.7)),
+        )
+        reference = _similarity_spectrum(
+            "reference",
+            ((100.0, 1.0), (150.0, 0.9), (200.0, 0.7)),
+        )
+        Path("query.mgf").write_text(render_mgf((query,)), encoding="utf-8")
+        Path("reference.mgf").write_text(render_mgf((reference,)), encoding="utf-8")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-similarity",
+                "query.mgf",
+                "reference.mgf",
+                "--query-spectrum-id",
+                "query",
+                "--reference-spectrum-id",
+                "reference",
+                "--tolerance-da",
+                "0.02",
+                "--tsv-out",
+                "similarity.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["comparison"]["classification"] == "duplicate_like"
+        assert payload["comparison"]["score"] > 0.99
+        assert payload["library_report"]["matches"][0]["reference_spectrum_id"] == "reference"
+        assert Path("similarity.tsv").exists()
+
+
+def test_spectrum_similarity_command_supports_library_ranking_with_binning() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        query = _similarity_spectrum(
+            "query",
+            ((100.21, 1.0), (150.19, 0.8), (200.18, 0.6)),
+        )
+        best = _similarity_spectrum(
+            "best-match",
+            ((100.0, 1.0), (150.0, 0.8), (200.0, 0.6)),
+        )
+        other = _similarity_spectrum(
+            "other-match",
+            ((400.0, 1.0), (450.0, 0.8), (500.0, 0.6)),
+        )
+        Path("query.mgf").write_text(render_mgf((query,)), encoding="utf-8")
+        Path("library.mgf").write_text(render_mgf((other, best)), encoding="utf-8")
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-similarity",
+                "query.mgf",
+                "library.mgf",
+                "--query-spectrum-id",
+                "query",
+                "--bin-width-da",
+                "1.0",
+                "--max-matches",
+                "2",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["comparison"] is None
+        assert payload["library_report"]["parameters"]["matching_mode"] == "binned"
+        assert payload["library_report"]["matches"][0]["reference_spectrum_id"] == "best-match"
+        assert payload["library_report"]["matches"][0]["classification"] == "duplicate_like"
 
 
 def test_validate_command_supports_fasta_psm_mgf_and_mod_registry(
