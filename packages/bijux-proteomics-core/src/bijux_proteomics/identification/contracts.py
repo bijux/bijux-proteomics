@@ -3537,11 +3537,16 @@ def build_protein_coverage_map(
     protein_sequences: dict[str, str],
 ) -> tuple[ProteinCoverageEntry, ...]:
     """Build a sequence-aware coverage map for proteins present in evidence."""
+    peptide_sequences = {
+        record.canonical_peptide: record.peptide_sequence
+        or _derive_canonical_psm_peptide_fields(record.canonical_peptide)[1]
+        for record in records
+    }
     protein_to_peptides: dict[str, set[str]] = defaultdict(set)
     for rollup in rollup_peptide_evidence(records):
         for protein_ref in rollup.protein_refs:
             protein_to_peptides[protein_ref].add(
-                rollup.canonical_peptide.replace("[", "").replace("]", "")
+                peptide_sequences[rollup.canonical_peptide]
             )
 
     coverage_entries: list[ProteinCoverageEntry] = []
