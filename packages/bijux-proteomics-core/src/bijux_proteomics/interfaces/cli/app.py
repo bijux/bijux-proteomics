@@ -571,23 +571,29 @@ def _select_design_entry(
 
 def _build_psm_mapping(
     *,
+    run_id_column: str | None,
     spectrum_id_column: str,
     peptide_column: str,
+    modified_peptide_column: str | None,
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
+    contaminant_label_column: str | None,
     protein_separator: str,
 ) -> SearchResultColumnMapping:
     return SearchResultColumnMapping(
+        run_id=run_id_column,
         spectrum_id=spectrum_id_column,
         peptide=peptide_column,
+        modified_peptide=modified_peptide_column,
         charge=charge_column,
         score=score_column,
         q_value=q_value_column,
         protein_refs=protein_refs_column,
         decoy_label=decoy_label_column,
+        contaminant_label=contaminant_label_column,
         protein_separator=protein_separator,
     )
 
@@ -2501,11 +2507,14 @@ def psm_map_command(
 )
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default=None)
+@click.option("--modified-peptide-column", default=None)
 @click.option("--charge-column", default="charge", show_default=True)
 @click.option("--score-column", default="score", show_default=True)
 @click.option("--q-value-column", default="q_value", show_default=True)
 @click.option("--protein-refs-column", default="proteins", show_default=True)
 @click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
 @click.option("--protein-separator", default=";", show_default=True)
 @click.option("--decoy-prefix", default="DECOY_", show_default=True)
 @click.option("--decoy-suffix", default=None)
@@ -2525,11 +2534,14 @@ def psm_inspect_command(
     input_tsv: Path,
     spectrum_id_column: str,
     peptide_column: str,
+    run_id_column: str | None,
+    modified_peptide_column: str | None,
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
+    contaminant_label_column: str | None,
     protein_separator: str,
     decoy_prefix: str | None,
     decoy_suffix: str | None,
@@ -2541,13 +2553,16 @@ def psm_inspect_command(
     """Inspect a generic PSM TSV and emit normalized summaries."""
     try:
         mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
             spectrum_id_column=spectrum_id_column,
             peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
             protein_separator=protein_separator,
         )
         decoy_policy = _build_decoy_policy(
@@ -2600,11 +2615,14 @@ def psm_inspect_command(
 )
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default=None)
+@click.option("--modified-peptide-column", default=None)
 @click.option("--charge-column", default="charge", show_default=True)
 @click.option("--score-column", default="score", show_default=True)
 @click.option("--q-value-column", default="q_value", show_default=True)
 @click.option("--protein-refs-column", default="proteins", show_default=True)
 @click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
 @click.option("--protein-separator", default=";", show_default=True)
 @click.option("--decoy-prefix", default="DECOY_", show_default=True)
 @click.option("--decoy-suffix", default=None)
@@ -2632,11 +2650,14 @@ def fdr_command(
     score_orientation: str,
     spectrum_id_column: str,
     peptide_column: str,
+    run_id_column: str | None,
+    modified_peptide_column: str | None,
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
+    contaminant_label_column: str | None,
     protein_separator: str,
     decoy_prefix: str | None,
     decoy_suffix: str | None,
@@ -2650,13 +2671,16 @@ def fdr_command(
     """Apply basic target-decoy FDR and emit filtered PSM summaries."""
     try:
         mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
             spectrum_id_column=spectrum_id_column,
             peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
             protein_separator=protein_separator,
         )
         decoy_policy = _build_decoy_policy(
@@ -2773,13 +2797,16 @@ def infer_proteins_command(
     """Infer proteins, group evidence, and emit multi-level FDR artifacts."""
     try:
         mapping = _build_psm_mapping(
+            run_id_column=None,
             spectrum_id_column=spectrum_id_column,
             peptide_column=peptide_column,
+            modified_peptide_column=None,
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
+            contaminant_label_column=None,
             protein_separator=protein_separator,
         )
         decoy_policy = _build_decoy_policy(
