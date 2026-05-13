@@ -51,6 +51,7 @@ from bijux_proteomics.identification import (
     build_diann_import_report,
     build_fdr_audit_trail,
     build_fragpipe_import_report,
+    build_generic_psm_mapper_report,
     build_maxquant_import_report,
     build_openms_import_report,
     build_peptide_summary_report,
@@ -77,6 +78,7 @@ from bijux_proteomics.identification import (
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
     render_fragpipe_summary_tsv,
+    render_generic_psm_mapper_tsv,
     render_maxquant_evidence_tsv,
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
@@ -2437,6 +2439,60 @@ def modification_resolve_command(
         raise click.ClickException(str(exc)) from exc
 
     _emit_json(report.to_dict(), out_path=out_path)
+
+
+@cli.command("psm-map")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--mapping",
+    "mapping_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--normalized-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def psm_map_command(
+    input_tsv: Path,
+    mapping_path: Path,
+    normalized_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Map a lab-local PSM table through an explicit YAML or JSON column map."""
+    try:
+        report = build_generic_psm_mapper_report(
+            input_tsv,
+            mapping_path=mapping_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if normalized_tsv_out is not None:
+        _write_text_output(
+            normalized_tsv_out,
+            render_generic_psm_mapper_tsv(report.mapped_rows),
+        )
+
+    payload = {
+        "column_mapping": report.column_mapping.to_dict(),
+        "source_columns": list(report.source_columns),
+        "summary": report.summary.to_dict(),
+        "rejected_rows": [row.to_dict() for row in report.rejected_rows],
+        "mapped_rows": [row.to_dict() for row in report.mapped_rows],
+        "outputs": {
+            "normalized_tsv": None
+            if normalized_tsv_out is None
+            else str(normalized_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @cli.command("psm-inspect")
