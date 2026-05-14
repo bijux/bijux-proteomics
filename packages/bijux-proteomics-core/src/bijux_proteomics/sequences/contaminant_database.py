@@ -9,13 +9,12 @@ from collections import Counter
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.sequences.core import (
     FastaParseMode,
     NormalizedProteinRecord,
     parse_fasta_document,
 )
+from bijux_proteomics_foundation import JsonModel
 
 _CONTAMINANT_PREFIX = "CON__"
 _BUILTIN_CONTAMINANT_FASTA = """>sp|P02769|ALBU_BOVIN Serum albumin OS=Bos taurus GN=ALB
@@ -45,7 +44,9 @@ class ContaminantDatabaseBuildReport(JsonModel):
 
 def load_builtin_contaminant_records() -> tuple[NormalizedProteinRecord, ...]:
     """Return the built-in contaminant panel with explicit contaminant labels."""
-    report = parse_fasta_document(_BUILTIN_CONTAMINANT_FASTA, mode=FastaParseMode.STRICT)
+    report = parse_fasta_document(
+        _BUILTIN_CONTAMINANT_FASTA, mode=FastaParseMode.STRICT
+    )
     return relabel_contaminant_records(report.accepted_records)
 
 
@@ -94,7 +95,9 @@ def append_contaminant_database(
     """Append built-in and external contaminants while skipping duplicate accessions."""
     appended_builtin = load_builtin_contaminant_records() if include_builtin else ()
     appended_external = relabel_contaminant_records(external_contaminant_records)
-    existing_accessions = {_stable_record_accession(record) for record in target_records}
+    existing_accessions = {
+        _stable_record_accession(record) for record in target_records
+    }
     kept_contaminants: list[NormalizedProteinRecord] = []
     skipped_duplicate_count = 0
     builtin_kept = 0
@@ -117,7 +120,9 @@ def append_contaminant_database(
                 external_kept += 1
 
     output_records = tuple(target_records) + tuple(kept_contaminants)
-    namespace_counts = Counter(record.accession_namespace for record in kept_contaminants)
+    namespace_counts = Counter(
+        record.accession_namespace for record in kept_contaminants
+    )
     report = ContaminantDatabaseBuildReport(
         input_target_record_count=len(target_records),
         appended_builtin_record_count=builtin_kept,

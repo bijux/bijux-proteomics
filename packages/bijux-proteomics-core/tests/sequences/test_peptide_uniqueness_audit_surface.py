@@ -135,8 +135,7 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
     )
 
     target_sequences = {
-        peptide.sequence
-        for peptide in digest_protein_records(report.accepted_records)
+        peptide.sequence for peptide in digest_protein_records(report.accepted_records)
     }
     decoy_query = next(
         peptide.sequence
@@ -163,13 +162,17 @@ def test_build_peptide_database_lookup_report_tracks_groups_and_membership_class
 
     by_peptide = {entry.input_peptide: entry for entry in lookup.entries}
     shared_entry = by_peptide["SHADEQK"]
-    assert shared_entry.audit_class is PeptideUniquenessAuditClass.PROTEIN_GROUP_SPECIFIC
+    assert (
+        shared_entry.audit_class is PeptideUniquenessAuditClass.PROTEIN_GROUP_SPECIFIC
+    )
     assert shared_entry.protein_groups == ("GROUP_SHARED",)
     assert shared_entry.protein_group_count == 1
     assert shared_entry.database_membership is PeptideDatabaseMembership.TARGET
     assert shared_entry.protein_accessions == ("P20001", "P20002")
 
-    assert by_peptide[decoy_query].database_membership is PeptideDatabaseMembership.DECOY
+    assert (
+        by_peptide[decoy_query].database_membership is PeptideDatabaseMembership.DECOY
+    )
     assert by_peptide[contaminant_query].database_membership is (
         PeptideDatabaseMembership.CONTAMINANT
     )

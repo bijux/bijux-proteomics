@@ -453,7 +453,8 @@ def parse_fasta_document(
     raw_records = _parse_raw_fasta_records(payload)
     duplicates = _duplicate_identifiers(record.identifier for record in raw_records)
     duplicate_accessions = _duplicate_accessions(
-        _stable_accession_key_from_identifier(record.identifier) for record in raw_records
+        _stable_accession_key_from_identifier(record.identifier)
+        for record in raw_records
     )
     seen_identifiers: set[str] = set()
     seen_accessions: set[str] = set()
@@ -705,7 +706,9 @@ def build_fasta_stats(
     )
     duplicate_accession_count = sum(
         count - 1
-        for count in Counter(_stable_record_accession(record) for record in records).values()
+        for count in Counter(
+            _stable_record_accession(record) for record in records
+        ).values()
         if count > 1
     )
     duplicate_sequence_count = sum(
@@ -766,9 +769,7 @@ def _stable_record_accession(record: NormalizedProteinRecord) -> str:
     return f"{record.accession_namespace}:{record.canonical_accession}-{record.isoform}"
 
 
-def _stable_generated_accession(
-    record: NormalizedProteinRecord, *, prefix: str
-) -> str:
+def _stable_generated_accession(record: NormalizedProteinRecord, *, prefix: str) -> str:
     accession = f"{prefix}{record.canonical_accession}"
     if record.isoform is None:
         return f"{record.accession_namespace}:{accession}"
@@ -946,9 +947,7 @@ def build_decoy_generation_report(
     seed: int,
 ) -> DecoyGenerationReport:
     """Summarize decoy-generation outcomes and sequence-level caveats."""
-    target_sequence_checksums = {
-        record.sequence_checksum for record in input_records
-    }
+    target_sequence_checksums = {record.sequence_checksum for record in input_records}
     unchanged_sequence_accessions = tuple(
         sorted(
             decoy.canonical_accession

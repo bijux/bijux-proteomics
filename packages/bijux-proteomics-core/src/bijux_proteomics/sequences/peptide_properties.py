@@ -125,7 +125,9 @@ def build_peptide_property_report(
         protease=protease_rule.name,
         charge=charge,
         length=len(parsed.sequence),
-        monoisotopic_mass=calculate_monoisotopic_peptide_mass(parsed, registry=registry),
+        monoisotopic_mass=calculate_monoisotopic_peptide_mass(
+            parsed, registry=registry
+        ),
         average_mass=calculate_average_peptide_mass(parsed, registry=registry),
         mz_monoisotopic=calculate_peptide_mz(parsed, charge=charge, registry=registry),
         missed_cleavages=missed_cleavages,
@@ -133,6 +135,8 @@ def build_peptide_property_report(
         problem_flags=problem_flags,
         flagged_problematic=bool(problem_flags),
     )
+
+
 def _build_problem_flags(
     *,
     sequence: str,

@@ -134,11 +134,11 @@ def test_digest_sequence_preserves_edge_case_regressions() -> None:
 
 def test_digest_sequence_supports_curated_custom_n_terminal_rule() -> None:
     peptides = digest_sequence(
-        "MAEADAA",
+        "MAEADAK",
         protease=parse_custom_protease_rule("before=D;block_previous=P", name="acidic"),
     )
 
-    assert [peptide.sequence for peptide in peptides] == ["MAEA", "DAA"]
+    assert [peptide.sequence for peptide in peptides] == ["MAEA", "DAK"]
 
 
 def test_filter_digested_peptides_supports_length_bounds() -> None:

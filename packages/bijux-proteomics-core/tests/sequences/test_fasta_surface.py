@@ -88,7 +88,10 @@ def test_parse_fasta_document_reports_empty_sequence_duplicate_accession_and_dat
     }
     assert rejected_by_identifier["P04637"] == {"duplicate_accession"}
     assert rejected_by_identifier["custom_empty"] == {"empty_sequence"}
-    assert rejected_by_identifier["custom_invalid"] == {"unsupported_residue", "invalid_character"}
+    assert rejected_by_identifier["custom_invalid"] == {
+        "unsupported_residue",
+        "invalid_character",
+    }
     assert report.database_composition.accepted_record_count == 6
     assert report.database_composition.target_count == 5
     assert report.database_composition.decoy_count == 1
@@ -460,7 +463,9 @@ def test_build_decoy_generation_report_flags_unchanged_shuffle_sequences() -> No
     assert generation_report.target_sequence_collision_count == 1
 
 
-def test_generate_decoy_records_rejects_prefix_collisions_with_existing_targets() -> None:
+def test_generate_decoy_records_rejects_prefix_collisions_with_existing_targets() -> (
+    None
+):
     report = parse_fasta_document(
         (
             ">target_one Alpha target [Homo sapiens]\nMPEPTIDE\n"
@@ -557,4 +562,6 @@ def test_generate_decoy_records_rejects_target_plus_decoy_input() -> None:
     )
 
     with pytest.raises(ValueError, match="requires target-only inputs"):
-        generate_decoy_records(report.accepted_records, mode=DecoyGenerationMode.REVERSE)
+        generate_decoy_records(
+            report.accepted_records, mode=DecoyGenerationMode.REVERSE
+        )

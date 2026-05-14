@@ -11,7 +11,9 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
+    DigestedPeptide,
     PeptideDigestionMode,
     PeptideProteinIndexEntry,
     PeptideUniqueness,
@@ -180,7 +182,7 @@ def build_peptide_uniqueness_audit_report(
 
 def build_peptide_database_lookup_report(
     peptides: Sequence[str],
-    records: Sequence[object],
+    records: Sequence[NormalizedProteinRecord],
     *,
     protease: ProteaseRule | str = "trypsin",
     missed_cleavages: int = 0,
@@ -189,7 +191,9 @@ def build_peptide_database_lookup_report(
     protein_group_by_accession: dict[str, str] | None = None,
 ) -> PeptideDatabaseLookupReport:
     """Build one peptide-to-protein lookup report over a digested database."""
-    protease_rule = get_protease_rule(protease) if isinstance(protease, str) else protease
+    protease_rule = (
+        get_protease_rule(protease) if isinstance(protease, str) else protease
+    )
     protein_group_by_accession = protein_group_by_accession or {}
     digested = digest_protein_records(
         tuple(records),
@@ -214,7 +218,7 @@ def build_peptide_database_lookup_report(
         protein_group_by_accession=protein_group_by_accession,
     )
     audit_by_sequence = {entry.sequence: entry for entry in audit_report.entries}
-    members_by_sequence: dict[str, list[object]] = {}
+    members_by_sequence: dict[str, list[DigestedPeptide]] = {}
     for peptide in normalized_peptides:
         members_by_sequence.setdefault(peptide.sequence, []).append(peptide)
     record_flags_by_accession = {
@@ -341,9 +345,9 @@ def build_peptide_database_lookup_report(
     )
 
 
-def _stable_record_accession(record: object) -> str:
-    accession = str(getattr(record, "canonical_accession"))
-    isoform = getattr(record, "isoform", None)
+def _stable_record_accession(record: NormalizedProteinRecord) -> str:
+    accession = record.canonical_accession
+    isoform = record.isoform
     if isinstance(isoform, int):
         return f"{accession}-{isoform}"
     return accession
@@ -359,7 +363,7 @@ def _normalize_lookup_sequence(
 
 
 def _classify_database_membership(
-    members: Sequence[object],
+    members: Sequence[DigestedPeptide],
     *,
     record_flags_by_accession: dict[str, tuple[bool, bool]],
 ) -> PeptideDatabaseMembership:
@@ -404,7 +408,9 @@ def _build_database_lookup_explanation(
     elif membership is PeptideDatabaseMembership.MIXED:
         notes.append("matches span target, decoy, or contaminant classes")
     if modification_stripped:
-        notes.append("modified query notation was reduced to the underlying residue sequence")
+        notes.append(
+            "modified query notation was reduced to the underlying residue sequence"
+        )
     if il_equivalence_applied:
         notes.append("I/L-equivalent lookup normalization was applied")
     return "; ".join(notes)

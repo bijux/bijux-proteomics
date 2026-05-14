@@ -5,18 +5,18 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 import csv
 from io import StringIO
 
 from pydantic import ConfigDict, Field
-
-from bijux_proteomics_foundation import JsonModel
 
 from bijux_proteomics.sequences.core import (
     NormalizedProteinRecord,
     RejectedFastaRecord,
     build_fasta_stats,
 )
+from bijux_proteomics_foundation import JsonModel
 
 _LENGTH_BINS: tuple[tuple[str, int, int | None], ...] = (
     ("1-99", 1, 99),
@@ -184,7 +184,13 @@ def render_fasta_profile_organism_distribution_tsv(
 ) -> str:
     """Render organism distribution rows as TSV."""
     return _render_tsv(
-        ("organism", "protein_count", "target_count", "decoy_count", "contaminant_count"),
+        (
+            "organism",
+            "protein_count",
+            "target_count",
+            "decoy_count",
+            "contaminant_count",
+        ),
         (
             (
                 row.organism,
@@ -244,7 +250,7 @@ def _build_organism_distribution(
 
 def _render_tsv(
     header: tuple[str, ...],
-    rows: tuple[tuple[object, ...], ...] | list[tuple[object, ...]] | object,
+    rows: Iterable[tuple[object, ...]],
 ) -> str:
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")

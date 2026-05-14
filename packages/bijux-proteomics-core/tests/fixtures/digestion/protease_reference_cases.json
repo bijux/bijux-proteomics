@@ -72,12 +72,12 @@
   },
   {
     "name": "aspn_reference",
-    "sequence": "MPEPDADAA",
+    "sequence": "MPEPDADAK",
     "protease": "aspn",
     "digestion_mode": "full",
     "expected_peptides": [
       "MPEPDA",
-      "DAA"
+      "DAK"
     ]
   },
   {

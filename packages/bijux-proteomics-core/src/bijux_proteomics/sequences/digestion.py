@@ -284,7 +284,8 @@ def resolve_protease_rule(
             str(custom_specification),
             name=custom_name,
         )
-    assert name is not None
+    if name is None:
+        raise ValueError("protease name must be provided when no custom rule is used")
     return get_protease_rule(name)
 
 
@@ -647,13 +648,11 @@ def export_peptides_fasta(peptides: tuple[DigestedPeptide, ...], path: Path) -> 
     for peptide in peptides:
         neutral_mass = _peptide_neutral_mass(peptide.sequence)
         lines.append(
-            (
-                f">{peptide.source_accession}|{peptide.start}-{peptide.end}"
-                f"|mc={peptide.missed_cleavages}"
-                f"|len={len(peptide.sequence)}"
-                f"|mass={neutral_mass:.5f}"
-                f"|protease={peptide.protease}"
-            )
+            f">{peptide.source_accession}|{peptide.start}-{peptide.end}"
+            f"|mc={peptide.missed_cleavages}"
+            f"|len={len(peptide.sequence)}"
+            f"|mass={neutral_mass:.5f}"
+            f"|protease={peptide.protease}"
         )
         lines.append(peptide.sequence)
     path.write_text("\n".join(lines) + ("\n" if lines else ""))
@@ -740,7 +739,9 @@ def export_peptide_protein_table_tsv(
                     peptide.source_accession,
                     peptide.source_identifier,
                     peptide.source_protein_family,
-                    "" if peptide.source_isoform is None else str(peptide.source_isoform),
+                    ""
+                    if peptide.source_isoform is None
+                    else str(peptide.source_isoform),
                     str(peptide.start),
                     str(peptide.end),
                     str(peptide.missed_cleavages),
