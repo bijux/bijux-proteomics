@@ -1,6 +1,11 @@
 PACKAGE_KIND ?= repository-python
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 API_MODE ?= freeze
+TEST_MAIN_ARGS ?= -m "not slow and not real_local and not api"
+TEST_E2E_ARGS ?= -m "e2e and not slow" --maxfail=1 -q
+TEST_REGRESSION_ARGS ?= -m "regression and not slow" --maxfail=1 -q
+TEST_EVALUATION_ARGS ?= -m "evaluation and not slow" --maxfail=1 -q
+TEST_REAL_LOCAL_ARGS ?= -m "real_local and not slow" -s -p no:cov
 ENABLE_MYPY ?= 1
 PYDOCSTYLE_ARGS ?= --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107,D202
 ENABLE_PYDOCSTYLE ?= 1
