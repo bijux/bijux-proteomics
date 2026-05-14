@@ -2,7 +2,7 @@
 # Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_line_counts
 
 [guard]
-max_total_init_line_count = 466
+max_total_init_line_count = 478
 max_total_top_level_python_module_count = 29
 
 [[package]]
@@ -78,41 +78,41 @@ public_symbol_count = 0
 [[package]]
 distribution_name = "proteomics-core"
 import_root = "proteomics_core"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 4
 public_symbol_count = 0
 
 [[package]]
 distribution_name = "proteomics-foundation"
 import_root = "proteomics_foundation"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 2
 public_symbol_count = 0
 
 [[package]]
 distribution_name = "proteomics-runtime"
 import_root = "proteomics_runtime"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 4
 public_symbol_count = 0
 
 [[package]]
 distribution_name = "proteomics-intelligence"
 import_root = "proteomics_intelligence"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 2
 public_symbol_count = 0
 
 [[package]]
 distribution_name = "proteomics-knowledge"
 import_root = "proteomics_knowledge"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 2
 public_symbol_count = 0
 
 [[package]]
 distribution_name = "proteomics-lab"
 import_root = "proteomics_lab"
-init_line_count = 39
+init_line_count = 41
 top_level_python_module_count = 2
 public_symbol_count = 0

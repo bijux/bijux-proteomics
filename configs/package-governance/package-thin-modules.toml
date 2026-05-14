@@ -896,7 +896,7 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics"
 module_path = "packages/proteomics/src/proteomics/cli.py"
-nonempty_line_count = 12
+nonempty_line_count = 16
 public_function_count = 1
 public_class_count = 0
 
@@ -910,7 +910,7 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics-core"
 module_path = "packages/proteomics-core/src/proteomics_core/cli.py"
-nonempty_line_count = 12
+nonempty_line_count = 16
 public_function_count = 1
 public_class_count = 0
 
@@ -924,6 +924,6 @@ public_class_count = 0
 [[module]]
 distribution_name = "proteomics-runtime"
 module_path = "packages/proteomics-runtime/src/proteomics_runtime/cli.py"
-nonempty_line_count = 12
+nonempty_line_count = 16
 public_function_count = 1
 public_class_count = 0
