@@ -14,6 +14,7 @@ from bijux_proteomics.chemistry.contracts import (
     ModificationRegistryDocument,
     StaticModification,
     VariableModification,
+    _BaseModification,
     get_modification,
     modification_registry,
 )
@@ -125,8 +126,8 @@ def _classify_resolution_source(
 
 
 def _same_definition(
-    left: StaticModification | VariableModification,
-    right: StaticModification | VariableModification,
+    left: _BaseModification,
+    right: _BaseModification,
 ) -> bool:
     return (
         left.name == right.name

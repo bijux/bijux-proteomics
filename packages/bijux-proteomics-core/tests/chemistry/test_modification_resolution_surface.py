@@ -4,8 +4,8 @@
 from __future__ import annotations
 
 from bijux_proteomics.chemistry import (
-    ModificationResolutionSource,
     ModificationPosition,
+    ModificationResolutionSource,
     VariableModification,
     build_modification_registry,
     build_modification_resolution_report,
