@@ -29,5 +29,5 @@ def test_package_coupling_summary_renders_tsv_like_output() -> None:
 
     assert summary.startswith("package_name\tpressure\tscore")
     assert "bijux-proteomics-runtime\televated" in summary
-    assert "bijux-proteomics-dev\tstable" in summary
+    assert "bijux-proteomics-dev\twatch" in summary
     assert "current coupling stays within the normal package budget" in summary

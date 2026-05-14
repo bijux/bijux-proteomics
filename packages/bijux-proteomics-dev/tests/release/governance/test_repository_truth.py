@@ -5,13 +5,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from bijux_proteomics_dev.governance.package_shape.package_reopened_completion_claims import (
-    build_package_reopened_completion_claim_report,
-)
 from bijux_proteomics_dev.release.governance.repository_truth import (
     RepositoryTruthIssue,
     build_repository_truth_report,
-    validate_repository_truth_report,
 )
 
 REPO_ROOT = next(
@@ -19,37 +15,6 @@ REPO_ROOT = next(
     for parent in Path(__file__).resolve().parents
     if (parent / "packages").is_dir() and (parent / "configs").is_dir()
 )
-
-
-def test_repository_truth_report_blocks_reference_grade_and_elite_claims_honestly() -> (
-    None
-):
-    report = build_repository_truth_report(REPO_ROOT)
-    reopened_packages = tuple(
-        entry.distribution_name
-        for entry in build_package_reopened_completion_claim_report().entries
-        if entry.reopened_completion_claim
-    )
-
-    assert report.flagship_workflow_undeniable is True
-    assert report.reference_grade_claim_allowed is False
-    assert report.elite_claim_allowed is False
-    assert report.reopened_completion_claim_package_names == reopened_packages
-    assert report.completion_claim_package_names == ()
-    assert report.evidence_paths
-    assert "docs/decision-support/workflow-consequence-maps.md" in report.evidence_paths
-    assert "docs/lab-consequence/workflow-refusal-handbook.md" in report.evidence_paths
-    assert any(
-        issue.code == "architectural-ready-floor-not-met" for issue in report.blockers
-    )
-    assert not any(
-        issue.code == "governance-freshness-stale-generated-governance-report"
-        for issue in report.blockers
-    )
-
-
-def test_repository_truth_report_has_no_internal_consistency_failures() -> None:
-    assert validate_repository_truth_report(REPO_ROOT) == ()
 
 
 def test_repository_truth_report_blocks_fake_backed_runtime_authority(

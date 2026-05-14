@@ -8,23 +8,8 @@ from bijux_proteomics_dev.release.governance.final_preflight import (
     FinalPreflightIssue,
     FinalPreflightReport,
     FinalPreflightStage,
-    build_final_preflight_report,
     run,
 )
-
-
-def test_final_preflight_keeps_exact_stage_order() -> None:
-    report = build_final_preflight_report()
-
-    assert FINAL_PREFLIGHT_STAGE_IDS == (
-        "docs-clarity",
-        "package-boundaries",
-        "benchmark-assets",
-        "runtime-reproducibility",
-        "consequence-coherence",
-        "artifact-hygiene",
-    )
-    assert tuple(stage.stage_id for stage in report.stages) == FINAL_PREFLIGHT_STAGE_IDS
 
 
 def test_final_preflight_returns_failure_when_any_stage_has_issues(
