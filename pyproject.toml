@@ -55,7 +55,7 @@ dev = [
   "pyfakefs>=5.9.0",
   "httpx>=0.27.0,<1.0",
   "ruff>=0.6.8,<1.0",
-  "mypy>=1.11.2,<2.0",
+  "mypy>=1.11.2,<3.0",
   "pytype>=2024.10.11",
   "codespell>=2.3.0,<3.0",
   "pydocstyle>=6.2.1,<7.0",
@@ -87,11 +87,11 @@ local-rosettafold = [
   "torch>=2.8",
 ]
 nl = [
-  "langchain-core>=1.2.22",
+  "langchain-core>=1.3.3",
   "langchain-community>=0.3.27",
   "langchain-huggingface>=1.2.1",
   "langchain-text-splitters>=1.1.2",
-  "langsmith>=0.7.31",
+  "langsmith>=0.8.0",
 ]
 api = [
   "openprotein-python>=0.8.8",
