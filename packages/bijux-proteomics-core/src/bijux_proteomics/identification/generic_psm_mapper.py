@@ -8,8 +8,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import yaml
 from pydantic import ConfigDict, Field
+import yaml
 
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
@@ -140,7 +140,9 @@ def build_generic_psm_mapper_report(
         column_mapping=column_mapping,
     )
     unmapped_source_columns = tuple(
-        sorted(set(normalization.source_columns) - _mapped_source_columns(column_mapping))
+        sorted(
+            set(normalization.source_columns) - _mapped_source_columns(column_mapping)
+        )
     )
     summary = GenericPsmMapperSummary(
         total_rows=normalization.parse_report.total_rows,

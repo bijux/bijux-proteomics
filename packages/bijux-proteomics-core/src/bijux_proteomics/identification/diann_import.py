@@ -10,8 +10,6 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia import DiaNnImportReport, DiaNnImportRow, import_dia_nn_rows
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
@@ -20,6 +18,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class DiaNnPrecursorReviewEntry(JsonModel):
@@ -137,10 +136,14 @@ def build_diann_import_report(
             1 for row in precursor_rows if row.protein_group_quantity is not None
         ),
         target_precursor_count=sum(
-            1 for row in precursor_rows if row.target_decoy_label is TargetDecoyLabel.TARGET
+            1
+            for row in precursor_rows
+            if row.target_decoy_label is TargetDecoyLabel.TARGET
         ),
         decoy_precursor_count=sum(
-            1 for row in precursor_rows if row.target_decoy_label is TargetDecoyLabel.DECOY
+            1
+            for row in precursor_rows
+            if row.target_decoy_label is TargetDecoyLabel.DECOY
         ),
         run_names=run_names,
         sample_names=sample_names,
@@ -186,9 +189,7 @@ def render_diann_summary_tsv(summary: DiaNnImportSummary) -> str:
     return "\t".join(header) + "\n" + "\t".join(row) + "\n"
 
 
-def render_diann_precursor_tsv(
-    rows: tuple[DiaNnPrecursorReviewEntry, ...]
-) -> str:
+def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> str:
     """Render reviewer-facing DIA-NN precursor rows as TSV."""
     lines = [
         "\t".join(
@@ -221,7 +222,9 @@ def render_diann_precursor_tsv(
                     ";".join(row.protein_refs),
                     row.run_name,
                     row.sample_name,
-                    "" if row.precursor_quantity is None else f"{row.precursor_quantity:.6g}",
+                    ""
+                    if row.precursor_quantity is None
+                    else f"{row.precursor_quantity:.6g}",
                     ""
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
@@ -233,7 +236,7 @@ def render_diann_precursor_tsv(
 
 
 def render_diann_protein_group_tsv(
-    rows: tuple[DiaNnProteinGroupReviewEntry, ...]
+    rows: tuple[DiaNnProteinGroupReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing DIA-NN protein-group rows as TSV."""
     lines = [
@@ -306,16 +309,22 @@ def _build_diann_protein_group_rows(
 ) -> tuple[DiaNnProteinGroupReviewEntry, ...]:
     grouped: dict[tuple[str, str, str], list[DiaNnPrecursorReviewEntry]] = {}
     for row in precursor_rows:
-        grouped.setdefault((row.protein_group_id, row.run_name, row.sample_name), []).append(
-            row
-        )
+        grouped.setdefault(
+            (row.protein_group_id, row.run_name, row.sample_name), []
+        ).append(row)
     rows: list[DiaNnProteinGroupReviewEntry] = []
     for (protein_group_id, run_name, sample_name), entries in sorted(grouped.items()):
         protein_refs = tuple(
-            sorted({protein_ref for entry in entries for protein_ref in entry.protein_refs})
+            sorted(
+                {protein_ref for entry in entries for protein_ref in entry.protein_refs}
+            )
         )
         quantity = next(
-            (entry.protein_group_quantity for entry in entries if entry.protein_group_quantity is not None),
+            (
+                entry.protein_group_quantity
+                for entry in entries
+                if entry.protein_group_quantity is not None
+            ),
             None,
         )
         rows.append(

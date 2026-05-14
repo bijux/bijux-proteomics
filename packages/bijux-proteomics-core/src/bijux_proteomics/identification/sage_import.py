@@ -14,8 +14,6 @@ from bijux_proteomics.chemistry.search_engine_modified_peptides import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
@@ -24,6 +22,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class SagePsmReviewEntry(JsonModel):

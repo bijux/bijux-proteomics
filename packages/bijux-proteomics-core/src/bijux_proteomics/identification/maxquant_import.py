@@ -14,8 +14,6 @@ from bijux_proteomics.chemistry.search_engine_modified_peptides import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -28,7 +26,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
-
+from bijux_proteomics_foundation import JsonModel
 
 _MAXQUANT_DECOY_POLICY = TargetDecoyLabelPolicy(
     protein_prefix="REV__",
@@ -104,7 +102,9 @@ class MaxquantProteinGroupReviewEntry(JsonModel):
     reverse_flag: bool = False
     contaminant_flag: bool = False
     only_identified_by_site: bool = False
-    lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(default_factory=tuple)
+    lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(
+        default_factory=tuple
+    )
 
 
 class MaxquantImportSummary(JsonModel):
@@ -136,7 +136,9 @@ class MaxquantImportReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     evidence_normalization: SearchAdapterNormalizationReport
-    evidence_rows: tuple[MaxquantEvidenceReviewEntry, ...] = Field(default_factory=tuple)
+    evidence_rows: tuple[MaxquantEvidenceReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
     peptide_rows: tuple[MaxquantPeptideReviewEntry, ...] = Field(default_factory=tuple)
     protein_group_rows: tuple[MaxquantProteinGroupReviewEntry, ...] = Field(
         default_factory=tuple
@@ -185,15 +187,21 @@ def build_maxquant_import_report(
         rejected_evidence_count=len(evidence_normalization.parse_report.rejected_rows),
         peptide_row_count=len(peptide_rows),
         protein_group_row_count=len(protein_group_rows),
-        modified_evidence_count=sum(1 for row in evidence_rows if row.modification_count > 0),
+        modified_evidence_count=sum(
+            1 for row in evidence_rows if row.modification_count > 0
+        ),
         modified_peptide_row_count=sum(
             1 for row in peptide_rows if row.modification_count > 0
         ),
         experiment_count=len(experiment_names),
         lfq_experiment_count=len(lfq_experiment_names),
-        contaminant_evidence_count=sum(1 for row in evidence_rows if row.contaminant_flag),
+        contaminant_evidence_count=sum(
+            1 for row in evidence_rows if row.contaminant_flag
+        ),
         reverse_evidence_count=sum(1 for row in evidence_rows if row.reverse_flag),
-        contaminant_peptide_count=sum(1 for row in peptide_rows if row.contaminant_flag),
+        contaminant_peptide_count=sum(
+            1 for row in peptide_rows if row.contaminant_flag
+        ),
         reverse_peptide_count=sum(1 for row in peptide_rows if row.reverse_flag),
         contaminant_protein_group_count=sum(
             1 for row in protein_group_rows if row.contaminant_flag
@@ -350,7 +358,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
 
 
 def render_maxquant_protein_group_tsv(
-    rows: tuple[MaxquantProteinGroupReviewEntry, ...]
+    rows: tuple[MaxquantProteinGroupReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing MaxQuant protein-group rows as TSV."""
     lines = [
@@ -478,7 +486,9 @@ def _parse_maxquant_peptide_table(
                     residue_sequence=residue_sequence,
                     canonical_modified_peptide=canonical_modified_peptide,
                     modification_count=modification_count,
-                    leading_razor_protein=_optional_text(raw_row.get("Leading razor protein")),
+                    leading_razor_protein=_optional_text(
+                        raw_row.get("Leading razor protein")
+                    ),
                     protein_refs=protein_refs,
                     score=_optional_float(raw_row.get("Score")),
                     posterior_error_probability=_optional_float(raw_row.get("PEP")),
@@ -549,7 +559,9 @@ def _parse_maxquant_protein_groups_table(
                     ),
                     reverse_flag=reverse_flag,
                     contaminant_flag=_flagged(raw_row.get("Potential contaminant")),
-                    only_identified_by_site=_flagged(raw_row.get("Only identified by site")),
+                    only_identified_by_site=_flagged(
+                        raw_row.get("Only identified by site")
+                    ),
                     lfq_intensities=lfq_intensities,
                 )
             )

@@ -1458,7 +1458,9 @@ def _parse_psm_row(
                     raise ValueError
             except ValueError:
                 issues.append(
-                    _row_issue("invalid_intensity", "invalid intensity value", row_number)
+                    _row_issue(
+                        "invalid_intensity", "invalid intensity value", row_number
+                    )
                 )
 
     q_value: float | None = None
@@ -1479,7 +1481,9 @@ def _parse_psm_row(
         mapping.protein_separator,
     )
     explicit_label = row.get(mapping.decoy_label) if mapping.decoy_label else None
-    contaminant_flag = any(protein_ref.startswith("CON__") for protein_ref in protein_refs)
+    contaminant_flag = any(
+        protein_ref.startswith("CON__") for protein_ref in protein_refs
+    )
     if mapping.contaminant_label:
         try:
             explicit_contaminant = _parse_contaminant_label(

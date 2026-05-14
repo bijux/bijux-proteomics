@@ -7,16 +7,14 @@ from __future__ import annotations
 
 from enum import StrEnum
 from pathlib import Path
-import xml.etree.ElementTree as ET
 
+from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry.search_engine_modified_peptides import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
@@ -25,6 +23,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class CometImportKind(StrEnum):
@@ -205,7 +204,9 @@ def _build_summary(
         modified_psm_count=sum(1 for row in rows if row.modification_count > 0),
         xcorr_psm_count=sum(1 for row in rows if row.xcorr is not None),
         delta_cn_psm_count=sum(1 for row in rows if row.delta_cn is not None),
-        expectation_value_psm_count=sum(1 for row in rows if row.expectation_value >= 0.0),
+        expectation_value_psm_count=sum(
+            1 for row in rows if row.expectation_value >= 0.0
+        ),
         multi_protein_psm_count=sum(1 for row in rows if len(row.protein_refs) > 1),
         target_psm_count=sum(
             1 for row in rows if row.target_decoy_label is TargetDecoyLabel.TARGET
@@ -259,6 +260,8 @@ def _build_tabular_rows(
 
 def _parse_comet_pepxml(path: Path) -> tuple[CometPsmReviewEntry, ...]:
     root = ET.parse(path).getroot()
+    if root is None:
+        raise ValueError(f"empty pepXML document {path}")
     rows: list[CometPsmReviewEntry] = []
     for query in root.findall(".//{*}spectrum_query"):
         spectrum_id = query.attrib.get("spectrum")
@@ -293,7 +296,7 @@ def _parse_comet_pepxml(path: Path) -> tuple[CometPsmReviewEntry, ...]:
                     canonical_peptide=peptide_report.canonical_notation,
                     modification_count=len(peptide_report.modifications),
                     charge=assumed_charge,
-                    expectation_value=float(score_map.get("expect", "0")),
+                    expectation_value=_optional_float(score_map.get("expect")) or 0.0,
                     xcorr=_optional_float(score_map.get("xcorr")),
                     delta_cn=_optional_float(score_map.get("deltacn")),
                     sp_score=_optional_float(score_map.get("spscore")),

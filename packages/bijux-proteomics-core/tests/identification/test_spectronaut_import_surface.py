@@ -22,7 +22,9 @@ def _bundle_root() -> Path:
     )
 
 
-def test_spectronaut_import_preserves_samples_quantities_and_modified_peptides() -> None:
+def test_spectronaut_import_preserves_samples_quantities_and_modified_peptides() -> (
+    None
+):
     root = _bundle_root()
 
     report = build_spectronaut_import_report(

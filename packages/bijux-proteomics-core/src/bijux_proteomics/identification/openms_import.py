@@ -116,7 +116,10 @@ def build_openms_import_report(
     """Import one OpenMS identification bundle with practical exported features."""
     psm_rows, protein_rows = _parse_openms_idxml(idxml_path)
     feature_report = _parse_openms_feature_table(feature_table_path)
-    feature_rows = tuple(_build_feature_review_entry(record) for record in feature_report.accepted_records)
+    feature_rows = tuple(
+        _build_feature_review_entry(record)
+        for record in feature_report.accepted_records
+    )
     feature_samples = tuple(sorted({row.sample_id for row in feature_rows}))
     summary = OpenMsImportSummary(
         accepted_psm_count=len(psm_rows),
@@ -310,7 +313,10 @@ def _parse_openms_idxml(
     protein_rows: list[OpenMsProteinReviewEntry] = []
     protein_run_ids: list[str] = []
     for protein_identification in root.findall(".//{*}ProteinIdentification"):
-        run_id = protein_identification.attrib.get("id", "openms-run").strip() or "openms-run"
+        run_id = (
+            protein_identification.attrib.get("id", "openms-run").strip()
+            or "openms-run"
+        )
         protein_run_ids.append(run_id)
         score_type = protein_identification.attrib.get("score_type", "")
         for protein_hit in protein_identification.findall("{*}ProteinHit"):
@@ -336,14 +342,18 @@ def _parse_openms_idxml(
             )
 
     psm_rows: list[OpenMsPsmReviewEntry] = []
-    default_run_id = protein_run_ids[0] if len(set(protein_run_ids)) == 1 else "openms-run"
+    default_run_id = (
+        protein_run_ids[0] if len(set(protein_run_ids)) == 1 else "openms-run"
+    )
     for peptide_identification in root.findall(".//{*}PeptideIdentification"):
         run_id = (
             peptide_identification.attrib.get("protein_identification_ref")
             or peptide_identification.attrib.get("protein_ref")
             or default_run_id
         ).strip() or default_run_id
-        spectrum_id = peptide_identification.attrib.get("spectrum_reference", "").strip()
+        spectrum_id = peptide_identification.attrib.get(
+            "spectrum_reference", ""
+        ).strip()
         rt = _optional_float(peptide_identification.attrib.get("RT"))
         mz = _optional_float(peptide_identification.attrib.get("MZ"))
         score_type = peptide_identification.attrib.get("score_type", "")
@@ -434,7 +444,9 @@ def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReview
 
 def _protein_label(accession: str) -> TargetDecoyLabel:
     return (
-        TargetDecoyLabel.DECOY if accession.startswith("DECOY_") else TargetDecoyLabel.TARGET
+        TargetDecoyLabel.DECOY
+        if accession.startswith("DECOY_")
+        else TargetDecoyLabel.TARGET
     )
 
 
@@ -453,10 +465,14 @@ def _required_float(value: str | None, *, context: str) -> float:
 
 def _required_charge(value: str | None, *, sequence: str) -> int:
     if value is None or not value.strip():
-        raise ValueError(f"OpenMS import requires a positive peptide charge for {sequence}")
+        raise ValueError(
+            f"OpenMS import requires a positive peptide charge for {sequence}"
+        )
     charge = int(value.strip())
     if charge < 1:
-        raise ValueError(f"OpenMS import requires a positive peptide charge for {sequence}")
+        raise ValueError(
+            f"OpenMS import requires a positive peptide charge for {sequence}"
+        )
     return charge
 
 
@@ -475,7 +491,9 @@ def _reported_q_value(
 
 
 def _is_q_value_score_type(score_type: str) -> bool:
-    normalized = score_type.strip().lower().replace("-", "").replace("_", "").replace(" ", "")
+    normalized = (
+        score_type.strip().lower().replace("-", "").replace("_", "").replace(" ", "")
+    )
     return normalized in {"qvalue"}
 
 

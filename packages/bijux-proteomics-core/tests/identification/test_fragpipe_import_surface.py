@@ -52,13 +52,9 @@ def test_fragpipe_import_report_preserves_bundle_tables_and_open_search_state() 
     assert report.psm_rows[0].canonical_modified_peptide == "PEP[+15.994915]TIDE"
     assert report.psm_rows[1].open_search_candidate is True
     assert report.psm_rows[1].mass_difference == 42.0106
-    assert report.peptide_rows[1].mapped_protein_refs == (
-        "sp|P34567|TRANSFER_MOUSE",
-    )
+    assert report.peptide_rows[1].mapped_protein_refs == ("sp|P34567|TRANSFER_MOUSE",)
     assert report.protein_rows[-1].target_decoy_label.value == "target"
-    assert any(
-        row.target_decoy_label.value == "decoy" for row in report.protein_rows
-    )
+    assert any(row.target_decoy_label.value == "decoy" for row in report.protein_rows)
 
     assert "accepted_psm_count" in render_fragpipe_summary_tsv(report.summary)
     assert "canonical_modified_peptide" in render_fragpipe_psm_tsv(report.psm_rows)
@@ -76,4 +72,6 @@ def test_fragpipe_psm_dialect_normalizes_realistic_psm_exports() -> None:
     assert report.adapter_manifest.display_name == "FragPipe psm export"
     assert report.normalized_records[0].canonical_peptide == "PEPTIDE"
     assert report.normalized_records[0].q_value == 0.002
-    assert report.evidence_rows[0].raw_fields["Modified Peptide"] == "PEP[+15.994915]TIDE"
+    assert (
+        report.evidence_rows[0].raw_fields["Modified Peptide"] == "PEP[+15.994915]TIDE"
+    )

@@ -22,8 +22,12 @@ def _fixture(name: str) -> Path:
 
 
 def test_generic_psm_mapper_loads_yaml_and_json_column_maps() -> None:
-    json_mapping = load_generic_psm_table_mapping(_fixture("generic_mapper_mapping.json"))
-    yaml_mapping = load_generic_psm_table_mapping(_fixture("generic_mapper_mapping.yaml"))
+    json_mapping = load_generic_psm_table_mapping(
+        _fixture("generic_mapper_mapping.json")
+    )
+    yaml_mapping = load_generic_psm_table_mapping(
+        _fixture("generic_mapper_mapping.yaml")
+    )
 
     assert json_mapping == yaml_mapping
     assert json_mapping.run_id == "run_name"

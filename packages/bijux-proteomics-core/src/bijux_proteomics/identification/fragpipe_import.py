@@ -14,8 +14,6 @@ from bijux_proteomics.chemistry.search_engine_modified_peptides import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
-from bijux_proteomics_foundation import JsonModel
-
 from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -26,6 +24,7 @@ from bijux_proteomics.identification.search_adapters import (
     SearchAdapterNormalizationReport,
     normalize_search_results_with_adapter,
 )
+from bijux_proteomics_foundation import JsonModel
 
 
 class FragpipePsmReviewEntry(JsonModel):
@@ -130,7 +129,9 @@ def build_fragpipe_import_report(
     """Import one FragPipe result bundle with explicit table preservation."""
     if open_search_mass_tolerance < 0:
         raise ValueError("open_search_mass_tolerance must be non-negative")
-    active_decoy_policy = decoy_policy or TargetDecoyLabelPolicy(protein_prefix="DECOY_")
+    active_decoy_policy = decoy_policy or TargetDecoyLabelPolicy(
+        protein_prefix="DECOY_"
+    )
     psm_normalization = normalize_search_results_with_adapter(
         source_path=psm_tsv_path,
         adapter_kind=SearchAdapterKind.MSFRAGGER,
@@ -171,10 +172,14 @@ def build_fragpipe_import_report(
         q_value_peptide_count=sum(1 for row in peptide_rows if row.q_value is not None),
         mapped_protein_count=len(protein_refs),
         target_protein_count=sum(
-            1 for row in protein_rows if row.target_decoy_label is TargetDecoyLabel.TARGET
+            1
+            for row in protein_rows
+            if row.target_decoy_label is TargetDecoyLabel.TARGET
         ),
         decoy_protein_count=sum(
-            1 for row in protein_rows if row.target_decoy_label is TargetDecoyLabel.DECOY
+            1
+            for row in protein_rows
+            if row.target_decoy_label is TargetDecoyLabel.DECOY
         ),
     )
     return FragpipeImportReport(
@@ -339,7 +344,9 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
                     row.entry_name or "",
                     row.gene_name or "",
                     row.description or "",
-                    "" if row.coverage_fraction is None else f"{row.coverage_fraction:.6g}",
+                    ""
+                    if row.coverage_fraction is None
+                    else f"{row.coverage_fraction:.6g}",
                     "" if row.total_peptides is None else str(row.total_peptides),
                     "" if row.unique_peptides is None else str(row.unique_peptides),
                     "" if row.spectral_count is None else str(row.spectral_count),
@@ -357,12 +364,15 @@ def _build_fragpipe_psm_rows(
     open_search_mass_tolerance: float,
 ) -> tuple[FragpipePsmReviewEntry, ...]:
     accepted_rows = tuple(
-        row for row in normalization_report.evidence_rows if row.accepted and row.normalized_record
+        row
+        for row in normalization_report.evidence_rows
+        if row.accepted and row.normalized_record
     )
     rows: list[FragpipePsmReviewEntry] = []
     for row in accepted_rows:
         record = row.normalized_record
-        assert record is not None
+        if record is None:
+            continue
         raw = row.raw_fields
         modified_peptide = raw.get("Modified Peptide", "").strip() or None
         canonical_modified = _canonical_modified_peptide(modified_peptide)
@@ -555,7 +565,9 @@ def _optional_text(value: object) -> str | None:
     return text or None
 
 
-def _is_open_search_candidate(mass_difference: float | None, *, tolerance: float) -> bool:
+def _is_open_search_candidate(
+    mass_difference: float | None, *, tolerance: float
+) -> bool:
     if mass_difference is None:
         return False
     return abs(mass_difference) > tolerance

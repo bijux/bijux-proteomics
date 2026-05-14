@@ -134,10 +134,14 @@ def build_spectronaut_import_report(
             1 for row in precursor_rows if row.protein_group_quantity is not None
         ),
         target_precursor_count=sum(
-            1 for row in precursor_rows if row.target_decoy_label is TargetDecoyLabel.TARGET
+            1
+            for row in precursor_rows
+            if row.target_decoy_label is TargetDecoyLabel.TARGET
         ),
         decoy_precursor_count=sum(
-            1 for row in precursor_rows if row.target_decoy_label is TargetDecoyLabel.DECOY
+            1
+            for row in precursor_rows
+            if row.target_decoy_label is TargetDecoyLabel.DECOY
         ),
         sample_names=sample_names,
         run_names=run_names,
@@ -185,7 +189,7 @@ def render_spectronaut_summary_tsv(summary: SpectronautImportSummary) -> str:
 
 
 def render_spectronaut_precursor_tsv(
-    rows: tuple[SpectronautPrecursorReviewEntry, ...]
+    rows: tuple[SpectronautPrecursorReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing Spectronaut precursor rows as TSV."""
     lines = [
@@ -223,7 +227,9 @@ def render_spectronaut_precursor_tsv(
                     ";".join(row.protein_refs),
                     row.run_name,
                     row.sample_name,
-                    "" if row.precursor_quantity is None else f"{row.precursor_quantity:.6g}",
+                    ""
+                    if row.precursor_quantity is None
+                    else f"{row.precursor_quantity:.6g}",
                     ""
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
@@ -235,7 +241,7 @@ def render_spectronaut_precursor_tsv(
 
 
 def render_spectronaut_protein_group_tsv(
-    rows: tuple[SpectronautProteinGroupReviewEntry, ...]
+    rows: tuple[SpectronautProteinGroupReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing Spectronaut protein-group rows as TSV."""
     lines = [
@@ -301,7 +307,9 @@ def _build_spectronaut_precursor_rows(
                 target_decoy_label=record.target_decoy_label,
             )
         )
-    return tuple(sorted(rows, key=lambda row: (row.q_value, -row.cscore, row.precursor_id)))
+    return tuple(
+        sorted(rows, key=lambda row: (row.q_value, -row.cscore, row.precursor_id))
+    )
 
 
 def _build_spectronaut_protein_group_rows(
@@ -309,13 +317,15 @@ def _build_spectronaut_protein_group_rows(
 ) -> tuple[SpectronautProteinGroupReviewEntry, ...]:
     grouped: dict[tuple[str, str, str], list[SpectronautPrecursorReviewEntry]] = {}
     for row in precursor_rows:
-        grouped.setdefault((row.protein_group_id, row.run_name, row.sample_name), []).append(
-            row
-        )
+        grouped.setdefault(
+            (row.protein_group_id, row.run_name, row.sample_name), []
+        ).append(row)
     rows: list[SpectronautProteinGroupReviewEntry] = []
     for (protein_group_id, run_name, sample_name), entries in sorted(grouped.items()):
         protein_refs = tuple(
-            sorted({protein_ref for entry in entries for protein_ref in entry.protein_refs})
+            sorted(
+                {protein_ref for entry in entries for protein_ref in entry.protein_refs}
+            )
         )
         quantity = next(
             (
