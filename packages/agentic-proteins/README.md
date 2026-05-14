@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/agentic-proteins/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![agentic-proteins](https://img.shields.io/pypi/v/agentic-proteins?label=agentic--proteins&logo=pypi)](https://pypi.org/project/agentic-proteins/)
@@ -32,18 +32,21 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`agentic-proteins` is a strict compatibility package.
+`agentic-proteins` is a legacy compatibility bridge for runtime entrypoints and imports.
 
 Canonical runtime ownership is `bijux-proteomics-runtime`.
 
-This package keeps legacy import and CLI entrypoints available while forwarding
-all implementation surfaces to canonical packages.
+This package owns one thing: legacy compatibility routing for historical CLI,
+HTTP, agent, execution, provider, state, and tool entrypoints while all real
+behavior stays in canonical packages.
 
 ## Compatibility contract
 
-- forwards runtime surfaces to `bijux-proteomics-runtime`
-- forwards domain surfaces to canonical lower-layer packages
-- contains no canonical runtime or domain implementation
+- mirrors the canonical runtime root exports at `agentic_proteins`
+- forwards surviving bridge families to `bijux-proteomics-runtime`
+- forwards structure-report and lower scientific surfaces to canonical packages
+- keeps the historical submodule tree explicit so legacy imports stay
+  inspectable
 - exists to preserve migration safety for existing integrations
 
 ## Installation
@@ -54,6 +57,15 @@ pip install agentic-proteins
 
 ## Quick start
 
+For new workflow execution, start from the canonical runtime CLI:
+
+```bash
+bijux-proteomics-runtime --help
+```
+
+Use the compatibility CLI only when an existing integration still depends on
+the legacy command:
+
 ```bash
 agentic-proteins --help
 ```
@@ -61,12 +73,13 @@ agentic-proteins --help
 Prefer canonical imports for new integrations:
 
 ```python
-from bijux_proteomics_runtime.interfaces.cli import cli
+from bijux_proteomics_runtime.api.cli import cli
 ```
 
 Legacy imports continue to work via forwarding:
 
 ```python
+from agentic_proteins import cli
 from agentic_proteins.interfaces.cli import cli
 ```
 
@@ -74,12 +87,17 @@ from agentic_proteins.interfaces.cli import cli
 
 - Distribution name: `agentic-proteins`
 - Import root: `agentic_proteins`
-- Legacy CLI command: `agentic-proteins`
+- Legacy compatibility CLI command: `agentic-proteins`
 - Canonical replacement package: `bijux-proteomics-runtime`
 
 ## Package boundaries
 
 - this package owns compatibility routing only
+- the root import `agentic_proteins` mirrors canonical runtime root exports
+- this package keeps the durable bridge tree under `interfaces/`, `agents/`,
+  `orchestration/`, `providers/`, `state/`, and `tools/`
+- historical `execution/`, `agents/execution/`, and
+  `providers/experimental/` paths remain only as legacy aliases
 - canonical runtime behavior belongs in `bijux-proteomics-runtime`
 - canonical domain behavior belongs in the lower `bijux-proteomics-*` packages
 - new features should land in canonical packages before compat forwarding expands
@@ -150,5 +168,7 @@ from agentic_proteins.interfaces.cli import cli
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Canonical runtime package docs](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 - [Compatibility package docs](https://bijux.io/bijux-proteomics/02-agentic-proteins/)

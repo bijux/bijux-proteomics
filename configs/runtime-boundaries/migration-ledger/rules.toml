@@ -37,22 +37,28 @@ owner_package = "bijux-proteomics-runtime"
 reason = "Execution snapshots and runtime state persistence are runtime-owned concerns."
 
 [[rule]]
-pattern = "sandbox/**"
-bucket = "runtime_execution_ownership"
-owner_package = "bijux-proteomics-runtime"
-reason = "Execution sandboxing is runtime infrastructure ownership."
-
-[[rule]]
 pattern = "execution/runtime/**"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution runtime drivers are canonical runtime execution surfaces."
 
 [[rule]]
+pattern = "orchestration/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Orchestration bridge modules are the durable compat-owned route to canonical runtime run-control and execution surfaces."
+
+[[rule]]
 pattern = "execution/compiler/**"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"
 reason = "Execution boundary compilation belongs to runtime orchestration boundaries."
+
+[[rule]]
+pattern = "execution/*.py"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Execution bridge modules now forward directly to canonical runtime run-control and artifact surfaces."
 
 [[rule]]
 pattern = "execution/__init__.py"
@@ -173,6 +179,12 @@ pattern = "agents/execution/coordinator.py"
 bucket = "runtime_execution_ownership"
 owner_package = "bijux-proteomics-runtime"
 reason = "Coordinator agent execution now forwards directly to canonical runtime execution-agent implementations."
+
+[[rule]]
+pattern = "agents/coordination/**"
+bucket = "runtime_execution_ownership"
+owner_package = "bijux-proteomics-runtime"
+reason = "Coordination-agent bridge modules are the durable compat-owned route to canonical runtime agent coordination surfaces."
 
 [[rule]]
 pattern = "agents/planning/__init__.py"
@@ -387,26 +399,26 @@ reason = "Registry surfaces are runtime-support utilities pending explicit owner
 [[rule]]
 pattern = "report/__init__.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report package exports now forward directly to canonical intelligence reporting surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report package exports now forward directly to canonical core scientific report surfaces."
 
 [[rule]]
 pattern = "report/compute.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report computation now forwards directly to canonical intelligence scoring and summary surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report computation now forwards directly to canonical core scientific summary surfaces."
 
 [[rule]]
 pattern = "report/model.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report data modeling now forwards directly to canonical intelligence report schemas."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report data modeling now forwards directly to canonical core scientific report schemas."
 
 [[rule]]
 pattern = "report/render.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-intelligence"
-reason = "Report rendering now forwards directly to canonical intelligence presentation surfaces."
+owner_package = "bijux-proteomics-core"
+reason = "Structure report rendering now forwards directly to canonical core presentation surfaces."
 
 [[rule]]
 pattern = "report/**"
@@ -495,8 +507,8 @@ reason = "Candidate modeling, filtering, and selection are intelligence-layer ra
 [[rule]]
 pattern = "domain/confidence/**"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-knowledge"
-reason = "Confidence segmentation expresses evidence/trust semantics and belongs in knowledge ownership."
+owner_package = "bijux-proteomics-intelligence"
+reason = "Confidence segmentation now forwards directly to canonical intelligence confidence semantics."
 
 [[rule]]
 pattern = "domain/metrics/**"
@@ -519,5 +531,5 @@ reason = "Structure domain representations are canonical program-domain ownershi
 [[rule]]
 pattern = "domain/__init__.py"
 bucket = "domain_ownership"
-owner_package = "bijux-proteomics-core"
-reason = "Domain package aggregation belongs to canonical lower-layer domain ownership rather than runtime."
+owner_package = "bijux-proteomics-intelligence"
+reason = "Domain package aggregation now forwards directly to canonical intelligence domain ownership."

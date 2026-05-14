@@ -1,0 +1,36 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+  "challenge_id": "dia-library-dropout-perturbation",
+  "comparator_reaction": "collapses",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/evidence/perturbed_diann_report.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/evidence/perturbed_spectronaut_pipeline_export.tsv"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 1.0,
+      "delta": -1.0,
+      "interpretation": "The perturbed DIA corpus loses accepted precursor support and becomes less reviewable.",
+      "metric_id": "accepted_precursor_count",
+      "perturbed_value": 0.0
+    },
+    {
+      "baseline_value": 1.0,
+      "delta": -1.0,
+      "interpretation": "The comparator overlap shrinks when the perturbation removes library-conditioned peptide continuity.",
+      "metric_id": "shared_peptide_overlap",
+      "perturbed_value": 0.0
+    }
+  ],
+  "note": "This perturbation corpus worsens library-conditioned evidence enough to show where current DIA review posture collapses rather than merely weakens.",
+  "perturbation_axes": [
+    "accepted-precursor dropout",
+    "shared-peptide loss",
+    "library-conditioned comparator shrinkage"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "dia",
+  "workflow_reaction": "collapses"
+}

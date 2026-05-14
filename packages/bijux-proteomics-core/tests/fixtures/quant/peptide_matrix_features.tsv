@@ -1,0 +1,8 @@
+feature_id	sample_id	peptide	proteins	intensity	charge	mz	retention_time_seconds	missing_reason
+pmf001	S1	PEMTIDE	P001	1000	2	500.2	1200	""
+pmf002	S1	PEMTIDE	P001	200	2	500.3	1205	""
+pmf003	S1	PEMTIDE	P001	800	3	500.4	1210	""
+pmf004	S1	PEM[Oxidation]TIDE	P001	400	2	500.5	1215	""
+pmf005	S2	PEMTIDE	P001	1200	2	500.2	1220	""
+pmf006	S2	PEM[Oxidation]TIDE	P001		2	500.5	1225	filtered
+pmf007	S2	MISSPEP	P002		2	510.2	1230	""

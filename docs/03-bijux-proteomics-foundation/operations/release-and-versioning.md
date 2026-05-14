@@ -21,6 +21,6 @@ Release rules should explain what kind of change readers need to look for before
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/schema.py` and `migrations.py`
-- `src/bijux_proteomics_foundation/serialization.py`
+- `src/bijux_proteomics_foundation/serialization/document_schema.py` and `compatibility/schema_migrations.py`
+- `src/bijux_proteomics_foundation/serialization/`
 - `packages/bijux-proteomics-foundation/tests`

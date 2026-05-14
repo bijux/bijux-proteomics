@@ -1,0 +1,115 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "lfq:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The LFQ package README names the cohort-shaped evidence, missingness burden, and the current runtime gap.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
+      "row_count": null,
+      "sha256": "a99440b2e902f86f1fc6d2b53a8d50eb0b680d77b3889e0ccdda851277ece62a",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The LFQ manifest is the machine-readable anchor for the study-scale public review package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+      "row_count": null,
+      "sha256": "e434b00595d2a8c0f09e920ea1d803219c16f673321e4015b2ecf617e017a48d",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
+      "row_count": null,
+      "sha256": "23d85cc22a0a99f462c64ec4cca8aa29b8bb9f5aeb1a72539a267dcf30f52718",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The LFQ quality sheet states clearly that package substance is ahead of runtime and comparator closure.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+      "row_count": null,
+      "sha256": "67763a2d60a68c236d7bbd31da4b2f61934dd78645b1a23509f45d7438307dac",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The LFQ lifecycle record names the missing runtime and truth-surface upgrades needed before stronger claims are allowed.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
+      "row_count": null,
+      "sha256": "e487caec91989e83484927def25c63c44349faf3af0c890e8048396a995f3a97",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest makes the copied LFQ cohort snapshots and public method references rebuildable.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/source_locator_manifest.json",
+      "row_count": null,
+      "sha256": "0732b9206162967e05ca04fd55d4336d9fd9cfde2de31b303ca680230670f95f",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest keeps LFQ missingness and normalization references explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/citation_manifest.json",
+      "row_count": null,
+      "sha256": "d2baac391ec715e7c481310cd5b873fefc67927a5486353d1244efc62f164eaf",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary file distinguishes copied cohort evidence from generated LFQ package metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
+      "row_count": null,
+      "sha256": "26e708edbed6af1ae6ffaf6e5a4bc9c50f4ffb610b97f4cb2c3ee9dfc7f6b382",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions define how to refresh the LFQ asset root as a product surface rather than a test helper.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "2428762160e68e9a4b34b080ddc4ae30e8c5108ae5a7da786110a5496429b529",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:feature_table",
+      "evidence_kind": "quant_feature_table",
+      "note": "The study-scale MS1 table is the current public quantitative evidence bed for LFQ review.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+      "row_count": 24,
+      "sha256": "22e2541ac72bf39edd22f0c67993de86d0929bc7fb30bf0a3093fb3b5e90d0b2",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:design_table",
+      "evidence_kind": "experimental_design",
+      "note": "The cohort-shaped design table keeps replicate, batch, and instrument structure explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+      "row_count": 8,
+      "sha256": "b65e2a4fdab019e8b63db35d027254fece56153def41ffb1d1b1390921a8ff6e",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:reproducibility_manifest",
+      "evidence_kind": "expectation_manifest",
+      "note": "The reproducibility manifest keeps bounded repeatability outputs pinned beside the study-scale evidence.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json",
+      "row_count": null,
+      "sha256": "4ee93a01a2414ae9265ef7a838dd4bb3258c1d7f5cee418374225b2566efdabd",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone.",
+  "package_id": "flagship_public_package:lfq_cohort_review_package"
+}

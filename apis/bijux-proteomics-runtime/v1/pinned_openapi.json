@@ -453,6 +453,56 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "ImportRequest": {
+        "additionalProperties": false,
+        "description": "ImportRequest.",
+        "properties": {
+          "artifacts_dir": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Artifacts root.",
+            "title": "Artifacts Dir"
+          },
+          "engine_name": {
+            "description": "External engine name.",
+            "minLength": 1,
+            "title": "Engine Name",
+            "type": "string"
+          },
+          "engine_version": {
+            "description": "External engine version.",
+            "minLength": 1,
+            "title": "Engine Version",
+            "type": "string"
+          },
+          "sequence": {
+            "description": "Sequence linked to the imported evidence.",
+            "minLength": 1,
+            "title": "Sequence",
+            "type": "string"
+          },
+          "source_path": {
+            "description": "External engine result path on server.",
+            "minLength": 1,
+            "title": "Source Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence",
+          "source_path",
+          "engine_name",
+          "engine_version"
+        ],
+        "title": "ImportRequest",
+        "type": "object"
+      },
       "InspectResponse": {
         "additionalProperties": false,
         "description": "InspectResponse.",
@@ -1616,6 +1666,68 @@
         "summary": "Health",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/api/v1/import": {
+      "post": {
+        "description": "Import one external-engine result through the canonical runtime surface.",
+        "operationId": "import_endpoint_api_v1_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelope"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        },
+        "summary": "Import Endpoint",
+        "tags": [
+          "import"
         ]
       }
     },

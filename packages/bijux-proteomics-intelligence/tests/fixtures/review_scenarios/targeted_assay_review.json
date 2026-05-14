@@ -1,0 +1,82 @@
+{
+  "workflow_family": "targeted",
+  "program": {
+    "program_id": "prog-targeted-review",
+    "name": "targeted assay review",
+    "objective": "prioritize targeted assay candidates with interpretable engagement evidence",
+    "target_id": "target-targeted-review",
+    "target_name": "Target Targeted Review",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "preserve target engagement while keeping assay setup operationally tractable"
+  },
+  "criterion": {
+    "criterion_id": "targeted-priority",
+    "metric": "targeted_assay_score",
+    "threshold": 0.73
+  },
+  "qc_caveats": [
+    "heavy peptide ordering lead time still affects the second-best option"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "targeted-heavy-peptide-a",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "targeted_assay_score": 0.86
+      },
+      "manufacturability_score": 0.83,
+      "uncertainty": 0.09,
+      "evidence_support": 0.85,
+      "reproducibility_score": 0.88,
+      "effect_size_score": 0.74,
+      "assay_feasibility_score": 0.86,
+      "novelty_score": 0.42,
+      "lab_cost_risk": 0.11,
+      "operational_risk": 0.09
+    },
+    {
+      "candidate_id": "targeted-fragile-peptide-b",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "targeted_assay_score": 0.82
+      },
+      "manufacturability_score": 0.67,
+      "uncertainty": 0.16,
+      "evidence_support": 0.73,
+      "reproducibility_score": 0.7,
+      "effect_size_score": 0.69,
+      "assay_feasibility_score": 0.64,
+      "novelty_score": 0.58,
+      "lab_cost_risk": 0.25,
+      "operational_risk": 0.27
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "targeted-support-1",
+      "kind": "target_engagement",
+      "title": "engagement support",
+      "source": "targeted-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible target engagement and calibration stability",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 16
+    },
+    {
+      "evidence_id": "targeted-support-2",
+      "kind": "assay",
+      "title": "targeted assay tractability",
+      "source": "targeted-lab-1",
+      "source_type": "lab_assay",
+      "claim": "supports follow-up because the targeted assay setup is operationally tractable",
+      "confidence": 0.83,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 22
+    }
+  ],
+  "expected_top_candidate_id": "targeted-heavy-peptide-a"
+}

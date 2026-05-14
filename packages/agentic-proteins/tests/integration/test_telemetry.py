@@ -6,8 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from agentic_proteins.runtime import RunManager
-from agentic_proteins.runtime.infra import RunConfig
+from agentic_proteins.orchestration.manager import RunManager
+from agentic_proteins.orchestration.run_config import RunConfig
 
 
 def test_telemetry_is_complete(tmp_path: Path) -> None:

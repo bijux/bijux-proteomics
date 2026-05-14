@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-foundation/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-foundation/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-foundation](https://img.shields.io/pypi/v/bijux-proteomics-foundation?label=foundation&logo=pypi)](https://pypi.org/project/bijux-proteomics-foundation/)
@@ -32,26 +32,30 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-foundation` provides the shared schema and serialization layer
-for the package family, including canonical JSON behavior, document
-fingerprinting, and compatibility contracts for persisted scientific records.
+`bijux-proteomics-foundation` is the shared contract kernel for the package
+family, including canonical JSON behavior, deterministic hashing, document
+fingerprints, and compatibility contracts for persisted scientific records.
+
+Within the suite, foundation owns shared contracts, identifiers, and
+deterministic serialization.
 
 Use this package when you need versioned document governance, migration-safe
 serialization, and cross-package consistency for reproducible proteomics data.
 
-## Why teams pick this package
+## Why teams pick this kernel
 
-- one canonical schema baseline across every proteomics package
+- one canonical document-contract baseline across every proteomics package
 - stable fingerprints for cache keys, lineage, and provenance checks
 - compatibility helpers for migration-safe long-lived scientific records
-- typed primitives that reduce duplicated schema logic in downstream packages
+- small shared primitives that keep downstream packages from rebuilding the
+  same durable contract logic
 
 ## Typical use cases
 
-- define document schema metadata with explicit version and compatibility policy
+- define document metadata with explicit version and compatibility policy
 - serialize domain models into canonical JSON for reproducible comparisons
 - validate migration paths before accepting persisted record upgrades
-- centralize schema behavior so other packages stay focused on domain logic
+- centralize shared contract behavior so other packages stay focused on domain logic
 
 ## Installation
 
@@ -62,20 +66,25 @@ pip install bijux-proteomics-foundation
 ## Quick start
 
 ```python
-from bijux_proteomics_foundation import schema, serialization
+from bijux_proteomics_foundation import DocumentSchema, hash_payload, to_canonical_json
 ```
 
 ## Package identity
 
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
-- Stable entrypoints: `schema`, `serialization`, `ids`, and `migrations`
+- Stable entrypoints:
+  `bijux_proteomics_foundation`, `compatibility`, `identity`, `outcomes`,
+  `serialization`, and `support`
 
 ## Package boundaries
 
-This package owns schema metadata, canonical serialization, and migration compatibility helpers.
+This package owns shared document metadata, canonical serialization, and
+migration compatibility helpers as a shared kernel rather than a user-facing
+workflow package.
 
 It does not own product decision logic, lab logic, or runtime orchestration.
+The exact allowed primitive surface is audited in `support/charter.py`.
 
 ## Contract checkpoints
 
@@ -83,6 +92,87 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 - compatibility evaluation must report explicit status and reason text
 - migrations must preserve semantic meaning while advancing declared versions
 - downstream packages may depend on these primitives, but should not move domain rules into this layer
+
+## Contract examples
+
+These examples stay at the shared-kernel layer. Workflow-owned, CLI-owned, and
+runtime-owned examples belong in the package that owns that behavior.
+
+Document metadata:
+
+```python
+from bijux_proteomics_foundation import DocumentSchema
+
+schema = DocumentSchema(
+    created_by="bijux-proteomics-foundation",
+    document_kind="contract_bundle",
+    package_name="bijux-proteomics-foundation",
+    package_version="0.1.0",
+)
+```
+
+Identifiers:
+
+```python
+from bijux_proteomics_foundation.identity.identifiers import (
+    IdentifierKind,
+    build_identifier,
+)
+
+run_id = build_identifier(IdentifierKind.RUN, "Orbitrap Batch 7")
+```
+
+Canonical serialization and hashing:
+
+```python
+from bijux_proteomics_foundation import hash_payload, to_canonical_json
+
+payload = {"a": 1, "b": 2}
+fingerprint = hash_payload(payload)
+rendered = to_canonical_json(payload)
+```
+
+Refusals:
+
+```python
+from bijux_proteomics_foundation.outcomes.refusals import OperationRefusal, RefusalKind
+from bijux_proteomics_foundation.support.states import SupportState
+
+refusal = OperationRefusal(
+    operation="artifact_validation",
+    kind=RefusalKind.UNSUPPORTED,
+    code="unsupported_construct",
+    reason="the payload cannot be normalized without changing shared meaning",
+    support_state=SupportState.REFUSED,
+)
+```
+
+Error envelopes:
+
+```python
+from bijux_proteomics_foundation.outcomes.failures import (
+    ErrorCategory,
+    ErrorEnvelope,
+)
+
+envelope = ErrorEnvelope(
+    category=ErrorCategory.RUNTIME,
+    code="contract_rejection",
+    message="canonical document validation rejected the payload",
+)
+```
+
+Operation results:
+
+```python
+from bijux_proteomics_foundation.outcomes.results import OperationResult
+
+result = OperationResult.success(
+    operation="contract_validation",
+    summary="shared contract validation completed successfully",
+    output_fingerprint="a" * 64,
+)
+```
 
 ## Choose this package when
 
@@ -105,6 +195,8 @@ It does not own product decision logic, lab logic, or runtime orchestration.
   foundation change as safe
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
   when ownership or stability claims are part of the change
+- review `support/charter.py` when the question is whether a new primitive belongs in
+  foundation at all
 - use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
   affects package publication, metadata, or release-readiness expectations
 
@@ -146,13 +238,23 @@ It does not own product decision logic, lab logic, or runtime orchestration.
 
 ## Source guide
 
-- [`src/bijux_proteomics_foundation/schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/schema.py) for schema profile and compatibility contracts
-- [`src/bijux_proteomics_foundation/serialization.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py) for canonical serialization and fingerprints
-- [`src/bijux_proteomics_foundation/migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/migrations.py) for migration behavior
+- [`src/bijux_proteomics_foundation/serialization/document_schema.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/document_schema.py) for document metadata and audit lineage
+- [`src/bijux_proteomics_foundation/serialization/scientific_values.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/scientific_values.py) for nullability, duration, timestamp, and coordinate wrappers
+- [`src/bijux_proteomics_foundation/compatibility/schema_assessments.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_assessments.py) for compatibility and schema-evolution assessments
+- [`src/bijux_proteomics_foundation/serialization/canonical_json.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonical_json.py) for canonical serialization
+- [`src/bijux_proteomics_foundation/serialization/stable_hashes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py) for deterministic hashing policies
+- [`src/bijux_proteomics_foundation/serialization/json_contracts.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py) for reusable JSON-backed contract helpers
+- [`src/bijux_proteomics_foundation/identity/identifiers.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py) for shared identifier contracts
+- [`src/bijux_proteomics_foundation/support/provenance.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/support/provenance.py) for provenance pointers and adjacent support-state contracts
+- [`src/bijux_proteomics_foundation/outcomes/failures.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/failures.py) for structured machine-readable failure contracts
+- [`src/bijux_proteomics_foundation/outcomes/results.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/outcomes/results.py) for shared refusal and operation-result contracts
+- [`src/bijux_proteomics_foundation/compatibility/schema_migrations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/compatibility/schema_migrations.py) for migration behavior
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation/tests) for executable behavior expectations
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/architecture/)

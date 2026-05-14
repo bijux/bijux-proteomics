@@ -1,0 +1,316 @@
+{
+  "candidate_id": "cand-egfr-prm-carryover",
+  "target_id": "target-egfr-carryover",
+  "claim_links": {
+    "prm-assay": [
+      "claim-egfr-prm"
+    ],
+    "orthogonal-assay": [
+      "claim-egfr-orthogonal"
+    ]
+  },
+  "review_queue_decision": {
+    "review_id": "review-egfr-prm",
+    "program_id": "prog-egfr",
+    "gate_id": "gate-targeted-follow-up",
+    "state": "approved",
+    "summary": "targeted follow-up package cleared review with orthogonal coverage attached Carryover stress package keeps transition reuse risk explicit.",
+    "evidence_ids": [
+      "ev-phospho-1",
+      "ev-lfq-2",
+      "ev-prm-3"
+    ]
+  },
+  "workflow_readiness_summary": {
+    "program_id": "prog-egfr",
+    "ready_step_count": 5,
+    "blocked_step_count": 0,
+    "missing_evidence_needs": [],
+    "blocking_assay_ids": [],
+    "blocking_review_gate_ids": [],
+    "step_statuses": [
+      {
+        "step_id": "intake",
+        "stage_kind": "intake",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "evidence-review",
+        "stage_kind": "evidence_review",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "assay-execution",
+        "stage_kind": "assay_execution",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "decision-review",
+        "stage_kind": "decision_review",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "learning-loop",
+        "stage_kind": "learning_loop",
+        "ready": true,
+        "blockers": []
+      }
+    ]
+  },
+  "plate_advisory": {
+    "plate_id": "plate-prm-01",
+    "row_count": 8,
+    "column_count": 12,
+    "randomization_seed": 11,
+    "assignments": [
+      {
+        "sample_id": "tumor-01",
+        "condition": "treated",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-egfr-prm-1",
+        "plate_id": "plate-prm-01",
+        "well_id": "A01",
+        "lineage_label": "cand-egfr-prm|treated|rep1",
+        "sample_role": "sample",
+        "randomization_block": "block-a",
+        "multiplex_group": "prm-panel-1",
+        "contamination_watch": false
+      },
+      {
+        "sample_id": "pool-01",
+        "condition": "reference_pool",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-egfr-prm-1",
+        "plate_id": "plate-prm-01",
+        "well_id": "A12",
+        "lineage_label": "reference|pool",
+        "sample_role": "pooled_reference",
+        "randomization_block": "block-a",
+        "multiplex_group": "prm-panel-1",
+        "contamination_watch": false
+      },
+      {
+        "sample_id": "qc-bridge-01",
+        "condition": "qc_bridge",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-egfr-prm-1",
+        "plate_id": "plate-prm-01",
+        "well_id": "B12",
+        "lineage_label": "bridge|qc",
+        "sample_role": "qc_bridge",
+        "randomization_block": "block-b",
+        "multiplex_group": "prm-panel-1",
+        "contamination_watch": true
+      }
+    ],
+    "control_well_ids": [
+      "A12",
+      "B12"
+    ],
+    "blocked_layout_labels": [],
+    "multiplex_group_count": 1,
+    "contamination_watch_well_ids": [
+      "B12"
+    ],
+    "layout_summary": "plate layout preserves pooled reference and bridge wells around the targeted follow-up batch",
+    "notes": [
+      "pooled reference anchors retention-time drift checks",
+      "qc bridge remains under contamination watch because it sits beside high-abundance treated material"
+    ]
+  },
+  "handoff_validation": {
+    "program_id": "prog-egfr",
+    "candidate_id": "cand-egfr-prm",
+    "accepted": true,
+    "accepted_assay_ids": [
+      "prm-assay",
+      "orthogonal-assay"
+    ],
+    "blockers": [],
+    "skepticism_notes": [
+      "retain one orthogonal assay because novelty alone does not justify follow-up escalation"
+    ],
+    "required_next_actions": [
+      "monitor orthogonal assay readout before committing larger validation spend"
+    ]
+  },
+  "transition_review": {
+    "assay_id": "prm-assay",
+    "approved_transition_ids": [
+      "tr-egfr-1"
+    ],
+    "exploratory_transition_ids": [
+      "tr-egfr-2"
+    ],
+    "refused_transition_ids": [],
+    "readiness_score": 0.36,
+    "entries": [
+      {
+        "transition_id": "tr-egfr-1",
+        "disposition": "approved",
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "overall_risk_score": 0.18,
+          "supported_for_follow_up": true,
+          "findings": []
+        },
+        "missing_controls": [],
+        "reasons": [
+          "transition is feasible enough for targeted follow-up"
+        ]
+      },
+      {
+        "transition_id": "tr-egfr-2",
+        "disposition": "exploratory",
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "overall_risk_score": 0.36,
+          "supported_for_follow_up": true,
+          "findings": []
+        },
+        "missing_controls": [
+          "heavy-standard"
+        ],
+        "reasons": [
+          "assay risk score 0.36 keeps the transition exploratory",
+          "missing required controls: heavy-standard"
+        ]
+      }
+    ],
+    "notes": [
+      "one transition is execution-ready and one remains exploratory until heavy-standard coverage arrives"
+    ]
+  },
+  "review_packet": {
+    "program_id": "prog-egfr",
+    "ready_for_synthesis": true,
+    "blocking_findings": [
+      "carryover stress package keeps calibration and reuse risk explicit"
+    ],
+    "recommended_actions": [
+      "run PRM confirmation panel against the prioritized phosphosite",
+      "run one orthogonal immunoblot follow-up to stress-test the PRM interpretation"
+    ],
+    "advancement_evidence": {
+      "bundle_id": "bundle-egfr-review",
+      "target_id": "target-egfr",
+      "evidence_ids": [
+        "ev-phospho-1",
+        "ev-lfq-2",
+        "ev-prm-3"
+      ],
+      "required_evidence_kinds": [
+        "assay",
+        "pathway"
+      ],
+      "missing_evidence_kinds": [],
+      "items": [
+        {
+          "evidence_id": "ev-phospho-1",
+          "kind": "assay",
+          "confidence": 0.87,
+          "strength": "strong",
+          "claim": "EGFR phosphosite signal reproduces across replicates"
+        },
+        {
+          "evidence_id": "ev-lfq-2",
+          "kind": "pathway",
+          "confidence": 0.72,
+          "strength": "moderate",
+          "claim": "LFQ evidence aligns with the same signaling direction"
+        }
+      ]
+    }
+  },
+  "executable_plan": {
+    "program_id": "prog-egfr",
+    "batch_id": "batch-egfr-prm-1",
+    "plan_kind": "executable",
+    "instructions": [
+      {
+        "instruction_id": "batch-egfr-prm-1:prm-assay",
+        "assay_id": "prm-assay",
+        "batch_id": "batch-egfr-prm-1",
+        "sample_kind": "targeted",
+        "objective": "confirm the prioritized phosphosite signal by PRM",
+        "blocking": true,
+        "preflight_checks": [
+          "pooled reference loaded",
+          "retention-time standard loaded"
+        ]
+      },
+      {
+        "instruction_id": "batch-egfr-prm-1:orthogonal-assay",
+        "assay_id": "orthogonal-assay",
+        "batch_id": "batch-egfr-prm-1",
+        "sample_kind": "cellular",
+        "objective": "cross-check the targeted signal with orthogonal immunoblot evidence",
+        "blocking": false,
+        "preflight_checks": [
+          "antibody lot verified",
+          "bridge QC reserved"
+        ]
+      }
+    ],
+    "blocked_by": [],
+    "ready_for_execution": true
+  },
+  "outcome": {
+    "batch_id": "batch-egfr-prm-1",
+    "assay_outcomes": [
+      {
+        "assay_id": "prm-assay",
+        "passed": true,
+        "result_state": "passed",
+        "observation_summary": "PRM transition cluster reproduced the prioritized phosphosite signal",
+        "failure_class": null,
+        "replicate_count": 3,
+        "uncertainty": 0.08
+      },
+      {
+        "assay_id": "orthogonal-assay",
+        "passed": false,
+        "result_state": "failed_biological",
+        "observation_summary": "orthogonal immunoblot did not reproduce the targeted direction strongly enough",
+        "failure_class": "biological",
+        "replicate_count": 2,
+        "uncertainty": 0.22
+      }
+    ],
+    "rerun_policy": "never"
+  },
+  "alternative_plan_options": [
+    {
+      "plan_id": "orthogonal-first",
+      "prioritized_assay_ids": [
+        "orthogonal-assay",
+        "prm-assay"
+      ],
+      "evidence_gain_score": 0.86,
+      "estimated_cost": 2.6,
+      "turnaround_days": 6.0,
+      "supporting_rationale": [
+        "maximizes contradiction resolution before deeper validation spend"
+      ]
+    },
+    {
+      "plan_id": "cheap-prm-only",
+      "prioritized_assay_ids": [
+        "prm-assay"
+      ],
+      "evidence_gain_score": 0.49,
+      "estimated_cost": 1.2,
+      "turnaround_days": 3.0,
+      "supporting_rationale": [
+        "fast targeted readout but weaker contradiction coverage"
+      ]
+    }
+  ]
+}

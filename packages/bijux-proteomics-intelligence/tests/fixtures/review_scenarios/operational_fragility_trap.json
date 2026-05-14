@@ -1,0 +1,79 @@
+{
+  "workflow_family": "multiplex",
+  "program": {
+    "program_id": "prog-operational-fragility-trap",
+    "name": "operational fragility trap",
+    "objective": "prevent analytically attractive but operationally fragile follow-up from leading the handoff",
+    "target_id": "target-operational-fragility-trap",
+    "target_name": "Target Operational Fragility Trap",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "prefer grounded and executable follow-up over attractive but fragile plans"
+  },
+  "criterion": {
+    "criterion_id": "operational-fragility",
+    "metric": "multiplex_follow_up_score",
+    "threshold": 0.74
+  },
+  "candidates": [
+    {
+      "candidate_id": "grounded-executable-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "multiplex_follow_up_score": 0.84
+      },
+      "manufacturability_score": 0.82,
+      "uncertainty": 0.09,
+      "evidence_support": 0.87,
+      "reproducibility_score": 0.88,
+      "effect_size_score": 0.76,
+      "assay_feasibility_score": 0.82,
+      "novelty_score": 0.39,
+      "lab_cost_risk": 0.13,
+      "operational_risk": 0.12
+    },
+    {
+      "candidate_id": "operational-fragility-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "multiplex_follow_up_score": 0.92
+      },
+      "manufacturability_score": 0.77,
+      "uncertainty": 0.18,
+      "evidence_support": 0.67,
+      "reproducibility_score": 0.64,
+      "effect_size_score": 0.84,
+      "assay_feasibility_score": 0.38,
+      "novelty_score": 0.89,
+      "lab_cost_risk": 0.62,
+      "operational_risk": 0.68
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "operational-grounded-assay",
+      "kind": "assay",
+      "title": "grounded multiplex assay support",
+      "source": "multiplex-fragility-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible multiplex follow-up support",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 17
+    },
+    {
+      "evidence_id": "operational-context",
+      "kind": "literature",
+      "title": "follow-up context",
+      "source": "PMID:operational-fragility-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the multiplex follow-up context",
+      "confidence": 0.82,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 36
+    }
+  ],
+  "expected_top_candidate_id": "grounded-executable-follow-up"
+}

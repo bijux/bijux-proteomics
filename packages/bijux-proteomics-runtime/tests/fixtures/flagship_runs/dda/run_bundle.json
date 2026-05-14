@@ -1,0 +1,157 @@
+{
+  "artifact_inventory": [
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:public:1",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:public:2",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:public:3",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:public:4",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:primary_input",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
+      "artifact_role": "primary_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:companion_input:1",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_evidence.tsv",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dda-maxquant-pipeline-corpus:companion_input:2",
+      "artifact_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_settings.txt",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dda:runtime-imported-evidence",
+      "artifact_path": "runtime-generated/imported_evidence.json",
+      "artifact_role": "runtime-imported-evidence",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "imported tabular comparator payload with 3 rows"
+    },
+    {
+      "artifact_id": "dda:runtime-status",
+      "artifact_path": "runtime-generated/run_summary.json",
+      "artifact_role": "runtime-status",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime review output run_summary.json"
+    },
+    {
+      "artifact_id": "dda:runtime-report",
+      "artifact_path": "runtime-generated/report.json",
+      "artifact_role": "runtime-report",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime review output report.json"
+    },
+    {
+      "artifact_id": "dda:runtime-replay-contract",
+      "artifact_path": "runtime-generated/replay_contract.json",
+      "artifact_role": "runtime-replay-contract",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime review output replay_contract.json"
+    },
+    {
+      "artifact_id": "dda:runtime-integrity-report",
+      "artifact_path": "runtime-generated/integrity_report.json",
+      "artifact_role": "runtime-integrity-report",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime review output integrity_report.json"
+    },
+    {
+      "artifact_id": "dda:runtime-evidence-bundle",
+      "artifact_path": "runtime-generated/evidence_bundle.json",
+      "artifact_role": "runtime-evidence-bundle",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime-evidence-bundle stays downstream-readable from the runtime import lane"
+    },
+    {
+      "artifact_id": "dda:runtime-review-packet",
+      "artifact_path": "runtime-generated/review_packet.json",
+      "artifact_role": "runtime-review-packet",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "runtime-review-packet stays downstream-readable from the runtime import lane"
+    }
+  ],
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/run_bundle.json",
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "benchmark_id": "benchmark:dda_search_reproducibility",
+  "benchmark_package_id": "benchmark_package:dda_reviewable_run",
+  "bundle_id": "flagship-run-bundle:dda",
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/failure_replay.json",
+  "last_reproduced_on": "2026-05-07",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/dda.json",
+    "artifacts/intelligence/recommendation-packets/dda.json",
+    "artifacts/lab/flagship-follow-up-packets/dda.json"
+  ],
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
+  "remaining_blockers": [
+    "Compare the primary MaxQuant import path against the paired MSFragger comparator export inside the tracked DDA package.",
+    "Preserve target-decoy visibility and explicit protein-rollup caution rather than flattening DDA review into engine-agnostic certainty."
+  ],
+  "runtime_package_id": "dda-maxquant-pipeline-corpus",
+  "runtime_surface": {
+    "canonical_entrypoint": "bijux_proteomics_runtime.workflows.paths.run_reviewable_import_path",
+    "execution_summary": [
+      "imported tabular comparator payload with 3 rows",
+      "review_outputs=runtime-status,runtime-report,runtime-replay-contract,runtime-integrity-report",
+      "handoff_outputs=runtime-evidence-bundle,runtime-review-packet"
+    ],
+    "input_artifact_ids": [
+      "dda-maxquant-pipeline-corpus:primary_input",
+      "dda-maxquant-pipeline-corpus:companion_input:1",
+      "dda-maxquant-pipeline-corpus:companion_input:2"
+    ],
+    "note": "This runtime surface is normalized from a real import-path execution so the checked-in snapshot keeps runtime lineage visible without preserving random run ids or temporary absolute paths.",
+    "proof_class": "import_backed_execution",
+    "run_mode": "import_only",
+    "runtime_artifact_ids": [
+      "dda:runtime-imported-evidence",
+      "dda:runtime-status",
+      "dda:runtime-report",
+      "dda:runtime-replay-contract",
+      "dda:runtime-integrity-report",
+      "dda:runtime-evidence-bundle",
+      "dda:runtime-review-packet"
+    ],
+    "runtime_package_id": "dda-maxquant-pipeline-corpus",
+    "surface_id": "flagship-runtime-surface:dda",
+    "toolchain_or_import_path": "maxquant:19.0",
+    "validating_test_paths": [
+      "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py"
+    ],
+    "workflow_family": "dda"
+  },
+  "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dda/stage_lineage.json",
+  "workflow_family": "dda"
+}

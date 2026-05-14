@@ -26,7 +26,8 @@ flowchart LR
 
 This page should make intelligence quality about explainability pressure. The
 package earns trust when recommendation behavior can still be justified through
-policies, evaluators, reports, and outcomes instead of opaque drift.
+candidate ranking, judgment paths, decision briefs, and recommendation outputs
+instead of opaque drift.
 
 ## Start With
 
@@ -53,8 +54,8 @@ policies, evaluators, reports, and outcomes instead of opaque drift.
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

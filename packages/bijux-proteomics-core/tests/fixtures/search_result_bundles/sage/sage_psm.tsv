@@ -1,0 +1,4 @@
+filename	scannr	peptide	charge	discriminant_score	hyperscore	proteins	label	q_value	peptide_q_value	protein_q_value	posterior_error	matched_peaks	longest_b	longest_y	matched_intensity_pct	precursor_ppm	fragment_ppm	isotope_error	rt	aligned_rt	predicted_rt	delta_rt_model
+run01.mzML	sage-real-1001	PEP[+79.966331]TIDE	2	18.6	41.2	sp|P12345|KINASE_HUMAN	target	0.0015	0.0021	0.0045	0.0009	12	5	6	68.4	1.2	8.5	0	1240.5	1240.1	1238.8	1.3
+run01.mzML	sage-real-1002	AC[+57.021464]DM[+15.994915]K	3	16.9	38.4	sp|P23456|TRANSFER_HUMAN;sp|P34567|TRANSFER_MOUSE	target	0.0032	0.0049	0.0068	0.0014	10	4	5	54.1	-0.8	10.2	1	1488.2	1487.6	1490.4	-2.2
+run01.mzML	sage-real-1003	DECAYPEP	2	6.3	15.1	DECOY_sp|P99999|DECOY_PROT	decoy	0.0820	0.0900	0.1200	0.0180	6	2	3	27.5	3.6	18.4	0	1711.4	1710.8	1708.9	1.9

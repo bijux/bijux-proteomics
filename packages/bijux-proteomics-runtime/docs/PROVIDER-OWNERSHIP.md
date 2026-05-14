@@ -1,0 +1,45 @@
+# Provider Ownership
+
+This dossier records the canonical owner modules for runtime provider binding
+and provider execution support.
+
+## Provider boundary rule
+
+`providers/` owns provider binding, capability checks, install hints,
+metadata, and runtime-facing execution support. Lower packages should not
+recreate these rules.
+
+## Base provider contracts
+
+- owner code: `src/bijux_proteomics_runtime/providers/contracts.py`, `src/bijux_proteomics_runtime/providers/errors.py`
+- owner tests: `tests/providers/test_runtime_provider_surface.py`
+- owner fixtures: `tests/conftest.py`
+- contract: provider protocol, metadata, result envelopes, and runtime install-hint failures stay pinned to runtime
+
+## Capability, catalog, and selection gates
+
+- owner code: `src/bijux_proteomics_runtime/providers/catalog.py`, `src/bijux_proteomics_runtime/providers/capabilities.py`, `src/bijux_proteomics_runtime/providers/selection.py`, `src/bijux_proteomics_runtime/providers/environment.py`
+- owner tests: `tests/providers/test_provider_capability_validation.py`, `tests/providers/test_provider_capability_registry_surface.py`, `tests/providers/test_runtime_provider_surface.py`
+- owner fixtures: `tests/fixtures/execution/sequence_review_path.json`, `tests/fixtures/execution/container_review_path.json`
+- contract: runtime decides whether a requested provider and execution mode combination is supported before orchestration proceeds
+
+## Heuristic provider baseline
+
+- owner code: `src/bijux_proteomics_runtime/providers/builtin/heuristic.py`
+- owner tests: `tests/providers/test_runtime_provider_surface.py`
+- owner fixtures: `tests/conftest.py`
+- contract: heuristic provider remains the baseline runtime-owned fallback surface
+
+## Local provider bindings
+
+- owner code: `src/bijux_proteomics_runtime/providers/local/esmfold.py`, `src/bijux_proteomics_runtime/providers/local/rosettafold.py`
+- owner tests: `tests/providers/test_runtime_provider_surface.py`, `tests/runs/test_runtime_execution_conformance.py`
+- owner fixtures: `tests/fixtures/execution/sequence_review_path.json`
+- contract: local provider install hints and execution hooks stay grouped under runtime-owned local bindings
+
+## Experimental API providers
+
+- owner code: `src/bijux_proteomics_runtime/providers/remote/colabfold.py`, `src/bijux_proteomics_runtime/providers/remote/openprotein.py`, `src/bijux_proteomics_runtime/providers/remote/_async_utils.py`
+- owner tests: `tests/providers/test_runtime_provider_surface.py`
+- owner fixtures: `tests/conftest.py`
+- contract: experimental remote-provider support stays explicit and does not widen the stable provider contract surface by accident

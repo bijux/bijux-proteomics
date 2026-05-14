@@ -36,14 +36,14 @@ The reviewer should be able to say what changed in recommendation policy without
 ## Review Rules
 
 - ask which decision lever actually changed
-- check reports, briefs, and outcomes before trusting raw scores
+- check decision briefs, interpretation summaries, and recommendation outputs before trusting raw scores
 - verify that evidence semantics remain owned by the knowledge layer
 
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

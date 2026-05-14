@@ -9,19 +9,22 @@ last_reviewed: 2026-04-26
 
 # Ownership Boundary
 
-Shared meaning belongs here before downstream packages attach program policy, evidence judgment, or runtime execution.
+Shared primitives belong here before downstream packages attach lifecycle law,
+evidence judgment, recommendation posture, or runtime execution.
 
 ## Keep It Here When
 
-- the change strengthens the package's named role
+- the change defines an identifier, schema profile, canonical JSON shape, or
+  deterministic hash rule
 - the best proof lives in this package's source tree and tests
-- neighboring packages would become less honest if they absorbed the behavior
+- neighboring packages would otherwise fork primitive meaning or migration law
 
 ## Move It Elsewhere When
 
-- the change mainly alters a neighbor's public contract
-- the package becomes a convenience layer instead of an accountable owner
-- the proof surface is mostly outside this package already
+- the change mainly alters lifecycle semantics, benchmark truth, evidence
+  posture, recommendation policy, or runtime behavior
+- the package becomes a convenience layer for higher-level product logic
+- the proof surface is mostly outside shared primitives already
 
 ## First Proof Check
 

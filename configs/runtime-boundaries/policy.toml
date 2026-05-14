@@ -8,6 +8,42 @@ lower_layer_roots = [
   "packages/bijux-proteomics-lab/src",
 ]
 
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/execution/runtime_adapter.py"
+modules = [
+  "bijux_proteomics_runtime.runs",
+]
+
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/runtime_plans.py"
+modules = [
+  "bijux_proteomics_runtime.workflows",
+]
+
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/independent_reruns.py"
+modules = [
+  "bijux_proteomics_runtime.workflows",
+]
+
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/outsider_packets.py"
+modules = [
+  "bijux_proteomics_runtime.workflows",
+]
+
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/release_candidates.py"
+modules = [
+  "bijux_proteomics_runtime.workflows",
+]
+
+[[imports.allow]]
+consumer = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/workflow_authority.py"
+modules = [
+  "bijux_proteomics_runtime.workflows",
+]
+
 [compat]
 package_root = "packages/agentic-proteins/src/agentic_proteins"
 forwarding_target_prefixes = [

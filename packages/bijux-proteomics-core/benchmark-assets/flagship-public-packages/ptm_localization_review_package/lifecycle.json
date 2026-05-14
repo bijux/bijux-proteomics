@@ -1,0 +1,17 @@
+{
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "lifecycle_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/lifecycle.json",
+  "note": "The PTM package is now inspectable and public, but it is still a midpoint package rather than the end-state PTM flagship.",
+  "obsolescence_triggers": [
+    "PTM-family scope widens without refreshing the localization package.",
+    "A runtime-backed or rescoring-backed PTM package becomes available."
+  ],
+  "package_id": "flagship_public_package:ptm_localization_review_package",
+  "retirement_conditions": [
+    "Retire this package when a broader PTM package adds runtime and comparator closure.",
+    "Retire this package from flagship authority if localization evidence no longer represents current PTM support claims."
+  ],
+  "successor_package_id": null,
+  "workflow_family": "ptm"
+}

@@ -48,7 +48,7 @@ public contract shift.
 ## First Proof Check
 
 - `apis/*/v1`
-- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api`
+- `packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts`
 - workflow or make callers that enforce the checks
 
 ## Design Pressure

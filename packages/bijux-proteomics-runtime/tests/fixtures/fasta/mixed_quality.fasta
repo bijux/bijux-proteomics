@@ -1,0 +1,8 @@
+>sp|P12345|DEMO_HUMAN Demo protein OS=Homo sapiens GN=DEMO
+MEEPQSDPSV
+>sp|P12345|DEMO_HUMAN Duplicate demo OS=Homo sapiens GN=DEMO
+MEEPQSDPSV
+>custom_ambig Example ambiguous
+acdxz*
+>CON__KERATIN contaminant keratin [Homo sapiens]
+MSSQQLLLLL

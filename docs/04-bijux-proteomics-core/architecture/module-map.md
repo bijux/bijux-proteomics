@@ -13,9 +13,9 @@ last_reviewed: 2026-04-26
 
 ## Owned Module Families
 
-- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py` own durable program contracts
-- `src/bijux_proteomics/lifecycle.py`, `validation.py`, `execution_contracts.py`, and `constraints.py` own readiness and execution rules
-- `src/bijux_proteomics/biology/`, `domain/`, and `runtime_adapter.py` hold domain primitives and structural seams to neighboring packages
+- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py` own durable program contracts
+- `src/bijux_proteomics/domain/lifecycle.py`, `domain/validation.py`, `execution/backend.py`, and `domain/constraints.py` own readiness and execution rules
+- `src/bijux_proteomics/biology/`, `domain/`, and `execution/` hold domain primitives and structural seams to neighboring packages
 
 ## First Proof Check
 

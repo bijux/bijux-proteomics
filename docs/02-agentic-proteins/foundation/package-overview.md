@@ -19,6 +19,10 @@ several different owners at once.
 - preserve legacy CLI and API entry surfaces
 - route readers and callers to the canonical runtime package
 
+The [Compatibility Contract](https://bijux.io/bijux-proteomics/02-agentic-proteins/foundation/compatibility-contract/)
+is the hard boundary for this package. If a change cannot be defended there as
+compatibility forwarding, it belongs in a canonical owner instead.
+
 ## What It Refuses
 
 - new canonical runtime behavior

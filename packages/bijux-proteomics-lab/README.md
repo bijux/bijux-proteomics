@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-lab/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-lab/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-lab](https://img.shields.io/pypi/v/bijux-proteomics-lab?label=lab&logo=pypi)](https://pypi.org/project/bijux-proteomics-lab/)
@@ -32,37 +32,47 @@
 [![bijux-proteomics-knowledge docs](https://img.shields.io/badge/docs-knowledge-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-lab` converts scientific requirements into executable assay
-plans, dependency-aware schedules, and outcome interpretation that feeds back
-into program progression decisions.
+`bijux-proteomics-lab` is the operational lab layer for assay planning,
+readiness, handoff honesty, and observed-outcome reconciliation. It turns
+scientific intent into executable work only when queue pressure, material
+limits, controls, provenance, and operator-facing caveats stay explicit.
 
-Use this package when you need lab-in-the-loop planning under gate constraints,
-capacity-aware batch construction, and rerun recommendations tied to assay
+Within the suite, lab owns assay consequence planning, readiness, and observed
 outcomes.
 
-Its role is downstream of the scientific workflow blueprint, not a substitute
-for it. Lab turns stage-owned assay work into executable batches and feedback
-loops once core, knowledge, and intelligence have made the workflow legible.
+Use this package when the question is whether a follow-up is feasible, safe to
+hand off, and traceable after execution. Its success criteria are operational
+honesty, feasibility, and traceability rather than analytical enthusiasm.
+Operational honesty, feasibility, and traceability are the non-negotiable
+release criteria for this package.
 
-It also now provides typed experiment-design and protocol-planning helpers for
-sample preparation, instrument metadata, run-order randomization, multiplex
-planning, QC insertion, carryover review, and bundled lab evidence payloads.
+Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
+package `docs/*.md` set aligned before claiming stronger operational coverage
+or handoff safety guarantees.
 
 ## Why teams pick this package
 
-- practical lab planning built around dependencies, capacity, and timing limits
-- structured assay plans and review packets ready for scientific operations
-- outcome interpretation flows that support rerun and escalation decisions
-- repository contracts for integrating plan queues and feedback loops
-- deterministic experiment-design validation and protocol planning artifacts
+- dependency-aware planning that keeps queue pressure, gate pressure, and
+  family capacity visible before spend is committed
+- readiness and handoff contracts that refuse weak, ambiguous, or
+  under-controlled follow-up instead of flattening those problems into notes
+- outcome reconciliation that records what was asked, what actually ran, and
+  how belief posture should change afterward
+- benchmark rehearsals that show whether targeted operational claims are
+  supportable before operators inherit them
+- outcome dossiers and worth-it ledgers that show whether requested follow-up
+  loops repaid their cost after execution pressure was visible
 
 ## Typical use cases
 
-- convert candidate requirements into executable assay schedules
-- sequence assay batches while respecting constraints and review gates
-- summarize execution outcomes and recommend reruns with explicit rationale
-- track plan quality trends and feed outcomes back into decision pipelines
-- validate design tables and generate reviewable lab protocol bundles
+- build executable assay batches from scientific requirements, dependencies,
+  and capacity limits
+- block or downgrade execution when material, controls, provenance, staffing,
+  or instrument readiness is weak
+- produce operator-facing handoffs that preserve protocol version, required
+  controls, caveats, field loss, and refusal reasons
+- reconcile observed outcomes back into supported, weakened, or blocked
+  feedback for downstream review
 
 ## Installation
 
@@ -73,16 +83,22 @@ pip install bijux-proteomics-lab
 ## Quick start
 
 ```python
-from bijux_proteomics_lab import planning, outcomes, repositories
+from bijux_proteomics_lab import (
+    build_advisory_assay_plan,
+    build_executable_assay_plan,
+    plan_experiment_batches,
+)
 ```
 
-For design and protocol planning:
+Import owner bands directly for deeper work:
 
 ```python
-from bijux_proteomics_lab import (
-    plan_batch_randomization,
-    plan_multiplex_labeling,
-    validate_experiment_design,
+from bijux_proteomics_lab.handoffs.explanations import build_handoff_explanation
+from bijux_proteomics_lab.handoffs.exports import build_lims_export_bundle
+from bijux_proteomics_lab.handoffs.transitions import build_targeted_transition_review
+from bijux_proteomics_lab.readiness.operations import build_operational_readiness_report
+from bijux_proteomics_lab.reconciliation.follow_up import (
+    reconcile_planned_and_observed_outcome,
 )
 ```
 
@@ -90,103 +106,139 @@ from bijux_proteomics_lab import (
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `planning`, `design`, `outcomes`, `repositories`,
-  `schema`, and `serialization`
+- Stable root entrypoints: `plan_experiment_batches`,
+  `build_advisory_assay_plan`, and `build_executable_assay_plan`
+- Stable owner bands: `design`, `planning`, `readiness`, `lifecycle`,
+  `handoffs`, `outcomes`, `reconciliation`, and `benchmarks`
 
 ## Package boundaries
 
-This package owns assay planning, schedule generation, outcome interpretation, and rerun strategy support.
+This package owns execution reality for lab follow-up: planning, readiness,
+handoff honesty, observed-outcome reconciliation, and benchmark rehearsals that
+prove whether an operational story is supportable.
 
-It also owns typed experiment-design and protocol-planning contracts when those
-surfaces are about executable lab operations rather than raw scientific parsing
-or runtime dispatch.
+It does not own analytical recommendation logic, core scientific semantics, or
+execution orchestration or runtime policy.
 
-It does not own program-stage authority, ranking policy, or evidence truth semantics.
+## Consequence chain route
 
-It also should not define scientific stage meaning on its own. Lab consumes the
-workflow spine, then decides how that work gets executed and fed back into the
-next cycle.
+Lab owns the downstream burden and observed outcome part of the shared
+consequence chain, not a separate trust story that can outrank knowledge or
+intelligence.
+
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is whether assay burden or the cost of being wrong already
+  blocks stronger public recommendation language
+- use [Outcome Learning Loops](https://bijux.io/bijux-proteomics/lab-consequence/outcome-learning-loops/)
+  when the question is how requested-versus-observed follow-up should tighten
+  or weaken the next recommendation
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next action is to stop, rerun, narrow, or refuse before more
+  assay spend
 
 ## Contract checkpoints
 
-- planning outputs must preserve gate, dependency, and material context
-- outcome summaries must retain explicit failure, rerun, and promotion signals
-- repository contracts must stay storage-agnostic and typed for feedback loops
-- downstream packages should ask this layer for execution planning instead of embedding schedule logic locally
+- planning outputs preserve dependency, queue, and material context
+- readiness reports keep blocked controls, provenance gaps, and staffing or
+  instrument pressure explicit
+- handoff artifacts preserve protocol version, required controls, refusal
+  reasons, and lossy export notes
+- reconciliation keeps requested assays, observed assays, belief posture, and
+  operational follow-through aligned
+- benchmark outputs keep supported, weakened, and blocked claims separate
+- benchmark outcome dossiers keep requested assays, observed assays, and
+  worth-it judgment visible in the same owner surface
 
 ## Choose this package when
 
-- you need canonical assay planning, batching, or outcome interpretation logic
-- the change affects laboratory behavior rather than only how operators see it
-- queues, feedback loops, and rerun guidance should stay typed and reusable
+- a change alters lab feasibility, execution readiness, handoff integrity, or
+  observed-outcome follow-through
+- queue pressure, material limits, or control coverage need to change how work
+  is planned or refused
+- the package should be able to defend a handoff to operations reviewers
+  without hiding weak evidence or fragile execution assumptions
 
 ## Route elsewhere when
 
-- the change defines lifecycle authority, evidence truth, ranking policy, or
-  transport-bound interfaces
-- the helper only reshapes lab results for CLI or API output
-- the behavior belongs to one evidence or recommendation workflow instead of
-  shared laboratory execution logic
+- the change decides which candidates should be recommended, ranked, or argued
+  for analytically
+- the change defines core scientific truth such as assay semantics, domain
+  lifecycle law, sequence meaning, or evidence ontology
+- the change owns execution orchestration, runtime policy, provider binding,
+  route transport, or operator entrypoints
 
 ## Verification route
 
-- check `tests` for planning, outcome, repository, and schema proof before
-  treating a lab change as safe
+- run the owner-family tests under `tests/design`, `tests/planning`,
+  `tests/readiness`, `tests/handoffs`, `tests/outcomes`, and
+  `tests/reconciliation`
 - review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
-  when ownership or planning-semantics claims are part of the change
-- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
-  affects package publication, metadata, or release-readiness expectations
+  when ownership or refusal behavior changes
+- use `tests/benchmarks` when targeted operational claims or benchmark
+  rehearsals change
 
 ## Review questions
 
-- does the change preserve planning, batching, rerun, or outcome-promotion
-  semantics rather than interface transport or one-off reporting
-- would runtime or intelligence start carrying shadow scheduling or rerun logic
-  if this behavior stayed outside lab
-- can the change be justified without claiming lifecycle, evidence, ranking, or
-  provider-interface ownership
+- does the change improve operational honesty, feasibility, or traceability
+  rather than just making a recommendation look cleaner
+- would operators learn about blocked controls, weak provenance, or material
+  scarcity early enough to stop irresponsible spend
+- can the package still explain the behavior without claiming analytical
+  recommendation authority, core scientific semantics, or runtime ownership
 
 ## Escalation route
 
-- route the change outward when the behavior mainly defines lifecycle law,
-  evidence truth, recommendation policy, or operator transport
-- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
-  proposal looks like workflow-local reporting instead of reusable lab
-  scheduling or outcome semantics
-- escalate before release when downstream consumers would need package-specific
-  rerun or batching exceptions to adopt the change
+- escalate out when the real owner is intelligence recommendation policy, core
+  scientific semantics, or runtime execution orchestration
+- stop and review the handoff and readiness owners when a proposal tries to
+  smuggle fragile execution assumptions through a successful-looking packet
+- escalate before release when operators could mistake advisory enthusiasm for
+  executable readiness
 
 ## Consumer impact signals
 
-- expect downstream review when planning, batching, rerun, or outcome-promotion
-  semantics change because operator workflows depend on them staying stable
-- treat changes that alter scheduling behavior, rerun decisions, or outcome
-  meaning as high-impact even when imports stay stable
-- expect a narrower release burden when the change only improves internal
-  implementation without changing lab execution semantics
+- treat changes to queue pressure, material feasibility, refusal reasons,
+  protocol caveats, or reconciliation posture as high impact
+- expect downstream review when benchmark, handoff, or readiness behavior
+  changes because operators and reviewers depend on those claims staying
+  interpretable
+- treat root-surface changes as high impact because the root is intentionally
+  narrow and curated
 
 ## Explicit non-goals
 
-- this package does not own canonical runtime transport, provider binding, or
-  operator entrypoints
-- this package does not redefine evidence semantics or recommendation policy
-  owned by lower packages
-- this package does not exist to preserve compatibility-only imports or release
-  governance rules
+- this package does not own analytical recommendation logic
+- this package does not own core scientific semantics
+- this package does not own execution orchestration or runtime policy
+- this package does not hide blocked work inside optimistic packets or free-form
+  operator notes
 
 ## Source guide
 
-- [`src/bijux_proteomics_lab/planning.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py) for planning and scheduling models
-- [`src/bijux_proteomics_lab/design.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/design.py) for experiment-design validation, protocol metadata, and run-setup planning
-- [`src/bijux_proteomics_lab/outcomes.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes.py) for outcome interpretation and rerun decisions
-- [`src/bijux_proteomics_lab/repositories.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/src/bijux_proteomics_lab/repositories.py) for repository contracts and trend summaries
-- [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab/tests) for executable behavior expectations
+- `planning/assays.py`, `planning/scheduling.py`, `planning/priorities.py`,
+  and `planning/next_cycle.py` for executable planning, capacity fitting,
+  practical prioritization, and next-cycle recommendation
+- `readiness/operations.py` and `readiness/stages.py` for material,
+  provenance, controls, staffing, instrument, and stage readiness
+- `handoffs/transitions.py`, `handoffs/explanations.py`, and
+  `handoffs/exports.py` for transition review, refusal behavior, explanation
+  packets, and lossy export notes
+- `handoffs/risk.py` and `handoffs/ptm.py` for assay-risk and PTM-specific
+  operational controls
+- `outcomes/observations.py` and `reconciliation/follow_up.py` for observed
+  outcome posture and follow-through
+- `benchmarks/claims.py` and `benchmarks/rehearsals.py` for targeted benchmark
+  claim support and rehearsal delivery
+- `benchmarks/follow_up.py` and `benchmarks/outcome_dossiers.py` for planned
+  assay boundaries, requested-versus-observed closure, and assay-worth-it
+  evidence
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-- [Ownership boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/architecture/)
+- [Ownership boundary](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/foundation/ownership-boundary/)
 - [Interface contracts](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/interfaces/)
-- [Release and versioning](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/operations/release-and-versioning/)
 - [Experiment design and protocol planning](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-lab/docs/EXPERIMENT_DESIGN.md)

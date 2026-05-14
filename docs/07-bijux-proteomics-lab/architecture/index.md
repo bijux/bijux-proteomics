@@ -61,9 +61,9 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_lab/planning.py` and `outcomes.py` for the lab-facing control flow
-- `src/bijux_proteomics_lab/schema.py` and `serialization.py` for contract structure
-- `src/bijux_proteomics_lab/repositories.py` for durable storage boundaries
+- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py` for the lab-facing control flow
+- `src/bijux_proteomics_lab/design/protocols.py`, `handoffs/artifacts.py`, and `handoffs/serialization.py` for contract structure
+- `src/bijux_proteomics_lab/reconciliation/follow_up.py` for durable storage boundaries
 
 ## Boundary Test
 

@@ -1,0 +1,25 @@
+{
+  "candidate_count": 5200,
+  "evidence_entry_count": 186000,
+  "render_seconds": 28.0,
+  "navigation_seconds": 36.0,
+  "export_seconds": 12.0,
+  "notes": [
+    "medium decision brief scale fixture models a crowded board where evidence navigation dominates render cost",
+    "candidate count mirrors a serious triage batch instead of a toy packet",
+    "evidence entry count preserves review-packet credibility because analysts need realistic navigation volume",
+    "export remains materially cheaper than navigation so the bottleneck stays interpretable",
+    "this fixture is intentionally large enough to be a medium review benchmark input for release credibility"
+  ],
+  "owner_surfaces": [
+    "bijux-proteomics-core: review",
+    "bijux-proteomics-intelligence: review_packets",
+    "bijux-proteomics-knowledge: reviews"
+  ],
+  "evidence_mix": {
+    "dda": 42000,
+    "dia": 61000,
+    "lfq": 47000,
+    "ptm": 36000
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+  "challenge_id": "multiplex-reference-bleed-perturbation",
+  "comparator_reaction": "collapses",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/evidence/perturbed_multiplex_ms1_features.tsv"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 0.0,
+      "delta": 2.0,
+      "interpretation": "More materially compressed ratios mean multiplex conclusions are no longer stable under bleed and carrier distortion pressure.",
+      "metric_id": "materially_compressed_ratio_count",
+      "perturbed_value": 2.0
+    },
+    {
+      "baseline_value": 4.0,
+      "delta": -4.0,
+      "interpretation": "Reference-channel dropout removes the pooled anchor that the multiplex decision brief depends on.",
+      "metric_id": "reference_feature_row_count",
+      "perturbed_value": 0.0
+    },
+    {
+      "baseline_value": 0.0,
+      "delta": 6.0,
+      "interpretation": "Flagged interference and bleed make channel-level and protein-level multiplex conclusions visibly unsafe.",
+      "metric_id": "interference_or_bleed_flagged_channel_count",
+      "perturbed_value": 6.0
+    }
+  ],
+  "note": "This perturbation corpus combines reference dropout, bleed, and carrier distortion so multiplex claims collapse into bounded internal-support posture.",
+  "perturbation_axes": [
+    "reference dropout",
+    "channel bleed",
+    "carrier-conditioned ratio compression"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "multiplex",
+  "workflow_reaction": "collapses"
+}

@@ -1,0 +1,22 @@
+# Generated foundation benchmark surface inventory.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.benchmark_surfaces
+
+[[benchmark_surface]]
+benchmark_id = "foundation-canonicalization-throughput"
+owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
+metric_name = "documents_per_second"
+unit = "documents_per_second"
+test_path = "packages/bijux-proteomics-foundation/tests/performance/test_hashing_and_serialization_benchmark_surface.py"
+payload_record_count = 160
+nested_measurement_fields = 6
+nested_collection_fields = 5
+
+[[benchmark_surface]]
+benchmark_id = "foundation-hashing-throughput"
+owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
+metric_name = "digests_per_second"
+unit = "digests_per_second"
+test_path = "packages/bijux-proteomics-foundation/tests/performance/test_hashing_and_serialization_benchmark_surface.py"
+payload_record_count = 160
+nested_measurement_fields = 6
+nested_collection_fields = 5

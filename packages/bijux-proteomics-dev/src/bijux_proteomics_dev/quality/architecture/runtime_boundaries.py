@@ -30,6 +30,7 @@ __all__ = [
 class RuntimeImportPolicy:
     runtime_import_prefix: str
     lower_layer_roots: tuple[Path, ...]
+    allowed_imports_by_consumer: dict[str, tuple[str, ...]]
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,12 @@ def load_policy(repo_root: Path) -> RuntimeBoundaryPolicy:
             lower_layer_roots=tuple(
                 repo_root / str(item) for item in imports["lower_layer_roots"]
             ),
+            allowed_imports_by_consumer={
+                str(entry["consumer"]): tuple(
+                    str(module_name) for module_name in entry["modules"]
+                )
+                for entry in imports.get("allow", [])
+            },
         ),
         compat_forwarding=CompatForwardingPolicy(
             package_root=repo_root / str(compat["package_root"]),
@@ -126,6 +133,10 @@ def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) ->
                 for target in node.targets
             ):
                 continue
+            if all(
+                isinstance(target, ast.Name) for target in node.targets
+            ) and isinstance(node.value, ast.Name):
+                continue
             if (
                 all(isinstance(target, ast.Name) for target in node.targets)
                 and isinstance(node.value, ast.Attribute)
@@ -143,6 +154,8 @@ def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) ->
             return False
         if isinstance(node, ast.ImportFrom):
             module = node.module or ""
+            if module == "__future__":
+                continue
             if _matches_target(module):
                 for alias in node.names:
                     if alias.asname:
@@ -221,13 +234,33 @@ def check_lower_layer_runtime_imports(policy: RuntimeBoundaryPolicy) -> list[str
         for path in iter_python_files(root):
             module = parse_python_module(path)
             imports = import_references(module.tree)
-            for imported in imports:
-                if imported == runtime_prefix or imported.startswith(
-                    f"{runtime_prefix}."
-                ):
-                    failures.append(
-                        f"{path}: lower-layer package imports runtime module '{imported}'"
-                    )
+            relative_path = path.relative_to(root.parents[2])
+            allowed = set(
+                policy.runtime_imports.allowed_imports_by_consumer.get(
+                    relative_path.as_posix(),
+                    (),
+                )
+            )
+            runtime_imports = sorted(
+                {
+                    imported
+                    for imported in imports
+                    if imported == runtime_prefix
+                    or imported.startswith(f"{runtime_prefix}.")
+                }
+            )
+            if set(runtime_imports) == allowed:
+                continue
+            for imported in runtime_imports:
+                if imported in allowed:
+                    continue
+                failures.append(
+                    f"{path}: lower-layer package imports undeclared runtime module '{imported}'"
+                )
+            for imported in sorted(allowed - set(runtime_imports)):
+                failures.append(
+                    f"{path}: lower-layer package no longer imports declared runtime module '{imported}'"
+                )
 
     return failures
 

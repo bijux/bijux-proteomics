@@ -4,20 +4,20 @@ audience: mixed
 type: index
 status: canonical
 owner: bijux-proteomics-docs
-last_reviewed: 2026-04-26
+last_reviewed: 2026-05-09
 ---
 
 # Repository Handbook
 
-This handbook explains the logic of the split. It is the place to answer
-questions that no single package can answer honestly on its own: why the family
-exists as multiple packages, which decisions belong above package boundaries,
-and where repository authority must stop before it starts flattening the
-product into one vague story.
+This handbook explains the logic of one bounded proteomics product. It is the
+place to answer questions that no single package can answer honestly on its
+own: how benchmark assets become execution, review, recommendation, and lab
+consequence; which package owns each handoff; and which repository claims are
+still blocked.
 
-The important discipline here is restraint. A repository root should make the
-whole system legible, then hand the reader to the true owner. If it keeps
-talking after that point, it becomes noise.
+The root discipline is restraint. The handbook should make the full product
+legible, then hand the reader to the true owner before repository prose starts
+pretending it owns package-local behavior.
 
 ```mermaid
 flowchart TB
@@ -47,18 +47,40 @@ flowchart TB
 - it keeps the reader from blaming the wrong package for the wrong kind of
   change
 
-## Start With
+## Shared Reader Routes
 
-- Open [Foundation](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/)
-  when the question is why the split exists and where authority changes hands.
-- Open [Scientific Workflow Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
-  when the question is which scientific workflow capabilities still need to be
-  made explicit across package boundaries.
+- Open [Product Overview](https://bijux.io/bijux-proteomics/product-overview/)
+  when the question is still product-wide rather than repository-handbook
+  specific.
+- Open [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the reader already knows the question is family credibility rather than
+  repository topology.
+- Open [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+  when the question is already about safe change or release validation.
+
+## Start Inside This Handbook
+
+- Open [Product Architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+  when the question is how the end-to-end product chain is meant to work.
+- Open [Cross-Package Ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  when the question is which package or handoff owns the work.
+- Open [Repository Shape Rationale](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/repository-shape-rationale/)
+  when the question is why the current package split still exists and which
+  split is only compatibility.
+- Open [Release Readiness Matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+  when the question is whether public wording outruns checked evidence.
 - Open [Operations](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/)
   when the question is how the repository validates, releases, and reviews work
   across package boundaries.
-- Open the [Maintainer Handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/)
-  when the answer lives in helper code, make routing, or GitHub automation.
+
+## Reader Routes
+
+- Scientist:
+  [Scientist Journey](https://bijux.io/bijux-proteomics/workflow-families/scientist-journey/)
+- Operator:
+  [Operator Rerun Journey](https://bijux.io/bijux-proteomics/execution/operator-rerun-journey/)
+- Maintainer:
+  [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
 
 ## Questions This Handbook Owns
 
@@ -66,9 +88,8 @@ flowchart TB
 - Which package should own a disputed behavior?
 - Which repository surfaces are truly shared and which are only adjacent?
 
-## Product Handbooks
+## Canonical Package Handbooks
 
-- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
 - [bijux-proteomics-foundation](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
 - [bijux-proteomics-core](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
 - [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
@@ -76,12 +97,9 @@ flowchart TB
 - [bijux-proteomics-lab](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 - [bijux-proteomics-runtime](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
 
-## First Proof Check
+## Compatibility Handbook
 
-- `packages/` for the package seams this handbook is describing
-- `Makefile` and `makes/` for root-owned command and release routing
-- `apis/` and `.github/workflows/` for repository-level contract and validation
-  surfaces
+- [agentic-proteins](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
 
 ## Boundary Test
 

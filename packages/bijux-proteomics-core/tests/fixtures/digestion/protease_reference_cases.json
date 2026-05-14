@@ -38,6 +38,19 @@
     ]
   },
   {
+    "name": "argc_reference",
+    "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
+    "protease": "argc",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MKWVTFISLLFLFSSAYSR",
+      "GVFR",
+      "R",
+      "DTHKSEIAHR",
+      "FKDLGE"
+    ]
+  },
+  {
     "name": "chymotrypsin_reference",
     "sequence": "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGE",
     "protease": "chymotrypsin",
@@ -55,6 +68,16 @@
       "RRDTHKSEIAHRF",
       "KDL",
       "GE"
+    ]
+  },
+  {
+    "name": "aspn_reference",
+    "sequence": "MPEPDADAK",
+    "protease": "aspn",
+    "digestion_mode": "full",
+    "expected_peptides": [
+      "MPEPDA",
+      "DAK"
     ]
   },
   {

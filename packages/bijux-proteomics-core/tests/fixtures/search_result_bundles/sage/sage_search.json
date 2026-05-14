@@ -1,0 +1,35 @@
+{
+  "database": {
+    "fasta": "databases/target_decoy.fasta",
+    "decoy_tag": "DECOY_"
+  },
+  "enzyme": {
+    "name": "trypsin",
+    "missed_cleavages": 2
+  },
+  "precursor_tol": {
+    "ppm": 10.0
+  },
+  "fragment_tol": {
+    "ppm": 20.0
+  },
+  "mods": {
+    "static": {
+      "C": 57.021464
+    },
+    "variable": {
+      "M": [
+        15.994915
+      ],
+      "S": [
+        79.966331
+      ],
+      "T": [
+        79.966331
+      ],
+      "Y": [
+        79.966331
+      ]
+    }
+  }
+}

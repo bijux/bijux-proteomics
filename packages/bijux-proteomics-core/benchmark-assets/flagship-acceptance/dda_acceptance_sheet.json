@@ -1,0 +1,88 @@
+{
+  "acceptance_passed": true,
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/dda_acceptance_sheet.json",
+  "benchmark_id": "benchmark:dda_search_reproducibility",
+  "benchmark_package_id": "flagship_public_package:dda_reviewable_run",
+  "blocked_claims": [
+    "do not promote DDA to full engine-rerun parity",
+    "do not hide cross-engine protein rollup drift behind a single imported export"
+  ],
+  "claim_ahead_of_evidence": false,
+  "criteria": [
+    {
+      "criterion_id": "dda_search_coverage",
+      "dimension": "search coverage",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json"
+      ],
+      "note": "DDA trust starts only when the benchmark package names at least two explicit engine positions to keep search coverage bounded by real comparator pressure.",
+      "observed_kind": "integer",
+      "observed_value": "2",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "2"
+    },
+    {
+      "criterion_id": "dda_protein_inference_stability",
+      "dimension": "protein inference stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/tests/identification/test_protein_inference_benchmark_surface.py"
+      ],
+      "note": "The flagship DDA package cannot claim stable protein-level reviewability if the current benchmark review still records a known loss to an established comparator.",
+      "observed_kind": "boolean",
+      "observed_value": "true",
+      "passed": true,
+      "required_relation": "exactly",
+      "required_value": "true"
+    },
+    {
+      "criterion_id": "dda_calibration_sanity",
+      "dimension": "calibration sanity",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json"
+      ],
+      "note": "Calibration pressure must surface at least one accepted decoy under the adversarial DDA challenge, or the trust sheet would be hiding confidence collapse instead of measuring it.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "dda_comparator_divergence_tolerance",
+      "dimension": "comparator divergence tolerance",
+      "evidence_paths": [
+        "packages/bijux-proteomics-knowledge/tests/references/test_comparator_confrontation_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py"
+      ],
+      "note": "DDA public trust is allowed only while comparator divergence stays explicitly bounded as advisory or better; refused comparator posture would mean the release language is ahead of the evidence.",
+      "observed_kind": "state",
+      "observed_value": "advisory",
+      "passed": true,
+      "required_relation": "one_of",
+      "required_value": "advisory|supported"
+    },
+    {
+      "criterion_id": "dda_review_packet_promotion",
+      "dimension": "review-packet promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py"
+      ],
+      "note": "DDA trust cannot be promoted into outsider review unless the benchmark packet is both releasable and grounded above thin benchmark prose.",
+      "observed_kind": "state",
+      "observed_value": "review_grade:true",
+      "passed": true,
+      "required_relation": "one_of",
+      "required_value": "review_grade:true|decision_grade:true"
+    }
+  ],
+  "earned_release_language": "outsider_auditable_bounded",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
+  "public_release_language": "outsider_auditable_bounded",
+  "sheet_id": "flagship-acceptance:dda",
+  "workflow_family": "dda"
+}

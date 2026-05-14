@@ -1,0 +1,135 @@
+{
+  "plan": {
+    "program_id": "prog-degraded-provenance",
+    "review_queue": [
+      "targeted-readiness-review"
+    ],
+    "evidence_gaps": [
+      "orthogonal_confirmation"
+    ],
+    "batches": [
+      {
+        "batch_id": "targeted-follow-up-batch",
+        "objective": "confirm the prioritized phosphosite panel with targeted follow-up",
+        "assay_ids": [
+          "prm-transition-panel",
+          "orthogonal-immunoblot"
+        ],
+        "priority": 1,
+        "sample_requirements": [
+          "cellular",
+          "biophysical"
+        ],
+        "assay_sample_kinds": {
+          "prm-transition-panel": "cellular",
+          "orthogonal-immunoblot": "biophysical"
+        },
+        "blocking_review_gates": [
+          "targeted-readiness-review"
+        ]
+      }
+    ]
+  },
+  "capacity": {
+    "cycle_id": "cycle-degraded-provenance",
+    "max_batches": 1,
+    "max_assays_per_batch": 2
+  },
+  "instrument_availability": [
+    {
+      "instrument_id": "orbitrap-exploris",
+      "available_days": 3.0,
+      "supported_sample_kinds": [
+        "cellular",
+        "biophysical"
+      ]
+    }
+  ],
+  "candidate_signals": [
+    {
+      "candidate_id": "cand-provenance-gap",
+      "score": 0.82,
+      "assay_ids": [
+        "prm-transition-panel",
+        "orthogonal-immunoblot"
+      ],
+      "decision_ready": true,
+      "contradiction_pressure": 0.14,
+      "freshness_pressure": 0.32,
+      "recommended_action": "review lineage gaps before execution scheduling",
+      "policy_lineage_id": "policy-targeted-lineage-review",
+      "rationale": [
+        "candidate remains analytically attractive",
+        "execution must wait for reviewable acquisition lineage"
+      ]
+    }
+  ],
+  "budget_limit": 2.4,
+  "estimated_batch_cost": 1.1,
+  "material_requirements": [
+    {
+      "material_id": "cell-pellet",
+      "sample_kind": "cellular",
+      "minimum_units": 2.0,
+      "unit": "aliquot"
+    }
+  ],
+  "inventory": [
+    {
+      "material_id": "cell-pellet",
+      "available_units": 4.0
+    }
+  ],
+  "reagent_inventory": [
+    {
+      "material_id": "heavy-standard-pool",
+      "available_units": 3.0,
+      "minimum_units": 1.0,
+      "unit": "vial",
+      "lead_time_days": 2.0
+    }
+  ],
+  "staffing": [
+    {
+      "role_name": "targeted-ms-operator",
+      "available_operators": 1,
+      "required_operators": 1,
+      "available_operator_days": 2.5
+    }
+  ],
+  "backlog": {
+    "queued_review_entries": 1,
+    "blocking_gate_ids": [],
+    "deferred_batch_ids": [],
+    "oldest_entry_days": 3.0
+  },
+  "control_readiness": [
+    {
+      "control_id": "pooled-reference",
+      "required_batch_ids": [
+        "targeted-follow-up-batch"
+      ],
+      "present": true,
+      "failure_consequence": "quantitative transition review would not stay comparable across samples"
+    }
+  ],
+  "provenance_readiness": [
+    {
+      "artifact_id": "targeted-bundle-provenance-gap",
+      "lineage_complete": false,
+      "missing_fields": [
+        "acquisition_template_revision",
+        "bridge_control_mapping"
+      ],
+      "severity": "blocking"
+    }
+  ],
+  "evidence_readiness": [
+    {
+      "evidence_id": "ev-targeted-gap-1",
+      "supports_execution": true,
+      "confidence": 0.68,
+      "issue_summary": "discovery evidence remains promising but still needs orthogonal follow-up"
+    }
+  ]
+}

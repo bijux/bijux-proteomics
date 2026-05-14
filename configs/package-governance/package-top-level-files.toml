@@ -1,0 +1,69 @@
+# Generated package top-level file report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_top_level_files
+
+[guard]
+max_total_top_level_file_count = 29
+
+[[package]]
+distribution_name = "agentic-proteins"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "bijux-proteomics"
+top_level_files = ["__init__.py"]
+
+[[package]]
+distribution_name = "proteomics"
+top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-core"
+top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-foundation"
+top_level_files = ["__init__.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-runtime"
+top_level_files = ["__init__.py", "__main__.py", "cli.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+top_level_files = ["__init__.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+top_level_files = ["__init__.py", "runtime_alias.py"]
+
+[[package]]
+distribution_name = "proteomics-lab"
+top_level_files = ["__init__.py", "runtime_alias.py"]

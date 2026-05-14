@@ -1,0 +1,5 @@
+sample_id	spectrum_id	peptide	charge	score	q_value	proteins	localization_score	candidate_sites	decoy_label
+C1		PEPTIDE	2	100	0.01	P11111	0.8	1	target
+C1	scan-bad-2	PEPTIDE	zero	100	0.01	P11111	0.8	1	target
+C1	scan-bad-3	S[Phospho]PEPTIDEK	2	not-a-number	0.01	P11111	0.8	1	target
+C1	scan-bad-4	S[Phospho]PEPTIDEK	2	100	0.01		0.8	1	target

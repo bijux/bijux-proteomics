@@ -1,0 +1,16 @@
+{
+  "created_on": "2026-05-07",
+  "last_refreshed_on": "2026-05-07",
+  "lifecycle_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/lifecycle.json",
+  "note": "Companion package lifecycle is governed by whether it still adds real generalization pressure beyond the flagship primary package.",
+  "obsolescence_triggers": [
+    "Retire or replace this companion package if a materially harder public variation for the same workflow family is added.",
+    "Retire this companion package if its stress profile no longer adds meaningful drift relative to the primary package."
+  ],
+  "package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+  "retirement_conditions": [
+    "Retire only after a stronger cross-package generalization pair and a refreshed family report are both shipped."
+  ],
+  "successor_package_id": null,
+  "workflow_family": "lfq"
+}

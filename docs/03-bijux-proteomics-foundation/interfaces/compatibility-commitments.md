@@ -19,6 +19,6 @@ Compatibility commitments are expensive promises. They should be visible enough 
 
 ## First Proof Check
 
-- `src/bijux_proteomics_foundation/ids.py` and `schema.py`
-- `src/bijux_proteomics_foundation/serialization.py` and `migrations.py`
+- `src/bijux_proteomics_foundation/identity/identifiers.py` and `serialization/document_schema.py`
+- `src/bijux_proteomics_foundation/serialization/` and `compatibility/schema_migrations.py`
 - `packages/bijux-proteomics-foundation/tests`

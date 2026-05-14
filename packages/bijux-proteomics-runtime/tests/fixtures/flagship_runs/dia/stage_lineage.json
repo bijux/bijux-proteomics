@@ -1,0 +1,37 @@
+{
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
+  "lineage_id": "flagship-stage-lineage:dia",
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
+  "stages": [
+    {
+      "consumed_artifact_ids": [
+        "dia-diann-pipeline-corpus:primary_input",
+        "dia-diann-pipeline-corpus:companion_input:1",
+        "dia-diann-pipeline-corpus:companion_input:2",
+        "dia-diann-pipeline-corpus:companion_input:3",
+        "dia-diann-pipeline-corpus:companion_input:4"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "dia:runtime:1",
+        "dia:runtime:2"
+      ],
+      "stage_id": "ingest-package-inputs",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane"
+    },
+    {
+      "consumed_artifact_ids": [
+        "dia:runtime:1",
+        "dia:runtime:2"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "dia:runtime:3",
+        "dia:runtime:4"
+      ],
+      "stage_id": "publish-runtime-review",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
+    }
+  ],
+  "workflow_family": "dia"
+}

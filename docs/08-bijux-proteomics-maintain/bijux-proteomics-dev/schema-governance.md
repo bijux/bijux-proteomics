@@ -35,8 +35,8 @@ This page should make schema governance feel like release governance for public 
 
 ## First Proof Check
 
-- `src/bijux_proteomics_dev/api/freeze_contracts.py`
-- `src/bijux_proteomics_dev/api/openapi_drift.py`
+- `src/bijux_proteomics_dev/governance/contracts/freeze_contracts.py`
+- `src/bijux_proteomics_dev/governance/contracts/openapi_drift.py`
 
 ## Design Pressure
 

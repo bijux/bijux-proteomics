@@ -1,0 +1,13 @@
+{
+  "package_id": "public_companion_package:ptm_ambiguity_stress_review_package",
+  "workflow_family": "ptm",
+  "citations": [
+    {
+      "citation_id": "citation:ptm_localization_review",
+      "title": "PTM localization confidence review",
+      "doi": null,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/28104535/",
+      "why_it_matters": "The PTM companion package exists to stress ambiguity-sensitive transfer."
+    }
+  ]
+}

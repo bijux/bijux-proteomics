@@ -1,0 +1,37 @@
+{
+  "package_id": "flagship_public_package:dda_reviewable_run",
+  "workflow_family": "dda",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run",
+  "remote_sources": [
+    {
+      "source_id": "dda:maxquant_reference",
+      "public_source_name": "MaxQuant DDA export snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/maxquant/maxquant_pipeline_export.tsv",
+      "public_reference_url": "https://www.maxquant.org/",
+      "why_it_matters": "MaxQuant defines the primary imported DDA result dialect for the current flagship package.",
+      "availability_expectation": "The MaxQuant project page should remain reachable while the imported-result dialect stays part of flagship DDA proof.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the project source page, not a downloadable binary."
+    },
+    {
+      "source_id": "dda:msfragger_reference",
+      "public_source_name": "MSFragger comparator export snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/msfragger/msfragger_pipeline_export.tsv",
+      "public_reference_url": "https://msfragger.nesvilab.org/",
+      "why_it_matters": "MSFragger defines the comparator dialect used for the flagship DDA cross-engine warning surface.",
+      "availability_expectation": "The MSFragger project page should remain reachable while comparator-backed DDA proof depends on it.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the project source page, not an executable redistribution path."
+    },
+    {
+      "source_id": "dda:reference_proteome",
+      "public_source_name": "UniProt reference proteome design context",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/production_run/design.tsv",
+      "public_reference_url": "https://www.uniprot.org",
+      "why_it_matters": "The DDA package relies on reference proteome context to keep peptide and protein review grounded.",
+      "availability_expectation": "UniProt should remain reachable while the reference grounding claim stays in force.",
+      "license_note": "Public availability check targets the reference resource page used by the package README and citation manifest."
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "budget_limit": 2.0,
+  "estimated_batch_cost": 1.0,
+  "plan": {
+    "program_id": "prog-insufficient-material",
+    "batches": [
+      {
+        "batch_id": "b-targeted",
+        "objective": "run targeted confirmation under weak readiness",
+        "assay_ids": ["assay-targeted"],
+        "priority": 1,
+        "sample_requirements": ["cellular"],
+        "assay_sample_kinds": {
+          "assay-targeted": "cellular"
+        }
+      }
+    ]
+  },
+  "capacity": {
+    "cycle_id": "cycle-insufficient-material",
+    "max_batches": 1,
+    "max_assays_per_batch": 1
+  },
+  "instrument_availability": [
+    {
+      "instrument_id": "orbitrap",
+      "available_days": 1.0,
+      "supported_sample_kinds": ["cellular"]
+    }
+  ],
+  "candidate_signals": [
+    {
+      "candidate_id": "cand-material",
+      "score": 0.84,
+      "assay_ids": ["assay-targeted"],
+      "decision_ready": true,
+      "contradiction_pressure": 0.18,
+      "freshness_pressure": 0.11,
+      "policy_lineage_id": "policy-balanced"
+    }
+  ],
+  "material_requirements": [
+    {
+      "material_id": "cell-pellet",
+      "sample_kind": "cellular",
+      "minimum_units": 2.0,
+      "unit": "tube"
+    }
+  ],
+  "inventory": [
+    {
+      "material_id": "cell-pellet",
+      "available_units": 0.5
+    }
+  ],
+  "reagent_inventory": [
+    {
+      "material_id": "cell-pellet",
+      "available_units": 0.5,
+      "minimum_units": 2.0,
+      "unit": "tube",
+      "lead_time_days": 14.0
+    }
+  ],
+  "staffing": [
+    {
+      "role_name": "mass-spec-operator",
+      "available_operators": 1,
+      "required_operators": 1,
+      "available_operator_days": 1.0
+    }
+  ],
+  "backlog": {
+    "queued_review_entries": 1,
+    "blocking_gate_ids": [],
+    "deferred_batch_ids": [],
+    "oldest_entry_days": 2.0
+  },
+  "control_readiness": [
+    {
+      "control_id": "pooled-reference",
+      "required_batch_ids": ["b-targeted"],
+      "present": false,
+      "failure_consequence": "transition timing cannot be normalized safely"
+    }
+  ],
+  "provenance_readiness": [
+    {
+      "artifact_id": "evidence-bundle-1",
+      "lineage_complete": false,
+      "missing_fields": ["sample_lineage", "instrument_method"],
+      "severity": "blocking"
+    }
+  ],
+  "evidence_readiness": [
+    {
+      "evidence_id": "ev-weak-1",
+      "supports_execution": false,
+      "confidence": 0.42,
+      "issue_summary": "orthogonal confirmation is still missing"
+    }
+  ]
+}

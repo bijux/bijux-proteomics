@@ -15,12 +15,12 @@ The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compat
 
 ## Package Surface
 
-- report outputs produced through `report/`
-- runtime and workspace state carried through `runtime/`, `state/`, and `memory/`
+- structure-report outputs produced through `interfaces/structure_reports.py`
+- runtime and workspace state carried through `execution/` and `state/`
 - legacy execution or replay artifacts still needed for migration review
 
 ## First Proof Check
 
 - `src/agentic_proteins/interfaces/cli.py`
-- `src/agentic_proteins/api/app.py`
+- `src/agentic_proteins/interfaces/http/app.py`
 - `packages/agentic-proteins/tests`

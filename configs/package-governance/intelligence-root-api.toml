@@ -1,0 +1,47 @@
+# Curated intelligence root API policy.
+
+[budget]
+max_public_symbols = 7
+max_init_lines = 32
+
+[[symbol]]
+name = "candidates"
+owner_module = "bijux_proteomics_intelligence.candidates"
+classification = "judgment_band"
+rationale = "Candidate ranking, lifecycle, and storage stay grouped under one durable owner family."
+
+[[symbol]]
+name = "governance"
+owner_module = "bijux_proteomics_intelligence.governance"
+classification = "governance_band"
+rationale = "Charter and machine-readable governance belong under one explicit owner family."
+
+[[symbol]]
+name = "interpretation"
+owner_module = "bijux_proteomics_intelligence.interpretation"
+classification = "interpretation_band"
+rationale = "Interpretation contracts stay visible as their own analytical owner family."
+
+[[symbol]]
+name = "judgment"
+owner_module = "bijux_proteomics_intelligence.judgment"
+classification = "judgment_band"
+rationale = "Judgment paths, recommendations, and scenario decisions belong to one coherent owner family."
+
+[[symbol]]
+name = "learning"
+owner_module = "bijux_proteomics_intelligence.learning"
+classification = "learning_band"
+rationale = "Learning and refinement logic stays grouped instead of leaking through historical convenience exports."
+
+[[symbol]]
+name = "posture"
+owner_module = "bijux_proteomics_intelligence.posture"
+classification = "posture_band"
+rationale = "Evidence posture and skeptical challenge stay grouped under one refusal-aware owner family."
+
+[[symbol]]
+name = "reviews"
+owner_module = "bijux_proteomics_intelligence.reviews"
+classification = "review_band"
+rationale = "Review boards, candidate review, and benchmark review stay under one review owner family."

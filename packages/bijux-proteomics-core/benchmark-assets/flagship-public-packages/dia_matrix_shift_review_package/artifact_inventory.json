@@ -1,0 +1,115 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "dia:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The DIA companion package starts from a different report shape and matrix pressure than the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/README.md",
+      "row_count": null,
+      "sha256": "197b19dba37ae5dc1bf88e52109b3a9018daad8bd8b579aca8e2b76e5de388cf",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The DIA companion manifest explains how the shifted library and matrix pressure differs from the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+      "row_count": 21,
+      "sha256": "2b7564296a3ef39a40f7e0fd26660bcbef83096b5654621baabe32ceb60d7313",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The DIA companion quality sheet makes its weaker matrix-transfer posture explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/quality_sheet.json",
+      "row_count": 11,
+      "sha256": "a6ac448f5e574e6f4dbfa33b44ad91e3a94e4bee712042ed1b561f16b66e6f62",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The DIA companion lifecycle record explains that this package exists to stress family transfer, not to replace the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/lifecycle.json",
+      "row_count": 9,
+      "sha256": "9d19ae00e0e71f2e88f47ff0ddf6a2300c02a1d955ae7eb6e71f1a9c260a8cac",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest shows where the DIA companion exports came from.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/source_locator_manifest.json",
+      "row_count": 4,
+      "sha256": "28658c49938d714f23ff01a995383fdae50d369e58bf2ec8e3f221ae75197ce0",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest ties the DIA companion package to DIA method and library-dependence references.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/citation_manifest.json",
+      "row_count": 3,
+      "sha256": "e82a927ed6351bc62d3d251b300d48ad746b7e1cc41077584ef3a2af7f1586b1",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary manifest distinguishes copied DIA exports from generated metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/generated_boundary.json",
+      "row_count": 3,
+      "sha256": "8df913636fbe77496cca114ebf878dcfe0cde32393245b79c21e35093fb1f656",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions tell maintainers how to refresh the DIA companion package surfaces.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "8e18917fe902cc384484abfeb28b475d6b72547afb3e7514e1bce8d4f6221b33",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:primary_report",
+      "evidence_kind": "imported_search_results",
+      "note": "The DIA-NN report drives the companion raw-executable DIA review lane.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+      "row_count": 2,
+      "sha256": "14e14b95d9cf889f0d2cf847a2fce4666942c51c65ef19d6192a0fd8d09fc3b5",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:primary_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "note": "The DIA-NN pipeline export keeps the companion package tied to a different extracted-result surface from the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_pipeline_export.tsv",
+      "row_count": 2,
+      "sha256": "3f0b651968e1ec8bb2cd19dd13c7922bfbc87a9c7b83642b80938feefcd1dad8",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:comparator_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "note": "The Spectronaut export provides the companion comparator surface.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
+      "row_count": 2,
+      "sha256": "fa4407b18e7c004a0c96fb0e72544c0c142007acc4fcdb4ccb13bf201e4b6068",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dia:comparator_settings",
+      "evidence_kind": "imported_search_results",
+      "note": "The Spectronaut settings snapshot keeps the companion comparator assumptions visible.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_settings.txt",
+      "row_count": null,
+      "sha256": "6c8eb73f7a4f54c61b498cf240c9ccd9c8ad3460899a3be176b78cd2c3eaf816",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/artifact_inventory.json",
+  "note": "The companion package inventory keeps digests and simple counts visible so cross-package review can start from files instead of prose.",
+  "package_id": "public_companion_package:dia_matrix_shift_review_package"
+}

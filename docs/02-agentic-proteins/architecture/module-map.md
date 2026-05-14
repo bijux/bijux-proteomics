@@ -13,9 +13,12 @@ last_reviewed: 2026-04-26
 
 ## Owned Module Families
 
-- `src/agentic_proteins/interfaces/`, `api/`, and `runtime/` translate public legacy entrypoints into the canonical runtime path
-- `src/agentic_proteins/core/`, `execution/`, and `validation/` preserve legacy control semantics that still need explicit migration review
-- `src/agentic_proteins/providers/`, `memory/`, `state/`, and `report/` hold adapter and artifact seams that must not outgrow the bridge role
+- `src/agentic_proteins/interfaces/` preserves CLI, HTTP, and
+  structure-report entrypoints while pointing at canonical owners
+- `src/agentic_proteins/agents/`, `execution/`, and `tools/` keep the
+  remaining bridge-side orchestration and contract surfaces explicit
+- `src/agentic_proteins/providers/` and `state/` hold provider selection and
+  compatibility state seams that still need migration review
 
 ## First Proof Check
 

@@ -1,0 +1,88 @@
+{
+  "acceptance_passed": true,
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-acceptance/dia_acceptance_sheet.json",
+  "benchmark_id": "benchmark:dia_library_extraction_consistency",
+  "benchmark_package_id": "flagship_public_package:dia_library_review_package",
+  "blocked_claims": [
+    "do not promote DIA to direct vendor-library parity",
+    "do not hide ion-mobility absence behind a clean import summary"
+  ],
+  "claim_ahead_of_evidence": false,
+  "criteria": [
+    {
+      "criterion_id": "dia_library_dependence",
+      "dimension": "library dependence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json"
+      ],
+      "note": "The current DIA package is only trusted at bounded outsider scope once at least two thirds of library-conditioned peptide evidence remains visible in the shipped decision brief.",
+      "observed_kind": "fraction",
+      "observed_value": "0.67",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "0.67"
+    },
+    {
+      "criterion_id": "dia_peptide_evidence_coverage",
+      "dimension": "peptide evidence coverage",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py"
+      ],
+      "note": "The DIA acceptance bar keeps peptide-to-protein evidence coverage anchored to a non-trivial tracked protein-group surface instead of letting library import alone stand in for interpretable biology.",
+      "observed_kind": "integer",
+      "observed_value": "4",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "4"
+    },
+    {
+      "criterion_id": "dia_protein_evidence_stability",
+      "dimension": "protein evidence stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+        "packages/bijux-proteomics-core/tests/benchmarks/test_flagship_challenge_corpora_surface.py"
+      ],
+      "note": "DIA family trust needs at least one blinded holdout claim that survives reveal, or protein-level authority would rest only on one convenient imported package.",
+      "observed_kind": "integer",
+      "observed_value": "1",
+      "passed": true,
+      "required_relation": "at_least",
+      "required_value": "1"
+    },
+    {
+      "criterion_id": "dia_quantitative_coherence",
+      "dimension": "quantitative coherence",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-core/tests/dia/test_scientific_support_surface.py"
+      ],
+      "note": "DIA biological interpretation stays within bounded outsider trust only while absent-expected peptide pressure remains no worse than the current one-third benchmark limit.",
+      "observed_kind": "fraction",
+      "observed_value": "0.33",
+      "passed": true,
+      "required_relation": "at_most",
+      "required_value": "0.33"
+    },
+    {
+      "criterion_id": "dia_review_packet_promotion",
+      "dimension": "review-packet promotion",
+      "evidence_paths": [
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py",
+        "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py"
+      ],
+      "note": "DIA trust can only regenerate as outsider-auditable when the decision brief is both releasable and still grounded at review-grade or stronger after its library and mobility caveats are carried through.",
+      "observed_kind": "state",
+      "observed_value": "review_grade:true",
+      "passed": true,
+      "required_relation": "one_of",
+      "required_value": "review_grade:true|decision_grade:true"
+    }
+  ],
+  "earned_release_language": "outsider_auditable_bounded",
+  "note": "This sheet keeps flagship workflow trust tied to measurable bars on the shipped benchmark package, challenge corpus, and decision brief.",
+  "public_release_language": "outsider_auditable_bounded",
+  "sheet_id": "flagship-acceptance:dia",
+  "workflow_family": "dia"
+}

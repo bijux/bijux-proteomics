@@ -1,0 +1,3 @@
+spectrum_id	peptide	charge	score	proteins
+scan=9001	PEPTIDEK	2	120.0	P00001
+scan=9002	DECOYPEP	2	90.0	DECOY_P00002

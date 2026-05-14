@@ -15,12 +15,13 @@ The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compat
 
 ## Package Surface
 
-- `src/agentic_proteins/api/app.py` is the legacy HTTP entry surface that should stay compatible while migration remains open
+- `src/agentic_proteins/interfaces/http/app.py` is the legacy HTTP entry
+  surface that should stay compatible while migration remains open
 - new network behavior should land in `bijux-proteomics-runtime` unless the bridge is the specific subject of review
 - API changes here require explicit migration and retirement reasoning
 
 ## First Proof Check
 
 - `src/agentic_proteins/interfaces/cli.py`
-- `src/agentic_proteins/api/app.py`
+- `src/agentic_proteins/interfaces/http/app.py`
 - `packages/agentic-proteins/tests`

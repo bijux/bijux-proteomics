@@ -1,0 +1,274 @@
+{
+  "candidate_id": "cand-met-transition-carryover",
+  "target_id": "target-met-carryover",
+  "claim_links": {
+    "prm-transition-panel": [
+      "claim-met-transition"
+    ]
+  },
+  "review_queue_decision": {
+    "review_id": "review-met-transition",
+    "program_id": "prog-met",
+    "gate_id": "gate-targeted-follow-up",
+    "state": "approved",
+    "summary": "the candidate cleared review, but the proposed transition set still needs execution-safe validation Carryover stress package keeps transition reuse risk explicit.",
+    "evidence_ids": [
+      "ev-met-assay-1",
+      "ev-met-orthogonal-2"
+    ]
+  },
+  "workflow_readiness_summary": {
+    "program_id": "prog-met",
+    "ready_step_count": 4,
+    "blocked_step_count": 1,
+    "missing_evidence_needs": [],
+    "blocking_assay_ids": [],
+    "blocking_review_gate_ids": [],
+    "step_statuses": [
+      {
+        "step_id": "intake",
+        "stage_kind": "intake",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "evidence-review",
+        "stage_kind": "evidence_review",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "assay-execution",
+        "stage_kind": "assay_execution",
+        "ready": false,
+        "blockers": [
+          "targeted_transition_failure:prm-transition-panel"
+        ]
+      },
+      {
+        "step_id": "decision-review",
+        "stage_kind": "decision_review",
+        "ready": true,
+        "blockers": []
+      },
+      {
+        "step_id": "learning-loop",
+        "stage_kind": "learning_loop",
+        "ready": true,
+        "blockers": []
+      }
+    ]
+  },
+  "plate_advisory": {
+    "plate_id": "plate-met-transition",
+    "row_count": 8,
+    "column_count": 12,
+    "randomization_seed": 13,
+    "assignments": [
+      {
+        "sample_id": "met-01",
+        "condition": "treated",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-met-transition-1",
+        "plate_id": "plate-met-transition",
+        "well_id": "A01",
+        "lineage_label": "cand-met-transition|treated|rep1",
+        "sample_role": "sample",
+        "randomization_block": "block-a",
+        "multiplex_group": "met-panel-1",
+        "contamination_watch": false
+      },
+      {
+        "sample_id": "pool-met-01",
+        "condition": "reference_pool",
+        "replicate": 1,
+        "fraction": 1,
+        "batch": "batch-met-transition-1",
+        "plate_id": "plate-met-transition",
+        "well_id": "A12",
+        "lineage_label": "reference|pool",
+        "sample_role": "pooled_reference",
+        "randomization_block": "block-a",
+        "multiplex_group": "met-panel-1",
+        "contamination_watch": false
+      }
+    ],
+    "control_well_ids": [
+      "A12"
+    ],
+    "blocked_layout_labels": [],
+    "multiplex_group_count": 1,
+    "contamination_watch_well_ids": [],
+    "layout_summary": "plate layout is viable, but the transition set still fails execution-safe review",
+    "notes": [
+      "layout itself does not block the handoff",
+      "transition review remains the limiting operational surface"
+    ]
+  },
+  "handoff_validation": {
+    "program_id": "prog-met",
+    "candidate_id": "cand-met-transition",
+    "accepted": true,
+    "accepted_assay_ids": [
+      "prm-transition-panel"
+    ],
+    "blockers": [],
+    "skepticism_notes": [
+      "scientific support is acceptable, but the transition set still needs execution-safe control coverage"
+    ],
+    "required_next_actions": [
+      "replace or repair the failed transition set before resubmitting the executable batch"
+    ]
+  },
+  "transition_review": {
+    "assay_id": "prm-transition-panel",
+    "approved_transition_ids": [],
+    "exploratory_transition_ids": [
+      "tr-met-watch"
+    ],
+    "refused_transition_ids": [
+      "tr-met-failed"
+    ],
+    "readiness_score": 0.11,
+    "entries": [
+      {
+        "transition_id": "tr-met-watch",
+        "disposition": "exploratory",
+        "risk_assessment": {
+          "assay_id": "prm-transition-panel",
+          "overall_risk_score": 0.34,
+          "supported_for_follow_up": true,
+          "findings": [],
+          "notes": [
+            "assay risk remains acceptable for follow-up"
+          ]
+        },
+        "missing_controls": [
+          "heavy-standard"
+        ],
+        "reasons": [
+          "assay risk score 0.34 keeps the transition exploratory",
+          "missing required controls: heavy-standard"
+        ]
+      },
+      {
+        "transition_id": "tr-met-failed",
+        "disposition": "refused",
+        "risk_assessment": {
+          "assay_id": "prm-transition-panel",
+          "overall_risk_score": 0.69,
+          "supported_for_follow_up": false,
+          "findings": [
+            {
+              "code": "poor_localization",
+              "severity": "high",
+              "summary": "site localization confidence is too weak for strong assay claims",
+              "rationale": [
+                "localization_probability=0.54 does not support confident site-specific interpretation"
+              ],
+              "mitigation": [
+                "increase localization evidence before targeted follow-up"
+              ]
+            },
+            {
+              "code": "likely_assay_failure",
+              "severity": "high",
+              "summary": "operational evidence suggests the assay is likely to fail or stall",
+              "rationale": [
+                "predicted_failure_risk=0.63",
+                "assay_feasibility_score=0.47"
+              ],
+              "mitigation": [
+                "review controls, turnaround, and sample modality before scheduling"
+              ]
+            }
+          ],
+          "notes": [
+            "assay risk should block or downgrade the follow-up handoff"
+          ]
+        },
+        "missing_controls": [
+          "heavy-standard"
+        ],
+        "reasons": [
+          "assay risk score 0.69 is too high for confident transition approval",
+          "transition is not responsible to schedule as written"
+        ]
+      }
+    ],
+    "notes": [
+      "the candidate is scientifically supported, but the transition set itself is not ready for responsible execution"
+    ]
+  },
+  "review_packet": {
+    "program_id": "prog-met",
+    "ready_for_synthesis": true,
+    "blocking_findings": [
+      "carryover stress package keeps calibration and reuse risk explicit"
+    ],
+    "recommended_actions": [
+      "preserve orthogonal confirmation while rebuilding the transition controls"
+    ],
+    "advancement_evidence": {
+      "bundle_id": "bundle-met-transition",
+      "target_id": "target-met",
+      "evidence_ids": [
+        "ev-met-assay-1",
+        "ev-met-orthogonal-2"
+      ],
+      "required_evidence_kinds": [
+        "assay",
+        "pathway"
+      ],
+      "missing_evidence_kinds": [],
+      "items": [
+        {
+          "evidence_id": "ev-met-assay-1",
+          "kind": "assay",
+          "confidence": 0.84,
+          "strength": "strong",
+          "claim": "the MET follow-up signal remains supported before transition-level execution checks"
+        }
+      ]
+    }
+  },
+  "executable_plan": {
+    "program_id": "prog-met",
+    "batch_id": "batch-met-transition-1",
+    "plan_kind": "executable",
+    "instructions": [
+      {
+        "instruction_id": "batch-met-transition-1:prm-transition-panel",
+        "assay_id": "prm-transition-panel",
+        "batch_id": "batch-met-transition-1",
+        "sample_kind": "targeted",
+        "objective": "run the MET transition panel once the failed transitions are repaired",
+        "blocking": true,
+        "preflight_checks": [
+          "repair failed transition set",
+          "load heavy standard"
+        ]
+      }
+    ],
+    "blocked_by": [
+      "failed targeted transition review keeps the batch out of execution scheduling"
+    ],
+    "ready_for_execution": false
+  },
+  "outcome": {
+    "batch_id": "batch-met-transition-1",
+    "assay_outcomes": [
+      {
+        "assay_id": "prm-transition-panel",
+        "passed": false,
+        "result_state": "failed_technical",
+        "observation_summary": "the repaired transition set still failed retention-time and heavy-standard checks",
+        "failure_class": "technical",
+        "replicate_count": 2,
+        "uncertainty": 0.29
+      }
+    ],
+    "rerun_policy": "on_technical_failure"
+  }
+}

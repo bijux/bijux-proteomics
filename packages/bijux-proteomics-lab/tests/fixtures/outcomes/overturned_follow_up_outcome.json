@@ -1,0 +1,47 @@
+{
+  "candidate_id": "cand-overturned",
+  "target_id": "target-overturned",
+  "claim_links": {
+    "assay-overturn-a": ["claim-overturned"],
+    "assay-overturn-b": ["claim-overturned"]
+  },
+  "execution_request": {
+    "program_id": "prog-overturned",
+    "batch_id": "batch-overturned-1",
+    "evidence_ids": ["ev-overturned-1", "ev-overturned-2"],
+    "requested_instruction_ids": [
+      "batch-overturned-1:assay-overturn-a",
+      "batch-overturned-1:assay-overturn-b"
+    ],
+    "requested_assay_ids": ["assay-overturn-a", "assay-overturn-b"],
+    "scientific_rationale": [
+      "test whether the prior hypothesis survives two orthogonal follow-up assays"
+    ],
+    "unresolved_risks": [],
+    "ready_for_lab_review": true
+  },
+  "outcome": {
+    "batch_id": "batch-overturned-1",
+    "assay_outcomes": [
+      {
+        "assay_id": "assay-overturn-a",
+        "passed": false,
+        "result_state": "failed_biological",
+        "observation_summary": "the first orthogonal assay contradicted the prior direction",
+        "failure_class": "biological",
+        "replicate_count": 2,
+        "uncertainty": 0.12
+      },
+      {
+        "assay_id": "assay-overturn-b",
+        "passed": false,
+        "result_state": "failed_biological",
+        "observation_summary": "the second orthogonal assay reinforced the contradiction",
+        "failure_class": "biological",
+        "replicate_count": 2,
+        "uncertainty": 0.11
+      }
+    ],
+    "rerun_policy": "never"
+  }
+}

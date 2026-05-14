@@ -1,0 +1,4 @@
+Spectrum	Peptide	Modified Peptide	Charge	Hyperscore	Protein	IsDecoy	QValue	Assigned Modifications	Observed Modifications	Mass Difference	Spectrum File
+runA.1001.1001.2	PEPTIDE	PEP[+15.994915]TIDE	2	152.4	sp|P12345|KINASE_HUMAN	0	0.002	3M(15.994915)	Oxidation (M)	0.0000	runA.raw
+runA.1002.1002.3	ACDMK	AC[+57.021464]DM[+15.994915]K	3	143.1	sp|P23456|TRANSFER_HUMAN;sp|P34567|TRANSFER_MOUSE	0	0.004	2C(57.021464),4M(15.994915)	Carbamidomethyl (C); Oxidation (M)	42.0106	runA.raw
+runA.1003.1003.2	DECOYPEP	DECOYPEP	2	71.3	DECOY_sp|P99999|DECOY_PROT	1	0.210			0.0000	runA.raw

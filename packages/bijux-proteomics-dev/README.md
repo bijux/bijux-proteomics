@@ -1,8 +1,10 @@
 # bijux-proteomics-dev
 
-`bijux-proteomics-dev` is the maintenance toolkit for this monorepo. It
-provides Python helpers for root quality gates, security checks, release
-validation, OpenAPI drift detection, and repository automation.
+`bijux-proteomics-dev` is the maintenance toolkit for this monorepo. It owns
+maintainer automation, docs checks, and release governance.
+
+It also provides Python helpers for root quality gates, security checks,
+release validation, OpenAPI drift detection, and repository automation.
 
 Use this package for CI and maintainer workflows that enforce repository
 standards; it is intentionally separate from product runtime behavior.
@@ -18,6 +20,8 @@ standards; it is intentionally separate from product runtime behavior.
 
 - run and extend root quality and security gates used by all packages
 - validate release readiness and metadata consistency before tagging
+- build the scientific release dossier that links each workflow family to its
+  benchmark, owner, tests, and explicit scientific limits
 - detect OpenAPI and schema drift before publication
 - automate maintainership checks for docs and repository health
 
@@ -120,13 +124,17 @@ It does not define runtime product APIs or proteomics domain behavior.
 
 - [`src/bijux_proteomics_dev/quality`](src/bijux_proteomics_dev/quality) for repository quality checks
 - [`src/bijux_proteomics_dev/security`](src/bijux_proteomics_dev/security) for security gates
-- [`src/bijux_proteomics_dev/api`](src/bijux_proteomics_dev/api) for OpenAPI and schema checks
+- [`src/bijux_proteomics_dev/governance/contracts`](src/bijux_proteomics_dev/governance/contracts) for OpenAPI and schema checks
 - [`src/bijux_proteomics_dev/release`](src/bijux_proteomics_dev/release) for release support
+  including `build_scientific_release_dossier()` and the checked-in
+  `configs/package-governance/scientific-release-workflows.toml` manifest
 - [`src/bijux_proteomics_dev/docs`](src/bijux_proteomics_dev/docs) for documentation checks
 - [`src/bijux_proteomics_dev/tools`](src/bijux_proteomics_dev/tools) for maintainer utility tools
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
 - [Scope and non-goals](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/scope-and-non-goals/)
 - [Module map](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/module-map/)

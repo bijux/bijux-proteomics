@@ -18,6 +18,7 @@ Issues = "https://github.com/bijux/bijux-proteomics/issues"
 [dependency-groups]
 dev = [
   "agentic-proteins",
+  "bijux-proteomics",
   "bijux-proteomics-dev",
   "bijux-proteomics-foundation",
   "bijux-proteomics-core",
@@ -25,6 +26,13 @@ dev = [
   "bijux-proteomics-intelligence",
   "bijux-proteomics-knowledge",
   "bijux-proteomics-lab",
+  "proteomics",
+  "proteomics-core",
+  "proteomics-foundation",
+  "proteomics-runtime",
+  "proteomics-intelligence",
+  "proteomics-knowledge",
+  "proteomics-lab",
   "types-PyYAML>=6.0.12,<7.0",
   "PyYAML>=6.0,<7.0",
   "types-orjson>=3.6.0,<4.0",
@@ -63,6 +71,7 @@ dev = [
   "mkdocs-autorefs>=1.1.0,<2.0",
   "mkdocs-redirects>=1.2.1,<2.0",
   "mkdocs-git-revision-date-localized-plugin>=1.4.0,<2.0",
+  "gitpython>=3.1.50,<4.0",
   "arq>=0.18",
   "prance>=23.6.21.0",
   "openapi-spec-validator>=0.7.1",
@@ -99,6 +108,23 @@ packages = [
   "bijux-proteomics-intelligence",
   "bijux-proteomics-knowledge",
   "bijux-proteomics-lab",
+  "bijux-proteomics",
+  "proteomics",
+  "proteomics-core",
+  "proteomics-foundation",
+  "proteomics-runtime",
+  "proteomics-intelligence",
+  "proteomics-knowledge",
+  "proteomics-lab",
+]
+badge_packages = [
+  "agentic-proteins",
+  "bijux-proteomics-foundation",
+  "bijux-proteomics-core",
+  "bijux-proteomics-runtime",
+  "bijux-proteomics-intelligence",
+  "bijux-proteomics-knowledge",
+  "bijux-proteomics-lab",
 ]
 docs_package = "bijux-proteomics-dev"
 config_dir = "configs"
@@ -106,6 +132,7 @@ make_dir = "makes"
 
 [tool.uv.sources]
 agentic-proteins = { workspace = true }
+bijux-proteomics = { workspace = true }
 bijux-proteomics-dev = { workspace = true }
 bijux-proteomics-foundation = { workspace = true }
 bijux-proteomics-core = { workspace = true }
@@ -113,12 +140,19 @@ bijux-proteomics-runtime = { workspace = true }
 bijux-proteomics-intelligence = { workspace = true }
 bijux-proteomics-knowledge = { workspace = true }
 bijux-proteomics-lab = { workspace = true }
+proteomics = { workspace = true }
+proteomics-core = { workspace = true }
+proteomics-foundation = { workspace = true }
+proteomics-runtime = { workspace = true }
+proteomics-intelligence = { workspace = true }
+proteomics-knowledge = { workspace = true }
+proteomics-lab = { workspace = true }
 
 [tool.uv.workspace]
 members = ["packages/*"]
 
 [tool.interrogate]
-fail-under = 32
+fail-under = 45
 color = true
 
 [tool.bandit]

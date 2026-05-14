@@ -1,0 +1,4 @@
+spectrum_id	peptide	charge	score	q_value	proteins
+scan=2001	KERATINP	2	55.0	0.004	CON__K1C10_HUMAN
+scan=2002	TRYPSINP	2	52.1	0.006	CON__TRYP_PIG;P12345
+scan=2003	TARGETP	2	47.2	0.010	P12345

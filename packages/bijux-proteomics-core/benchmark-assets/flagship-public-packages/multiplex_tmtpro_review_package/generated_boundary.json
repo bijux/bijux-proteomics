@@ -1,0 +1,18 @@
+{
+  "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "workflow_family": "multiplex",
+  "generated_boundaries": [
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+      "boundary_kind": "generated_report",
+      "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.flagship_asset_maintenance refresh",
+      "note": "The multiplex package manifest is generated from shared builders."
+    },
+    {
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
+      "boundary_kind": "curated_readme",
+      "regeneration_command": "edit the README when multiplex authority changes and rerun the asset maintenance refresh",
+      "note": "The README is curated because it explains chemistry-specific authority and limits."
+    }
+  ]
+}

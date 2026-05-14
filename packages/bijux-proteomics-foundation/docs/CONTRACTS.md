@@ -4,13 +4,17 @@
 
 - Distribution name: `bijux-proteomics-foundation`
 - Import root: `bijux_proteomics_foundation`
-- Stable entrypoints: `schema`, `serialization`, `ids`, and `migrations`
+- Stable entrypoints:
+  `bijux_proteomics_foundation`, `compatibility`, `identity`, `outcomes`,
+  `serialization`, and `support`
 
 ## Stable contracts
 
 - output of canonical serialization must be deterministic for equivalent models
 - schema compatibility checks must return explicit compatibility status and
   reasons
+- refusal, error, provenance, and result contracts must serialize with explicit
+  field names that do not depend on internal repo history
 - migration helpers must preserve semantic model meaning across versions
 
 ## Change requirements
@@ -62,3 +66,6 @@ JSON behavior, compatibility semantics, or migration-path guarantees.
 - This package does not define product decision policy.
 - This package does not define runtime orchestration behavior.
 - This package does not own evidence, ranking, or lab semantics.
+- This package does not carry product-specific fixtures or workflow examples.
+- This package does not publish route-shaped, CLI-shaped, or Markdown-shaped
+  helper surfaces.

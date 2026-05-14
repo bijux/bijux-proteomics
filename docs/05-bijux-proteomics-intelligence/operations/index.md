@@ -16,10 +16,10 @@ people may use to decide what gets advanced, redesigned, or paused.
 
 ```mermaid
 flowchart LR
-    policy["policy or evaluator change"]
+    policy["candidate, judgment, or posture change"]
     scenarios["rerun scenario and ranking tests"]
-    explain["check explanation and brief quality"]
-    drift["inspect portfolio and design-loop drift"]
+    explain["check decision brief and interpretation quality"]
+    drift["inspect portfolio and refinement drift"]
     review["review recommendation consequences"]
     release["publish updated judgment surface"]
 
@@ -58,6 +58,6 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`

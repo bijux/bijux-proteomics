@@ -13,9 +13,11 @@ The execution model for `agentic-proteins` should make it clear how package-owne
 
 ## Flow
 
-- legacy CLI, API, or import entrypoints arrive through `interfaces/` or `api/`
-- compatibility logic in `core/` and `execution/` translates the request into runtime-compatible behavior
-- runtime, provider, report, and state modules preserve inspectable outputs until the path can be retired
+- legacy CLI, HTTP, or import entrypoints arrive through `interfaces/`
+- compatibility logic in `agents/`, `execution/`, and `tools/` translates the
+  request into canonical runtime behavior
+- provider and state modules preserve inspectable outputs until the path can be
+  retired cleanly
 
 ## First Proof Check
 

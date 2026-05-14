@@ -1,0 +1,13 @@
+{
+  "package_id": "flagship_public_package:lfq_cohort_review_package",
+  "workflow_family": "lfq",
+  "citations": [
+    {
+      "citation_id": "citation:lfq_missingness_reference",
+      "title": "Missing value imputation and quantitative reproducibility remain central LFQ trust pressures",
+      "doi": null,
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
+      "why_it_matters": "Anchors the cohort-scale missingness and reproducibility caution in the LFQ package."
+    }
+  ]
+}

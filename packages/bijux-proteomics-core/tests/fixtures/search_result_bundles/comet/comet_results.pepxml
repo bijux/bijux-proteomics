@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<msms_pipeline_analysis xmlns="http://regis-web.systemsbiology.net/pepXML" summary_xml="comet_results.pepxml">
+  <msms_run_summary base_name="run01" raw_data_type="raw" raw_data=".mzML">
+    <spectrum_query spectrum="run01.1001.1001.2" start_scan="1001" end_scan="1001" precursor_neutral_mass="998.4000" assumed_charge="2" index="1">
+      <search_result>
+        <search_hit hit_rank="1" peptide="PEPTIDE" peptide_prev_aa="K" peptide_next_aa="A" protein="sp|P12345|KINASE_HUMAN" num_tot_proteins="1" calc_neutral_pep_mass="997.3927" massdiff="0.0000" num_matched_ions="12" tot_num_ions="18">
+          <modification_info modified_peptide="PEP[+79.966331]TIDE" />
+          <search_score name="xcorr" value="3.52" />
+          <search_score name="deltacn" value="0.17" />
+          <search_score name="spscore" value="91.6" />
+          <search_score name="expect" value="0.00031" />
+        </search_hit>
+      </search_result>
+    </spectrum_query>
+    <spectrum_query spectrum="run01.1002.1002.3" start_scan="1002" end_scan="1002" precursor_neutral_mass="734.2000" assumed_charge="3" index="2">
+      <search_result>
+        <search_hit hit_rank="1" peptide="ACDMK" peptide_prev_aa="R" peptide_next_aa="G" protein="sp|P23456|TRANSFER_HUMAN" num_tot_proteins="2" calc_neutral_pep_mass="733.1921" massdiff="0.0042" num_matched_ions="10" tot_num_ions="16">
+          <alternative_protein protein="sp|P34567|TRANSFER_MOUSE" />
+          <modification_info modified_peptide="AC[+57.021464]DM[+15.994915]K" />
+          <search_score name="xcorr" value="2.87" />
+          <search_score name="deltacn" value="0.09" />
+          <search_score name="spscore" value="70.3" />
+          <search_score name="expect" value="0.00210" />
+        </search_hit>
+      </search_result>
+    </spectrum_query>
+    <spectrum_query spectrum="run01.1003.1003.2" start_scan="1003" end_scan="1003" precursor_neutral_mass="812.1000" assumed_charge="2" index="3">
+      <search_result>
+        <search_hit hit_rank="1" peptide="DECAYPEP" peptide_prev_aa="K" peptide_next_aa="R" protein="DECOY_sp|P99999|DECOY_PROT" num_tot_proteins="1" calc_neutral_pep_mass="811.0910" massdiff="0.0000" num_matched_ions="6" tot_num_ions="14">
+          <search_score name="xcorr" value="1.38" />
+          <search_score name="deltacn" value="0.02" />
+          <search_score name="spscore" value="28.7" />
+          <search_score name="expect" value="0.06100" />
+        </search_hit>
+      </search_result>
+    </spectrum_query>
+  </msms_run_summary>
+</msms_pipeline_analysis>

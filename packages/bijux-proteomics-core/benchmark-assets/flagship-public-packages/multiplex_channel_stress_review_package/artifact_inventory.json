@@ -1,0 +1,97 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "multiplex:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The multiplex companion package starts from stronger channel imbalance and dropout stress.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/README.md",
+      "row_count": null,
+      "sha256": "32bad9aea620708f28535e2f3237d5480ed9b43e57c655311d670b83735d6ab0",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The multiplex companion manifest states how the stress design differs from the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/package_manifest.json",
+      "row_count": 21,
+      "sha256": "ec552f405a1a14dd5a672ee9d1e383fdee9742958039382ca4871f4c10a33af9",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The multiplex companion quality sheet makes channel-stress boundaries visible.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/quality_sheet.json",
+      "row_count": 11,
+      "sha256": "9cec7f50f51b58b69c6f1718d6dbbc3b4ee2fe2a10c67532bd5cc37e95855eaf",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The multiplex companion lifecycle record explains that this package exists to stress reporter imbalance rather than to change public release posture.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/lifecycle.json",
+      "row_count": 9,
+      "sha256": "1c88eefaaea0043d0e32524fb65c7946b397bf31b449b372ec23eb55ecd156d2",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest shows where the multiplex stress-package evidence came from.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/source_locator_manifest.json",
+      "row_count": 4,
+      "sha256": "9f9ce55c030e43b4284b0260e736aa7a92ba9e79b9693f58032156d980362886",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest ties the multiplex companion package to interference and ratio-compression references.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/citation_manifest.json",
+      "row_count": 3,
+      "sha256": "5b33271bf1d70a6a384eab15e3ac81cc22105b99f3eb894572d0bf3d9d96a21e",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary manifest distinguishes the derived stress feature table from copied support metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/generated_boundary.json",
+      "row_count": 3,
+      "sha256": "f2402270428a3451fec098c7511f79ed400a73eb6099892bd3c522518cbfe19d",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions tell maintainers how to refresh the multiplex stress package surfaces.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "d1499786e79f5aaaeae80b87a7f038547874a7636fff9b5183ee5651c59f8a54",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:feature_table",
+      "evidence_kind": "quant_feature_table",
+      "note": "The multiplex companion feature table increases pooled-reference dominance and missing-channel pressure.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv",
+      "row_count": 12,
+      "sha256": "90ae2afd5143403218c04d40c8976c3ffa2fefa0833ea99c65cff7bdf7d1271c",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "multiplex:design_table",
+      "evidence_kind": "experimental_design",
+      "note": "The multiplex companion design table preserves the stress-package channel layout and role assignments.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress.design.tsv",
+      "row_count": 6,
+      "sha256": "a87b46b35974161d55b64096017d182658948100fcfb4ab598689ec037860363",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/artifact_inventory.json",
+  "note": "The companion package inventory keeps digests and simple counts visible so cross-package review can start from files instead of prose.",
+  "package_id": "public_companion_package:multiplex_channel_stress_review_package"
+}

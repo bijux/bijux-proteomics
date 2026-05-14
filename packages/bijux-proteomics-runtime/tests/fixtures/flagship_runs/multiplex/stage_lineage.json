@@ -1,0 +1,35 @@
+{
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/multiplex/stage_lineage.json",
+  "lineage_id": "flagship-stage-lineage:multiplex",
+  "note": "The lineage artifact keeps the input-to-output chain visible at the runtime stage boundary instead of hiding it behind generic bundle prose.",
+  "stages": [
+    {
+      "consumed_artifact_ids": [
+        "multiplex-tmtpro-review-corpus:primary_input",
+        "multiplex-tmtpro-review-corpus:companion_input:1"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "multiplex:runtime:1",
+        "multiplex:runtime:2"
+      ],
+      "stage_id": "ingest-package-inputs",
+      "summary": "ingest the tracked flagship package inputs into the runtime lane"
+    },
+    {
+      "consumed_artifact_ids": [
+        "multiplex:runtime:1",
+        "multiplex:runtime:2"
+      ],
+      "owner_package": "bijux-proteomics-runtime",
+      "produced_artifact_ids": [
+        "multiplex:runtime:3",
+        "multiplex:runtime:4",
+        "multiplex:runtime:5"
+      ],
+      "stage_id": "publish-runtime-review",
+      "summary": "publish the reviewable runtime artifacts that downstream owners consume"
+    }
+  ],
+  "workflow_family": "multiplex"
+}

@@ -53,8 +53,8 @@ and stays easier to retire instead of becoming a second product surface.
 ## First Proof Check
 
 - `packages/agentic-proteins/tests`
-- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
-- `src/agentic_proteins/runtime/`
+- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
+- `src/agentic_proteins/execution/` and `src/agentic_proteins/state/`
 
 ## Design Pressure
 

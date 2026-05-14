@@ -43,8 +43,8 @@ The main job here is to keep convenience tools from rewriting what the package m
 ## First Proof Check
 
 - `packages/bijux-proteomics-knowledge/tests`
-- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
-- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 
 ## Design Pressure
 

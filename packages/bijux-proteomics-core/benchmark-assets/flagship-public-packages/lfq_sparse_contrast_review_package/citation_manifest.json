@@ -1,0 +1,13 @@
+{
+  "package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+  "workflow_family": "lfq",
+  "citations": [
+    {
+      "citation_id": "citation:lfq_missingness_review",
+      "title": "LFQ missingness and reproducibility review",
+      "doi": null,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33522158/",
+      "why_it_matters": "The LFQ companion package exists to stress missingness-aware transfer beyond one cohort shape."
+    }
+  ]
+}

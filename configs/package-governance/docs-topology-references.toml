@@ -1,0 +1,5 @@
+# Generated docs topology reference report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.docs.governance.topology_references
+
+[guard]
+max_total_violation_count = 0

@@ -17,8 +17,8 @@ def test_cli_run_requires_sequence_or_fasta() -> None:
     assert result.exit_code != 0
     payload = json.loads(result.output)
     assert payload["status"] == "error"
-    assert payload["command"] == "run"
-    assert "Provide --sequence or --fasta" in payload["error"]
+    assert payload["meta"]["request_id"] == "cli:run"
+    assert payload["error"]["detail"] == "Provide --sequence or --fasta."
 
 
 def test_cli_run_rejects_sequence_and_fasta() -> None:
@@ -40,8 +40,10 @@ def test_cli_run_rejects_sequence_and_fasta() -> None:
     assert result.exit_code != 0
     payload = json.loads(result.output)
     assert payload["status"] == "error"
-    assert payload["command"] == "run"
-    assert "Provide either --sequence or --fasta" in payload["error"]
+    assert payload["meta"]["request_id"] == "cli:run"
+    assert (
+        payload["error"]["detail"] == "Provide either --sequence or --fasta, not both."
+    )
 
 
 def test_cli_run_dry_run() -> None:
@@ -60,4 +62,6 @@ def test_cli_run_dry_run() -> None:
         )
     assert result.exit_code == 0
     payload = json.loads(result.output)
-    assert payload["run_id"]
+    assert payload["status"] == "ok"
+    assert payload["data"]["command"] == "run"
+    assert payload["data"]["run_id"]

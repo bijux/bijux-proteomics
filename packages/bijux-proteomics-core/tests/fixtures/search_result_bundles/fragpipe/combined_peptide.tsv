@@ -1,0 +1,3 @@
+Peptide	Modified Peptide	Charge	Protein	Mapped Proteins	Assigned Modifications	Observed Modifications	Hyperscore	Probability	QValue	Spectral Count	Mass Difference
+PEPTIDE	PEP[+15.994915]TIDE	2	sp|P12345|KINASE_HUMAN		3M(15.994915)	Oxidation (M)	152.4	0.998	0.002	1	0.0000
+ACDMK	AC[+57.021464]DM[+15.994915]K	3	sp|P23456|TRANSFER_HUMAN	sp|P34567|TRANSFER_MOUSE	2C(57.021464),4M(15.994915)	Carbamidomethyl (C); Oxidation (M)	143.1	0.994	0.004	1	42.0106

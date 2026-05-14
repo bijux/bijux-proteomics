@@ -11,17 +11,22 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     ErrorResponse,
     ResumeRequest,
     RunResponse,
 )
-from bijux_proteomics_runtime.core.status import WorkflowState
-from bijux_proteomics_runtime.interfaces.cli import _load_run_summary, _resume_candidate
+from bijux_proteomics_runtime.runs.correlation import (
+    build_request_correlation_meta,
+)
+from bijux_proteomics_runtime.runs.operations import (
+    load_run_summary_operation,
+    resume_candidate_operation,
+)
+from bijux_proteomics_runtime.support.primitives.status import WorkflowState
 
 router = APIRouter()
 
@@ -46,7 +51,7 @@ def _run_id_from_candidate(candidate_id: str) -> str:
 def resume_endpoint(
     payload: ResumeRequest,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope | JSONResponse:
     """resume_endpoint."""
     meta = build_request_correlation_meta(request, "resume", request.url.path)
@@ -63,7 +68,7 @@ def resume_endpoint(
         if not run_id and candidate_id:
             run_id = _run_id_from_candidate(candidate_id)
         if run_id:
-            summary = _load_run_summary(
+            summary = load_run_summary_operation(
                 base_dir,
                 run_id,
                 artifacts_dir,
@@ -75,19 +80,19 @@ def resume_endpoint(
                 raise RuntimeError(f"Run {run_id} already completed.")
         if candidate_id is None:
             raise ValueError("candidate_id could not be resolved")
-        result = _resume_candidate(
+        result = resume_candidate_operation(
             base_dir,
-            candidate_id,
-            payload.rounds,
-            payload.provider,
-            artifacts_dir,
-            payload.execution_mode,
+            candidate_id=candidate_id,
+            rounds=payload.rounds,
+            provider=payload.provider,
+            artifacts_dir=artifacts_dir,
+            execution_mode=payload.execution_mode,
         )
         run_id_obj = result.get("run_id")
         if not isinstance(run_id_obj, str) or not run_id_obj:
             raise ValueError("resume output missing run_id")
         run_id = run_id_obj
-        summary = _load_run_summary(base_dir, run_id, artifacts_dir)
+        summary = load_run_summary_operation(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001
         raise_http_error(exc, str(request.url), meta=meta)

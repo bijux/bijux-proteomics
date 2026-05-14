@@ -13,7 +13,9 @@ evidence_paths = [
   "docs/05-bijux-proteomics-intelligence/index.md",
   "docs/06-bijux-proteomics-knowledge/index.md",
   "docs/07-bijux-proteomics-lab/index.md",
+  "configs/package-governance/scientific-release-workflows.toml",
   "configs/package-governance/high-value-artifact-schemas.toml",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/release/governance/scientific_readiness.py",
 ]
 rationale = "the scientific platform family ships only when the durable artifact, interpretation, and lab review surfaces all stay documented together"
 
@@ -22,13 +24,53 @@ family_id = "runtime-service"
 package_names = [
   "bijux-proteomics-runtime",
   "bijux-proteomics-dev",
-  "agentic-proteins",
 ]
 evidence_paths = [
   "docs/08-bijux-proteomics-maintain/index.md",
   "docs/09-bijux-proteomics-runtime/index.md",
   "apis/bijux-proteomics-runtime/v1/schema.yaml",
-  "apis/agentic-proteins/v1/schema.yaml",
-  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/runtime_live_contracts.py",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/runtime/live_contracts.py",
 ]
-rationale = "the runtime service family ships only when maintainer governance, canonical runtime API contracts, and compatibility surfaces stay aligned"
+rationale = "the runtime service family ships only when maintainer governance and canonical runtime API contracts stay aligned around the live execution owner"
+
+[[family]]
+family_id = "compatibility-bridge"
+package_names = [
+  "agentic-proteins",
+]
+evidence_paths = [
+  "docs/02-agentic-proteins/index.md",
+  "docs/09-bijux-proteomics-runtime/migration-ledger/README.md",
+  "docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-canonical-migration-guide.md",
+  "docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md",
+  "apis/agentic-proteins/v1/schema.yaml",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/agentic_compatibility_inventory.py",
+  "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/architecture/compatibility_migration_guides.py",
+]
+rationale = "the compatibility bridge stays publishable only while its live migration path, wrapper-only inventory, and preserved API contract stay reviewable in code"
+
+[[family]]
+family_id = "install-aliases"
+package_names = [
+  "bijux-proteomics",
+  "proteomics",
+  "proteomics-core",
+  "proteomics-foundation",
+  "proteomics-runtime",
+  "proteomics-intelligence",
+  "proteomics-knowledge",
+  "proteomics-lab",
+]
+evidence_paths = [
+  "README.md",
+  "docs/index.md",
+  "packages/bijux-proteomics/README.md",
+  "packages/proteomics/README.md",
+  "packages/proteomics-core/README.md",
+  "packages/proteomics-foundation/README.md",
+  "packages/proteomics-runtime/README.md",
+  "packages/proteomics-intelligence/README.md",
+  "packages/proteomics-knowledge/README.md",
+  "packages/proteomics-lab/README.md",
+]
+rationale = "install aliases stay publishable only while each alias remains thin, explicitly routed to one canonical owner, and documented as a naming shortcut rather than an additional product layer"

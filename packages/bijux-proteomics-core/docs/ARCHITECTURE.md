@@ -7,21 +7,35 @@
 
 ## Architectural role
 
-`bijux-proteomics-core` models the program-centric domain: targets, constraints,
-assays, review gates, lifecycle transitions, and execution adapter protocols.
+`bijux-proteomics-core` models the scientific heart of the suite: program
+semantics, evidence normalization, review artifacts, study contracts, and
+runtime-agnostic workflow seams.
 
 ## Design constraints
 
 - domain entities are explicit and strongly typed
 - review and lifecycle rules are model-level invariants
-- execution integration stays behind protocol boundaries
+- runtime integration stays behind explicit interface seams
 
 ## Module topology
 
-- `program_spec.py` owns primary lifecycle entities and stage semantics
-- `validation.py` owns invariant checks and issue reporting
-- `repositories.py` owns storage-agnostic repository protocols
-- `interfaces/` owns operator-facing package CLI boundaries
+- `domain/` owns canonical program semantics: targets, constraints, context,
+  criteria, liabilities, lifecycle, review gates, and validation
+- `biology/` owns biological regulator, pathway, protein-agent, and signal
+  semantics that stay below runtime orchestration and above raw chemistry
+- `sequences/` and `chemistry/` own peptide, digest, isotope, and modification
+  semantics
+- `io/` and `identification/` own normalized evidence ingestion and
+  identification contracts
+- `quantification/`, `study/`, `ptm/`, and `dia/` own quantitative, laboratory,
+  PTM, and DIA scientific meaning
+- `review/` owns decision briefs, collaboration bundles, and structure-report
+  surfaces
+- `workflow/` owns scientific workflow blueprints
+- `interfaces/` owns runtime-facing seams, examples, and CLI boundaries
+- `benchmarks/` owns packaged corpus, adoption, and benchmark evidence surfaces
+- `governance/` owns the machine-readable package charter and owner-map
+  boundaries for core scientific surfaces
 
 ## Dependency direction
 
@@ -39,9 +53,9 @@ recreating lifecycle logic in runtime, intelligence, or lab-specific helpers.
 
 ## Extension signals
 
-- add code here when a new concern changes canonical lifecycle meaning, review
-  gate behavior, or runtime-agnostic execution protocols
-- extend `program_spec.py`, `validation.py`, or `repositories.py` before higher
+- add code here when a new concern changes canonical scientific meaning,
+  evidence normalization, review artifacts, or runtime-agnostic workflow seams
+- extend `domain/program_spec.py`, `domain/validation.py`, or `domain/repositories.py` before higher
   packages recreate lifecycle rules locally
 - keep new domain invariants here when they define program truth rather than a
   package-specific execution policy
@@ -50,8 +64,8 @@ recreating lifecycle logic in runtime, intelligence, or lab-specific helpers.
 
 - if the change needs evidence trust, candidate ranking, lab scheduling, or
   operator transport wiring, it belongs in a different package
-- if a helper mainly reshapes core state for CLI, API, or replay surfaces, it
-  belongs in runtime adapters rather than core models
+- if a helper mainly reshapes core state for transport or execution, it belongs
+  in runtime or interface seams rather than core scientific owners
 - if the rule only exists to support one higher-layer recommendation workflow,
   keep it with that owner instead of making core absorb it
 

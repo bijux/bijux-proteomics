@@ -1,0 +1,147 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+from __future__ import annotations
+
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification import (
+    MissingValueKind,
+    Ms1FeatureRecord,
+    NormalizationMethod,
+    QuantRollupMethod,
+)
+from bijux_proteomics.quantification.review import build_quant_review_bundle
+
+
+def _records() -> tuple[Ms1FeatureRecord, ...]:
+    return (
+        Ms1FeatureRecord(
+            feature_id="qb-001",
+            sample_id="s1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=1000.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-002",
+            sample_id="s2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=950.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-003",
+            sample_id="s3",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=120.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-004",
+            sample_id="s4",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=110.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-005",
+            sample_id="s1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=700.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-006",
+            sample_id="s2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=690.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-007",
+            sample_id="s3",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=660.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-008",
+            sample_id="s4",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=640.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+
+
+def _design() -> tuple[ExperimentalDesignEntry, ...]:
+    return (
+        ExperimentalDesignEntry(
+            sample_id="s1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="s1.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="s2.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s3",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="s3.mzml",
+            batch="b2",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s4",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="s4.mzml",
+            batch="b2",
+        ),
+    )
+
+
+def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
+    bundle = build_quant_review_bundle(
+        _records(),
+        design_entries=_design(),
+        normalization_method=NormalizationMethod.MEDIAN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    assert len(bundle.artifact_bundle_hash) == 64
+    assert bundle.effect_size_da_report is not None
+    assert len(bundle.evidence_pointers) >= 6
+    assert bundle.rollup_strategy_comparison.entries
+    assert bundle.missingness_profile.entries
+    assert bundle.decision_readiness.readiness_state.value in {
+        "decision_grade",
+        "review_grade",
+        "blocked",
+    }

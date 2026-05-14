@@ -1,0 +1,151 @@
+# Generated package test-tree mirror report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_test_tree_mirror
+
+[guard]
+min_total_mirrored_owner_family_count = 62
+max_total_missing_test_family_count = 0
+max_total_flat_test_module_count = 0
+
+[[package]]
+distribution_name = "agentic-proteins"
+source_owner_families = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
+test_families = ["agents", "e2e", "execution", "integration", "interfaces", "orchestration", "package", "providers", "state", "support", "tools"]
+mirrored_owner_families = ["agents", "execution", "interfaces", "orchestration", "providers", "state", "tools"]
+missing_test_families = []
+extra_test_families = ["e2e", "integration", "package", "support"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+source_owner_families = ["docs", "governance", "quality", "release", "security", "tools"]
+test_families = ["docs", "governance", "package", "quality", "release", "security", "tools"]
+mirrored_owner_families = ["docs", "governance", "quality", "release", "security", "tools"]
+missing_test_families = []
+extra_test_families = ["package"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+source_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+test_families = ["compatibility", "identity", "outcomes", "package", "performance", "serialization", "support"]
+mirrored_owner_families = ["compatibility", "identity", "outcomes", "serialization", "support"]
+missing_test_families = []
+extra_test_families = ["package", "performance"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+source_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+test_families = ["benchmarks", "biology", "chemistry", "cli", "dia", "domain", "governance", "identification", "interfaces", "io", "package", "performance", "ptm", "qc", "quantification", "review", "sequences", "study", "workflow"]
+mirrored_owner_families = ["benchmarks", "biology", "chemistry", "dia", "domain", "governance", "identification", "interfaces", "io", "ptm", "quantification", "review", "sequences", "study", "workflow"]
+missing_test_families = []
+extra_test_families = ["cli", "package", "performance", "qc"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+source_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
+test_families = ["api", "execution", "governance", "package", "performance", "providers", "runs", "state", "support", "workflows"]
+mirrored_owner_families = ["api", "execution", "governance", "providers", "runs", "state", "support", "workflows"]
+missing_test_families = []
+extra_test_families = ["package", "performance"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+source_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+test_families = ["candidates", "compatibility", "governance", "interpretation", "judgment", "learning", "package", "posture", "reviews"]
+mirrored_owner_families = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+missing_test_families = []
+extra_test_families = ["compatibility", "package"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+source_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+test_families = ["contracts", "governance", "memory", "package", "references", "reviews"]
+mirrored_owner_families = ["contracts", "governance", "memory", "references", "reviews"]
+missing_test_families = []
+extra_test_families = ["package"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+source_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+test_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "package", "planning", "readiness", "reconciliation"]
+mirrored_owner_families = ["benchmarks", "design", "governance", "handoffs", "lifecycle", "outcomes", "planning", "readiness", "reconciliation"]
+missing_test_families = []
+extra_test_families = ["package"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+source_owner_families = []
+test_families = ["compatibility"]
+mirrored_owner_families = []
+missing_test_families = []
+extra_test_families = ["compatibility"]
+flat_test_module_count = 0

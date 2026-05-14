@@ -1,0 +1,27 @@
+{
+  "package_id": "flagship_public_package:dda_reviewable_run",
+  "workflow_family": "dda",
+  "citations": [
+    {
+      "citation_id": "citation:target_decoy_2007",
+      "title": "Significance analysis of shotgun proteomics data",
+      "doi": "10.1038/nmeth1019",
+      "url": "https://www.nature.com/articles/nmeth1019",
+      "why_it_matters": "Anchors target-decoy caution in the flagship DDA package."
+    },
+    {
+      "citation_id": "citation:protein_inference_2012",
+      "title": "Computational solutions for mass spectrometry-based protein inference",
+      "doi": "10.1074/mcp.R111.014795",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3494198/",
+      "why_it_matters": "Anchors protein-inference caution in the flagship DDA package."
+    },
+    {
+      "citation_id": "citation:uniprot_2025",
+      "title": "UniProt: the Universal Protein Knowledgebase in 2025",
+      "doi": "10.1093/nar/gkae1010",
+      "url": "https://www.uniprot.org",
+      "why_it_matters": "Anchors the reference proteome context named in the package."
+    }
+  ]
+}

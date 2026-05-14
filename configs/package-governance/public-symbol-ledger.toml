@@ -1,0 +1,886 @@
+# Generated public symbol ledger.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_symbol_ledger
+
+[guard]
+min_public_symbol_count = 88
+min_symbols_with_owner_tests = 88
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "AppConfig"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "RunManager"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/execution/test_runtime_container_and_scheduler_end_to_end.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_governance_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_primitives_surface.py", "packages/bijux-proteomics-runtime/tests/performance/test_runtime_execution_control_benchmark_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "cli"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py", "packages/bijux-proteomics-runtime/tests/execution/test_container_build_definition_surface.py", "packages/bijux-proteomics-runtime/tests/execution/test_container_smoke_execution_surface.py", "packages/bijux-proteomics-runtime/tests/execution/test_slurm_script_export_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_governance_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_primitives_surface.py", "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_proof_accounting_surface.py"]
+
+[[symbol]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+name = "create_app"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_boundary_guards.py", "packages/bijux-proteomics-runtime/tests/package/test_runtime_package_smoke.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics"
+import_root = "bijux_proteomics_alias"
+name = "__version__"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics"
+owner_module_name = "bijux_proteomics_alias"
+owner_module_path = "packages/bijux-proteomics/src/bijux_proteomics_alias/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics/tests/compatibility/test_bijux_proteomics_alias.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+name = "DigestPolicy"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences.digestion"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+name = "build_fdr_audit_trail"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.identification"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/identification/test_identification_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+name = "build_normalized_run_bundle"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+name = "parse_experimental_design_table"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+name = "parse_fasta_document"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "AssayId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "BatchId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "CandidateId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "ClaimId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "DocumentSchema"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.document_schema"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/document_schema.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_roundtrip_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "EvidenceId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "GateId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "JsonModel"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.json_contracts"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_roundtrip_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "ProgramId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/identity/test_identifier_primitives.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "TargetId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "fingerprint_model"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.json_contracts"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "hash_model"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "hash_payload"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "hash_text"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+name = "to_canonical_json"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.canonical_json"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonical_json.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "candidates"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.candidates"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/candidates/test_lifecycle_surface.py", "packages/bijux-proteomics-intelligence/tests/candidates/test_ranking_benchmark_surface.py", "packages/bijux-proteomics-intelligence/tests/candidates/test_ranking_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "governance"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.governance"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_charter_surface.py", "packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_module_audit_surface.py", "packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_review_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "interpretation"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.interpretation"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/interpretation/test_interpretation_surface.py", "packages/bijux-proteomics-intelligence/tests/interpretation/test_structures_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "judgment"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.judgment"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_blinded_challenges.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_confidence.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_counterfactuals.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_corpora_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_namespace_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_policy_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_quality_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_recommendation_packet_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_regret.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_sensitivity_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_path_calibration.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_paths_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_recommendations_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_scenarios_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "learning"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.learning"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/learning/test_adaptation_surface.py", "packages/bijux-proteomics-intelligence/tests/learning/test_refinement_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "posture"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.posture"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/posture/test_recommendation_scenarios.py", "packages/bijux-proteomics-intelligence/tests/posture/test_skeptical_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+name = "reviews"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.reviews"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_boards_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidate_comparison_packet_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidate_prioritization_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidates_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_contradiction_aware_lab_recommendation_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_enrichment_background_provenance_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_evidence_freshness_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_external_review_kits_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_independent_reruns_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_multi_objective_ranking_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_outlier_qc_integrated_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_pathway_caution_model_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_pathways_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_public_scrutiny_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_ranking_policy_language_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_release_candidates_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_review_board_workflow_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+name = "EvidenceBundle"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/conftest.py", "packages/bijux-proteomics-knowledge/tests/memory/test_claims.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py", "packages/bijux-proteomics-knowledge/tests/memory/test_resolution.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+name = "EvidenceClaim"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.claims"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+name = "EvidenceRecord"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/conftest.py", "packages/bijux-proteomics-knowledge/tests/memory/test_claims.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py", "packages/bijux-proteomics-knowledge/tests/memory/test_resolution.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+name = "KnowledgeDecisionBrief"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.reviews.decision_briefs"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/decision_briefs.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/reviews/test_review_package_surface.py", "packages/bijux-proteomics-knowledge/tests/reviews/test_trends.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+name = "evaluate_schema_compatibility"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.contracts.schema"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/schema.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/contracts/test_schema.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+name = "build_advisory_assay_plan"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+name = "build_executable_assay_plan"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+name = "plan_experiment_batches"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+name = "AppConfig"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+name = "RunManager"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.runs.manager"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+name = "cli"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api.cli"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
+
+[[symbol]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+name = "create_app"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+name = "DigestPolicy"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences.digestion"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+name = "build_fdr_audit_trail"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.identification"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/identification/test_identification_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+name = "build_normalized_run_bundle"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+name = "parse_experimental_design_table"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+name = "parse_fasta_document"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+name = "DigestPolicy"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences.digestion"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+name = "build_fdr_audit_trail"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.identification"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/identification/test_identification_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+name = "build_normalized_run_bundle"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+name = "parse_experimental_design_table"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.io.formats"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/io/test_format_ingestion_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+name = "parse_fasta_document"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-core"
+owner_module_name = "bijux_proteomics.sequences"
+owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "AssayId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "BatchId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "CandidateId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "ClaimId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "DocumentSchema"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.document_schema"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/document_schema.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_roundtrip_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "EvidenceId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "GateId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "JsonModel"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.json_contracts"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_roundtrip_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "ProgramId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/identity/test_identifier_primitives.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "TargetId"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.identity.identifiers"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/identity/identifiers.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "fingerprint_model"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.json_contracts"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/json_contracts.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "hash_model"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "hash_payload"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py", "packages/bijux-proteomics-foundation/tests/serialization/test_document_primitives.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "hash_text"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/stable_hashes.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/package/test_public_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+name = "to_canonical_json"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_module_name = "bijux_proteomics_foundation.serialization.canonical_json"
+owner_module_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization/canonical_json.py"
+owner_test_paths = ["packages/bijux-proteomics-foundation/tests/serialization/test_canonical_json_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "candidates"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.candidates"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/candidates/test_lifecycle_surface.py", "packages/bijux-proteomics-intelligence/tests/candidates/test_ranking_benchmark_surface.py", "packages/bijux-proteomics-intelligence/tests/candidates/test_ranking_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "governance"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.governance"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_charter_surface.py", "packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_module_audit_surface.py", "packages/bijux-proteomics-intelligence/tests/governance/test_intelligence_benchmark_review_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "interpretation"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.interpretation"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/interpretation/test_interpretation_surface.py", "packages/bijux-proteomics-intelligence/tests/interpretation/test_structures_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "judgment"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.judgment"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_blinded_challenges.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_confidence.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_counterfactuals.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_corpora_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_namespace_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_policy_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_decision_quality_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_recommendation_packet_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_regret.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_benchmark_sensitivity_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_path_calibration.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_paths_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_recommendations_surface.py", "packages/bijux-proteomics-intelligence/tests/judgment/test_scenarios_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "learning"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.learning"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/learning/test_adaptation_surface.py", "packages/bijux-proteomics-intelligence/tests/learning/test_refinement_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "posture"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.posture"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/posture/test_recommendation_scenarios.py", "packages/bijux-proteomics-intelligence/tests/posture/test_skeptical_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+name = "reviews"
+symbol_kind = "module"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_module_name = "bijux_proteomics_intelligence.reviews"
+owner_module_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-intelligence/tests/reviews/test_benchmarks_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_boards_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidate_comparison_packet_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidate_prioritization_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_candidates_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_contradiction_aware_lab_recommendation_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_enrichment_background_provenance_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_evidence_freshness_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_external_review_kits_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_independent_reruns_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_multi_objective_ranking_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_outlier_qc_integrated_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_outsider_packets_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_pathway_caution_model_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_pathways_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_public_scrutiny_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_ranking_policy_language_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_release_candidates_surface.py", "packages/bijux-proteomics-intelligence/tests/reviews/test_review_board_workflow_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+name = "EvidenceBundle"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/conftest.py", "packages/bijux-proteomics-knowledge/tests/memory/test_claims.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py", "packages/bijux-proteomics-knowledge/tests/memory/test_resolution.py"]
+
+[[symbol]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+name = "EvidenceClaim"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.claims"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/claims.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py"]
+
+[[symbol]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+name = "EvidenceRecord"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.memory.models.evidence"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/memory/conftest.py", "packages/bijux-proteomics-knowledge/tests/memory/test_claims.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_bundle.py", "packages/bijux-proteomics-knowledge/tests/memory/test_evidence_graph.py", "packages/bijux-proteomics-knowledge/tests/memory/test_resolution.py"]
+
+[[symbol]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+name = "KnowledgeDecisionBrief"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.reviews.decision_briefs"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/decision_briefs.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/reviews/test_review_package_surface.py", "packages/bijux-proteomics-knowledge/tests/reviews/test_trends.py"]
+
+[[symbol]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+name = "evaluate_schema_compatibility"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_module_name = "bijux_proteomics_knowledge.contracts.schema"
+owner_module_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/contracts/schema.py"
+owner_test_paths = ["packages/bijux-proteomics-knowledge/tests/contracts/test_schema.py"]
+
+[[symbol]]
+distribution_name = "proteomics-lab"
+import_root = "proteomics_lab"
+name = "build_advisory_assay_plan"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py", "packages/bijux-proteomics-lab/tests/planning/test_priority_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-lab"
+import_root = "proteomics_lab"
+name = "build_executable_assay_plan"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-lab"
+import_root = "proteomics_lab"
+name = "plan_experiment_batches"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_module_name = "bijux_proteomics_lab.planning.assays"
+owner_module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning/assays.py"
+owner_test_paths = ["packages/bijux-proteomics-lab/tests/planning/test_plan_construction_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+name = "AppConfig"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]
+
+[[symbol]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+name = "RunManager"
+symbol_kind = "class"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.runs.manager"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_bundles.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_conformance.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_execution_decision_reports.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_failure_injection.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_import_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_integrity_surface.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_preflight_end_to_end.py", "packages/bijux-proteomics-runtime/tests/runs/test_runtime_replay_integrity_and_cache_end_to_end.py"]
+
+[[symbol]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+name = "cli"
+symbol_kind = "data"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api.cli"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/cli.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_cli_surface.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_interfaces.py"]
+
+[[symbol]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+name = "create_app"
+symbol_kind = "callable"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_module_name = "bijux_proteomics_runtime.api"
+owner_module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/api/__init__.py"
+owner_test_paths = ["packages/bijux-proteomics-runtime/tests/api/test_document_contract_surfaces.py", "packages/bijux-proteomics-runtime/tests/api/test_runtime_api_surface.py"]

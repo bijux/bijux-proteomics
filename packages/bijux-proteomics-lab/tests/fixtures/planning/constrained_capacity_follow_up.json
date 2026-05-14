@@ -1,0 +1,95 @@
+{
+  "budget_limit": 3.0,
+  "estimated_batch_cost": 1.0,
+  "plan": {
+    "program_id": "prog-constrained",
+    "batches": [
+      {
+        "batch_id": "b-binding",
+        "objective": "run binding confirmation first",
+        "assay_ids": ["assay-binding"],
+        "priority": 1,
+        "sample_requirements": ["biophysical"],
+        "assay_sample_kinds": {
+          "assay-binding": "biophysical"
+        }
+      },
+      {
+        "batch_id": "b-cellular",
+        "objective": "run cellular confirmation when family capacity opens",
+        "assay_ids": ["assay-cellular"],
+        "priority": 2,
+        "sample_requirements": ["cellular"],
+        "assay_sample_kinds": {
+          "assay-cellular": "cellular"
+        }
+      }
+    ]
+  },
+  "capacity": {
+    "cycle_id": "cycle-constrained",
+    "max_batches": 2,
+    "max_assays_per_batch": 1
+  },
+  "family_capacities": [
+    {
+      "family": "biophysical",
+      "max_assays": 1
+    },
+    {
+      "family": "cellular",
+      "max_assays": 0
+    }
+  ],
+  "instrument_availability": [
+    {
+      "instrument_id": "octet",
+      "available_days": 2.0,
+      "supported_sample_kinds": ["biophysical", "cellular"]
+    }
+  ],
+  "candidate_signals": [
+    {
+      "candidate_id": "cand-hybrid",
+      "score": 0.91,
+      "assay_ids": ["assay-binding", "assay-cellular"],
+      "decision_ready": true,
+      "contradiction_pressure": 0.14,
+      "freshness_pressure": 0.08,
+      "policy_lineage_id": "policy-balanced"
+    },
+    {
+      "candidate_id": "cand-cellular",
+      "score": 0.87,
+      "assay_ids": ["assay-cellular"],
+      "decision_ready": true,
+      "contradiction_pressure": 0.12,
+      "freshness_pressure": 0.05,
+      "policy_lineage_id": "policy-balanced"
+    }
+  ],
+  "material_requirements": [
+    {
+      "material_id": "protein-stock",
+      "sample_kind": "biophysical",
+      "minimum_units": 1.0,
+      "unit": "mg"
+    },
+    {
+      "material_id": "cell-pellet",
+      "sample_kind": "cellular",
+      "minimum_units": 1.0,
+      "unit": "tube"
+    }
+  ],
+  "inventory": [
+    {
+      "material_id": "protein-stock",
+      "available_units": 3.0
+    },
+    {
+      "material_id": "cell-pellet",
+      "available_units": 2.0
+    }
+  ]
+}

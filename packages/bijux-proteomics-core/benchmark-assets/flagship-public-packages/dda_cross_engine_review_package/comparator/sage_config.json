@@ -1,0 +1,8 @@
+{
+  "enzyme": "trypsin",
+  "fragment_tol_ppm": 20,
+  "precursor_tol_ppm": 10,
+  "variable_modifications": [
+    "Phospho@STY"
+  ]
+}

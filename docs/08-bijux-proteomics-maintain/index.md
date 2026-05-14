@@ -36,7 +36,16 @@ flowchart TB
 - how local commands, CI, and release automation reinforce each other
 - why a multi-package repository can stay coherent over time
 
-## Start With
+## Shared Reader Routes
+
+- Use [Maintenance](https://bijux.io/bijux-proteomics/maintenance/)
+  when the reader still needs the repository-health route before dropping into
+  one maintainer owner family.
+- Use [Maintainer Safe Change](https://bijux.io/bijux-proteomics/maintenance/maintainer-safe-change/)
+  when the question is a concrete package change rather than a general
+  repository-health question.
+
+## Start Inside This Handbook
 
 - open [bijux-proteomics-dev](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/) when the rule is implemented as checked-in Python maintainer code
 - open [gh-workflows](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/gh-workflows/) when the symptom starts from GitHub automation

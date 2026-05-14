@@ -1,3 +1,3 @@
-"""Compatibility forwarding module for canonical runtime agent ownership."""
+"""Compatibility planning-agent namespace."""
 
-from bijux_proteomics_runtime.agents.planning import *  # noqa: F401,F403
+__all__ = []

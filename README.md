@@ -1,16 +1,68 @@
 # bijux-proteomics
 
+`bijux-proteomics` is a bounded proteomics product for benchmark-backed
+execution, scientific review, recommendation posture, and lab consequence.
+
+Six real product packages own that chain. `agentic-proteins` stays as a legacy
+compatibility install surface for historical runtime entrypoints and imports,
+while `bijux-proteomics-dev` owns repository-health automation. Short install
+aliases now reserve `bijux-proteomics`, `proteomics`, and the family-scoped
+`proteomics-*` package names without creating second owner surfaces.
+
+## Product Scope
+
+This repository is strongest when a reviewer needs to inspect one bounded
+evidence chain from benchmark asset intake through execution, scientific
+review, recommendation, and possible lab follow-up without guessing who owns
+each handoff.
+
+The product shape is explicit:
+
+- shared contracts, identifiers, and deterministic serialization in
+  [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- package roles, allowed imports, and owned artifact handoffs in
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+- repository-level release pressure in
+  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/)
+
+## Current Credible Workflow Families
+
+Outsider-auditable workflow families today: `dda`, `dia`, `lfq`, `ptm`, `targeted`.
+
+Internal-support-only workflow families today: `multiplex`.
+
+Hard evidence starts with these checked surfaces:
+
+- [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/)
+- [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
+- [Public artifact index](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/public-artifact-index/)
+- [Independent rerun dossiers](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/independent-rerun-dossiers/)
+- [External review kits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/external-review-kits/)
+
+## Forbidden Claims
+
+This repository does not yet claim:
+
+- broad proteomics workflow coverage beyond the checked workflow families above
+- release-ready, reference-grade, elite, or product-grade status
+- stronger wet-lab confidence than the current evidence chain can justify
+
+The live repository limits are tracked in
+[Current capability limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/),
+and the current hostile-review blockers are tracked in
+[Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/).
+
 <!-- bijux-proteomics-badges:generated:start -->
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/agentic-proteins/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-runtime/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![Verify](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
-[![Release PyPI](https://github.com/bijux/bijux-proteomics/workflows/release-pypi/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
-[![Release GHCR](https://github.com/bijux/bijux-proteomics/workflows/release-ghcr/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
-[![Release GitHub](https://github.com/bijux/bijux-proteomics/workflows/release-github/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
+[![Verify](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![Release PyPI](https://img.shields.io/badge/release-pypi%20workflow-2563EB?logo=githubactions&logoColor=white)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-pypi.yml)
+[![Release GHCR](https://img.shields.io/badge/release-ghcr%20workflow-2563EB?logo=githubactions&logoColor=white)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-ghcr.yml)
+[![Release GitHub](https://img.shields.io/badge/release-github%20workflow-2563EB?logo=githubactions&logoColor=white)](https://github.com/bijux/bijux-proteomics/actions/workflows/release-github.yml)
 [![Docs](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/deploy-docs.yml)
 [![Release](https://img.shields.io/github/v/release/bijux/bijux-proteomics?display_name=tag&label=release)](https://github.com/bijux/bijux-proteomics/releases)
-[![GHCR packages](https://img.shields.io/badge/ghcr-7%20packages-181717?logo=github)](https://github.com/bijux?tab=packages&repo_name=bijux-proteomics)
-[![Published packages](https://img.shields.io/badge/published%20packages-7-2563EB)](https://github.com/bijux/bijux-proteomics/tree/main/packages)
+[![GHCR packages](https://img.shields.io/badge/ghcr-15%20packages-181717?logo=github)](https://github.com/bijux?tab=packages&repo_name=bijux-proteomics)
+[![Published packages](https://img.shields.io/badge/published%20packages-15-2563EB)](https://github.com/bijux/bijux-proteomics/tree/main/packages)
 
 [![agentic-proteins](https://img.shields.io/pypi/v/agentic-proteins?label=agentic--proteins&logo=pypi)](https://pypi.org/project/agentic-proteins/)
 [![bijux-proteomics-foundation](https://img.shields.io/pypi/v/bijux-proteomics-foundation?label=foundation&logo=pypi)](https://pypi.org/project/bijux-proteomics-foundation/)
@@ -37,104 +89,107 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics` is a contract-first Python package family for governed
-protein discovery workflows across runtime execution, domain contracts,
-decision intelligence, evidence governance, and lab planning.
+## Reader Paths
 
-The goal is not just to run a protein pipeline once. The goal is to keep
-behavior reviewable and reproducible as the system evolves.
-
-The important limit is that this repository is still earlier than that full
-scientific vision. The package split, governance surfaces, ranking helpers,
-evidence models, and lab-planning contracts are already real. The broader
-proteomics workflow stack for sequence intake, assay progression, evidence
-integration, and reviewable scientific delivery is still being built out.
-
-This repository publishes `7` packages. Each release tag builds one staged
-bundle per package, uploads distributions to PyPI, publishes release bundles to
-their exact GHCR package pages under the `bijux` account, and attaches the same
-staged assets to the GitHub Release.
-
-## Why `bijux-proteomics` Exists
-
-Protein programs become difficult to trust when execution logic, domain models,
-evidence reasoning, policy decisions, and lab planning are merged into one
-surface.
-
-`bijux-proteomics` keeps those concerns explicit and separable:
-
-- canonical deterministic runtime behavior in `bijux-proteomics-runtime`
-- compatibility runtime path preservation in `agentic-proteins`
-- shared primitives in `bijux-proteomics-foundation`
-- domain contracts in `bijux-proteomics-core`
-- ranking and policy decisions in `bijux-proteomics-intelligence`
-- evidence and trust resolution in `bijux-proteomics-knowledge`
-- lab orchestration boundaries in `bijux-proteomics-lab`
+- Scientist: start with
+  [What one workflow family supports today](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today/)
+  and then open the
+  [Flagship release candidate](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/flagship-release-candidate/).
+- Operator: start with the
+  [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
+  and then the
+  [Runtime migration validation runbook](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/runtime-migration-validation/).
+- Maintainer: start with
+  [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
+  and then the
+  [Release readiness matrix](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/release-readiness-matrix/).
 
 ## Package Map
 
-The `7` publishable packages in this repository are:
+The canonical publishable surface is `6` real product packages:
 
 | Package | Role | Links |
 | --- | --- | --- |
-| `bijux-proteomics-runtime` | Canonical runtime execution surfaces (CLI and HTTP) plus deterministic run artifacts | <a href="https://pypi.org/project/bijux-proteomics-runtime/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `agentic-proteins` | Compatibility package for legacy runtime imports and entrypoints | <a href="https://pypi.org/project/agentic-proteins/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/02-agentic-proteins/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fagentic-proteins"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/agentic-proteins"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `bijux-proteomics-foundation` | Shared contracts, identifiers, and canonical serialization primitives | <a href="https://pypi.org/project/bijux-proteomics-foundation/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `bijux-proteomics-core` | Program models, lifecycle transitions, and review-gate domain logic | <a href="https://pypi.org/project/bijux-proteomics-core/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `bijux-proteomics-intelligence` | Candidate evaluation, scoring policy, and recommendation logic | <a href="https://pypi.org/project/bijux-proteomics-intelligence/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `bijux-proteomics-knowledge` | Evidence graphs, trust scoring, and conflict resolution policy | <a href="https://pypi.org/project/bijux-proteomics-knowledge/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
-| `bijux-proteomics-lab` | Lab planning, scheduling decisions, and outcome promotion workflows | <a href="https://pypi.org/project/bijux-proteomics-lab/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-foundation` | Shared contracts, identifiers, and deterministic serialization | <a href="https://pypi.org/project/bijux-proteomics-foundation/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-foundation"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-foundation"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-core` | Benchmark assets, durable scientific contracts, and workflow requests | <a href="https://pypi.org/project/bijux-proteomics-core/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-core"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-core"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-runtime` | Execution, provider binding, deterministic replay, and operator entrypoints | <a href="https://pypi.org/project/bijux-proteomics-runtime/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-runtime"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-runtime"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-knowledge` | Scientific memory, provenance, contradiction handling, and review state | <a href="https://pypi.org/project/bijux-proteomics-knowledge/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-knowledge"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-knowledge"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-intelligence` | Recommendation posture, ranking sensitivity, and refusal behavior | <a href="https://pypi.org/project/bijux-proteomics-intelligence/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-intelligence"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
+| `bijux-proteomics-lab` | Assay consequence planning, readiness, and observed outcomes | <a href="https://pypi.org/project/bijux-proteomics-lab/"><img alt="PyPI" src="https://img.shields.io/badge/pypi-3775A9?logo=pypi&logoColor=white" height="18"></a> <a href="https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/"><img alt="Docs" src="https://img.shields.io/badge/docs-2563EB?logo=materialformkdocs&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/pkgs/container/bijux-proteomics%2Fbijux-proteomics-lab"><img alt="GHCR" src="https://img.shields.io/badge/ghcr-181717?logo=github&logoColor=white" height="18"></a> <a href="https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-lab"><img alt="Source" src="https://img.shields.io/badge/source-181717?logo=github&logoColor=white" height="18"></a> |
 
 Repository-owned developer tooling also lives here in
 [`packages/bijux-proteomics-dev`](packages/bijux-proteomics-dev), but it is for
 maintaining the workspace rather than for end-user installation.
 
-## What This Repository Is Not
+## Install Aliases
 
-- not a single all-in-one package with hidden coupling
-- not a promise of wet-lab correctness by documentation alone
-- not a replacement for package-level tests and review gates
+The repository also publishes `8` install aliases and `1` compatibility install
+surface so the canonical packages can be discovered under shorter,
+reserve-worthy, or migration-safe package names. Those installs forward into
+the same owner packages above, so the badge catalog stays focused on canonical
+package owners rather than duplicating the same runtime under multiple names.
 
-## Current Scope
-
-What exists now:
-
-- package-level contracts for runtime, domain, intelligence, knowledge, and lab
-  planning surfaces
-- deterministic runtime and compatibility routing
-- typed program, evidence, ranking, and assay-planning models
-- reviewable package handbooks and governance checks
-
-What is still missing or deliberately incomplete:
-
-- an end-to-end scientific workflow that carries one proteomics program from
-  sequence intake through assay progression and evidence-backed advancement
-- explicit checked-in workflow blueprints that tie runtime, ranking, evidence,
-  and lab execution together
-- a clearer roadmap that distinguishes current reusable contracts from future
-  proteomics engine capabilities
-
-## Start Here
-
-- Repository handbook: [Repository handbook](https://bijux.io/bijux-proteomics/)
-- Scientific workflow roadmap: [Roadmap](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/scientific-workflow-roadmap/)
-- API contract handbook: [API and schema governance](https://bijux.io/bijux-proteomics/01-bijux-proteomics/operations/api-and-schema-governance/)
-- Runtime package: [Runtime package handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/)
-- Compatibility package: [agentic-proteins handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/)
-- Domain core: [Core package handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/)
-- Intelligence package: [Intelligence package handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-- Knowledge package: [Knowledge package handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/)
-- Lab package: [Lab package handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
-- Foundation primitives: [Foundation package handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/)
-- Maintainer tooling: [Maintainer tooling handbook](https://bijux.io/bijux-proteomics/08-bijux-proteomics-maintain/bijux-proteomics-dev/)
+| Install surface | Resolves to | Reference docs | Purpose |
+| --- | --- | --- | --- |
+| `agentic-proteins` | `bijux-proteomics-runtime` plus legacy compatibility submodules | [Compatibility handbook](https://bijux.io/bijux-proteomics/02-agentic-proteins/) | preserve the historical runtime CLI and import tree while new work defaults to canonical runtime ownership |
+| `bijux-proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | reserve the top-level project name as an install and command surface |
+| `proteomics` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short install, import, and CLI alias for the core package |
+| `proteomics-core` | `bijux-proteomics-core` | [Core handbook](https://bijux.io/bijux-proteomics/04-bijux-proteomics-core/) | short family-specific alias for the core package |
+| `proteomics-foundation` | `bijux-proteomics-foundation` | [Foundation handbook](https://bijux.io/bijux-proteomics/03-bijux-proteomics-foundation/) | short alias for the shared foundation package |
+| `proteomics-runtime` | `bijux-proteomics-runtime` | [Runtime handbook](https://bijux.io/bijux-proteomics/09-bijux-proteomics-runtime/) | short alias for the execution package and runtime CLI |
+| `proteomics-intelligence` | `bijux-proteomics-intelligence` | [Intelligence handbook](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/) | short alias for recommendation and review logic |
+| `proteomics-knowledge` | `bijux-proteomics-knowledge` | [Knowledge handbook](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/) | short alias for evidence memory and contradiction handling |
+| `proteomics-lab` | `bijux-proteomics-lab` | [Lab handbook](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/) | short alias for assay follow-up planning |
 
 ## Common Commands
 
 - `make help` to list repository automation targets
 - `make api` to validate all OpenAPI contracts in `apis/*/v1`
+- `make api-freeze` to enforce frozen OpenAPI payloads and schema digests
+- `make openapi-drift` to catch breaking schema changes without version bumps
+- `make quality-artifact-governance` to enforce artifact roots, drift audit, and
+  package-root hygiene
+- `make release-preflight` to run the exact-order hostile-review release gate
 - `make quality` to run type, quality, docs, and MkDocs strict checks
 - `make security` to run static security and vulnerability gates
 - `make test` to execute the configured test matrix
+- `make ensure-venv` to sync the shared root check environment
+- `make nlenv` to print the root environment activation command
+- `make manage_examples` to refresh governed repository example assets
+- `make manage_models` to refresh governed repository model metadata
+
+## Repository Extension Contract
+
+Proteomics owns a few root-level extensions that are real repository surfaces,
+not silent drift from the other `bijux-g3` repos.
+
+- root `interrogate` and `bandit` settings stay here because this repository
+  owns checked maintainer tooling, docs policy, API governance, and release
+  automation in `bijux-proteomics-dev`
+- root optional dependency groups `api`, `local-esmfold`,
+  `local-rosettafold`, and `nl` stay here because runtime and maintainer tools
+  need explicit provider, model, and language-stack extras that sibling repos
+  do not own
+- `api-freeze` and `openapi-drift` are repository-level API governance gates
+  because Proteomics checks in versioned OpenAPI contracts and refuses
+  unreviewed schema drift
+- `ensure-venv` and `nlenv` are root environment helpers for the shared check
+  environment, while `manage_examples` and `manage_models` are repository-owned
+  maintenance commands for governed examples and model metadata
+
+## Local Artifact Contract
+
+- transient local outputs belong under `artifacts/`, not as durable root-level
+  cache directories
+- `make quality-artifact-governance` is the fastest root check when you want to
+  catch cache spillover, package-local artifact drift, or wrong storage
+  locations before broader verification
+- the shared root environment lives at `artifacts/root/check-venv/`
+- the MkDocs site builds to `artifacts/root/docs/site/`
+- the root convenience paths `.venv`, `.tox`, `.hypothesis`, and `.benchmarks`
+  are repository-owned symlinks into `artifacts/root/`
+- publishable package roots must stay free of `.pytest_cache`, `.ruff_cache`,
+  `__pycache__`, and comparable transient spillover
 
 ## Release Model
 
@@ -144,14 +199,15 @@ What is still missing or deliberately incomplete:
 - `release-artifacts.yml` builds each package artifact bundle, then calls `release-pypi.yml`, `release-ghcr.yml`, and `release-github.yml`
 - `release-ghcr.yml` publishes one GHCR bundle per package and `release-github.yml` assembles the GitHub Release from staged assets
 - `release-pypi.yml` uses PyPI trusted publishing with the GitHub Actions OIDC token
-- coordinated release language must keep `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility
+- coordinated release language must keep `bijux-proteomics-runtime` as canonical and `agentic-proteins` as compatibility, while treating `bijux-proteomics` and `proteomics*` names as install aliases rather than second owners
 
 Recommended release order:
 
 1. Update package `README.md`, `pyproject.toml`, and package `CHANGELOG.md`.
 2. Run `make lint test quality security`.
 3. Run `make quality-runtime-migration-validation`.
-4. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
+4. Run `make release-preflight`.
+5. Push the release tag (`vX.Y.Z`) and verify the release workflow split completes.
 
 ## Repository Boundaries
 

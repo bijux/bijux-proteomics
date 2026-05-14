@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<IdXML version="1.5">
+  <SearchParameters id="search-1" db="review.fasta" db_version="2026_01" />
+  <IdentificationRun date="2026-05-13" search_engine="OpenMS" search_engine_version="3.2" />
+  <ProteinIdentification id="openms-run-01" score_type="q-value" higher_score_better="false">
+    <ProteinHit id="protein-hit-1" accession="P11111" score="0.002" />
+    <ProteinHit id="protein-hit-2" accession="P22222" score="0.008" />
+    <ProteinHit id="protein-hit-3" accession="DECOY_P33333" score="0.05" />
+  </ProteinIdentification>
+  <PeptideIdentification
+    spectrum_reference="controllerType=0 controllerNumber=1 scan=1001"
+    RT="1200.0"
+    MZ="500.2"
+    protein_identification_ref="openms-run-01"
+    score_type="q-value"
+    higher_score_better="false"
+  >
+    <PeptideHit sequence="PEPTIDE" charge="2" score="0.0025">
+      <PeptideEvidence protein_ref="P11111" />
+    </PeptideHit>
+  </PeptideIdentification>
+  <PeptideIdentification
+    spectrum_reference="controllerType=0 controllerNumber=1 scan=1002"
+    RT="1260.0"
+    MZ="612.3"
+    protein_identification_ref="openms-run-01"
+    score_type="Mascot score"
+    higher_score_better="true"
+  >
+    <PeptideHit sequence="SHAREDPEP" charge="3" score="42.0" q_value="0.01">
+      <PeptideEvidence protein_ref="P11111" />
+      <PeptideEvidence protein_ref="P22222" />
+    </PeptideHit>
+  </PeptideIdentification>
+  <PeptideIdentification
+    spectrum_reference="controllerType=0 controllerNumber=1 scan=1003"
+    RT="1305.0"
+    MZ="710.4"
+    protein_identification_ref="openms-run-01"
+    score_type="q-value"
+    higher_score_better="false"
+  >
+    <PeptideHit sequence="DECOYPEP" charge="2" score="0.03">
+      <PeptideEvidence protein_ref="DECOY_P33333" />
+    </PeptideHit>
+  </PeptideIdentification>
+</IdXML>

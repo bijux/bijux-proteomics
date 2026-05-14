@@ -30,6 +30,7 @@ dependencies = [
   "packaging>=24.0,<27.0",
   "PyYAML>=6.0,<7.0",
   "requests>=2.32,<3.0",
+  "urllib3>=2.7.0,<3.0",
 ]
 
 [project.urls]
@@ -44,8 +45,10 @@ Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 dev = [
   "pytest>=9.0.3,<10.0",
   "pytest-asyncio>=1.0.0,<2.0",
+  "pytest-benchmark>=4.0.0,<6.0",
   "pytest-cov>=6.2.1,<8.0",
   "pytest-timeout>=2.4.0,<3.0",
+  "hypothesis>=6.112,<7.0",
   "hatch>=1.14.0,<2.0",
   "pydantic>=2.12,<3.0",
   "ruff>=0.6.8,<1.0",
@@ -64,6 +67,7 @@ dev = [
   "mkdocs-autorefs>=1.4.4,<2.0",
   "mkdocs-redirects>=1.2,<2.0",
   "mkdocs-git-revision-date-localized-plugin>=1.2.0,<2.0",
+  "gitpython>=3.1.50,<4.0",
   "pymdown-extensions>=10.8,<11.0",
   "types-PyYAML>=6.0.12,<7.0",
   "types-defusedxml>=0.7.0,<1.0",
@@ -97,3 +101,8 @@ verbose = 0
 ignore-init-method = true
 ignore-private = true
 ignore-semiprivate = true
+
+[tool.pytest.ini_options]
+markers = [
+  "slow: mark test as slow",
+]

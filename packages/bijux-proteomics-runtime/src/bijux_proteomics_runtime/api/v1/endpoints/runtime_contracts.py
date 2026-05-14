@@ -20,12 +20,14 @@ from bijux_proteomics_runtime.api.catalog import (
     build_runtime_health_response,
     build_runtime_status_response,
 )
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     ErrorResponse,
+)
+from bijux_proteomics_runtime.runs.correlation import (
+    build_request_correlation_meta,
 )
 
 router = APIRouter()
@@ -39,7 +41,7 @@ router = APIRouter()
 def run_status_endpoint(
     run_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     include_documents: bool = False,
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
@@ -65,7 +67,7 @@ def run_status_endpoint(
 def run_artifacts_endpoint(
     run_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope:
     """Return the stable artifact inventory for one run."""
     meta = build_request_correlation_meta(request, "run-artifacts", run_id)
@@ -84,7 +86,7 @@ def run_artifacts_endpoint(
 def run_evidence_endpoint(
     run_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     include_document: bool = False,
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
@@ -110,7 +112,7 @@ def run_evidence_endpoint(
 def run_review_endpoint(
     run_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     include_document: bool = False,
     max_inline_bytes: int = 256000,
 ) -> ApiEnvelope:
@@ -135,7 +137,7 @@ def run_review_endpoint(
 )
 def runtime_health_endpoint(
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope:
     """Return the typed runtime health report."""
     meta = build_request_correlation_meta(request, "runtime-health", request.url.path)
@@ -153,7 +155,7 @@ def runtime_health_endpoint(
 )
 def run_history_endpoint(
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     provider: str | None = None,
     workflow_state: str | None = None,
     outcome: str | None = None,
@@ -187,7 +189,7 @@ def run_history_endpoint(
 )
 def artifact_lookup_endpoint(
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     run_id: str | None = None,
     artifact_kind: str | None = None,
     cursor: str | None = None,
@@ -217,7 +219,7 @@ def artifact_lookup_endpoint(
 )
 def evidence_lookup_endpoint(
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
     run_id: str | None = None,
     document_kind: str | None = None,
     availability: str | None = None,

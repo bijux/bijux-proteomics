@@ -5,12 +5,20 @@ ROOT_TARGET_SHARED_ENV_fmt ?= 1
 
 PACKAGE_RECORDS := \
 	agentic-proteins|primary,check,buildable,sbom,api|agentic-proteins.mk \
+	bijux-proteomics|primary,check,buildable,sbom|bijux-proteomics.mk \
 	bijux-proteomics-foundation|primary,check,buildable,sbom,api|bijux-proteomics-foundation.mk \
 	bijux-proteomics-core|primary,check,buildable,sbom,api|bijux-proteomics-core.mk \
 	bijux-proteomics-runtime|primary,check,buildable,sbom,api|bijux-proteomics-runtime.mk \
 	bijux-proteomics-intelligence|primary,check,buildable,sbom,api|bijux-proteomics-intelligence.mk \
 	bijux-proteomics-knowledge|primary,check,buildable,sbom,api|bijux-proteomics-knowledge.mk \
 	bijux-proteomics-lab|primary,check,buildable,sbom,api|bijux-proteomics-lab.mk \
+	proteomics|primary,check,buildable,sbom|proteomics.mk \
+	proteomics-core|primary,check,buildable,sbom|proteomics-core.mk \
+	proteomics-foundation|primary,check,buildable,sbom|proteomics-foundation.mk \
+	proteomics-runtime|primary,check,buildable,sbom|proteomics-runtime.mk \
+	proteomics-intelligence|primary,check,buildable,sbom|proteomics-intelligence.mk \
+	proteomics-knowledge|primary,check,buildable,sbom|proteomics-knowledge.mk \
+	proteomics-lab|primary,check,buildable,sbom|proteomics-lab.mk \
 	bijux-proteomics-dev|check|bijux-proteomics-dev.mk
 
 include $(ROOT_MAKEFILE_DIR)/bijux-py/package-catalog.mk

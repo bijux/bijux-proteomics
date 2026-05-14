@@ -4,61 +4,68 @@
 
 - Distribution name: `bijux-proteomics-lab`
 - Import root: `bijux_proteomics_lab`
-- Stable entrypoints: `planning`, `outcomes`, `repositories`, `schema`, and `serialization`
+- Stable entrypoints: `plan_experiment_batches`,
+  `build_advisory_assay_plan`, and `build_executable_assay_plan`
 
 ## Stable contracts
 
-- planning outputs include explicit dependency and gating context
-- outcome summaries expose failure class and rerun guidance fields
-- repository abstractions remain storage-agnostic and typed
+- planning contracts expose dependency order, queue pressure, capacity, and
+  material feasibility
+- readiness contracts expose blocked controls, provenance gaps, staffing or
+  instrument limits, and workflow blockers
+- handoff contracts preserve refusal behavior, operator-visible explanations,
+  protocol controls, caveats, and lossy export notes
+- reconciliation contracts preserve requested work, observed work, belief
+  posture, and operational follow-through
+- benchmark contracts keep supported, weakened, and blocked claims separate,
+  and keep requested-versus-observed outcome dossiers plus assay-worth-it
+  judgments explicit
 
 ## Change requirements
 
-Any change to planning or triage semantics should include corresponding test
-updates.
+Any change to planning, readiness, refusal, reconciliation, or benchmark
+posture should update the focused owner-family tests.
 
-Contract changes should update the focused package tests that pin planning,
-outcome interpretation, schema compatibility, or serialization behavior.
+Changes that widen the public root or weaken handoff honesty need explicit
+policy and docs updates.
 
 ## Consumer upgrade expectations
 
-- downstream callers should be able to adopt routine releases without rewriting
-  planning, outcome, or repository integration logic
-- intentional planning or rerun changes should be visible through explicit
-  schema, outcome, and changelog updates
-- consumers should expect outcome summaries to stay typed and actionable rather
-  than becoming free-form operator notes
+- downstream consumers should not need to rediscover why work was blocked,
+  weakened, or refused
+- operationally meaningful changes should appear through typed fields rather
+  than only through free-form text
+- consumers should expect the root surface to stay narrow while deeper
+  operational contracts remain under owner bands
 
 ## Change routing signals
 
-- planning contracts, outcome summaries, and lab repository abstractions belong
-  here first
-- lifecycle gate law, evidence truth, and ranking policy should be routed back
-  to their owning packages instead of being folded into lab orchestration
-- if runtime or compat surfaces need richer operator workflows, the durable
-  planning or outcome contract change should start here before higher layers
-  expose it through entrypoints
+- route planning, readiness, refusal, and reconciliation contracts here first
+- route analytical recommendation logic back to intelligence
+- route core scientific semantics back to core or knowledge
+- route execution orchestration or runtime policy back to runtime
 
 ## Validation checkpoints
 
-- planning and dependency tests should make schedule, batching, and gating
-  changes explicit for the edited contract surface
-- outcome and repository tests should preserve typed rerun guidance and
-  storage-agnostic abstractions
-- contract changes should stay green in focused package tests before runtime or
-  compat layers widen operator workflows around the new lab behavior
+- planning and readiness tests should make queue pressure, material limits, and
+  blocked controls explicit
+- handoff tests should preserve refusal codes, explanations, protocol controls,
+  and lossy export reporting
+- reconciliation and benchmark tests should preserve supported, weakened, and
+  blocked follow-through
+- contract changes should stay green in focused package and dev governance
+  suites before release
 
 ## Review questions
 
-- does the contract change alter planning, batching, rerun guidance, or
-  outcome-promotion meaning rather than just how those results are exposed
-- would runtime or intelligence code otherwise start carrying shadow scheduling
-  or rerun contracts
-- can the contract still be justified without claiming lifecycle, evidence,
-  ranking, or provider-interface ownership
+- does the contract improve operational honesty, feasibility, or traceability
+- can an operations reviewer still tell what was requested, what was blocked,
+  and what actually happened
+- can the contract still be justified without claiming analytical
+  recommendation logic, core scientific semantics, or runtime policy ownership
 
 ## Explicit non-contracts
 
-- This package does not define lifecycle gate authority.
-- This package does not define ranking or recommendation policy.
-- This package does not define evidence trust or contradiction semantics.
+- This package does not define analytical recommendation logic.
+- This package does not define core scientific semantics.
+- This package does not define execution orchestration or runtime policy.

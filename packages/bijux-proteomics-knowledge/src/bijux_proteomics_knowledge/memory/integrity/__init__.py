@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Evidence graph integrity surfaces for scientific memory."""

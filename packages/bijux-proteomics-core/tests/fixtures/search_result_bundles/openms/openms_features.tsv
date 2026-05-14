@@ -1,0 +1,6 @@
+feature_id	sample_id	sequence	protein_accessions	intensity	charge	mz	rt_seconds	missing_reason
+feature-001	sample_A	PEPTIDE	P11111	1200000	2	500.2	1200.0	
+feature-002	sample_A	SHAREDPEP	P11111;P22222	950000	3	612.3	1260.0	
+feature-003	sample_B	PEPTIDE	P11111	1185000	2	500.2	1205.0	
+feature-004	sample_B	M[Oxidation]PEPTIDE	P22222	870000	2	628.3	1330.0	
+feature-005	sample_B	BROKENFEATURE	P11111	invalid	2	640.1	1400.0	

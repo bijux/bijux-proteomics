@@ -15,7 +15,6 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.routing import Match
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
 from bijux_proteomics_runtime.api.errors import (
     ApiError,
     http_error,
@@ -23,15 +22,24 @@ from bijux_proteomics_runtime.api.errors import (
     ok_envelope,
     validation_error,
 )
-from bijux_proteomics_runtime.api.middleware import (
+from bijux_proteomics_runtime.api.request_logging import (
     RequestIdMiddleware,
     RequestLogMiddleware,
 )
 from bijux_proteomics_runtime.api.v1.router import router as v1_router
 from bijux_proteomics_runtime.api.v1.schema import ApiEnvelope
-from bijux_proteomics_runtime.providers import provider_metadata
-from bijux_proteomics_runtime.providers.factory import provider_requirements
-from bijux_proteomics_runtime.runtime_identity import runtime_banner
+from bijux_proteomics_runtime.providers.catalog import (
+    provider_metadata,
+    provider_requirements,
+)
+from bijux_proteomics_runtime.runs.correlation import (
+    build_request_correlation_meta,
+)
+from bijux_proteomics_runtime.support.identity import (
+    runtime_banner,
+    runtime_description,
+    runtime_title,
+)
 
 
 @dataclass(frozen=True)
@@ -40,10 +48,8 @@ class AppConfig:
 
     base_dir: Path
     docs_enabled: bool = True
-    title: str = "bijux-proteomics-runtime"
-    description: str = (
-        "HTTP API exposing the same capabilities as the CLI, nothing more."
-    )
+    title: str = runtime_title()
+    description: str = runtime_description()
     version: str = "2.0.0"
 
 

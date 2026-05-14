@@ -1,0 +1,38 @@
+# Generated runtime topology budget.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.topology
+
+[budget]
+max_first_level_subtrees = 8
+actual_first_level_subtrees = 8
+
+[[subtree]]
+name = "api"
+module_count = 28
+
+[[subtree]]
+name = "execution"
+module_count = 44
+
+[[subtree]]
+name = "governance"
+module_count = 3
+
+[[subtree]]
+name = "providers"
+module_count = 16
+
+[[subtree]]
+name = "runs"
+module_count = 31
+
+[[subtree]]
+name = "state"
+module_count = 5
+
+[[subtree]]
+name = "support"
+module_count = 20
+
+[[subtree]]
+name = "workflows"
+module_count = 17

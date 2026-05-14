@@ -13,8 +13,8 @@ Code navigation should get a reviewer from the package question to the owning mo
 
 ## Start Here
 
-- `src/bijux_proteomics_lab/planning.py` and `outcomes.py` for lab control flow
-- `src/bijux_proteomics_lab/schema.py` and `serialization.py` for contract boundaries
+- `src/bijux_proteomics_lab/planning/assays.py`, `planning/scheduling.py`, and `outcomes/observations.py` for lab control flow
+- `src/bijux_proteomics_lab/design/protocols.py`, `handoffs/artifacts.py`, and `handoffs/serialization.py` for contract boundaries
 - `packages/bijux-proteomics-lab/tests` for planning and promotion proof
 
 ## First Proof Check

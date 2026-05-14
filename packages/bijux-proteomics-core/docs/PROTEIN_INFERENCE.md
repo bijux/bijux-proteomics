@@ -12,7 +12,11 @@ top of normalized PSM evidence.
 - razor peptide assignment
 - picked target-decoy protein FDR
 - confidence labels with explicit explanations
+- one owned benchmark catalog over shared-peptide, isoform, homolog-family,
+  contaminant, decoy, and false-negative pressure
 - optional FASTA-backed coverage and peptide uniqueness checks
+- direct sequence-backed protein coverage review through `protein-coverage`
+- plot-ready sequence-backed coverage payloads through `protein-coverage-plot`
 
 ## Core workflow
 
@@ -34,6 +38,56 @@ The payload includes:
 - `protein_coverage` when FASTA is supplied
 - `database_uniqueness` when FASTA is supplied
 
+For direct sequence review outside the broader inference payload:
+
+```bash
+bijux-proteomics protein-coverage results.tsv \
+  --threshold 0.05 \
+  --fasta proteins.fasta
+```
+
+That coverage surface emits:
+
+- a compact summary over sequence-backed coverage
+- one reviewer-facing protein row per observed protein with covered regions,
+  unique/shared peptides, and unmatched-peptide visibility
+- one region ledger that keeps each contiguous covered interval explicit
+
+For static sequence-backed coverage visualizations:
+
+```bash
+bijux-proteomics protein-coverage-plot results.tsv \
+  --threshold 0.05 \
+  --fasta proteins.fasta \
+  --positions-tsv-out protein-coverage.positions.tsv \
+  --svg-out protein-coverage.svg \
+  --html-out protein-coverage.html
+```
+
+That plot surface emits:
+
+- one plot-ready track per protein with explicit peptide start/end positions
+- preserved modified-peptide notation, peptide confidence, and optional
+  intensity when the source evidence carries them
+- one positional TSV ledger plus static SVG and HTML outputs for operator review
+
+For direct benchmark review of the owned inference strategies:
+
+```bash
+bijux-proteomics protein-inference-benchmarks \
+  --summary-tsv-out protein-inference-benchmarks.summary.tsv \
+  --scenarios-tsv-out protein-inference-benchmarks.scenarios.tsv \
+  --assessments-tsv-out protein-inference-benchmarks.assessments.tsv
+```
+
+That benchmark surface emits:
+
+- one named suite over the owned hard-case catalog
+- one summary ledger with explicit case-family counts and worst lower bounds
+- one scenario ledger with expected-present and expected-absent proteins
+- one strategy-assessment ledger with false positives, false negatives,
+  precision, recall, and interval bounds per method and scenario
+
 ## Interpretation boundaries
 
 This is a serious reusable inference layer, but it is still intentionally
@@ -44,4 +98,4 @@ It does not yet claim:
 - picked-group FDR across indistinguishable protein groups
 - alternative inference strategies beyond the current greedy parsimony policy
 - protein-level competition models tuned to specific upstream engines
-- operator-facing HTML reports or interactive coverage views
+- interactive coverage views

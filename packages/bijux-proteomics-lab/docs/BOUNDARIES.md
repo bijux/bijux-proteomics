@@ -7,47 +7,54 @@
 
 ## This package owns
 
-- assay planning and dependency-aware batching
-- schedule and capacity-aware next-cycle recommendation logic
-- outcome interpretation and rerun policy modeling
-- repository contracts for plans, queues, and feedback records
+- dependency-aware planning that exposes queue pressure, family capacity, and
+  material limits
+- readiness checks that keep controls, provenance, staffing, backlog, and
+  instrument gaps explicit before spend is committed
+- handoff honesty, including refusal behavior, blocked explanations, and lossy
+  export notes
+- observed-outcome reconciliation that compares requested work with observed
+  work and records supported, weakened, or blocked follow-through
+- targeted operational benchmark rehearsals that prove whether a claimed lab
+  story is supportable
 
 ## This package does not own
 
-- domain program lifecycle and gate invariants
-- ranking and scenario recommendation models
-- evidence trust and contradiction-resolution policy ownership
+- analytical recommendation logic
+- core scientific semantics
+- execution orchestration or runtime policy
 
 ## Dependency direction
 
-This package may depend on foundation primitives, core lifecycle state,
-knowledge evidence inputs, and intelligence recommendations when it plans or
-interprets laboratory work.
+This package may depend on lower layers for scientific intent and evidence
+inputs, but it must keep ownership scoped to operational feasibility and
+traceability.
 
-It should not become the owner of lifecycle authority, ranking policy, or
-evidence truth semantics.
+It should never become the package that decides what is scientifically true,
+what candidate should be recommended, or how runtime dispatch executes the
+work.
 
 ## Downstream expectations
 
-Downstream packages should use this package as the canonical home for
-dependency-aware planning and outcome promotion behavior instead of scattering
-schedule logic across runtime or domain helpers.
+Downstream packages should import owner bands such as `planning`, `readiness`,
+`handoffs`, `outcomes`, `reconciliation`, and `benchmarks` when they need lab
+behavior. They should not treat `bijux_proteomics_lab` as a broad catalog or
+reimplement refusal and feasibility logic locally.
 
 ## Escalation signals
 
-- if a change defines assay planning, batching, rerun guidance, or outcome
-  promotion meaning, escalate it here before runtime or domain helpers copy it
-- if a proposed lab helper mainly owns lifecycle authority, ranking policy,
-  evidence truth, or transport-local concerns, escalate it back to the owning
-  package instead
-- if planning logic starts depending on operator entrypoints or provider
-  execution details, treat that as a boundary failure and redesign the seam
+- if a change reinterprets scientific meaning, recommendation policy, or
+  lifecycle law, escalate it back to core, knowledge, or intelligence
+- if a change introduces provider binding, scheduler policy, route transport,
+  or runtime orchestration, escalate it to runtime
+- if a change makes blocked work look executable by hiding queue pressure,
+  material limits, or missing controls, stop and redesign the seam
 
 ## Review questions
 
-- does the change alter planning, batching, rerun guidance, or outcome
-  promotion meaning rather than just exposing those results
-- would runtime or intelligence code start carrying local scheduling truth if
-  this logic stayed out of lab
-- can the change still be defended without claiming lifecycle, evidence,
-  ranking, or provider-interface ownership
+- does the change preserve explicit queue pressure, material limits, and
+  handoff honesty
+- would an operations reviewer still understand why work is blocked, downgraded,
+  or safe to execute
+- can the boundary still be justified without claiming analytical
+  recommendation logic, core scientific semantics, or runtime policy ownership

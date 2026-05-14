@@ -18,7 +18,7 @@ For `bijux-proteomics-intelligence`, the test story should show how recommendati
 ```mermaid
 flowchart TB
     inputs["evidence and policy inputs"]
-    evaluators["evaluator and policy tests"]
+    evaluators["candidate, judgment, and posture tests"]
     ambiguity["ambiguity and contradiction cases"]
     outputs["report and outcome proof"]
     release["release confidence"]
@@ -40,8 +40,8 @@ The point is not simply to prove that scores move. The strategy has to show why 
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

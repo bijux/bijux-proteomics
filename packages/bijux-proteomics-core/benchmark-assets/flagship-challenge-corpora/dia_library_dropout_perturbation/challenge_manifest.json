@@ -1,0 +1,18 @@
+{
+  "challenge_id": "dia-library-dropout-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/evidence/perturbed_diann_report.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/evidence/perturbed_spectronaut_pipeline_export.tsv"
+  ],
+  "note": "This perturbation corpus worsens library-conditioned evidence enough to show where current DIA review posture collapses rather than merely weakens.",
+  "perturbation_axes": [
+    "accepted-precursor dropout",
+    "shared-peptide loss",
+    "library-conditioned comparator shrinkage"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+  "workflow_family": "dia"
+}

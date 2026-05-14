@@ -4,7 +4,7 @@ import argparse
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.package_graph import load_workspace_packages
+from bijux_proteomics_dev.quality.graphs.package_graph import load_workspace_packages
 
 
 def _repo_root() -> Path:

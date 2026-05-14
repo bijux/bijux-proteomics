@@ -8,7 +8,10 @@
 ## This package owns
 
 - schema profile models
-- canonical JSON and fingerprint helpers
+- canonical JSON, hashing, and fingerprint helpers under `serialization`
+- shared identifiers under `identity`
+- shared provenance and support-state contracts under `support`
+- shared refusal and operation-result contracts under `outcomes`
 - migration and compatibility utility behavior
 
 ## This package does not own

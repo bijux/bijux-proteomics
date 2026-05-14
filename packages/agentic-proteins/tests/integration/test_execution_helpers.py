@@ -5,17 +5,15 @@ from pathlib import Path
 
 import pytest
 
-from agentic_proteins.runtime.context import (
-    RunLifecycleState,
-    VersionInfo,
-    create_run_context,
-)
-from agentic_proteins.runtime.control.execution import (
+from agentic_proteins.orchestration.manager import (
     _build_run_summary,
     _ensure_telemetry_costs,
     _select_structure_tool,
     _version_info,
 )
+from agentic_proteins.state.context import create_run_context
+from agentic_proteins.state.lifecycle import RunLifecycleState
+from agentic_proteins.state.output import VersionInfo
 
 
 def test_build_run_summary_maps_status(tmp_path: Path) -> None:

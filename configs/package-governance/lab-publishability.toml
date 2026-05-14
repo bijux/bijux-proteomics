@@ -1,0 +1,32 @@
+# Generated lab publishability report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.lab.publishability
+
+[metrics]
+root_entrypoint_count = 3
+source_owner_family_count = 8
+test_family_count = 9
+mirrored_owner_family_count = 8
+flat_test_module_count = 0
+honesty_ready = true
+feasibility_ready = true
+traceability_ready = true
+ownership_ready = true
+boundary_ready = true
+operations_reviewer_ready = true
+publishable = true
+
+[guard]
+max_root_entrypoint_count = 3
+min_source_owner_family_count = 8
+min_test_family_count = 9
+min_mirrored_owner_family_count = 8
+max_flat_test_module_count = 0
+
+[evidence]
+lab_operational_ownership_path = "configs/package-governance/lab-operational-ownership.toml"
+lab_packet_only_modules_path = "configs/package-governance/lab-packet-only-modules.toml"
+lab_cross_package_dependencies_path = "configs/package-governance/lab-cross-package-dependencies.toml"
+lab_root_imports_path = "configs/package-governance/lab-root-imports.toml"
+lab_root_api_policy_path = "configs/package-governance/lab-root-api.toml"
+lab_core_scientific_semantics_path = "configs/package-governance/lab-core-scientific-semantics.toml"
+lab_runtime_boundary_drift_path = "configs/package-governance/lab-runtime-boundary-drift.toml"

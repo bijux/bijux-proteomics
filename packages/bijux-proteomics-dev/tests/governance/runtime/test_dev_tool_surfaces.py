@@ -1,0 +1,63 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+REPO_ROOT = next(
+    parent
+    for parent in Path(__file__).resolve().parents
+    if (parent / "packages").is_dir() and (parent / "configs").is_dir()
+)
+TOOLS_ROOT = (
+    REPO_ROOT
+    / "packages"
+    / "bijux-proteomics-dev"
+    / "src"
+    / "bijux_proteomics_dev"
+    / "tools"
+)
+
+
+def _tool_text(name: str) -> str:
+    return (TOOLS_ROOT / name).read_text(encoding="utf-8")
+
+
+def test_golden_path_example_uses_canonical_biology_imports() -> None:
+    text = _tool_text("golden_path_example.py")
+    assert "from agentic_proteins" not in text
+    assert "from bijux_proteomics.biology import (" in text
+    assert "from bijux_proteomics.biology.protein_agent import " in text
+
+
+def test_visualize_invariants_uses_canonical_biology_imports() -> None:
+    text = _tool_text("visualize_invariants.py")
+    assert "from agentic_proteins" not in text
+    assert "from bijux_proteomics.biology import (" in text
+    assert "from bijux_proteomics.biology.protein_agent import " in text
+
+
+def test_minimal_repro_example_uses_canonical_biology_imports() -> None:
+    text = _tool_text("mre_agentic_protein.py")
+    assert "from agentic_proteins" not in text
+    assert "from bijux_proteomics.biology.pathway import (" in text
+    assert "from bijux_proteomics.biology.protein_agent import (" in text
+    assert "from bijux_proteomics.biology.signals import " in text
+
+
+def test_manage_examples_uses_canonical_runtime_user_agent() -> None:
+    text = _tool_text("manage_examples.py")
+    assert "agentic-proteins-example-prep" not in text
+    assert (
+        'USER_AGENT = "bijux-proteomics-example-prep/1.0 (+https://rcsb.org)"' in text
+    )
+
+
+def test_manage_models_uses_canonical_esmfold_image_tag() -> None:
+    text = _tool_text("manage_models.py")
+    assert "esmfold-agentic-proteins:latest" not in text
+    assert '"esmfold-bijux-proteomics-runtime:latest"' in text
+
+
+def test_manage_models_uses_canonical_rosettafold_image_tag() -> None:
+    text = _tool_text("manage_models.py")
+    assert "rosettafold-agentic-proteins:latest" not in text
+    assert '"rosettafold-bijux-proteomics-runtime:latest"' in text

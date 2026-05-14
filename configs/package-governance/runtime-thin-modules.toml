@@ -1,0 +1,143 @@
+# Generated runtime thin-module report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.thin_modules
+
+[metrics]
+thin_module_count = 26
+namespace_initializer_count = 26
+non_initializer_thin_module_count = 0
+documented_boundary_doc_count = 8
+
+[guard]
+baseline_thin_module_count = 26
+baseline_namespace_initializer_count = 26
+baseline_documented_boundary_doc_count = 8
+
+[[thin_module]]
+module_path = "__init__.py"
+line_count = 26
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "api/__init__.py"
+line_count = 11
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "api/routes/__init__.py"
+line_count = 4
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "api/v1/__init__.py"
+line_count = 4
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "api/v1/endpoints/__init__.py"
+line_count = 22
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/__init__.py"
+line_count = 12
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/analysis/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/base/__init__.py"
+line_count = 7
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/coordination/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/planning/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/reporting/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/agents/verification/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/compiler/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/engine/__init__.py"
+line_count = 15
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/evaluation/__init__.py"
+line_count = 5
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "execution/tools/__init__.py"
+line_count = 14
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "governance/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "providers/__init__.py"
+line_count = 45
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "providers/local/__init__.py"
+line_count = 18
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "providers/remote/__init__.py"
+line_count = 20
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "runs/__init__.py"
+line_count = 8
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "state/__init__.py"
+line_count = 22
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "support/__init__.py"
+line_count = 12
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "support/primitives/__init__.py"
+line_count = 42
+namespace_initializer = true
+
+[[thin_module]]
+module_path = "workflows/__init__.py"
+line_count = 8
+namespace_initializer = true

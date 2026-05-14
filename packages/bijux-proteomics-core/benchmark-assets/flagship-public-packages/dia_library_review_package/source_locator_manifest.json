@@ -1,0 +1,27 @@
+{
+  "package_id": "flagship_public_package:dia_library_review_package",
+  "workflow_family": "dia",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package",
+  "remote_sources": [
+    {
+      "source_id": "dia:spectronaut_reference",
+      "public_source_name": "Spectronaut DIA report snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+      "public_reference_url": "https://biognosys.com/software/spectronaut/",
+      "why_it_matters": "Spectronaut defines the primary library-conditioned DIA evidence dialect carried by the flagship package.",
+      "availability_expectation": "The Spectronaut product page should remain reachable while the package stays anchored to this import surface.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the product reference page."
+    },
+    {
+      "source_id": "dia:diann_reference",
+      "public_source_name": "DIA-NN comparator export snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/diann/diann_pipeline_export.tsv",
+      "public_reference_url": "https://github.com/vdemichev/DiaNN",
+      "why_it_matters": "DIA-NN defines the comparator dialect used in the flagship DIA confrontation.",
+      "availability_expectation": "The DIA-NN project page should remain reachable while confrontation-backed DIA proof depends on it.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the public project page."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "lfq:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The LFQ companion package starts from a sparser and more imbalanced cohort contrast.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/README.md",
+      "row_count": null,
+      "sha256": "e9141005a7d2d92ea0b9a58e4e0bf95ddebd606a0cb99981abcd3fa7ce5a97f5",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The LFQ companion manifest states how the cohort contrast differs from the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json",
+      "row_count": 21,
+      "sha256": "8fd578eb31dbf70a15a4d5ceea61a51b1b39f7321fcbfccfeea650002b228436",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The LFQ companion quality sheet makes sparse-cohort transfer limits public.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/quality_sheet.json",
+      "row_count": 11,
+      "sha256": "c50953d34d9dab495c5a0aeebf1fdb9db55b92330b8f556c16ef7bc9be49ffa5",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The LFQ companion lifecycle record explains that this package exists to pressure generalization beyond the flagship cohort.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/lifecycle.json",
+      "row_count": 9,
+      "sha256": "453901f659022e5b8ef58056aa9d11229d55ef82dbab879f95d7f8be4b31cd41",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest shows where the LFQ companion evidence came from.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/source_locator_manifest.json",
+      "row_count": 4,
+      "sha256": "855c2037b3612204eced0d9d6aedf3a9cb8a6cd3f665f5c414c6d8eda01e999a",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest ties the LFQ companion package to missingness and differential quant references.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/citation_manifest.json",
+      "row_count": 3,
+      "sha256": "f2e5b9f0bcc51f62e51b06f54185c8f030d31524a8131b7b262b554a72312de2",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary manifest distinguishes copied LFQ evidence from generated metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/generated_boundary.json",
+      "row_count": 3,
+      "sha256": "e4058b18db56fdd183019b951adc223b9619aae72a2d5df984b4a0cdee42fb25",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions tell maintainers how to refresh the LFQ companion package surfaces.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "facadc6ef9e6bd12596f8b8c9a38bbfa05a26123ee96685028c92247b26c340e",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:feature_table",
+      "evidence_kind": "quant_feature_table",
+      "note": "The LFQ companion feature table increases sparsity and sample imbalance pressure relative to the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
+      "row_count": 20,
+      "sha256": "1708c1183e64212dfc5fbe0d25d017683278f0062be49fa4c922b5feb8de92f8",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:design_table",
+      "evidence_kind": "experimental_design",
+      "note": "The LFQ companion design table introduces a different replicate structure than the flagship package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case.design.tsv",
+      "row_count": 5,
+      "sha256": "d60a961405a627a45da2f9d2954d7f197ba0af5d22e1598ebc5e210cffb43d0c",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "lfq:reproducibility_manifest",
+      "evidence_kind": "expectation_manifest",
+      "note": "The LFQ companion reproducibility manifest keeps sparse-cohort repeatability assumptions explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/sparse_reproducibility_manifest.json",
+      "row_count": 9,
+      "sha256": "7c6a78b78f1b771cb0e3fa58649d3b9f25ff362a4d185208eb486d902303d1d3",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/artifact_inventory.json",
+  "note": "The companion package inventory keeps digests and simple counts visible so cross-package review can start from files instead of prose.",
+  "package_id": "public_companion_package:lfq_sparse_contrast_review_package"
+}

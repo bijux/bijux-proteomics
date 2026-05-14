@@ -1,0 +1,19 @@
+{
+  "challenge_id": "ptm-ambiguity-occupancy-perturbation",
+  "challenge_kind": "perturbation",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/evidence/perturbed_localization_results.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/evidence/perturbed_ptm_features.tsv"
+  ],
+  "note": "This perturbation corpus worsens localization ambiguity and occupancy fragility enough to collapse PTM conclusions back to interpretive-only posture.",
+  "perturbation_axes": [
+    "localization ambiguity",
+    "occupancy instability",
+    "targetability collapse"
+  ],
+  "revealed_report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+  "workflow_family": "ptm"
+}

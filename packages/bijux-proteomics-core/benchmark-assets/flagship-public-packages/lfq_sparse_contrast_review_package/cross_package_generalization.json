@@ -1,0 +1,56 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/cross_package_generalization.json",
+  "family_stability_label": "highly_stable",
+  "family_stability_score": 0.84,
+  "findings": [
+    {
+      "claim_id": "missingness-visibility",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package"
+      ],
+      "note": "The second package does not flatten missingness into smooth summary prose.",
+      "state": "survives",
+      "summary": "The repository still keeps missingness and QC visibility explicit across both LFQ packages."
+    },
+    {
+      "claim_id": "effect-direction-stability",
+      "evidence_paths": [
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+        "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/quality_sheet.json"
+      ],
+      "note": "The family claim survives only as bounded review-grade quant interpretation, not broad transfer.",
+      "state": "weakens",
+      "summary": "Effect-direction confidence weakens under the sparse companion cohort and remains bounded."
+    }
+  ],
+  "metric_deltas": [
+    {
+      "delta": -4.0,
+      "interpretation": "The LFQ companion package has a smaller feature table and therefore a different missingness burden.",
+      "metric_id": "feature_rows",
+      "primary_value": 24.0,
+      "secondary_value": 20.0
+    },
+    {
+      "delta": -3.0,
+      "interpretation": "The LFQ companion package uses a different replicate and batch structure.",
+      "metric_id": "design_rows",
+      "primary_value": 8.0,
+      "secondary_value": 5.0
+    }
+  ],
+  "note": "This report is the public family-transfer surface. It records what still survives when the workflow moves from the flagship primary package to a second package with a materially different pressure profile.",
+  "package_manifest_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json"
+  ],
+  "primary_package_id": "flagship_public_package:lfq_cohort_review_package",
+  "report_id": "lfq-cross-package-generalization",
+  "runtime_package_ids": [
+    "lfq-cohort-review-corpus",
+    "lfq-sparse-contrast-review-corpus"
+  ],
+  "secondary_package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+  "workflow_family": "lfq"
+}

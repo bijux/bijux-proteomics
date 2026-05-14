@@ -1,0 +1,65 @@
+# Generated release readiness matrix.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.release.governance.release_readiness_matrix
+
+[[category]]
+category_id = "workflow-family-product-evidence"
+title = "Workflow-family product evidence"
+ready = true
+rationale = "The root promise must be anchored in one checked workflow manifest plus declared package-family readiness evidence."
+evidence_paths = ["configs/package-governance/flagship-workflow-manifest.toml", "configs/package-governance/release-families.toml", "docs/01-bijux-proteomics/foundation/product-architecture.md"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "black-box-rerunability"
+title = "Black-box rerunability"
+ready = false
+rationale = "A hostile reviewer should be able to start from the flagship runtime lane and see whether rerun evidence is strong enough without maintainers narrating around missing artifacts."
+evidence_paths = ["packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/black_box_reproducibility.py", "docs/09-bijux-proteomics-runtime/runtime-execution-boundary.md", "docs/09-bijux-proteomics-runtime/black-box-run-verification.md", "docs/09-bijux-proteomics-runtime/raw-versus-import-execution.md", "docs/09-bijux-proteomics-runtime/runtime-replay-challenges.md", "docs/09-bijux-proteomics-runtime/runtime-environment-contracts.md", "docs/09-bijux-proteomics-runtime/runtime-artifact-stability.md", "docs/09-bijux-proteomics-runtime/runtime-rerun-refusals.md", "docs/09-bijux-proteomics-runtime/black-box-benchmark-dashboard.md", "docs/09-bijux-proteomics-runtime/benchmark-rerun-kits.md", "docs/09-bijux-proteomics-runtime/benchmark-comparability-matrix.md", "docs/01-bijux-proteomics/foundation/public-artifact-index.md", "docs/01-bijux-proteomics/foundation/flagship-release-candidate.md"]
+blocker_codes = ["faithful-rerun-refused", "faithful-rerun-refused", "faithful-rerun-refused", "black-box-language-outruns-rerun-evidence"]
+blocker_details = ["dda still refuses stronger rerun claims: faithful rerun still stops at imported MaxQuant and comparator exports because the repository does not own a raw DDA search execution lane; external-engine behavior remains proprietary or out-of-repository for the strongest DDA package", "dia still refuses stronger rerun claims: the shipped DIA lane is raw-executable in runtime terms but still depends on library-conditioned exported reports rather than chromatogram-native replay", "multiplex still refuses stronger rerun claims: multiplex remains below outsider-auditable trust because runtime rerun strength still outruns family-level consequence and challenge closure", "dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
+
+[[category]]
+category_id = "benchmark-asset-quality"
+title = "Benchmark asset quality"
+ready = true
+rationale = "Release claims must stay behind the benchmark asset coverage, grounding, and scientific release evidence actually checked in."
+evidence_paths = ["configs/package-governance/scientific-release-workflows.toml", "docs/04-bijux-proteomics-core/foundation/benchmark-freshness-review.md", "docs/04-bijux-proteomics-core/foundation/flagship-benchmark-assets.md", "docs/04-bijux-proteomics-core/foundation/flagship-public-benchmark-catalog.md"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "docs-clarity"
+title = "Docs clarity"
+ready = false
+rationale = "Root and handbook wording must route readers to the right evidence without stronger trust language than the current docs surfaces can honestly defend."
+evidence_paths = ["README.md", "docs/index.md", "docs/01-bijux-proteomics/foundation/product-architecture.md", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md", "docs/01-bijux-proteomics/foundation/release-readiness-matrix.md"]
+blocker_codes = ["black-box-language-outruns-rerun-evidence"]
+blocker_details = ["dda still requests outsider_auditable_bounded but the black-box benchmark dashboard only defends review_grade_bounded"]
+
+[[category]]
+category_id = "package-boundary-stability"
+title = "Package-boundary stability"
+ready = true
+rationale = "Import directions, public surfaces, and README routing must continue to describe the same ownership model."
+evidence_paths = ["configs/package-governance/package-dependency-policy.toml", "configs/package-governance/repository-product-shape.toml", "docs/01-bijux-proteomics/foundation/cross-package-ownership.md"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "artifact-hygiene"
+title = "Artifact hygiene"
+ready = true
+rationale = "A repository that still leaks caches, package-local artifacts, or duplicate owner surfaces on disk is not ready for stronger release language."
+evidence_paths = ["configs/package-governance/repository-file-ownership.toml", "configs/package-governance/repository-drift-audit.toml", "docs/01-bijux-proteomics/operations/artifact-governance.md", "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/quality/artifacts/package_root_hygiene.py"]
+blocker_codes = []
+blocker_details = []
+
+[[category]]
+category_id = "consequence-realism"
+title = "Consequence realism"
+ready = true
+rationale = "Recommendation posture must not outrun the downstream lab consequence and refusal surfaces that inherit that claim."
+evidence_paths = ["docs/05-bijux-proteomics-intelligence/foundation/workflow-recommendation-confidence.md", "docs/decision-support/workflow-consequence-maps.md", "docs/decision-support/what-changed-the-recommendation.md", "docs/lab-consequence/outcome-learning-loops.md", "docs/lab-consequence/workflow-refusal-handbook.md", "docs/07-bijux-proteomics-lab/index.md", "docs/01-bijux-proteomics/foundation/current-capability-limits.md"]
+blocker_codes = []
+blocker_details = []

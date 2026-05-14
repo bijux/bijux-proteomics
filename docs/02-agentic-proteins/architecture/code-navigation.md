@@ -13,8 +13,9 @@ Code navigation should get a reviewer from the package question to the owning mo
 
 ## Start Here
 
-- `src/agentic_proteins/interfaces/cli.py` and `api/app.py` for entrypoint ownership
-- `src/agentic_proteins/runtime/workspace.py` and `core/execution.py` for runtime translation
+- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py` for entrypoint ownership
+- `src/agentic_proteins/execution/manager.py` and `state/workspace.py` for
+  bridge-side runtime translation
 - `packages/agentic-proteins/tests` for compatibility proof and retirement pressure
 
 ## First Proof Check

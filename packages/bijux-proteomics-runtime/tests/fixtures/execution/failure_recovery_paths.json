@@ -1,0 +1,46 @@
+{
+  "cleanup_reuse_case": {
+    "run_id": "cleanup-reusable-1",
+    "sequence": "MPEPTIDERKAAALSYIFCLVFADYKDDDDA",
+    "provider_name": "heuristic_proxy"
+  },
+  "recovery_cases": [
+    {
+      "run_id": "recovery-tool-crash-1",
+      "failure_type": "tool_crash",
+      "detail_codes": [
+        "tool_crash"
+      ],
+      "expected_recovery_action": "retry_execution",
+      "expected_failure_category": "subprocess"
+    },
+    {
+      "run_id": "recovery-container-1",
+      "failure_type": "capability_missing",
+      "detail_codes": [
+        "missing_dependency:docker"
+      ],
+      "expected_recovery_action": "repair_container_runtime",
+      "expected_failure_category": "container"
+    },
+    {
+      "run_id": "recovery-scheduler-1",
+      "failure_type": "capability_missing",
+      "detail_codes": [
+        "scheduler_queue_rejected"
+      ],
+      "expected_recovery_action": "inspect_scheduler_rejection",
+      "expected_failure_category": "scheduler"
+    },
+    {
+      "run_id": "recovery-interrupt-1",
+      "failure_type": "unknown",
+      "detail_codes": [
+        "interrupted_by_operator"
+      ],
+      "write_resume_checkpoint": true,
+      "expected_recovery_action": "resume_interrupted_run",
+      "expected_failure_category": "unknown"
+    }
+  ]
+}

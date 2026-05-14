@@ -1,0 +1,82 @@
+{
+  "workflow_family": "ptm",
+  "program": {
+    "program_id": "prog-phospho-priority",
+    "name": "phospho follow-up review",
+    "objective": "prioritize phosphosite follow-up candidates with durable signaling evidence",
+    "target_id": "target-phospho-priority",
+    "target_name": "Target Phospho Priority",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "preserve disease-relevant phospho signaling rescue"
+  },
+  "criterion": {
+    "criterion_id": "site-priority",
+    "metric": "site_priority_score",
+    "threshold": 0.75
+  },
+  "qc_caveats": [
+    "phosphosite localization around the secondary peptide remains borderline"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "phospho-erk-site",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "site_priority_score": 0.88
+      },
+      "manufacturability_score": 0.78,
+      "uncertainty": 0.09,
+      "evidence_support": 0.84,
+      "reproducibility_score": 0.87,
+      "effect_size_score": 0.81,
+      "assay_feasibility_score": 0.83,
+      "novelty_score": 0.48,
+      "lab_cost_risk": 0.16,
+      "operational_risk": 0.12
+    },
+    {
+      "candidate_id": "phospho-broad-shift",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "site_priority_score": 0.8
+      },
+      "manufacturability_score": 0.7,
+      "uncertainty": 0.15,
+      "evidence_support": 0.72,
+      "reproducibility_score": 0.69,
+      "effect_size_score": 0.66,
+      "assay_feasibility_score": 0.71,
+      "novelty_score": 0.56,
+      "lab_cost_risk": 0.28,
+      "operational_risk": 0.24
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "phospho-support-1",
+      "kind": "phosphoproteomics",
+      "title": "localized phosphosite shift",
+      "source": "ptm-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible phosphosite localization and directional occupancy shift",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 14
+    },
+    {
+      "evidence_id": "phospho-support-2",
+      "kind": "pathway",
+      "title": "erk pathway support",
+      "source": "PMID:ptm-1",
+      "source_type": "literature",
+      "claim": "supports disease-relevant ERK signaling linkage for the localized phosphosite",
+      "confidence": 0.82,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 60
+    }
+  ],
+  "expected_top_candidate_id": "phospho-erk-site"
+}

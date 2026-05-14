@@ -1,0 +1,103 @@
+{
+  "budget_limit": 4.0,
+  "estimated_batch_cost": 1.0,
+  "plan": {
+    "program_id": "prog-contradictory-readiness",
+    "batches": [
+      {
+        "batch_id": "b-targeted-ready-looking",
+        "objective": "run an analytically attractive targeted follow-up that still lacks execution-safe readiness",
+        "assay_ids": ["assay-targeted-ready-looking"],
+        "priority": 1,
+        "sample_requirements": ["targeted"],
+        "assay_sample_kinds": {
+          "assay-targeted-ready-looking": "targeted"
+        }
+      }
+    ]
+  },
+  "capacity": {
+    "cycle_id": "cycle-contradictory-readiness",
+    "max_batches": 1,
+    "max_assays_per_batch": 1
+  },
+  "instrument_availability": [
+    {
+      "instrument_id": "orbitrap-exploris",
+      "available_days": 2.0,
+      "supported_sample_kinds": ["targeted"]
+    }
+  ],
+  "candidate_signals": [
+    {
+      "candidate_id": "cand-enthusiastic",
+      "score": 0.93,
+      "assay_ids": ["assay-targeted-ready-looking"],
+      "decision_ready": true,
+      "contradiction_pressure": 0.08,
+      "freshness_pressure": 0.04,
+      "policy_lineage_id": "policy-balanced"
+    }
+  ],
+  "material_requirements": [
+    {
+      "material_id": "targeted",
+      "sample_kind": "targeted",
+      "minimum_units": 1.0,
+      "unit": "tube"
+    }
+  ],
+  "inventory": [
+    {
+      "material_id": "targeted",
+      "available_units": 3.0
+    }
+  ],
+  "reagent_inventory": [
+    {
+      "material_id": "targeted",
+      "available_units": 3.0,
+      "minimum_units": 1.0,
+      "unit": "tube",
+      "lead_time_days": 1.0
+    }
+  ],
+  "staffing": [
+    {
+      "role_name": "mass-spec-operator",
+      "available_operators": 1,
+      "required_operators": 1,
+      "available_operator_days": 2.0
+    }
+  ],
+  "backlog": {
+    "queued_review_entries": 1,
+    "blocking_gate_ids": [],
+    "deferred_batch_ids": [],
+    "oldest_entry_days": 1.0
+  },
+  "control_readiness": [
+    {
+      "control_id": "pooled-reference",
+      "required_batch_ids": ["b-targeted-ready-looking"],
+      "present": false,
+      "failure_consequence": "transition timing cannot be normalized safely"
+    }
+  ],
+  "provenance_readiness": [
+    {
+      "artifact_id": "targeted-bundle-enthusiastic",
+      "lineage_complete": false,
+      "missing_fields": ["sample_lineage", "instrument_method"],
+      "severity": "blocking"
+    }
+  ],
+  "evidence_readiness": [
+    {
+      "evidence_id": "ev-enthusiastic-but-thin",
+      "supports_execution": false,
+      "confidence": 0.49,
+      "issue_summary": "the analytical signal is enthusiastic, but orthogonal execution support is still too thin"
+    }
+  ]
+}

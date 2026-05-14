@@ -15,7 +15,7 @@ Dependency direction in `bijux-proteomics-intelligence` should make ownership mo
 
 - consume contract and evidence inputs from neighboring packages without re-owning their semantics
 - keep lab execution and runtime orchestration out of the decision layer
-- treat reports and briefs as explanations of policy decisions, not as a second storage model
+- treat decision briefs and interpretation summaries as explanations of judgment decisions, not as a second storage model
 
 ## First Proof Check
 

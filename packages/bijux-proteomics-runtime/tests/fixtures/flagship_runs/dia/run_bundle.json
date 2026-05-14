@@ -1,0 +1,151 @@
+{
+  "artifact_inventory": [
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:public:1",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:public:2",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:public:3",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:public:4",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:primary_input",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+      "artifact_role": "primary_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:companion_input:1",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:companion_input:2",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:companion_input:3",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dia-diann-pipeline-corpus:companion_input:4",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "dia:runtime:1",
+      "artifact_path": "runtime-generated/precursor_quant.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "dia.precursor_rows"
+    },
+    {
+      "artifact_id": "dia:runtime:2",
+      "artifact_path": "runtime-generated/peptide_quant.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "dia.peptide_quant"
+    },
+    {
+      "artifact_id": "dia:runtime:3",
+      "artifact_path": "runtime-generated/protein_quant.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "dia.protein_quant"
+    },
+    {
+      "artifact_id": "dia:runtime:4",
+      "artifact_path": "runtime-generated/qc_report.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "dia.qc.missing_intensity_rows"
+    }
+  ],
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/run_bundle.json",
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "benchmark_id": "benchmark:dia_library_extraction_consistency",
+  "benchmark_package_id": "benchmark_package:dia_library_review_package",
+  "bundle_id": "flagship-run-bundle:dia",
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/failure_replay.json",
+  "last_reproduced_on": "2026-05-07",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/dia.json",
+    "artifacts/intelligence/recommendation-packets/dia.json",
+    "artifacts/lab/flagship-follow-up-packets/dia.json"
+  ],
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
+  "remaining_blockers": [
+    "Compare adapter-normalized outputs against the tracked DIA public package because direct DIA-NN or Spectronaut execution is outside repo scope.",
+    "Keep SWATH-style transition semantics aligned with the published DIA method reference."
+  ],
+  "runtime_package_id": "dia-diann-pipeline-corpus",
+  "runtime_surface": {
+    "canonical_entrypoint": "bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_dia_review_path",
+    "execution_summary": [
+      "precursor_count=6",
+      "peptide_count=3",
+      "protein_count=6",
+      "quantified_precursor_count=0",
+      "qc_missing_intensity_count=6"
+    ],
+    "input_artifact_ids": [
+      "dia-diann-pipeline-corpus:primary_input",
+      "dia-diann-pipeline-corpus:companion_input:1",
+      "dia-diann-pipeline-corpus:companion_input:2",
+      "dia-diann-pipeline-corpus:companion_input:3",
+      "dia-diann-pipeline-corpus:companion_input:4"
+    ],
+    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
+    "proof_class": "raw_execution",
+    "run_mode": "raw_executable",
+    "runtime_artifact_ids": [
+      "dia:runtime:1",
+      "dia:runtime:2",
+      "dia:runtime:3",
+      "dia:runtime:4"
+    ],
+    "runtime_package_id": "dia-diann-pipeline-corpus",
+    "surface_id": "flagship-runtime-surface:dia",
+    "toolchain_or_import_path": "dia diann pipeline corpus",
+    "validating_test_paths": [
+      "packages/bijux-proteomics-runtime/tests/workflows/test_runtime_external_pack_surface.py"
+    ],
+    "workflow_family": "dia"
+  },
+  "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/dia/stage_lineage.json",
+  "workflow_family": "dia"
+}

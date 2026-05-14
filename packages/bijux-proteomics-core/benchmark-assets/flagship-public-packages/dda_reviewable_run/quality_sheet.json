@@ -1,0 +1,19 @@
+{
+  "comparator_state": "paired MSFragger confrontation is shipped",
+  "current_readiness": "outsider_auditable_but_not_live_rerun_parity",
+  "exact_blockers": [
+    "no in-repo live-engine rerun parity",
+    "one-run package cannot authorize broad production-cohort DDA claims"
+  ],
+  "exact_strengths": [
+    "raw-like spectra, imported results, and settings are all tracked together",
+    "cross-engine protein-rollup drift is demonstrated in public files"
+  ],
+  "lab_consequence_state": "lab packet exists but remains exploratory-only",
+  "note": "DDA is the strongest current public package, but its authority still stops before live-engine rerun parity.",
+  "package_id": "flagship_public_package:dda_reviewable_run",
+  "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/quality_sheet.json",
+  "raw_identity_state": "raw-like spectrum and paired exported-result snapshots are tracked",
+  "runtime_state": "reviewable import-only runtime lane exists",
+  "workflow_family": "dda"
+}

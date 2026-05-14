@@ -63,9 +63,9 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_knowledge/claims.py`, `evidence.py`, and `graph.py` for canonical knowledge structures
-- `src/bijux_proteomics_knowledge/confidence/segments.py`, `resolution.py`, and `review.py` for trust and contradiction handling
-- `src/bijux_proteomics_knowledge/repositories.py`, `schema.py`, and `serialization.py` for durable boundaries
+- `src/bijux_proteomics_knowledge/memory/models/claims.py`, `memory/models/evidence.py`, and `memory/integrity/graph.py` for canonical knowledge structures
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py`, `reviews/decision_briefs.py`, and `reviews/provenance.py` for trust and contradiction handling
+- `src/bijux_proteomics_knowledge/contracts/schema.py`, `references/public.py`, and `reviews/trends.py` for durable boundaries
 
 ## Boundary Test
 

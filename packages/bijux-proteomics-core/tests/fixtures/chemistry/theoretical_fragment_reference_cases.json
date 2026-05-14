@@ -18,6 +18,22 @@
         "neutral_loss": null,
         "expected_mz_monoisotopic": 148.060426466812,
         "tolerance_da": 0.0001
+      },
+      {
+        "series": "b",
+        "ordinal": 2,
+        "charge": 2,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 88.030426466812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "y",
+        "ordinal": 3,
+        "charge": 2,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 183.55191646681197,
+        "tolerance_da": 0.0001
       }
     ]
   },
@@ -39,6 +55,36 @@
         "charge": 1,
         "neutral_loss": "water",
         "expected_mz_monoisotopic": 251.10263146681197,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "y",
+        "ordinal": 3,
+        "charge": 2,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 188.589351466812,
+        "tolerance_da": 0.0001
+      }
+    ]
+  },
+  {
+    "case_id": "phosphorylated_pestide",
+    "modified_peptide": "PES[Phospho]TIDE",
+    "expected_ions": [
+      {
+        "series": "b",
+        "ordinal": 3,
+        "charge": 1,
+        "neutral_loss": "phosphoric_acid",
+        "expected_mz_monoisotopic": 296.124091466812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "b",
+        "ordinal": 4,
+        "charge": 2,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 248.077971966812,
         "tolerance_da": 0.0001
       }
     ]

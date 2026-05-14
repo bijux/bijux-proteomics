@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from bijux_proteomics_runtime.core.observations import (
+from bijux_proteomics_runtime.support.primitives.observations import (
     EvaluationInput,
     Observation,
     ObservationMetric,

@@ -1,0 +1,97 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/challenge_registry.json",
+  "entries": [
+    {
+      "challenge_id": "dda-blinded-holdout",
+      "challenge_kind": "blinded_holdout",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/challenge_manifest.json",
+      "note": "This challenge root keeps frozen surfaces and revealed holdout outcomes together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_blinded_holdout/blinded_holdout_report.json",
+      "workflow_family": "dda"
+    },
+    {
+      "challenge_id": "dia-blinded-holdout",
+      "challenge_kind": "blinded_holdout",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/challenge_manifest.json",
+      "note": "This challenge root keeps frozen surfaces and revealed holdout outcomes together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_blinded_holdout/blinded_holdout_report.json",
+      "workflow_family": "dia"
+    },
+    {
+      "challenge_id": "lfq-blinded-holdout",
+      "challenge_kind": "blinded_holdout",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/challenge_manifest.json",
+      "note": "This challenge root keeps frozen surfaces and revealed holdout outcomes together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_blinded_holdout/blinded_holdout_report.json",
+      "workflow_family": "lfq"
+    },
+    {
+      "challenge_id": "ptm-blinded-holdout",
+      "challenge_kind": "blinded_holdout",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/challenge_manifest.json",
+      "note": "This challenge root keeps frozen surfaces and revealed holdout outcomes together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_blinded_holdout/blinded_holdout_report.json",
+      "workflow_family": "ptm"
+    },
+    {
+      "challenge_id": "dda-calibration-decoy-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+      "workflow_family": "dda"
+    },
+    {
+      "challenge_id": "dia-library-dropout-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dia_library_dropout_perturbation/perturbation_report.json",
+      "workflow_family": "dia"
+    },
+    {
+      "challenge_id": "lfq-missingness-drift-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/lfq_missingness_drift_perturbation/perturbation_report.json",
+      "workflow_family": "lfq"
+    },
+    {
+      "challenge_id": "multiplex-reference-bleed-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/multiplex_reference_bleed_perturbation/perturbation_report.json",
+      "workflow_family": "multiplex"
+    },
+    {
+      "challenge_id": "ptm-ambiguity-occupancy-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/ptm_ambiguity_occupancy_perturbation/perturbation_report.json",
+      "workflow_family": "ptm"
+    },
+    {
+      "challenge_id": "targeted-interference-carryover-perturbation",
+      "challenge_kind": "perturbation",
+      "challenge_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation",
+      "manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/challenge_manifest.json",
+      "note": "This challenge root keeps the perturbed corpus and the measured workflow reaction together under a durable product-owned path.",
+      "report_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+      "workflow_family": "targeted"
+    }
+  ],
+  "note": "The flagship challenge registry keeps blinded holdouts and adversarial perturbation corpora visible as product evidence instead of test-only sidecars.",
+  "registry_id": "flagship-challenge-registry"
+}

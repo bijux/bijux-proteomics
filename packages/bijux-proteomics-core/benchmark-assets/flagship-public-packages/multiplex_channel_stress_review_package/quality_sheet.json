@@ -1,0 +1,19 @@
+{
+  "comparator_state": "external confrontation exists, but public authority remains internal-support only",
+  "current_readiness": "companion_package_for_internal_support_stress",
+  "exact_blockers": [
+    "multiplex still lacks outsider review and lab consequence posture",
+    "public release language remains internal-support only even with a second package"
+  ],
+  "exact_strengths": [
+    "stronger imbalance and missing-channel pressure make multiplex weakness visible",
+    "runtime executes the stress package directly"
+  ],
+  "lab_consequence_state": "no multiplex lab consequence packet is shipped",
+  "note": "This multiplex companion package exists to keep the internal-support boundary honest under stronger channel stress.",
+  "package_id": "public_companion_package:multiplex_channel_stress_review_package",
+  "quality_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/quality_sheet.json",
+  "raw_identity_state": "derived channel-stress feature and design snapshots are tracked",
+  "runtime_state": "reviewable raw-executable runtime lane exists",
+  "workflow_family": "multiplex"
+}

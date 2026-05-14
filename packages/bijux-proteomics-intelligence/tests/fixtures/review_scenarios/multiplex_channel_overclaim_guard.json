@@ -1,0 +1,79 @@
+{
+  "workflow_family": "multiplex",
+  "program": {
+    "program_id": "prog-multiplex-guard",
+    "name": "multiplex guard",
+    "objective": "prevent polished multiplex candidates from outranking grounded channel-aware evidence",
+    "target_id": "target-multiplex-guard",
+    "target_name": "Target Multiplex Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "prefer channel-aware multiplex follow-up over optimistic label-based polish"
+  },
+  "criterion": {
+    "criterion_id": "multiplex-guard",
+    "metric": "multiplex_follow_up_score",
+    "threshold": 0.71
+  },
+  "candidates": [
+    {
+      "candidate_id": "grounded-multiplex-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "multiplex_follow_up_score": 0.8
+      },
+      "manufacturability_score": 0.78,
+      "uncertainty": 0.1,
+      "evidence_support": 0.85,
+      "reproducibility_score": 0.84,
+      "effect_size_score": 0.74,
+      "assay_feasibility_score": 0.76,
+      "novelty_score": 0.37,
+      "lab_cost_risk": 0.16,
+      "operational_risk": 0.13
+    },
+    {
+      "candidate_id": "multiplex-polish-trap",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "multiplex_follow_up_score": 0.89
+      },
+      "manufacturability_score": 0.88,
+      "uncertainty": 0.21,
+      "evidence_support": 0.4,
+      "reproducibility_score": 0.35,
+      "effect_size_score": 0.61,
+      "assay_feasibility_score": 0.71,
+      "novelty_score": 0.79,
+      "lab_cost_risk": 0.22,
+      "operational_risk": 0.19
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "multiplex-support-1",
+      "kind": "differential_proteomics",
+      "title": "grounded multiplex support",
+      "source": "multiplex-grounded-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with multiplex signal preserved across reference and carrier-aware comparisons",
+      "confidence": 0.89,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 20
+    },
+    {
+      "evidence_id": "multiplex-support-2",
+      "kind": "literature",
+      "title": "multiplex chemistry context",
+      "source": "PMID:multiplex-guard-1",
+      "source_type": "literature",
+      "claim": "supports cautious interpretation of multiplex channel effects for the grounded candidate",
+      "confidence": 0.77,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 55
+    }
+  ],
+  "expected_top_candidate_id": "grounded-multiplex-follow-up"
+}

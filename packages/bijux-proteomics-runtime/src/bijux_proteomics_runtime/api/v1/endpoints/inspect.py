@@ -10,20 +10,22 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
 from bijux_proteomics_runtime.api.errors import raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiCandidate,
     ApiEnvelope,
     ErrorResponse,
     InspectResponse,
 )
-from bijux_proteomics_runtime.interfaces.cli import (
-    _inspect_candidate,
-    _load_run_summary,
+from bijux_proteomics_runtime.runs.correlation import (
+    build_request_correlation_meta,
 )
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
+from bijux_proteomics_runtime.runs.operations import (
+    inspect_candidate_operation,
+    load_run_summary_operation,
+)
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 router = APIRouter()
 
@@ -43,12 +45,12 @@ def _run_id_from_candidate(candidate_id: str) -> str:
 def inspect_endpoint(
     candidate_id: str,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope:
     """inspect_endpoint."""
     meta = build_request_correlation_meta(request, "inspect", request.url.path)
     try:
-        candidate = _inspect_candidate(base_dir, candidate_id)
+        candidate = inspect_candidate_operation(base_dir, candidate_id)
         api_candidate = ApiCandidate.model_validate(candidate.model_dump(mode="json"))
         run_id = _run_id_from_candidate(candidate_id)
         workspace = RunWorkspace.for_run(base_dir, run_id)
@@ -59,7 +61,7 @@ def inspect_endpoint(
         }
         qc_status = None
         if workspace.run_summary_path.exists():
-            summary = _load_run_summary(base_dir, run_id, None)
+            summary = load_run_summary_operation(base_dir, run_id, None)
             qc_status = summary.get("qc_status")
         response = InspectResponse(
             candidate=api_candidate,

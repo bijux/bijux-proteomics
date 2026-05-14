@@ -1,0 +1,41 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/perturbation_report.json",
+  "challenge_id": "dda-calibration-decoy-perturbation",
+  "comparator_reaction": "weakens",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/dda_calibration_decoy_perturbation/evidence/perturbed_maxquant_pipeline_export.tsv"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 2.0,
+      "delta": -2.0,
+      "interpretation": "Fewer clean accepted targets means the DDA workflow loses stable identification support.",
+      "metric_id": "accepted_target_count",
+      "perturbed_value": 0.0
+    },
+    {
+      "baseline_value": 0.0,
+      "delta": 1.0,
+      "interpretation": "Accepted decoys force target-decoy and calibration claims back into downgrade territory.",
+      "metric_id": "accepted_decoy_count",
+      "perturbed_value": 1.0
+    },
+    {
+      "baseline_value": 0.0,
+      "delta": 1.0,
+      "interpretation": "Contaminant promotion makes protein-facing review less trustworthy under the perturbation corpus.",
+      "metric_id": "accepted_contaminant_count",
+      "perturbed_value": 1.0
+    }
+  ],
+  "note": "This perturbation corpus worsens calibration and decoy behavior enough to show that DDA review claims must collapse back to refusal or stronger downgrade.",
+  "perturbation_axes": [
+    "accepted-target loss",
+    "accepted-decoy intrusion",
+    "contaminant promotion"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "dda",
+  "workflow_reaction": "collapses"
+}

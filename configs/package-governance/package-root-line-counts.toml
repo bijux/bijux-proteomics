@@ -1,0 +1,118 @@
+# Generated package-root line-count report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_root_line_counts
+
+[guard]
+max_total_init_line_count = 478
+max_total_top_level_python_module_count = 29
+
+[[package]]
+distribution_name = "agentic-proteins"
+import_root = "agentic_proteins"
+init_line_count = 17
+top_level_python_module_count = 1
+public_symbol_count = 4
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+import_root = "bijux_proteomics_dev"
+init_line_count = 1
+top_level_python_module_count = 1
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+init_line_count = 46
+top_level_python_module_count = 1
+public_symbol_count = 15
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+init_line_count = 22
+top_level_python_module_count = 1
+public_symbol_count = 5
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+init_line_count = 26
+top_level_python_module_count = 1
+public_symbol_count = 4
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+init_line_count = 29
+top_level_python_module_count = 1
+public_symbol_count = 7
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+init_line_count = 22
+top_level_python_module_count = 1
+public_symbol_count = 5
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+init_line_count = 16
+top_level_python_module_count = 1
+public_symbol_count = 3
+
+[[package]]
+distribution_name = "bijux-proteomics"
+import_root = "bijux_proteomics_alias"
+init_line_count = 12
+top_level_python_module_count = 1
+public_symbol_count = 1
+
+[[package]]
+distribution_name = "proteomics"
+import_root = "proteomics"
+init_line_count = 41
+top_level_python_module_count = 4
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+import_root = "proteomics_core"
+init_line_count = 41
+top_level_python_module_count = 4
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+import_root = "proteomics_foundation"
+init_line_count = 41
+top_level_python_module_count = 2
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+import_root = "proteomics_runtime"
+init_line_count = 41
+top_level_python_module_count = 4
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+import_root = "proteomics_intelligence"
+init_line_count = 41
+top_level_python_module_count = 2
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+import_root = "proteomics_knowledge"
+init_line_count = 41
+top_level_python_module_count = 2
+public_symbol_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+import_root = "proteomics_lab"
+init_line_count = 41
+top_level_python_module_count = 2
+public_symbol_count = 0

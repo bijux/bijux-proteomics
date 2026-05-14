@@ -1,0 +1,13 @@
+{
+  "package_id": "public_companion_package:targeted_carryover_review_package",
+  "workflow_family": "targeted",
+  "citations": [
+    {
+      "citation_id": "citation:targeted_carryover_review",
+      "title": "Targeted assay carryover and calibration review",
+      "doi": null,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/27556322/",
+      "why_it_matters": "The targeted companion package exists to stress carryover and calibration-sensitive transfer."
+    }
+  ]
+}

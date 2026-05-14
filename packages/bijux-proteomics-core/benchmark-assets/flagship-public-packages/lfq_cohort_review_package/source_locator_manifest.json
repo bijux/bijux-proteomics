@@ -1,0 +1,17 @@
+{
+  "package_id": "flagship_public_package:lfq_cohort_review_package",
+  "workflow_family": "lfq",
+  "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",
+  "remote_sources": [
+    {
+      "source_id": "lfq:normalization_reference",
+      "public_source_name": "Study-scale LFQ feature table snapshot",
+      "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+      "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/study_scale_ms1_features.tsv",
+      "public_reference_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5862339/",
+      "why_it_matters": "The flagship LFQ package is judged against cohort-scale missingness and normalization expectations, not toy abundance matrices.",
+      "availability_expectation": "The public normalization and missingness reference should remain reachable while LFQ authority remains bounded by cohort-shaped evidence.",
+      "license_note": "The local file is a tracked snapshot; public availability check targets the public methodology reference."
+    }
+  ]
+}

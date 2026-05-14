@@ -1,0 +1,13 @@
+feature_id	sample_id	peptide	proteins	intensity	charge	mz	retention_time_seconds	missing_reason
+mx001	plex_a_126	APEPTIDE	P001	420.0	2	500.2	1200	
+mx002	plex_a_127N	APEPTIDE	P001	2310.0	2	500.2	1201	
+mx003	plex_a_128N	APEPTIDE	P001		2	500.2	1202	reference_dropout
+mx004	plex_a_126	BPEPTIDE	P002	280.0	2	610.2	1300	
+mx005	plex_a_127N	BPEPTIDE	P002	1518.0	2	610.2	1301	
+mx006	plex_a_128N	BPEPTIDE	P002		2	610.2	1302	reference_dropout
+mx101	plex_b_126	APEPTIDE	P001	525.0	2	500.2	1205	
+mx102	plex_b_127N	APEPTIDE	P001	2805.0	2	500.2	1206	
+mx103	plex_b_128N	APEPTIDE	P001		2	500.2	1207	reference_dropout
+mx104	plex_b_126	BPEPTIDE	P002	315.0	2	610.2	1305	
+mx105	plex_b_127N	BPEPTIDE	P002	1699.5	2	610.2	1306	
+mx106	plex_b_128N	BPEPTIDE	P002		2	610.2	1307	reference_dropout

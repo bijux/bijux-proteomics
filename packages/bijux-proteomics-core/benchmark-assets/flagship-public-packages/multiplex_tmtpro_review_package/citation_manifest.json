@@ -1,0 +1,13 @@
+{
+  "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "workflow_family": "multiplex",
+  "citations": [
+    {
+      "citation_id": "citation:multiplex_ratio_compression",
+      "title": "Ratio compression and interference remain central multiplex interpretation pressures",
+      "doi": null,
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5001537/",
+      "why_it_matters": "Anchors the ratio-compression and interference caution in the multiplex package."
+    }
+  ]
+}

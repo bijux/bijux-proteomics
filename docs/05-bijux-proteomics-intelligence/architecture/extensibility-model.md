@@ -13,7 +13,7 @@ A good extension point in `bijux-proteomics-intelligence` makes future change ch
 
 ## Extension Rules
 
-- add metrics, evaluators, or loop controls only when they keep decision ownership explicit
+- add candidate, judgment, posture, or refinement logic only when it keeps decision ownership explicit
 - prefer knowledge for evidence semantics and lab for operational follow-through
 - new extension points should improve reviewability of why a recommendation changed
 

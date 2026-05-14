@@ -1,0 +1,315 @@
+{
+  "alternative_plan_options": [
+    {
+      "estimated_cost": 2.6,
+      "evidence_gain_score": 0.86,
+      "plan_id": "orthogonal-first",
+      "prioritized_assay_ids": [
+        "orthogonal-assay",
+        "prm-assay"
+      ],
+      "supporting_rationale": [
+        "maximizes contradiction resolution before deeper validation spend"
+      ],
+      "turnaround_days": 6.0
+    },
+    {
+      "estimated_cost": 1.2,
+      "evidence_gain_score": 0.49,
+      "plan_id": "cheap-prm-only",
+      "prioritized_assay_ids": [
+        "prm-assay"
+      ],
+      "supporting_rationale": [
+        "fast targeted readout but weaker contradiction coverage"
+      ],
+      "turnaround_days": 3.0
+    }
+  ],
+  "candidate_id": "cand-egfr-prm",
+  "claim_links": {
+    "orthogonal-assay": [
+      "claim-egfr-orthogonal"
+    ],
+    "prm-assay": [
+      "claim-egfr-prm"
+    ]
+  },
+  "executable_plan": {
+    "batch_id": "batch-egfr-prm-1",
+    "blocked_by": [
+      "transition interference audit",
+      "carryover remediation"
+    ],
+    "instructions": [
+      {
+        "assay_id": "prm-assay",
+        "batch_id": "batch-egfr-prm-1",
+        "blocking": true,
+        "instruction_id": "batch-egfr-prm-1:prm-assay",
+        "objective": "confirm the prioritized phosphosite signal by PRM",
+        "preflight_checks": [
+          "pooled reference loaded",
+          "retention-time standard loaded"
+        ],
+        "sample_kind": "targeted"
+      },
+      {
+        "assay_id": "orthogonal-assay",
+        "batch_id": "batch-egfr-prm-1",
+        "blocking": false,
+        "instruction_id": "batch-egfr-prm-1:orthogonal-assay",
+        "objective": "cross-check the targeted signal with orthogonal immunoblot evidence",
+        "preflight_checks": [
+          "antibody lot verified",
+          "bridge QC reserved"
+        ],
+        "sample_kind": "cellular"
+      }
+    ],
+    "plan_kind": "blocked_review",
+    "program_id": "prog-egfr",
+    "ready_for_execution": true
+  },
+  "handoff_validation": {
+    "accepted": false,
+    "accepted_assay_ids": [],
+    "blockers": [
+      "heavy-light mismatch above tolerance",
+      "carryover remains visible in blank injections"
+    ],
+    "candidate_id": "cand-egfr-prm",
+    "program_id": "prog-egfr",
+    "required_next_actions": [
+      "monitor orthogonal assay readout before committing larger validation spend"
+    ],
+    "skepticism_notes": [
+      "retain one orthogonal assay because novelty alone does not justify follow-up escalation"
+    ]
+  },
+  "outcome": {
+    "assay_outcomes": [
+      {
+        "assay_id": "assay-egfr-prm",
+        "reason": "carryover and heavy-light mismatch remain unresolved",
+        "status": "blocked"
+      }
+    ],
+    "batch_id": "batch-egfr-prm-1",
+    "rerun_policy": "never"
+  },
+  "plate_advisory": {
+    "assignments": [
+      {
+        "batch": "batch-egfr-prm-1",
+        "condition": "treated",
+        "contamination_watch": false,
+        "fraction": 1,
+        "lineage_label": "cand-egfr-prm|treated|rep1",
+        "multiplex_group": "prm-panel-1",
+        "plate_id": "plate-prm-01",
+        "randomization_block": "block-a",
+        "replicate": 1,
+        "sample_id": "tumor-01",
+        "sample_role": "sample",
+        "well_id": "A01"
+      },
+      {
+        "batch": "batch-egfr-prm-1",
+        "condition": "reference_pool",
+        "contamination_watch": false,
+        "fraction": 1,
+        "lineage_label": "reference|pool",
+        "multiplex_group": "prm-panel-1",
+        "plate_id": "plate-prm-01",
+        "randomization_block": "block-a",
+        "replicate": 1,
+        "sample_id": "pool-01",
+        "sample_role": "pooled_reference",
+        "well_id": "A12"
+      },
+      {
+        "batch": "batch-egfr-prm-1",
+        "condition": "qc_bridge",
+        "contamination_watch": true,
+        "fraction": 1,
+        "lineage_label": "bridge|qc",
+        "multiplex_group": "prm-panel-1",
+        "plate_id": "plate-prm-01",
+        "randomization_block": "block-b",
+        "replicate": 1,
+        "sample_id": "qc-bridge-01",
+        "sample_role": "qc_bridge",
+        "well_id": "B12"
+      }
+    ],
+    "blocked_layout_labels": [],
+    "column_count": 12,
+    "contamination_watch_well_ids": [
+      "B12"
+    ],
+    "control_well_ids": [
+      "A12",
+      "B12"
+    ],
+    "layout_summary": "plate layout preserves pooled reference and bridge wells around the targeted follow-up batch",
+    "multiplex_group_count": 1,
+    "notes": [
+      "pooled reference anchors retention-time drift checks",
+      "qc bridge remains under contamination watch because it sits beside high-abundance treated material"
+    ],
+    "plate_id": "plate-prm-01",
+    "randomization_seed": 11,
+    "row_count": 8
+  },
+  "review_packet": {
+    "advancement_evidence": {
+      "bundle_id": "bundle-egfr-review",
+      "evidence_ids": [
+        "ev-phospho-1",
+        "ev-lfq-2",
+        "ev-prm-3"
+      ],
+      "items": [
+        {
+          "claim": "EGFR phosphosite signal reproduces across replicates",
+          "confidence": 0.87,
+          "evidence_id": "ev-phospho-1",
+          "kind": "assay",
+          "strength": "strong"
+        },
+        {
+          "claim": "LFQ evidence aligns with the same signaling direction",
+          "confidence": 0.72,
+          "evidence_id": "ev-lfq-2",
+          "kind": "pathway",
+          "strength": "moderate"
+        }
+      ],
+      "missing_evidence_kinds": [],
+      "required_evidence_kinds": [
+        "assay",
+        "pathway"
+      ],
+      "target_id": "target-egfr"
+    },
+    "blocking_findings": [
+      "calibration drift exceeds supported handoff range",
+      "transition interference remains above reviewable threshold",
+      "carryover invalidates direct progression to assay execution"
+    ],
+    "program_id": "prog-egfr",
+    "ready_for_synthesis": false,
+    "recommended_actions": [
+      "rerun calibrant standards",
+      "redesign transitions with stronger selectivity"
+    ]
+  },
+  "review_queue_decision": {
+    "evidence_ids": [
+      "ev-phospho-1",
+      "ev-lfq-2",
+      "ev-prm-3"
+    ],
+    "gate_id": "gate-targeted-follow-up",
+    "program_id": "prog-egfr",
+    "review_id": "review-egfr-prm",
+    "state": "blocked",
+    "summary": "calibrant drift, transition interference, and carryover block direct targeted execution"
+  },
+  "target_id": "target-egfr",
+  "transition_review": {
+    "approved_transition_ids": [],
+    "assay_id": "prm-assay",
+    "entries": [
+      {
+        "disposition": "approved",
+        "missing_controls": [],
+        "reasons": [
+          "transition is feasible enough for targeted follow-up"
+        ],
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "findings": [],
+          "overall_risk_score": 0.18,
+          "supported_for_follow_up": true
+        },
+        "transition_id": "tr-egfr-1"
+      },
+      {
+        "disposition": "exploratory",
+        "missing_controls": [
+          "heavy-standard"
+        ],
+        "reasons": [
+          "assay risk score 0.36 keeps the transition exploratory",
+          "missing required controls: heavy-standard"
+        ],
+        "risk_assessment": {
+          "assay_id": "prm-assay",
+          "findings": [],
+          "overall_risk_score": 0.36,
+          "supported_for_follow_up": true
+        },
+        "transition_id": "tr-egfr-2"
+      }
+    ],
+    "exploratory_transition_ids": [
+      "tr-egfr-y7"
+    ],
+    "notes": [
+      "one transition is execution-ready and one remains exploratory until heavy-standard coverage arrives"
+    ],
+    "readiness_score": 0.1,
+    "refused_transition_ids": [
+      "tr-egfr-y5",
+      "tr-egfr-y8"
+    ]
+  },
+  "workflow_readiness_summary": {
+    "blocked_step_count": 3,
+    "blocking_assay_ids": [
+      "assay-egfr-prm",
+      "assay-egfr-orthogonal"
+    ],
+    "blocking_review_gate_ids": [],
+    "missing_evidence_needs": [
+      "fresh calibrant curve",
+      "transition interference cleanup"
+    ],
+    "program_id": "prog-egfr",
+    "ready_step_count": 2,
+    "step_statuses": [
+      {
+        "blockers": [],
+        "ready": true,
+        "stage_kind": "intake",
+        "step_id": "intake"
+      },
+      {
+        "blockers": [],
+        "ready": true,
+        "stage_kind": "evidence_review",
+        "step_id": "evidence-review"
+      },
+      {
+        "blockers": [],
+        "ready": true,
+        "stage_kind": "assay_execution",
+        "step_id": "assay-execution"
+      },
+      {
+        "blockers": [],
+        "ready": true,
+        "stage_kind": "decision_review",
+        "step_id": "decision-review"
+      },
+      {
+        "blockers": [],
+        "ready": true,
+        "stage_kind": "learning_loop",
+        "step_id": "learning-loop"
+      }
+    ]
+  }
+}

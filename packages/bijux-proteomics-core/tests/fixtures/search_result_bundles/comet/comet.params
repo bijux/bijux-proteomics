@@ -1,0 +1,11 @@
+database_name = databases/target_decoy.fasta
+decoy_search = 1
+decoy_prefix = DECOY_
+search_enzyme_name = Trypsin
+allowed_missed_cleavage = 2
+peptide_mass_tolerance = 20
+peptide_mass_units = 2
+fragment_bin_tol = 0.02
+fragment_bin_offset = 0.0
+add_C_cysteine = 57.021464
+variable_mod01 = 15.994915 M 0 3 -1 0 0

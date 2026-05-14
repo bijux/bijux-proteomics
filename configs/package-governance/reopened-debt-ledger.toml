@@ -1,0 +1,122 @@
+# Generated reopened debt ledger.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.reopened_debt_ledger
+
+[[debt]]
+debt_id = "agentic-proteins:reopened-completion-claim"
+distribution_name = "agentic-proteins"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics:reopened-completion-claim"
+distribution_name = "bijux-proteomics"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-core:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-core"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "22 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-dev:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-dev"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "2 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-intelligence:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-intelligence"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "5 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-knowledge:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-knowledge"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "3 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-lab:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-lab"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "5 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "bijux-proteomics-runtime:mixed-responsibility-modules"
+distribution_name = "bijux-proteomics-runtime"
+debt_family = "mixed-responsibility-modules"
+severity = "high"
+summary = "4 oversized mixed-responsibility modules still need owner splits"
+evidence_report = "configs/package-governance/package-oversized-mixed-modules.toml"
+
+[[debt]]
+debt_id = "proteomics:reopened-completion-claim"
+distribution_name = "proteomics"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-core:reopened-completion-claim"
+distribution_name = "proteomics-core"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-foundation:reopened-completion-claim"
+distribution_name = "proteomics-foundation"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-intelligence:reopened-completion-claim"
+distribution_name = "proteomics-intelligence"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-knowledge:reopened-completion-claim"
+distribution_name = "proteomics-knowledge"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-lab:reopened-completion-claim"
+distribution_name = "proteomics-lab"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"
+
+[[debt]]
+debt_id = "proteomics-runtime:reopened-completion-claim"
+distribution_name = "proteomics-runtime"
+debt_family = "reopened-completion-claim"
+severity = "high"
+summary = "root public breadth still exceeds owner logic depth"
+evidence_report = "configs/package-governance/package-reopened-completion-claims.toml"

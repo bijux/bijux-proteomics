@@ -27,9 +27,7 @@ def pytest_collection_modifyitems(
             item.add_marker(pytest.mark.integration)
         elif "e2e" in parts:
             item.add_marker(pytest.mark.e2e)
-        elif "regression" in parts:
-            item.add_marker(pytest.mark.regression)
-        elif "real_local" in parts:
+        elif "local_models" in parts:
             item.add_marker(pytest.mark.real_local)
         else:
             item.add_marker(pytest.mark.unit)

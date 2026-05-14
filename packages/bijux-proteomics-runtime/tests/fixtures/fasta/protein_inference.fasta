@@ -1,0 +1,8 @@
+>sp|P11111|PROT1 Example protein 1 OS=Homo sapiens GN=PROT1
+MPEPTIDEKAAASHAREDKGG
+>sp|P22222|PROT2 Example protein 2 OS=Homo sapiens GN=PROT2
+QQSHAREDKTTGLYGLYKAA
+>sp|P33333|PROT3 Example protein 3 OS=Homo sapiens GN=PROT3
+MNTARGETKPP
+>sp|P44444|PROT4 Example protein 4 OS=Homo sapiens GN=PROT4
+LLSHAREDKMMGLYGLYKRR

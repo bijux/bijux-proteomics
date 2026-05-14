@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling>=1.27.0,<1.30", "hatch-vcs>=0.4.0,<1.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "proteomics-intelligence"
+dynamic = ["version"]
+description = "Install and import alias package for bijux-proteomics-intelligence."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11,<4"
+authors = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+maintainers = [{ name = "Bijan Mousavi", email = "bijan@bijux.io" }]
+keywords = ["proteomics", "intelligence", "compatibility", "packaging"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Typing :: Typed",
+]
+dependencies = [
+  "bijux-proteomics-intelligence>=0.3.7,<0.4.0",
+]
+
+[project.urls]
+Homepage = "https://bijux.io/bijux-proteomics/"
+Documentation = "https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/"
+Repository = "https://github.com/bijux/bijux-proteomics"
+Issues = "https://github.com/bijux/bijux-proteomics/issues"
+Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/proteomics-intelligence/CHANGELOG.md"
+Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
+
+[tool.hatch.version]
+source = "vcs"
+tag-pattern = "^v(?P<version>.*)$"
+fallback-version = "0.3.6"
+raw-options = { git_describe_command = "git describe --dirty --tags --long --match 'v*'", local_scheme = "dirty-tag", version_scheme = "guess-next-dev", root = "../..", search_parent_directories = true }
+
+[tool.hatch.build]
+include = [
+  "README.md",
+  "CHANGELOG.md",
+  "src/proteomics_intelligence/py.typed",
+]
+force-include = { "LICENSE" = "LICENSE", "NOTICE" = "NOTICE" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/proteomics_intelligence"]
+
+[tool.hatch.build.targets.wheel.package-data]
+"proteomics_intelligence" = ["py.typed"]

@@ -1,3 +1,3 @@
-"""Compatibility forwarding module for canonical runtime execution ownership."""
+"""Legacy execution alias for orchestration engine helpers."""
 
-from bijux_proteomics_runtime.execution.runtime import *  # noqa: F401,F403
+from bijux_proteomics_runtime.execution.engine import *  # noqa: F401,F403

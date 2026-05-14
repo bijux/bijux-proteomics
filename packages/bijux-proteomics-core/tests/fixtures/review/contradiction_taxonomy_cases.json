@@ -1,0 +1,61 @@
+{
+  "observations": [
+    {
+      "contradiction_id": "cx-1",
+      "left_evidence_id": "E1",
+      "right_evidence_id": "E2",
+      "left_source": "study-a",
+      "right_source": "study-b",
+      "left_method": "dia",
+      "right_method": "dia",
+      "left_score": 0.92,
+      "right_score": 0.9,
+      "left_quant_state": "up",
+      "right_quant_state": "up",
+      "left_ptm_state": "present",
+      "right_ptm_state": "present",
+      "left_qc_state": "pass",
+      "right_qc_state": "pass",
+      "left_lab_outcome": "confirmed",
+      "right_lab_outcome": "confirmed"
+    },
+    {
+      "contradiction_id": "cx-2",
+      "left_evidence_id": "E3",
+      "right_evidence_id": "E4",
+      "left_source": "study-c",
+      "right_source": "study-c",
+      "left_method": "dia",
+      "right_method": "dda",
+      "left_score": 0.81,
+      "right_score": 0.8,
+      "left_quant_state": "up",
+      "right_quant_state": "up",
+      "left_ptm_state": "present",
+      "right_ptm_state": "present",
+      "left_qc_state": "pass",
+      "right_qc_state": "pass",
+      "left_lab_outcome": "confirmed",
+      "right_lab_outcome": "confirmed"
+    },
+    {
+      "contradiction_id": "cx-3",
+      "left_evidence_id": "E5",
+      "right_evidence_id": "E6",
+      "left_source": "study-d",
+      "right_source": "study-d",
+      "left_method": "lfq",
+      "right_method": "lfq",
+      "left_score": 0.77,
+      "right_score": 0.76,
+      "left_quant_state": "down",
+      "right_quant_state": "up",
+      "left_ptm_state": "absent",
+      "right_ptm_state": "absent",
+      "left_qc_state": "pass",
+      "right_qc_state": "pass",
+      "left_lab_outcome": "confirmed",
+      "right_lab_outcome": "confirmed"
+    }
+  ]
+}

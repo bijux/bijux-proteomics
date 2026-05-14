@@ -49,14 +49,29 @@ flowchart LR
 - confidence semantics and contradiction handling
 - knowledge-level review boundaries used by downstream packages
 
-## Start With
+## Shared Reader Routes
+
+- Use [Decision Support](https://bijux.io/bijux-proteomics/decision-support/)
+  when the question is still about evidence, contradiction, or public belief
+  posture rather than one knowledge-owner module.
+- Use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is how contradiction pressure should narrow the current
+  recommendation before assay spend is approved.
+- Use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the question is whether literature pressure, comparator pressure, or lab
+  burden actually moved the call.
+- Use [Workflow Families](https://bijux.io/bijux-proteomics/workflow-families/)
+  when the family route is clearer than the package route.
+
+## Start Inside This Package
 
 - Open [Foundation](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/foundation/)
   for the package role and boundary.
+- Open [Architecture](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/architecture/)
+  when the concern is how claims, confidence, and contradiction handling stay
+  separated.
 - Open [Interfaces](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/interfaces/)
   when the question is a claim, evidence, or confidence-facing contract.
-- Open [bijux-proteomics-intelligence](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
-  when the change becomes ranking policy rather than evidence truth.
 
 ## What It Refuses
 

@@ -1,0 +1,103 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/citation_manifest.json",
+  "claim_scope": "This companion LFQ package exists to test whether the main LFQ repeatability and abundance-review claims survive a sparser cohort contrast.",
+  "comparator_availability": "bounded external comparator confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/generalization-lfq/runtime/quant_bundle.json",
+    "artifacts/workflows/generalization-lfq/runtime/differential_report.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/lifecycle.json",
+  "note": "The companion LFQ package supports family-level generalization checks, but it still does not grant decision-grade or broad cohort-transfer quant authority.",
+  "package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+  "package_label": "Companion public LFQ sparse-contrast review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package",
+  "public_dataset_identity": "tracked sparse-cohort feature and design snapshots with a different replicate shape and more fragile biological contrast",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "secondary_fixture_bundle:lfq_sparse_contrast_variation",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "sparser replicate structure",
+    "higher missingness pressure",
+    "effect-direction fragility under altered cohort contrast"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/README.md",
+      "public_identity_note": "The LFQ companion package starts from a sparser and more imbalanced cohort contrast."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/package_manifest.json",
+      "public_identity_note": "The LFQ companion manifest states how the cohort contrast differs from the flagship package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/artifact_inventory.json",
+      "public_identity_note": "The LFQ companion inventory keeps feature, design, and reproducibility evidence auditable."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/quality_sheet.json",
+      "public_identity_note": "The LFQ companion quality sheet makes sparse-cohort transfer limits public."
+    },
+    {
+      "asset_role": "lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/lifecycle.json",
+      "public_identity_note": "The LFQ companion lifecycle record explains that this package exists to pressure generalization beyond the flagship cohort."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest shows where the LFQ companion evidence came from."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest ties the LFQ companion package to missingness and differential quant references."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary manifest distinguishes copied LFQ evidence from generated metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions tell maintainers how to refresh the LFQ companion package surfaces."
+    },
+    {
+      "asset_role": "feature_table",
+      "evidence_kind": "quant_feature_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
+      "public_identity_note": "The LFQ companion feature table increases sparsity and sample imbalance pressure relative to the flagship package."
+    },
+    {
+      "asset_role": "design_table",
+      "evidence_kind": "experimental_design",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case.design.tsv",
+      "public_identity_note": "The LFQ companion design table introduces a different replicate structure than the flagship package."
+    },
+    {
+      "asset_role": "reproducibility_manifest",
+      "evidence_kind": "expectation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/sparse_reproducibility_manifest.json",
+      "public_identity_note": "The LFQ companion reproducibility manifest keeps sparse-cohort repeatability assumptions explicit."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/source_locator_manifest.json",
+  "workflow_family": "lfq"
+}

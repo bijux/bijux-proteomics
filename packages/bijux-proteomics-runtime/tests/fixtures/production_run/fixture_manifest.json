@@ -1,0 +1,30 @@
+{
+  "document_kind": "production_run_fixture_manifest",
+  "description": "Small production-like proteomics fixture pack for identification, quantification, and QC operator workflows.",
+  "files": [
+    {
+      "path": "proteins.fasta",
+      "sha256": "52fd23db345642da09a0d475020e25d53f32f86c17bbd62f0678af5a246a4165"
+    },
+    {
+      "path": "results.tsv",
+      "sha256": "b1842d21c0d66c1b46588da79d1ae65acb90a30a045b8f089c804b8ffeb0ca20"
+    },
+    {
+      "path": "spectra.mgf",
+      "sha256": "cbdcdfb849094cd912238117b8e9f1d7af1402006bd268d094b97c7b4f4d05f6"
+    },
+    {
+      "path": "ms1_features.tsv",
+      "sha256": "cc7f3aad8b0eee40a7ce03b67ad9bce23c5e27dc71f1a366ec374d984c8f7188"
+    },
+    {
+      "path": "design.tsv",
+      "sha256": "59a5f9786b825bca78ab9e046a07de06baf76ba484b6cd3acb3a64b0ba013c0d"
+    },
+    {
+      "path": "qc_policy.json",
+      "sha256": "2b6c7af9a54863ea1682f7b55508463479cfac67c389a11e385ec49a616952a4"
+    }
+  ]
+}

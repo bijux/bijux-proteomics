@@ -1,0 +1,27 @@
+# Generated knowledge publishability report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.publishability
+
+[metrics]
+total_public_surface_count = 15
+query_helper_count = 1
+curated_registry_entry_count = 90
+curated_entries_per_public_surface = 6.0
+provenance_complete_surface_count = 9
+under_curated_workflow_count = 0
+orphan_reference_count = 0
+breadth_ready = true
+publishable = true
+
+[guard]
+max_total_public_surface_count = 15
+max_query_helper_count = 1
+min_curated_entries_per_public_surface = 6.0
+min_provenance_complete_surface_count = 9
+max_under_curated_workflow_count = 0
+max_orphan_reference_count = 0
+
+[evidence]
+knowledge_breadth_path = "configs/package-governance/knowledge-breadth.toml"
+provenance_completeness_path = "configs/package-governance/knowledge-provenance-completeness.toml"
+under_curated_workflows_path = "configs/package-governance/knowledge-under-curated-workflows.toml"
+orphan_references_path = "configs/package-governance/knowledge-orphan-references.toml"

@@ -1,0 +1,109 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/citation_manifest.json",
+  "claim_scope": "This companion PTM package exists to test whether localization-facing claims survive while targetability claims collapse under stronger ambiguity.",
+  "comparator_availability": "bounded external confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/generalization-ptm/runtime/review_packet.json",
+    "artifacts/workflows/generalization-ptm/runtime/evidence_bundle.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/lifecycle.json",
+  "note": "The companion PTM package supports family-level generalization checks, but it still does not grant decision-grade PTM promotion under ambiguity-heavy conditions.",
+  "package_id": "public_companion_package:ptm_ambiguity_stress_review_package",
+  "package_label": "Companion public PTM ambiguity-stress review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package",
+  "public_dataset_identity": "tracked PTM localization evidence with materially worse ambiguity and lower localization confidence than the flagship package",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "secondary_fixture_bundle:ptm_ambiguity_stress_variation",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "stronger localization ambiguity",
+    "lower-confidence motif support",
+    "targetability collapse under ambiguity stress"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/README.md",
+      "public_identity_note": "The PTM companion package starts from materially stronger localization ambiguity."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/package_manifest.json",
+      "public_identity_note": "The PTM companion manifest explains how ambiguity and targetability pressure shifts relative to the flagship package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/artifact_inventory.json",
+      "public_identity_note": "The PTM companion inventory keeps ambiguity stress evidence auditable."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/quality_sheet.json",
+      "public_identity_note": "The PTM companion quality sheet makes ambiguity-driven collapse visible."
+    },
+    {
+      "asset_role": "lifecycle",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/lifecycle.json",
+      "public_identity_note": "The PTM companion lifecycle record explains why the package exists to pressure ambiguity-sensitive claims."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest shows where PTM ambiguity-stress evidence came from."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest ties the PTM companion package to localization and occupancy references."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary manifest distinguishes the ambiguity-stress localization table from copied support files."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions tell maintainers how to refresh the PTM ambiguity package surfaces."
+    },
+    {
+      "asset_role": "localization_table",
+      "evidence_kind": "ptm_localization_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
+      "public_identity_note": "The PTM companion localization table explicitly worsens site ambiguity relative to the flagship package."
+    },
+    {
+      "asset_role": "feature_table",
+      "evidence_kind": "quant_feature_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/ptm_features.tsv",
+      "public_identity_note": "The PTM companion feature table preserves the feature context used to interpret ambiguity."
+    },
+    {
+      "asset_role": "reference_fasta",
+      "evidence_kind": "reference_fasta",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/ptm_sites.fasta",
+      "public_identity_note": "The PTM companion FASTA keeps the same peptide-to-protein context while ambiguity worsens."
+    },
+    {
+      "asset_role": "spectra",
+      "evidence_kind": "raw_spectra",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/spectra.mgf",
+      "public_identity_note": "The PTM companion raw-like spectra keep ambiguity review tied to inspectable fragment evidence."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/source_locator_manifest.json",
+  "workflow_family": "ptm"
+}

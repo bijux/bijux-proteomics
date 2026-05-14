@@ -1,0 +1,146 @@
+# Generated package dependency dossiers.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers
+
+[[package]]
+distribution_name = "agentic-proteins"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+allowed_inbound_edges = []
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-runtime"]
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "agentic-proteins stays as a narrow compatibility bridge that forwards to canonical core and runtime owners only."
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+allowed_inbound_edges = []
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "maintainer governance may inspect publishable packages directly, but it must stay a consumer rather than a product owner."
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+allowed_outbound_edges = []
+allowed_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics-foundation"]
+actual_outbound_edges = []
+actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+unexpected_outbound_edges = []
+rationale = "foundation remains the primitive base and does not import product packages."
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics", "proteomics-core"]
+actual_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_inbound_edges = ["agentic-proteins", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics", "proteomics-core"]
+unexpected_outbound_edges = []
+rationale = "core stays grounded on foundation primitives while owning benchmark acceptance and workflow contracts that consume narrow knowledge references plus reviewed seams into runtime, intelligence, and lab."
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+allowed_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "proteomics-runtime"]
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence"]
+actual_inbound_edges = ["agentic-proteins", "bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "proteomics-runtime"]
+unexpected_outbound_edges = []
+rationale = "runtime depends on core scientific seams, foundation contracts, and governed downstream review surfaces when it assembles replayable cross-package workflow evidence."
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+allowed_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics-intelligence"]
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+unexpected_outbound_edges = []
+rationale = "intelligence consumes core scientific semantics, foundation contracts, knowledge evidence owners, runtime replay truth, and lab burden signals when it publishes release-facing review posture."
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab", "bijux-proteomics-runtime", "proteomics-knowledge"]
+actual_outbound_edges = ["bijux-proteomics-foundation"]
+actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+unexpected_outbound_edges = []
+rationale = "knowledge stays as cited memory over foundation primitives and does not lean on product-package owners."
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
+allowed_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence", "bijux-proteomics-runtime", "proteomics-lab"]
+actual_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
+actual_inbound_edges = ["bijux-proteomics-core", "bijux-proteomics-dev", "bijux-proteomics-intelligence"]
+unexpected_outbound_edges = []
+rationale = "lab consumes core science, intelligence judgment, knowledge evidence, and foundation contracts without owning runtime orchestration."
+
+[[package]]
+distribution_name = "bijux-proteomics"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+allowed_inbound_edges = []
+actual_outbound_edges = []
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "bijux-proteomics stays as an install-and-command alias for the canonical core package without owning additional product behavior."
+
+[[package]]
+distribution_name = "proteomics"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+allowed_inbound_edges = []
+actual_outbound_edges = ["bijux-proteomics-core"]
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics stays as the short install and import alias for canonical core surfaces."
+
+[[package]]
+distribution_name = "proteomics-core"
+allowed_outbound_edges = ["bijux-proteomics-core"]
+allowed_inbound_edges = []
+actual_outbound_edges = ["bijux-proteomics-core"]
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-core stays as the short alias for the canonical core distribution."
+
+[[package]]
+distribution_name = "proteomics-foundation"
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+allowed_inbound_edges = []
+actual_outbound_edges = []
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-foundation stays as the short alias for the canonical foundation distribution."
+
+[[package]]
+distribution_name = "proteomics-runtime"
+allowed_outbound_edges = ["bijux-proteomics-runtime"]
+allowed_inbound_edges = []
+actual_outbound_edges = ["bijux-proteomics-runtime"]
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-runtime stays as the short alias for the canonical runtime distribution."
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+allowed_outbound_edges = ["bijux-proteomics-intelligence"]
+allowed_inbound_edges = []
+actual_outbound_edges = []
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-intelligence stays as the short alias for the canonical intelligence distribution."
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+allowed_outbound_edges = ["bijux-proteomics-knowledge"]
+allowed_inbound_edges = []
+actual_outbound_edges = []
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-knowledge stays as the short alias for the canonical knowledge distribution."
+
+[[package]]
+distribution_name = "proteomics-lab"
+allowed_outbound_edges = ["bijux-proteomics-lab"]
+allowed_inbound_edges = []
+actual_outbound_edges = []
+actual_inbound_edges = []
+unexpected_outbound_edges = []
+rationale = "proteomics-lab stays as the short alias for the canonical lab distribution."

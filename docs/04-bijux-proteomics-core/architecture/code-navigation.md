@@ -13,8 +13,8 @@ Code navigation should get a reviewer from the package question to the owning mo
 
 ## Start Here
 
-- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py` for contract roots
-- `src/bijux_proteomics/lifecycle.py`, `validation.py`, and `execution_contracts.py` for readiness and flow
+- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py` for contract roots
+- `src/bijux_proteomics/domain/lifecycle.py`, `domain/validation.py`, and `execution/backend.py` for readiness and flow
 - `packages/bijux-proteomics-core/tests` for contract-proof coverage
 
 ## First Proof Check

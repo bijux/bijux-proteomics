@@ -1,0 +1,246 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+from datetime import date
+from pathlib import Path
+
+from pydantic import ValidationError
+import pytest
+
+from bijux_proteomics_knowledge.references.grounding.citations import (
+    DEFAULT_CITATION_REGISTRY,
+    CitationSourceKind,
+)
+from bijux_proteomics_knowledge.references.grounding.corpora import (
+    DEFAULT_CORPUS_MANIFESTS,
+    CorpusManifest,
+    KnowledgeCorpusSourceKind,
+)
+from bijux_proteomics_knowledge.references.grounding.rules import (
+    DEFAULT_SCIENTIFIC_RULE_REFERENCES,
+    KnowledgeRuleDomain,
+    ScientificRuleReference,
+)
+from bijux_proteomics_knowledge.references.workflows.benchmarks import (
+    DEFAULT_BENCHMARK_MANIFESTS,
+    BenchmarkCrossCheckStatus,
+    BenchmarkEvidenceTier,
+    BenchmarkManifest,
+    KnowledgeWorkflowFamily,
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_scientific_rules_require_references_and_benchmark_rationale() -> None:
+    with pytest.raises(ValidationError):
+        ScientificRuleReference(
+            rule_id="rule:missing_references",
+            domain=KnowledgeRuleDomain.FDR_CAVEAT,
+            title="Missing references",
+            rule_statement="This should fail because the registry must keep references explicit.",
+            version_trace=("Rule revision trace exists.",),
+            retrieval_trace=("Rule retrieval trace exists.",),
+            citation_ids=(),
+            benchmark_ids=("benchmark:dda_search_reproducibility",),
+            benchmark_rationale="Explicit benchmark rationale still exists here.",
+        )
+    with pytest.raises(ValidationError):
+        ScientificRuleReference(
+            rule_id="rule:missing_benchmark_context",
+            domain=KnowledgeRuleDomain.FDR_CAVEAT,
+            title="Missing benchmark context",
+            rule_statement="This should fail because benchmark rationale is required.",
+            version_trace=("Rule revision trace exists.",),
+            retrieval_trace=("Rule retrieval trace exists.",),
+            citation_ids=("citation:target_decoy_2007",),
+            benchmark_ids=(),
+            benchmark_rationale="",
+        )
+
+
+def test_scientific_rule_registry_links_only_known_references() -> None:
+    citation_ids = {citation.citation_id for citation in DEFAULT_CITATION_REGISTRY}
+    benchmark_ids = {manifest.benchmark_id for manifest in DEFAULT_BENCHMARK_MANIFESTS}
+
+    for rule in DEFAULT_SCIENTIFIC_RULE_REFERENCES:
+        assert set(rule.citation_ids).issubset(citation_ids)
+        assert set(rule.benchmark_ids).issubset(benchmark_ids)
+        assert rule.benchmark_rationale
+
+
+def test_benchmark_manifests_require_reproduction_metadata() -> None:
+    with pytest.raises(ValidationError):
+        BenchmarkManifest(
+            benchmark_id="benchmark:missing_reproduction_metadata",
+            workflow_family=KnowledgeWorkflowFamily.DIA,
+            title="Missing reproduction metadata",
+            scientific_focus="This should fail because reproduction inputs are incomplete.",
+            evidence_tier=BenchmarkEvidenceTier.CURATED_MINI_STUDY,
+            dataset_id="dataset:missing_reproduction_metadata",
+            dataset_locator="packages/bijux-proteomics-core/tests/fixtures/search_adapter_corpora/spectronaut/spectronaut_report.tsv",
+            organism="human",
+            sample_complexity="fixture-sized DIA adapter export",
+            label_strategy="label-free",
+            sample_count=1,
+            replicate_count=1,
+            acquisition_mode="data-independent acquisition",
+            truth_surfaces=("transition semantics",),
+            success_metric="Not enough structure for a reproducible claim.",
+            result_claim="Incomplete manifests should not validate.",
+            cross_check_status=BenchmarkCrossCheckStatus.INTERNAL_ONLY,
+            cross_check_note="This benchmark still lacks the required reproducibility metadata.",
+            primary_citation_ids=("citation:swath_2012",),
+            corpus_ids=("corpus:search_adapter_fixture_suite",),
+            benchmark_rationale="A rationale exists, but reproduction requirements are missing.",
+            version_trace=("This benchmark still needs a version trace.",),
+            retrieval_trace=("This benchmark still needs a retrieval trace.",),
+            dataset_license_and_reuse_note="This benchmark still needs dataset reuse clarity.",
+            instrument_profiles=("Orbitrap",),
+            reproduction_requirements=(),
+            comparison_notes=("This benchmark still needs comparison notes.",),
+            exclusion_notes=("This benchmark still needs explicit exclusions.",),
+            weakness_notes=("This benchmark still needs explicit weaknesses.",),
+            fixture_realism_limits=(
+                "This benchmark still needs explicit realism limits.",
+            ),
+            failure_mode_notes=("This benchmark still needs explicit failure modes.",),
+            expected_failure_conditions=(
+                "This benchmark still needs explicit failure conditions.",
+            ),
+            non_transfer_zones=(
+                "This benchmark still needs explicit non-transfer zones.",
+            ),
+            supported_repo_claims=(
+                "This benchmark still needs explicit supported repo claims.",
+            ),
+            last_reviewed_on=date(2026, 5, 5),
+            freshness_window_days=365,
+            obsolescence_conditions=(
+                "This benchmark still needs explicit obsolescence conditions.",
+            ),
+            retirement_conditions=(
+                "This benchmark still needs explicit retirement conditions.",
+            ),
+        )
+
+
+def test_benchmark_registry_carries_reproducible_claim_context() -> None:
+    corpus_ids = {corpus.corpus_id for corpus in DEFAULT_CORPUS_MANIFESTS}
+    citation_ids = {citation.citation_id for citation in DEFAULT_CITATION_REGISTRY}
+
+    for manifest in DEFAULT_BENCHMARK_MANIFESTS:
+        assert set(manifest.corpus_ids).issubset(corpus_ids)
+        assert set(manifest.primary_citation_ids).issubset(citation_ids)
+        assert manifest.version_trace
+        assert manifest.retrieval_trace
+        assert manifest.dataset_license_and_reuse_note
+        assert manifest.sample_count >= 1
+        assert manifest.replicate_count >= 1
+        assert manifest.truth_surfaces
+        assert manifest.cross_check_note
+        assert len(manifest.reproduction_requirements) >= 3
+        assert manifest.success_metric
+        assert manifest.result_claim
+        assert manifest.exclusion_notes
+        assert manifest.weakness_notes
+        assert manifest.fixture_realism_limits
+        assert manifest.failure_mode_notes
+        assert manifest.expected_failure_conditions
+        assert manifest.non_transfer_zones
+        assert manifest.supported_repo_claims
+        assert manifest.last_reviewed_on.isoformat()
+        assert manifest.freshness_window_days >= 1
+        assert manifest.obsolescence_conditions
+        assert manifest.retirement_conditions
+
+
+def test_corpus_manifests_distinguish_bundled_fixtures_from_external_references() -> (
+    None
+):
+    bundled = {
+        corpus.corpus_id
+        for corpus in DEFAULT_CORPUS_MANIFESTS
+        if corpus.source_kind is KnowledgeCorpusSourceKind.BUNDLED_FIXTURE
+    }
+    external = {
+        corpus.corpus_id
+        for corpus in DEFAULT_CORPUS_MANIFESTS
+        if corpus.source_kind is KnowledgeCorpusSourceKind.EXTERNAL_REFERENCE
+    }
+
+    assert bundled
+    assert external
+    assert bundled.isdisjoint(external)
+
+    for corpus in DEFAULT_CORPUS_MANIFESTS:
+        if corpus.source_kind is KnowledgeCorpusSourceKind.BUNDLED_FIXTURE:
+            assert corpus.source_version
+            assert corpus.version_trace
+            assert corpus.retrieval_trace
+            assert corpus.license_and_reuse_note
+            assert corpus.repo_relative_path is not None
+            assert corpus.reference_locator is None
+            assert corpus.reference_accession is None
+            assert (REPO_ROOT / corpus.repo_relative_path).exists()
+        else:
+            assert corpus.source_version
+            assert corpus.version_trace
+            assert corpus.retrieval_trace
+            assert corpus.license_and_reuse_note
+            assert corpus.repo_relative_path is None
+            assert corpus.reference_locator is not None
+            assert corpus.reference_accession is not None
+            assert corpus.citation_ids
+
+
+def test_invalid_corpus_source_shapes_fail_validation() -> None:
+    with pytest.raises(ValidationError):
+        CorpusManifest(
+            corpus_id="corpus:invalid_bundled_fixture",
+            display_name="Invalid bundled fixture",
+            source_kind=KnowledgeCorpusSourceKind.BUNDLED_FIXTURE,
+            format_family="tsv",
+            scientific_scope="This should fail because bundled fixtures cannot point outward.",
+            source_version="Fixture snapshot",
+            version_trace=("Fixture version trace.",),
+            retrieval_trace=("Fixture retrieval trace.",),
+            license_and_reuse_note="Fixture reuse note.",
+            repo_relative_path="packages/bijux-proteomics-core/tests/fixtures/quant",
+            reference_locator="https://example.org/not_allowed",
+        )
+    with pytest.raises(ValidationError):
+        CorpusManifest(
+            corpus_id="corpus:invalid_external_reference",
+            display_name="Invalid external reference",
+            source_kind=KnowledgeCorpusSourceKind.EXTERNAL_REFERENCE,
+            format_family="journal_article",
+            scientific_scope="This should fail because external references need citations.",
+            source_version="External reference snapshot",
+            version_trace=("Reference version trace.",),
+            retrieval_trace=("Reference retrieval trace.",),
+            license_and_reuse_note="Reference reuse note.",
+            reference_locator="https://example.org/reference",
+        )
+
+
+def test_citation_registry_retains_scientific_source_variety() -> None:
+    source_kinds = {citation.source_kind for citation in DEFAULT_CITATION_REGISTRY}
+
+    assert {
+        CitationSourceKind.DATABASE,
+        CitationSourceKind.ONTOLOGY,
+        CitationSourceKind.METHOD,
+        CitationSourceKind.REVIEW,
+    }.issubset(source_kinds)
+
+
+def test_citation_registry_carries_source_metadata_and_retrieval_roles() -> None:
+    for citation in DEFAULT_CITATION_REGISTRY:
+        assert citation.publisher
+        assert citation.source_locator_kind
+        assert citation.access_route
+        assert citation.retrieval_trace
+        assert citation.evidence_role

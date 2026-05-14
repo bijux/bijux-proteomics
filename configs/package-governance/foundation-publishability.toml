@@ -1,0 +1,26 @@
+# Generated foundation publishability report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.publishability
+
+[metrics]
+supported_attributes = ["DocumentSchema", "JsonModel", "hash_payload", "to_canonical_json"]
+supported_attribute_count = 4
+root_public_symbol_count = 15
+downstream_distribution_count = 6
+consumer_modules_per_symbol = 12.33
+supported_multi_distribution_count = 4
+supported_single_distribution_count = 0
+unsupported_reuse_gaps = []
+kernel_boundaries_ready = true
+size_reuse_ready = true
+publishable = true
+
+[guard]
+max_supported_attribute_count = 4
+max_root_public_symbol_count = 15
+min_downstream_distribution_count = 6
+min_supported_multi_distribution_count = 3
+max_supported_single_distribution_count = 1
+
+[evidence]
+kernel_boundaries_path = "configs/package-governance/foundation-kernel-boundaries.toml"
+size_reuse_path = "configs/package-governance/foundation-size-reuse.toml"

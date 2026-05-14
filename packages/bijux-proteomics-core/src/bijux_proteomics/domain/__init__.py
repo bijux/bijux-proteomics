@@ -1,7 +1,72 @@
-"""Core-owned domain sequence and structure primitives."""
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2025 Bijan Mousavi
+
+"""Core-owned domain models, sequence primitives, and structure primitives."""
 
 from __future__ import annotations
 
+from bijux_proteomics.domain.assays import AssayRequirement
+from bijux_proteomics.domain.constraints import (
+    ConstraintCategory,
+    ConstraintRiskReport,
+    ScientificConstraint,
+    assess_constraint_risk,
+    build_protein_native_constraints,
+)
+from bijux_proteomics.domain.context import (
+    ProgramContext,
+    ProgramDeliveryContext,
+    ProgramPortfolioContext,
+)
+from bijux_proteomics.domain.criteria import (
+    MeasurementDirection,
+    MetricFamily,
+    SuccessCriterion,
+    build_assay_grounded_criteria,
+    criterion_passes,
+)
+from bijux_proteomics.domain.liabilities import LiabilityCategory, ProgramLiability
+from bijux_proteomics.domain.lifecycle import (
+    LifecycleTransition,
+    ProgramLifecycle,
+    advance_stage,
+    allowed_next_stages,
+)
+from bijux_proteomics.domain.operating_model import (
+    DecisionOwnerRole,
+    OperatingModel,
+    ReviewCadence,
+)
+from bijux_proteomics.domain.program_spec import (
+    EvidenceNeed,
+    ProgramSpec,
+    ProgramStage,
+    StageEligibility,
+    assess_stage_eligibility,
+    create_program_spec,
+    program_summary,
+    revise_program,
+)
+from bijux_proteomics.domain.repositories import (
+    DecisionQuery,
+    DuplicateReviewDecisionError,
+    ProgramNotFoundError,
+    ProgramRepository,
+    ProgramRevisionConflictError,
+    ReviewDecision,
+    ReviewDecisionRepository,
+    ReviewGateEvaluation,
+    ReviewGateState,
+    ReviewOutcome,
+    decision_timeline,
+    ensure_program_revision,
+    ensure_review_clearance,
+    ensure_unique_gate_decision,
+    latest_gate_decision,
+    require_program,
+    validate_review_decision,
+)
+from bijux_proteomics.domain.reviews import ReviewGate
 from bijux_proteomics.domain.sequence import (
     HYDROPATHY,
     PKA_C_TERM,
@@ -29,27 +94,104 @@ from bijux_proteomics.domain.summary import (
     SecondarySummary,
     TertiarySummary,
 )
+from bijux_proteomics.domain.targets import (
+    ComplexMembership,
+    MechanismLiability,
+    OutcomeSeverity,
+    ProteinDomain,
+    ProteinMotif,
+    ProteinTarget,
+    PtmHotspot,
+    TargetAnnotation,
+    TargetOutcome,
+    TractabilityFlag,
+    summarize_tractability,
+    target_summary,
+)
+from bijux_proteomics.domain.validation import validate_program
 
 __all__ = [
+    "AssayRequirement",
+    "ComplexMembership",
+    "ConstraintCategory",
+    "ConstraintRiskReport",
+    "DecisionOwnerRole",
+    "DecisionQuery",
+    "DuplicateReviewDecisionError",
+    "EvidenceNeed",
     "HYDROPATHY",
+    "LifecycleTransition",
+    "LiabilityCategory",
+    "MeasurementDirection",
+    "MechanismLiability",
+    "MetricFamily",
+    "OperatingModel",
+    "OutcomeSeverity",
     "PKA_C_TERM",
     "PKA_N_TERM",
     "PKA_SIDE",
     "PrimarySummary",
+    "ProgramContext",
+    "ProgramDeliveryContext",
+    "ProgramLifecycle",
+    "ProgramLiability",
+    "ProgramNotFoundError",
+    "ProgramPortfolioContext",
+    "ProgramRepository",
+    "ProgramRevisionConflictError",
+    "ProgramSpec",
+    "ProgramStage",
+    "ProteinDomain",
+    "ProteinMotif",
+    "ProteinTarget",
+    "PtmHotspot",
+    "ReviewCadence",
+    "ReviewDecision",
+    "ReviewDecisionRepository",
+    "ReviewGate",
+    "ReviewGateEvaluation",
+    "ReviewGateState",
+    "ReviewOutcome",
+    "ScientificConstraint",
     "SecondarySummary",
+    "StageEligibility",
+    "SuccessCriterion",
+    "TargetAnnotation",
+    "TargetOutcome",
     "TertiarySummary",
+    "TractabilityFlag",
     "_res3_to1",
+    "advance_stage",
+    "allowed_next_stages",
+    "assess_constraint_risk",
+    "assess_stage_eligibility",
     "best_ca",
+    "build_assay_grounded_criteria",
+    "build_protein_native_constraints",
+    "create_program_spec",
+    "criterion_passes",
+    "decision_timeline",
+    "ensure_program_revision",
+    "ensure_review_clearance",
+    "ensure_unique_gate_decision",
     "gdt_ha",
     "gdt_ts",
     "get_protein_chain",
     "kabsch_and_pairs",
+    "latest_gate_decision",
     "load_structure_from_pdb_text",
     "mean_plddt_from_ca_bfactor",
     "per_residue_plddt_ss",
     "primary_summary_from_sequence",
+    "program_summary",
+    "require_program",
     "residue_count",
+    "revise_program",
     "secondary_summary_from_structure",
+    "summarize_tractability",
+    "target_summary",
     "tertiary_summary_from_structure",
     "tm_score",
+    "validate_program",
+    "validate_review_decision",
 ]

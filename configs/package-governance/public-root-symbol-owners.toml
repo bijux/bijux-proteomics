@@ -1,0 +1,197 @@
+# Generated canonical package-root public symbol ownership map.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.public_symbol_ownership
+
+[[symbol]]
+name = "AppConfig"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_import_root = "bijux_proteomics_runtime"
+
+[[symbol]]
+name = "AssayId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "BatchId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "CandidateId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "ClaimId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "DigestPolicy"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "DocumentSchema"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "EvidenceBundle"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "EvidenceClaim"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "EvidenceId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "EvidenceRecord"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "GateId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "JsonModel"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "KnowledgeDecisionBrief"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "ProgramId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "RunManager"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_import_root = "bijux_proteomics_runtime"
+
+[[symbol]]
+name = "TargetId"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "build_advisory_assay_plan"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
+
+[[symbol]]
+name = "build_executable_assay_plan"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
+
+[[symbol]]
+name = "build_fdr_audit_trail"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "build_normalized_run_bundle"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "candidates"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "cli"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_import_root = "bijux_proteomics_runtime"
+
+[[symbol]]
+name = "create_app"
+owner_distribution_name = "bijux-proteomics-runtime"
+owner_import_root = "bijux_proteomics_runtime"
+
+[[symbol]]
+name = "evaluate_schema_compatibility"
+owner_distribution_name = "bijux-proteomics-knowledge"
+owner_import_root = "bijux_proteomics_knowledge"
+
+[[symbol]]
+name = "fingerprint_model"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "governance"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "hash_model"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "hash_payload"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "hash_text"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"
+
+[[symbol]]
+name = "interpretation"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "judgment"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "learning"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "parse_experimental_design_table"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "parse_fasta_document"
+owner_distribution_name = "bijux-proteomics-core"
+owner_import_root = "bijux_proteomics"
+
+[[symbol]]
+name = "plan_experiment_batches"
+owner_distribution_name = "bijux-proteomics-lab"
+owner_import_root = "bijux_proteomics_lab"
+
+[[symbol]]
+name = "posture"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "reviews"
+owner_distribution_name = "bijux-proteomics-intelligence"
+owner_import_root = "bijux_proteomics_intelligence"
+
+[[symbol]]
+name = "to_canonical_json"
+owner_distribution_name = "bijux-proteomics-foundation"
+owner_import_root = "bijux_proteomics_foundation"

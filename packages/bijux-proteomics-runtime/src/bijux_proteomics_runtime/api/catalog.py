@@ -27,10 +27,12 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RuntimeHealthResponse,
     RuntimeStatusResponse,
 )
-from bijux_proteomics_runtime.providers import provider_metadata
-from bijux_proteomics_runtime.providers.factory import provider_requirements
-from bijux_proteomics_runtime.runtime.workspace import RunWorkspace
-from bijux_proteomics_runtime.runtime_identity import runtime_banner
+from bijux_proteomics_runtime.providers.catalog import (
+    provider_metadata,
+    provider_requirements,
+)
+from bijux_proteomics_runtime.support.identity import runtime_banner
+from bijux_proteomics_runtime.support.workspace import RunWorkspace
 
 _DOCUMENT_MAX_INLINE_BYTES = 256_000
 _MAX_ARTIFACT_LOAD_BYTES = 1_000_000
@@ -47,7 +49,9 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
     ("timings", "runtime-timings", "runtime timing summary"),
     ("run_summary", "runtime-status", "runtime run summary"),
     ("run_output", "runtime-output", "runtime raw run output"),
+    ("run_context", "runtime-run-context", "runtime run context contract"),
     ("error", "runtime-error", "runtime failure payload"),
+    ("failure_report", "runtime-failure-report", "runtime failure report"),
     ("lifecycle", "runtime-lifecycle", "runtime lifecycle transitions"),
     (
         "execution_snapshots",
@@ -65,6 +69,28 @@ _TOP_LEVEL_ARTIFACTS: tuple[tuple[str, str, str], ...] = (
         "runtime-candidate-selection",
         "candidate selection payload",
     ),
+    ("artifact_ledger", "runtime-artifact-ledger", "runtime artifact ledger"),
+    ("replay_contract", "runtime-replay-contract", "runtime replay contract"),
+    ("local_run_bundle", "runtime-local-run-bundle", "runtime local run bundle"),
+    (
+        "container_run_bundle",
+        "runtime-container-run-bundle",
+        "runtime container run bundle",
+    ),
+    (
+        "scheduler_job_bundle",
+        "runtime-scheduler-job-bundle",
+        "runtime scheduler job bundle",
+    ),
+    ("import_trace", "runtime-import-trace", "runtime import provenance trace"),
+    ("import_run_bundle", "runtime-import-run-bundle", "runtime import run bundle"),
+    ("resume_checkpoint", "runtime-resume-checkpoint", "runtime resume checkpoint"),
+    (
+        "integrity_report",
+        "runtime-integrity-report",
+        "runtime artifact integrity report",
+    ),
+    ("preflight_report", "runtime-preflight-report", "runtime preflight report"),
 )
 
 _RUNTIME_API_CONTRACT_FILES: tuple[str, ...] = (
@@ -120,13 +146,25 @@ def _iter_run_ids(base_dir: Path) -> list[str]:
     artifacts_root = base_dir / "artifacts"
     if not artifacts_root.exists():
         return []
-    run_ids: list[str] = []
+    run_ids: list[tuple[str, str]] = []
     for path in sorted(artifacts_root.iterdir()):
         if not path.is_dir():
             continue
         if (path / "run_summary.json").exists():
-            run_ids.append(path.name)
-    return run_ids
+            run_ids.append((_run_started_at(path), path.name))
+    run_ids.sort(key=lambda item: (item[0], item[1]), reverse=True)
+    return [run_id for _, run_id in run_ids]
+
+
+def _run_started_at(run_dir: Path) -> str:
+    run_context_path = run_dir / "run_context.json"
+    if run_context_path.exists():
+        payload = json.loads(run_context_path.read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            started_at = payload.get("started_at")
+            if isinstance(started_at, str) and started_at:
+                return started_at
+    return ""
 
 
 def _paginate_items(

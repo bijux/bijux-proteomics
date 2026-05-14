@@ -1,6 +1,11 @@
 PACKAGE_KIND ?= repository-python
 MYPY_CONFIG ?= $(MONOREPO_ROOT)/configs/mypy.ini
 API_MODE ?= freeze
+TEST_MAIN_ARGS ?= -m "not slow and not real_local and not api"
+TEST_E2E_ARGS ?= -m "e2e and not slow" --maxfail=1 -q
+TEST_REGRESSION_ARGS ?= -m "regression and not slow" --maxfail=1 -q
+TEST_EVALUATION_ARGS ?= -m "evaluation and not slow" --maxfail=1 -q
+TEST_REAL_LOCAL_ARGS ?= -m "real_local and not slow" -s -p no:cov
 ENABLE_MYPY ?= 1
 PYDOCSTYLE_ARGS ?= --convention=google --add-ignore=D100,D101,D102,D103,D104,D105,D106,D107,D202
 ENABLE_PYDOCSTYLE ?= 1
@@ -12,5 +17,15 @@ SECURITY_AUDIT_PREPARE_MODE ?= environment
 PIP_AUDIT_INPUTS ?=
 SECURITY_BANDIT_SKIP_IDS ?= B311
 BUILD_PER_PACKAGE_DIRS ?= 1
-API_FREEZE_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.api.freeze_contracts
-API_OPENAPI_DRIFT_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.api.openapi_drift
+API_FREEZE_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.governance.contracts.freeze_contracts
+API_OPENAPI_DRIFT_COMMAND ?= $(VENV_PYTHON) -m bijux_proteomics_dev.governance.contracts.openapi_drift
+
+test-all: TEST_MAIN_ARGS =
+test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0
+test-all: test
+.PHONY: test-all
+
+test-all-plus-run-time: TEST_MAIN_ARGS =
+test-all-plus-run-time: PYTEST_ADDOPTS_EXTRA = -o timeout=0 --durations=0 --durations-min=0
+test-all-plus-run-time: test
+.PHONY: test-all-plus-run-time

@@ -1,0 +1,54 @@
+{
+  "sequence": "MPEPTIDERKAAALSYIFCLVFADYKDDDDA",
+  "source_filename": "dia-import-degraded-provenance.json",
+  "engine_name": "spectronaut",
+  "engine_version": "19.0",
+  "source_payload": {
+    "run_label": "dia-qc-batch-b",
+    "instrument": "Exploris 480",
+    "provenance_status": "degraded",
+    "provenance_gaps": [
+      "sample_sheet_locator_missing",
+      "acquisition_template_revision_unknown",
+      "bridge_control_mapping_incomplete"
+    ],
+    "peptides": [
+      {
+        "sequence": "MPEPTIDER",
+        "charge": 2,
+        "q_value": 0.006,
+        "protein_group": "P02768",
+        "sample_id": "dia-batch-b-01"
+      },
+      {
+        "sequence": "AAALSYIFCLVFADYK",
+        "charge": 3,
+        "q_value": 0.009,
+        "protein_group": "P02769",
+        "sample_id": "dia-batch-b-02"
+      }
+    ],
+    "lineage_notes": [
+      "external export preserved peptide and channel outputs but omitted the original acquisition template path",
+      "runtime must keep the degraded provenance visible instead of rewriting it as clean lineage"
+    ],
+    "qc": {
+      "ms1_ppm_median": 2.2,
+      "ms2_ppm_median": 3.9,
+      "interference_fraction": 0.08
+    }
+  },
+  "expected_artifact_kinds": [
+    "runtime-status",
+    "runtime-import-trace",
+    "runtime-import-run-bundle",
+    "runtime-replay-contract",
+    "runtime-integrity-report"
+  ],
+  "expected_provenance_status": "degraded",
+  "expected_provenance_gaps": [
+    "sample_sheet_locator_missing",
+    "acquisition_template_revision_unknown",
+    "bridge_control_mapping_incomplete"
+  ]
+}

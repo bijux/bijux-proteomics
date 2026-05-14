@@ -1,0 +1,118 @@
+# Generated package wrapper density report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_wrapper_density
+
+[guard]
+max_total_wrapper_module_count = 231
+max_average_wrapper_density = 0.1444
+
+[[package]]
+distribution_name = "agentic-proteins"
+total_source_module_count = 117
+wrapper_module_count = 116
+wrapper_density = 0.9915
+max_wrapper_module_count = 116
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+total_source_module_count = 169
+wrapper_module_count = 27
+wrapper_density = 0.1598
+max_wrapper_module_count = 27
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+total_source_module_count = 25
+wrapper_module_count = 6
+wrapper_density = 0.24
+max_wrapper_module_count = 6
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+total_source_module_count = 149
+wrapper_module_count = 23
+wrapper_density = 0.1544
+max_wrapper_module_count = 23
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+total_source_module_count = 165
+wrapper_module_count = 30
+wrapper_density = 0.1818
+max_wrapper_module_count = 30
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+total_source_module_count = 62
+wrapper_module_count = 8
+wrapper_density = 0.129
+max_wrapper_module_count = 8
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+total_source_module_count = 57
+wrapper_module_count = 12
+wrapper_density = 0.2105
+max_wrapper_module_count = 12
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+total_source_module_count = 37
+wrapper_module_count = 9
+wrapper_density = 0.2432
+max_wrapper_module_count = 9
+
+[[package]]
+distribution_name = "bijux-proteomics"
+total_source_module_count = 1
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics"
+total_source_module_count = 4
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+total_source_module_count = 4
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+total_source_module_count = 2
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+total_source_module_count = 4
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+total_source_module_count = 2
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+total_source_module_count = 2
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+total_source_module_count = 2
+wrapper_module_count = 0
+wrapper_density = 0.0
+max_wrapper_module_count = 0

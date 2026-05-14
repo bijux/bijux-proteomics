@@ -11,15 +11,15 @@ last_reviewed: 2026-04-26
 
 `bijux-proteomics-intelligence` interfaces are how recommendation logic becomes
 usable to humans and tooling. This section should help a reader see which
-surfaces accept candidates and policy inputs, which ones emit rankings,
-briefings, and outcomes, and where explanation is part of the contract instead
-of optional decoration.
+surfaces accept candidates and judgment inputs, which ones emit rankings,
+decision briefs, interpretation summaries, and recommendation outcomes, and
+where explanation is part of the contract instead of optional decoration.
 
 ```mermaid
 flowchart LR
     inputs["candidate and policy inputs"]
-    scoring["scoring and evaluator surfaces"]
-    briefs["briefs and report artifacts"]
+    scoring["candidate, judgment, and posture surfaces"]
+    briefs["decision briefs and analytical reports"]
     outcomes["recommendation outcomes"]
     review["review boards and downstream packages"]
 
@@ -51,7 +51,7 @@ flowchart LR
 ## Read By Consumer
 
 - [Public Imports](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/public-imports/)
-  for code-level scoring and briefing entrypoints
+  for code-level ranking, judgment, and review entrypoints
 - [Data Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/data-contracts/)
   and [Artifact Contracts](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/interfaces/artifact-contracts/)
   for the stable shapes used in decision review
@@ -71,6 +71,6 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`

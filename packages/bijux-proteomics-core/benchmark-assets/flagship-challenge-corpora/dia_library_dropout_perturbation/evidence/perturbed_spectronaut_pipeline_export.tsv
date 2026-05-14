@@ -1,0 +1,3 @@
+precursor_key	stripped_sequence	charge	cscore_value	protein_accessions	decoy_flag
+spectro-pipe-1	SHIFTEDPEP	2	0.97	P77777	false
+spectro-pipe-2	PEPTIDER	3	0.45	DECOY_P99999	true

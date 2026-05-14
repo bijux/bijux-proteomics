@@ -1,0 +1,3 @@
+Precursor.Id	Stripped.Sequence	Precursor.Charge	Q.Value	Protein.Ids	Decoy
+run1_PEPTIDE_2	PEPTIDE	2	0.003	P12345	0
+run1_DECOYPEP_2	DECOYPEP	2	0.090	DECOY_Q22222	1

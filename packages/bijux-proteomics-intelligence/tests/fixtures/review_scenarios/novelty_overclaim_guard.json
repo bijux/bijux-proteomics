@@ -1,0 +1,79 @@
+{
+  "workflow_family": "dia",
+  "program": {
+    "program_id": "prog-novelty-guard",
+    "name": "novelty guard",
+    "objective": "prevent novelty from outranking evidence integrity",
+    "target_id": "target-novelty-guard",
+    "target_name": "Target Novelty Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "prefer grounded follow-up over speculative novelty"
+  },
+  "criterion": {
+    "criterion_id": "novelty-guard",
+    "metric": "dia_follow_up_score",
+    "threshold": 0.72
+  },
+  "candidates": [
+    {
+      "candidate_id": "grounded-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "dia_follow_up_score": 0.83
+      },
+      "manufacturability_score": 0.8,
+      "uncertainty": 0.08,
+      "evidence_support": 0.87,
+      "reproducibility_score": 0.88,
+      "effect_size_score": 0.75,
+      "assay_feasibility_score": 0.79,
+      "novelty_score": 0.36,
+      "lab_cost_risk": 0.13,
+      "operational_risk": 0.1
+    },
+    {
+      "candidate_id": "novelty-trap",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "dia_follow_up_score": 0.86
+      },
+      "manufacturability_score": 0.77,
+      "uncertainty": 0.19,
+      "evidence_support": 0.41,
+      "reproducibility_score": 0.38,
+      "effect_size_score": 0.67,
+      "assay_feasibility_score": 0.61,
+      "novelty_score": 0.96,
+      "lab_cost_risk": 0.29,
+      "operational_risk": 0.3
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "novelty-support-1",
+      "kind": "differential_proteomics",
+      "title": "grounded DIA support",
+      "source": "dia-grounded-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible DIA rescue across replicates",
+      "confidence": 0.9,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 15
+    },
+    {
+      "evidence_id": "novelty-support-2",
+      "kind": "literature",
+      "title": "disease context",
+      "source": "PMID:novelty-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the grounded follow-up target state",
+      "confidence": 0.81,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 45
+    }
+  ],
+  "expected_top_candidate_id": "grounded-follow-up"
+}

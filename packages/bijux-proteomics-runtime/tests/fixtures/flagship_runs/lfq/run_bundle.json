@@ -1,0 +1,136 @@
+{
+  "artifact_inventory": [
+    {
+      "artifact_id": "lfq-cohort-review-corpus:public:1",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:public:2",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:public:3",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:public:4",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
+      "artifact_role": "public_package_artifact",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "public package anchor for the flagship runtime run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:primary_input",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+      "artifact_role": "primary_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "primary runtime input consumed by the flagship run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:companion_input:1",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "lfq-cohort-review-corpus:companion_input:2",
+      "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json",
+      "artifact_role": "companion_input",
+      "owner_package": "bijux-proteomics-core",
+      "review_purpose": "companion runtime input needed for the flagship run"
+    },
+    {
+      "artifact_id": "lfq:runtime:1",
+      "artifact_path": "runtime-generated/matrix.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "quant.feature_records"
+    },
+    {
+      "artifact_id": "lfq:runtime:2",
+      "artifact_path": "runtime-generated/normalization.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "quant.normalization_matrix"
+    },
+    {
+      "artifact_id": "lfq:runtime:3",
+      "artifact_path": "runtime-generated/differential_abundance.tsv",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "quant.effect_size_da_report"
+    },
+    {
+      "artifact_id": "lfq:runtime:4",
+      "artifact_path": "runtime-generated/review_bundle.json",
+      "artifact_role": "runtime-output",
+      "owner_package": "bijux-proteomics-runtime",
+      "review_purpose": "quant.qc_report"
+    }
+  ],
+  "artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/run_bundle.json",
+  "authorized_claim_scope": [
+    "externally reproduced scientific behavior within the documented reproduction package",
+    "release-facing claims remain limited to the named comparator and transfer boundaries"
+  ],
+  "benchmark_id": "benchmark:lfq_quantification_repeatability",
+  "benchmark_package_id": "benchmark_package:lfq_cohort_review_package",
+  "bundle_id": "flagship-run-bundle:lfq",
+  "failure_replay_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/failure_replay.json",
+  "last_reproduced_on": "2026-05-07",
+  "linked_owner_artifact_paths": [
+    "artifacts/knowledge/scientific-reading-packs/lfq.json",
+    "artifacts/intelligence/recommendation-packets/lfq.json",
+    "artifacts/lab/flagship-follow-up-packets/lfq.json"
+  ],
+  "note": "This bundle is the runtime-owned checked artifact set for the flagship public benchmark run, not a governance placeholder.",
+  "remaining_blockers": [
+    "Compare rollups against the tracked LFQ public package instead of claiming parity with unexecuted external quantification pipelines.",
+    "Keep support claims scoped to repeatable abundance aggregation and design preservation.",
+    "release-facing trust remains narrower than runtime execution because comparator or grounding limits still apply"
+  ],
+  "runtime_package_id": "lfq-cohort-review-corpus",
+  "runtime_surface": {
+    "canonical_entrypoint": "bijux_proteomics_runtime.workflows.benchmark_runs.run_benchmark_lfq_review_path",
+    "execution_summary": [
+      "feature_record_count=24",
+      "design_entry_count=8",
+      "condition_count=2",
+      "outlier_sample_count=0",
+      "review_bundle_hash=9cfd2aea94db9e8f60f78ff364f95f415a275734f4a7e454d455dc35f858d89a"
+    ],
+    "input_artifact_ids": [
+      "lfq-cohort-review-corpus:primary_input",
+      "lfq-cohort-review-corpus:companion_input:1",
+      "lfq-cohort-review-corpus:companion_input:2"
+    ],
+    "note": "This runtime surface is built from a tracked end-to-end runtime report rather than an imported comparator workspace.",
+    "proof_class": "raw_execution",
+    "run_mode": "raw_executable",
+    "runtime_artifact_ids": [
+      "lfq:runtime:1",
+      "lfq:runtime:2",
+      "lfq:runtime:3",
+      "lfq:runtime:4"
+    ],
+    "runtime_package_id": "lfq-cohort-review-corpus",
+    "surface_id": "flagship-runtime-surface:lfq",
+    "toolchain_or_import_path": "lfq cohort review corpus",
+    "validating_test_paths": [
+      "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_run_bundle_surface.py"
+    ],
+    "workflow_family": "lfq"
+  },
+  "stage_lineage_artifact_path": "packages/bijux-proteomics-runtime/tests/fixtures/flagship_runs/lfq/stage_lineage.json",
+  "workflow_family": "lfq"
+}

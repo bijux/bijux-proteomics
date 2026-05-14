@@ -1,0 +1,43 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/perturbation_report.json",
+  "challenge_id": "targeted-interference-carryover-perturbation",
+  "comparator_reaction": "weakens",
+  "evidence_paths": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/evidence/perturbed_targeted_benchmark_qc.tsv",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-challenge-corpora/targeted_interference_carryover_perturbation/follow_up/perturbed_supported_targeted_follow_up.json"
+  ],
+  "metric_deltas": [
+    {
+      "baseline_value": 75163.8,
+      "delta": -46601.55,
+      "interpretation": "Lower total ion current makes the quantitative surface visibly weaker before any targeted follow-up claims are promoted.",
+      "metric_id": "total_tic",
+      "perturbed_value": 28562.25
+    },
+    {
+      "baseline_value": 1.0,
+      "delta": -1.0,
+      "interpretation": "Losing approved transitions collapses the narrow targeted handoff the supported packet previously justified.",
+      "metric_id": "approved_transition_count",
+      "perturbed_value": 0.0
+    },
+    {
+      "baseline_value": 0.0,
+      "delta": 2.0,
+      "interpretation": "More blocked dependencies expose how quickly targeted follow-up becomes execution-ineligible under interference and carryover pressure.",
+      "metric_id": "blocked_dependency_count",
+      "perturbed_value": 2.0
+    }
+  ],
+  "note": "This perturbation corpus forces the targeted workflow from supported follow-up into blocked execution posture under calibrant drift, interference, and carryover pressure.",
+  "perturbation_axes": [
+    "calibrant drift",
+    "transition interference",
+    "carryover-blocked follow-up"
+  ],
+  "review_reaction": "collapses",
+  "workflow_family": "targeted",
+  "workflow_reaction": "collapses"
+}

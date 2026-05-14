@@ -1,29 +1,26 @@
 """Canonical runtime package for bijux proteomics execution surfaces."""
 
+from __future__ import annotations
+
+from importlib import import_module
 from typing import Any
 
-from bijux_proteomics_runtime.api import AppConfig, create_app
-from bijux_proteomics_runtime.interfaces.cli import cli
-from bijux_proteomics_runtime.runtime.control.execution import RunManager
+__all__ = ["AppConfig", "RunManager", "cli", "create_app"]
 
-__all__ = [
-    "AppConfig",
-    "Metrics",
-    "Report",
-    "RunManager",
-    "cli",
-    "create_app",
-    "low_confidence_segments",
-]
+_RUNTIME_ROOT_EXPORTS = {
+    "AppConfig": ("bijux_proteomics_runtime.api", "AppConfig"),
+    "RunManager": ("bijux_proteomics_runtime.runs.manager", "RunManager"),
+    "cli": ("bijux_proteomics_runtime.api.cli", "cli"),
+    "create_app": ("bijux_proteomics_runtime.api", "create_app"),
+}
 
 
 def __getattr__(name: str) -> Any:
-    if name in {"Metrics", "Report"}:
-        from bijux_proteomics_intelligence import report as _report
+    """Load public runtime entrypoints lazily to avoid package-import cycles."""
 
-        return getattr(_report, name)
-    if name == "low_confidence_segments":
-        from bijux_proteomics_knowledge.confidence import low_confidence_segments
-
-        return low_confidence_segments
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    target = _RUNTIME_ROOT_EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module_name, attribute_name = target
+    module = import_module(module_name)
+    return getattr(module, attribute_name)

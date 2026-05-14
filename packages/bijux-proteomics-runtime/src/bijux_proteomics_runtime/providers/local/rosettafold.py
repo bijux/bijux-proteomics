@@ -14,7 +14,7 @@ import time
 
 from loguru import logger
 
-from bijux_proteomics_runtime.providers.base import (
+from bijux_proteomics_runtime.providers.contracts import (
     BaseProvider,
     PredictionResult,
     ProviderMetadata,

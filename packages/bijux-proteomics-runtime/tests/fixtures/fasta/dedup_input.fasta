@@ -1,0 +1,8 @@
+>sp|P11111|AAA_HUMAN Example alpha OS=Homo sapiens GN=AAA
+ACDEFGHIK
+>sp|P11111|AAA_HUMAN Duplicate alpha OS=Homo sapiens GN=AAA
+ACDEFGHIK
+>sp|P22222|BBB_MOUSE Example beta OS=Mus musculus GN=BBB
+ACDEFGHIK
+>CON__CRAP Contaminant protein [Homo sapiens]
+MSSQQLLLLL

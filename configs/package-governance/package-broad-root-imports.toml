@@ -1,0 +1,5 @@
+# Generated package broad-root import report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_broad_root_imports
+
+[guard]
+max_total_broad_root_import_count = 0

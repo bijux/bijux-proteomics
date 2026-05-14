@@ -1,0 +1,66 @@
+{
+  "document_schema": {
+    "created_by": "bijux-proteomics-core",
+    "document_kind": "qc_threshold_policy",
+    "package_name": "bijux-proteomics-core",
+    "schema_version": "1.0.0",
+    "status": "generated"
+  },
+  "policy_name": "production-demo-qc",
+  "rules": [
+    {
+      "description": "tiny checked fixture keeps this advisory",
+      "disposition": "ADVISORY",
+      "lower_fail": 0.0,
+      "lower_warn": 1.0,
+      "metric_key": "spectrum_count",
+      "metric_label": "Spectrum count"
+    },
+    {
+      "description": "single-spectrum fixture should still pass ID-rate gating",
+      "disposition": "ENFORCED",
+      "lower_fail": 0.5,
+      "lower_warn": 0.8,
+      "metric_key": "identification_rate",
+      "metric_label": "Identification rate",
+      "unit": "fraction"
+    },
+    {
+      "description": "fixture uses simplified precursor values so mass error remains advisory",
+      "disposition": "ADVISORY",
+      "metric_key": "median_abs_mass_error_ppm",
+      "metric_label": "Median absolute precursor error",
+      "unit": "ppm",
+      "upper_fail": 100000.0,
+      "upper_warn": 50000.0
+    },
+    {
+      "description": "fixture has no contaminants",
+      "disposition": "ADVISORY",
+      "metric_key": "contaminant_psm_fraction",
+      "metric_label": "Contaminant PSM fraction",
+      "unit": "fraction",
+      "upper_fail": 0.5,
+      "upper_warn": 0.2
+    },
+    {
+      "description": "fixture peptides are fully tryptic",
+      "disposition": "ADVISORY",
+      "metric_key": "missed_cleavage_rate",
+      "metric_label": "Missed-cleavage rate",
+      "unit": "fraction",
+      "upper_fail": 0.5,
+      "upper_warn": 0.25
+    },
+    {
+      "description": "single toy run should remain specific",
+      "disposition": "ADVISORY",
+      "metric_key": "non_specific_fraction",
+      "metric_label": "Non-specific peptide fraction",
+      "unit": "fraction",
+      "upper_fail": 0.5,
+      "upper_warn": 0.2
+    }
+  ],
+  "version": "1.0.0"
+}

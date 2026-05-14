@@ -57,7 +57,7 @@ Changelog = "https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-
 Security = "https://github.com/bijux/bijux-proteomics/blob/main/SECURITY.md"
 
 [project.scripts]
-bijux-proteomics-runtime = "bijux_proteomics_runtime.interfaces.cli:cli"
+bijux-proteomics-runtime = "bijux_proteomics_runtime.api.cli:cli"
 
 [tool.hatch.version]
 source = "vcs"

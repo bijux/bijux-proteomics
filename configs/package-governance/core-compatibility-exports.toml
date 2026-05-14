@@ -1,0 +1,6 @@
+# Generated core compatibility export burn-down report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.core.compatibility_exports
+
+[guard]
+max_compatibility_exports = 0
+require_root_level_only = true

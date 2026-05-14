@@ -1,0 +1,25 @@
+# Generated intelligence owner import-boundary report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.intelligence.owner_import_boundaries
+
+[metrics]
+scanned_module_count = 62
+banned_module_count = 5
+violation_count = 0
+
+[guard]
+baseline_violation_count = 0
+
+[[banned_module]]
+name = "bijux_proteomics"
+
+[[banned_module]]
+name = "bijux_proteomics.domain.sequence"
+
+[[banned_module]]
+name = "bijux_proteomics.domain.structure"
+
+[[banned_module]]
+name = "bijux_proteomics_knowledge"
+
+[[banned_module]]
+name = "bijux_proteomics_knowledge.references"

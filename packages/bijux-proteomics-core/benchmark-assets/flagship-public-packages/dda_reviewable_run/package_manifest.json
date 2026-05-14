@@ -1,0 +1,194 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "dda_reviewable_run:raw_spectra",
+      "artifact_kind": "raw_spectra",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/spectra.mgf",
+      "reviewer_note": "One raw-like tandem spectrum keeps the package tied to inspectable fragment evidence.",
+      "row_count": null,
+      "sha256": "cbdcdfb849094cd912238117b8e9f1d7af1402006bd268d094b97c7b4f4d05f6",
+      "spectra_count": 1
+    },
+    {
+      "artifact_id": "dda_reviewable_run:experimental_design",
+      "artifact_kind": "experimental_design",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/design.tsv",
+      "reviewer_note": "The design table records instrument, batch, and engine context for the reviewable run.",
+      "row_count": 1,
+      "sha256": "59a5f9786b825bca78ab9e046a07de06baf76ba484b6cd3acb3a64b0ba013c0d",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dda_reviewable_run:expectation_manifest",
+      "artifact_kind": "expectation_manifest",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/evidence/workflow_end_to_end_expectations.json",
+      "reviewer_note": "The expectation manifest states which workflow surfaces must exist before the package counts as reviewable.",
+      "row_count": null,
+      "sha256": "eb3cc977dc0d9488ea6c2af34ec18d47c19a6109f76049a6467904a94cb97e01",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dda_reviewable_run:maxquant_export",
+      "artifact_kind": "primary_search_export",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_pipeline_export.tsv",
+      "reviewer_note": "This is the primary imported DDA result set; it replaces the old fake-export benchmark placeholder.",
+      "row_count": 3,
+      "sha256": "e4e83e3d45817dded49899f201b5933ac30dfd61355a1246f111549afc82f427",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dda_reviewable_run:maxquant_settings",
+      "artifact_kind": "primary_search_settings",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/primary/maxquant_settings.txt",
+      "reviewer_note": "The MaxQuant settings file exposes the pinned enzyme, tolerances, and decoy prefix.",
+      "row_count": null,
+      "sha256": "316e724b20c228655b7203dde70f644c55e966e9f74d1be93bcffc0fcbbd6b02",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dda_reviewable_run:msfragger_export",
+      "artifact_kind": "comparator_search_export",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger_pipeline_export.tsv",
+      "reviewer_note": "The comparator export is shipped alongside the primary path so warning pressure is visible in files, not only in prose.",
+      "row_count": 3,
+      "sha256": "fb6fbbb6d104dda343db8eb0d084904f246e477661278610346168a7db9c1e24",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "dda_reviewable_run:msfragger_settings",
+      "artifact_kind": "comparator_search_settings",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/comparator/msfragger.params",
+      "reviewer_note": "The comparator settings file keeps the alternate search space and tolerance assumptions inspectable.",
+      "row_count": null,
+      "sha256": "8809282534bb9eb321a264992d07a8ccb5e687faa90485e8d06ce89f7cbde3d2",
+      "spectra_count": null
+    }
+  ],
+  "benchmark_manifest_id": "benchmark:dda_search_reproducibility",
+  "citation_refs": [
+    {
+      "citation_id": "citation:target_decoy_2007",
+      "doi": "10.1038/nmeth1019",
+      "url": "https://www.nature.com/articles/nmeth1019",
+      "why_it_matters": "The package keeps target-decoy evidence visible and uses this paper as the boundary for confidence-facing DDA claims."
+    },
+    {
+      "citation_id": "citation:protein_inference_2012",
+      "doi": "10.1074/mcp.R111.014795",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3494198/",
+      "why_it_matters": "The comparator warning demonstration is about protein rollup disagreement, so protein inference limits must stay cited and explicit."
+    },
+    {
+      "citation_id": "citation:uniprot_2025",
+      "doi": "10.1093/nar/gkae1010",
+      "url": "https://www.uniprot.org",
+      "why_it_matters": "Reference proteome grounding remains part of the bounded DDA claim surface."
+    }
+  ],
+  "comparator_path_ids": [
+    "comparator_path:msfragger_imported_dda_review"
+  ],
+  "note": "The package is outsider-readable and materially stronger than the old DDA mini-study surface, but it still does not claim in-repo live-engine rerun parity.",
+  "outsider_summary": "This package ties one reviewable DDA benchmark to raw-like spectra, a primary MaxQuant export, a comparator MSFragger export, pinned settings, runtime expectations, and concrete protein-rollup warning pressure.",
+  "package_id": "public_benchmark_package:dda_reviewable_run",
+  "package_label": "DDA reviewable public package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run",
+  "public_package_files": [
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/README.md",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/package_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/artifact_inventory.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/quality_sheet.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/lifecycle.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/source_locator_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/citation_manifest.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/generated_boundary.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/rebuild_instructions.md",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/scientific_invariants.json",
+    "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_reviewable_run/warning_demonstrations.json"
+  ],
+  "review_artifact_paths": [
+    "artifacts/workflows/flagship-workflows/runtime/sequence_intake.json",
+    "artifacts/workflows/flagship-workflows/runtime/qc_report.json",
+    "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+    "artifacts/workflows/flagship-workflows/core/scientific_kernel.json"
+  ],
+  "runtime_package_id": "dda-maxquant-pipeline-corpus",
+  "scientific_invariants": [
+    {
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export"
+      ],
+      "expected_numeric": 2.0,
+      "expected_relation": "equals",
+      "invariant_id": "dda_reviewable_run:maxquant_target_psm_count",
+      "metric_name": "maxquant target PSM count",
+      "observed_numeric": 2.0,
+      "summary": "The primary DDA export should preserve two target identifications in the pinned public package."
+    },
+    {
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export"
+      ],
+      "expected_numeric": 1.0,
+      "expected_relation": "equals",
+      "invariant_id": "dda_reviewable_run:maxquant_decoy_psm_count",
+      "metric_name": "maxquant decoy PSM count",
+      "observed_numeric": 1.0,
+      "summary": "The primary DDA export should preserve one explicit decoy so target-decoy visibility is not flattened away."
+    },
+    {
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export"
+      ],
+      "expected_numeric": 0.039,
+      "expected_relation": "less_or_equal",
+      "invariant_id": "dda_reviewable_run:maxquant_observed_q_ceiling",
+      "metric_name": "maxquant observed q-value ceiling",
+      "observed_numeric": 0.039,
+      "summary": "The pinned MaxQuant export stays inside the tracked q-value ceiling used by the reviewable package."
+    },
+    {
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export",
+        "dda_reviewable_run:msfragger_export"
+      ],
+      "expected_numeric": 2.0,
+      "expected_relation": "equals",
+      "invariant_id": "dda_reviewable_run:adapter_parity_pass_count",
+      "metric_name": "adapter parity pass count across shipped DDA engines",
+      "observed_numeric": 2.0,
+      "summary": "Both shipped DDA adapter families must satisfy the current parity release criteria before the package can anchor review claims."
+    },
+    {
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export",
+        "dda_reviewable_run:msfragger_export"
+      ],
+      "expected_numeric": 2.0,
+      "expected_relation": "equals",
+      "invariant_id": "dda_reviewable_run:identification_loss_free_count",
+      "metric_name": "identification-loss-free engine count",
+      "observed_numeric": 2.0,
+      "summary": "Neither shipped DDA export may drop material identification columns if the package is going to support bounded review claims."
+    }
+  ],
+  "validating_test_paths": [
+    "packages/bijux-proteomics-core/tests/benchmarks/test_dda_reviewable_package_surface.py",
+    "packages/bijux-proteomics-core/tests/identification/test_search_adapter_parity.py",
+    "packages/bijux-proteomics-core/tests/identification/test_search_adapter_loss_surface.py",
+    "packages/bijux-proteomics-runtime/tests/workflows/test_benchmark_runtime_surface.py"
+  ],
+  "warning_demonstrations": [
+    {
+      "consequence": "Protein-facing DDA claims must stay downgrade-heavy even when peptide-facing evidence looks clean, because the public comparator corpus demonstrates engine-dependent rollup behavior directly.",
+      "demonstrated_metric": 5.0,
+      "evidence_artifact_ids": [
+        "dda_reviewable_run:maxquant_export",
+        "dda_reviewable_run:msfragger_export"
+      ],
+      "metric_summary": "The pinned MaxQuant and MSFragger exports produce five material protein-inference disagreements across the shipped strategy set.",
+      "warning_id": "dda_reviewable_run:protein_rollup_engine_drift",
+      "warning_label": "protein-level agreement does not survive cross-engine rollup"
+    }
+  ]
+}

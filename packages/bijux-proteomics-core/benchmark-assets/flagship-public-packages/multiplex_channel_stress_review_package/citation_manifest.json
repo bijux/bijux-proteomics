@@ -1,0 +1,13 @@
+{
+  "package_id": "public_companion_package:multiplex_channel_stress_review_package",
+  "workflow_family": "multiplex",
+  "citations": [
+    {
+      "citation_id": "citation:multiplex_ratio_compression_review",
+      "title": "Multiplex ratio-compression review",
+      "doi": null,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32883483/",
+      "why_it_matters": "The multiplex companion package exists to stress ratio compression and channel dropout limits."
+    }
+  ]
+}

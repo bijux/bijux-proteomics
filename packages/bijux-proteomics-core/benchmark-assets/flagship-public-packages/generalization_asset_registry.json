@@ -1,0 +1,359 @@
+{
+  "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/generalization_asset_registry.json",
+  "entries": [
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:comet_project",
+          "doi": null,
+          "title": "Comet project documentation",
+          "url": "https://uwpr.github.io/Comet/",
+          "why_it_matters": "Comet defines the primary imported-result dialect for the DDA companion package."
+        },
+        {
+          "citation_id": "citation:sage_project",
+          "doi": null,
+          "title": "Sage documentation",
+          "url": "https://sage-docs.vercel.app/",
+          "why_it_matters": "Sage defines the comparator dialect for the DDA companion package."
+        }
+      ],
+      "expected_disk_footprint_mb": 8,
+      "expected_wall_time_minutes": 4,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain how the DDA companion package differs from the flagship primary package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv",
+          "boundary_kind": "copied_snapshot",
+          "note": "Primary DDA companion export is a tracked copied snapshot from core fixtures.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv",
+          "boundary_kind": "copied_snapshot",
+          "note": "Comparator DDA companion export is a tracked copied snapshot from core fixtures.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "note": "The DDA companion manifest is generated from the repository model.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The DDA companion package ships checked exported-result and raw-like snapshots, not live Comet or Sage executables."
+      ],
+      "package_id": "public_companion_package:dda_cross_engine_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The Comet project page should remain reachable while this companion package remains active.",
+          "license_note": "The local file is a tracked snapshot; the public check targets the project page rather than a binary download.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/primary/comet_pipeline_export.tsv",
+          "public_reference_url": "https://uwpr.github.io/Comet/",
+          "public_source_name": "Comet DDA companion export snapshot",
+          "source_id": "dda-companion:comet",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/comet_pipeline_export.tsv",
+          "why_it_matters": "Comet supplies a different primary import dialect for DDA family generalization."
+        },
+        {
+          "availability_expectation": "The Sage documentation site should remain reachable while this companion package remains active.",
+          "license_note": "The local file is a tracked snapshot; the public check targets the documentation site.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/comparator/sage_pipeline_export.tsv",
+          "public_reference_url": "https://sage-docs.vercel.app/",
+          "public_source_name": "Sage DDA companion comparator snapshot",
+          "source_id": "dda-companion:sage",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/sage_pipeline_export.tsv",
+          "why_it_matters": "Sage supplies the comparator dialect for the DDA family generalization pair."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dda_cross_engine_review_package/source_locator_manifest.json",
+      "workflow_family": "dda"
+    },
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:diann_project",
+          "doi": null,
+          "title": "DIA-NN project repository",
+          "url": "https://github.com/vdemichev/DiaNN",
+          "why_it_matters": "DIA-NN defines the primary exported-result dialect for the DIA companion package."
+        },
+        {
+          "citation_id": "citation:spectronaut_product",
+          "doi": null,
+          "title": "Spectronaut product page",
+          "url": "https://biognosys.com/software/spectronaut/",
+          "why_it_matters": "Spectronaut defines the comparator surface for the DIA companion package."
+        }
+      ],
+      "expected_disk_footprint_mb": 8,
+      "expected_wall_time_minutes": 4,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain matrix-shift pressure in the DIA companion package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+          "boundary_kind": "copied_snapshot",
+          "note": "Primary DIA companion report is a copied snapshot from core fixtures.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/package_manifest.json",
+          "boundary_kind": "generated_report",
+          "note": "The DIA companion manifest is generated from the repository model.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The DIA companion package ships checked exported-result snapshots and remains library-conditioned."
+      ],
+      "package_id": "public_companion_package:dia_matrix_shift_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The DIA-NN project repository should remain reachable while this companion package remains active.",
+          "license_note": "The local file is a tracked snapshot; the public check targets the project repository.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/primary/diann_report.tsv",
+          "public_reference_url": "https://github.com/vdemichev/DiaNN",
+          "public_source_name": "DIA-NN companion report snapshot",
+          "source_id": "dia-companion:diann",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/diann_report.tsv",
+          "why_it_matters": "DIA-NN supplies the primary exported-result surface for the DIA companion package."
+        },
+        {
+          "availability_expectation": "The Spectronaut product page should remain reachable while this companion package remains active.",
+          "license_note": "The local file is a tracked snapshot; the public check targets the product page.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/comparator/spectronaut_pipeline_export.tsv",
+          "public_reference_url": "https://biognosys.com/software/spectronaut/",
+          "public_source_name": "Spectronaut companion comparator snapshot",
+          "source_id": "dia-companion:spectronaut",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/search_adapters/spectronaut_pipeline_export.tsv",
+          "why_it_matters": "Spectronaut supplies the comparator exported-result surface for the DIA companion package."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_matrix_shift_review_package/source_locator_manifest.json",
+      "workflow_family": "dia"
+    },
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:lfq_missingness_review",
+          "doi": null,
+          "title": "LFQ missingness and reproducibility review",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/33522158/",
+          "why_it_matters": "The LFQ companion package exists to stress missingness-aware transfer beyond one cohort shape."
+        }
+      ],
+      "expected_disk_footprint_mb": 6,
+      "expected_wall_time_minutes": 3,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain sparse-cohort pressure in the LFQ companion package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
+          "boundary_kind": "copied_snapshot",
+          "note": "LFQ companion feature table is a copied snapshot from core fixtures.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/sparse_reproducibility_manifest.json",
+          "boundary_kind": "generated_report",
+          "note": "LFQ companion reproducibility manifest is a generated report.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The LFQ companion package ships tracked feature and design snapshots rather than raw vendor data."
+      ],
+      "package_id": "public_companion_package:lfq_sparse_contrast_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The repository source should remain reachable while this companion package remains active.",
+          "license_note": "This tracked file is a repository-owned snapshot.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/evidence/edge_case_ms1_features.tsv",
+          "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Sparse-cohort LFQ feature snapshot",
+          "source_id": "lfq-companion:edge-case-features",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/edge_case_ms1_features.tsv",
+          "why_it_matters": "The edge-case feature table supplies a sparser LFQ cohort shape for generalization pressure."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_sparse_contrast_review_package/source_locator_manifest.json",
+      "workflow_family": "lfq"
+    },
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:multiplex_ratio_compression_review",
+          "doi": null,
+          "title": "Multiplex ratio-compression review",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/32883483/",
+          "why_it_matters": "The multiplex companion package exists to stress ratio compression and channel dropout limits."
+        }
+      ],
+      "expected_disk_footprint_mb": 6,
+      "expected_wall_time_minutes": 3,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain channel-stress pressure in the multiplex companion package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv",
+          "boundary_kind": "generated_report",
+          "note": "The stress feature table is derived from the flagship multiplex features with stronger imbalance and dropout pressure.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The multiplex companion package ships a derived stress table rather than raw reporter-ion vendor data."
+      ],
+      "package_id": "public_companion_package:multiplex_channel_stress_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The repository source should remain reachable while this companion package remains active.",
+          "license_note": "This tracked file is a repository-owned derived snapshot.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/evidence/multiplex_channel_stress_ms1_features.tsv",
+          "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Channel-stress multiplex feature snapshot",
+          "source_id": "multiplex-companion:stress-features",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/quant/multiplex_ms1_features.tsv",
+          "why_it_matters": "The stress feature table is derived from the tracked multiplex fixture to expose stronger imbalance."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_channel_stress_review_package/source_locator_manifest.json",
+      "workflow_family": "multiplex"
+    },
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:ptm_localization_review",
+          "doi": null,
+          "title": "PTM localization confidence review",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/28104535/",
+          "why_it_matters": "The PTM companion package exists to stress ambiguity-sensitive transfer."
+        }
+      ],
+      "expected_disk_footprint_mb": 7,
+      "expected_wall_time_minutes": 4,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain ambiguity-stress pressure in the PTM companion package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
+          "boundary_kind": "generated_report",
+          "note": "The localization table is derived from the flagship PTM localization table with stronger ambiguity pressure.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The PTM companion package ships tracked ambiguity-stress snapshots rather than vendor-native raw files."
+      ],
+      "package_id": "public_companion_package:ptm_ambiguity_stress_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The repository source should remain reachable while this companion package remains active.",
+          "license_note": "This tracked file is a repository-owned derived snapshot.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/evidence/localization_results.tsv",
+          "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "PTM ambiguity-stress localization snapshot",
+          "source_id": "ptm-companion:localization",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/ptm/localization_results.tsv",
+          "why_it_matters": "The PTM ambiguity stress table is derived from the tracked localization fixture."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_ambiguity_stress_review_package/source_locator_manifest.json",
+      "workflow_family": "ptm"
+    },
+    {
+      "asset_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package",
+      "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/citation_manifest.json",
+      "citations": [
+        {
+          "citation_id": "citation:targeted_carryover_review",
+          "doi": null,
+          "title": "Targeted assay carryover and calibration review",
+          "url": "https://pubmed.ncbi.nlm.nih.gov/27556322/",
+          "why_it_matters": "The targeted companion package exists to stress carryover and calibration-sensitive transfer."
+        }
+      ],
+      "expected_disk_footprint_mb": 7,
+      "expected_wall_time_minutes": 4,
+      "generated_boundaries": [
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/README.md",
+          "boundary_kind": "curated_readme",
+          "note": "README is human-authored to explain carryover stress in the targeted companion package.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        },
+        {
+          "artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv",
+          "boundary_kind": "generated_report",
+          "note": "The targeted QC table is derived from the flagship QC table with stronger carryover drift.",
+          "regeneration_command": "uv run --group dev python -m bijux_proteomics.benchmarks.workflow_generalization_assets refresh"
+        }
+      ],
+      "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/generated_boundary.json",
+      "known_license_limits": [
+        "The targeted companion package ships a derived QC table and copied follow-up packets rather than vendor-native chromatograms."
+      ],
+      "package_id": "public_companion_package:targeted_carryover_review_package",
+      "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/rebuild_instructions.md",
+      "remote_sources": [
+        {
+          "availability_expectation": "The repository source should remain reachable while this companion package remains active.",
+          "license_note": "This tracked file is a repository-owned derived snapshot.",
+          "local_artifact_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/evidence/targeted_benchmark_qc.tsv",
+          "public_reference_url": "https://github.com/bijux/bijux-proteomics",
+          "public_source_name": "Targeted carryover QC snapshot",
+          "source_id": "targeted-companion:qc",
+          "upstream_repo_source_path": "packages/bijux-proteomics-core/tests/fixtures/formats/targeted_benchmark_qc.tsv",
+          "why_it_matters": "The carryover stress QC table is derived from the tracked targeted QC fixture."
+        }
+      ],
+      "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_carryover_review_package/source_locator_manifest.json",
+      "workflow_family": "targeted"
+    }
+  ],
+  "note": "These companion public packages exist to pressure family transfer beyond the single primary flagship package for each workflow family.",
+  "registry_id": "secondary-public-package-asset-registry"
+}

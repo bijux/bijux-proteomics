@@ -1,0 +1,41 @@
+# Generated runtime import graph.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.runtime.import_graph
+
+[[surface]]
+name = "api"
+outgoing_surfaces = ["providers", "runs", "support"]
+
+[[surface]]
+name = "execution"
+outgoing_surfaces = ["providers", "state", "support"]
+
+[[surface]]
+name = "governance"
+outgoing_surfaces = []
+
+[[surface]]
+name = "package_root"
+outgoing_surfaces = []
+
+[[surface]]
+name = "providers"
+outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "runs"
+outgoing_surfaces = ["execution", "providers", "state", "support"]
+
+[[surface]]
+name = "state"
+outgoing_surfaces = ["support"]
+
+[[surface]]
+name = "support"
+outgoing_surfaces = ["state"]
+
+[[surface]]
+name = "workflows"
+outgoing_surfaces = ["runs", "support"]
+
+[[cycle]]
+surfaces = ["state", "support"]

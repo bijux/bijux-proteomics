@@ -1,0 +1,13 @@
+{
+  "package_id": "flagship_public_package:targeted_transition_review_package",
+  "workflow_family": "targeted",
+  "citations": [
+    {
+      "citation_id": "citation:targeted_guideline_2011",
+      "title": "Guidelines for performing targeted proteomics assays",
+      "doi": null,
+      "url": "https://pubmed.ncbi.nlm.nih.gov/21423193/",
+      "why_it_matters": "Anchors transition-level QC and follow-up discipline in the targeted package."
+    }
+  ]
+}

@@ -5,9 +5,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentic_proteins.core.failures import FailureType
-from agentic_proteins.runtime import RunManager
-from agentic_proteins.runtime.infra import RunConfig
+from agentic_proteins.orchestration.manager import RunManager
+from agentic_proteins.orchestration.run_config import RunConfig
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
 
 
 def test_tool_disabled_behaves_like_removal(tmp_path: Path) -> None:

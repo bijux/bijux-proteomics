@@ -1,0 +1,92 @@
+# Generated flagship workflow manifest.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_runtime.workflows.flagship_workflow_manifest
+
+[workflow]
+workflow_id = "flagship-workflow-chain"
+flagship_family_id = "flagship-workflows"
+builder_module = "bijux_proteomics_runtime.workflows.flagship_workflow_chain"
+builder_symbol = "build_flagship_workflow_chain"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
+owner_packages = ["bijux-proteomics-runtime", "bijux-proteomics-core", "bijux-proteomics-knowledge", "bijux-proteomics-intelligence", "bijux-proteomics-lab"]
+claim_taxonomy = ["owned_contract", "benchmark_backed_behavior", "runtime_proven_workflow", "future_work"]
+
+[[stage]]
+stage = "sequence_intake"
+owner_package = "bijux-proteomics-runtime"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+test_path = "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py"
+docs_path = "packages/bijux-proteomics-runtime/README.md"
+artifact_paths = ["artifacts/workflows/sequence-to-digest/targets.fasta", "artifacts/workflows/sequence-to-digest/decoys.fasta", "artifacts/workflows/sequence-to-digest/peptides.tsv"]
+validating_test_ids = ["packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages"]
+
+[[stage]]
+stage = "search_and_confidence"
+owner_package = "bijux-proteomics-runtime"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+test_path = "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py"
+docs_path = "packages/bijux-proteomics-runtime/README.md"
+artifact_paths = ["artifacts/workflows/dda-import/spectra.mgf", "artifacts/workflows/dda-import/psm.tsv", "artifacts/workflows/dda-import/protein_inference.tsv", "artifacts/workflows/dda-import/qc_report.json"]
+validating_test_ids = ["packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages"]
+
+[[stage]]
+stage = "quantification"
+owner_package = "bijux-proteomics-runtime"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+test_path = "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py"
+docs_path = "packages/bijux-proteomics-runtime/README.md"
+artifact_paths = ["artifacts/workflows/quant-runtime/matrix.tsv", "artifacts/workflows/quant-runtime/normalization.json", "artifacts/workflows/quant-runtime/differential_abundance.tsv", "artifacts/workflows/quant-runtime/review_bundle.json"]
+validating_test_ids = ["packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages"]
+
+[[stage]]
+stage = "ptm_review"
+owner_package = "bijux-proteomics-runtime"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+test_path = "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py"
+docs_path = "packages/bijux-proteomics-runtime/README.md"
+artifact_paths = ["artifacts/workflows/ptm-runtime/ptm_sites.tsv", "artifacts/workflows/ptm-runtime/ptm_occupancy.tsv", "artifacts/workflows/ptm-runtime/ptm_motif_windows.tsv", "artifacts/workflows/ptm-runtime/ptm_lab_packet.json"]
+validating_test_ids = ["packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages"]
+
+[[stage]]
+stage = "scientific_kernel"
+owner_package = "bijux-proteomics-core"
+source_path = "packages/bijux-proteomics-core/src/bijux_proteomics/review/flagship_kernel.py"
+test_path = "packages/bijux-proteomics-core/tests/review/test_flagship_scientific_kernel_surface.py"
+docs_path = "packages/bijux-proteomics-core/README.md"
+artifact_paths = ["artifacts/workflows/flagship-workflow-chain/core/scientific_kernel.json"]
+validating_test_ids = ["packages/bijux-proteomics-core/tests/review/test_flagship_scientific_kernel_surface.py::test_build_flagship_scientific_kernel_report_exposes_narrow_scope_boundaries"]
+
+[[stage]]
+stage = "evidence_review"
+owner_package = "bijux-proteomics-knowledge"
+source_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/reviews/flagship_evidence.py"
+test_path = "packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
+artifact_paths = ["artifacts/workflows/flagship-workflow-chain/knowledge/decision_brief.json"]
+validating_test_ids = ["packages/bijux-proteomics-knowledge/tests/reviews/test_flagship_evidence_surface.py::test_build_flagship_evidence_decision_brief_preserves_claim_tier_and_artifact_path"]
+
+[[stage]]
+stage = "decision_review"
+owner_package = "bijux-proteomics-intelligence"
+source_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/flagship_decisions.py"
+test_path = "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
+artifact_paths = ["artifacts/workflows/flagship-workflow-chain/intelligence/decision_review.json"]
+validating_test_ids = ["packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_allows_lab_when_kernel_and_review_are_clean", "packages/bijux-proteomics-intelligence/tests/judgment/test_flagship_decisions_surface.py::test_build_flagship_decision_review_keeps_downgrade_chain_visible"]
+
+[[stage]]
+stage = "lab_handoff"
+owner_package = "bijux-proteomics-runtime"
+source_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
+test_path = "packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py"
+docs_path = "packages/bijux-proteomics-runtime/README.md"
+artifact_paths = ["artifacts/workflows/lab-handoff/assay_plan.tsv", "artifacts/workflows/lab-handoff/handoff_export.json", "artifacts/workflows/lab-handoff/unresolved_risk_report.json"]
+validating_test_ids = ["packages/bijux-proteomics-runtime/tests/workflows/test_flagship_workflow_chain_surface.py::test_build_flagship_workflow_chain_tracks_all_owner_stages"]
+
+[[stage]]
+stage = "follow_up"
+owner_package = "bijux-proteomics-lab"
+source_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/reconciliation/flagship_follow_up.py"
+test_path = "packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py"
+docs_path = "docs/01-bijux-proteomics/foundation/what-one-workflow-family-supports-today.md"
+artifact_paths = ["artifacts/workflows/flagship-workflow-chain/lab/follow_up_packet.json", "artifacts/workflows/flagship-workflow-chain/lab/next_cycle_packet.json"]
+validating_test_ids = ["packages/bijux-proteomics-lab/tests/reconciliation/test_flagship_follow_up_surface.py::test_build_flagship_workflow_follow_up_packet_marks_ready_progression"]

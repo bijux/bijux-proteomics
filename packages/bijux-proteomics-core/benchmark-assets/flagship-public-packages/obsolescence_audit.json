@@ -1,0 +1,55 @@
+{
+  "audit_id": "flagship-asset-obsolescence-audit",
+  "audit_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/obsolescence_audit.json",
+  "entries": [
+    {
+      "package_id": "flagship_public_package:dda_reviewable_run",
+      "workflow_family": "dda",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current DDA package is still one run with imported-result snapshots; broader multi-run or raw-search public proof would be stronger.",
+      "replacement_direction": "Replace the one-run DDA package with a multi-run public DDA asset root that still preserves paired comparator confrontation.",
+      "note": "DDA is strong enough to lead current public proof, but not strong enough to close family-wide generalization."
+    },
+    {
+      "package_id": "flagship_public_package:dia_library_review_package",
+      "workflow_family": "dia",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current DIA package is still library-conditioned and import-backed; chromatogram- or raw-backed public DIA proof would be stronger.",
+      "replacement_direction": "Replace the import-backed DIA package with a raw-executable or chromatogram-backed DIA asset root.",
+      "note": "DIA remains public and useful, but its current package shape should not be the end state."
+    },
+    {
+      "package_id": "flagship_public_package:lfq_cohort_review_package",
+      "workflow_family": "lfq",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current LFQ package still lacks second-dataset and stronger truth-surface pressure beyond cohort repeatability.",
+      "replacement_direction": "Replace the current LFQ package with a pair of public cohort packages that expose stronger truth and generalization pressure.",
+      "note": "LFQ package legitimacy improved, but it is still a midpoint asset root."
+    },
+    {
+      "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+      "workflow_family": "multiplex",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current multiplex package captures chemistry pressure but still lacks raw-executable and consequence-bearing breadth.",
+      "replacement_direction": "Replace the current TMTpro package with a broader multiplex asset root that includes runtime and follow-up consequence closure.",
+      "note": "Multiplex is still below outsider-auditable standard."
+    },
+    {
+      "package_id": "flagship_public_package:ptm_localization_review_package",
+      "workflow_family": "ptm",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current PTM package lacks second-family breadth, runtime parity, and comparator-backed decision-grade closure.",
+      "replacement_direction": "Replace the current PTM package with one that broadens PTM-family scope and closes runtime plus comparator gaps.",
+      "note": "PTM package visibility improved, but the package should still be treated as transitional evidence, not final authority."
+    },
+    {
+      "package_id": "flagship_public_package:targeted_transition_review_package",
+      "workflow_family": "targeted",
+      "stronger_public_dataset_needed": true,
+      "stronger_public_dataset_reason": "The current targeted package still centers on QC and consequence packet snapshots without broader raw-executable calibration proof.",
+      "replacement_direction": "Replace the current targeted package with a raw-executable targeted asset root that includes calibration and comparator closure.",
+      "note": "Targeted package is public now, but still materially behind the authority bar implied by a flagship label."
+    }
+  ],
+  "note": "Every current flagship asset root is useful, but none should be mistaken for the final strongest public benchmark shape for its family."
+}

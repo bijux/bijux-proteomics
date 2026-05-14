@@ -8,31 +8,31 @@ from __future__ import annotations
 from datetime import datetime
 import json
 
-from bijux_proteomics_intelligence.domain.candidates.schema import Candidate
-from bijux_proteomics_runtime.agents.execution.coordinator import CoordinatorAgent
-from bijux_proteomics_runtime.agents.planning.compiler import compile_plan_to_execution
-from bijux_proteomics_runtime.agents.planning.planner import PlannerAgent
-from bijux_proteomics_runtime.agents.schemas import (
+from bijux_proteomics_intelligence.candidates.schema import Candidate
+from bijux_proteomics_runtime.execution.agents.catalog import AgentCatalog
+from bijux_proteomics_runtime.execution.agents.coordination.coordinator import (
+    CoordinatorAgent,
+)
+from bijux_proteomics_runtime.execution.agents.planning.compiler import (
+    compile_plan_to_execution,
+)
+from bijux_proteomics_runtime.execution.agents.planning.planner import PlannerAgent
+from bijux_proteomics_runtime.execution.agents.schemas import (
     CoordinatorAgentInput,
     CriticAgentInput,
     OutputReference,
     PlannerAgentInput,
     QualityControlAgentInput,
 )
-from bijux_proteomics_runtime.agents.verification.critic import CriticAgent
-from bijux_proteomics_runtime.agents.verification.quality_control import (
+from bijux_proteomics_runtime.execution.agents.verification.critic import CriticAgent
+from bijux_proteomics_runtime.execution.agents.verification.quality_control import (
     QualityControlAgent,
 )
-from bijux_proteomics_runtime.core.decisions import Decision
-from bijux_proteomics_runtime.core.execution import (
-    ExecutionContext,
-    LoopLimits,
-    LoopState,
-    ResourceLimits,
-)
-from bijux_proteomics_runtime.core.hashing import sha256_hex
-from bijux_proteomics_runtime.core.observations import EvaluationInput, PlanMetadata
 from bijux_proteomics_runtime.execution.compiler.boundary import ExecutionBoundary
+from bijux_proteomics_runtime.execution.engine.executor import (
+    LocalExecutor,
+    materialize_observation,
+)
 from bijux_proteomics_runtime.execution.evaluation.schemas import (
     AgentScorecard,
     EvaluationCase,
@@ -40,17 +40,26 @@ from bijux_proteomics_runtime.execution.evaluation.schemas import (
     EvaluationResult,
     ObservedProperty,
 )
-from bijux_proteomics_runtime.execution.runtime.executor import (
-    LocalExecutor,
-    materialize_observation,
+from bijux_proteomics_runtime.execution.tools.heuristic import (
+    HeuristicStructureTool,
 )
-from bijux_proteomics_runtime.registry.agents import AgentRegistry
-from bijux_proteomics_runtime.state.schemas import StateSnapshot
-from bijux_proteomics_runtime.tools.heuristic import HeuristicStructureTool
-from bijux_proteomics_runtime.tools.schemas import (
+from bijux_proteomics_runtime.execution.tools.schemas import (
     InvocationInput,
     ToolInvocationSpec,
     ToolResult,
+)
+from bijux_proteomics_runtime.state.schemas import StateSnapshot
+from bijux_proteomics_runtime.support.primitives.decisions import Decision
+from bijux_proteomics_runtime.support.primitives.execution import (
+    ExecutionContext,
+    LoopLimits,
+    LoopState,
+    ResourceLimits,
+)
+from bijux_proteomics_runtime.support.primitives.hashing import sha256_hex
+from bijux_proteomics_runtime.support.primitives.observations import (
+    EvaluationInput,
+    PlanMetadata,
 )
 
 
@@ -79,8 +88,8 @@ class EvaluationRunner:
         scorecard_inputs: dict[str, list[dict[str, object]]] = {}
 
         for case in cases:
-            if not AgentRegistry.list():
-                raise ValueError("AgentRegistry must be populated before evaluation.")
+            if not AgentCatalog.list():
+                raise ValueError("AgentCatalog must be populated before evaluation.")
 
             planner = PlannerAgent()
             plan_decision = planner.decide(PlannerAgentInput(goal=case.description))
@@ -286,7 +295,7 @@ def _aggregate_scorecards(
             if isinstance(uncertainty_value, (int, float)):
                 uncertainty_total += float(uncertainty_value)
         try:
-            agent_cls = AgentRegistry.get(agent_name)
+            agent_cls = AgentCatalog.get(agent_name)
             cost_total = agent_cls.cost_budget * cases
             latency_total = agent_cls.latency_budget_ms * cases
         except KeyError:

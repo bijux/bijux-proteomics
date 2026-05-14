@@ -1,0 +1,50 @@
+# Generated package surface coherence report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_surface_coherence
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+import_root = "bijux_proteomics_foundation"
+docs_path = "docs/03-bijux-proteomics-foundation/this-package-does-not-own.md"
+public_surface_names = ["DocumentSchema", "JsonModel", "hash_payload", "to_canonical_json"]
+allowed_outbound_edges = []
+excluded_responsibilities = ["program lifecycle and gate logic", "candidate ranking and decision policies", "evidence conflict semantics or lab planning behavior"]
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+import_root = "bijux_proteomics"
+docs_path = "docs/04-bijux-proteomics-core/this-package-does-not-own.md"
+public_surface_names = ["DigestPolicy", "parse_fasta_document", "parse_experimental_design_table", "build_normalized_run_bundle", "build_fdr_audit_trail"]
+allowed_outbound_edges = ["bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+excluded_responsibilities = ["evidence trust and contradiction resolution", "ranking policy and scenario recommendations", "experiment scheduling and assay rerun policy logic"]
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+import_root = "bijux_proteomics_intelligence"
+docs_path = "docs/05-bijux-proteomics-intelligence/this-package-does-not-own.md"
+public_surface_names = ["candidates", "governance", "interpretation", "judgment", "learning", "posture", "reviews"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-knowledge", "bijux-proteomics-lab", "bijux-proteomics-runtime"]
+excluded_responsibilities = ["canonical scientific entity definitions or parsing", "evidence storage, curation, and truth maintenance", "runtime orchestration, transport, or provider selection", "assay scheduling, execution authority, or operational queue ownership"]
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+import_root = "bijux_proteomics_knowledge"
+docs_path = "docs/06-bijux-proteomics-knowledge/this-package-does-not-own.md"
+public_surface_names = ["EvidenceBundle", "EvidenceClaim", "EvidenceRecord", "KnowledgeDecisionBrief", "evaluate_schema_compatibility"]
+allowed_outbound_edges = ["bijux-proteomics-foundation"]
+excluded_responsibilities = ["execution orchestration and runtime replay behavior", "route-shaped payloads, transport-bound views, and operator endpoint shaping", "candidate ranking, recommendation, and selection policies", "laboratory scheduling and outcome rerun policies", "generic uncited context storage"]
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+import_root = "bijux_proteomics_lab"
+docs_path = "docs/07-bijux-proteomics-lab/this-package-does-not-own.md"
+public_surface_names = ["plan_experiment_batches", "build_advisory_assay_plan", "build_executable_assay_plan"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge"]
+excluded_responsibilities = ["analytical recommendation logic", "core scientific semantics", "execution orchestration or runtime policy"]
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+import_root = "bijux_proteomics_runtime"
+docs_path = "docs/09-bijux-proteomics-runtime/this-package-does-not-own.md"
+public_surface_names = ["AppConfig", "create_app", "RunManager", "cli"]
+allowed_outbound_edges = ["bijux-proteomics-core", "bijux-proteomics-foundation", "bijux-proteomics-intelligence", "bijux-proteomics-knowledge", "bijux-proteomics-lab"]
+excluded_responsibilities = ["canonical domain definitions", "evidence semantics and contradiction semantics", "scoring policy semantics and recommendation semantics", "lab planning semantics and experiment promotion semantics"]

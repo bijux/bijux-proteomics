@@ -16,11 +16,12 @@ The canonical runtime API root is `apis/bijux-proteomics-runtime/v1`; the compat
 ## Package Surface
 
 - `src/agentic_proteins/interfaces/cli.py` is a compatibility CLI surface, not the preferred long-term operator surface
+- new workflow use should start from `bijux-proteomics-runtime --help`, not `agentic-proteins --help`
 - new CLI affordances belong in the canonical runtime unless needed to preserve an existing contract
 - CLI output drift should be treated as migration-sensitive behavior
 
 ## First Proof Check
 
 - `src/agentic_proteins/interfaces/cli.py`
-- `src/agentic_proteins/api/app.py`
+- `src/agentic_proteins/interfaces/http/app.py`
 - `packages/agentic-proteins/tests`

@@ -4,7 +4,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white)](https://pypi.org/project/bijux-proteomics-intelligence/)
 [![Typing: typed](https://img.shields.io/badge/typing-typed%20(PEP%20561)-0A7BBB)](https://pypi.org/project/bijux-proteomics-intelligence/)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-0F766E)](https://github.com/bijux/bijux-proteomics/blob/main/LICENSE)
-[![CI Status](https://github.com/bijux/bijux-proteomics/workflows/repo%20/%20verify/badge.svg)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
+[![CI Status](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/bijux/bijux-proteomics/actions/workflows/verify.yml?query=branch%3Amain)
 [![GitHub Repository](https://img.shields.io/badge/github-bijux%2Fbijux--proteomics-181717?logo=github)](https://github.com/bijux/bijux-proteomics)
 
 [![bijux-proteomics-intelligence](https://img.shields.io/pypi/v/bijux-proteomics-intelligence?label=intelligence&logo=pypi)](https://pypi.org/project/bijux-proteomics-intelligence/)
@@ -32,38 +32,54 @@
 [![bijux-proteomics-lab docs](https://img.shields.io/badge/docs-lab-2563EB?logo=materialformkdocs&logoColor=white)](https://bijux.io/bijux-proteomics/07-bijux-proteomics-lab/)
 <!-- bijux-proteomics-badges:generated:end -->
 
-`bijux-proteomics-intelligence` transforms program intent and evidence posture
-into policy-governed candidate rankings, scenario recommendations, and
-decision outputs with explicit explainability and risk signals.
+`bijux-proteomics-intelligence` is the analytical judgment layer for
+`bijux-proteomics`. It can rank candidates, gate recommendation readiness,
+assemble decision briefs, summarize cautious interpretation posture, and carry
+learning pressure forward without claiming scientific truth, runtime
+orchestration, or lab execution authority.
 
-Use this package when you need transparent prioritization logic, rejection
-reasoning, and portfolio-aware progression guidance for protein design.
+Within the suite, intelligence owns recommendation posture, ranking
+sensitivity, and refusal behavior.
 
-This package should sit on top of the scientific workflow blueprint rather than
-replace it. Intelligence explains readiness and recommendation pressure, but it
-does not define workflow stages or pretend ranking alone is the whole
-proteomics engine.
+The package root is curated on purpose. Import exact owner modules such as
+`candidates.ranking`, `judgment.paths`, `posture.evidence`,
+`interpretation.runs`, and `reviews.benchmarks` instead of treating the
+package root like a broad symbol menu. The machine-readable charter in
+`governance/charter.py` and the governed capability map define six durable
+analytical families:
 
-It also now provides typed proteomics interpretation helpers that sit on top of
-`bijux-proteomics-core` evidence surfaces when you need deterministic summaries
-for QC posture, differential abundance, PTM interpretation, enrichment, and
-operator-facing review notes.
+- candidates
+- judgment
+- posture
+- interpretation
+- reviews
+- learning
+
+Those families are the durable answer to what intelligence can decide and what it
+must refuse or downgrade.
+
+Release-facing maintainers should keep `README.md`, `CHANGELOG.md`, and the
+package `docs/*.md` set aligned before claiming new intelligence behavior or
+scientific scope.
+
+It also provides benchmark-backed review outputs for `dda`, `dia`, `ptm`,
+`lfq`, and `multiplex` workflows when reviewers need package-owned claims
+instead of presentation-only summaries.
 
 ## Why teams pick this package
 
-- policy-first ranking and recommendation outputs with traceable decision rationale
-- scenario evaluators that support progression, redesign, and portfolio balancing
-- structured rejection reasons and explainability fields for review conversations
-- deterministic scoring patterns suitable for governance and automation
+- transparent ranking and recommendation outputs with traceable decision rationale
+- explicit downgrade and refusal behavior when evidence is stale, thin, or contradictory
+- review-ready packets and skeptical challenge surfaces that keep unresolved questions visible
+- typed interpretation summaries that stay cautious about biological meaning
 
 ## Typical use cases
 
 - rank candidate proteins against defined decision policies
-- generate scenario recommendations for advancement or redesign
-- produce explainable shortlists for expert review boards
-- aggregate portfolio-level signals for sequencing and prioritization
-- interpret proteomics QC, quantification, PTM, and enrichment outputs into
-  typed biological review artifacts
+- decide whether current evidence is ready for progression-oriented review
+- produce explainable shortlists and review-board packets for expert scrutiny
+- summarize proteomics interpretation posture without re-owning raw analysis
+- carry benchmark-backed review claims into release conversations
 
 ## Installation
 
@@ -74,98 +90,146 @@ pip install bijux-proteomics-intelligence
 ## Quick start
 
 ```python
-from bijux_proteomics_intelligence import briefs, policies, evaluators
+from bijux_proteomics_intelligence.candidates.ranking import prioritize_candidates
+from bijux_proteomics_intelligence.interpretation.runs import (
+    build_run_interpretation_summary,
+)
+from bijux_proteomics_intelligence.interpretation.quantitative import (
+    interpret_differential_abundance,
+)
+from bijux_proteomics_intelligence.judgment.paths import (
+    build_review_board_decision_path,
+)
+from bijux_proteomics_intelligence.posture.evidence import (
+    assess_recommendation_readiness,
+)
+from bijux_proteomics_intelligence.reviews.benchmarks import (
+    build_dia_benchmark_review,
+)
 ```
 
-For proteomics evidence interpretation:
+For grounded recommendation judgment:
 
 ```python
-from bijux_proteomics_intelligence import (
-    build_run_interpretation_summary,
-    interpret_differential_abundance,
-    interpret_ptm_sites,
-)
+ranking = prioritize_candidates(...)
+readiness = assess_recommendation_readiness(...)
+path = build_review_board_decision_path(...)
+```
+
+For benchmark-backed workflow review:
+
+```python
+review = build_dia_benchmark_review(source_path=...)
+```
+
+For proteomics interpretation:
+
+```python
+summary = build_run_interpretation_summary(...)
+report = interpret_differential_abundance(...)
 ```
 
 ## Package identity
 
 - Distribution name: `bijux-proteomics-intelligence`
 - Import root: `bijux_proteomics_intelligence`
-- Stable entrypoints: `briefs`, `policies`, `evaluators`, `candidates`,
-  `outcomes`, and `interpretation`
+- Canonical owner families: `candidates/`, `judgment/`, `posture/`,
+  `reviews/`, `interpretation/`, `learning/`, and `governance/`
+- Curated root owner families: `candidates`, `judgment`, `posture`,
+  `reviews`, `interpretation`, `learning`, and `governance`
 
 ## Package boundaries
 
-This package owns decision intelligence, ranking policy, scenario scoring, and explainability outputs.
+This package owns analytical judgment over already-typed workflow and evidence
+surfaces.
 
-It also owns deterministic interpretation contracts over already-typed
-proteomics evidence when those summaries belong at the intelligence layer
-rather than in raw scientific parsing or runtime execution.
+It can decide:
 
-It does not own stage transition authority, evidence ingestion contracts, or lab execution scheduling.
+- candidate ranking and lifecycle framing through `candidates/`
+- scenario recommendations, uncertainty, and review-decision paths through `judgment/`
+- evidence-readiness downgrade, refusal, and skeptical pressure through `posture/`
+- benchmark-backed reviewer outputs and downstream analytical presentation through `reviews/`
+- cautious interpretation summaries through `interpretation/runs.py`,
+  `interpretation/quantitative.py`, `interpretation/pathways.py`,
+  `interpretation/ptm.py`, `interpretation/contaminants.py`, and
+  `interpretation/contrasts.py`
+- learning pressure on future prioritization through `learning/`
 
-It should therefore consume workflow shape from core, evidence posture from
-knowledge, and hand execution consequences to lab rather than inventing a
-parallel workflow story of its own.
+It does not own scientific truth, evidence curation, workflow stage law,
+runtime transport, or lab scheduling.
+
+## Consequence chain route
+
+Intelligence owns the recommendation sentence inside the shared consequence
+chain, but it does not own the whole story.
+
+- use [Workflow Consequence Maps](https://bijux.io/bijux-proteomics/decision-support/workflow-consequence-maps/)
+  when the question is whether the current recommendation already outruns the
+  weakest downstream boundary
+- use [What Changed The Recommendation](https://bijux.io/bijux-proteomics/decision-support/what-changed-the-recommendation/)
+  when the question is which counterfactual, contradiction, or lab burden
+  actually changed the recommendation
+- use [Workflow Refusal Handbook](https://bijux.io/bijux-proteomics/lab-consequence/workflow-refusal-handbook/)
+  when the honest next action may still be stop, rerun, narrow, or refuse even
+  though a recommendation surface exists
 
 ## Contract checkpoints
 
 - ranking and scenario outputs must carry typed rationale instead of opaque scores
-- policy models must remain reproducible inputs for repeated evaluations
-- portfolio and rejection summaries must stay explicit enough for review-gate use
-- downstream packages should ask this layer for recommendation logic instead of recreating scoring locally
+- recommendation outputs must expose downgrade or refusal when evidence posture is weak
+- review outputs must keep unresolved questions visible instead of polishing them away
+- interpretation outputs must preserve caveats instead of implying mechanistic certainty
+- benchmark review outputs must stay tied to checked-in fixtures and explicit scientific limits
 
 ## Choose this package when
 
 - you need candidate ranking, scenario evaluation, or explainable recommendation
   logic
-- the change affects decision meaning rather than the way results are delivered
+- the change affects analytical judgment rather than the way results are delivered
 - policy and rationale should stay explicit and reproducible
+- you need skeptical analytical review over whether a recommendation is truly defensible
+- you need benchmark-backed release review outputs for `dda`, `dia`, `ptm`,
+  `lfq`, or `multiplex`
 
 ## Route elsewhere when
 
-- the change defines lifecycle authority, evidence storage, lab scheduling, or
-  transport wiring
+- the change defines scientific parsing, evidence storage, lab scheduling, or
+  runtime transport wiring
 - the helper only reformats recommendation outputs for CLI or API consumers
-- the behavior is a workflow-specific override rather than a reusable decision rule
+- the behavior needs operational burden or feasibility ownership that belongs in lab
 
 ## Verification route
 
-- check `tests` for ranking, evaluator, and explainability proof before
+- check `tests` for ranking, evaluator, review, and interpretation proof before
   treating an intelligence change as safe
-- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/ARCHITECTURE.md`
-  when ownership or recommendation-policy claims are part of the change
-- use `README.md`, `CHANGELOG.md`, and package `docs/*.md` when the change
-  affects package publication, metadata, or release-readiness expectations
+- review `governance/charter.py` and the capability map when ownership or analytical-band
+  claims are part of the change
+- review `docs/BOUNDARIES.md`, `docs/CONTRACTS.md`, and `docs/INTERPRETATION.md`
+  when refusal, downgrade, or interpretation claims are part of the change
 
 ## Review questions
 
-- does the change preserve recommendation, scoring, or explainability semantics
-  rather than output transport or workflow-local formatting
-- would runtime or lab surfaces start carrying shadow ranking policy if this
-  behavior stayed outside intelligence
-- can the change be justified without claiming lifecycle, evidence, lab
-  execution, or runtime interface ownership
+- does the change preserve analytical judgment semantics rather than output transport
+- would another package start carrying shadow ranking or refusal logic if this stayed outside intelligence
+- can the change be justified without claiming scientific truth, runtime execution, or lab scheduling ownership
 
 ## Escalation route
 
-- route the change outward when the behavior mostly shapes lifecycle authority,
-  evidence truth, lab scheduling, or delivery transport
-- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when the
-  proposal starts looking like interface formatting instead of reusable decision
-  policy
-- escalate before release when downstream consumers would need package-specific
-  ranking exceptions to adopt the change
+- route the change outward when the behavior mostly shapes scientific truth,
+  evidence curation, lab operations, or delivery transport
+- stop and review `docs/BOUNDARIES.md` and `docs/ARCHITECTURE.md` when a
+  proposal starts looking broader than the six analytical families
+- escalate before release when downstream consumers would need local exceptions
+  to interpret recommendation readiness or refusal
 
 ## Consumer impact signals
 
-- expect downstream review when scoring rules, explainability behavior, or
-  evaluator contracts change because consumers rely on stable recommendation
-  meaning
-- treat changes that alter ranking outcomes or rationale surfaces as
+- expect downstream review when ranking rules, refusal posture, or review
+  packet semantics change because consumers rely on stable recommendation meaning
+- treat changes that alter downgrade thresholds or contradiction handling as
   high-impact even when function names and imports stay stable
 - expect a lower release burden when the change only improves internal
-  implementation without changing decision semantics
+  implementation without changing analytical meaning
 
 ## Explicit non-goals
 
@@ -177,14 +241,28 @@ parallel workflow story of its own.
 
 ## Source guide
 
-- [`src/bijux_proteomics_intelligence/briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/briefs.py) for design brief construction and ranking behavior
-- [`src/bijux_proteomics_intelligence/policies.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/policies.py) for ranking and decision policy models
-- [`src/bijux_proteomics_intelligence/evaluators.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py) for scenario and portfolio evaluators
-- [`src/bijux_proteomics_intelligence/interpretation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation.py) for run summaries, proteomics interpretation, and enrichment contracts
+- [`src/bijux_proteomics_intelligence/governance/charter.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/governance/charter.py) for the machine-readable charter and capability map
+- [`src/bijux_proteomics_intelligence/candidates/ranking.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py) for ranking and candidate framing
+- [`src/bijux_proteomics_intelligence/candidates/lifecycle.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/lifecycle.py) for lifecycle movement and risk context
+- [`src/bijux_proteomics_intelligence/judgment/scenarios.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/scenarios.py) for scenario evaluation
+- [`src/bijux_proteomics_intelligence/judgment/recommendations.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/recommendations.py) for escalation, refusal, and unresolved-question posture
+- [`src/bijux_proteomics_intelligence/judgment/paths.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/judgment/paths.py) for end-to-end analytical decision paths
+- [`src/bijux_proteomics_intelligence/posture/evidence.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/evidence.py) for contradiction, freshness, downgrade, and refusal posture
+- [`src/bijux_proteomics_intelligence/posture/skeptical.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/posture/skeptical.py) for scientific and software challenge pressure
+- [`src/bijux_proteomics_intelligence/reviews/decision_briefs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/decision_briefs.py) for decision brief assembly and ranked evidence presentation
+- [`src/bijux_proteomics_intelligence/reviews/boards.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/boards.py) for board-facing analytical review projections
+- [`src/bijux_proteomics_intelligence/reviews/candidates.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/candidates.py) for candidate-facing review projections
+- [`src/bijux_proteomics_intelligence/reviews/pathways.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/pathways.py) for pathway-facing review projections
+- [`src/bijux_proteomics_intelligence/reviews/benchmarks.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/reviews/benchmarks.py) for benchmark-backed release review
+- [`src/bijux_proteomics_intelligence/interpretation/runs.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/runs.py) for run-level interpretation posture
+- [`src/bijux_proteomics_intelligence/interpretation/quantitative.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/interpretation/quantitative.py) for quantitative interpretation and missingness caveats
+- [`src/bijux_proteomics_intelligence/learning/adaptation.py`](https://github.com/bijux/bijux-proteomics/blob/main/packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/learning/adaptation.py) for follow-up learning pressure
 - [`tests`](https://github.com/bijux/bijux-proteomics/tree/main/packages/bijux-proteomics-intelligence/tests) for executable behavior expectations
 
 ## Documentation
 
+- [Product architecture](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/product-architecture/)
+- [Cross-package ownership](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/cross-package-ownership/)
 - [Package guide](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/)
 - [Ownership boundary](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/foundation/ownership-boundary/)
 - [Architecture overview](https://bijux.io/bijux-proteomics/05-bijux-proteomics-intelligence/architecture/)

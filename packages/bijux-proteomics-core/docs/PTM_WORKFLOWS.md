@@ -58,7 +58,7 @@ The payload includes:
 ```python
 from pathlib import Path
 
-from bijux_proteomics import (
+from bijux_proteomics.ptm import (
     build_ptm_enrichment_input,
     build_ptm_motif_windows,
     build_ptm_site_ambiguity_report,
@@ -67,11 +67,10 @@ from bijux_proteomics import (
     build_ptm_site_table,
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
-    parse_fasta_document,
-    parse_ms1_feature_table,
     parse_ptm_localization_tsv,
 )
-from bijux_proteomics.sequences import FastaParseMode
+from bijux_proteomics.quantification import parse_ms1_feature_table
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 evidence = parse_ptm_localization_tsv(Path("localization_results.tsv"))
 fasta_report = parse_fasta_document(Path("proteins.fasta").read_text(), mode=FastaParseMode.STRICT)

@@ -11,8 +11,9 @@ last_reviewed: 2026-04-26
 
 The repository is easiest to review when ownership can be stated in layers
 without hesitation. The root owns only what genuinely crosses package
-boundaries. Product packages own publishable behavior. The maintainer package
-owns repository-health automation.
+boundaries. Six real product packages own publishable behavior. One explicit
+compatibility bridge preserves legacy imports while callers migrate off old
+paths. The maintainer package owns repository-health automation.
 
 ## Ownership Model
 
@@ -48,6 +49,8 @@ must move together without becoming the same thing.
 
 ## First Proof Check
 
+- `configs/package-governance/public-root-symbol-owners.toml` for the canonical
+  package-root ownership map
 - `packages/` for the product boundary
 - `packages/bijux-proteomics-dev/` for maintainer automation
 - root files such as `Makefile`, `apis/`, and `.github/workflows/` when the

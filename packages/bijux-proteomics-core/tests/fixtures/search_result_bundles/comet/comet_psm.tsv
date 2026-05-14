@@ -1,0 +1,4 @@
+scan	plain_peptide	modified_peptide	charge	expect	xcorr	delta_cn	sp_score	protein	target_decoy
+comet-real-1001	PEPTIDE	PEP[+79.966331]TIDE	2	0.00042	3.21	0.18	85.4	sp|P12345|KINASE_HUMAN	target
+comet-real-1002	ACDMK	AC[+57.021464]DM[+15.994915]K	3	0.00185	2.94	0.11	72.6	sp|P23456|TRANSFER_HUMAN;sp|P34567|TRANSFER_MOUSE	target
+comet-real-1003	DECAYPEP	DECAYPEP	2	0.05200	1.44	0.03	31.0	DECOY_sp|P99999|DECOY_PROT	decoy

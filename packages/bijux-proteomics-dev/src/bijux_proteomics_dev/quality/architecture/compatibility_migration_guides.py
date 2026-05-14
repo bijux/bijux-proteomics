@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 import argparse
-import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from bijux_proteomics_dev.quality.architecture.runtime_boundaries import load_policy
-from bijux_proteomics_dev.quality.architecture.scanner import (
-    import_references,
-    iter_python_files,
-    parse_python_module,
+from bijux_proteomics_dev.quality.architecture.agentic_compatibility_inventory import (
+    AgenticModuleClassification,
+    build_agentic_compatibility_inventory,
 )
 
 
@@ -41,112 +38,32 @@ class CompatibilityMigrationGuideEntry:
     migration_action: str
 
 
-def _allowlist(path: Path) -> set[str]:
-    if not path.exists():
-        return set()
-    values: set[str] = set()
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        value = raw.strip()
-        if not value or value.startswith("#"):
-            continue
-        values.add(value)
-    return values
-
-
-def _is_forwarding_module(tree: ast.Module, target_prefixes: tuple[str, ...]) -> bool:
-    def _matches_target(module_name: str) -> bool:
-        return any(
-            module_name == target_prefix or module_name.startswith(f"{target_prefix}.")
-            for target_prefix in target_prefixes
-        )
-
-    module_aliases: set[str] = set()
-    for node in tree.body:
-        if (
-            isinstance(node, ast.Expr)
-            and isinstance(node.value, ast.Constant)
-            and isinstance(node.value.value, str)
-        ):
-            continue
-        if isinstance(node, ast.Assign):
-            if any(
-                isinstance(target, ast.Name) and target.id == "__all__"
-                for target in node.targets
-            ):
-                continue
-            if (
-                all(isinstance(target, ast.Name) for target in node.targets)
-                and isinstance(node.value, ast.Attribute)
-                and isinstance(node.value.value, ast.Name)
-                and node.value.value.id in module_aliases
-            ):
-                continue
-            return False
-        if isinstance(node, ast.Import):
-            if all(_matches_target(alias.name) for alias in node.names):
-                for alias in node.names:
-                    if alias.asname:
-                        module_aliases.add(alias.asname)
-                continue
-            return False
-        if isinstance(node, ast.ImportFrom):
-            module = node.module or ""
-            if _matches_target(module):
-                for alias in node.names:
-                    if alias.asname:
-                        module_aliases.add(alias.asname)
-                continue
-            return False
-        return False
-    return True
-
-
 def build_compatibility_migration_guide(
     repo_root: Path,
 ) -> tuple[CompatibilityMigrationGuideEntry, ...]:
-    """Build migration guide entries from compatibility forwarding modules."""
-    policy = load_policy(repo_root)
-    allowlist = _allowlist(policy.compat_forwarding.non_forwarding_allowlist_path)
+    """Build migration guide entries from the live compatibility inventory."""
     entries: list[CompatibilityMigrationGuideEntry] = []
-    package_root = policy.compat_forwarding.package_root
-    for path in iter_python_files(package_root):
-        relative_path = path.relative_to(package_root).as_posix()
-        if relative_path == "__init__.py":
-            continue
-        tree = parse_python_module(path).tree
-        targets = tuple(sorted(import_references(tree)))
-        legacy_module = "agentic_proteins." + relative_path.removesuffix(".py").replace(
-            "/", "."
-        ).replace(".__init__", "")
-        if _is_forwarding_module(
-            tree, policy.compat_forwarding.forwarding_target_prefixes
-        ):
-            action = (
-                f"replace `{legacy_module}` with `{targets[0]}`"
-                if len(targets) == 1
-                else f"replace `{legacy_module}` with one of {', '.join(f'`{item}`' for item in targets)}"
-            )
-            status = "forwarding-only"
-        elif relative_path in allowlist:
-            action = f"review `{legacy_module}` manually before moving callers because it is allowlisted as non-forwarding"
-            status = "review-required"
-        else:
-            action = f"review `{legacy_module}` manually because it is not a pure forwarding module"
-            status = "non-forwarding"
+    for inventory_entry in build_agentic_compatibility_inventory(repo_root):
         entries.append(
             CompatibilityMigrationGuideEntry(
-                legacy_module=legacy_module,
-                canonical_targets=targets,
-                status=status,
-                migration_action=action,
+                legacy_module=inventory_entry.import_path,
+                canonical_targets=inventory_entry.canonical_targets,
+                status=inventory_entry.classification.value,
+                migration_action=inventory_entry.migration_action,
             )
         )
     return tuple(sorted(entries, key=lambda entry: entry.legacy_module))
 
 
 def _render_markdown(entries: tuple[CompatibilityMigrationGuideEntry, ...]) -> str:
-    forwarding_count = sum(1 for entry in entries if entry.status == "forwarding-only")
-    review_count = sum(1 for entry in entries if entry.status == "review-required")
+    wrapper_count = sum(
+        1
+        for entry in entries
+        if entry.status == AgenticModuleClassification.WRAPPER.value
+    )
+    dead_count = sum(
+        1 for entry in entries if entry.status == AgenticModuleClassification.DEAD.value
+    )
     lines = [
         "---",
         "title: agentic-proteins Canonical Migration Guide",
@@ -164,8 +81,8 @@ def _render_markdown(entries: tuple[CompatibilityMigrationGuideEntry, ...]) -> s
         "## Current Posture",
         "",
         f"- total compatibility modules: {len(entries)}",
-        f"- forwarding-only modules: {forwarding_count}",
-        f"- review-required modules: {review_count}",
+        f"- wrapper modules: {wrapper_count}",
+        f"- dead modules: {dead_count}",
         "",
         "## Migration Map",
         "",
@@ -186,8 +103,9 @@ def _render_markdown(entries: tuple[CompatibilityMigrationGuideEntry, ...]) -> s
             "",
             "## Reading The Guide",
             "",
-            "- `forwarding-only` means the compatibility module is a narrow bridge and callers should move directly to the named canonical target.",
-            "- `review-required` means the module is still intentionally broader and needs explicit migration review before callers are switched.",
+            "- `wrapper` means the compatibility module is a narrow bridge and callers should move directly to the named canonical target.",
+            "- `dead` means the module no longer carries meaningful behavior and should be deleted once callers disappear.",
+            "- `canonical` or `duplicate` would be release-blocking because the compatibility family is not allowed to regain original product logic.",
             "- this document should be regenerated whenever compatibility forwarding changes so release and retirement discussions are based on current code rather than memory.",
             "",
         ]

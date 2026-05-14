@@ -1,0 +1,187 @@
+# Generated package fixture scenario coverage report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_scenario_coverage
+
+[guard]
+min_total_medium_realistic_fixture_count = 81
+min_total_negative_fixture_count = 26
+min_total_ambiguity_fixture_count = 5
+min_total_contradiction_fixture_count = 4
+min_total_degraded_provenance_fixture_count = 11
+min_total_benchmark_fixture_count = 5
+min_serious_package_with_medium_fixture_count = 4
+
+[[package]]
+distribution_name = "agentic-proteins"
+serious_product_area = false
+fixture_file_count = 3
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+serious_product_area = true
+fixture_file_count = 168
+medium_realistic_fixture_count_ge_1024 = 23
+negative_fixture_count = 9
+ambiguity_fixture_count = 3
+contradiction_fixture_count = 2
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 3
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+serious_product_area = true
+fixture_file_count = 59
+medium_realistic_fixture_count_ge_1024 = 29
+negative_fixture_count = 8
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 7
+benchmark_fixture_count = 1
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+serious_product_area = true
+fixture_file_count = 20
+medium_realistic_fixture_count_ge_1024 = 18
+negative_fixture_count = 6
+ambiguity_fixture_count = 1
+contradiction_fixture_count = 2
+degraded_provenance_fixture_count = 3
+benchmark_fixture_count = 1
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+serious_product_area = true
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+serious_product_area = true
+fixture_file_count = 17
+medium_realistic_fixture_count_ge_1024 = 11
+negative_fixture_count = 3
+ambiguity_fixture_count = 1
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 1
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+serious_product_area = false
+fixture_file_count = 0
+medium_realistic_fixture_count_ge_1024 = 0
+negative_fixture_count = 0
+ambiguity_fixture_count = 0
+contradiction_fixture_count = 0
+degraded_provenance_fixture_count = 0
+benchmark_fixture_count = 0

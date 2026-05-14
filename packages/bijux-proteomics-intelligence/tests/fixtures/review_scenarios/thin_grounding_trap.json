@@ -1,0 +1,63 @@
+{
+  "workflow_family": "lfq",
+  "program": {
+    "program_id": "prog-thin-grounding-trap",
+    "name": "thin grounding trap",
+    "objective": "refuse polished recommendations when grounding remains thin and uncertain",
+    "target_id": "target-thin-grounding-trap",
+    "target_name": "Target Thin Grounding Trap",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "require decisive and orthogonal grounding before analytical handoff"
+  },
+  "criterion": {
+    "criterion_id": "thin-grounding",
+    "metric": "lfq_follow_up_score",
+    "threshold": 0.71
+  },
+  "candidates": [
+    {
+      "candidate_id": "thin-grounding-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "lfq_follow_up_score": 0.89
+      },
+      "manufacturability_score": 0.79,
+      "uncertainty": 0.15,
+      "evidence_support": 0.61,
+      "reproducibility_score": 0.52,
+      "effect_size_score": 0.68,
+      "assay_feasibility_score": 0.73,
+      "novelty_score": 0.49,
+      "lab_cost_risk": 0.19,
+      "operational_risk": 0.17
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "thin-grounding-literature",
+      "kind": "literature",
+      "title": "literature-only rationale",
+      "source": "PMID:thin-grounding-1",
+      "source_type": "literature",
+      "claim": "supports disease relevance for the proposed LFQ follow-up",
+      "confidence": 0.78,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 38
+    },
+    {
+      "evidence_id": "thin-grounding-structure",
+      "kind": "structure",
+      "title": "structure-only rationale",
+      "source": "model-thin-grounding-1",
+      "source_type": "structure_model",
+      "claim": "supports a plausible folded state for the proposed LFQ follow-up",
+      "confidence": 0.74,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 29
+    }
+  ],
+  "expected_top_candidate_id": "thin-grounding-candidate"
+}

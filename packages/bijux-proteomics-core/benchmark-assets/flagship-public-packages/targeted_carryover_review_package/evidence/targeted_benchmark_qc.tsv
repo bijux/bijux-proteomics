@@ -1,0 +1,6 @@
+run_id	scan_time_seconds	tic	bpc
+run_benchmark_01	0.0	13271.5	775.8
+run_benchmark_01	5.0	12292.2	844.8
+run_benchmark_01	10.0	12685.2	830.7
+run_benchmark_02	0.0	12390.5	767.1
+run_benchmark_02	5.0	12797.4	837.8

@@ -3,53 +3,60 @@ benchmark_id = "agentic-proteins-compat-latency"
 package_name = "agentic-proteins"
 metric_name = "wall_time_seconds"
 unit = "seconds"
-owner_focus_path = "packages/agentic-proteins/tests/regression/benchmarks/cases.json"
+owner_focus_path = "packages/agentic-proteins/tests/orchestration/test_batch_execution_benchmark.py"
 
 [[benchmark_artifact]]
 benchmark_id = "dev-openapi-drift-latency"
 package_name = "bijux-proteomics-dev"
 metric_name = "wall_time_seconds"
 unit = "seconds"
-owner_focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/api/openapi_drift.py"
+owner_focus_path = "packages/bijux-proteomics-dev/src/bijux_proteomics_dev/governance/contracts/openapi_drift.py"
 
 [[benchmark_artifact]]
-benchmark_id = "foundation-serialization-throughput"
+benchmark_id = "foundation-canonicalization-throughput"
 package_name = "bijux-proteomics-foundation"
 metric_name = "documents_per_second"
 unit = "documents_per_second"
-owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization.py"
+owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
+
+[[benchmark_artifact]]
+benchmark_id = "foundation-hashing-throughput"
+package_name = "bijux-proteomics-foundation"
+metric_name = "digests_per_second"
+unit = "digests_per_second"
+owner_focus_path = "packages/bijux-proteomics-foundation/src/bijux_proteomics_foundation/serialization"
 
 [[benchmark_artifact]]
 benchmark_id = "core-digestion-throughput"
 package_name = "bijux-proteomics-core"
 metric_name = "proteins_per_second"
 unit = "proteins_per_second"
-owner_focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/digestion.py"
+owner_focus_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
 
 [[benchmark_artifact]]
 benchmark_id = "runtime-execution-control-latency"
 package_name = "bijux-proteomics-runtime"
 metric_name = "wall_time_seconds"
 unit = "seconds"
-owner_focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runtime/control/execution.py"
+owner_focus_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/runs/manager.py"
 
 [[benchmark_artifact]]
 benchmark_id = "intelligence-ranking-throughput"
 package_name = "bijux-proteomics-intelligence"
 metric_name = "candidates_per_second"
 unit = "candidates_per_second"
-owner_focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/evaluators.py"
+owner_focus_path = "packages/bijux-proteomics-intelligence/src/bijux_proteomics_intelligence/candidates/ranking.py"
 
 [[benchmark_artifact]]
 benchmark_id = "knowledge-bundle-scoring-throughput"
 package_name = "bijux-proteomics-knowledge"
 metric_name = "bundles_per_second"
 unit = "bundles_per_second"
-owner_focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/evidence.py"
+owner_focus_path = "packages/bijux-proteomics-knowledge/src/bijux_proteomics_knowledge/memory/models/evidence.py"
 
 [[benchmark_artifact]]
 benchmark_id = "lab-planning-throughput"
 package_name = "bijux-proteomics-lab"
 metric_name = "plans_per_second"
 unit = "plans_per_second"
-owner_focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/planning.py"
+owner_focus_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/benchmarks/rehearsals.py"

@@ -19,6 +19,6 @@ Deployment boundaries matter because a package can be publishable without being 
 
 ## First Proof Check
 
-- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
-- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 - `packages/bijux-proteomics-knowledge/tests`

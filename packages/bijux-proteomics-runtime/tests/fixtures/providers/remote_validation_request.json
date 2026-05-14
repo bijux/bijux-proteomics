@@ -1,0 +1,7 @@
+{
+  "provider": "api_colabfold",
+  "sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG",
+  "expected_artifacts": [
+    "predicted.pdb"
+  ]
+}

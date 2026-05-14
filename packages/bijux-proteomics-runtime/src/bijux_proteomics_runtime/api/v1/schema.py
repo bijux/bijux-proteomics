@@ -10,8 +10,8 @@ from typing import Any, Literal
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 
-from bijux_proteomics_runtime.core.failures import FailureType
-from bijux_proteomics_runtime.core.status import (
+from bijux_proteomics_runtime.support.primitives.failures import FailureType
+from bijux_proteomics_runtime.support.primitives.status import (
     ExecutionStatus,
     Outcome,
     ToolStatus,
@@ -123,6 +123,24 @@ class ResumeRequest(BaseModel):
         if not self.run_id and not self.candidate_id:
             raise ValueError("Provide run_id or candidate_id.")
         return self
+
+
+class ImportRequest(BaseModel):
+    """ImportRequest."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sequence: str = Field(
+        ..., min_length=1, description="Sequence linked to the imported evidence."
+    )
+    source_path: str = Field(
+        ..., min_length=1, description="External engine result path on server."
+    )
+    engine_name: str = Field(..., min_length=1, description="External engine name.")
+    engine_version: str = Field(
+        ..., min_length=1, description="External engine version."
+    )
+    artifacts_dir: str | None = Field(default=None, description="Artifacts root.")
 
 
 class CompareRequest(BaseModel):

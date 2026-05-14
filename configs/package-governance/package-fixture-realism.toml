@@ -1,0 +1,135 @@
+# Generated package fixture realism report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.package_shape.package_fixture_realism
+
+[guard]
+max_total_toy_named_fixture_count = 0
+min_total_realistic_fixture_count = 81
+min_serious_package_with_realistic_fixtures_count = 4
+
+[[package]]
+distribution_name = "agentic-proteins"
+serious_product_area = false
+fixture_file_count = 3
+small_fixture_count_lt_512 = 3
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-dev"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-foundation"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-core"
+serious_product_area = true
+fixture_file_count = 168
+small_fixture_count_lt_512 = 120
+realistic_fixture_count_ge_1024 = 23
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-runtime"
+serious_product_area = true
+fixture_file_count = 59
+small_fixture_count_lt_512 = 18
+realistic_fixture_count_ge_1024 = 29
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-intelligence"
+serious_product_area = true
+fixture_file_count = 20
+small_fixture_count_lt_512 = 2
+realistic_fixture_count_ge_1024 = 18
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-knowledge"
+serious_product_area = true
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics-lab"
+serious_product_area = true
+fixture_file_count = 17
+small_fixture_count_lt_512 = 4
+realistic_fixture_count_ge_1024 = 11
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "bijux-proteomics"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-core"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-foundation"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-runtime"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-intelligence"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-knowledge"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0
+
+[[package]]
+distribution_name = "proteomics-lab"
+serious_product_area = false
+fixture_file_count = 0
+small_fixture_count_lt_512 = 0
+realistic_fixture_count_ge_1024 = 0
+toy_named_fixture_count = 0

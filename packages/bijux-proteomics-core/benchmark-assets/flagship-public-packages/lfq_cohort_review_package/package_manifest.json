@@ -1,0 +1,105 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/citation_manifest.json",
+  "claim_scope": "LFQ credibility is now anchored in a public cohort-style package with feature, design, and reproducibility surfaces instead of a tidy closed matrix story.",
+  "comparator_availability": "bounded external comparator confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+    "artifacts/workflows/flagship-workflows/runtime/missingness_profile.json",
+    "artifacts/workflows/flagship-workflows/runtime/differential_report.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
+  "note": "This package now has a product-owned asset root, a raw-executable runtime lane, and bounded outsider-auditable authority, but generalization beyond the current cohort package remains explicitly limited.",
+  "package_id": "flagship_public_package:lfq_cohort_review_package",
+  "package_label": "Flagship public LFQ cohort review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package",
+  "public_dataset_identity": "tracked study-scale feature and cohort-design snapshots with explicit missingness and repeatability boundaries",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "closed_fixture_bundle:lfq_tidy_matrix_only",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "realistic missingness",
+    "batch drift",
+    "effect-size instability",
+    "multiple-testing pressure"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/README.md",
+      "public_identity_note": "The LFQ package README names the cohort-shaped evidence, missingness burden, and the current runtime gap."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/package_manifest.json",
+      "public_identity_note": "The LFQ manifest is the machine-readable anchor for the study-scale public review package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/artifact_inventory.json",
+      "public_identity_note": "The LFQ artifact inventory keeps feature, design, and reproducibility surfaces auditably tied together."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/quality_sheet.json",
+      "public_identity_note": "The LFQ quality sheet states clearly that package substance is ahead of runtime and comparator closure."
+    },
+    {
+      "asset_role": "lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/lifecycle.json",
+      "public_identity_note": "The LFQ lifecycle record names the missing runtime and truth-surface upgrades needed before stronger claims are allowed."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest makes the copied LFQ cohort snapshots and public method references rebuildable."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest keeps LFQ missingness and normalization references explicit."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary file distinguishes copied cohort evidence from generated LFQ package metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions define how to refresh the LFQ asset root as a product surface rather than a test helper."
+    },
+    {
+      "asset_role": "feature_table",
+      "evidence_kind": "quant_feature_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale_ms1_features.tsv",
+      "public_identity_note": "The study-scale MS1 table is the current public quantitative evidence bed for LFQ review."
+    },
+    {
+      "asset_role": "design_table",
+      "evidence_kind": "experimental_design",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/study_scale.design.tsv",
+      "public_identity_note": "The cohort-shaped design table keeps replicate, batch, and instrument structure explicit."
+    },
+    {
+      "asset_role": "reproducibility_manifest",
+      "evidence_kind": "expectation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/evidence/quant_reproducibility_manifest.json",
+      "public_identity_note": "The reproducibility manifest keeps bounded repeatability outputs pinned beside the study-scale evidence."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/lfq_cohort_review_package/source_locator_manifest.json",
+  "workflow_family": "lfq"
+}

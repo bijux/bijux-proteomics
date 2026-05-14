@@ -1,0 +1,56 @@
+# Generated intelligence capability map.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.intelligence.capability_map
+
+[metrics]
+analytical_band_count = 6
+owned_surface_count = 6
+required_module_count = 24
+decision_scope_count = 14
+refusal_scope_count = 12
+
+[guard]
+baseline_analytical_band_count = 6
+baseline_owned_surface_count = 6
+baseline_required_module_count = 24
+
+[[band]]
+band = "candidates"
+owned_surface = "candidate framing, ranking, lifecycle, and candidate-specific quality semantics that make later judgment analyzable instead of ad hoc"
+required_modules = ["candidates/ranking.py", "candidates/lifecycle.py", "candidates/quality.py", "candidates/validation.py"]
+decision_scope_count = 3
+refusal_scope_count = 2
+
+[[band]]
+band = "judgment"
+owned_surface = "scenario evaluation, decision paths, and recommendation semantics that turn typed evidence into explicit analytical judgment"
+required_modules = ["judgment/policies.py", "judgment/scenarios.py", "judgment/recommendations.py", "judgment/paths.py"]
+decision_scope_count = 3
+refusal_scope_count = 2
+
+[[band]]
+band = "posture"
+owned_surface = "contradiction pressure, freshness pressure, and readiness gating over knowledge-owned evidence bundles"
+required_modules = ["posture/evidence.py", "posture/skeptical.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "interpretation"
+owned_surface = "typed biological interpretation and caution-aware analytical summaries over already-normalized proteomics evidence"
+required_modules = ["interpretation/runs.py", "interpretation/quantitative.py", "interpretation/ptm.py", "interpretation/contaminants.py", "interpretation/contrasts.py", "interpretation/pathways.py", "interpretation/structures.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "reviews"
+owned_surface = "decision briefs, skeptical challenge reports, benchmark-backed review, and end-to-end decision paths"
+required_modules = ["reviews/boards.py", "reviews/candidates.py", "reviews/pathways.py", "reviews/decision_briefs.py", "reviews/benchmarks.py"]
+decision_scope_count = 2
+refusal_scope_count = 2
+
+[[band]]
+band = "learning"
+owned_surface = "outcome-informed prioritization updates and design-loop feedback that adjust future analytical posture without rewriting history"
+required_modules = ["learning/adaptation.py", "learning/refinement/"]
+decision_scope_count = 2
+refusal_scope_count = 2

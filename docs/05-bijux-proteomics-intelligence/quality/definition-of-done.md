@@ -17,7 +17,7 @@ For `bijux-proteomics-intelligence`, done means a changed recommendation path is
 
 ```mermaid
 flowchart TB
-    change["change lands in policy, evaluator, or outcome path"]
+    change["change lands in a candidate, judgment, posture, or review path"]
     logic{"recommendation logic still explainable?"}
     proof{"tests and docs show why outcomes changed?"}
     downstream{"reports and consumers stay safe to interpret?"}
@@ -43,8 +43,8 @@ The important threshold is explanation, not just score movement. If the outcome 
 ## First Proof Check
 
 - `packages/bijux-proteomics-intelligence/tests`
-- `src/bijux_proteomics_intelligence/policies.py` and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/` and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 
 ## Design Pressure
 

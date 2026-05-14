@@ -42,8 +42,8 @@ This page should make the package boundary honest: core owns durable rule shape,
 ## First Proof Check
 
 - `packages/bijux-proteomics-core/tests`
-- `src/bijux_proteomics/program_spec.py` and `targets.py`
-- `src/bijux_proteomics/lifecycle.py` and `validation.py`
+- `src/bijux_proteomics/domain/program_spec.py` and `domain/targets.py`
+- `src/bijux_proteomics/domain/lifecycle.py` and `domain/validation.py`
 
 ## Design Pressure
 

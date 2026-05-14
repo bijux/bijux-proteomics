@@ -38,7 +38,7 @@ flowchart LR
 - open [Common Workflows](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/common-workflows/)
   when you need the standard route from evidence change to released package
 - open [Observability and Diagnostics](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/observability-and-diagnostics/)
-  when contradiction behavior, confidence outputs, or review packets look wrong
+  when contradiction behavior, confidence outputs, or decision briefs look wrong
 - open [Failure Recovery](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/failure-recovery/)
   when a knowledge state must be repaired without erasing lineage
 - open [Release and Versioning](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/release-and-versioning/)
@@ -53,11 +53,11 @@ flowchart LR
   and [Security and Safety](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/security-and-safety/)
   for the limits around sensitive evidence and durable records
 - [Performance and Scaling](https://bijux.io/bijux-proteomics/06-bijux-proteomics-knowledge/operations/performance-and-scaling/)
-  when evidence volume, graph size, or review packet generation becomes the
+  when evidence volume, graph size, or decision-brief generation becomes the
   real operator pain
 
 ## First Proof Check
 
-- `src/bijux_proteomics_knowledge/claims.py` and `evidence.py`
-- `src/bijux_proteomics_knowledge/confidence/segments.py` and `review.py`
+- `src/bijux_proteomics_knowledge/memory/models/claims.py` and `memory/models/evidence.py`
+- `src/bijux_proteomics_knowledge/memory/reconciliation/resolution.py` and `reviews/decision_briefs.py`
 - `packages/bijux-proteomics-knowledge/tests`

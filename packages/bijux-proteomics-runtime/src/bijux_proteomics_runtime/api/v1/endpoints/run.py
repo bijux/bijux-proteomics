@@ -11,23 +11,27 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 
-from bijux_proteomics_runtime.api.correlation import build_request_correlation_meta
-from bijux_proteomics_runtime.api.deps import get_base_dir
+from bijux_proteomics_runtime.api.cli import (
+    _read_sequence,
+    _validate_sequence,
+)
 from bijux_proteomics_runtime.api.errors import ok_envelope, raise_http_error
+from bijux_proteomics_runtime.api.request_context import get_runtime_base_dir
 from bijux_proteomics_runtime.api.v1.schema import (
     ApiEnvelope,
     ErrorResponse,
     RunRequest,
     RunResponse,
 )
-from bijux_proteomics_runtime.core.status import WorkflowState
-from bijux_proteomics_runtime.interfaces.cli import (
-    _build_run_config,
-    _load_run_summary,
-    _read_sequence,
-    _run_sequence,
-    _validate_sequence,
+from bijux_proteomics_runtime.runs.correlation import (
+    build_request_correlation_meta,
 )
+from bijux_proteomics_runtime.runs.operations import (
+    build_runtime_run_config,
+    load_run_summary_operation,
+    run_sequence_operation,
+)
+from bijux_proteomics_runtime.support.primitives.status import WorkflowState
 
 router = APIRouter()
 
@@ -46,7 +50,7 @@ router = APIRouter()
 def run_endpoint(
     payload: RunRequest,
     request: Request,
-    base_dir: Annotated[Path, Depends(get_base_dir)],
+    base_dir: Annotated[Path, Depends(get_runtime_base_dir)],
 ) -> ApiEnvelope | JSONResponse:
     """run_endpoint."""
     meta = build_request_correlation_meta(request, "run", request.url.path)
@@ -63,20 +67,20 @@ def run_endpoint(
             artifacts_dir = Path(payload.artifacts_dir)
             if not artifacts_dir.is_absolute():
                 artifacts_dir = base_dir / artifacts_dir
-        config = _build_run_config(
-            payload.rounds,
-            payload.dry_run,
-            False,
-            payload.provider,
-            artifacts_dir,
-            payload.execution_mode,
+        config = build_runtime_run_config(
+            rounds=payload.rounds,
+            dry_run=payload.dry_run,
+            logging_enabled=True,
+            provider=payload.provider,
+            artifacts_dir=artifacts_dir,
+            execution_mode=payload.execution_mode,
         )
-        result = _run_sequence(base_dir, seq, config)
+        result = run_sequence_operation(base_dir, seq, config)
         run_id_obj = result.get("run_id")
         if not isinstance(run_id_obj, str) or not run_id_obj:
             raise ValueError("run output missing run_id")
         run_id = run_id_obj
-        summary = _load_run_summary(base_dir, run_id, artifacts_dir)
+        summary = load_run_summary_operation(base_dir, run_id, artifacts_dir)
         response = RunResponse.model_validate(summary)
     except Exception as exc:  # noqa: BLE001
         raise_http_error(exc, str(request.url), meta=meta)

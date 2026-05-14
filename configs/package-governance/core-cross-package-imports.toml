@@ -1,0 +1,38 @@
+# Generated core cross-package import report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.core.cross_package_imports
+
+[guard]
+max_runtime_edges = 2
+max_intelligence_edges = 1
+max_lab_edges = 2
+max_total_edges = 5
+
+[[import]]
+importer_module_path = "benchmarks/flagship_acceptance.py"
+owner_distribution = "bijux-proteomics-intelligence"
+imported_module_name = "bijux_proteomics_intelligence.reviews.benchmarks"
+imported_symbols = ["ReviewerGroundingState", "WorkflowBenchmarkReview", "build_dda_benchmark_review", "build_dia_benchmark_review", "build_lfq_benchmark_review", "build_multiplex_benchmark_review", "build_ptm_benchmark_review", "build_targeted_benchmark_review"]
+
+[[import]]
+importer_module_path = "interfaces/execution/runtime_adapter.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.runs"
+imported_symbols = ["RunConfig", "RunManager"]
+
+[[import]]
+importer_module_path = "interfaces/runtime_plans.py"
+owner_distribution = "bijux-proteomics-runtime"
+imported_module_name = "bijux_proteomics_runtime.workflows"
+imported_symbols = ["WorkflowSchedulerKind", "build_proteomics_workflow_runtime_bundle", "build_workflow_runtime_validation_report"]
+
+[[import]]
+importer_module_path = "ptm/review.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
+imported_symbols = ["PtmLabValidationPacket"]
+
+[[import]]
+importer_module_path = "ptm/review.py"
+owner_distribution = "bijux-proteomics-lab"
+imported_module_name = "bijux_proteomics_lab.handoffs.ptm"
+imported_symbols = ["build_ptm_lab_validation_packet"]

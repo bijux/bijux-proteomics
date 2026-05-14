@@ -1,0 +1,86 @@
+# Generated foundation dead-export report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.foundation.surface_usage
+
+[[surface]]
+module_name = "bijux_proteomics_foundation"
+consumer_count = 215
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
+live_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.compatibility"
+consumer_count = 1
+exported_symbols = ["MigrationRegistry", "SchemaCompatibility", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_compatibility", "assess_schema_evolution"]
+live_symbols = ["SchemaCompatibility", "assess_schema_compatibility"]
+dead_symbols = ["MigrationRegistry", "SchemaEvolutionAssessment", "SchemaMigration", "assess_schema_evolution"]
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.identity.identifiers"
+consumer_count = 3
+exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "CycleId", "EvidenceId", "ExperimentId", "GateId", "IdentifierKind", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "PromotionId", "ProteinId", "PtmId", "ReviewId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier", "ensure_identifier_kind"]
+live_symbols = ["CycleId", "IdentifierKind", "PromotionId", "ReviewId", "ensure_identifier_kind"]
+dead_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "EvidenceId", "ExperimentId", "GateId", "LabActionId", "ModificationId", "PeptideId", "ProgramId", "ProteinId", "PtmId", "ReviewPacketId", "RunId", "SpectrumId", "StudyId", "TargetId", "build_identifier", "classify_identifier"]
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.outcomes.failures"
+consumer_count = 0
+exported_symbols = []
+live_symbols = []
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.outcomes.exceptions"
+consumer_count = 1
+exported_symbols = []
+live_symbols = []
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.outcomes.refusals"
+consumer_count = 2
+exported_symbols = ["OperationRefusal", "RefusalKind"]
+live_symbols = ["OperationRefusal", "RefusalKind"]
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.outcomes.results"
+consumer_count = 4
+exported_symbols = ["OperationDisposition", "OperationResult"]
+live_symbols = ["OperationDisposition", "OperationResult"]
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.serialization.document_schema"
+consumer_count = 0
+exported_symbols = ["DocumentSchema"]
+live_symbols = []
+dead_symbols = ["DocumentSchema"]
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.serialization.fingerprints"
+consumer_count = 0
+exported_symbols = []
+live_symbols = []
+dead_symbols = []
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.serialization.stable_hashes"
+consumer_count = 1
+exported_symbols = ["StableHashAlgorithm", "StableHashPolicy", "default_hash_policy", "hash_model", "hash_payload", "hash_text"]
+live_symbols = ["StableHashPolicy", "default_hash_policy"]
+dead_symbols = ["StableHashAlgorithm", "hash_model", "hash_payload", "hash_text"]
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.serialization.json_contracts"
+consumer_count = 36
+exported_symbols = ["JsonModel", "fingerprint_model"]
+live_symbols = ["JsonModel"]
+dead_symbols = ["fingerprint_model"]
+
+[[surface]]
+module_name = "bijux_proteomics_foundation.support.states"
+consumer_count = 5
+exported_symbols = ["SupportState"]
+live_symbols = ["SupportState"]
+dead_symbols = []

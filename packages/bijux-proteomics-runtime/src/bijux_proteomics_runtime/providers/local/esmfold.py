@@ -13,7 +13,7 @@ from typing import Any
 from loguru import logger
 import torch
 
-from bijux_proteomics_runtime.providers.base import (
+from bijux_proteomics_runtime.providers.contracts import (
     BaseProvider,
     PredictionResult,
     ProviderMetadata,

@@ -13,9 +13,9 @@ The execution model for `bijux-proteomics-intelligence` should make it clear how
 
 ## Flow
 
-- candidate and metric inputs enter through candidate and domain models
-- policies and evaluators score, compare, and rank those inputs
-- reports, briefs, outcomes, and design-loop modules explain the decision and track whether progress is converging
+- candidate and evidence-shaping inputs enter through candidate owner modules
+- candidate, judgment, and posture families score, compare, refuse, and rank those inputs
+- reviews, interpretation, learning, and refinement modules explain the decision and track whether progress is converging
 
 ## First Proof Check
 

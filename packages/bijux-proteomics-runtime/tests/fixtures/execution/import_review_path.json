@@ -1,0 +1,40 @@
+{
+  "sequence": "MPEPTIDERKAAALSYIFCLVFADYKDDDDA",
+  "source_filename": "dia-import-review.json",
+  "engine_name": "spectronaut",
+  "engine_version": "19.0",
+  "source_payload": {
+    "run_label": "dia-qc-batch-a",
+    "instrument": "Exploris 480",
+    "peptides": [
+      {
+        "sequence": "MPEPTIDER",
+        "charge": 2,
+        "q_value": 0.004,
+        "protein_group": "P02768"
+      },
+      {
+        "sequence": "AAALSYIFCLVFADYK",
+        "charge": 3,
+        "q_value": 0.008,
+        "protein_group": "P02769"
+      }
+    ],
+    "quant_channels": {
+      "control": 128934.2,
+      "treated": 161104.8
+    },
+    "qc": {
+      "ms1_ppm_median": 1.9,
+      "ms2_ppm_median": 3.4,
+      "interference_fraction": 0.06
+    }
+  },
+  "expected_artifact_kinds": [
+    "runtime-status",
+    "runtime-import-trace",
+    "runtime-import-run-bundle",
+    "runtime-replay-contract",
+    "runtime-integrity-report"
+  ]
+}

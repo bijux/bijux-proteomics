@@ -13,12 +13,12 @@ Public imports should make it obvious which modules are safe to rely on and whic
 
 ## Package Surface
 
-- `bijux_proteomics_intelligence.candidates`, `policies`, and `evaluators` for decision logic imports
-- `bijux_proteomics_intelligence.report` and `briefs` for explainability surfaces
-- `bijux_proteomics_intelligence.outcomes` and `serialization` for durable decision outputs
+- `bijux_proteomics_intelligence.candidates`, `judgment`, and `posture` for decision logic imports
+- `bijux_proteomics_intelligence.reviews` and `interpretation` for reviewer-facing analytical outputs
+- `bijux_proteomics_intelligence.learning` and `governance` for adaptation and charter surfaces
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`

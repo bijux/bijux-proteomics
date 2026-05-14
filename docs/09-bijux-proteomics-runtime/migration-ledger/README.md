@@ -35,11 +35,13 @@ This ledger is the checked-in review record for moving legacy `agentic-proteins`
 - rules: `configs/runtime-boundaries/migration-ledger/rules.toml`
 - generated ledger: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger.csv`
 - generated summary: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-module-ledger-summary.md`
+- compatibility inventory: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.csv`
+- compatibility summary: `docs/09-bijux-proteomics-runtime/migration-ledger/agentic-proteins-compatibility-inventory.md`
 
 ## Regeneration And Validation
 
 - `make quality-runtime-migration-ledger` validates freshness and coverage
-- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.quality.architecture.runtime_migration_ledger` regenerates the checked-in outputs
+- `PYTHONPATH=packages/bijux-proteomics-dev/src python3 -m bijux_proteomics_dev.release.governance.compatibility_ledger` regenerates the checked-in outputs
 
 ## Review Rules
 

@@ -64,9 +64,9 @@ flowchart LR
 
 ## First Proof Check
 
-- `src/bijux_proteomics/program_spec.py`, `programs.py`, and `targets.py` for durable contracts
-- `src/bijux_proteomics/lifecycle.py`, `validation.py`, and `execution_contracts.py` for readiness and execution rules
-- `src/bijux_proteomics/biology/`, `domain/`, and `runtime_adapter.py` for structural seams to neighboring concerns
+- `src/bijux_proteomics/domain/program_spec.py`, `domain/repositories.py`, and `domain/targets.py` for durable contracts
+- `src/bijux_proteomics/domain/lifecycle.py`, `domain/validation.py`, and `execution/backend.py` for readiness and execution rules
+- `src/bijux_proteomics/biology/`, `domain/`, and `execution/backend.py` for structural seams to neighboring concerns
 
 ## Boundary Test
 

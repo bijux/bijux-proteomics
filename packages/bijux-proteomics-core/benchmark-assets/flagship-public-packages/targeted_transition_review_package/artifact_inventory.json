@@ -1,0 +1,124 @@
+{
+  "artifacts": [
+    {
+      "artifact_id": "targeted:package_readme",
+      "evidence_kind": "benchmark_readme",
+      "note": "The targeted package README makes transition-level value and vendor-parity gaps explicit.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/README.md",
+      "row_count": null,
+      "sha256": "46cf7168320e1106e4df730411e8a87c956d33e49866e0c9ecc0fd79ebb8ec6e",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "note": "The targeted manifest is the machine-readable anchor for the transition-control review package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/package_manifest.json",
+      "row_count": null,
+      "sha256": "e4ec3628dbeef775f9f7254314aea18f27ba5a88b2cb61fe9234bbd59d4abcce",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "note": "The targeted artifact inventory keeps QC tables and approved/failed/refused follow-up packets together.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
+      "row_count": null,
+      "sha256": "f19212e0e5c1c2424d357a97896c333fc203d7e595889c80b3e82c146d85e136",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "note": "The targeted quality sheet says directly that package evidence is ahead of runtime execution and comparator closure.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/quality_sheet.json",
+      "row_count": null,
+      "sha256": "02100d3139139be0e57f9e845a49f2c6cf63985ed6f3703aeaad4b742556a632",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "note": "The targeted lifecycle record names the calibration, interference, and runtime upgrades needed before stronger claims are allowed.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/lifecycle.json",
+      "row_count": null,
+      "sha256": "f3a78035330ce13cedf041318670139946dd57099a7bf937fc42e4778e0b4734",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "note": "The source locator manifest keeps copied targeted QC evidence and public assay references rebuildable.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/source_locator_manifest.json",
+      "row_count": null,
+      "sha256": "28232317f0ae184ce1eeef122982a3d96f43b237d8814b7ed6cac7696d09efe2",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "note": "The citation manifest keeps targeted assay discipline references explicit inside the asset root.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/citation_manifest.json",
+      "row_count": null,
+      "sha256": "ef08efdc406b30d55a6e320499ddfa646b68218a79e3b66ad20aef507d06e567",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "note": "The generated boundary file distinguishes copied targeted evidence from generated metadata.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/generated_boundary.json",
+      "row_count": null,
+      "sha256": "6beae8160e03d8c1ea43128c229834df3b414226ed67b20cf572d19050d6a616",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "note": "The rebuild instructions define how to refresh the targeted asset root as a product evidence surface.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/rebuild_instructions.md",
+      "row_count": null,
+      "sha256": "7d7166afa6398c9553d4c21717ffd0fd9c9154380f85d32f3cd006dbb674af5c",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:targeted_qc_table",
+      "evidence_kind": "targeted_qc_table",
+      "note": "Transition-level QC evidence is the tracked base layer for the targeted public package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/evidence/targeted_benchmark_qc.tsv",
+      "row_count": 5,
+      "sha256": "6a723089259103a443ca23360c62d49d9acacda1e2e266244a8cf4d1ca509418",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:approved_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "note": "The approved targeted follow-up packet shows the current strongest operator-facing consequence of the package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/supported_targeted_follow_up.json",
+      "row_count": null,
+      "sha256": "f05b0323baa1f169e685c27c324cac213cc55ab8292dff41aeb64656bc921a7d",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:failed_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "note": "The failed follow-up packet keeps control and transition failure pressure in the public package.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/failed_targeted_transition_follow_up.json",
+      "row_count": null,
+      "sha256": "f93de9739ffc34f6debec92ca451e61ddad7d60f30dda5d328ad8951fe30417f",
+      "spectra_count": null
+    },
+    {
+      "artifact_id": "targeted:refused_follow_up",
+      "evidence_kind": "follow_up_packet",
+      "note": "The refused follow-up packet stops weak targeted science from looking executable by omission.",
+      "repo_relative_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/follow_up/refused_targeted_follow_up.json",
+      "row_count": null,
+      "sha256": "4b317ab71fb7e3c7de5eb006e6bb18f577e1efc4751956f1a6e9292a9fb11173",
+      "spectra_count": null
+    }
+  ],
+  "inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/targeted_transition_review_package/artifact_inventory.json",
+  "note": "Each inventory keeps digests and simple row or spectrum counts visible so the package can be audited from files alone.",
+  "package_id": "flagship_public_package:targeted_transition_review_package"
+}

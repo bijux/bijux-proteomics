@@ -1,0 +1,3 @@
+scan_num	peptide_sequence	precursor_charge	expectation_value	protein_ids	is_decoy
+comet-pipe-1	PEPTIDE	2	0.0005	P12345	target
+comet-pipe-2	PEPTIDER	3	0.0200	DECOY_P99999	decoy

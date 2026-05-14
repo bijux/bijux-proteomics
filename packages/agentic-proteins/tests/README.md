@@ -4,14 +4,19 @@
 # Tests  
 
 `agentic-proteins` is a strict compatibility package.
-Its package-level CI runs forwarding-surface checks only from `tests/unit/compat`.
-Legacy runtime and domain tests remain in this tree as migration history and are not
-the release gate for the compat package.
+Its package-level proof should center on the surviving bridge families:
+`tests/interfaces`, `tests/agents`, `tests/orchestration`, `tests/providers`,
+`tests/state`, `tests/tools`, and `tests/package`.
+
+Integration and end-to-end suites still exist because this package remains a
+migration surface, but they do not redefine package ownership.
 
 ## Test stratification  
 
-- `make test` runs compatibility tests in `tests/unit/compat`.  
-- `make real-local` runs only `packages/agentic-proteins/tests/real_local` with the `real_local` marker.  
+- package validation should start with the mirrored bridge-family surfaces and
+  the compatibility and boundary guards under `tests/package`.  
+- `make real-local` runs `packages/agentic-proteins/tests/providers/local_models`
+  with the `real_local` marker.  
 
 ## Hardware expectations  
 

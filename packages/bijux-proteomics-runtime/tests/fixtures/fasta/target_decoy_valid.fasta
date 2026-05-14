@@ -1,0 +1,8 @@
+>sp|P11111|AAA_HUMAN Example alpha OS=Homo sapiens GN=AAA
+ACDEFGHIK
+>DECOY_sp|P11111|AAA_HUMAN Example alpha OS=Homo sapiens GN=AAA
+KIHGFEDCA
+>sp|P22222|BBB_MOUSE Example beta OS=Mus musculus GN=BBB
+MNPQRSTVWY
+>DECOY_sp|P22222|BBB_MOUSE Example beta OS=Mus musculus GN=BBB
+YWVTSRQPNM

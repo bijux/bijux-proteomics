@@ -1,0 +1,44 @@
+# Generated knowledge orphan reference report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.reference_quality
+
+[[surface]]
+name = "citations"
+entry_count = 8
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "benchmarks"
+entry_count = 6
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "corpora"
+entry_count = 10
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "scientific_context"
+entry_count = 15
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "known_problems"
+entry_count = 10
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "literature_groups"
+entry_count = 11
+orphan_count = 0
+orphan_ids = []
+
+[[surface]]
+name = "scientific_rules"
+entry_count = 10
+orphan_count = 0
+orphan_ids = []

@@ -2,13 +2,13 @@ include $(abspath $(dir $(firstword $(MAKEFILE_LIST))))/../proteomics-package.mk
 
 PACKAGE_IMPORT_NAME := agentic_proteins
 PACKAGE_INSTALL_PYTHON_PACKAGES = "$(MONOREPO_ROOT)/packages/bijux-proteomics-dev[dev]"
-TEST_PATHS := tests/unit/compat
-TEST_PATHS_UNIT := tests/unit/compat
+TEST_PATHS := tests/package
+TEST_PATHS_UNIT := tests/package
 TEST_PATHS_E2E :=
 TEST_PATHS_REGRESSION :=
 TEST_PATHS_EVALUATION :=
 TEST_REAL_LOCAL_PATH := tests/real_local
-TEST_MAIN_ARGS := -m "not real_local"
+TEST_MAIN_ARGS := -m "not slow and not real_local"
 TEST_CI_TARGETS := test-unit
 TEST_COVERAGE_FAIL_UNDER := 60
 

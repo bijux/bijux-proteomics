@@ -1,0 +1,94 @@
+{
+  "workflow_family": "ptm",
+  "program": {
+    "program_id": "prog-ambiguity-follow-up-guard",
+    "name": "ambiguity follow-up guard",
+    "objective": "keep ambiguous analytical interpretations from outranking grounded follow-up",
+    "target_id": "target-ambiguity-follow-up-guard",
+    "target_name": "Target Ambiguity Follow Up Guard",
+    "sequence": "ACDEFGHIKLMNPQRSTVWY",
+    "organism": "human",
+    "mechanism": "preserve a grounded phospho rescue interpretation under ambiguous site assignment"
+  },
+  "criterion": {
+    "criterion_id": "ambiguity-follow-up-guard",
+    "metric": "ptm_follow_up_score",
+    "threshold": 0.76
+  },
+  "qc_caveats": [
+    "the alternate phosphosite cluster remains analytically plausible and must stay visible in review"
+  ],
+  "candidates": [
+    {
+      "candidate_id": "grounded-phosphosite-follow-up",
+      "sequence": "ACDEFGHIKLMNPQRSTVWY",
+      "metric_scores": {
+        "ptm_follow_up_score": 0.87
+      },
+      "manufacturability_score": 0.79,
+      "uncertainty": 0.1,
+      "evidence_support": 0.86,
+      "reproducibility_score": 0.88,
+      "effect_size_score": 0.8,
+      "assay_feasibility_score": 0.84,
+      "novelty_score": 0.42,
+      "lab_cost_risk": 0.15,
+      "operational_risk": 0.13
+    },
+    {
+      "candidate_id": "ambiguity-polish-candidate",
+      "sequence": "ACDEFGHIKLMNPQRSTVWYA",
+      "metric_scores": {
+        "ptm_follow_up_score": 0.83
+      },
+      "manufacturability_score": 0.73,
+      "uncertainty": 0.21,
+      "evidence_support": 0.68,
+      "reproducibility_score": 0.61,
+      "effect_size_score": 0.71,
+      "assay_feasibility_score": 0.66,
+      "novelty_score": 0.67,
+      "lab_cost_risk": 0.24,
+      "operational_risk": 0.22
+    }
+  ],
+  "evidence_records": [
+    {
+      "evidence_id": "ambiguity-ptm-support-1",
+      "kind": "phosphoproteomics",
+      "title": "localized phosphosite support",
+      "source": "ptm-ambiguity-run-1",
+      "source_type": "lab_assay",
+      "claim": "supports progression with reproducible localization around the primary phosphosite cluster",
+      "confidence": 0.89,
+      "strength": "decisive",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 16
+    },
+    {
+      "evidence_id": "ambiguity-ptm-support-2",
+      "kind": "structure",
+      "title": "orthogonal structure support",
+      "source": "model-ambiguity-1",
+      "source_type": "structure_model",
+      "claim": "supports a stable conformation that keeps the primary phosphosite interpretation reviewable",
+      "confidence": 0.82,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 33
+    },
+    {
+      "evidence_id": "ambiguity-ptm-alt-site",
+      "kind": "phosphoproteomics",
+      "title": "alternate site ambiguity",
+      "source": "ptm-ambiguity-run-2",
+      "source_type": "lab_assay",
+      "claim": "supports an alternate site grouping but does not overturn the primary progression direction",
+      "confidence": 0.62,
+      "strength": "supporting",
+      "decision_tags": ["progression"],
+      "observed_days_ago": 18
+    }
+  ],
+  "expected_top_candidate_id": "grounded-phosphosite-follow-up"
+}

@@ -1,0 +1,5 @@
+Raw file	Experiment	MS/MS scan number	Sequence	Modified sequence	Charge	Score	Proteins	Reverse	Potential contaminant	PEP
+runA	raw_A	2101	PESTIDE	_PEST(Phospho (STY))IDE_	2	121.4	P11111		0	0.0012
+runB	raw_B	2102	ACDMK	_(Acetyl (Protein N-term))ACDM(Oxidation (M))K_	3	109.8	P22222;P22223		0	0.0038
+runA	raw_A	2103	KERATIN	_KERATIN_	2	78.6	CON__KRT1		+	0.0210
+runB	raw_B	2104	DECOYPEP	_DECOYPEP_	2	66.2	REV__P33333	+	0	0.0470

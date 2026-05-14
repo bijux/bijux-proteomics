@@ -19,6 +19,6 @@ Examples should route readers into the real surface quickly and avoid making sid
 
 ## First Proof Check
 
-- `src/bijux_proteomics_intelligence/candidates.py`, `policies.py`, and `evaluators.py`
-- `src/bijux_proteomics_intelligence/report/`, `briefs.py`, and `outcomes.py`
+- `src/bijux_proteomics_intelligence/candidates/`, `judgment/`, and `posture/`
+- `src/bijux_proteomics_intelligence/reviews/`, `interpretation/`, and `learning/`
 - `packages/bijux-proteomics-intelligence/tests`

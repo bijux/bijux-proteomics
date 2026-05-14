@@ -1,0 +1,2 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+S1	control	1	1	spectra.mgf	results.tsv	prod-batch-1	orbitrap-prod	sage

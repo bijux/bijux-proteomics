@@ -39,6 +39,8 @@ This page should make release work feel like compatibility communication, not ju
   publication through `release-pypi.yml`, GHCR publication through
   `release-ghcr.yml`, and GitHub release output through `release-github.yml`
 - each publishable package owns its own `CHANGELOG.md`
+- repository-level release wording must stay aligned with
+  [Current Capability Limits](https://bijux.io/bijux-proteomics/01-bijux-proteomics/foundation/current-capability-limits/)
 
 ## Compatibility Triggers
 

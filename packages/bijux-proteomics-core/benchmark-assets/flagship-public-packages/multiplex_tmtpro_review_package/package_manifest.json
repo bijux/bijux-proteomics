@@ -1,0 +1,98 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/citation_manifest.json",
+  "claim_scope": "Multiplex credibility is now anchored in a public TMTpro package that exposes chemistry and channel pressure directly instead of relying on an internal fixture shape.",
+  "comparator_availability": "external confrontation exists, but public authority is intentionally limited to internal support",
+  "expected_review_artifacts": [
+    "artifacts/workflows/flagship-workflows/runtime/quant_bundle.json",
+    "artifacts/workflows/flagship-workflows/core/quant_review_packet.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
+  "note": "This package now has a product-owned asset root and a raw-executable runtime lane, but it remains an internal-support family until lab consequence and outsider review surfaces exist.",
+  "package_id": "flagship_public_package:multiplex_tmtpro_review_package",
+  "package_label": "Flagship public multiplex TMTpro review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package",
+  "public_dataset_identity": "tracked TMTpro feature and design snapshots with explicit reporter-channel, imbalance, and missing-channel pressure",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "closed_fixture_bundle:multiplex_channel_fixture",
+  "runtime_availability": "raw-executable runtime lane exists and is reviewable",
+  "scientific_pressures": [
+    "reference-channel dependence",
+    "ratio compression",
+    "missing-channel pressure",
+    "channel imbalance"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/README.md",
+      "public_identity_note": "The multiplex package README states exactly which TMTpro chemistry claims are earned and which production-scale claims stay blocked."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/package_manifest.json",
+      "public_identity_note": "The multiplex manifest is the machine-readable entrypoint for the TMTpro stress package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/artifact_inventory.json",
+      "public_identity_note": "The multiplex artifact inventory keeps channel evidence, design metadata, and digest checks visible."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/quality_sheet.json",
+      "public_identity_note": "The multiplex quality sheet makes the package\u2019s chemistry strength and runtime weakness visible at a glance."
+    },
+    {
+      "asset_role": "lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/lifecycle.json",
+      "public_identity_note": "The multiplex lifecycle record names the channel and carrier pressures that would obsolete this package."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest keeps copied multiplex evidence and chemistry references rebuildable."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest keeps the multiplex chemistry and ratio-compression references explicit."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary file distinguishes copied multiplex evidence from generated package metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions define how to refresh the multiplex asset root as a durable product surface."
+    },
+    {
+      "asset_role": "feature_table",
+      "evidence_kind": "quant_feature_table",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv",
+      "public_identity_note": "Reporter-channel feature evidence keeps missing-channel and imbalance pressure tied to tracked files."
+    },
+    {
+      "asset_role": "design_table",
+      "evidence_kind": "experimental_design",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv",
+      "public_identity_note": "The multiplex design table preserves pooled-reference roles and channel assignments."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/source_locator_manifest.json",
+  "workflow_family": "multiplex"
+}

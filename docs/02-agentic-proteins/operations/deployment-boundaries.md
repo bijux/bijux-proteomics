@@ -19,6 +19,6 @@ Deployment boundaries matter because a package can be publishable without being 
 
 ## First Proof Check
 
-- `src/agentic_proteins/interfaces/cli.py` and `api/app.py`
-- `src/agentic_proteins/runtime/` and `providers/`
+- `src/agentic_proteins/interfaces/cli.py` and `interfaces/http/app.py`
+- `src/agentic_proteins/execution/`, `state/`, and `providers/`
 - `packages/agentic-proteins/tests`

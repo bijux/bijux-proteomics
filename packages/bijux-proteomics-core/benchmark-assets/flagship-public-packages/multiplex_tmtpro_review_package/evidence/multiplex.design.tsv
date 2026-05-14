@@ -1,0 +1,7 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	multiplex_group	multiplex_channel	sample_role
+plex_a_126	control	1	1	plex_a_126.mzml	plex_a_126.tsv	batch-a	orbitrap-a	sage	plex-a	126	sample
+plex_a_127N	treatment	1	1	plex_a_127N.mzml	plex_a_127N.tsv	batch-a	orbitrap-a	sage	plex-a	127N	sample
+plex_a_128N	carrier	1	1	plex_a_128N.mzml	plex_a_128N.tsv	batch-a	orbitrap-a	sage	plex-a	128N	pooled_reference
+plex_b_126	control	2	1	plex_b_126.mzml	plex_b_126.tsv	batch-b	orbitrap-b	sage	plex-b	126	sample
+plex_b_127N	treatment	2	1	plex_b_127N.mzml	plex_b_127N.tsv	batch-b	orbitrap-b	sage	plex-b	127N	sample
+plex_b_128N	carrier	2	1	plex_b_128N.mzml	plex_b_128N.tsv	batch-b	orbitrap-b	sage	plex-b	128N	pooled_reference

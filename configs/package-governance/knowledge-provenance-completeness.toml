@@ -1,0 +1,65 @@
+# Generated knowledge provenance completeness report.
+# Regenerate with: ./.venv/bin/python -m bijux_proteomics_dev.governance.knowledge.reference_quality
+
+[[surface]]
+name = "citations"
+entry_count = 8
+complete_entry_count = 8
+required_fields = ["title", "source_kind", "venue", "publisher", "source_locator_kind", "access_route", "publication_year", "source_version", "retrieval_trace", "evidence_role", "license_note", "summary"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "benchmarks"
+entry_count = 6
+complete_entry_count = 6
+required_fields = ["dataset_id", "dataset_locator", "primary_citation_ids", "corpus_ids", "benchmark_rationale", "version_trace", "retrieval_trace", "dataset_license_and_reuse_note", "reproduction_requirements", "comparison_notes", "exclusion_notes", "weakness_notes", "failure_mode_notes"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "corpora"
+entry_count = 10
+complete_entry_count = 10
+required_fields = ["format_family", "scientific_scope", "source_version", "version_trace", "retrieval_trace", "license_and_reuse_note", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "contexts"
+entry_count = 15
+complete_entry_count = 15
+required_fields = ["scientific_assertion", "interpretation_caveat", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "literature_groups"
+entry_count = 11
+complete_entry_count = 11
+required_fields = ["curation_note", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "narratives"
+entry_count = 12
+complete_entry_count = 12
+required_fields = ["narrative_text", "version_trace", "retrieval_trace", "benchmark_ids", "citation_ids", "scope_limit_notes"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "ontology_mappings"
+entry_count = 8
+complete_entry_count = 8
+required_fields = ["preferred_label", "normalized_key", "source_name", "version_trace", "retrieval_trace", "citation_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "known_problems"
+entry_count = 10
+complete_entry_count = 10
+required_fields = ["problem_summary", "mitigation_guidance", "version_trace", "retrieval_trace", "affected_workflow_families", "affected_benchmark_ids", "citation_ids"]
+incomplete_entry_ids = []
+
+[[surface]]
+name = "scientific_rules"
+entry_count = 10
+complete_entry_count = 10
+required_fields = ["rule_statement", "version_trace", "retrieval_trace", "citation_ids", "benchmark_ids", "benchmark_rationale"]
+incomplete_entry_ids = []

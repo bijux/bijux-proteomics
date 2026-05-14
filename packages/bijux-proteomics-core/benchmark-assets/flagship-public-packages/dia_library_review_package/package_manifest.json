@@ -1,0 +1,117 @@
+{
+  "artifact_inventory_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
+  "benchmark_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+  "citation_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/citation_manifest.json",
+  "claim_scope": "DIA credibility is now anchored in a public package with paired exported-result surfaces, explicit library assumptions, and confrontation context instead of a hidden mini-study contract.",
+  "comparator_availability": "Spectronaut-versus-DIA-NN confrontation is shipped",
+  "expected_review_artifacts": [
+    "artifacts/workflows/flagship-workflows/runtime/review_packet.json",
+    "artifacts/workflows/flagship-workflows/runtime/evidence_bundle.json",
+    "artifacts/workflows/flagship-workflows/core/scientific_kernel.json"
+  ],
+  "generated_boundary_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
+  "lifecycle_record_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
+  "note": "This package is real and inspectable, and the runtime lane now executes it directly, but its authority still stops at library-conditioned review rather than chromatogram-level vendor parity.",
+  "package_id": "flagship_public_package:dia_library_review_package",
+  "package_label": "Flagship public DIA library review package",
+  "package_root": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package",
+  "public_dataset_identity": "tracked Spectronaut-style and DIA-NN-style exported-result snapshots with explicit library-conditioned settings and confrontation scope",
+  "quality_sheet_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+  "rebuild_instructions_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/rebuild_instructions.md",
+  "replaced_proof_surface": "curated_fixture_bundle:dia_library_extraction_bundle",
+  "runtime_availability": "raw-executable runtime lane exists and remains library-conditioned",
+  "scientific_pressures": [
+    "library incompleteness",
+    "transition semantics drift",
+    "protein-level absence overreach",
+    "vendor extraction mismatch"
+  ],
+  "source_assets": [
+    {
+      "asset_role": "package_readme",
+      "evidence_kind": "benchmark_readme",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/README.md",
+      "public_identity_note": "The DIA package README defines exactly where library-conditioned evidence stops and where vendor-execution parity is still absent."
+    },
+    {
+      "asset_role": "package_manifest",
+      "evidence_kind": "benchmark_package_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/package_manifest.json",
+      "public_identity_note": "The DIA manifest is the machine-readable entrypoint for the flagship library-conditioned review package."
+    },
+    {
+      "asset_role": "artifact_inventory",
+      "evidence_kind": "artifact_inventory",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/artifact_inventory.json",
+      "public_identity_note": "The DIA artifact inventory keeps digests, row counts, and dependency edges explicit."
+    },
+    {
+      "asset_role": "quality_sheet",
+      "evidence_kind": "package_quality_sheet",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/quality_sheet.json",
+      "public_identity_note": "The DIA quality sheet says plainly that the public package is import-backed and library-conditioned."
+    },
+    {
+      "asset_role": "lifecycle_record",
+      "evidence_kind": "package_lifecycle_record",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/lifecycle.json",
+      "public_identity_note": "The DIA lifecycle record states which missing runtime and chromatogram pressures would obsolete this package."
+    },
+    {
+      "asset_role": "source_locator_manifest",
+      "evidence_kind": "source_locator_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/source_locator_manifest.json",
+      "public_identity_note": "The source locator manifest keeps copied DIA snapshots and public tool pages tied together in one rebuildable surface."
+    },
+    {
+      "asset_role": "citation_manifest",
+      "evidence_kind": "citation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/citation_manifest.json",
+      "public_identity_note": "The citation manifest keeps library-conditioned DIA references inspectable from files alone."
+    },
+    {
+      "asset_role": "generated_boundary",
+      "evidence_kind": "generated_boundary_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/generated_boundary.json",
+      "public_identity_note": "The generated boundary file says which DIA asset-root files are copied evidence versus generated metadata."
+    },
+    {
+      "asset_role": "rebuild_instructions",
+      "evidence_kind": "rebuild_instructions",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/rebuild_instructions.md",
+      "public_identity_note": "The rebuild instructions define how to refresh the DIA asset root without treating it like a hidden test bundle."
+    },
+    {
+      "asset_role": "spectronaut_report",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_report.tsv",
+      "public_identity_note": "The Spectronaut-style report anchors one public DIA extraction view with explicit library-conditioned assumptions."
+    },
+    {
+      "asset_role": "spectronaut_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_pipeline_export.tsv",
+      "public_identity_note": "The Spectronaut-style pipeline export exposes adapter field coverage and DIA review drift risk."
+    },
+    {
+      "asset_role": "spectronaut_settings",
+      "evidence_kind": "expectation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/primary/spectronaut_settings.txt",
+      "public_identity_note": "Pinned settings keep library and extraction assumptions inspectable instead of implied."
+    },
+    {
+      "asset_role": "diann_pipeline_export",
+      "evidence_kind": "imported_search_results",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_pipeline_export.tsv",
+      "public_identity_note": "The DIA-NN-style export is the current external confrontation partner for library-conditioned DIA review."
+    },
+    {
+      "asset_role": "diann_config",
+      "evidence_kind": "expectation_manifest",
+      "path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/comparator/diann_config.json",
+      "public_identity_note": "The DIA-NN-style config snapshot keeps classifier and library assumptions visible beside the export."
+    }
+  ],
+  "source_locator_manifest_path": "packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/dia_library_review_package/source_locator_manifest.json",
+  "workflow_family": "dia"
+}
