@@ -5,13 +5,14 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 import csv
 import io
-from collections import defaultdict
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
+    PeptideEvidenceEntry,
     PsmRecord,
     TargetDecoyLabel,
     rollup_peptide_evidence,
@@ -98,7 +99,7 @@ def build_protein_coverage_review_report(
     """Build one direct review report over sequence-backed protein coverage."""
     peptide_rollups = rollup_peptide_evidence(records)
     peptide_sequences = _build_peptide_sequence_index(records)
-    protein_to_peptides: dict[str, list] = defaultdict(list)
+    protein_to_peptides: dict[str, list[PeptideEvidenceEntry]] = defaultdict(list)
     for rollup in peptide_rollups:
         for protein_ref in rollup.protein_refs:
             protein_to_peptides[protein_ref].append(rollup)
@@ -161,7 +162,8 @@ def build_protein_coverage_review_report(
             total_residues=total_residues,
             total_covered_residues=total_covered_residues,
             mean_coverage_fraction=(
-                sum(entry.coverage_fraction for entry in entries) / proteins_with_sequence
+                sum(entry.coverage_fraction for entry in entries)
+                / proteins_with_sequence
                 if proteins_with_sequence
                 else 0.0
             ),
@@ -287,7 +289,7 @@ def _build_coverage_entry(
     protein_ref: str,
     *,
     sequence: str,
-    peptide_rollups: list,
+    peptide_rollups: list[PeptideEvidenceEntry],
     peptide_sequences: dict[str, str],
 ) -> ProteinCoverageReviewEntry:
     covered_positions: set[int] = set()

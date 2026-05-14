@@ -180,11 +180,15 @@ def build_contaminant_peptide_match_report(
 
     for record in records:
         contaminant_refs = tuple(
-            ref for ref in record.protein_refs if _is_contaminant(ref, contaminant_prefixes)
+            ref
+            for ref in record.protein_refs
+            if _is_contaminant(ref, contaminant_prefixes)
         )
         if not contaminant_refs:
             continue
-        target_refs = tuple(ref for ref in record.protein_refs if ref not in contaminant_refs)
+        target_refs = tuple(
+            ref for ref in record.protein_refs if ref not in contaminant_refs
+        )
         mixed_reference = bool(target_refs)
         if mixed_reference:
             mixed_reference_psm_count += 1

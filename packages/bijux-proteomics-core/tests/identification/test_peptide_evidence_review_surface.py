@@ -38,9 +38,7 @@ def test_peptide_evidence_review_reports_primary_classes_and_tags() -> None:
     assert review.summary.decoy_count == 1
 
     by_peptide = {entry.canonical_peptide: entry for entry in review.entries}
-    assert (
-        by_peptide["STRONGK"].primary_class is PeptideEvidencePrimaryClass.STRONG
-    )
+    assert by_peptide["STRONGK"].primary_class is PeptideEvidencePrimaryClass.STRONG
     assert by_peptide["SHAREDK"].primary_class is PeptideEvidencePrimaryClass.WEAK
     assert PeptideEvidenceTag.SHARED in by_peptide["SHAREDK"].tags
     assert PeptideEvidenceTag.MODIFIED in by_peptide["ACDM[Oxidation]K"].tags

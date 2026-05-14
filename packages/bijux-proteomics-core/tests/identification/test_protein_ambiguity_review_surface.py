@@ -36,7 +36,9 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     mixed = next(
         entry for entry in review.entries if entry.protein_refs == ("P10001", "P20002")
     )
-    external = next(entry for entry in review.entries if entry.protein_refs == ("P30003",))
+    external = next(
+        entry for entry in review.entries if entry.protein_refs == ("P30003",)
+    )
     indistinguishable = next(
         entry for entry in review.entries if entry.protein_refs == ("P40004", "P50005")
     )
@@ -57,9 +59,7 @@ def test_protein_ambiguity_review_reports_mixed_external_and_indistinguishable_g
     assert external.outside_group_proteins == ("P10001", "P20002")
     assert external.confidence_label.value == "medium"
 
-    assert (
-        indistinguishable.ambiguity_reason.value == "indistinguishable_members"
-    )
+    assert indistinguishable.ambiguity_reason.value == "indistinguishable_members"
     assert indistinguishable.protein_refs == ("P40004", "P50005")
     assert indistinguishable.shared_peptides == ("INTERNALQ",)
     assert indistinguishable.outside_group_proteins == ()

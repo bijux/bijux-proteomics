@@ -24,9 +24,7 @@ def test_target_decoy_reference_validation_matches_curated_cases() -> None:
             encoding="utf-8"
         )
     )
-    cases = tuple(
-        TargetDecoyReferenceCase.model_validate(case) for case in raw_cases
-    )
+    cases = tuple(TargetDecoyReferenceCase.model_validate(case) for case in raw_cases)
 
     report = build_target_decoy_reference_validation_report(cases)
 
@@ -61,9 +59,7 @@ def test_target_decoy_reference_validation_renders_summary_and_entry_ledgers() -
             encoding="utf-8"
         )
     )
-    cases = tuple(
-        TargetDecoyReferenceCase.model_validate(case) for case in raw_cases
-    )
+    cases = tuple(TargetDecoyReferenceCase.model_validate(case) for case in raw_cases)
 
     report = build_target_decoy_reference_validation_report(cases)
     summary_tsv = render_target_decoy_reference_summary_tsv(report)
@@ -74,6 +70,13 @@ def test_target_decoy_reference_validation_renders_summary_and_entry_ledgers() -
     )
     assert "concatenated_higher_better_reference" in summary_tsv
     assert "concatenated_lower_better_reference\tlower_better" in summary_tsv
-    assert entries_tsv.startswith("case_id\trank\tspectrum_id\tcanonical_peptide\tpassed")
-    assert "concatenated_higher_better_reference\t2\tscan=4002\tDECOYPEP\ttrue" in entries_tsv
-    assert "concatenated_lower_better_reference\t5\tscan=5005\tPEPK\ttrue" in entries_tsv
+    assert entries_tsv.startswith(
+        "case_id\trank\tspectrum_id\tcanonical_peptide\tpassed"
+    )
+    assert (
+        "concatenated_higher_better_reference\t2\tscan=4002\tDECOYPEP\ttrue"
+        in entries_tsv
+    )
+    assert (
+        "concatenated_lower_better_reference\t5\tscan=5005\tPEPK\ttrue" in entries_tsv
+    )

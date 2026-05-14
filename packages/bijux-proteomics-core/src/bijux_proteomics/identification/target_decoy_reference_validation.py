@@ -133,7 +133,9 @@ def _build_reference_validation_entry(
         mismatches.append("cumulative_targets")
     if observed is None or observed.cumulative_decoys != expected.cumulative_decoys:
         mismatches.append("cumulative_decoys")
-    if not _floats_match(expected.fdr, None if observed is None else observed.fdr, tolerance=1e-9):
+    if not _floats_match(
+        expected.fdr, None if observed is None else observed.fdr, tolerance=1e-9
+    ):
         mismatches.append("fdr")
     if not _floats_match(
         expected.q_value,
@@ -156,7 +158,9 @@ def _build_reference_validation_entry(
         if observed is None
         else observed.cumulative_targets,
         expected_cumulative_decoys=expected.cumulative_decoys,
-        observed_cumulative_decoys=None if observed is None else observed.cumulative_decoys,
+        observed_cumulative_decoys=None
+        if observed is None
+        else observed.cumulative_decoys,
         expected_fdr=expected.fdr,
         observed_fdr=None if observed is None else observed.fdr,
         expected_q_value=expected.q_value,
@@ -183,7 +187,9 @@ def build_target_decoy_reference_validation_report(
             _build_reference_validation_entry(
                 case,
                 expected,
-                annotated[expected.rank - 1] if expected.rank <= len(annotated) else None,
+                annotated[expected.rank - 1]
+                if expected.rank <= len(annotated)
+                else None,
             )
             for expected in case.expected_entries
         )

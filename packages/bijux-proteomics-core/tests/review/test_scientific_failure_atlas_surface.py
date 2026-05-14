@@ -40,6 +40,7 @@ from bijux_proteomics.identification.contaminant_audit import (
 )
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.protein_inference_benchmarks import (
+    ProteinInferenceBenchmarkScenario,
     build_core_protein_inference_benchmark_scenarios,
     build_identification_workflow_claim_review,
     build_protein_inference_benchmark_suite,
@@ -117,7 +118,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def _protein_inference_scenarios():
+def _protein_inference_scenarios() -> tuple[ProteinInferenceBenchmarkScenario, ...]:
     return build_core_protein_inference_benchmark_scenarios()
 
 

@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 import csv
-import io
 from enum import StrEnum
+import io
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
     FdrEvidenceLevel,
+    PsmRecord,
     TargetDecoyLabel,
     calculate_level_specific_fdr,
     rollup_peptide_evidence,
@@ -90,7 +91,7 @@ class PeptideEvidenceReviewReport(JsonModel):
 
 
 def build_peptide_evidence_review_report(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     threshold: float | None = 0.05,
     score_orientation: str = "higher_better",

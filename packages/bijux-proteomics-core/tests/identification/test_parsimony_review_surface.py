@@ -16,9 +16,7 @@ from bijux_proteomics.identification import (
 from .test_identification_surface import _default_mapping, _psm_fixture
 
 
-def test_parsimony_review_reports_selected_proteins_and_unresolved_ambiguity() -> (
-    None
-):
+def test_parsimony_review_reports_selected_proteins_and_unresolved_ambiguity() -> None:
     report = parse_psm_tsv(
         _psm_fixture("protein_parsimony_variants.tsv"), mapping=_default_mapping()
     )

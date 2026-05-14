@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
     ConfidenceLabel,
+    PsmRecord,
     SharedPeptideAmbiguityReason,
     TargetDecoyLabel,
     build_protein_groups,
@@ -75,7 +76,7 @@ class ProteinAmbiguityReviewReport(JsonModel):
 
 
 def build_protein_ambiguity_review_report(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     threshold: float | None = None,
     high_q_value: float = 0.01,
@@ -87,9 +88,7 @@ def build_protein_ambiguity_review_report(
     if high_q_value > medium_q_value:
         raise ValueError("high_q_value must not exceed medium_q_value")
 
-    groups_by_id = {
-        entry.group_id: entry for entry in build_protein_groups(records)
-    }
+    groups_by_id = {entry.group_id: entry for entry in build_protein_groups(records)}
     entries: list[ProteinAmbiguityReviewEntry] = []
     for ambiguity in build_shared_peptide_ambiguity_report(records).entries:
         group = groups_by_id[ambiguity.group_id]
@@ -122,7 +121,8 @@ def build_protein_ambiguity_review_report(
                 confidence_explanation=confidence_explanation,
                 target_decoy_label=group.target_decoy_label,
                 contaminant_flag=any(
-                    protein_ref.startswith("CON__") for protein_ref in group.protein_refs
+                    protein_ref.startswith("CON__")
+                    for protein_ref in group.protein_refs
                 ),
             )
         )
@@ -168,7 +168,9 @@ def build_protein_ambiguity_review_report(
                 if entry.confidence_label is ConfidenceLabel.REJECTED
             ),
             decoy_group_count=sum(
-                1 for entry in entries if entry.confidence_label is ConfidenceLabel.DECOY
+                1
+                for entry in entries
+                if entry.confidence_label is ConfidenceLabel.DECOY
             ),
         ),
         entries=tuple(

@@ -5,15 +5,15 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 import csv
 import io
-from collections import defaultdict
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
-    PsmRecord,
     ProteinGroupEntry,
+    PsmRecord,
     TargetDecoyLabel,
     build_protein_groups,
     rollup_peptide_evidence,
@@ -113,7 +113,8 @@ def build_protein_grouping_review_report(
                 best_q_value=group.best_q_value,
                 target_decoy_label=group.target_decoy_label,
                 contaminant_flag=any(
-                    protein_ref.startswith("CON__") for protein_ref in group.protein_refs
+                    protein_ref.startswith("CON__")
+                    for protein_ref in group.protein_refs
                 ),
             )
         )
@@ -122,16 +123,24 @@ def build_protein_grouping_review_report(
         summary=ProteinGroupingSummary(
             total_groups=len(groups),
             total_proteins=sum(len(group.protein_refs) for group in groups),
-            singleton_group_count=sum(1 for group in groups if len(group.protein_refs) == 1),
-            ambiguous_group_count=sum(1 for group in groups if len(group.protein_refs) > 1),
+            singleton_group_count=sum(
+                1 for group in groups if len(group.protein_refs) == 1
+            ),
+            ambiguous_group_count=sum(
+                1 for group in groups if len(group.protein_refs) > 1
+            ),
             grouped_protein_count=sum(
-                len(group.protein_refs) for group in groups if len(group.protein_refs) > 1
+                len(group.protein_refs)
+                for group in groups
+                if len(group.protein_refs) > 1
             ),
             target_group_count=_label_count(groups, TargetDecoyLabel.TARGET),
             decoy_group_count=_label_count(groups, TargetDecoyLabel.DECOY),
             mixed_group_count=_label_count(groups, TargetDecoyLabel.MIXED),
             unknown_group_count=_label_count(groups, TargetDecoyLabel.UNKNOWN),
-            contaminant_group_count=sum(1 for group in groups if group.contaminant_flag),
+            contaminant_group_count=sum(
+                1 for group in groups if group.contaminant_flag
+            ),
         ),
         groups=tuple(groups),
     )

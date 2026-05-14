@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification.contracts import (
     FdrEvidenceLevel,
     FdrLevelEntry,
+    PsmRecord,
     TargetDecoyLabel,
     calculate_level_specific_fdr,
 )
@@ -102,9 +103,7 @@ def _build_threshold_summary(
         accepted_target_count=_label_count(accepted_entries, TargetDecoyLabel.TARGET),
         accepted_decoy_count=_label_count(accepted_entries, TargetDecoyLabel.DECOY),
         accepted_mixed_count=_label_count(accepted_entries, TargetDecoyLabel.MIXED),
-        accepted_unknown_count=_label_count(
-            accepted_entries, TargetDecoyLabel.UNKNOWN
-        ),
+        accepted_unknown_count=_label_count(accepted_entries, TargetDecoyLabel.UNKNOWN),
         accepted_contaminant_count=sum(
             1 for entry in accepted_entries if _entry_contaminant_flag(entry)
         ),
@@ -112,7 +111,7 @@ def _build_threshold_summary(
 
 
 def build_evidence_level_fdr_review_report(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     thresholds: tuple[float, ...] = (0.01, 0.05, 0.1),
     score_orientation: str = "higher_better",

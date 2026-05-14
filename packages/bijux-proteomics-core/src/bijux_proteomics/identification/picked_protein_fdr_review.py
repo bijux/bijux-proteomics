@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
     PickedProteinFdrEntry,
+    PsmRecord,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     build_shared_peptide_ambiguity_report,
@@ -75,7 +76,7 @@ def _entry_contaminant_flag(entry: PickedProteinFdrEntry) -> bool:
 
 
 def build_picked_protein_fdr_review_report(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     thresholds: tuple[float, ...] = (0.01, 0.05, 0.1),
     score_orientation: str = "higher_better",
@@ -89,9 +90,11 @@ def build_picked_protein_fdr_review_report(
         raise ValueError("thresholds must be non-negative")
 
     group_ids_by_protein: dict[str, set[str]] = {}
-    for entry in build_shared_peptide_ambiguity_report(records).entries:
-        for protein_ref in entry.protein_refs:
-            group_ids_by_protein.setdefault(protein_ref, set()).add(entry.group_id)
+    for ambiguity_entry in build_shared_peptide_ambiguity_report(records).entries:
+        for protein_ref in ambiguity_entry.protein_refs:
+            group_ids_by_protein.setdefault(protein_ref, set()).add(
+                ambiguity_entry.group_id
+            )
 
     summaries: list[PickedProteinFdrThresholdSummary] = []
     entries: list[PickedProteinFdrReviewEntry] = []

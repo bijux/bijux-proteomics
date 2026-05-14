@@ -452,7 +452,10 @@ def build_protein_inference_benchmark_report(
         ),
         decoy_pressure=any(
             record.target_decoy_label is TargetDecoyLabel.DECOY
-            or any(protein_ref.startswith(("DECOY_", "REV__")) for protein_ref in record.protein_refs)
+            or any(
+                protein_ref.startswith(("DECOY_", "REV__"))
+                for protein_ref in record.protein_refs
+            )
             for record in scenario.records
         ),
         method_assessments=tuple(method_assessments),
@@ -562,11 +565,18 @@ def render_protein_inference_benchmark_summary_tsv(
         ("decoy_scenario_count", suite.decoy_scenario_count),
         ("worst_precision_lower_bound", suite.worst_precision_lower_bound),
         ("worst_recall_lower_bound", suite.worst_recall_lower_bound),
-        ("covered_strategy_kinds", ";".join(kind.value for kind in suite.covered_strategy_kinds)),
+        (
+            "covered_strategy_kinds",
+            ";".join(kind.value for kind in suite.covered_strategy_kinds),
+        ),
         ("scenario_ids", ";".join(suite.scenario_ids)),
         ("note", suite.note),
     )
-    return "field\tvalue\n" + "\n".join(f"{field}\t{value}" for field, value in rows) + "\n"
+    return (
+        "field\tvalue\n"
+        + "\n".join(f"{field}\t{value}" for field, value in rows)
+        + "\n"
+    )
 
 
 def render_protein_inference_benchmark_scenarios_tsv(
@@ -765,7 +775,8 @@ def build_identification_workflow_claim_review(
         ),
         WorkflowTrustCriterionResult(
             criterion_id="decoy-pressure-covered",
-            passed=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE in scenario_kinds,
+            passed=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+            in scenario_kinds,
             detail="decoy-pressure truth pressure is present in the benchmark suite",
         ),
         WorkflowTrustCriterionResult(

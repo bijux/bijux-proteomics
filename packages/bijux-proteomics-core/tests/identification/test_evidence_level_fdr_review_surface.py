@@ -45,7 +45,9 @@ def _review_records() -> tuple[PsmRecord, ...]:
     )
 
 
-def test_evidence_level_fdr_review_reports_level_counts_at_standard_thresholds() -> None:
+def test_evidence_level_fdr_review_reports_level_counts_at_standard_thresholds() -> (
+    None
+):
     report = build_evidence_level_fdr_review_report(_review_records())
 
     assert report.thresholds == (0.01, 0.05, 0.1)
@@ -82,4 +84,7 @@ def test_evidence_level_fdr_review_renders_summary_and_accepted_entry_ledgers() 
     assert entries_tsv.startswith(
         "threshold\tevidence_level\tentity_id\trank\tscore\tq_value"
     )
-    assert "0.05\tprotein\tCON__KERATIN_HUMAN\t2\t95.0\t0.0\ttarget\ttrue\t1\tCON__KERATIN_HUMAN" in entries_tsv
+    assert (
+        "0.05\tprotein\tCON__KERATIN_HUMAN\t2\t95.0\t0.0\ttarget\ttrue\t1\tCON__KERATIN_HUMAN"
+        in entries_tsv
+    )

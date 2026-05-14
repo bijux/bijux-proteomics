@@ -162,7 +162,14 @@ def _build_q_value_distribution(
             counts["0.2+"] += 1
     return _render_distribution_entries(
         counts,
-        ordered_buckets=("0-0.01", "0.01-0.05", "0.05-0.1", "0.1-0.2", "0.2+", "missing"),
+        ordered_buckets=(
+            "0-0.01",
+            "0.01-0.05",
+            "0.05-0.1",
+            "0.1-0.2",
+            "0.2+",
+            "missing",
+        ),
     )
 
 

@@ -56,7 +56,9 @@ def test_protein_coverage_plot_report_keeps_positions_modifications_and_intensit
 
     p11111 = next(track for track in report.tracks if track.protein_ref == "P11111")
     modified = next(
-        entry for entry in p11111.positions if entry.canonical_peptide == "ACDM[Oxidation]K"
+        entry
+        for entry in p11111.positions
+        if entry.canonical_peptide == "ACDM[Oxidation]K"
     )
     assert modified.start_residue == 13
     assert modified.end_residue == 17

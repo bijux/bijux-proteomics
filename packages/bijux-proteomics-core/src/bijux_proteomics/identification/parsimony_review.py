@@ -15,6 +15,7 @@ from bijux_proteomics.identification.contracts import (
     ParsimonyProteinEntry,
     ParsimonyVariant,
     ProteinGroupEntry,
+    PsmRecord,
     TargetDecoyLabel,
     build_protein_groups,
     compare_parsimony_variants,
@@ -87,7 +88,7 @@ class ParsimonyReviewReport(JsonModel):
 
 
 def build_parsimony_review_report(
-    records: tuple,
+    records: tuple[PsmRecord, ...],
     *,
     variant: ParsimonyVariant = ParsimonyVariant.GREEDY_COVERAGE,
     review_variants: tuple[ParsimonyVariant, ...] = (
@@ -110,9 +111,7 @@ def build_parsimony_review_report(
     )
     total_peptides = tuple(peptide.canonical_peptide for peptide in peptide_rollups)
     selected = infer_proteins_by_parsimony(records, variant=variant)
-    group_lookup = {
-        group.group_id: group for group in build_protein_groups(records)
-    }
+    group_lookup = {group.group_id: group for group in build_protein_groups(records)}
     variant_results = {
         review_variant: infer_proteins_by_parsimony(records, variant=review_variant)
         for review_variant in normalized_review_variants
@@ -157,7 +156,9 @@ def build_parsimony_review_report(
     )
 
     ambiguities: list[ParsimonyAmbiguityEntry] = []
-    for peptide, candidate_proteins in sorted(shared_selected_proteins_by_peptide.items()):
+    for peptide, candidate_proteins in sorted(
+        shared_selected_proteins_by_peptide.items()
+    ):
         ambiguities.append(
             ParsimonyAmbiguityEntry(
                 subject_id=peptide,
@@ -177,7 +178,9 @@ def build_parsimony_review_report(
             )
         )
 
-    comparison = compare_parsimony_variants(records, variants=normalized_review_variants)
+    comparison = compare_parsimony_variants(
+        records, variants=normalized_review_variants
+    )
     for difference in comparison.differences:
         if (
             not difference.left_only_proteins
@@ -317,7 +320,9 @@ def render_parsimony_review_ambiguities_tsv(report: ParsimonyReviewReport) -> st
                 entry.subject_id,
                 entry.kind.value,
                 ";".join(entry.candidate_proteins),
-                "" if entry.first_difference_rank is None else entry.first_difference_rank,
+                ""
+                if entry.first_difference_rank is None
+                else entry.first_difference_rank,
                 _render_strategy_assignments(entry.strategy_assignments),
                 entry.note,
             )

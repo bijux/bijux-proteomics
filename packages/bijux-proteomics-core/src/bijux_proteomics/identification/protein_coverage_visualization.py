@@ -128,9 +128,7 @@ def build_protein_coverage_plot_report(
         score_orientation=score_orientation,
     )
     trace = build_peptide_protein_trace_report(records)
-    trace_by_peptide = {
-        entry.canonical_peptide: entry for entry in trace.entries
-    }
+    trace_by_peptide = {entry.canonical_peptide: entry for entry in trace.entries}
     rollups = {
         entry.canonical_peptide: entry for entry in rollup_peptide_evidence(records)
     }
@@ -176,7 +174,9 @@ def build_protein_coverage_plot_report(
                         best_intensity=intensities_by_peptide.get(canonical_peptide),
                         charge_states=rollup.charge_states,
                         spectrum_ids=trace_by_peptide[canonical_peptide].spectrum_ids,
-                        protein_group_ids=trace_by_peptide[canonical_peptide].protein_group_ids,
+                        protein_group_ids=trace_by_peptide[
+                            canonical_peptide
+                        ].protein_group_ids,
                     )
                 )
                 start = sequence.find(peptide_sequence, start + 1)
@@ -235,7 +235,9 @@ def build_protein_coverage_plot_report(
             modified_position_count=sum(
                 1 for position in all_positions if position.modified_peptide is not None
             ),
-            shared_position_count=sum(1 for position in all_positions if position.shared),
+            shared_position_count=sum(
+                1 for position in all_positions if position.shared
+            ),
             intensity_position_count=sum(
                 1 for position in all_positions if position.best_intensity is not None
             ),
@@ -251,7 +253,9 @@ def build_protein_coverage_plot_report(
     )
 
 
-def render_protein_coverage_plot_positions_tsv(report: ProteinCoveragePlotReport) -> str:
+def render_protein_coverage_plot_positions_tsv(
+    report: ProteinCoveragePlotReport,
+) -> str:
     """Render flattened peptide-position rows as TSV."""
     buffer = io.StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
@@ -291,7 +295,9 @@ def render_protein_coverage_plot_positions_tsv(report: ProteinCoveragePlotReport
                     position.residue_count,
                     str(position.shared).lower(),
                     position.confidence_label.value,
-                    "" if position.peptide_q_value is None else position.peptide_q_value,
+                    ""
+                    if position.peptide_q_value is None
+                    else position.peptide_q_value,
                     position.best_score,
                     "" if position.best_intensity is None else position.best_intensity,
                     ";".join(str(charge) for charge in position.charge_states),
@@ -353,10 +359,14 @@ def render_protein_coverage_plot_svg(report: ProteinCoveragePlotReport) -> str:
             f"<line class='axis' x1='{left_margin}' y1='{baseline_y}' x2='{left_margin + usable_width}' y2='{baseline_y}'/>"
         )
         for position in track.positions:
-            start_x = left_margin + (position.start_residue - 1) / max_length * usable_width
+            start_x = (
+                left_margin + (position.start_residue - 1) / max_length * usable_width
+            )
             width = max(position.residue_count / max_length * usable_width, 4)
             fill = _confidence_fill(position.confidence_label)
-            opacity = _intensity_opacity(position.best_intensity, max_intensity=max_intensity)
+            opacity = _intensity_opacity(
+                position.best_intensity, max_intensity=max_intensity
+            )
             stroke = "#111827" if position.shared else "#ffffff"
             rows.append(
                 f"<rect x='{start_x:.2f}' y='{y + 6}' width='{width:.2f}' height='18' rx='3' fill='{fill}' fill-opacity='{opacity:.3f}' stroke='{stroke}' stroke-width='1'>"

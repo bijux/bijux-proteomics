@@ -72,9 +72,9 @@ def test_psm_evidence_inspection_report_covers_quality_distributions(
     } == {"0": 1, "1": 1, "2": 1}
 
 
-def test_psm_evidence_inspection_tsv_renderers_emit_review_ledgers(tmp_path: Path) -> (
-    None
-):
+def test_psm_evidence_inspection_tsv_renderers_emit_review_ledgers(
+    tmp_path: Path,
+) -> None:
     source = tmp_path / "psm_inspection.tsv"
     source.write_text(
         "\n".join(
