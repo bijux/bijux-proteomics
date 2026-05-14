@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.lab.publishability import (
     LAB_PUBLISHABILITY_PATH,
     build_lab_publishability_report,
@@ -8,6 +10,7 @@ from bijux_proteomics_dev.governance.lab.publishability import (
 )
 
 
+@pytest.mark.slow
 def test_lab_publishability_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 
