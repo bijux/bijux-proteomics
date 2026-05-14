@@ -50,7 +50,9 @@ def test_peptide_intensity_matrix_from_features_preserves_grouping_charge_and_mi
     assert miss_row.values[1].missing_value_kind.value == "missing_not_observed"
 
 
-def test_peptide_intensity_matrix_from_features_can_split_modified_charge_rows() -> None:
+def test_peptide_intensity_matrix_from_features_can_split_modified_charge_rows() -> (
+    None
+):
     report = parse_ms1_feature_table(_quant_fixture("peptide_matrix_features.tsv"))
     matrix = build_peptide_intensity_matrix_from_features(
         report.accepted_records,
@@ -73,7 +75,9 @@ def test_peptide_intensity_matrix_from_features_can_split_modified_charge_rows()
     assert oxidized_lookup["S2"].missing_value_kind.value == "filtered"
 
 
-def test_peptide_intensity_matrix_from_psms_skips_rows_without_run_or_intensity() -> None:
+def test_peptide_intensity_matrix_from_psms_skips_rows_without_run_or_intensity() -> (
+    None
+):
     report = parse_psm_tsv(
         _quant_fixture("peptide_matrix_psms.tsv"),
         mapping=SearchResultColumnMapping(
@@ -122,7 +126,13 @@ def test_peptide_intensity_matrix_renderers_emit_summary_matrix_and_missingness_
 
     assert "grouping_mode\t" in summary_tsv
     assert "feature\tmodified_peptide\ttrue\tsum" in summary_tsv
-    assert "entity_id\tpeptide_sequence\tmodified_peptides\tcharge_states\tprotein_refs\tS1\tS2" in matrix_tsv
+    assert (
+        "entity_id\tpeptide_sequence\tmodified_peptides\tcharge_states\tprotein_refs\tS1\tS2"
+        in matrix_tsv
+    )
     assert "PEMTIDE/z2\tPEMTIDE\tPEMTIDE\t2\tP001\t1200\t1200" in matrix_tsv
-    assert "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count" in missingness_tsv
+    assert (
+        "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count"
+        in missingness_tsv
+    )
     assert "S2\t1\t0\t2\t1" in missingness_tsv

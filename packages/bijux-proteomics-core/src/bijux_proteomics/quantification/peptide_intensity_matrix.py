@@ -312,7 +312,9 @@ def _build_peptide_intensity_matrix_report(
     if top_n < 1:
         raise ValueError("top_n must be at least 1")
 
-    ordered_sample_ids = tuple(sorted({sample_id for sample_id in sample_ids if sample_id}))
+    ordered_sample_ids = tuple(
+        sorted({sample_id for sample_id in sample_ids if sample_id})
+    )
     grouped_values: dict[tuple[str, str], list[float]] = {}
     grouped_kinds: dict[tuple[str, str], list[MissingValueKind]] = {}
     grouped_counts: dict[tuple[str, str], int] = {}
@@ -330,7 +332,9 @@ def _build_peptide_intensity_matrix_report(
         key = (entity_id, observation.sample_id)
         grouped_kinds.setdefault(key, []).append(observation.missing_value_kind)
         row_sequences.setdefault(entity_id, observation.peptide_sequence)
-        row_modified_peptides.setdefault(entity_id, set()).add(observation.modified_peptide)
+        row_modified_peptides.setdefault(entity_id, set()).add(
+            observation.modified_peptide
+        )
         row_protein_refs.setdefault(entity_id, set()).update(observation.protein_refs)
         if observation.charge_state is not None:
             row_charge_states.setdefault(entity_id, set()).add(observation.charge_state)
@@ -338,7 +342,9 @@ def _build_peptide_intensity_matrix_report(
             MissingValueKind.OBSERVED,
             MissingValueKind.ZERO,
         ):
-            grouped_values.setdefault(key, []).append(float(observation.intensity or 0.0))
+            grouped_values.setdefault(key, []).append(
+                float(observation.intensity or 0.0)
+            )
             grouped_counts[key] = grouped_counts.get(key, 0) + 1
 
     ordered_entity_ids = tuple(sorted(row_sequences))
@@ -423,7 +429,9 @@ def _build_peptide_intensity_matrix_report(
             PeptideIntensityMatrixRow(
                 entity_id=entity_id,
                 peptide_sequence=row_sequences[entity_id],
-                modified_peptides=tuple(sorted(row_modified_peptides.get(entity_id, ()))),
+                modified_peptides=tuple(
+                    sorted(row_modified_peptides.get(entity_id, ()))
+                ),
                 charge_states=tuple(sorted(row_charge_states.get(entity_id, ()))),
                 protein_refs=tuple(sorted(row_protein_refs.get(entity_id, ()))),
                 values=tuple(values),
@@ -478,7 +486,9 @@ def _entity_id_for_observation(
 
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
-    if any(kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds):
+    if any(
+        kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds
+    ):
         if any(kind is MissingValueKind.ZERO for kind in kinds) and not any(
             kind is MissingValueKind.OBSERVED for kind in kinds
         ):

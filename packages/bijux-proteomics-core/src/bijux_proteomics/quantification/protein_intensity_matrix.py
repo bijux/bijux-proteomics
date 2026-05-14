@@ -151,11 +151,13 @@ def build_protein_intensity_matrix_from_peptides(
     filtered_cell_count = 0
     ordered_target_ids = tuple(sorted(target_peptides))
 
-    grouped_lookup: dict[tuple[str, str], list[tuple[ProteinIntensityMatrixValue, str, bool]]] = {}
+    grouped_lookup: dict[
+        tuple[str, str], list[tuple[ProteinIntensityMatrixValue, str, bool]]
+    ] = {}
     for target_id, entries in target_peptides.items():
-        for value, peptide_id, is_unique in entries:
-            grouped_lookup.setdefault((target_id, value.sample_id), []).append(
-                (value, peptide_id, is_unique)
+        for matrix_value, peptide_id, is_unique in entries:
+            grouped_lookup.setdefault((target_id, matrix_value.sample_id), []).append(
+                (matrix_value, peptide_id, is_unique)
             )
 
     for sample_id in peptide_matrix.sample_ids:
@@ -167,7 +169,7 @@ def build_protein_intensity_matrix_from_peptides(
             missing_kind = _aggregate_missing_kind(
                 tuple(
                     entry.missing_value_kind
-                    for entry, _, _ in grouped_lookup.get((target_id, sample_id), ())
+                    for entry, _, _ in grouped_lookup.get((target_id, sample_id), [])
                 )
                 or (MissingValueKind.NOT_OBSERVED,)
             )
@@ -193,10 +195,7 @@ def build_protein_intensity_matrix_from_peptides(
         target_rows = grouped_lookup
         protein_refs = target_refs[target_id]
         peptide_ids = sorted(
-            {
-                peptide_id
-                for _, peptide_id, _ in target_peptides[target_id]
-            }
+            {peptide_id for _, peptide_id, _ in target_peptides[target_id]}
         )
         unique_peptide_ids = sorted(
             {
@@ -214,7 +213,7 @@ def build_protein_intensity_matrix_from_peptides(
         )
         values: list[ProteinIntensityMatrixValue] = []
         for sample_id in peptide_matrix.sample_ids:
-            entries = target_rows.get((target_id, sample_id), ())
+            entries = target_rows.get((target_id, sample_id), [])
             missing_kind = _aggregate_missing_kind(
                 tuple(entry.missing_value_kind for entry, _, _ in entries)
                 or (MissingValueKind.NOT_OBSERVED,)
@@ -249,10 +248,7 @@ def build_protein_intensity_matrix_from_peptides(
                     abundance=abundance,
                     missing_value_kind=missing_kind,
                     contributing_peptide_count=len(
-                        {
-                            peptide_id
-                            for _, peptide_id, _ in entries
-                        }
+                        {peptide_id for _, peptide_id, _ in entries}
                     ),
                 )
             )
@@ -414,7 +410,9 @@ def render_protein_intensity_matrix_tsv(report: ProteinIntensityMatrixReport) ->
         matrix_values = []
         for sample_id in report.sample_ids:
             value = lookup[sample_id]
-            matrix_values.append("" if value.abundance is None else f"{value.abundance:g}")
+            matrix_values.append(
+                "" if value.abundance is None else f"{value.abundance:g}"
+            )
         rows.append(
             "\t".join(
                 (
@@ -460,7 +458,9 @@ def render_protein_intensity_missingness_tsv(
 
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
-    if any(kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds):
+    if any(
+        kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds
+    ):
         if any(kind is MissingValueKind.ZERO for kind in kinds) and not any(
             kind is MissingValueKind.OBSERVED for kind in kinds
         ):

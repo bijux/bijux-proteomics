@@ -22,6 +22,7 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.quantification.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
+    PeptideIntensityMatrixRow,
     PeptideMatrixGroupingMode,
     PeptideMatrixSourceKind,
     build_peptide_intensity_matrix_from_features,
@@ -125,7 +126,9 @@ def build_protein_lfq_report_from_peptides(
     if minimum_shared_peptides < 1:
         raise ValueError("minimum_shared_peptides must be at least 1")
 
-    grouped_rows: dict[str, list] = defaultdict(list)
+    grouped_rows: dict[str, list[tuple[PeptideIntensityMatrixRow, bool]]] = defaultdict(
+        list
+    )
     target_refs: dict[str, tuple[str, ...]] = {}
 
     for peptide_row in peptide_matrix.rows:
@@ -363,7 +366,9 @@ def render_protein_lfq_matrix_tsv(report: ProteinLfqReport) -> str:
         matrix_values = []
         for sample_id in report.sample_ids:
             value = value_lookup[sample_id]
-            matrix_values.append("" if value.abundance is None else f"{value.abundance:g}")
+            matrix_values.append(
+                "" if value.abundance is None else f"{value.abundance:g}"
+            )
         rows.append(
             "\t".join(
                 (
@@ -442,7 +447,7 @@ def render_protein_lfq_missingness_tsv(report: ProteinLfqReport) -> str:
 
 def _build_target_lfq_row(
     target_id: str,
-    peptide_rows: list[tuple[object, bool]],
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
     *,
     sample_ids: tuple[str, ...],
     protein_refs: tuple[str, ...],
@@ -454,7 +459,9 @@ def _build_target_lfq_row(
         sample_ids=sample_ids,
         minimum_shared_peptides=minimum_shared_peptides,
     )
-    observed_logs = _observed_log2_intensities_by_sample(peptide_rows, sample_ids=sample_ids)
+    observed_logs = _observed_log2_intensities_by_sample(
+        peptide_rows, sample_ids=sample_ids
+    )
     components = _connected_components(
         sample_ids=sample_ids,
         pairwise_ratios=pairwise_ratios,
@@ -467,14 +474,18 @@ def _build_target_lfq_row(
     )
 
     peptide_ids = sorted({row.entity_id for row, _ in peptide_rows})
-    unique_peptide_ids = sorted({row.entity_id for row, is_unique in peptide_rows if is_unique})
+    unique_peptide_ids = sorted(
+        {row.entity_id for row, is_unique in peptide_rows if is_unique}
+    )
     shared_peptide_ids = sorted(
         {row.entity_id for row, is_unique in peptide_rows if not is_unique}
     )
     values: list[ProteinLfqValue] = []
     for sample_id in sample_ids:
         sample_kinds = tuple(
-            next(value for value in row.values if value.sample_id == sample_id).missing_value_kind
+            next(
+                value for value in row.values if value.sample_id == sample_id
+            ).missing_value_kind
             for row, _ in peptide_rows
         )
         log2_abundance = solved_logs.get(sample_id)
@@ -523,7 +534,7 @@ def _build_target_lfq_row(
 
 
 def _build_pairwise_ratio_rows(
-    peptide_rows: list[tuple[object, bool]],
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
     *,
     sample_ids: tuple[str, ...],
     minimum_shared_peptides: int,
@@ -571,7 +582,7 @@ def _build_pairwise_ratio_rows(
 
 
 def _observed_log2_intensities_by_sample(
-    peptide_rows: list[tuple[object, bool]],
+    peptide_rows: list[tuple[PeptideIntensityMatrixRow, bool]],
     *,
     sample_ids: tuple[str, ...],
 ) -> dict[str, tuple[float, ...]]:
@@ -585,9 +596,7 @@ def _observed_log2_intensities_by_sample(
             ):
                 observed[value.sample_id].append(math.log2(float(value.abundance)))
     return {
-        sample_id: tuple(values)
-        for sample_id, values in observed.items()
-        if values
+        sample_id: tuple(values) for sample_id, values in observed.items() if values
     }
 
 
@@ -602,7 +611,9 @@ def _connected_components(
         adjacency[ratio.sample_a].add(ratio.sample_b)
         adjacency[ratio.sample_b].add(ratio.sample_a)
 
-    observed_samples = tuple(sample_id for sample_id in sample_ids if sample_id in observed_logs)
+    observed_samples = tuple(
+        sample_id for sample_id in sample_ids if sample_id in observed_logs
+    )
     components: list[tuple[str, ...]] = []
     seen: set[str] = set()
     for sample_id in observed_samples:
@@ -640,7 +651,9 @@ def _solve_component_profiles(
             solved_logs[sample_id] = _median(observed_logs[sample_id])
             continue
 
-        index_by_sample = {sample_id: index for index, sample_id in enumerate(component)}
+        index_by_sample = {
+            sample_id: index for index, sample_id in enumerate(component)
+        }
         equations: list[list[float]] = []
         targets: list[float] = []
         for sample_a_index, sample_a in enumerate(component):
@@ -662,7 +675,8 @@ def _solve_component_profiles(
         target_vector = np.array(targets, dtype=float)
         centered_solution, *_ = np.linalg.lstsq(matrix, target_vector, rcond=None)
         offsets = [
-            _median(observed_logs[sample_id]) - float(centered_solution[index_by_sample[sample_id]])
+            _median(observed_logs[sample_id])
+            - float(centered_solution[index_by_sample[sample_id]])
             for sample_id in component
         ]
         offset = _median(tuple(offsets))
@@ -674,7 +688,9 @@ def _solve_component_profiles(
 
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
-    if any(kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds):
+    if any(
+        kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO) for kind in kinds
+    ):
         if any(kind is MissingValueKind.ZERO for kind in kinds) and not any(
             kind is MissingValueKind.OBSERVED for kind in kinds
         ):

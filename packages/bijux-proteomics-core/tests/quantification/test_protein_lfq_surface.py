@@ -12,11 +12,11 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_psms,
+    parse_ms1_feature_table,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
-    parse_ms1_feature_table,
 )
 
 
@@ -67,7 +67,9 @@ def test_protein_lfq_from_features_recovers_pairwise_ratios_and_profile_order() 
     )
 
 
-def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status() -> None:
+def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status() -> (
+    None
+):
     report = parse_ms1_feature_table(_quant_fixture("protein_lfq_features.tsv"))
     lfq = build_protein_lfq_report_from_features(
         report.accepted_records,
@@ -83,6 +85,8 @@ def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status
     assert value_lookup["S1"].component_id == 1
     assert value_lookup["S2"].component_id == 1
     assert value_lookup["S3"].component_id == 2
+    assert value_lookup["S1"].abundance is not None
+    assert value_lookup["S2"].abundance is not None
     assert math.isclose(
         value_lookup["S2"].abundance / value_lookup["S1"].abundance,
         2.0,
@@ -91,7 +95,9 @@ def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status
     assert value_lookup["S3"].abundance is not None
 
 
-def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_ledgers() -> None:
+def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_ledgers() -> (
+    None
+):
     report = parse_psm_tsv(
         _quant_fixture("protein_lfq_psms.tsv"),
         mapping=SearchResultColumnMapping(
@@ -130,6 +136,12 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
         in matrix_tsv
     )
     assert "P1\tprotein\tP1\t3\t3\t0\t3\t1\tPEPAAK;PEPCCK;PEPVVK\t" in matrix_tsv
-    assert "entity_id\ttarget_kind\tsample_a\tsample_b\tshared_peptide_count" in pairwise_tsv
+    assert (
+        "entity_id\ttarget_kind\tsample_a\tsample_b\tshared_peptide_count"
+        in pairwise_tsv
+    )
     assert "P1\tprotein\tS1\tS2\t2\t1\t2\tPEPAAK;PEPVVK" in pairwise_tsv
-    assert "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count" in missingness_tsv
+    assert (
+        "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count"
+        in missingness_tsv
+    )

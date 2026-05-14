@@ -11,10 +11,10 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_protein_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_psms,
+    parse_ms1_feature_table,
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
-    parse_ms1_feature_table,
 )
 
 
@@ -65,7 +65,9 @@ def test_protein_intensity_matrix_from_features_supports_sum_median_and_top_n() 
     assert top_lookup[("P2", "S1")] == 800.0
 
 
-def test_protein_intensity_matrix_supports_unique_only_and_reports_peptide_counts() -> None:
+def test_protein_intensity_matrix_supports_unique_only_and_reports_peptide_counts() -> (
+    None
+):
     report = parse_ms1_feature_table(_quant_fixture("protein_matrix_features.tsv"))
     matrix = build_protein_intensity_matrix_from_features(
         report.accepted_records,
@@ -107,7 +109,9 @@ def test_protein_intensity_matrix_can_target_exact_protein_groups() -> None:
     assert lookup["S2"].abundance == 450.0
 
 
-def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_ledgers() -> None:
+def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_ledgers() -> (
+    None
+):
     report = parse_psm_tsv(
         _quant_fixture("peptide_matrix_psms.tsv"),
         mapping=SearchResultColumnMapping(
@@ -138,5 +142,8 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
         "entity_id\ttarget_kind\tprotein_refs\tpeptide_count\tunique_peptide_count\tshared_peptide_count\tcontributing_peptides\tR1\tR2"
         in matrix_tsv
     )
-    assert "P001\tprotein\tP001\t2\t2\t0\tPEMTIDE;PEM[Oxidation]TIDE\t1900\t1900" in matrix_tsv
+    assert (
+        "P001\tprotein\tP001\t2\t2\t0\tPEMTIDE;PEM[Oxidation]TIDE\t1900\t1900"
+        in matrix_tsv
+    )
     assert "R1\t1\t0\t0\t0" in missingness_tsv
