@@ -23,7 +23,9 @@ def _similarity_spectrum(
         spectrum_id=spectrum_id,
         precursor_mz=500.2,
         precursor_charge=2,
-        peaks=tuple(SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks),
+        peaks=tuple(
+            SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks
+        ),
     )
 
 
@@ -157,14 +159,14 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "contaminant_count": 0,
             },
         ]
-        assert Path("production.summary.tsv").read_text().splitlines()[0].startswith(
-            "input_record_count\tprotein_count\trejected_record_count"
+        assert (
+            Path("production.summary.tsv")
+            .read_text()
+            .splitlines()[0]
+            .startswith("input_record_count\tprotein_count\trejected_record_count")
         )
         assert "1-99\t1\t99\t6\t116" in Path("production.length.tsv").read_text()
-        assert (
-            "Homo sapiens\t4\t3\t1\t1"
-            in Path("production.organism.tsv").read_text()
-        )
+        assert "Homo sapiens\t4\t3\t1\t1" in Path("production.organism.tsv").read_text()
 
         dedup_result = runner.invoke(
             cli,
@@ -322,7 +324,9 @@ def test_fasta_decoy_command_reports_shuffle_caveats_and_prefix_collisions() -> 
         assert shuffle_result.exit_code == 0
         shuffle_payload = json.loads(shuffle_result.output)
         assert shuffle_payload["generation_report"]["unchanged_sequence_count"] == 1
-        assert shuffle_payload["generation_report"]["target_sequence_collision_count"] == 1
+        assert (
+            shuffle_payload["generation_report"]["target_sequence_collision_count"] == 1
+        )
 
         Path("collision.fasta").write_text(
             ">target_one Alpha target [Homo sapiens]\nMPEPTIDE\n"
@@ -465,10 +469,7 @@ def test_digest_command_supports_builtin_aspn_and_custom_rules() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("proteins.fasta").write_text(
-            (
-                ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\n"
-                "MPEPDADAA\n"
-            )
+            ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\nMPEPDADAA\n"
         )
 
         aspn_result = runner.invoke(
@@ -556,19 +557,15 @@ def test_peptide_index_command_reports_groups_il_equivalence_and_missed_cleavage
     runner = CliRunner()
     with runner.isolated_filesystem():
         Path("database.fasta").write_text(
-            (
-                ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\n"
-                "MPEPTLDEKAK\n"
-                ">sp|P20001|BETA_HUMAN Beta OS=Homo sapiens GN=BETA\n"
-                "AKSHADEQKQQ\n"
-                ">sp|P20002|GAMMA_HUMAN Gamma OS=Homo sapiens GN=GAMMA\n"
-                "MKSHADEQKLL\n"
-            )
+            ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\n"
+            "MPEPTLDEKAK\n"
+            ">sp|P20001|BETA_HUMAN Beta OS=Homo sapiens GN=BETA\n"
+            "AKSHADEQKQQ\n"
+            ">sp|P20002|GAMMA_HUMAN Gamma OS=Homo sapiens GN=GAMMA\n"
+            "MKSHADEQKLL\n"
         )
         Path("groups.tsv").write_text(
-            "accession\tprotein_group\n"
-            "P20001\tGROUP_SHARED\n"
-            "P20002\tGROUP_SHARED\n"
+            "accession\tprotein_group\nP20001\tGROUP_SHARED\nP20002\tGROUP_SHARED\n"
         )
 
         result = runner.invoke(
@@ -609,9 +606,7 @@ def test_peptide_index_command_reports_groups_il_equivalence_and_missed_cleavage
         assert by_query["M[+15.9949]PEPTIDEK"]["modification_stripped"] is True
         assert by_query["MPEPTLDEKAK"]["missed_cleavage_counts"] == [1]
         assert by_query["SHADEQK"]["protein_groups"] == ["GROUP_SHARED"]
-        assert (
-            by_query["SHADEQK"]["audit_class"] == "protein_group_specific"
-        )
+        assert by_query["SHADEQK"]["audit_class"] == "protein_group_specific"
 
 
 def test_peptide_mass_command_reports_mass_fragments_and_localization() -> None:
@@ -711,7 +706,9 @@ def test_peptide_properties_command_reports_filtering_metrics() -> None:
         assert "high_missed_cleavages" in payload["problem_flags"]
 
 
-def test_peptide_properties_command_supports_modifications_and_custom_protease() -> None:
+def test_peptide_properties_command_supports_modifications_and_custom_protease() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
@@ -1106,9 +1103,7 @@ def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:
         assert "concatenated_higher_better_reference" in Path(
             "reference.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "scan=5005" in Path("reference.entries.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "scan=5005" in Path("reference.entries.tsv").read_text(encoding="utf-8")
 
 
 def test_fdr_levels_command_reports_threshold_counts_and_contaminants() -> None:
@@ -1187,9 +1182,7 @@ def test_picked_protein_fdr_command_reports_pairs_groups_and_ledgers() -> None:
         assert payload["thresholds"] == [0.01, 0.05, 0.1]
         assert payload["accepted_rows"] == 10
         summary_rows = payload["summaries"]
-        threshold_tenth = next(
-            row for row in summary_rows if row["threshold"] == 0.1
-        )
+        threshold_tenth = next(row for row in summary_rows if row["threshold"] == 0.1)
         assert threshold_tenth["total_count"] == 5
         assert threshold_tenth["grouped_protein_count"] == 2
         assert threshold_tenth["accepted_count"] == 4
@@ -1400,9 +1393,9 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
         assert "P11111\t21\t15\t0.7142857142857143\t2-9;13-19" in Path(
             "protein_coverage.tsv"
         ).read_text(encoding="utf-8")
-        assert "P11111\t2\t13\t19\t7" in Path(
-            "protein_coverage.regions.tsv"
-        ).read_text(encoding="utf-8")
+        assert "P11111\t2\t13\t19\t7" in Path("protein_coverage.regions.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_protein_coverage_plot_command_emits_positions_svg_and_html() -> None:
@@ -1472,7 +1465,9 @@ def test_protein_coverage_plot_command_emits_positions_svg_and_html() -> None:
         assert modified["best_intensity"] == 500.0
         assert Path("protein_plot.positions.tsv").exists()
         assert Path("protein_plot.svg").read_text(encoding="utf-8").startswith("<svg")
-        assert Path("protein_plot.html").read_text(encoding="utf-8").startswith("<html>")
+        assert (
+            Path("protein_plot.html").read_text(encoding="utf-8").startswith("<html>")
+        )
         assert "ACDM[Oxidation]K" in Path("protein_plot.positions.tsv").read_text(
             encoding="utf-8"
         )
@@ -1569,9 +1564,7 @@ def test_peptide_evidence_command_reports_classes_and_tags() -> None:
         assert payload["summary"]["modified_count"] == 1
         assert payload["summary"]["contaminant_count"] == 1
         assert payload["summary"]["decoy_count"] == 1
-        by_peptide = {
-            entry["canonical_peptide"]: entry for entry in payload["entries"]
-        }
+        by_peptide = {entry["canonical_peptide"]: entry for entry in payload["entries"]}
         assert by_peptide["STRONGK"]["primary_class"] == "strong"
         assert by_peptide["SHAREDK"]["primary_class"] == "weak"
         assert "shared" in by_peptide["SHAREDK"]["tags"]
@@ -1583,10 +1576,9 @@ def test_peptide_evidence_command_reports_classes_and_tags() -> None:
         assert "strong_count\t2" in Path("peptide_evidence.summary.tsv").read_text(
             encoding="utf-8"
         )
-        assert (
-            "CONTAMK\tCONTAMK\tcontaminant\tunique;contaminant"
-            in Path("peptide_evidence.entries.tsv").read_text(encoding="utf-8")
-        )
+        assert "CONTAMK\tCONTAMK\tcontaminant\tunique;contaminant" in Path(
+            "peptide_evidence.entries.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
@@ -1896,7 +1888,10 @@ def test_spectrum_similarity_command_reports_pairwise_comparison() -> None:
         payload = json.loads(result.output)
         assert payload["comparison"]["classification"] == "duplicate_like"
         assert payload["comparison"]["score"] > 0.99
-        assert payload["library_report"]["matches"][0]["reference_spectrum_id"] == "reference"
+        assert (
+            payload["library_report"]["matches"][0]["reference_spectrum_id"]
+            == "reference"
+        )
         assert Path("similarity.tsv").exists()
 
 
@@ -1937,14 +1932,22 @@ def test_spectrum_similarity_command_supports_library_ranking_with_binning() -> 
         payload = json.loads(result.output)
         assert payload["comparison"] is None
         assert payload["library_report"]["parameters"]["matching_mode"] == "binned"
-        assert payload["library_report"]["matches"][0]["reference_spectrum_id"] == "best-match"
-        assert payload["library_report"]["matches"][0]["classification"] == "duplicate_like"
+        assert (
+            payload["library_report"]["matches"][0]["reference_spectrum_id"]
+            == "best-match"
+        )
+        assert (
+            payload["library_report"]["matches"][0]["classification"]
+            == "duplicate_like"
+        )
 
 
 def test_spectral_library_import_command_reports_msp_summary_and_candidates() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.msp", "review_library.msp")
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "review_library.msp", "review_library.msp"
+        )
 
         result = runner.invoke(
             cli,
@@ -1980,7 +1983,9 @@ def test_spectral_library_import_command_reports_msp_summary_and_candidates() ->
 def test_spectral_library_import_command_supports_mgf_library_indexing() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf")
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf"
+        )
 
         result = runner.invoke(
             cli,
@@ -2036,12 +2041,16 @@ def test_spectral_library_search_command_reports_ranked_decoy_aware_matches() ->
         assert payload["import_report"]["source_format"] == "msp"
         assert payload["library_summary"]["decoy_entry_count"] == 1
         assert payload["search_report"]["search_strategy"] == "concatenated"
-        assert payload["search_report"]["top_match_library_entry_id"] == "msp:1:PEPTIDE/2"
+        assert (
+            payload["search_report"]["top_match_library_entry_id"] == "msp:1:PEPTIDE/2"
+        )
         assert payload["search_report"]["matches"][0]["q_value"] == 0.0
         assert Path("library_search.tsv").exists()
 
 
-def test_spectral_library_search_command_supports_mgf_library_search_without_decoys() -> None:
+def test_spectral_library_search_command_supports_mgf_library_search_without_decoys() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         query = _similarity_spectrum(
@@ -2049,7 +2058,9 @@ def test_spectral_library_search_command_supports_mgf_library_search_without_dec
             ((100.01, 1500.0), (250.01, 800.0)),
         )
         Path("query.mgf").write_text(render_mgf((query,)), encoding="utf-8")
-        shutil.copy(FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf")
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "review_library.mgf", "review_library.mgf"
+        )
 
         result = runner.invoke(
             cli,
@@ -2632,7 +2643,10 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
             payload["evidence_normalization"]["adapter"]["display_name"]
             == "MaxQuant bundle evidence"
         )
-        assert payload["protein_group_rows"][0]["lfq_intensities"][0]["experiment_name"] == "raw_A"
+        assert (
+            payload["protein_group_rows"][0]["lfq_intensities"][0]["experiment_name"]
+            == "raw_A"
+        )
         assert Path("maxquant.summary.tsv").exists()
         assert Path("maxquant.evidence.tsv").exists()
         assert Path("maxquant.peptides.tsv").exists()
@@ -2679,7 +2693,9 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert Path("diann.protein_groups.tsv").exists()
 
 
-def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> None:
+def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
+    None
+):
     runner = CliRunner()
     with runner.isolated_filesystem():
         fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "spectronaut"
@@ -2965,9 +2981,9 @@ def test_peptide_matrix_command_emits_feature_backed_matrix_and_ledgers() -> Non
         assert "feature\tmodified_peptide\ttrue\tsum" in Path(
             "peptide_matrix.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEM[Oxidation]TIDE/z2" in Path(
-            "peptide_matrix.matrix.tsv"
-        ).read_text(encoding="utf-8")
+        assert "PEM[Oxidation]TIDE/z2" in Path("peptide_matrix.matrix.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_peptide_matrix_command_emits_psm_backed_matrix_and_skipped_counts() -> None:
@@ -3009,11 +3025,11 @@ def test_peptide_matrix_command_emits_psm_backed_matrix_and_skipped_counts() -> 
         assert payload["report"]["summary"]["accepted_source_record_count"] == 5
         assert payload["report"]["summary"]["skipped_source_record_count"] == 2
         assert payload["report"]["rows"][0]["values"]
-        summary_tsv = Path("peptide_matrix_psm.summary.tsv").read_text(
-            encoding="utf-8"
-        )
+        summary_tsv = Path("peptide_matrix_psm.summary.tsv").read_text(encoding="utf-8")
         assert "skipped_source_record_count" in summary_tsv
-        assert "psm\tmodified_peptide\tfalse\tsum\t5\t2\t2\t2\t3\t0\t1\t0\t" in summary_tsv
+        assert (
+            "psm\tmodified_peptide\tfalse\tsum\t5\t2\t2\t2\t3\t0\t1\t0\t" in summary_tsv
+        )
 
 
 def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> None:
@@ -3104,9 +3120,7 @@ def test_protein_matrix_command_emits_psm_backed_group_rollup() -> None:
         assert payload["rejected_source_records"] == 0
         assert payload["report"]["summary"]["protein_row_count"] == 1
         assert payload["report"]["rows"][0]["target_kind"] == "protein_group"
-        summary_tsv = Path("protein_matrix_psm.summary.tsv").read_text(
-            encoding="utf-8"
-        )
+        summary_tsv = Path("protein_matrix_psm.summary.tsv").read_text(encoding="utf-8")
         assert "target_kind" in summary_tsv
         assert "psm\tmodified_peptide\tprotein_group\tfalse\tsum\tfalse" in summary_tsv
 
@@ -3157,9 +3171,10 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
         assert "feature\tmodified_peptide\tprotein\tfalse\tsum\tfalse\t2" in Path(
             "protein_lfq.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "P1\tprotein\tP1\t3\t3\t0\t2\t1\tPEPAAK;PEPCCK;PEPVVK\t447.214\t894.427\t223.607" in Path(
-            "protein_lfq.matrix.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "P1\tprotein\tP1\t3\t3\t0\t2\t1\tPEPAAK;PEPCCK;PEPVVK\t447.214\t894.427\t223.607"
+            in Path("protein_lfq.matrix.tsv").read_text(encoding="utf-8")
+        )
         assert "P1\tprotein\tS1\tS2\t2\t1\t2\tPEPAAK;PEPVVK" in Path(
             "protein_lfq.pairwise.tsv"
         ).read_text(encoding="utf-8")
@@ -3203,9 +3218,7 @@ def test_protein_lfq_command_emits_psm_backed_group_rollup_and_skipped_rows() ->
         assert payload["rejected_source_records"] == 0
         assert payload["report"]["summary"]["protein_row_count"] == 1
         assert payload["report"]["summary"]["total_pairwise_ratio_count"] == 3
-        summary_tsv = Path("protein_lfq_psm.summary.tsv").read_text(
-            encoding="utf-8"
-        )
+        summary_tsv = Path("protein_lfq_psm.summary.tsv").read_text(encoding="utf-8")
         assert "aggregation_method" in summary_tsv
         assert "psm\tmodified_peptide\tprotein\tfalse\tsum\tfalse\t1" in summary_tsv
 

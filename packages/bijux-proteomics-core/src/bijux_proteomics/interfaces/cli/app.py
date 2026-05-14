@@ -19,8 +19,8 @@ from bijux_proteomics.chemistry import (
     SearchEngineModifiedPeptideDialect,
     approximate_peptide_isotope_envelope,
     build_fragment_ion_review_report,
-    build_modification_resolution_report,
     build_modification_localization_advisory,
+    build_modification_resolution_report,
     build_modified_peptide,
     build_peptide_charge_state,
     build_search_engine_modified_peptide_report,
@@ -43,61 +43,59 @@ from bijux_proteomics.identification import (
     ParsimonyVariant,
     PsmRecord,
     SearchResultColumnMapping,
-    TargetDecoyReferenceCase,
     TargetDecoyLabelPolicy,
+    TargetDecoyReferenceCase,
     apply_q_values,
     assign_confidence_labels,
     assign_razor_peptides,
     build_calibration_plot_data,
-    build_contaminant_peptide_match_report,
     build_comet_import_report,
-    build_diann_import_report,
-    build_peptide_evidence_review_report,
-    build_parsimony_review_report,
-    build_picked_protein_fdr_review_report,
+    build_contaminant_peptide_match_report,
     build_core_protein_inference_benchmark_suite,
-    build_protein_ambiguity_review_report,
-    build_protein_coverage_plot_report,
+    build_diann_import_report,
+    build_evidence_level_fdr_review_report,
     build_fdr_audit_trail,
     build_fragpipe_import_report,
     build_generic_psm_mapper_report,
-    build_evidence_level_fdr_review_report,
     build_maxquant_import_report,
     build_openms_import_report,
-    build_protein_coverage_review_report,
-    build_protein_grouping_review_report,
-    build_psm_evidence_inspection_report,
+    build_parsimony_review_report,
+    build_peptide_evidence_review_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
+    build_picked_protein_fdr_review_report,
+    build_protein_ambiguity_review_report,
     build_protein_coverage_map,
+    build_protein_coverage_plot_report,
+    build_protein_coverage_review_report,
+    build_protein_grouping_review_report,
     build_protein_groups,
     build_protein_summary_report,
+    build_psm_evidence_inspection_report,
     build_psm_summary_report,
+    build_sage_import_report,
     build_search_result_provenance_manifest,
+    build_spectronaut_import_report,
+    build_target_decoy_reference_validation_report,
     calculate_grouped_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
-    build_target_decoy_reference_validation_report,
     export_psm_jsonl,
     export_psm_tsv,
     filter_psms_by_fdr,
     infer_proteins_by_parsimony,
     parse_psm_tsv,
-    render_target_decoy_reference_entries_tsv,
-    render_target_decoy_reference_summary_tsv,
     render_comet_psm_tsv,
     render_comet_summary_tsv,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
     render_diann_summary_tsv,
+    render_evidence_level_fdr_entries_tsv,
+    render_evidence_level_fdr_summary_tsv,
     render_fragpipe_peptide_tsv,
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
     render_fragpipe_summary_tsv,
-    render_picked_protein_fdr_entries_tsv,
-    render_picked_protein_fdr_summary_tsv,
-    render_evidence_level_fdr_entries_tsv,
-    render_evidence_level_fdr_summary_tsv,
     render_generic_psm_mapper_tsv,
     render_maxquant_evidence_tsv,
     render_maxquant_peptide_tsv,
@@ -107,33 +105,35 @@ from bijux_proteomics.identification import (
     render_openms_protein_tsv,
     render_openms_psm_tsv,
     render_openms_summary_tsv,
-    render_peptide_evidence_entries_tsv,
-    render_peptide_evidence_summary_tsv,
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
     render_parsimony_review_summary_tsv,
+    render_peptide_evidence_entries_tsv,
+    render_peptide_evidence_summary_tsv,
+    render_picked_protein_fdr_entries_tsv,
+    render_picked_protein_fdr_summary_tsv,
     render_protein_ambiguity_entries_tsv,
     render_protein_ambiguity_summary_tsv,
-    render_protein_inference_benchmark_assessments_tsv,
-    render_protein_inference_benchmark_scenarios_tsv,
-    render_protein_inference_benchmark_summary_tsv,
+    render_protein_coverage_entries_tsv,
     render_protein_coverage_plot_html,
     render_protein_coverage_plot_positions_tsv,
     render_protein_coverage_plot_svg,
-    render_protein_coverage_entries_tsv,
     render_protein_coverage_regions_tsv,
     render_protein_coverage_summary_tsv,
     render_protein_grouping_entries_tsv,
     render_protein_grouping_summary_tsv,
+    render_protein_inference_benchmark_assessments_tsv,
+    render_protein_inference_benchmark_scenarios_tsv,
+    render_protein_inference_benchmark_summary_tsv,
     render_psm_evidence_inspection_summary_tsv,
     render_psm_inspection_distribution_tsv,
-    build_spectronaut_import_report,
+    render_sage_psm_tsv,
+    render_sage_summary_tsv,
     render_spectronaut_precursor_tsv,
     render_spectronaut_protein_group_tsv,
     render_spectronaut_summary_tsv,
-    build_sage_import_report,
-    render_sage_psm_tsv,
-    render_sage_summary_tsv,
+    render_target_decoy_reference_entries_tsv,
+    render_target_decoy_reference_summary_tsv,
 )
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
@@ -152,6 +152,19 @@ from bijux_proteomics.interfaces.runtime_plans import (
     build_proteomics_workflow_runtime_bundle,
     build_workflow_runtime_validation_report,
 )
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    FormatConversionTarget,
+    ProteomicsFormatKind,
+    build_mzml_collection_summary,
+    build_normalized_run_bundle,
+    convert_proteomics_format,
+    export_spectra_jsonl,
+    extract_mzml_chromatograms,
+    parse_experimental_design_table,
+    parse_mzml,
+    validate_proteomics_input,
+)
 from bijux_proteomics.io.ingestion import (
     build_mzml_practical_review_report,
     build_streaming_parse_profile,
@@ -165,41 +178,28 @@ from bijux_proteomics.io.run_qc import (
     render_spectrum_run_qc_time_bins_tsv,
     render_spectrum_run_qc_trace_tsv,
 )
-from bijux_proteomics.io.formats import (
-    ExperimentalDesignEntry,
-    FormatConversionTarget,
-    ProteomicsFormatKind,
-    build_mzml_collection_summary,
-    export_spectra_jsonl,
-    build_normalized_run_bundle,
-    convert_proteomics_format,
-    extract_mzml_chromatograms,
-    parse_experimental_design_table,
-    parse_mzml,
-    validate_proteomics_input,
-)
 from bijux_proteomics.io.spectra import (
     PrecursorMassErrorQuery,
+    SpectralSimilarityMethod,
+    SpectrumModel,
+    SpectrumSimilarityMode,
     annotate_spectrum_fragments,
-    build_spectrum_library_similarity_report,
-    build_spectrum_similarity_comparison_report,
     build_precursor_mass_error_report,
     build_spectrum_collection_summary,
+    build_spectrum_library_similarity_report,
     build_spectrum_metrics,
     build_spectrum_plot_payload,
     build_spectrum_provenance_manifest,
+    build_spectrum_similarity_comparison_report,
     build_spectrum_summary_table_report,
     export_spectrum_annotation_tsv,
     parse_mgf,
-    render_spectrum_similarity_tsv,
     render_precursor_mass_error_distribution_tsv,
     render_precursor_mass_error_observations_tsv,
     render_precursor_mass_error_summary_tsv,
     render_spectrum_distribution_tsv,
+    render_spectrum_similarity_tsv,
     render_spectrum_summary_tsv,
-    SpectralSimilarityMethod,
-    SpectrumModel,
-    SpectrumSimilarityMode,
 )
 from bijux_proteomics.io.spectral_library import (
     build_spectral_library_index,
@@ -238,9 +238,9 @@ from bijux_proteomics.quantification import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
     build_protein_intensity_matrix_from_features,
+    build_protein_intensity_matrix_from_psms,
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_psms,
-    build_protein_intensity_matrix_from_psms,
     build_replicate_correlation_report,
     build_spectral_count_table,
     normalize_label_free_table,
@@ -262,17 +262,17 @@ from bijux_proteomics.sequences import (
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
-    build_decoy_generation_report,
     append_contaminant_database,
-    build_fasta_database_profile,
     build_decoy_generation_manifest,
+    build_decoy_generation_report,
+    build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
+    build_peptide_property_report,
     deduplicate_fasta_records,
     filter_fasta_records,
     generate_decoy_records,
     parse_fasta_document,
-    build_peptide_property_report,
     render_fasta_profile_length_distribution_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
@@ -280,8 +280,10 @@ from bijux_proteomics.sequences import (
     sequence_checksum,
     validate_target_decoy_database,
 )
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
+    ProteaseRule,
     build_digest_manifest,
     digest_protein_records,
     export_peptide_protein_table_tsv,
@@ -324,7 +326,9 @@ def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def _load_similarity_spectra(input_path: Path, *, kind: str) -> tuple[SpectrumModel, ...]:
+def _load_similarity_spectra(
+    input_path: Path, *, kind: str
+) -> tuple[SpectrumModel, ...]:
     resolved_kind = kind
     if resolved_kind == "auto":
         suffix = input_path.suffix.lower()
@@ -359,7 +363,9 @@ def _select_similarity_spectrum(
     try:
         return next(item for item in spectra if item.spectrum_id == spectrum_id)
     except StopIteration as exc:
-        raise ValueError(f"unknown spectrum id {spectrum_id!r} in {input_path.name!r}") from exc
+        raise ValueError(
+            f"unknown spectrum id {spectrum_id!r} in {input_path.name!r}"
+        ) from exc
 
 
 def _load_protein_group_map(path: Path) -> dict[str, str]:
@@ -392,7 +398,7 @@ def _resolve_cli_protease_rule(
     protease: str,
     custom_protease: str | None,
     custom_protease_name: str,
-) -> tuple[object, str | None]:
+) -> tuple[ProteaseRule, str | None]:
     specification = custom_protease.strip() if custom_protease is not None else ""
     if not specification:
         rule = resolve_protease_rule(protease)
@@ -462,7 +468,9 @@ def _load_precursor_mass_error_queries(
     with input_tsv.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         if reader.fieldnames is None:
-            raise click.ClickException("precursor mass-error TSV must include a header row")
+            raise click.ClickException(
+                "precursor mass-error TSV must include a header row"
+            )
         for required_column in (peptide_column, observed_mz_column, charge_column):
             if required_column not in reader.fieldnames:
                 raise click.ClickException(
@@ -693,7 +701,11 @@ def _filter_review_psms(
 ) -> tuple[PsmRecord, ...]:
     """Preserve imported q-values for review surfaces when they are complete."""
     if records and all(record.q_value is not None for record in records):
-        return tuple(record for record in records if record.q_value <= threshold)
+        return tuple(
+            record
+            for record in records
+            if record.q_value is not None and record.q_value <= threshold
+        )
     return filter_psms_by_fdr(
         records,
         threshold=threshold,
@@ -919,7 +931,7 @@ def fasta_contaminants_command(
         mode=FastaParseMode(mode),
         allow_rejected=False,
     )
-    external_records = []
+    external_records: list[NormalizedProteinRecord] = []
     for contaminant_fasta in contaminant_fastas:
         contaminant_report = _load_fasta_report(
             contaminant_fasta,
@@ -1125,9 +1137,7 @@ def psm_contaminants_command(
 
 
 @cli.command("fragpipe-import")
-@click.argument(
-    "psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
-)
+@click.argument("psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option(
     "--peptide-tsv",
     required=True,
@@ -1193,7 +1203,9 @@ def fragpipe_import_command(
         "summary": report.summary.to_dict(),
         "psm_normalization": {
             "adapter": report.psm_normalization.adapter_manifest.to_dict(),
-            "accepted_rows": len(report.psm_normalization.parse_report.accepted_records),
+            "accepted_rows": len(
+                report.psm_normalization.parse_report.accepted_records
+            ),
             "rejected_rows": len(report.psm_normalization.parse_report.rejected_rows),
         },
         "psm_rows": [row.to_dict() for row in report.psm_rows],
@@ -1389,7 +1401,9 @@ def maxquant_import_command(
             render_maxquant_evidence_tsv(report.evidence_rows),
         )
     if peptide_tsv_out is not None:
-        _write_text_output(peptide_tsv_out, render_maxquant_peptide_tsv(report.peptide_rows))
+        _write_text_output(
+            peptide_tsv_out, render_maxquant_peptide_tsv(report.peptide_rows)
+        )
     if protein_group_tsv_out is not None:
         _write_text_output(
             protein_group_tsv_out,
@@ -1400,8 +1414,12 @@ def maxquant_import_command(
         "summary": report.summary.to_dict(),
         "evidence_normalization": {
             "adapter": report.evidence_normalization.adapter_manifest.to_dict(),
-            "accepted_rows": len(report.evidence_normalization.parse_report.accepted_records),
-            "rejected_rows": len(report.evidence_normalization.parse_report.rejected_rows),
+            "accepted_rows": len(
+                report.evidence_normalization.parse_report.accepted_records
+            ),
+            "rejected_rows": len(
+                report.evidence_normalization.parse_report.rejected_rows
+            ),
         },
         "parameter_report": None
         if report.parameter_report is None
@@ -4562,9 +4580,9 @@ def peptide_matrix_command(
                 protein_separator=protein_separator,
                 intensity_column=intensity_column,
             )
-            parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
+            psm_parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
             report = build_peptide_intensity_matrix_from_psms(
-                parse_report.accepted_records,
+                psm_parse_report.accepted_records,
                 grouping_mode=grouping,
                 separate_charge_states=separate_charge_states,
                 aggregation_method=rollup_method,
@@ -4572,8 +4590,8 @@ def peptide_matrix_command(
             )
             payload = {
                 "input_kind": input_kind,
-                "accepted_source_records": len(parse_report.accepted_records),
-                "rejected_source_records": len(parse_report.rejected_rows),
+                "accepted_source_records": len(psm_parse_report.accepted_records),
+                "rejected_source_records": len(psm_parse_report.rejected_rows),
                 "report": report.to_dict(),
             }
     except Exception as exc:  # noqa: BLE001
@@ -4761,9 +4779,9 @@ def protein_matrix_command(
                 protein_separator=protein_separator,
                 intensity_column=intensity_column,
             )
-            parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
+            psm_parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
             report = build_protein_intensity_matrix_from_psms(
-                parse_report.accepted_records,
+                psm_parse_report.accepted_records,
                 grouping_mode=grouping,
                 separate_charge_states=separate_charge_states,
                 target_kind=active_target_kind,
@@ -4773,8 +4791,8 @@ def protein_matrix_command(
             )
             payload = {
                 "input_kind": input_kind,
-                "accepted_source_records": len(parse_report.accepted_records),
-                "rejected_source_records": len(parse_report.rejected_rows),
+                "accepted_source_records": len(psm_parse_report.accepted_records),
+                "rejected_source_records": len(psm_parse_report.rejected_rows),
                 "report": report.to_dict(),
             }
     except Exception as exc:  # noqa: BLE001
@@ -4971,9 +4989,9 @@ def protein_lfq_command(
                 protein_separator=protein_separator,
                 intensity_column=intensity_column,
             )
-            parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
+            psm_parse_report = parse_psm_tsv(input_table, mapping=psm_mapping)
             report = build_protein_lfq_report_from_psms(
-                parse_report.accepted_records,
+                psm_parse_report.accepted_records,
                 grouping_mode=grouping,
                 target_kind=active_target_kind,
                 separate_charge_states=separate_charge_states,
@@ -4984,8 +5002,8 @@ def protein_lfq_command(
             )
             payload = {
                 "input_kind": input_kind,
-                "accepted_source_records": len(parse_report.accepted_records),
-                "rejected_source_records": len(parse_report.rejected_rows),
+                "accepted_source_records": len(psm_parse_report.accepted_records),
+                "rejected_source_records": len(psm_parse_report.rejected_rows),
                 "report": report.to_dict(),
             }
     except Exception as exc:  # noqa: BLE001
@@ -5185,18 +5203,18 @@ def spectrum_summary_command(
             )
 
     if resolved_kind == "mgf":
-        parse_report = parse_mgf(input_path)
+        mgf_parse_report = parse_mgf(input_path)
         report = build_spectrum_summary_table_report(
-            parse_report.accepted_spectra,
+            mgf_parse_report.accepted_spectra,
             source_kind="mgf",
-            rejected_count=len(parse_report.rejected_blocks),
+            rejected_count=len(mgf_parse_report.rejected_blocks),
         )
     elif resolved_kind == "mzml":
-        parse_report = parse_mzml(input_path)
+        mzml_parse_report = parse_mzml(input_path)
         report = build_spectrum_summary_table_report(
-            parse_report.accepted_spectra,
+            mzml_parse_report.accepted_spectra,
             source_kind="mzml",
-            rejected_count=len(parse_report.rejected_spectra),
+            rejected_count=len(mzml_parse_report.rejected_spectra),
         )
     else:
         raise click.ClickException("spectrum-summary supports only mgf and mzml")
@@ -5234,9 +5252,7 @@ def spectrum_summary_command(
     payload = report.to_dict()
     payload["summary_tsv_out"] = str(summary_tsv_out) if summary_tsv_out else None
     payload["charge_tsv_out"] = str(charge_tsv_out) if charge_tsv_out else None
-    payload["precursor_tsv_out"] = (
-        str(precursor_tsv_out) if precursor_tsv_out else None
-    )
+    payload["precursor_tsv_out"] = str(precursor_tsv_out) if precursor_tsv_out else None
     payload["peak_count_tsv_out"] = (
         str(peak_count_tsv_out) if peak_count_tsv_out else None
     )
@@ -5334,19 +5350,19 @@ def spectrum_qc_command(
             )
 
     if resolved_kind == "mgf":
-        parse_report = parse_mgf(input_path)
+        mgf_parse_report = parse_mgf(input_path)
         report = build_spectrum_run_qc_report(
-            parse_report.accepted_spectra,
+            mgf_parse_report.accepted_spectra,
             source_kind="mgf",
-            rejected_count=len(parse_report.rejected_blocks),
+            rejected_count=len(mgf_parse_report.rejected_blocks),
             time_bin_seconds=time_bin_seconds,
         )
     elif resolved_kind == "mzml":
-        parse_report = parse_mzml(input_path)
+        mzml_parse_report = parse_mzml(input_path)
         report = build_spectrum_run_qc_report(
-            parse_report.accepted_spectra,
+            mzml_parse_report.accepted_spectra,
             source_kind="mzml",
-            rejected_count=len(parse_report.rejected_spectra),
+            rejected_count=len(mzml_parse_report.rejected_spectra),
             chromatograms=extract_mzml_chromatograms(input_path),
             time_bin_seconds=time_bin_seconds,
         )
@@ -5491,7 +5507,9 @@ def spectrum_annotate_command(
     out_path: Path | None,
 ) -> None:
     """Annotate one spectrum against a peptide sequence."""
-    effective_tolerance_da = 0.02 if tolerance_da is None and tolerance_ppm is None else tolerance_da
+    effective_tolerance_da = (
+        0.02 if tolerance_da is None and tolerance_ppm is None else tolerance_da
+    )
     report = parse_mgf(input_mgf)
     if not report.accepted_spectra:
         raise click.ClickException(
@@ -5611,6 +5629,7 @@ def spectrum_similarity_command(
         if max_matches is not None and max_matches <= 0:
             raise ValueError("max_matches must be greater than zero when provided")
 
+        payload: dict[str, Any]
         if reference_spectrum_id is not None:
             reference_spectrum = _select_similarity_spectrum(
                 reference_spectra,
@@ -5855,7 +5874,9 @@ def spectral_library_search_command(
             max_matches=max_matches,
         )
         if tsv_out is not None:
-            _write_text_output(tsv_out, render_spectral_library_search_tsv(search_report))
+            _write_text_output(
+                tsv_out, render_spectral_library_search_tsv(search_report)
+            )
         payload = {
             "import_report": import_report.to_dict(),
             "library_summary": summary.to_dict(),
