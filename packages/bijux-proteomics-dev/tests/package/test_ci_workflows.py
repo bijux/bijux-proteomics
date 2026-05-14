@@ -130,6 +130,24 @@ def test_verify_workflow_uses_repo_contract_job_and_package_matrix() -> None:
     found = {entry["package_slug"] for entry in include if isinstance(entry, dict)}
     assert found == EXPECTED_VERIFY_PACKAGES
 
+    no_api_packages = {
+        "bijux-proteomics",
+        "proteomics",
+        "proteomics-core",
+        "proteomics-foundation",
+        "proteomics-runtime",
+        "proteomics-intelligence",
+        "proteomics-knowledge",
+        "proteomics-lab",
+    }
+    for entry in include:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("package_slug") in no_api_packages:
+            assert entry["check_targets"] == (
+                "[\"quality\", \"security\", \"docs\", \"build\", \"sbom\"]"
+            )
+
     dev = next(
         entry for entry in include if entry["package_slug"] == "bijux-proteomics-dev"
     )
