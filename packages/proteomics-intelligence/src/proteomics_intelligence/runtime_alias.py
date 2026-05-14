@@ -12,20 +12,26 @@ from types import ModuleType
 
 
 class _RuntimeAliasLoader(Loader):
+    """Load the canonical runtime module for an alias-package submodule."""
+
     def __init__(self, alias_name: str, runtime_name: str) -> None:
         self._alias_name = alias_name
         self._runtime_name = runtime_name
 
     def create_module(self, spec: ModuleSpec) -> ModuleType:
+        """Instantiate the canonical runtime module for the alias import."""
         module = import_module(self._runtime_name)
         sys.modules[self._alias_name] = module
         return module
 
     def exec_module(self, module: ModuleType) -> None:
+        """Register the runtime-backed module under the alias import name."""
         sys.modules.setdefault(self._alias_name, module)
 
 
 class _RuntimeAliasFinder(MetaPathFinder):
+    """Resolve alias-package submodules through the canonical runtime package."""
+
     def __init__(
         self,
         *,
@@ -33,6 +39,7 @@ class _RuntimeAliasFinder(MetaPathFinder):
         runtime_package: str,
         local_submodules: Collection[str],
     ) -> None:
+        """Capture the alias-to-runtime mapping and local exclusions."""
         self.alias_package = alias_package
         self.runtime_package = runtime_package
         self.local_submodules = frozenset(local_submodules)
@@ -44,6 +51,7 @@ class _RuntimeAliasFinder(MetaPathFinder):
         path: object | None = None,
         target: ModuleType | None = None,
     ) -> ModuleSpec | None:
+        """Return a loader spec that redirects alias submodules to runtime modules."""
         del path, target
         if not fullname.startswith(self._alias_prefix):
             return None
@@ -73,6 +81,7 @@ def install_runtime_aliases(
     runtime_package: str,
     local_submodules: Collection[str],
 ) -> None:
+    """Install a finder that maps alias-package submodules onto runtime modules."""
     for finder in sys.meta_path:
         if not isinstance(finder, _RuntimeAliasFinder):
             continue

@@ -32,8 +32,10 @@ __all__ = list(getattr(_runtime_module, "__all__", ()))
 
 
 def __getattr__(name: str) -> Any:
+    """Forward top-level compatibility lookups to the canonical runtime package."""
     return getattr(_runtime_module, name)
 
 
 def __dir__() -> list[str]:
+    """Expose canonical runtime attributes in interactive discovery."""
     return sorted(set(globals()) | set(dir(_runtime_module)))
