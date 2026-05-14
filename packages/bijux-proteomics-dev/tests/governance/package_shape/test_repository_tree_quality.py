@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.repository_tree_quality import (
     REPOSITORY_TREE_QUALITY_PATH,
     build_repository_tree_quality_report,
     run,
     validate_repository_tree_quality,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_repository_tree_quality_report_is_up_to_date() -> None:

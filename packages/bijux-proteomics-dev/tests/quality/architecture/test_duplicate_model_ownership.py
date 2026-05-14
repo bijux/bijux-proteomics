@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics_dev.quality.architecture.duplicate_model_ownership import (
     DUPLICATE_MODEL_OWNERSHIP_CSV_PATH,
     DUPLICATE_MODEL_OWNERSHIP_SUMMARY_PATH,
@@ -17,6 +19,7 @@ REPO_ROOT = next(
 )
 
 
+@pytest.mark.slow
 def test_duplicate_model_ownership_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 

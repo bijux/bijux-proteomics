@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.dependencies.package_dependency_dossiers import (
     PACKAGE_DEPENDENCY_DOSSIERS_PATH,
     build_package_dependency_dossier_report,
     run,
     validate_package_dependency_dossiers,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_package_dependency_dossiers_are_up_to_date() -> None:

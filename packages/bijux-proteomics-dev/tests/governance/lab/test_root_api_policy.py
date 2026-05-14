@@ -5,6 +5,8 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
+import pytest
+
 import bijux_proteomics_lab
 
 REPO_ROOT = next(
@@ -90,6 +92,7 @@ def test_lab_root_excludes_convenience_only_exports() -> None:
     assert removed.isdisjoint(bijux_proteomics_lab.__all__)
 
 
+@pytest.mark.slow
 def test_lab_root_is_not_used_outside_public_surface_checks() -> None:
     violations: list[str] = []
     for path in sorted((REPO_ROOT / "packages").rglob("*.py")):

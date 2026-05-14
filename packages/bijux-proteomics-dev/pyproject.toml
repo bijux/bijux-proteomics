@@ -101,3 +101,8 @@ verbose = 0
 ignore-init-method = true
 ignore-private = true
 ignore-semiprivate = true
+
+[tool.pytest.ini_options]
+markers = [
+  "slow: mark test as slow",
+]

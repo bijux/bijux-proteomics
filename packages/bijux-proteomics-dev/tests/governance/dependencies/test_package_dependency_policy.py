@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.dependencies.package_dependency_policy import (
     PACKAGE_DEPENDENCY_POLICY_PATH,
     build_package_dependency_policy_report,
@@ -8,6 +10,7 @@ from bijux_proteomics_dev.governance.dependencies.package_dependency_policy impo
 )
 
 
+@pytest.mark.slow
 def test_package_dependency_policy_is_up_to_date() -> None:
     assert run(check=True) == 0
 
@@ -52,5 +55,6 @@ def test_package_dependency_policy_covers_workspace_packages() -> None:
     )
 
 
+@pytest.mark.slow
 def test_package_dependency_policy_has_no_live_violations() -> None:
     assert validate_package_dependency_policy() == ()

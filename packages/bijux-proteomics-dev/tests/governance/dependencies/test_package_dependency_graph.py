@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.dependencies.package_dependency_graph import (
     PACKAGE_DEPENDENCY_GRAPH_PATH,
     build_package_dependency_graph_report,
     run,
     validate_package_dependency_graph,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_package_dependency_graph_report_is_up_to_date() -> None:

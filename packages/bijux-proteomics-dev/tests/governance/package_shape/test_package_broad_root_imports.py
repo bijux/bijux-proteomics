@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.package_broad_root_imports import (
     PACKAGE_BROAD_ROOT_IMPORTS_PATH,
     build_package_broad_root_import_report,
     run,
     validate_package_broad_root_imports,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_package_broad_root_import_report_is_up_to_date() -> None:

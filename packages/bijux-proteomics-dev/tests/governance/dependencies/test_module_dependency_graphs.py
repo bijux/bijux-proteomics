@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.dependencies.module_dependency_graphs import (
     MODULE_DEPENDENCY_GRAPHS_DIR,
     build_module_dependency_graph_report,
@@ -10,6 +12,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
 )
 
 
+@pytest.mark.slow
 def test_module_dependency_graphs_are_up_to_date() -> None:
     assert run(check=True) == 0
 

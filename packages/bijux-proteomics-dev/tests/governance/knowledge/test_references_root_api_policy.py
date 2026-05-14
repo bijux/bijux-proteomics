@@ -5,6 +5,8 @@ from pathlib import Path
 import tomllib
 from typing import Any, cast
 
+import pytest
+
 import bijux_proteomics_knowledge.references as knowledge_references
 
 REPO_ROOT = next(
@@ -98,6 +100,7 @@ def test_knowledge_references_root_excludes_convenience_registry_exports() -> No
     assert removed.isdisjoint(knowledge_references.__all__)
 
 
+@pytest.mark.slow
 def test_knowledge_references_root_is_not_used_inside_repo_owners() -> None:
     violations: list[str] = []
     for path in sorted((REPO_ROOT / "packages").rglob("*.py")):

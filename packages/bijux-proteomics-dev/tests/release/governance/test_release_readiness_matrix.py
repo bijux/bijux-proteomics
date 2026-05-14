@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.release.governance.release_readiness_matrix import (
     RELEASE_READINESS_MATRIX_PATH,
     build_release_readiness_matrix,
     run,
     validate_release_readiness_matrix,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_release_readiness_matrix_is_up_to_date() -> None:

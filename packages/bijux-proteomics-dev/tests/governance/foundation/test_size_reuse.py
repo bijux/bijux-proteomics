@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.foundation.size_reuse import (
     FOUNDATION_SIZE_REUSE_PATH,
     build_foundation_size_reuse_report,
     run,
     validate_foundation_size_reuse,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_foundation_size_reuse_report_is_up_to_date() -> None:

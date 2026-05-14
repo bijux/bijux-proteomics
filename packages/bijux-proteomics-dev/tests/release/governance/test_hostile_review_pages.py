@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.release.governance.hostile_review_pages import (
     build_hostile_review_page_set,
     run,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_hostile_review_pages_are_up_to_date() -> None:

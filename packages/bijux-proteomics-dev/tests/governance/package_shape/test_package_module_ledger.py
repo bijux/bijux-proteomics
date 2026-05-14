@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.package_module_ledger import (
     PACKAGE_MODULE_LEDGER_PATH,
     build_package_module_ledger_report,
@@ -7,6 +9,7 @@ from bijux_proteomics_dev.governance.package_shape.package_module_ledger import 
 )
 
 
+@pytest.mark.slow
 def test_package_module_ledger_classifies_owner_wrapper_and_test_modules() -> None:
     report = build_package_module_ledger_report()
     by_path = {entry.module_path: entry for entry in report.entries}

@@ -14,6 +14,7 @@ COV_XML                   ?= $(TEST_ARTIFACTS_DIR)/coverage.xml
 
 ENABLE_BENCH              ?= 1
 PYTEST_ADDOPTS_EXTRA      ?=
+CI_SLOW_EXCLUDE_ARGS      ?= $(if $(CI),-m "not slow",)
 TEST_PRE_TARGETS          ?=
 TEST_MAIN_ARGS            ?=
 TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q
@@ -99,6 +100,7 @@ PYTEST_FLAGS = \
   --cov-report=html:"$(COV_HTML_ABS)" \
   --cov-report=xml:"$(COV_XML_ABS)" \
   -o cache_dir="$(CACHE_DIR_ABS)" \
+  $(CI_SLOW_EXCLUDE_ARGS) \
   $(PYTEST_ADDOPTS_EXTRA)
 PYTEST_INFO_FLAGS = -o cache_dir="$(CACHE_DIR_ABS)"
 

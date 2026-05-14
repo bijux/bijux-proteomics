@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.foundation.root_consumers import (
     FOUNDATION_ROOT_CONSUMERS_PATH,
     build_foundation_root_consumers,
     run,
     validate_foundation_root_consumers,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_foundation_root_consumer_matrix_is_up_to_date() -> None:

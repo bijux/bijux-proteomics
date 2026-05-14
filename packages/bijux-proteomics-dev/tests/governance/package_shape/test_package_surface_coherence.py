@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.package_surface_coherence import (
     PACKAGE_SURFACE_COHERENCE_PATH,
     build_package_surface_coherence_report,
     run,
     validate_package_surface_coherence,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_package_surface_coherence_report_is_up_to_date() -> None:

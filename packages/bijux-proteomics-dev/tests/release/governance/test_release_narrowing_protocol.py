@@ -10,10 +10,12 @@ from bijux_proteomics_dev.release.governance.release_narrowing_protocol import (
 )
 
 
+@pytest.mark.slow
 def test_release_narrowing_protocol_is_up_to_date() -> None:
     assert run(check=True) == 0
 
 
+@pytest.mark.slow
 def test_release_narrowing_protocol_tracks_live_language_floors() -> None:
     protocol = build_release_narrowing_protocol()
     decisions = {decision.workflow_family: decision for decision in protocol.decisions}

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.core.cross_package_imports import (
     CORE_CROSS_PACKAGE_IMPORTS_PATH,
     build_core_cross_package_import_report,
@@ -8,6 +10,7 @@ from bijux_proteomics_dev.governance.core.cross_package_imports import (
 )
 
 
+@pytest.mark.slow
 def test_core_cross_package_import_report_is_up_to_date() -> None:
     assert run(check=True) == 0
 

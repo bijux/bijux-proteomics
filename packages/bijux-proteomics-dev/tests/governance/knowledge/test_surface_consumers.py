@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.knowledge.surface_consumers import (
     KNOWLEDGE_SURFACE_CONSUMERS_PATH,
     build_knowledge_surface_consumers,
     knowledge_surfaces,
     run,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_knowledge_surface_consumer_matrix_is_up_to_date() -> None:

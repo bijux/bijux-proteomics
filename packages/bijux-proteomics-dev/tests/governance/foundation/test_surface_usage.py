@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.foundation.surface_usage import (
     FOUNDATION_COMPATIBILITY_ALIASES_PATH,
     FOUNDATION_DEAD_EXPORTS_PATH,
@@ -10,6 +12,8 @@ from bijux_proteomics_dev.governance.foundation.surface_usage import (
     public_foundation_surfaces,
     run,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_foundation_surface_consumer_matrix_is_up_to_date() -> None:

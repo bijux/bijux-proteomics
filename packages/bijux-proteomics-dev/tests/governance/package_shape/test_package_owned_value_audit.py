@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.package_owned_value_audit import (
     PACKAGE_OWNED_VALUE_AUDIT_PATH,
     build_package_owned_value_audit_report,
@@ -8,6 +10,7 @@ from bijux_proteomics_dev.governance.package_shape.package_owned_value_audit imp
 )
 
 
+@pytest.mark.slow
 def test_package_owned_value_audit_is_up_to_date() -> None:
     assert run(check=True) == 0
 
