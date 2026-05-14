@@ -3,12 +3,20 @@
 
 [guard]
 max_total_oversized_mixed_module_count = 41
-max_largest_nonempty_line_count = 3350
+max_largest_nonempty_line_count = 6661
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py"
+nonempty_line_count = 6661
+public_function_count = 73
+public_class_count = 0
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/contracts.py"
-nonempty_line_count = 3350
+nonempty_line_count = 3539
 public_function_count = 50
 public_class_count = 79
 workspace_import_root_count = 2
@@ -16,7 +24,7 @@ workspace_import_root_count = 2
 [[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/identification/search_adapters.py"
-nonempty_line_count = 2964
+nonempty_line_count = 3139
 public_function_count = 27
 public_class_count = 42
 workspace_import_root_count = 2
@@ -28,14 +36,6 @@ nonempty_line_count = 2929
 public_function_count = 30
 public_class_count = 69
 workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/interfaces/cli/app.py"
-nonempty_line_count = 2557
-public_function_count = 36
-public_class_count = 0
-workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -55,19 +55,27 @@ workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/workflow_generalization.py"
-nonempty_line_count = 2037
-public_function_count = 14
-public_class_count = 7
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py"
+nonempty_line_count = 2069
+public_function_count = 29
+public_class_count = 38
 workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/chemistry/contracts.py"
-nonempty_line_count = 2019
+nonempty_line_count = 2057
 public_function_count = 22
 public_class_count = 29
 workspace_import_root_count = 1
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/workflow_generalization.py"
+nonempty_line_count = 2037
+public_function_count = 14
+public_class_count = 7
+workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-intelligence"
@@ -102,19 +110,19 @@ public_class_count = 13
 workspace_import_root_count = 3
 
 [[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
+nonempty_line_count = 1370
+public_function_count = 13
+public_class_count = 20
+workspace_import_root_count = 2
+
+[[module]]
 distribution_name = "bijux-proteomics-runtime"
 module_path = "packages/bijux-proteomics-runtime/src/bijux_proteomics_runtime/workflows/runs.py"
 nonempty_line_count = 1302
 public_function_count = 12
 public_class_count = 22
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/formats.py"
-nonempty_line_count = 1214
-public_function_count = 12
-public_class_count = 16
 workspace_import_root_count = 2
 
 [[module]]
@@ -126,20 +134,20 @@ public_class_count = 32
 workspace_import_root_count = 3
 
 [[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/spectra.py"
-nonempty_line_count = 1132
-public_function_count = 18
-public_class_count = 25
-workspace_import_root_count = 2
-
-[[module]]
 distribution_name = "bijux-proteomics-lab"
 module_path = "packages/bijux-proteomics-lab/src/bijux_proteomics_lab/outcomes/observations.py"
 nonempty_line_count = 1124
 public_function_count = 18
 public_class_count = 31
 workspace_import_root_count = 3
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py"
+nonempty_line_count = 1107
+public_function_count = 19
+public_class_count = 22
+workspace_import_root_count = 1
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
@@ -183,18 +191,18 @@ workspace_import_root_count = 2
 
 [[module]]
 distribution_name = "bijux-proteomics-core"
+module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
+nonempty_line_count = 961
+public_function_count = 21
+public_class_count = 14
+workspace_import_root_count = 2
+
+[[module]]
+distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/benchmarks/flagship_asset_roots.py"
 nonempty_line_count = 955
 public_function_count = 9
 public_class_count = 12
-workspace_import_root_count = 1
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/core.py"
-nonempty_line_count = 951
-public_function_count = 18
-public_class_count = 20
 workspace_import_root_count = 1
 
 [[module]]
@@ -211,14 +219,6 @@ module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/ptm/contracts
 nonempty_line_count = 916
 public_function_count = 12
 public_class_count = 20
-workspace_import_root_count = 2
-
-[[module]]
-distribution_name = "bijux-proteomics-core"
-module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/digestion.py"
-nonempty_line_count = 834
-public_function_count = 17
-public_class_count = 14
 workspace_import_root_count = 2
 
 [[module]]
@@ -248,9 +248,9 @@ workspace_import_root_count = 4
 [[module]]
 distribution_name = "bijux-proteomics-core"
 module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/io/ingestion.py"
-nonempty_line_count = 730
-public_function_count = 12
-public_class_count = 16
+nonempty_line_count = 733
+public_function_count = 13
+public_class_count = 17
 workspace_import_root_count = 2
 
 [[module]]

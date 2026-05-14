@@ -3,7 +3,7 @@
 
 [guard]
 min_total_owned_value_bullet_count = 58
-min_total_owner_depth_count = 522
+min_total_owner_depth_count = 551
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -33,7 +33,7 @@ readme_sentence_count = 202
 distribution_name = "bijux-proteomics-core"
 owned_value_bullets = ["program, target, assay, and review entities", "lifecycle transitions and stage eligibility logic", "domain invariants and identifier validations", "runtime-agnostic execution contracts", "normalized workflow-planning and proteomics I/O seams", "package CLI entrypoints"]
 owned_value_summary = "program, target, assay, and review entities; lifecycle transitions and stage eligibility logic; domain invariants and identifier validations; runtime-agnostic execution contracts; normalized workflow-planning and proteomics I/O seams; package CLI entrypoints"
-owner_depth_count = 97
+owner_depth_count = 126
 public_breadth_count = 5
 readme_sentence_count = 536
 

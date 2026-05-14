@@ -27,7 +27,7 @@ distribution_name = "bijux-proteomics-core"
 compatibility_surfaces = []
 root_public_module_count = 0
 root_export_symbol_count = 5
-owner_logic_module_count = 97
+owner_logic_module_count = 126
 illusion_reasons = []
 root_surface_hides_owner_depth = false
 

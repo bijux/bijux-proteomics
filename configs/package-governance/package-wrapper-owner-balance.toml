@@ -21,7 +21,7 @@ wrapper_outpaces_owner_logic = false
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-owner_logic_module_count = 97
+owner_logic_module_count = 126
 wrapper_module_count = 0
 wrapper_to_owner_ratio = 0.0
 wrapper_outpaces_owner_logic = false

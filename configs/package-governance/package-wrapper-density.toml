@@ -3,7 +3,7 @@
 
 [guard]
 max_total_wrapper_module_count = 231
-max_average_wrapper_density = 0.1467
+max_average_wrapper_density = 0.1444
 
 [[package]]
 distribution_name = "agentic-proteins"
@@ -28,9 +28,9 @@ max_wrapper_module_count = 6
 
 [[package]]
 distribution_name = "bijux-proteomics-core"
-total_source_module_count = 120
+total_source_module_count = 149
 wrapper_module_count = 23
-wrapper_density = 0.1917
+wrapper_density = 0.1544
 max_wrapper_module_count = 23
 
 [[package]]
