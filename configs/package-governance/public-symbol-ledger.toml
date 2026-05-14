@@ -103,7 +103,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-core"
 owner_module_name = "bijux_proteomics.sequences"
 owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
 
 [[symbol]]
 distribution_name = "bijux-proteomics-foundation"
@@ -493,7 +493,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-core"
 owner_module_name = "bijux_proteomics.sequences"
 owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
 
 [[symbol]]
 distribution_name = "proteomics-core"
@@ -543,7 +543,7 @@ symbol_kind = "callable"
 owner_distribution_name = "bijux-proteomics-core"
 owner_module_name = "bijux_proteomics.sequences"
 owner_module_path = "packages/bijux-proteomics-core/src/bijux_proteomics/sequences/__init__.py"
-owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py"]
+owner_test_paths = ["packages/bijux-proteomics-core/tests/sequences/test_digest_export_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_isoform_fidelity.py", "packages/bijux-proteomics-core/tests/sequences/test_fasta_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_index_surface.py", "packages/bijux-proteomics-core/tests/sequences/test_peptide_uniqueness_audit_surface.py"]
 
 [[symbol]]
 distribution_name = "proteomics-foundation"

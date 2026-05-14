@@ -3,7 +3,7 @@
 
 [[surface]]
 module_name = "bijux_proteomics_foundation"
-consumer_count = 186
+consumer_count = 215
 exported_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
 live_symbols = ["AssayId", "BatchId", "CandidateId", "ClaimId", "DocumentSchema", "EvidenceId", "fingerprint_model", "GateId", "hash_model", "hash_payload", "hash_text", "JsonModel", "ProgramId", "TargetId", "to_canonical_json"]
 dead_symbols = []
