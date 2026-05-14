@@ -74,6 +74,7 @@ def test_dev_package_profile_exposes_full_test_surfaces() -> None:
         REPO_ROOT / "makes" / "packages" / "bijux-proteomics-dev.mk"
     ).read_text(encoding="utf-8")
 
+    assert 'TEST_MAIN_ARGS := -m "not slow"' in package_make
     assert "test-all: TEST_MAIN_ARGS =" in package_make
     assert "test-all: PYTEST_ADDOPTS_EXTRA = -o timeout=0" in package_make
     assert "test-all: test" in package_make

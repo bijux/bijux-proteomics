@@ -5,6 +5,7 @@ RUFF_CONFIG = $(MONOREPO_ROOT)/configs/ruff.toml
 MYPY_CONFIG = $(MONOREPO_ROOT)/configs/mypy.ini
 ENABLE_PYDOCSTYLE := 0
 TEST_PATHS := tests
+TEST_MAIN_ARGS := -m "not slow"
 TEST_SOURCE_PATHS := src
 INTERROGATE_PATHS := src
 QUALITY_PATHS := src tests
