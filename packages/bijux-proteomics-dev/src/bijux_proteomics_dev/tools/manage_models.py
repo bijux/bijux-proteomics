@@ -115,7 +115,7 @@ def find_latest_version(model_root: Path) -> Path:
         raise FileNotFoundError(
             f"No prepared model versions found in {model_root}. Run the 'prepare' step first."
         )
-    return max(versions, key=lambda d: d.stat().st_mtime)
+    return max(versions, key=lambda d: (d / ".prepared.ok").stat().st_mtime)
 
 
 def get_latest_hf_revision(repo_id: str) -> str:
