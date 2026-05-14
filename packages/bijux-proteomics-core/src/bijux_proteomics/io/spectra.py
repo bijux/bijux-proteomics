@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import csv
 from enum import StrEnum
 import hashlib
@@ -12,14 +13,13 @@ import io
 import json
 from pathlib import Path
 import re
-from typing import Iterator
 
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.chemistry import (
     FragmentIon,
-    ParsedModifiedPeptide,
     ModificationRegistryDocument,
+    ParsedModifiedPeptide,
     calculate_fragment_ions,
     calculate_peptide_mz,
     canonicalize_modified_peptide,
@@ -862,7 +862,9 @@ def build_spectrum_collection_summary(
     )
 
 
-def _bucket_count(value: int, *, buckets: tuple[tuple[str, int, int | None], ...]) -> str:
+def _bucket_count(
+    value: int, *, buckets: tuple[tuple[str, int, int | None], ...]
+) -> str:
     for label, lower, upper in buckets:
         if value < lower:
             continue
@@ -937,7 +939,9 @@ def build_spectrum_summary_table_report(
             spectrum.precursor_mz,
             buckets=mz_buckets,
         )
-        precursor_counts[precursor_bucket] = precursor_counts.get(precursor_bucket, 0) + 1
+        precursor_counts[precursor_bucket] = (
+            precursor_counts.get(precursor_bucket, 0) + 1
+        )
 
         peak_bucket = _bucket_count(
             len(spectrum.peaks),
@@ -1170,9 +1174,8 @@ def render_mgf(spectra: tuple[SpectrumModel, ...]) -> str:
             lines.append(f"SCANS={spectrum.spectrum_id}")
         pepmass = f"PEPMASS={spectrum.precursor_mz:.6f}".rstrip("0").rstrip(".")
         if spectrum.precursor_intensity is not None:
-            pepmass += (
-                " "
-                + f"{spectrum.precursor_intensity:.6f}".rstrip("0").rstrip(".")
+            pepmass += " " + f"{spectrum.precursor_intensity:.6f}".rstrip("0").rstrip(
+                "."
             )
         lines.append(pepmass)
         if spectrum.precursor_charge is not None:
@@ -1482,9 +1485,7 @@ def build_precursor_mass_error_report(
             sum(delta_da_values) / len(delta_da_values) if delta_da_values else None
         ),
         median_delta_ppm=(
-            sorted_delta_ppm[len(sorted_delta_ppm) // 2]
-            if sorted_delta_ppm
-            else None
+            sorted_delta_ppm[len(sorted_delta_ppm) // 2] if sorted_delta_ppm else None
         ),
         median_abs_delta_ppm=(
             sorted_abs_ppm[len(sorted_abs_ppm) // 2] if sorted_abs_ppm else None
@@ -1646,7 +1647,9 @@ def calculate_spectral_similarity(
             else matched_reference_intensity / total_reference_intensity
         ),
         query_explained_intensity_fraction=(
-            0.0 if total_query_intensity == 0.0 else matched_query_intensity / total_query_intensity
+            0.0
+            if total_query_intensity == 0.0
+            else matched_query_intensity / total_query_intensity
         ),
     )
 
@@ -1924,7 +1927,9 @@ def _match_binned_similarity_vectors(
     *,
     bin_width_da: float,
 ) -> tuple[list[float], list[float], list[float], list[float]]:
-    reference_bins = _bin_similarity_peaks(reference_spectrum, bin_width_da=bin_width_da)
+    reference_bins = _bin_similarity_peaks(
+        reference_spectrum, bin_width_da=bin_width_da
+    )
     query_bins = _bin_similarity_peaks(query_spectrum, bin_width_da=bin_width_da)
     shared_bins = tuple(sorted(set(reference_bins) & set(query_bins)))
     matched_reference = [reference_bins[index] for index in shared_bins]
@@ -1956,10 +1961,14 @@ def _classify_spectral_similarity(
         return SpectrumSimilarityClassification.INSUFFICIENT_SIGNAL
     if score.matched_peak_count == 0:
         return SpectrumSimilarityClassification.DISTINCT
-    if score.score >= 0.98 and min(
-        score.reference_explained_intensity_fraction,
-        score.query_explained_intensity_fraction,
-    ) >= 0.9:
+    if (
+        score.score >= 0.98
+        and min(
+            score.reference_explained_intensity_fraction,
+            score.query_explained_intensity_fraction,
+        )
+        >= 0.9
+    ):
         return SpectrumSimilarityClassification.DUPLICATE_LIKE
     if score.score >= 0.7 and score.matched_peak_count >= 2:
         return SpectrumSimilarityClassification.SIMILAR
@@ -2023,9 +2032,11 @@ def _matches_fragment_tolerance(
 ) -> bool:
     error_da = observed_mz - fragment_mz
     if tolerance_unit is SpectrumAnnotationToleranceUnit.PPM:
-        assert tolerance_ppm is not None
+        if tolerance_ppm is None:
+            raise ValueError("tolerance_ppm must be resolved for ppm annotation")
         return abs((error_da / fragment_mz) * 1_000_000.0) <= tolerance_ppm
-    assert tolerance_da is not None
+    if tolerance_da is None:
+        raise ValueError("tolerance_da must be resolved for dalton annotation")
     return abs(error_da) <= tolerance_da
 
 

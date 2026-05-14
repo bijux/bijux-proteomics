@@ -44,7 +44,9 @@ def test_precursor_mass_error_report_covers_charge_da_ppm_and_isotope_offsets() 
     )
 
     assert report.observation_count == 3
-    assert any(row.bucket == "2" and row.count == 2 for row in report.charge_distribution)
+    assert any(
+        row.bucket == "2" and row.count == 2 for row in report.charge_distribution
+    )
     assert any(
         row.bucket == "0-5" and row.count == 1 for row in report.ppm_error_distribution
     )

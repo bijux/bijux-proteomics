@@ -29,7 +29,9 @@ def _spectrum(
         spectrum_id=spectrum_id,
         precursor_mz=precursor_mz,
         precursor_charge=precursor_charge,
-        peaks=tuple(SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks),
+        peaks=tuple(
+            SpectrumPeak(mz=mz, intensity=intensity) for mz, intensity in peaks
+        ),
     )
 
 
@@ -68,9 +70,7 @@ def test_similarity_comparison_classifies_duplicate_like_and_similar_examples() 
     assert similar.classification is SpectrumSimilarityClassification.SIMILAR
     assert 0.7 <= similar.score < duplicate.score
     assert similar.query_explained_intensity_fraction < 1.0
-    assert (
-        duplicate.document_schema.document_kind == "spectrum_similarity_comparison"
-    )
+    assert duplicate.document_schema.document_kind == "spectrum_similarity_comparison"
 
 
 def test_similarity_supports_binning_and_empty_signal_cases() -> None:
@@ -146,7 +146,10 @@ def test_library_similarity_report_ranks_best_match_and_renders_tsv() -> None:
 
     assert isinstance(report, SpectrumLibrarySimilarityReport)
     assert report.matches[0].reference_spectrum_id == "duplicate-reference"
-    assert report.matches[0].classification is SpectrumSimilarityClassification.DUPLICATE_LIKE
+    assert (
+        report.matches[0].classification
+        is SpectrumSimilarityClassification.DUPLICATE_LIKE
+    )
     assert report.matches[1].reference_spectrum_id == "similar-reference"
     assert report.matches[2].classification is SpectrumSimilarityClassification.DISTINCT
     assert report.duplicate_like_match_count == 1

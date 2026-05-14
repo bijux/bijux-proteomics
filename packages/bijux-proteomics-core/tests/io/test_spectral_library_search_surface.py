@@ -5,6 +5,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.io.spectra import (
+    SpectralSimilarityMethod,
+    SpectrumModel,
+    SpectrumPeak,
+    parse_mgf,
+)
 from bijux_proteomics.io.spectral_library import (
     SpectralLibrarySearchStrategy,
     build_spectral_library_index,
@@ -12,12 +18,6 @@ from bijux_proteomics.io.spectral_library import (
     import_spectral_library,
     render_spectral_library_search_tsv,
     search_spectral_library,
-)
-from bijux_proteomics.io.spectra import (
-    SpectralSimilarityMethod,
-    SpectrumModel,
-    SpectrumPeak,
-    parse_mgf,
 )
 
 
@@ -38,7 +38,9 @@ def _query_spectrum() -> SpectrumModel:
     )
 
 
-def test_spectral_library_search_ranks_target_match_and_scores_decoy_competition() -> None:
+def test_spectral_library_search_ranks_target_match_and_scores_decoy_competition() -> (
+    None
+):
     report = import_spectral_library(_format_fixture("library_search_reference.msp"))
     summary = build_spectral_library_summary(report)
     index = build_spectral_library_index(report.entries)
@@ -72,7 +74,9 @@ def test_spectral_library_search_ranks_target_match_and_scores_decoy_competition
     assert "msp:1:PEPTIDE/2" in rendered
 
 
-def test_spectral_library_search_reports_no_decoy_advisory_without_decoy_entries() -> None:
+def test_spectral_library_search_reports_no_decoy_advisory_without_decoy_entries() -> (
+    None
+):
     report = import_spectral_library(_format_fixture("review_library.msp"))
     index = build_spectral_library_index(report.entries)
 
@@ -85,7 +89,9 @@ def test_spectral_library_search_reports_no_decoy_advisory_without_decoy_entries
         max_matches=1,
     )
 
-    assert search_report.search_strategy is SpectralLibrarySearchStrategy.NO_DECOY_ADVISORY
+    assert (
+        search_report.search_strategy is SpectralLibrarySearchStrategy.NO_DECOY_ADVISORY
+    )
     assert search_report.candidate_count == 2
     assert len(search_report.matches) == 1
     assert search_report.decoy_candidate_count == 0

@@ -5,20 +5,21 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import csv
 from enum import StrEnum
 from pathlib import Path
-from typing import Iterator
 
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import parse_mzml, stream_mzml_spectra
 from bijux_proteomics.io.formats import (
     MzmlChromatogramReport,
     MzmlRunMetadata,
     build_mzml_collection_summary,
     extract_mzml_chromatograms,
+    parse_mzml,
+    stream_mzml_spectra,
 )
 from bijux_proteomics.io.spectra import SpectrumModel, iter_mgf_spectra
 from bijux_proteomics.quantification import (

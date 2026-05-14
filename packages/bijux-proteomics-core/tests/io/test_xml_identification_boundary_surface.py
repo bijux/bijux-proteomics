@@ -25,7 +25,9 @@ def test_evaluate_pepxml_idxml_boundary_detects_pepxml_and_requires_conversion()
     assert "convert pepXML" in (report.required_conversion or "")
 
 
-def test_evaluate_pepxml_idxml_boundary_detects_idxml_and_reports_native_support() -> None:
+def test_evaluate_pepxml_idxml_boundary_detects_idxml_and_reports_native_support() -> (
+    None
+):
     report = evaluate_pepxml_idxml_boundary(_format_fixture("simple.idxml"))
 
     assert report.detected_format == "idXML"

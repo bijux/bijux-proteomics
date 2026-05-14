@@ -70,4 +70,7 @@ def test_candidate_lookup_without_peptide_query_returns_precursor_neighbors() ->
     )
 
     assert candidates.candidate_count == 2
-    assert candidates.matches[0].precursor_delta_da <= candidates.matches[1].precursor_delta_da
+    assert (
+        candidates.matches[0].precursor_delta_da
+        <= candidates.matches[1].precursor_delta_da
+    )

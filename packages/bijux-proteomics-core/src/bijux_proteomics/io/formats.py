@@ -954,7 +954,7 @@ def extract_mzml_chromatograms(path: Path) -> MzmlChromatogramReport:
     rejected_chromatograms: list[RejectedMzmlChromatogram] = []
     total_chromatograms = 0
 
-    for event, element in ET.iterparse(path, events=("end",)):
+    for _event, element in ET.iterparse(path, events=("end",)):
         if _local_name(element.tag) != "chromatogram":
             continue
         total_chromatograms += 1

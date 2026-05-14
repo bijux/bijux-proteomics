@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 import csv
-import io
 from enum import StrEnum
+import io
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -23,12 +23,14 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     apply_q_values,
 )
-from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak, parse_mgf
 from bijux_proteomics.io.spectra import (
     SpectralSimilarityMethod,
+    SpectrumModel,
+    SpectrumPeak,
     SpectrumSimilarityClassification,
     SpectrumSimilarityMode,
     build_spectrum_similarity_comparison_report,
+    parse_mgf,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -254,7 +256,9 @@ def build_spectral_library_index(
         sorted(entries, key=lambda entry: (entry.precursor_mz, entry.library_entry_id))
     )
     for entry in normalized_entries:
-        peptide_index.setdefault(entry.canonical_peptide, []).append(entry.library_entry_id)
+        peptide_index.setdefault(entry.canonical_peptide, []).append(
+            entry.library_entry_id
+        )
         precursor_key = _precursor_centimass_key(entry.precursor_mz)
         precursor_index.setdefault(precursor_key, []).append(entry.library_entry_id)
     return SpectralLibraryIndex(
@@ -289,10 +293,7 @@ def find_spectral_library_candidates(
     candidate_ids: set[str] = set()
     for key in range(lower_key, upper_key + 1):
         candidate_ids.update(index.precursor_centimass_index.get(key, ()))
-    entries_by_id = {
-        entry.library_entry_id: entry
-        for entry in index.entries
-    }
+    entries_by_id = {entry.library_entry_id: entry for entry in index.entries}
     matches = [
         SpectralLibraryCandidateMatch(
             library_entry_id=entry.library_entry_id,
@@ -306,9 +307,7 @@ def find_spectral_library_candidates(
         for entry_id in sorted(candidate_ids)
         for entry in (entries_by_id[entry_id],)
         if abs(entry.precursor_mz - precursor_mz) <= tolerance_da
-        and (
-            normalized_query is None or entry.canonical_peptide == normalized_query
-        )
+        and (normalized_query is None or entry.canonical_peptide == normalized_query)
     ]
     ordered = tuple(
         sorted(
@@ -597,9 +596,7 @@ def _parse_msp_spectral_library(
     rejected: list[RejectedSpectralLibraryEntry] = []
     for ordinal, block in enumerate(blocks, start=1):
         try:
-            entries.append(
-                _parse_msp_entry(block, ordinal=ordinal, registry=registry)
-            )
+            entries.append(_parse_msp_entry(block, ordinal=ordinal, registry=registry))
         except ValueError as exc:
             rejected.append(
                 RejectedSpectralLibraryEntry(
@@ -660,7 +657,9 @@ def _parse_msp_entry(
         precursor_mz=precursor_mz,
         precursor_charge=charge,
         peptide_sequence=parsed_peptide.sequence,
-        canonical_peptide=canonicalize_modified_peptide(parsed_peptide, registry=registry),
+        canonical_peptide=canonicalize_modified_peptide(
+            parsed_peptide, registry=registry
+        ),
         modification_count=len(parsed_peptide.modifications),
         target_decoy_label=_parse_explicit_decoy_label(comment_fields),
         spectrum=spectrum,
@@ -731,7 +730,9 @@ def _build_library_entry_from_mgf_spectrum(
         precursor_mz=spectrum.precursor_mz,
         precursor_charge=spectrum.precursor_charge,
         peptide_sequence=parsed_peptide.sequence,
-        canonical_peptide=canonicalize_modified_peptide(parsed_peptide, registry=registry),
+        canonical_peptide=canonicalize_modified_peptide(
+            parsed_peptide, registry=registry
+        ),
         modification_count=len(parsed_peptide.modifications),
         target_decoy_label=_parse_explicit_decoy_label(header_fields),
         spectrum=spectrum,
@@ -771,10 +772,10 @@ def _parse_peak_lines(lines: list[str]) -> tuple[SpectrumPeak, ...]:
     for line in lines:
         pieces = line.split()
         if len(pieces) < 2:
-            raise ValueError("spectral-library peak line must contain m/z and intensity")
-        peaks.append(
-            SpectrumPeak(mz=float(pieces[0]), intensity=float(pieces[1]))
-        )
+            raise ValueError(
+                "spectral-library peak line must contain m/z and intensity"
+            )
+        peaks.append(SpectrumPeak(mz=float(pieces[0]), intensity=float(pieces[1])))
     return tuple(peaks)
 
 
@@ -815,7 +816,9 @@ def _precursor_centimass_key(precursor_mz: float) -> int:
 
 
 def _parse_explicit_decoy_label(fields: dict[str, str]) -> TargetDecoyLabel:
-    normalized_fields = {key.lower(): value.strip().lower() for key, value in fields.items()}
+    normalized_fields = {
+        key.lower(): value.strip().lower() for key, value in fields.items()
+    }
     for key in (
         "decoy",
         "is_decoy",

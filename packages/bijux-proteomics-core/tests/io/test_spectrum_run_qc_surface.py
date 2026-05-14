@@ -55,7 +55,9 @@ def _qc_spectra() -> tuple[SpectrumModel, ...]:
     )
 
 
-def test_spectrum_run_qc_report_tracks_distributions_traces_and_flagged_spectra() -> None:
+def test_spectrum_run_qc_report_tracks_distributions_traces_and_flagged_spectra() -> (
+    None
+):
     report = build_spectrum_run_qc_report(
         _qc_spectra(),
         source_kind="mgf",
@@ -104,7 +106,9 @@ def test_spectrum_run_qc_report_tracks_distributions_traces_and_flagged_spectra(
     assert "issue_kind" in flagged_tsv
 
 
-def test_spectrum_run_qc_report_prefers_reported_mzml_chromatograms_when_present() -> None:
+def test_spectrum_run_qc_report_prefers_reported_mzml_chromatograms_when_present() -> (
+    None
+):
     parse_report = parse_mzml(_format_fixture("practical_review.mzml"))
     chromatograms = extract_mzml_chromatograms(_format_fixture("practical_review.mzml"))
 

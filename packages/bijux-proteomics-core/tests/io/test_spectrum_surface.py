@@ -6,6 +6,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from pytest import MonkeyPatch
+
 from bijux_proteomics.chemistry import calculate_fragment_ions
 from bijux_proteomics.io.formats import parse_mzml
 from bijux_proteomics.io.spectra import (
@@ -146,14 +148,18 @@ def test_mgf_parser_handles_missing_optional_fields_and_rt_minutes(
     assert report.accepted_spectra[1].precursor_intensity is None
 
 
-def test_mgf_parser_streams_without_path_read_text(monkeypatch) -> None:
+def test_mgf_parser_streams_without_path_read_text(monkeypatch: MonkeyPatch) -> None:
     fixture = _spectrum_fixture("simple.mgf")
     original_read_text = Path.read_text
 
-    def _forbid_read_text(self: Path, *args: object, **kwargs: object) -> str:
+    def _forbid_read_text(
+        self: Path,
+        encoding: str | None = None,
+        errors: str | None = None,
+    ) -> str:
         if self == fixture:
             raise AssertionError("parse_mgf should not use Path.read_text")
-        return original_read_text(self, *args, **kwargs)
+        return original_read_text(self, encoding=encoding, errors=errors)
 
     monkeypatch.setattr(Path, "read_text", _forbid_read_text)
 

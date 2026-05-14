@@ -36,7 +36,9 @@ def test_practical_mzml_fixture_preserves_ms1_ms2_and_precursor_context() -> Non
 def test_practical_mzml_review_reports_decoding_and_chromatograms() -> None:
     chromatograms = extract_mzml_chromatograms(_format_fixture("practical_review.mzml"))
     decoding = inspect_mzml_decoding_support(_format_fixture("practical_review.mzml"))
-    review = build_mzml_practical_review_report(_format_fixture("practical_review.mzml"))
+    review = build_mzml_practical_review_report(
+        _format_fixture("practical_review.mzml")
+    )
 
     assert chromatograms.total_chromatograms == 2
     assert len(chromatograms.accepted_traces) == 2

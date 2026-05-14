@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pytest import MonkeyPatch
+
 from bijux_proteomics.io.ingestion import (
     build_streaming_parse_profile,
     stream_mgf_spectra,
@@ -28,14 +30,20 @@ def test_stream_mgf_spectra_parses_without_full_table_contracts() -> None:
     assert spectra[0].retention_time_seconds == 123.4
 
 
-def test_stream_mgf_spectra_avoids_full_file_read_text(monkeypatch) -> None:
+def test_stream_mgf_spectra_avoids_full_file_read_text(
+    monkeypatch: MonkeyPatch,
+) -> None:
     fixture = _spectra_fixture("simple.mgf")
     original_read_text = Path.read_text
 
-    def _forbid_read_text(self: Path, *args: object, **kwargs: object) -> str:
+    def _forbid_read_text(
+        self: Path,
+        encoding: str | None = None,
+        errors: str | None = None,
+    ) -> str:
         if self == fixture:
             raise AssertionError("stream_mgf_spectra should not use Path.read_text")
-        return original_read_text(self, *args, **kwargs)
+        return original_read_text(self, encoding=encoding, errors=errors)
 
     monkeypatch.setattr(Path, "read_text", _forbid_read_text)
 

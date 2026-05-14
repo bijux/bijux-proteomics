@@ -87,7 +87,9 @@ class SpectrumRunQcReport(JsonModel):
     charge_distribution: tuple[SpectrumDistributionRow, ...] = Field(
         default_factory=tuple
     )
-    flagged_spectra: tuple[SpectrumQcFlaggedSpectrum, ...] = Field(default_factory=tuple)
+    flagged_spectra: tuple[SpectrumQcFlaggedSpectrum, ...] = Field(
+        default_factory=tuple
+    )
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
@@ -130,10 +132,7 @@ def build_spectrum_run_qc_report(
 
     for spectrum in spectra:
         ms_level = spectrum.ms_level
-        is_ms2 = (
-            ms_level == 2
-            or (source_kind == "mgf" and ms_level is None)
-        )
+        is_ms2 = ms_level == 2 or (source_kind == "mgf" and ms_level is None)
         if is_ms2:
             ms2_spectrum_count += 1
             if spectrum.retention_time_seconds is not None:
@@ -163,7 +162,9 @@ def build_spectrum_run_qc_report(
                 precursor_intensity_counts["100000+"] += 1
 
         total_ion_current = sum(peak.intensity for peak in spectrum.peaks)
-        base_peak_intensity = max((peak.intensity for peak in spectrum.peaks), default=0.0)
+        base_peak_intensity = max(
+            (peak.intensity for peak in spectrum.peaks), default=0.0
+        )
         if spectrum.retention_time_seconds is not None:
             derived_tic_points.append(
                 SpectrumQcTracePoint(
@@ -393,10 +394,9 @@ def _build_ms2_count_over_time(
     end_time = sorted_spectra[-1].retention_time_seconds or 0.0
     start_bin = floor(start_time / time_bin_seconds) * time_bin_seconds
     end_bin = floor(end_time / time_bin_seconds) * time_bin_seconds
-    counts: dict[float, int] = {
-        bucket_start: 0
-        for bucket_start in _float_range(start_bin, end_bin + time_bin_seconds, time_bin_seconds)
-    }
+    counts: dict[float, int] = dict.fromkeys(
+        _float_range(start_bin, end_bin + time_bin_seconds, time_bin_seconds), 0
+    )
     for spectrum in sorted_spectra:
         retention_time = spectrum.retention_time_seconds or 0.0
         bucket_start = floor(retention_time / time_bin_seconds) * time_bin_seconds
