@@ -14,15 +14,14 @@ COV_XML                   ?= $(TEST_ARTIFACTS_DIR)/coverage.xml
 
 ENABLE_BENCH              ?= 1
 PYTEST_ADDOPTS_EXTRA      ?=
-CI_SLOW_EXCLUDE_ARGS      ?= $(if $(CI),-m "not slow",)
 TEST_PRE_TARGETS          ?=
 TEST_MAIN_ARGS            ?=
 TEST_UNIT_DIR_ARGS        ?= -m "not slow" --maxfail=1 -q
 TEST_UNIT_FALLBACK_ARGS   ?= -k "not e2e and not integration and not functional" -m "not slow" --maxfail=1 -q
-TEST_E2E_ARGS             ?= -m "e2e" --maxfail=1 -q
-TEST_REGRESSION_ARGS      ?= -m "regression" --maxfail=1 -q
-TEST_EVALUATION_ARGS      ?= -m "evaluation" --maxfail=1 -q
-TEST_REAL_LOCAL_ARGS      ?= -m "real_local" -s -p no:cov
+TEST_E2E_ARGS             ?= -m "e2e and not slow" --maxfail=1 -q
+TEST_REGRESSION_ARGS      ?= -m "regression and not slow" --maxfail=1 -q
+TEST_EVALUATION_ARGS      ?= -m "evaluation and not slow" --maxfail=1 -q
+TEST_REAL_LOCAL_ARGS      ?= -m "real_local and not slow" -s -p no:cov
 TEST_CI_TARGETS           ?= test-unit
 TEST_RESET_PYCACHE        ?= 0
 TEST_SYNTAX_PATHS         ?=
@@ -100,7 +99,6 @@ PYTEST_FLAGS = \
   --cov-report=html:"$(COV_HTML_ABS)" \
   --cov-report=xml:"$(COV_XML_ABS)" \
   -o cache_dir="$(CACHE_DIR_ABS)" \
-  $(CI_SLOW_EXCLUDE_ARGS) \
   $(PYTEST_ADDOPTS_EXTRA)
 PYTEST_INFO_FLAGS = -o cache_dir="$(CACHE_DIR_ABS)"
 
