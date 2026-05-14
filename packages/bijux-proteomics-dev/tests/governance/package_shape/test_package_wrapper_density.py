@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import pytest
+
 from bijux_proteomics_dev.governance.package_shape.package_wrapper_density import (
     PACKAGE_WRAPPER_DENSITY_PATH,
     build_package_wrapper_density_report,
     run,
     validate_package_wrapper_density,
 )
+
+pytestmark = pytest.mark.slow
 
 
 def test_package_wrapper_density_report_is_up_to_date() -> None:
