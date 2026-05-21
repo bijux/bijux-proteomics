@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
+
+import csv
 
 from pydantic import ConfigDict, Field
 
@@ -253,6 +256,87 @@ def build_diann_precursor_matrix_report(
     )
 
 
+def render_dia_precursor_matrix_summary_tsv(report: DiaPrecursorMatrixReport) -> str:
+    """Render a compact summary for one DIA precursor matrix."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "sample_count",
+            "run_count",
+            "precursor_row_count",
+            "observed_cell_count",
+            "missing_cell_count",
+            "target_row_count",
+            "decoy_row_count",
+            "excluded_decoy_count",
+            "excluded_q_value_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.summary.sample_count,
+            report.summary.run_count,
+            report.summary.precursor_row_count,
+            report.summary.observed_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.target_row_count,
+            report.summary.decoy_row_count,
+            report.summary.excluded_decoy_count,
+            report.summary.excluded_q_value_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_precursor_quantity_matrix_tsv(report: DiaPrecursorMatrixReport) -> str:
+    """Render the DIA precursor-by-sample quantity matrix as a wide TSV."""
+
+    return _render_dia_precursor_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.abundance is None else f"{value.abundance:g}"
+        ),
+    )
+
+
+def render_dia_precursor_q_value_matrix_tsv(report: DiaPrecursorMatrixReport) -> str:
+    """Render the DIA precursor-by-sample q-value matrix as a wide TSV."""
+
+    return _render_dia_precursor_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.q_value is None else f"{value.q_value:.6g}"
+        ),
+    )
+
+
+def export_dia_precursor_matrix_summary_tsv(
+    report: DiaPrecursorMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_precursor_matrix_summary_tsv(report), encoding="utf-8")
+
+
+def export_dia_precursor_quantity_matrix_tsv(
+    report: DiaPrecursorMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_precursor_quantity_matrix_tsv(report), encoding="utf-8")
+
+
+def export_dia_precursor_q_value_matrix_tsv(
+    report: DiaPrecursorMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_precursor_q_value_matrix_tsv(report), encoding="utf-8")
+
+
 def _build_precursor_key(row: DiaNnPrecursorReviewEntry) -> str:
     return f"{row.modified_peptide}|z{row.charge}|{row.protein_group_id}"
 
@@ -267,3 +351,46 @@ def _combine_target_decoy_labels(
     if not labels:
         return TargetDecoyLabel.UNKNOWN
     return TargetDecoyLabel.MIXED
+
+
+def _render_dia_precursor_wide_matrix(
+    report: DiaPrecursorMatrixReport,
+    *,
+    value_getter: Callable[[DiaPrecursorMatrixValue], str],
+) -> str:
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "precursor_key",
+            "peptide_sequence",
+            "modified_peptide",
+            "canonical_peptide",
+            "charge",
+            "protein_group_id",
+            "protein_refs",
+            "source_precursor_ids",
+            "target_decoy_label",
+            *report.sample_ids,
+        ]
+    )
+    for row in report.rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        writer.writerow(
+            [
+                row.precursor_key,
+                row.peptide_sequence,
+                row.modified_peptide,
+                row.canonical_peptide,
+                row.charge,
+                row.protein_group_id,
+                ";".join(row.protein_refs),
+                ";".join(row.source_precursor_ids),
+                row.target_decoy_label.value,
+                *[
+                    value_getter(value_lookup[sample_id])
+                    for sample_id in report.sample_ids
+                ],
+            ]
+        )
+    return buffer.getvalue()
