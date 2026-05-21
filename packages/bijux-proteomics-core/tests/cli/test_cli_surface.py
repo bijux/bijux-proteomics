@@ -2958,6 +2958,50 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
 
 
+def test_quantify_command_emits_multi_condition_differential_collection() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(
+            fixture_dir / "multi_condition_ms1_features.tsv",
+            "multi_condition_ms1_features.tsv",
+        )
+        shutil.copy(
+            fixture_dir / "multi_condition.design.tsv",
+            "multi_condition.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "multi_condition_ms1_features.tsv",
+                "--design",
+                "multi_condition.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "median",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["differential_abundance"] is None
+        assert payload["differential_abundance_multi_condition"] is not None
+        assert (
+            payload["differential_abundance_multi_condition"]["condition_count"] == 3
+        )
+        assert len(payload["differential_abundance_multi_condition"]["reports"]) == 3
+        assert all(
+            entry["adjusted_p_value"] is not None
+            for report in payload["differential_abundance_multi_condition"]["reports"]
+            for entry in report["entries"]
+        )
+
+
 def test_peptide_matrix_command_emits_feature_backed_matrix_and_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

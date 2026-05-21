@@ -240,6 +240,7 @@ from bijux_proteomics.quantification import (
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
+    build_multi_condition_differential_abundance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_peptide_intensity_matrix_from_features,
@@ -4440,6 +4441,7 @@ def quantify_command(
         replicate_correlations = None
         replicate_qc = None
         differential = None
+        differential_multi_condition = None
         if design_path is not None:
             design_report = parse_experimental_design_table(design_path)
             if design_report.rejected_rows:
@@ -4452,6 +4454,9 @@ def quantify_command(
             batch_effect = replicate_qc.batch_effect_report
             replicate_correlations = replicate_qc.replicate_correlation_report
             if quant_measure is QuantMeasureKind.INTENSITY:
+                conditions = tuple(
+                    sorted({entry.condition for entry in design_entries if entry.condition})
+                )
                 missingness_entity_summary = build_missingness_entity_summary_report(
                     table
                 )
@@ -4464,20 +4469,38 @@ def quantify_command(
                 missingness_intensity_dependence = (
                     build_missingness_intensity_dependence_report(table)
                 )
-                imputation_sensitivity = build_imputation_sensitivity_report(
-                    normalized_table,
-                    design_entries,
-                    condition_a=condition_a,
-                    condition_b=condition_b,
-                )
-                differential = apply_benjamini_hochberg(
-                    build_differential_abundance_report(
-                        table,
+                selected_contrast: tuple[str, str] | None = None
+                if condition_a is not None or condition_b is not None:
+                    if not condition_a or not condition_b:
+                        raise click.ClickException(
+                            "both --condition-a and --condition-b are required together"
+                        )
+                    selected_contrast = (condition_a, condition_b)
+                elif len(conditions) == 2:
+                    selected_contrast = (conditions[0], conditions[1])
+
+                if selected_contrast is not None:
+                    imputation_sensitivity = build_imputation_sensitivity_report(
+                        normalized_table,
                         design_entries,
-                        condition_a=condition_a,
-                        condition_b=condition_b,
+                        condition_a=selected_contrast[0],
+                        condition_b=selected_contrast[1],
                     )
-                )
+                    differential = apply_benjamini_hochberg(
+                        build_differential_abundance_report(
+                            table,
+                            design_entries,
+                            condition_a=selected_contrast[0],
+                            condition_b=selected_contrast[1],
+                        )
+                    )
+                elif len(conditions) > 2:
+                    differential_multi_condition = (
+                        build_multi_condition_differential_abundance_report(
+                            table,
+                            design_entries,
+                        )
+                    )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
@@ -4541,6 +4564,11 @@ def quantify_command(
             replicate_qc.condition_clustering_report.to_dict()
             if replicate_qc is not None
             and replicate_qc.condition_clustering_report is not None
+            else None
+        ),
+        "differential_abundance_multi_condition": (
+            differential_multi_condition.to_dict()
+            if differential_multi_condition is not None
             else None
         ),
         "differential_abundance": differential.to_dict()
