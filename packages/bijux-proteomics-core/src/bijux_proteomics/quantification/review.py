@@ -19,6 +19,7 @@ from bijux_proteomics.quantification import (
     MissingValueSummaryReport,
     Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
+    NormalizationComparisonReport,
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
@@ -29,6 +30,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
     build_multiplex_channel_balance_report,
+    build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_quant_artifact_bundle,
     build_replicate_correlation_report,
@@ -1092,6 +1094,7 @@ class QuantReviewBundle(JsonModel):
 
     artifact_bundle_hash: str = Field(..., min_length=64, max_length=64)
     lfq_provenance: LfqFeaturePeptideProteinProvenanceReport
+    normalization_comparison: NormalizationComparisonReport
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
@@ -1120,9 +1123,14 @@ def build_quant_review_bundle(
         if normalization_method is not NormalizationMethod.NONE
         else peptide_table
     )
+    normalization_comparison = build_normalization_comparison_report(
+        peptide_table,
+        normalized_table,
+    )
     artifact_bundle = build_quant_artifact_bundle(
         normalized_table,
         design_entries=design_entries,
+        normalization_comparison_report=normalization_comparison,
         normalization_strategy_report=build_normalization_strategy_comparison_report(
             peptide_table
         ),
@@ -1170,7 +1178,9 @@ def build_quant_review_bundle(
         caveats.append(decision_readiness.note)
     evidence_pointers = (
         "quant_artifact_bundle.matrix_export",
+        "quant_artifact_bundle.normalization_comparison_report",
         "lfq_provenance.feature_entries",
+        "quant_review_bundle.normalization_comparison",
         "rollup_strategy_comparison.entries",
         "missingness_profile.entries",
         "replicate_batch_qc.outlier_samples",
@@ -1179,6 +1189,7 @@ def build_quant_review_bundle(
     return QuantReviewBundle(
         artifact_bundle_hash=artifact_bundle.document_schema.content_hash or "",
         lfq_provenance=lfq_provenance,
+        normalization_comparison=normalization_comparison,
         normalization_matrix=normalization_matrix,
         rollup_strategy_comparison=rollup_strategy,
         effect_size_da_report=da_report,

@@ -688,10 +688,20 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
             top_n=2,
         )
     )
+    comparison = build_normalization_comparison_report(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.TOP_N,
+            top_n=2,
+        ),
+        table,
+    )
 
     bundle = build_quant_artifact_bundle(
         table,
         design_entries=design_report.accepted_entries,
+        normalization_comparison_report=comparison,
         differential_abundance_report=differential,
         normalization_strategy_report=strategy,
     )
@@ -700,6 +710,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.document_schema.document_kind == "quant_artifact_bundle"
     assert bundle.matrix_export.rows
     assert bundle.reproducibility_manifest.reproducibility_hash
+    assert bundle.normalization_comparison_report is not None
 
     output_path = _quant_fixture("quant_artifact_bundle.json")
     try:

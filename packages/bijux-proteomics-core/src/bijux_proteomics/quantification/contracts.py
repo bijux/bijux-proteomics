@@ -481,6 +481,7 @@ class QuantArtifactBundle(JsonModel):
     matrix_export: QuantMatrixExport
     missing_value_summary: MissingValueSummaryReport
     reproducibility_manifest: QuantReproducibilityManifest
+    normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
 
@@ -1802,6 +1803,7 @@ def build_quant_artifact_bundle(
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
     missing_value_policy: MissingValueSummaryPolicy | None = None,
+    normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
 ) -> QuantArtifactBundle:
@@ -1821,6 +1823,7 @@ def build_quant_artifact_bundle(
             policy=missing_value_policy,
         ),
         reproducibility_manifest=build_quant_reproducibility_manifest(table),
+        normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,
         differential_abundance_report=differential_abundance_report,
     )
