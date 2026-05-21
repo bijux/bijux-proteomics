@@ -52,6 +52,29 @@ class DiaRunQcIntensityDistributionEntry(JsonModel):
     count: int = Field(..., ge=0)
 
 
+class DiaRunQcCorrelationEntry(JsonModel):
+    """One pairwise DIA run correlation over shared precursor quantities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_name_a: str = Field(..., min_length=1)
+    sample_name_a: str = Field(..., min_length=1)
+    run_name_b: str = Field(..., min_length=1)
+    sample_name_b: str = Field(..., min_length=1)
+    shared_precursor_key_count: int = Field(..., ge=0)
+    pearson_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
+
+
+class DiaRunQcOutlierRunEntry(JsonModel):
+    """One DIA run flagged as weak under explicit QC signals."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class DiaRunQcSummary(JsonModel):
     """Compact summary over one DIA run-QC report."""
 
@@ -75,6 +98,10 @@ class DiaRunQcReport(JsonModel):
     intensity_distribution: tuple[DiaRunQcIntensityDistributionEntry, ...] = Field(
         default_factory=tuple
     )
+    pairwise_correlations: tuple[DiaRunQcCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    outlier_runs: tuple[DiaRunQcOutlierRunEntry, ...] = Field(default_factory=tuple)
     summary: DiaRunQcSummary
     note: str = Field(..., min_length=1)
 
@@ -84,6 +111,10 @@ def build_dia_run_qc_report(
     *,
     include_decoys: bool = False,
     max_q_value: float | None = None,
+    low_precursor_count_fraction: float = 0.5,
+    low_protein_count_fraction: float = 0.5,
+    high_missing_fraction: float = 0.4,
+    low_correlation_threshold: float = 0.9,
 ) -> DiaRunQcReport:
     """Build DIA run-level QC over imported DIA-NN evidence."""
 
@@ -105,11 +136,14 @@ def build_dia_run_qc_report(
     }
     run_entries: list[DiaRunQcRunEntry] = []
     intensity_distribution: list[DiaRunQcIntensityDistributionEntry] = []
+    run_precursor_quantity_maps: dict[str, dict[str, float]] = {}
+    sample_name_by_run: dict[str, str] = {}
     for run_name in run_names:
         run_precursors = [row for row in precursor_rows if row.run_name == run_name]
         run_proteins = [row for row in protein_rows if row.run_name == run_name]
         sample_names = sorted({row.sample_name for row in run_precursors})
         sample_name = sample_names[0] if sample_names else "unknown"
+        sample_name_by_run[run_name] = sample_name
         precursor_keys = {_stable_precursor_key(row) for row in run_precursors}
         protein_ids = {
             protein_ref for row in run_proteins for protein_ref in row.protein_refs
@@ -121,15 +155,22 @@ def build_dia_run_qc_report(
         ]
         median_log10_precursor_quantity = (
             float(
-                sorted(
-                    math.log10(quantity)
-                    for quantity in observed_precursor_quantities
-                    if quantity > 0.0
-                )[len(observed_precursor_quantities) // 2]
+                _median(
+                    [
+                        math.log10(quantity)
+                        for quantity in observed_precursor_quantities
+                        if quantity > 0.0
+                    ]
+                )
             )
             if observed_precursor_quantities
             else None
         )
+        run_precursor_quantity_maps[run_name] = {
+            _stable_precursor_key(row): float(row.precursor_quantity)
+            for row in run_precursors
+            if row.precursor_quantity is not None
+        }
         run_entries.append(
             DiaRunQcRunEntry(
                 run_name=run_name,
@@ -166,25 +207,70 @@ def build_dia_run_qc_report(
                     count=count,
                 )
             )
+    pairwise_correlations = _build_pairwise_correlations(
+        run_names=run_names,
+        sample_name_by_run=sample_name_by_run,
+        run_precursor_quantity_maps=run_precursor_quantity_maps,
+    )
+    median_precursor_count = _median(
+        [float(entry.precursor_key_count) for entry in run_entries]
+    )
+    median_protein_count = _median([float(entry.protein_id_count) for entry in run_entries])
+    median_correlation_by_run = _median_correlation_by_run(pairwise_correlations)
+    outlier_runs: list[DiaRunQcOutlierRunEntry] = []
+    flagged_run_names: set[str] = set()
+    final_run_entries: list[DiaRunQcRunEntry] = []
+    for entry in run_entries:
+        reasons: list[str] = []
+        if median_precursor_count > 0 and (
+            entry.precursor_key_count / median_precursor_count
+        ) < low_precursor_count_fraction:
+            reasons.append("precursor coverage is far below the study median")
+        if median_protein_count > 0 and (
+            entry.protein_id_count / median_protein_count
+        ) < low_protein_count_fraction:
+            reasons.append("protein coverage is far below the study median")
+        if entry.precursor_missing_fraction > high_missing_fraction:
+            reasons.append("precursor missingness is above the configured threshold")
+        if entry.protein_missing_fraction > high_missing_fraction:
+            reasons.append("protein missingness is above the configured threshold")
+        median_correlation = median_correlation_by_run.get(entry.run_name)
+        if median_correlation is None:
+            reasons.append("shared precursor overlap is too small for stable correlation review")
+        elif median_correlation < low_correlation_threshold:
+            reasons.append("run correlation is below the configured threshold")
+        flagged = bool(reasons)
+        if flagged:
+            flagged_run_names.add(entry.run_name)
+            outlier_runs.append(
+                DiaRunQcOutlierRunEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    reasons=tuple(sorted(reasons)),
+                )
+            )
+        final_run_entries.append(entry.model_copy(update={"flagged": flagged}))
     sample_count = len({entry.sample_name for entry in run_entries})
     return DiaRunQcReport(
-        run_entries=tuple(sorted(run_entries, key=lambda entry: entry.run_name)),
+        run_entries=tuple(sorted(final_run_entries, key=lambda entry: entry.run_name)),
         intensity_distribution=tuple(
             sorted(
                 intensity_distribution,
                 key=lambda entry: (entry.run_name, entry.bucket),
             )
         ),
+        pairwise_correlations=pairwise_correlations,
+        outlier_runs=tuple(sorted(outlier_runs, key=lambda entry: entry.run_name)),
         summary=DiaRunQcSummary(
-            run_count=len(run_entries),
+            run_count=len(final_run_entries),
             sample_count=sample_count,
             union_precursor_key_count=len(union_precursor_keys),
             union_protein_group_id_count=len(union_protein_group_ids),
             union_protein_id_count=len(union_protein_ids),
-            flagged_run_count=0,
+            flagged_run_count=len(flagged_run_names),
         ),
         note=(
-            "run qc keeps precursor and protein identity burden, intensity distribution, and missingness visible per run before higher-order correlation and outlier review are applied"
+            "run qc keeps precursor and protein identity burden, intensity distribution, missingness, pairwise correlation, and explicit outlier review visible per run"
         ),
     )
 
@@ -267,3 +353,78 @@ def _intensity_distribution(
         else:
             distribution["1e6+"] += 1
     return distribution
+
+
+def _build_pairwise_correlations(
+    *,
+    run_names: list[str],
+    sample_name_by_run: dict[str, str],
+    run_precursor_quantity_maps: dict[str, dict[str, float]],
+) -> tuple[DiaRunQcCorrelationEntry, ...]:
+    entries: list[DiaRunQcCorrelationEntry] = []
+    for index, run_name_a in enumerate(run_names):
+        for run_name_b in run_names[index + 1 :]:
+            map_a = run_precursor_quantity_maps.get(run_name_a, {})
+            map_b = run_precursor_quantity_maps.get(run_name_b, {})
+            shared_keys = sorted(set(map_a) & set(map_b))
+            correlation = None
+            if len(shared_keys) >= 2:
+                correlation = _pearson_correlation(
+                    [math.log10(map_a[key]) for key in shared_keys if map_a[key] > 0.0],
+                    [math.log10(map_b[key]) for key in shared_keys if map_b[key] > 0.0],
+                )
+            entries.append(
+                DiaRunQcCorrelationEntry(
+                    run_name_a=run_name_a,
+                    sample_name_a=sample_name_by_run.get(run_name_a, "unknown"),
+                    run_name_b=run_name_b,
+                    sample_name_b=sample_name_by_run.get(run_name_b, "unknown"),
+                    shared_precursor_key_count=len(shared_keys),
+                    pearson_correlation=correlation,
+                )
+            )
+    return tuple(entries)
+
+
+def _median(values: list[float]) -> float:
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return float(ordered[midpoint])
+    return float((ordered[midpoint - 1] + ordered[midpoint]) / 2.0)
+
+
+def _pearson_correlation(values_a: list[float], values_b: list[float]) -> float | None:
+    if len(values_a) != len(values_b) or len(values_a) < 2:
+        return None
+    mean_a = sum(values_a) / len(values_a)
+    mean_b = sum(values_b) / len(values_b)
+    numerator = sum(
+        (value_a - mean_a) * (value_b - mean_b)
+        for value_a, value_b in zip(values_a, values_b, strict=False)
+    )
+    denominator_a = math.sqrt(sum((value - mean_a) ** 2 for value in values_a))
+    denominator_b = math.sqrt(sum((value - mean_b) ** 2 for value in values_b))
+    if denominator_a == 0.0 or denominator_b == 0.0:
+        return None
+    return numerator / (denominator_a * denominator_b)
+
+
+def _median_correlation_by_run(
+    correlations: tuple[DiaRunQcCorrelationEntry, ...],
+) -> dict[str, float | None]:
+    values_by_run: dict[str, list[float]] = {}
+    for entry in correlations:
+        if entry.pearson_correlation is None:
+            continue
+        values_by_run.setdefault(entry.run_name_a, []).append(entry.pearson_correlation)
+        values_by_run.setdefault(entry.run_name_b, []).append(entry.pearson_correlation)
+    all_runs = {
+        run_name
+        for entry in correlations
+        for run_name in (entry.run_name_a, entry.run_name_b)
+    }
+    return {
+        run_name: _median(values_by_run[run_name]) if run_name in values_by_run else None
+        for run_name in all_runs
+    }
