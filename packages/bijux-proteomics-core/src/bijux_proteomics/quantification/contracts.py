@@ -593,6 +593,7 @@ class QuantArtifactBundle(JsonModel):
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
     limma_compatible_package: object | None = None
+    msstats_compatible_input_report: object | None = None
     design_matrix_report: QuantDesignMatrixReport | None = None
     design_model_fit_report: QuantDesignModelFitReport | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
@@ -2224,6 +2225,7 @@ def build_quant_artifact_bundle(
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
     limma_compatible_package: object | None = None,
+    msstats_compatible_input_report: object | None = None,
     design_matrix_report: QuantDesignMatrixReport | None = None,
     design_model_fit_report: QuantDesignModelFitReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
@@ -2256,6 +2258,7 @@ def build_quant_artifact_bundle(
         normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,
         limma_compatible_package=limma_compatible_package,
+        msstats_compatible_input_report=msstats_compatible_input_report,
         design_matrix_report=design_matrix_report,
         design_model_fit_report=design_model_fit_report,
         differential_abundance_report=differential_abundance_report,

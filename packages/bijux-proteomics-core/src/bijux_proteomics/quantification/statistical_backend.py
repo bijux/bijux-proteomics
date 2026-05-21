@@ -62,7 +62,7 @@ class MsstatsCompatibleInputRow(JsonModel):
 
     protein_name: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
-    precursor_charge: int = Field(..., ge=1)
+    precursor_charge: int | None = Field(default=None, ge=1)
     condition: str = Field(..., min_length=1)
     bio_replicate: str = Field(..., min_length=1)
     run: str = Field(..., min_length=1)
@@ -302,7 +302,6 @@ def build_msstats_compatible_input_report(
         if (
             design_entry is None
             or not record.protein_refs
-            or record.charge is None
             or record.intensity is None
         ):
             skipped += 1
@@ -324,7 +323,7 @@ def build_msstats_compatible_input_report(
         skipped_feature_count=skipped,
         rows=tuple(rows),
         note=(
-            "msstats-compatible export preserves observed peptide evidence with sample condition, biological replicate identity, run, fraction, and charge where the feature table provides them"
+            "msstats-compatible export preserves observed peptide evidence with sample condition, biological replicate identity, run, fraction, and precursor charge when the feature table provides it"
         ),
     )
 
@@ -351,7 +350,7 @@ def render_msstats_compatible_input_tsv(report: MsstatsCompatibleInputReport) ->
             [
                 row.protein_name,
                 row.peptide_sequence,
-                row.precursor_charge,
+                "" if row.precursor_charge is None else row.precursor_charge,
                 row.condition,
                 row.bio_replicate,
                 row.run,

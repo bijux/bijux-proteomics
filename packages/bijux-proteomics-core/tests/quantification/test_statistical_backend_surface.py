@@ -78,6 +78,23 @@ def test_build_msstats_compatible_input_report_preserves_observed_feature_rows()
     assert "P001\tAPEPTIDE\t2\tcontrol\tC1\tc1" in tsv
 
 
+def test_build_msstats_compatible_input_report_allows_missing_charge() -> None:
+    records, _, design = _table_and_design()
+    charge_optional_records = tuple(
+        record.model_copy(update={"charge": None})
+        if record.feature_id == "f001"
+        else record
+        for record in records
+    )
+
+    report = build_msstats_compatible_input_report(charge_optional_records, design)
+    tsv = render_msstats_compatible_input_tsv(report)
+
+    assert report.row_count > 0
+    assert report.skipped_feature_count > 0
+    assert "P001\tAPEPTIDE\t\tcontrol\tC1\tc1" in tsv
+
+
 def test_parse_backend_results_and_validate_against_native_differential_surface() -> (
     None
 ):

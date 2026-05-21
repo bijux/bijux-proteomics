@@ -1029,6 +1029,7 @@ class QuantReviewBundle(JsonModel):
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
     limma_compatible_package: object
+    msstats_compatible_input_report: object
     design_matrix_report: QuantDesignMatrixReport
     design_model_fit_report: QuantDesignModelFitReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
@@ -1136,6 +1137,7 @@ def build_quant_review_bundle(
     )
     from bijux_proteomics.quantification.statistical_backend import (
         build_limma_compatible_quant_package,
+        build_msstats_compatible_input_report,
     )
 
     limma_package = build_limma_compatible_quant_package(
@@ -1144,6 +1146,10 @@ def build_quant_review_bundle(
         batch_field="batch",
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
+    )
+    msstats_input_report = build_msstats_compatible_input_report(
+        records,
+        design_entries,
     )
     design_matrix_report = build_quant_design_matrix_report(
         design_entries,
@@ -1173,6 +1179,7 @@ def build_quant_review_bundle(
             peptide_table
         ),
         limma_compatible_package=limma_package,
+        msstats_compatible_input_report=msstats_input_report,
         design_matrix_report=design_matrix_report,
         design_model_fit_report=design_model_fit_report,
         differential_abundance_report=differential_report,
@@ -1222,6 +1229,7 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.imputation_report",
         "quant_artifact_bundle.imputation_sensitivity_report",
         "quant_artifact_bundle.limma_compatible_package",
+        "quant_artifact_bundle.msstats_compatible_input_report",
         "quant_artifact_bundle.replicate_qc_report.replicate_correlation_report.entries",
         "quant_artifact_bundle.replicate_qc_report.replicate_cv_report.entries",
         "quant_artifact_bundle.replicate_qc_report.outlier_samples",
@@ -1253,6 +1261,7 @@ def build_quant_review_bundle(
         normalization_matrix=normalization_matrix,
         rollup_strategy_comparison=rollup_strategy,
         limma_compatible_package=limma_package,
+        msstats_compatible_input_report=msstats_input_report,
         design_matrix_report=design_matrix_report,
         design_model_fit_report=design_model_fit_report,
         effect_size_da_report=da_report,

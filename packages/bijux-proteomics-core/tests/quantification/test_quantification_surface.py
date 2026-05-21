@@ -55,6 +55,7 @@ from bijux_proteomics.quantification import (
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
     build_multi_condition_differential_abundance_report,
+    build_msstats_compatible_input_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -758,6 +759,10 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         design_report.accepted_entries,
         batch_field="batch",
     )
+    msstats_input_report = build_msstats_compatible_input_report(
+        feature_report.accepted_records,
+        design_report.accepted_entries,
+    )
 
     bundle = build_quant_artifact_bundle(
         imputed_table,
@@ -770,6 +775,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         replicate_qc_report=replicate_qc,
         normalization_comparison_report=comparison,
         limma_compatible_package=limma_package,
+        msstats_compatible_input_report=msstats_input_report,
         design_matrix_report=design_matrix,
         design_model_fit_report=design_model_fit,
         differential_abundance_report=differential,
@@ -794,6 +800,8 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.replicate_qc_report.condition_clustering_report is not None
     assert bundle.limma_compatible_package is not None
     assert bundle.limma_compatible_package.sample_annotations
+    assert bundle.msstats_compatible_input_report is not None
+    assert bundle.msstats_compatible_input_report.rows
     assert bundle.design_matrix_report is not None
     assert bundle.design_matrix_report.contrasts
     assert bundle.design_model_fit_report is not None
