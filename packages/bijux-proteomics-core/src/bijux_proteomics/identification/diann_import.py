@@ -28,6 +28,7 @@ class DiaNnPrecursorReviewEntry(JsonModel):
 
     precursor_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
@@ -196,6 +197,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
             (
                 "precursor_id",
                 "peptide_sequence",
+                "modified_peptide",
                 "canonical_peptide",
                 "charge",
                 "q_value",
@@ -215,6 +217,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
                 (
                     row.precursor_id,
                     row.peptide_sequence,
+                    row.modified_peptide,
                     row.canonical_peptide,
                     str(row.charge),
                     f"{row.q_value:.6g}",
@@ -289,6 +292,8 @@ def _build_diann_precursor_rows(
             DiaNnPrecursorReviewEntry(
                 precursor_id=record.spectrum_id,
                 peptide_sequence=record.peptide,
+                modified_peptide=raw.get("Modified.Sequence", "").strip()
+                or record.canonical_peptide,
                 canonical_peptide=record.canonical_peptide,
                 charge=record.charge,
                 q_value=record.q_value if record.q_value is not None else record.score,

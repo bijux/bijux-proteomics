@@ -45,6 +45,7 @@ def test_diann_import_preserves_runs_samples_and_quantities() -> None:
     assert report.parameter_report.enzyme == "trypsin"
     assert report.precursor_rows[0].run_name == "raw_A"
     assert report.precursor_rows[0].sample_name == "sample_A"
+    assert report.precursor_rows[2].modified_peptide == "ACDM[Oxidation]K"
     assert report.precursor_rows[0].protein_group_quantity == 3400000
     assert report.precursor_rows[1].precursor_quantity == 1300000
     assert report.precursor_rows[3].target_decoy_label.value == "decoy"
@@ -53,6 +54,7 @@ def test_diann_import_preserves_runs_samples_and_quantities() -> None:
     assert report.dia_native_report.imported_count == 4
     assert len(report.dia_native_report.imported_protein_groups) == 3
     assert "run_names" in render_diann_summary_tsv(report.summary)
+    assert "modified_peptide" in render_diann_precursor_tsv(report.precursor_rows)
     assert "protein_group_quantity" in render_diann_precursor_tsv(report.precursor_rows)
     assert "source_precursor_count" in render_diann_protein_group_tsv(
         report.protein_group_rows

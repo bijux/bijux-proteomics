@@ -2687,6 +2687,7 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert payload["parameter_report"]["enzyme"] == "trypsin"
         assert payload["normalization"]["adapter"]["display_name"] == "DIA-NN"
         assert payload["precursor_rows"][0]["run_name"] == "raw_A"
+        assert payload["precursor_rows"][2]["modified_peptide"] == "ACDM[Oxidation]K"
         assert payload["dia_native_report"]["imported_count"] == 4
         assert Path("diann.summary.tsv").exists()
         assert Path("diann.precursors.tsv").exists()
