@@ -428,6 +428,9 @@ class ReplicateAndBatchQcReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    batch_effect_report: BatchEffectAdvisoryReport
+    replicate_correlation_report: ReplicateCorrelationReport
+    replicate_cv_report: ReplicateCvReport
     replicate_correlation_count: int = Field(..., ge=0)
     flagged_batch_count: int = Field(..., ge=0)
     sample_pca_report: SamplePcaReport | None = None
@@ -585,6 +588,7 @@ class QuantArtifactBundle(JsonModel):
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None
     missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None
+    replicate_qc_report: ReplicateAndBatchQcReport | None = None
     reproducibility_manifest: QuantReproducibilityManifest
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
@@ -2067,6 +2071,7 @@ def build_quant_artifact_bundle(
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None,
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None,
     missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None,
+    replicate_qc_report: ReplicateAndBatchQcReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
@@ -2091,6 +2096,7 @@ def build_quant_artifact_bundle(
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
+        replicate_qc_report=replicate_qc_report,
         reproducibility_manifest=build_quant_reproducibility_manifest(table),
         normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,

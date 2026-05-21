@@ -55,6 +55,7 @@ from bijux_proteomics.quantification import (
     build_quant_artifact_bundle,
     build_quant_matrix_export,
     build_quant_reproducibility_manifest,
+    build_replicate_and_batch_qc_report,
     build_replicate_correlation_report,
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
@@ -731,6 +732,10 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
             condition_b="treatment",
         )
     )
+    replicate_qc = build_replicate_and_batch_qc_report(
+        imputed_table,
+        design_entries=design_report.accepted_entries,
+    )
 
     bundle = build_quant_artifact_bundle(
         imputed_table,
@@ -740,6 +745,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
+        replicate_qc_report=replicate_qc,
         normalization_comparison_report=comparison,
         differential_abundance_report=differential,
         normalization_strategy_report=strategy,
@@ -756,6 +762,11 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.missingness_entity_summary is not None
     assert bundle.missingness_condition_summary is not None
     assert bundle.missingness_intensity_dependence is not None
+    assert bundle.replicate_qc_report is not None
+    assert bundle.replicate_qc_report.replicate_correlation_report.entries
+    assert bundle.replicate_qc_report.replicate_cv_report.entries
+    assert bundle.replicate_qc_report.sample_pca_report is not None
+    assert bundle.replicate_qc_report.condition_clustering_report is not None
 
     output_path = _quant_fixture("quant_artifact_bundle.json")
     try:

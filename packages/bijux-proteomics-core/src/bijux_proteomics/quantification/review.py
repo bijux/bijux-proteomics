@@ -1089,6 +1089,10 @@ def build_quant_review_bundle(
         if len(conditions) >= 2
         else None
     )
+    qc_report = build_replicate_and_batch_qc_report(
+        imputed_table,
+        design_entries=design_entries,
+    )
     artifact_bundle = build_quant_artifact_bundle(
         imputed_table,
         design_entries=design_entries,
@@ -1097,6 +1101,7 @@ def build_quant_review_bundle(
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
+        replicate_qc_report=qc_report,
         normalization_comparison_report=normalization_comparison,
         normalization_strategy_report=build_normalization_strategy_comparison_report(
             peptide_table
@@ -1111,10 +1116,6 @@ def build_quant_review_bundle(
         peptide_table
     )
     rollup_strategy = build_protein_rollup_strategy_comparison_report(records)
-    qc_report = build_replicate_and_batch_qc_report(
-        imputed_table,
-        design_entries=design_entries,
-    )
     decision_readiness = build_quant_decision_readiness_report(
         imputed_table,
         design_entries=design_entries,
@@ -1143,6 +1144,9 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.normalization_comparison_report",
         "quant_artifact_bundle.imputation_report",
         "quant_artifact_bundle.imputation_sensitivity_report",
+        "quant_artifact_bundle.replicate_qc_report.replicate_correlation_report.entries",
+        "quant_artifact_bundle.replicate_qc_report.replicate_cv_report.entries",
+        "quant_artifact_bundle.replicate_qc_report.outlier_samples",
         "lfq_provenance.feature_entries",
         "quant_review_bundle.normalization_comparison",
         "quant_review_bundle.imputation_report",
@@ -1151,7 +1155,11 @@ def build_quant_review_bundle(
         "missingness_entity_summary.entries",
         "missingness_condition_summary.entries",
         "missingness_intensity_dependence.plot_points",
-        "replicate_batch_qc.outlier_samples",
+        "qc_report.replicate_correlation_report.entries",
+        "qc_report.replicate_cv_report.entries",
+        "qc_report.sample_pca_report.entries",
+        "qc_report.condition_clustering_report",
+        "qc_report.outlier_samples",
         "quant_decision_readiness",
     )
     return QuantReviewBundle(

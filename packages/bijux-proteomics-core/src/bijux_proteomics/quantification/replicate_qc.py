@@ -96,6 +96,7 @@ def build_replicate_and_batch_qc_report(
 ) -> ReplicateAndBatchQcReport:
     """Build integrated replicate-correlation and batch-shift QC diagnostics."""
     replicate = build_replicate_correlation_report(table, design_entries)
+    replicate_cv = build_replicate_cv_report(table, design_entries)
     sample_pca = build_sample_pca_report(table, design_entries)
     condition_clustering = build_condition_clustering_report(table, design_entries)
     batch = build_batch_effect_advisory(
@@ -154,6 +155,9 @@ def build_replicate_and_batch_qc_report(
         else "replicate and batch qc did not detect sample-level outlier signals under configured thresholds"
     )
     return ReplicateAndBatchQcReport(
+        batch_effect_report=batch,
+        replicate_correlation_report=replicate,
+        replicate_cv_report=replicate_cv,
         replicate_correlation_count=len(replicate.entries),
         flagged_batch_count=sum(1 for entry in batch.batches if entry.flagged),
         sample_pca_report=sample_pca,

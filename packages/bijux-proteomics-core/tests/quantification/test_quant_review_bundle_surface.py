@@ -150,6 +150,12 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert len(bundle.evidence_pointers) >= 14
     assert bundle.rollup_strategy_comparison.entries
     assert bundle.missingness_profile.entries
+    assert bundle.qc_report.replicate_correlation_report.entries
+    assert bundle.qc_report.replicate_cv_report.entries
+    assert bundle.qc_report.sample_pca_report is not None
+    assert bundle.qc_report.condition_clustering_report is not None
+    assert "qc_report.replicate_cv_report.entries" in bundle.evidence_pointers
+    assert "qc_report.outlier_samples" in bundle.evidence_pointers
     assert bundle.decision_readiness.readiness_state.value in {
         "decision_grade",
         "review_grade",
