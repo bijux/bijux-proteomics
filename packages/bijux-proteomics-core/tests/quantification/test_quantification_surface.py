@@ -43,6 +43,7 @@ from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_quant_design_matrix_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
@@ -62,6 +63,7 @@ from bijux_proteomics.quantification import (
     build_quant_matrix_export,
     build_quant_reproducibility_manifest,
     build_replicate_and_batch_qc_report,
+    fit_quant_design_matrix_model,
     build_replicate_correlation_report,
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
@@ -742,6 +744,14 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         imputed_table,
         design_entries=design_report.accepted_entries,
     )
+    design_matrix = build_quant_design_matrix_report(
+        design_report.accepted_entries,
+        batch_field="batch",
+    )
+    design_model_fit = fit_quant_design_matrix_model(
+        imputed_table,
+        design_matrix,
+    )
 
     bundle = build_quant_artifact_bundle(
         imputed_table,
@@ -753,6 +763,8 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         missingness_intensity_dependence=missingness_intensity_dependence,
         replicate_qc_report=replicate_qc,
         normalization_comparison_report=comparison,
+        design_matrix_report=design_matrix,
+        design_model_fit_report=design_model_fit,
         differential_abundance_report=differential,
         normalization_strategy_report=strategy,
     )
@@ -773,6 +785,10 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.replicate_qc_report.replicate_cv_report.entries
     assert bundle.replicate_qc_report.sample_pca_report is not None
     assert bundle.replicate_qc_report.condition_clustering_report is not None
+    assert bundle.design_matrix_report is not None
+    assert bundle.design_matrix_report.contrasts
+    assert bundle.design_model_fit_report is not None
+    assert bundle.design_model_fit_report.coefficient_entries
 
     output_path = _quant_fixture("quant_artifact_bundle.json")
     try:

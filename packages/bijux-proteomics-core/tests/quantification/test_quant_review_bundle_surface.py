@@ -149,11 +149,15 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert bundle.missingness_intensity_dependence.plot_points
     assert len(bundle.evidence_pointers) >= 14
     assert bundle.rollup_strategy_comparison.entries
+    assert bundle.design_matrix_report.columns
+    assert bundle.design_model_fit_report.coefficient_entries
     assert bundle.missingness_profile.entries
     assert bundle.qc_report.replicate_correlation_report.entries
     assert bundle.qc_report.replicate_cv_report.entries
     assert bundle.qc_report.sample_pca_report is not None
     assert bundle.qc_report.condition_clustering_report is not None
+    assert "quant_artifact_bundle.design_matrix_report" in bundle.evidence_pointers
+    assert "quant_artifact_bundle.design_model_fit_report" in bundle.evidence_pointers
     assert "qc_report.replicate_cv_report.entries" in bundle.evidence_pointers
     assert "qc_report.outlier_samples" in bundle.evidence_pointers
     assert bundle.decision_readiness.readiness_state.value in {
@@ -232,6 +236,8 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
     )
 
     assert bundle.effect_size_da_report is None
+    assert bundle.design_matrix_report.contrasts
+    assert bundle.design_model_fit_report.contrast_estimates
     assert bundle.differential_abundance_multi_condition_report is not None
     assert len(bundle.differential_abundance_multi_condition_report.reports) == 3
     assert (

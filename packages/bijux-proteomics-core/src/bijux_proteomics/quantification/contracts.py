@@ -592,6 +592,8 @@ class QuantArtifactBundle(JsonModel):
     reproducibility_manifest: QuantReproducibilityManifest
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
+    design_matrix_report: QuantDesignMatrixReport | None = None
+    design_model_fit_report: QuantDesignModelFitReport | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
@@ -2220,6 +2222,8 @@ def build_quant_artifact_bundle(
     replicate_qc_report: ReplicateAndBatchQcReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
+    design_matrix_report: QuantDesignMatrixReport | None = None,
+    design_model_fit_report: QuantDesignModelFitReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
@@ -2249,6 +2253,8 @@ def build_quant_artifact_bundle(
         reproducibility_manifest=build_quant_reproducibility_manifest(table),
         normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,
+        design_matrix_report=design_matrix_report,
+        design_model_fit_report=design_model_fit_report,
         differential_abundance_report=differential_abundance_report,
         differential_abundance_multi_condition_report=(
             differential_abundance_multi_condition_report

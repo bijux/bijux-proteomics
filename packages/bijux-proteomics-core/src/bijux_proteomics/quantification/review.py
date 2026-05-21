@@ -27,12 +27,16 @@ from bijux_proteomics.quantification import (
     MultiplexNormalizationPolicy,
     NormalizationComparisonReport,
     NormalizationMethod,
+    QuantDesignMatrixReport,
+    QuantDesignModelFitReport,
     QuantEntityLevel,
     QuantRollupMethod,
     ReplicateAndBatchQcReport,
     MultiConditionDifferentialAbundanceReport,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
+    build_quant_design_matrix_report,
+    fit_quant_design_matrix_model,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
@@ -1024,6 +1028,8 @@ class QuantReviewBundle(JsonModel):
     imputation_sensitivity: ImputationSensitivityReport | None = None
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
+    design_matrix_report: QuantDesignMatrixReport
+    design_model_fit_report: QuantDesignModelFitReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
@@ -1047,6 +1053,19 @@ def build_quant_review_bundle(
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
 ) -> QuantReviewBundle:
     """Build a full quant review bundle from feature-level quant records."""
+    covariate_fields = tuple(
+        sorted(
+            {
+                field
+                for entry in design_entries
+                for field, value in entry.metadata.items()
+                if value not in ("", None)
+            }
+        )
+    )
+    pairing_field = (
+        "pair_id" if all(entry.pair_id not in (None, "") for entry in design_entries) else None
+    )
     peptide_table = build_label_free_intensity_table(
         records,
         entity_level=QuantEntityLevel.PEPTIDE,
@@ -1114,6 +1133,16 @@ def build_quant_review_bundle(
         if len(conditions) > 2
         else None
     )
+    design_matrix_report = build_quant_design_matrix_report(
+        design_entries,
+        batch_field="batch",
+        covariate_fields=covariate_fields,
+        pairing_field=pairing_field,
+    )
+    design_model_fit_report = fit_quant_design_matrix_model(
+        imputed_table,
+        design_matrix_report,
+    )
     qc_report = build_replicate_and_batch_qc_report(
         imputed_table,
         design_entries=design_entries,
@@ -1131,6 +1160,8 @@ def build_quant_review_bundle(
         normalization_strategy_report=build_normalization_strategy_comparison_report(
             peptide_table
         ),
+        design_matrix_report=design_matrix_report,
+        design_model_fit_report=design_model_fit_report,
         differential_abundance_report=differential_report,
         differential_abundance_multi_condition_report=(
             multi_condition_differential_report
@@ -1180,6 +1211,8 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.replicate_qc_report.replicate_correlation_report.entries",
         "quant_artifact_bundle.replicate_qc_report.replicate_cv_report.entries",
         "quant_artifact_bundle.replicate_qc_report.outlier_samples",
+        "quant_artifact_bundle.design_matrix_report",
+        "quant_artifact_bundle.design_model_fit_report",
         "quant_artifact_bundle.differential_abundance_report",
         "quant_artifact_bundle.differential_abundance_multi_condition_report",
         "lfq_provenance.feature_entries",
@@ -1205,6 +1238,8 @@ def build_quant_review_bundle(
         imputation_sensitivity=imputation_sensitivity,
         normalization_matrix=normalization_matrix,
         rollup_strategy_comparison=rollup_strategy,
+        design_matrix_report=design_matrix_report,
+        design_model_fit_report=design_model_fit_report,
         effect_size_da_report=da_report,
         differential_abundance_multi_condition_report=(
             multi_condition_differential_report
