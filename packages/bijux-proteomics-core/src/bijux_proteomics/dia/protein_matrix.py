@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
+from pathlib import Path
+from typing import Callable
 
 from pydantic import ConfigDict, Field
 
@@ -13,6 +17,7 @@ from bijux_proteomics.dia.precursor_matrix import (
     DiaPrecursorMatrixReport,
     DiaPrecursorMatrixRow,
     DiaPrecursorMatrixValue,
+    build_diann_precursor_matrix_report,
 )
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics_foundation import JsonModel
@@ -154,6 +159,56 @@ class DiaProteinMatrixReport(JsonModel):
     rows: tuple[DiaProteinMatrixRow, ...] = Field(default_factory=tuple)
     summary: DiaProteinMatrixSummary
     note: str = Field(..., min_length=1)
+
+
+def build_diann_peptide_matrix_report(
+    result_tsv_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+    rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+) -> DiaPeptideMatrixReport:
+    """Build a DIA peptide-by-sample matrix directly from one DIA-NN report."""
+
+    precursor_matrix = build_diann_precursor_matrix_report(
+        result_tsv_path,
+        config_path=config_path,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+    )
+    return build_dia_peptide_matrix_report(
+        precursor_matrix,
+        rollup_method=rollup_method,
+    )
+
+
+def build_diann_protein_matrix_report(
+    result_tsv_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+    peptide_rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+    target_kind: DiaProteinMatrixTargetKind = DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+    shared_peptide_policy: DiaSharedPeptidePolicy = DiaSharedPeptidePolicy.INCLUDE,
+    protein_rollup_method: DiaProteinRollupMethod = DiaProteinRollupMethod.SUM,
+) -> DiaProteinMatrixReport:
+    """Build a DIA protein-by-sample matrix directly from one DIA-NN report."""
+
+    peptide_matrix = build_diann_peptide_matrix_report(
+        result_tsv_path,
+        config_path=config_path,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        rollup_method=peptide_rollup_method,
+    )
+    return build_dia_protein_matrix_report(
+        peptide_matrix,
+        target_kind=target_kind,
+        shared_peptide_policy=shared_peptide_policy,
+        rollup_method=protein_rollup_method,
+    )
 
 
 def build_dia_peptide_matrix_report(
@@ -391,6 +446,162 @@ def build_dia_protein_matrix_report(
     )
 
 
+def render_dia_peptide_matrix_summary_tsv(report: DiaPeptideMatrixReport) -> str:
+    """Render a compact summary for one DIA peptide matrix."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "rollup_method",
+            "sample_count",
+            "peptide_row_count",
+            "observed_cell_count",
+            "missing_cell_count",
+            "shared_peptide_row_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.rollup_method.value,
+            report.summary.sample_count,
+            report.summary.peptide_row_count,
+            report.summary.observed_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.shared_peptide_row_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_peptide_quantity_matrix_tsv(report: DiaPeptideMatrixReport) -> str:
+    """Render the DIA peptide-by-sample quantity matrix as a wide TSV."""
+
+    return _render_dia_peptide_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.abundance is None else f"{value.abundance:g}"
+        ),
+    )
+
+
+def render_dia_peptide_q_value_matrix_tsv(report: DiaPeptideMatrixReport) -> str:
+    """Render the DIA peptide-by-sample q-value matrix as a wide TSV."""
+
+    return _render_dia_peptide_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.q_value is None else f"{value.q_value:.6g}"
+        ),
+    )
+
+
+def render_dia_protein_matrix_summary_tsv(report: DiaProteinMatrixReport) -> str:
+    """Render a compact summary for one DIA protein matrix."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "target_kind",
+            "shared_peptide_policy",
+            "rollup_method",
+            "sample_count",
+            "protein_row_count",
+            "observed_cell_count",
+            "missing_cell_count",
+            "shared_peptide_row_count",
+            "excluded_shared_peptide_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.target_kind.value,
+            report.shared_peptide_policy.value,
+            report.rollup_method.value,
+            report.summary.sample_count,
+            report.summary.protein_row_count,
+            report.summary.observed_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.shared_peptide_row_count,
+            report.summary.excluded_shared_peptide_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_protein_quantity_matrix_tsv(report: DiaProteinMatrixReport) -> str:
+    """Render the DIA protein-by-sample quantity matrix as a wide TSV."""
+
+    return _render_dia_protein_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.abundance is None else f"{value.abundance:g}"
+        ),
+    )
+
+
+def render_dia_protein_q_value_matrix_tsv(report: DiaProteinMatrixReport) -> str:
+    """Render the DIA protein-by-sample q-value matrix as a wide TSV."""
+
+    return _render_dia_protein_wide_matrix(
+        report,
+        value_getter=lambda value: (
+            "" if value.q_value is None else f"{value.q_value:.6g}"
+        ),
+    )
+
+
+def export_dia_peptide_matrix_summary_tsv(
+    report: DiaPeptideMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_peptide_matrix_summary_tsv(report), encoding="utf-8")
+
+
+def export_dia_peptide_quantity_matrix_tsv(
+    report: DiaPeptideMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_peptide_quantity_matrix_tsv(report), encoding="utf-8")
+
+
+def export_dia_peptide_q_value_matrix_tsv(
+    report: DiaPeptideMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_peptide_q_value_matrix_tsv(report), encoding="utf-8")
+
+
+def export_dia_protein_matrix_summary_tsv(
+    report: DiaProteinMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_protein_matrix_summary_tsv(report), encoding="utf-8")
+
+
+def export_dia_protein_quantity_matrix_tsv(
+    report: DiaProteinMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_protein_quantity_matrix_tsv(report), encoding="utf-8")
+
+
+def export_dia_protein_q_value_matrix_tsv(
+    report: DiaProteinMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_protein_q_value_matrix_tsv(report), encoding="utf-8")
+
+
 def _build_peptide_key(row: DiaPrecursorMatrixRow) -> str:
     return f"{row.modified_peptide}|{row.protein_group_id}"
 
@@ -429,3 +640,83 @@ def _combine_target_decoy_labels(
     if not labels:
         return TargetDecoyLabel.UNKNOWN
     return TargetDecoyLabel.MIXED
+
+
+def _render_dia_peptide_wide_matrix(
+    report: DiaPeptideMatrixReport,
+    *,
+    value_getter: Callable[[DiaPeptideMatrixValue], str],
+) -> str:
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "peptide_key",
+            "peptide_sequence",
+            "modified_peptide",
+            "canonical_peptide",
+            "protein_group_id",
+            "protein_refs",
+            "source_precursor_count",
+            "target_decoy_label",
+            *report.sample_ids,
+        ]
+    )
+    for row in report.rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        writer.writerow(
+            [
+                row.peptide_key,
+                row.peptide_sequence,
+                row.modified_peptide,
+                row.canonical_peptide,
+                row.protein_group_id,
+                ";".join(row.protein_refs),
+                row.source_precursor_count,
+                row.target_decoy_label.value,
+                *[
+                    value_getter(value_lookup[sample_id])
+                    for sample_id in report.sample_ids
+                ],
+            ]
+        )
+    return buffer.getvalue()
+
+
+def _render_dia_protein_wide_matrix(
+    report: DiaProteinMatrixReport,
+    *,
+    value_getter: Callable[[DiaProteinMatrixValue], str],
+) -> str:
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_id",
+            "target_kind",
+            "protein_refs",
+            "peptide_count",
+            "unique_peptide_count",
+            "shared_peptide_count",
+            "contributing_peptides",
+            *report.sample_ids,
+        ]
+    )
+    for row in report.rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        writer.writerow(
+            [
+                row.entity_id,
+                row.target_kind.value,
+                ";".join(row.protein_refs),
+                row.peptide_count,
+                row.unique_peptide_count,
+                row.shared_peptide_count,
+                ";".join(row.contributing_peptides),
+                *[
+                    value_getter(value_lookup[sample_id])
+                    for sample_id in report.sample_ids
+                ],
+            ]
+        )
+    return buffer.getvalue()
