@@ -1837,63 +1837,16 @@ def export_quant_artifact_bundle(bundle: QuantArtifactBundle, path: Path) -> Non
     path.write_text(bundle.to_stable_json() + "\n", encoding="utf-8")
 
 
-def _sample_snapshot(
-    table: LabelFreeQuantTable,
-    sample_id: str,
-) -> NormalizationSampleSnapshot:
-    abundances = np.array(
-        [
-            value.abundance
-            for value in table.values
-            if value.sample_id == sample_id and value.abundance is not None
-        ],
-        dtype=float,
-    )
-    if abundances.size == 0:
-        return NormalizationSampleSnapshot(
-            sample_id=sample_id,
-            total_abundance=0.0,
-            median_abundance=0.0,
-            interquartile_range=0.0,
-        )
-    return NormalizationSampleSnapshot(
-        sample_id=sample_id,
-        total_abundance=float(np.sum(abundances)),
-        median_abundance=float(np.median(abundances)),
-        interquartile_range=float(
-            np.percentile(abundances, 75) - np.percentile(abundances, 25)
-        ),
-    )
-
-
 def build_normalization_comparison_report(
     before: LabelFreeQuantTable,
     after: LabelFreeQuantTable,
 ) -> NormalizationComparisonReport:
     """Build a before/after normalization summary over sample totals and spread."""
-    if before.sample_ids != after.sample_ids or before.entity_ids != after.entity_ids:
-        raise ValueError(
-            "before and after tables must cover the same sample/entity grid"
-        )
-    return NormalizationComparisonReport(
-        method=after.normalization_method,
-        normalization_factors=after.normalization_factors,
-        before=tuple(
-            _sample_snapshot(before, sample_id) for sample_id in before.sample_ids
-        ),
-        after=tuple(
-            _sample_snapshot(after, sample_id) for sample_id in after.sample_ids
-        ),
+    from bijux_proteomics.quantification.normalization import (
+        build_normalization_comparison_report as _implementation,
     )
 
-
-def _coefficient_of_variation(values: list[float]) -> float:
-    if not values:
-        return 0.0
-    mean_value = float(np.mean(np.array(values, dtype=float)))
-    if mean_value == 0.0:
-        return 0.0
-    return float(np.std(np.array(values, dtype=float)) / mean_value)
+    return _implementation(before, after)
 
 
 def build_normalization_strategy_comparison_report(
@@ -1907,41 +1860,11 @@ def build_normalization_strategy_comparison_report(
     ),
 ) -> NormalizationStrategyComparisonReport:
     """Compare normalization methods using stable sample-balance summary metrics."""
-    entries: list[NormalizationStrategySummaryEntry] = []
-    for method in methods:
-        candidate = normalize_label_free_table(table, method=method)
-        snapshots = [
-            _sample_snapshot(candidate, sample_id) for sample_id in candidate.sample_ids
-        ]
-        total_cv = _coefficient_of_variation(
-            [snapshot.total_abundance for snapshot in snapshots]
-        )
-        median_cv = _coefficient_of_variation(
-            [snapshot.median_abundance for snapshot in snapshots]
-        )
-        iqr_cv = _coefficient_of_variation(
-            [snapshot.interquartile_range for snapshot in snapshots]
-        )
-        entries.append(
-            NormalizationStrategySummaryEntry(
-                method=method,
-                total_abundance_cv=total_cv,
-                median_abundance_cv=median_cv,
-                interquartile_range_cv=iqr_cv,
-                balance_score=total_cv + median_cv + iqr_cv,
-            )
-        )
-    ordered = tuple(
-        sorted(
-            entries,
-            key=lambda entry: (entry.balance_score, entry.method.value),
-        )
+    from bijux_proteomics.quantification.normalization import (
+        build_normalization_strategy_comparison_report as _implementation,
     )
-    return NormalizationStrategyComparisonReport(
-        entity_level=table.entity_level,
-        entries=ordered,
-        recommended_method=ordered[0].method,
-    )
+
+    return _implementation(table, methods=methods)
 
 
 def _log2_values(table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
@@ -2452,101 +2375,11 @@ def normalize_label_free_table(
     method: NormalizationMethod = NormalizationMethod.MEDIAN,
 ) -> LabelFreeQuantTable:
     """Normalize a label-free intensity table with one stable baseline method."""
-    if table.measure_kind is not QuantMeasureKind.INTENSITY:
-        raise ValueError("normalization only applies to intensity-based quant tables")
-    if method is NormalizationMethod.NONE:
-        return table.model_copy(
-            update={
-                "normalization_method": method,
-                "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
-            }
-        )
-
-    matrix, _ = _table_matrix(table)
-    sample_ids = list(table.sample_ids)
-
-    if method is NormalizationMethod.TIC:
-        totals = np.nansum(matrix, axis=0)
-        global_total = (
-            float(np.nanmean(totals[totals > 0])) if np.any(totals > 0) else 1.0
-        )
-        factors = {
-            sample_id: (global_total / float(total)) if total > 0 else 1.0
-            for sample_id, total in zip(sample_ids, totals, strict=True)
-        }
-        scaled = matrix.copy()
-        for index, sample_id in enumerate(sample_ids):
-            scaled[:, index] = scaled[:, index] * factors[sample_id]
-        return _rebuild_table_from_matrix(
-            table,
-            scaled,
-            normalization_method=method,
-            normalization_factors=factors,
-        )
-
-    if method is NormalizationMethod.MEDIAN:
-        medians = np.array(
-            [
-                np.nanmedian(matrix[:, index])
-                if np.any(~np.isnan(matrix[:, index]))
-                else np.nan
-                for index in range(matrix.shape[1])
-            ],
-            dtype=float,
-        )
-        global_median = (
-            float(np.nanmedian(medians)) if np.any(~np.isnan(medians)) else 1.0
-        )
-        factors = {
-            sample_id: (
-                global_median / float(medians[index])
-                if math.isfinite(float(medians[index])) and float(medians[index]) > 0
-                else 1.0
-            )
-            for index, sample_id in enumerate(sample_ids)
-        }
-        scaled = matrix.copy()
-        for index, sample_id in enumerate(sample_ids):
-            scaled[:, index] = scaled[:, index] * factors[sample_id]
-        return _rebuild_table_from_matrix(
-            table,
-            scaled,
-            normalization_method=method,
-            normalization_factors=factors,
-        )
-
-    quantile_matrix = matrix.copy()
-    sorted_columns: list[np.ndarray] = []
-    original_indexes: list[np.ndarray] = []
-    for index in range(quantile_matrix.shape[1]):
-        column = quantile_matrix[:, index]
-        finite_indexes = np.where(~np.isnan(column))[0]
-        finite_values = column[finite_indexes]
-        order = np.argsort(finite_values)
-        sorted_columns.append(finite_values[order])
-        original_indexes.append(finite_indexes[order])
-    max_length = max((column.size for column in sorted_columns), default=0)
-    if max_length == 0:
-        return _rebuild_table_from_matrix(
-            table,
-            quantile_matrix,
-            normalization_method=method,
-            normalization_factors=dict.fromkeys(sample_ids, 1.0),
-        )
-    rank_matrix = np.full((max_length, len(sample_ids)), np.nan, dtype=float)
-    for index, column in enumerate(sorted_columns):
-        rank_matrix[: column.size, index] = column
-    rank_means = np.nanmean(rank_matrix, axis=1)
-    normalized = quantile_matrix.copy()
-    for index, ordered_rows in enumerate(original_indexes):
-        for rank, row_index in enumerate(ordered_rows):
-            normalized[row_index, index] = rank_means[rank]
-    return _rebuild_table_from_matrix(
-        table,
-        normalized,
-        normalization_method=method,
-        normalization_factors=dict.fromkeys(sample_ids, 1.0),
+    from bijux_proteomics.quantification.normalization import (
+        normalize_label_free_table as _implementation,
     )
+
+    return _implementation(table, method=method)
 
 
 def build_batch_effect_advisory(

@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification.contracts import *  # noqa: F401,F403
+from bijux_proteomics.quantification.normalization import *  # noqa: F401,F403
 from bijux_proteomics.quantification.peptide_intensity_matrix import *  # noqa: F401,F403
 from bijux_proteomics.quantification.protein_intensity_matrix import *  # noqa: F401,F403
 from bijux_proteomics.quantification.protein_lfq import *  # noqa: F401,F403
