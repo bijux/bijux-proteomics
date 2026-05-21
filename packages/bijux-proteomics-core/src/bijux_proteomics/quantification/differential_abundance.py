@@ -5,17 +5,20 @@
 
 from __future__ import annotations
 
+from itertools import combinations
 import math
 
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceContrast,
     DifferentialAbundanceAssumptionReport,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialReplicatePolicy,
     LabelFreeQuantTable,
+    MultiConditionDifferentialAbundanceReport,
     QuantAssessmentDisposition,
     _condition_lookup,
     _effect_size_and_uncertainty,
@@ -165,4 +168,73 @@ def apply_benjamini_hochberg(
                 }
             ),
         }
+    )
+
+
+def build_multi_condition_differential_abundance_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    contrasts: tuple[tuple[str, str], ...] | None = None,
+    replicate_policy: DifferentialReplicatePolicy | None = None,
+) -> MultiConditionDifferentialAbundanceReport:
+    """Build BH-corrected pairwise differential reports across a study design."""
+    active_policy = replicate_policy or DifferentialReplicatePolicy()
+    condition_by_sample = _condition_lookup(design_entries)
+    conditions = tuple(
+        sorted({condition for condition in condition_by_sample.values() if condition})
+    )
+    if len(conditions) < 2:
+        raise ValueError(
+            "multi-condition differential abundance requires at least two conditions"
+        )
+    contrast_pairs = (
+        tuple(combinations(conditions, 2)) if contrasts is None else contrasts
+    )
+    if not contrast_pairs:
+        raise ValueError("multi-condition differential abundance requires contrasts")
+
+    known_conditions = set(conditions)
+    contrast_entries: list[DifferentialAbundanceContrast] = []
+    reports: list[DifferentialAbundanceReport] = []
+    for condition_a, condition_b in contrast_pairs:
+        if condition_a == condition_b:
+            raise ValueError(
+                f"differential abundance contrast {condition_a} vs {condition_b} is degenerate"
+            )
+        unknown = sorted({condition_a, condition_b} - known_conditions)
+        if unknown:
+            raise ValueError(
+                "differential abundance contrast references unknown conditions: "
+                + ", ".join(unknown)
+            )
+        contrast_entries.append(
+            DifferentialAbundanceContrast(
+                condition_a=condition_a,
+                condition_b=condition_b,
+            )
+        )
+        reports.append(
+            apply_benjamini_hochberg(
+                build_differential_abundance_report(
+                    table,
+                    design_entries,
+                    condition_a=condition_a,
+                    condition_b=condition_b,
+                    replicate_policy=active_policy,
+                )
+            )
+        )
+
+    return MultiConditionDifferentialAbundanceReport(
+        entity_level=table.entity_level,
+        normalization_method=table.normalization_method,
+        imputation_method=table.imputation_method,
+        condition_count=len(conditions),
+        replicate_policy=active_policy,
+        contrasts=tuple(contrast_entries),
+        reports=tuple(reports),
+        note=(
+            "pairwise differential abundance preserves one benjamini-hochberg-corrected report per selected condition contrast"
+        ),
     )

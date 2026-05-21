@@ -984,6 +984,32 @@ class DifferentialAbundanceReport(JsonModel):
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
 
 
+class DifferentialAbundanceContrast(JsonModel):
+    """One named condition contrast preserved inside a DA collection."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+
+
+class MultiConditionDifferentialAbundanceReport(JsonModel):
+    """Pairwise differential-abundance collection over a multi-condition study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    normalization_method: NormalizationMethod
+    imputation_method: ImputationMethod = ImputationMethod.NONE
+    condition_count: int = Field(..., ge=2)
+    replicate_policy: DifferentialReplicatePolicy = Field(
+        default_factory=DifferentialReplicatePolicy
+    )
+    contrasts: tuple[DifferentialAbundanceContrast, ...] = Field(default_factory=tuple)
+    reports: tuple[DifferentialAbundanceReport, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class LabelFreeFeatureProvenanceEntry(JsonModel):
     """Feature-level provenance preserved inside an LFQ workflow bundle."""
 
