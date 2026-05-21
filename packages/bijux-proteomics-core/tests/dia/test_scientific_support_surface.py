@@ -13,6 +13,8 @@ def test_build_dia_workflow_scientific_support_report_separates_tiers() -> None:
     report = build_dia_workflow_scientific_support_report(
         imported_precursor_count=92,
         expected_precursor_count=100,
+        sample_resolved_precursor_count=88,
+        expected_sample_resolved_precursor_count=100,
         transition_supported_precursor_count=73,
         expected_transition_precursor_count=100,
         protein_group_count=61,
@@ -27,6 +29,7 @@ def test_build_dia_workflow_scientific_support_report_separates_tiers() -> None:
     tiers = {entry.surface: entry.support_tier for entry in report.entries}
 
     assert tiers["library_conditioned_import"] is WorkflowScientificSupportTier.PARTIAL
+    assert tiers["precursor_matrix_evidence"] is WorkflowScientificSupportTier.PARTIAL
     assert tiers["transition_semantics"] is WorkflowScientificSupportTier.PARTIAL
     assert tiers["protein_level_evidence"] is WorkflowScientificSupportTier.PARTIAL
     assert tiers["biological_interpretation"] is WorkflowScientificSupportTier.REFUSED

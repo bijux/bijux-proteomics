@@ -305,6 +305,8 @@ def test_scientific_failure_atlas_report_gathers_cross_family_blockers() -> None
         support_report=build_dia_workflow_scientific_support_report(
             imported_precursor_count=92,
             expected_precursor_count=100,
+            sample_resolved_precursor_count=88,
+            expected_sample_resolved_precursor_count=100,
             transition_supported_precursor_count=73,
             expected_transition_precursor_count=100,
             protein_group_count=61,

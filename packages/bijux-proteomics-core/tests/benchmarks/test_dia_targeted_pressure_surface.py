@@ -22,6 +22,8 @@ def test_dia_pressure_corpus_report_keeps_library_conditioning_visible() -> None
     support_report = build_dia_workflow_scientific_support_report(
         imported_precursor_count=92,
         expected_precursor_count=100,
+        sample_resolved_precursor_count=88,
+        expected_sample_resolved_precursor_count=100,
         transition_supported_precursor_count=73,
         expected_transition_precursor_count=100,
         protein_group_count=61,

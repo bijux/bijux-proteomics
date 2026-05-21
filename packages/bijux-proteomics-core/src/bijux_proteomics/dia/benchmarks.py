@@ -147,6 +147,8 @@ def build_dia_workflow_scientific_support_report(
     *,
     imported_precursor_count: int,
     expected_precursor_count: int,
+    sample_resolved_precursor_count: int,
+    expected_sample_resolved_precursor_count: int,
     transition_supported_precursor_count: int,
     expected_transition_precursor_count: int,
     protein_group_count: int,
@@ -160,6 +162,10 @@ def build_dia_workflow_scientific_support_report(
     """Score DIA support tiers with explicit realism pressure and partial-support rules."""
 
     import_fraction = _fraction(imported_precursor_count, expected_precursor_count)
+    precursor_matrix_fraction = _fraction(
+        sample_resolved_precursor_count,
+        expected_sample_resolved_precursor_count,
+    )
     transition_fraction = _fraction(
         transition_supported_precursor_count,
         expected_transition_precursor_count,
@@ -187,6 +193,11 @@ def build_dia_workflow_scientific_support_report(
         fraction=transition_fraction,
         supported_threshold=0.85,
         partial_threshold=0.6,
+    )
+    precursor_matrix_tier = _tier_from_fraction(
+        fraction=min(import_fraction, precursor_matrix_fraction),
+        supported_threshold=0.9,
+        partial_threshold=0.7,
     )
     protein_tier = _tier_from_fraction(
         fraction=min(protein_fraction, library_coverage_fraction),
@@ -219,6 +230,16 @@ def build_dia_workflow_scientific_support_report(
             partial_threshold=0.7,
             detail=(
                 "import support is bounded by both precursor import success and peptide coverage against the expected library scope"
+            ),
+        ),
+        DiaWorkflowSupportTierEntry(
+            surface="precursor_matrix_evidence",
+            support_tier=precursor_matrix_tier,
+            observed_fraction=min(import_fraction, precursor_matrix_fraction),
+            supported_threshold=0.9,
+            partial_threshold=0.7,
+            detail=(
+                "precursor-level analysis is only strong when imported evidence remains sample-resolved enough to support precursor-by-sample matrices rather than one-off run rows"
             ),
         ),
         DiaWorkflowSupportTierEntry(
