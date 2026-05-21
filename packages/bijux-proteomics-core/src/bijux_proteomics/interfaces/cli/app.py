@@ -147,6 +147,12 @@ from bijux_proteomics.identification.search_adapters import (
     parse_search_parameter_file,
     validate_search_parameters,
 )
+from bijux_proteomics.dia import (
+    build_diann_precursor_matrix_report,
+    render_dia_precursor_matrix_summary_tsv,
+    render_dia_precursor_q_value_matrix_tsv,
+    render_dia_precursor_quantity_matrix_tsv,
+)
 from bijux_proteomics.interfaces.runtime_plans import (
     WorkflowSchedulerKind,
     build_proteomics_workflow_runtime_bundle,
@@ -1540,6 +1546,83 @@ def diann_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("diann-precursor-matrix")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-decoys/--exclude-decoys",
+    default=False,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--qvalue-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def diann_precursor_matrix_command(
+    result_tsv: Path,
+    config_path: Path | None,
+    include_decoys: bool,
+    max_q_value: float | None,
+    summary_tsv_out: Path | None,
+    matrix_tsv_out: Path | None,
+    qvalue_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build a DIA precursor-by-sample matrix from one DIA-NN report."""
+    try:
+        report = build_diann_precursor_matrix_report(
+            result_tsv,
+            config_path=config_path,
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_dia_precursor_matrix_summary_tsv(report),
+        )
+    if matrix_tsv_out is not None:
+        _write_text_output(
+            matrix_tsv_out,
+            render_dia_precursor_quantity_matrix_tsv(report),
+        )
+    if qvalue_tsv_out is not None:
+        _write_text_output(
+            qvalue_tsv_out,
+            render_dia_precursor_q_value_matrix_tsv(report),
+        )
+
+    payload = {
+        "source_name": report.source_name,
+        "sample_ids": list(report.sample_ids),
+        "run_names": list(report.run_names),
+        "summary": report.summary.to_dict(),
+        "rows": [row.to_dict() for row in report.rows],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
+            "qvalue_tsv": None if qvalue_tsv_out is None else str(qvalue_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)

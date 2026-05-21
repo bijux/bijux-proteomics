@@ -2694,6 +2694,51 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert Path("diann.protein_groups.tsv").exists()
 
 
+def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        shutil.copy(fixture_dir / "diann_report.tsv", "diann_report.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-precursor-matrix",
+                "diann_report.tsv",
+                "--summary-tsv-out",
+                "diann.matrix.summary.tsv",
+                "--matrix-tsv-out",
+                "diann.matrix.tsv",
+                "--qvalue-tsv-out",
+                "diann.qvalues.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["sample_ids"] == ["sample_A", "sample_B"]
+        assert payload["summary"]["precursor_row_count"] == 2
+        assert payload["summary"]["observed_cell_count"] == 3
+        assert payload["summary"]["excluded_decoy_count"] == 1
+        assert payload["rows"][0]["modified_peptide"] == "ACDM[Oxidation]K"
+        assert payload["outputs"]["summary_tsv"] == "diann.matrix.summary.tsv"
+        assert payload["outputs"]["matrix_tsv"] == "diann.matrix.tsv"
+        assert payload["outputs"]["qvalue_tsv"] == "diann.qvalues.tsv"
+        assert Path("diann.matrix.summary.tsv").exists()
+        assert Path("diann.matrix.tsv").exists()
+        assert Path("diann.qvalues.tsv").exists()
+        assert "precursor_key\tpeptide_sequence\tmodified_peptide" in Path(
+            "diann.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "source_name\tsample_count\trun_count\tprecursor_row_count" in Path(
+            "diann.matrix.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "\t0.0021\t0.0024\n" in Path("diann.qvalues.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
