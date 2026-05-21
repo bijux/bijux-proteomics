@@ -2945,6 +2945,12 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["imputation_sensitivity"]["entries"]
         assert payload["batch_effect"]["disposition"] == "ADVISORY"
         assert payload["replicate_correlations"]["entries"]
+        assert payload["replicate_qc"]["replicate_cv_report"]["entries"]
+        assert payload["replicate_qc"]["sample_pca_report"]["entries"]
+        assert payload["replicate_qc"]["condition_clustering_report"] is not None
+        assert payload["replicate_cv"]["entries"]
+        assert payload["sample_pca"]["entries"]
+        assert payload["condition_clustering"]["condition_count"] == 2
         assert payload["differential_abundance"]["condition_a"] == "control"
         assert any(
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0

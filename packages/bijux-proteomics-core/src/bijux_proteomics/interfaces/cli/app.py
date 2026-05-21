@@ -233,7 +233,6 @@ from bijux_proteomics.quantification import (
     QuantMeasureKind,
     QuantRollupMethod,
     apply_benjamini_hochberg,
-    build_batch_effect_advisory,
     build_differential_abundance_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
@@ -249,7 +248,7 @@ from bijux_proteomics.quantification import (
     build_protein_intensity_matrix_from_psms,
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_psms,
-    build_replicate_correlation_report,
+    build_replicate_and_batch_qc_report,
     build_spectral_count_table,
     impute_label_free_table,
     normalize_label_free_table,
@@ -4439,16 +4438,19 @@ def quantify_command(
         design_entries: tuple[ExperimentalDesignEntry, ...] = ()
         batch_effect = None
         replicate_correlations = None
+        replicate_qc = None
         differential = None
         if design_path is not None:
             design_report = parse_experimental_design_table(design_path)
             if design_report.rejected_rows:
                 raise click.ClickException("design table contains rejected rows")
             design_entries = design_report.accepted_entries
-            batch_effect = build_batch_effect_advisory(table, design_entries)
-            replicate_correlations = build_replicate_correlation_report(
-                table, design_entries
+            replicate_qc = build_replicate_and_batch_qc_report(
+                table,
+                design_entries=design_entries,
             )
+            batch_effect = replicate_qc.batch_effect_report
+            replicate_correlations = replicate_qc.replicate_correlation_report
             if quant_measure is QuantMeasureKind.INTENSITY:
                 missingness_entity_summary = build_missingness_entity_summary_report(
                     table
@@ -4522,6 +4524,23 @@ def quantify_command(
         "replicate_correlations": (
             replicate_correlations.to_dict()
             if replicate_correlations is not None
+            else None
+        ),
+        "replicate_qc": replicate_qc.to_dict() if replicate_qc is not None else None,
+        "replicate_cv": (
+            replicate_qc.replicate_cv_report.to_dict()
+            if replicate_qc is not None
+            else None
+        ),
+        "sample_pca": (
+            replicate_qc.sample_pca_report.to_dict()
+            if replicate_qc is not None and replicate_qc.sample_pca_report is not None
+            else None
+        ),
+        "condition_clustering": (
+            replicate_qc.condition_clustering_report.to_dict()
+            if replicate_qc is not None
+            and replicate_qc.condition_clustering_report is not None
             else None
         ),
         "differential_abundance": differential.to_dict()
