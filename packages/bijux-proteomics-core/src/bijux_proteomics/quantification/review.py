@@ -11,6 +11,9 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    ImputationMethod,
+    ImputationReport,
+    ImputationSensitivityReport,
     LabelBasedChannelRole,
     LabelBasedQuantPolicy,
     LabelFreeProvenanceBundle,
@@ -29,6 +32,8 @@ from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_imputation_report,
+    build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
@@ -40,6 +45,7 @@ from bijux_proteomics.quantification import (
     build_normalization_strategy_comparison_report,
     build_quant_artifact_bundle,
     build_replicate_correlation_report,
+    impute_label_free_table,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -1101,6 +1107,8 @@ class QuantReviewBundle(JsonModel):
     artifact_bundle_hash: str = Field(..., min_length=64, max_length=64)
     lfq_provenance: LfqFeaturePeptideProteinProvenanceReport
     normalization_comparison: NormalizationComparisonReport
+    imputation_report: ImputationReport
+    imputation_sensitivity: ImputationSensitivityReport | None = None
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
@@ -1119,6 +1127,7 @@ def build_quant_review_bundle(
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...],
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    imputation_method: ImputationMethod = ImputationMethod.NONE,
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
 ) -> QuantReviewBundle:
     """Build a full quant review bundle from feature-level quant records."""
@@ -1136,23 +1145,44 @@ def build_quant_review_bundle(
         peptide_table,
         normalized_table,
     )
+    conditions = tuple(sorted({entry.condition for entry in design_entries}))
+    imputed_table = impute_label_free_table(
+        normalized_table,
+        method=imputation_method,
+    )
+    imputation_report = build_imputation_report(
+        normalized_table,
+        imputed_table,
+    )
     missingness_entity_summary = build_missingness_entity_summary_report(
-        normalized_table
+        imputed_table
     )
     missingness_condition_summary = build_missingness_condition_summary_report(
-        normalized_table,
+        imputed_table,
         design_entries=design_entries,
     )
     missingness_intensity_dependence = build_missingness_intensity_dependence_report(
-        normalized_table
+        imputed_table
     )
     missingness = build_missingness_mechanism_profile_report(
-        normalized_table,
+        imputed_table,
         design_entries=design_entries,
     )
+    imputation_sensitivity = (
+        build_imputation_sensitivity_report(
+            normalized_table,
+            design_entries,
+            condition_a=conditions[0],
+            condition_b=conditions[1],
+        )
+        if len(conditions) >= 2
+        else None
+    )
     artifact_bundle = build_quant_artifact_bundle(
-        normalized_table,
+        imputed_table,
         design_entries=design_entries,
+        imputation_report=imputation_report,
+        imputation_sensitivity_report=imputation_sensitivity,
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
@@ -1171,18 +1201,17 @@ def build_quant_review_bundle(
     )
     rollup_strategy = build_protein_rollup_strategy_comparison_report(records)
     qc_report = build_replicate_and_batch_qc_report(
-        normalized_table,
+        imputed_table,
         design_entries=design_entries,
     )
     decision_readiness = build_quant_decision_readiness_report(
-        normalized_table,
+        imputed_table,
         design_entries=design_entries,
     )
-    conditions = tuple(sorted({entry.condition for entry in design_entries}))
     da_report = None
     if len(conditions) >= 2:
         da_report = build_effect_size_first_differential_abundance_report(
-            normalized_table,
+            imputed_table,
             design_entries=design_entries,
             condition_a=conditions[0],
             condition_b=conditions[1],
@@ -1201,8 +1230,11 @@ def build_quant_review_bundle(
     evidence_pointers = (
         "quant_artifact_bundle.matrix_export",
         "quant_artifact_bundle.normalization_comparison_report",
+        "quant_artifact_bundle.imputation_report",
+        "quant_artifact_bundle.imputation_sensitivity_report",
         "lfq_provenance.feature_entries",
         "quant_review_bundle.normalization_comparison",
+        "quant_review_bundle.imputation_report",
         "rollup_strategy_comparison.entries",
         "missingness_profile.entries",
         "missingness_entity_summary.entries",
@@ -1215,6 +1247,8 @@ def build_quant_review_bundle(
         artifact_bundle_hash=artifact_bundle.document_schema.content_hash or "",
         lfq_provenance=lfq_provenance,
         normalization_comparison=normalization_comparison,
+        imputation_report=imputation_report,
+        imputation_sensitivity=imputation_sensitivity,
         normalization_matrix=normalization_matrix,
         rollup_strategy_comparison=rollup_strategy,
         effect_size_da_report=da_report,

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
+    ImputationMethod,
     MissingValueKind,
     Ms1FeatureRecord,
     NormalizationMethod,
@@ -132,6 +133,7 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
         _records(),
         design_entries=_design(),
         normalization_method=NormalizationMethod.MEDIAN,
+        imputation_method=ImputationMethod.LOW_INTENSITY,
         aggregation_method=QuantRollupMethod.SUM,
     )
 
@@ -139,10 +141,13 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert bundle.effect_size_da_report is not None
     assert bundle.normalization_comparison.after
     assert bundle.normalization_comparison.method is NormalizationMethod.MEDIAN
+    assert bundle.imputation_report.method is ImputationMethod.LOW_INTENSITY
+    assert bundle.imputation_report.imputed_value_count == 0
+    assert bundle.imputation_sensitivity is not None
     assert bundle.missingness_entity_summary.entries
     assert bundle.missingness_condition_summary.entries
     assert bundle.missingness_intensity_dependence.plot_points
-    assert len(bundle.evidence_pointers) >= 11
+    assert len(bundle.evidence_pointers) >= 14
     assert bundle.rollup_strategy_comparison.entries
     assert bundle.missingness_profile.entries
     assert bundle.decision_readiness.readiness_state.value in {

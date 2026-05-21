@@ -10,6 +10,7 @@ import numpy as np
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import (
     DifferentialReplicatePolicy,
+    ImputationMethod,
     LabelBasedChannelPolicyEntry,
     LabelBasedChannelRole,
     LabelBasedQuantBundle,
@@ -37,6 +38,8 @@ from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_imputation_report,
+    build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
@@ -60,6 +63,7 @@ from bijux_proteomics.quantification import (
     export_quant_artifact_bundle,
     export_quant_matrix_tsv,
     export_quant_reproducibility_manifest,
+    impute_label_free_table,
     normalize_label_free_table,
     normalize_multiplex_quant_table,
     parse_ms1_feature_table,
@@ -708,10 +712,31 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         ),
         table,
     )
+    imputed_table = impute_label_free_table(
+        table,
+        method=ImputationMethod.LOW_INTENSITY,
+    )
+    imputation_report = build_imputation_report(table, imputed_table)
+    imputation_sensitivity = build_imputation_sensitivity_report(
+        table,
+        design_report.accepted_entries,
+        condition_a="control",
+        condition_b="treatment",
+    )
+    differential = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            imputed_table,
+            design_report.accepted_entries,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    )
 
     bundle = build_quant_artifact_bundle(
-        table,
+        imputed_table,
         design_entries=design_report.accepted_entries,
+        imputation_report=imputation_report,
+        imputation_sensitivity_report=imputation_sensitivity,
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
@@ -724,6 +749,9 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.document_schema.document_kind == "quant_artifact_bundle"
     assert bundle.matrix_export.rows
     assert bundle.reproducibility_manifest.reproducibility_hash
+    assert bundle.imputation_report is not None
+    assert bundle.imputation_report.imputed_value_count > 0
+    assert bundle.imputation_sensitivity_report is not None
     assert bundle.normalization_comparison_report is not None
     assert bundle.missingness_entity_summary is not None
     assert bundle.missingness_condition_summary is not None
