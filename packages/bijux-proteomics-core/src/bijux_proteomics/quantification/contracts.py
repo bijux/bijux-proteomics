@@ -2813,3 +2813,49 @@ def apply_benjamini_hochberg(
     )
 
     return _implementation(report)
+
+
+def render_differential_abundance_tsv(
+    report: DifferentialAbundanceReport,
+) -> str:
+    """Render one differential-abundance report as a stable TSV table."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        render_differential_abundance_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_differential_abundance_tsv(
+    report: DifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write one differential-abundance report to a stable TSV artifact."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        export_differential_abundance_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def render_multi_condition_differential_abundance_tsv(
+    report: MultiConditionDifferentialAbundanceReport,
+) -> str:
+    """Render a multi-condition DA collection as one flattened TSV table."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        render_multi_condition_differential_abundance_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_multi_condition_differential_abundance_tsv(
+    report: MultiConditionDifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write a multi-condition DA collection to one flattened TSV artifact."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        export_multi_condition_differential_abundance_tsv as _implementation,
+    )
+
+    _implementation(report, path)

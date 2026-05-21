@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from itertools import combinations
 import math
+from pathlib import Path
 
 import numpy as np
 
@@ -238,3 +241,96 @@ def build_multi_condition_differential_abundance_report(
             "pairwise differential abundance preserves one benjamini-hochberg-corrected report per selected condition contrast"
         ),
     )
+
+
+def render_differential_abundance_tsv(
+    report: DifferentialAbundanceReport,
+) -> str:
+    """Render one differential-abundance report as a stable TSV table."""
+    return _render_differential_rows((report,))
+
+
+def export_differential_abundance_tsv(
+    report: DifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write one differential-abundance report to a stable TSV artifact."""
+    path.write_text(render_differential_abundance_tsv(report), encoding="utf-8")
+
+
+def render_multi_condition_differential_abundance_tsv(
+    report: MultiConditionDifferentialAbundanceReport,
+) -> str:
+    """Render a multi-condition DA collection as one flattened TSV table."""
+    return _render_differential_rows(report.reports)
+
+
+def export_multi_condition_differential_abundance_tsv(
+    report: MultiConditionDifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write a multi-condition DA collection to one flattened TSV artifact."""
+    path.write_text(
+        render_multi_condition_differential_abundance_tsv(report),
+        encoding="utf-8",
+    )
+
+
+def _render_differential_rows(
+    reports: tuple[DifferentialAbundanceReport, ...],
+) -> str:
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_id",
+            "condition_a",
+            "condition_b",
+            "observations_a",
+            "observations_b",
+            "mean_log2_abundance_a",
+            "mean_log2_abundance_b",
+            "log2_fold_change",
+            "p_value",
+            "adjusted_p_value",
+            "standard_error",
+            "confidence_interval_low",
+            "confidence_interval_high",
+            "effect_size_cohens_d",
+            "uncertainty_note",
+        ]
+    )
+    for report in reports:
+        for entry in report.entries:
+            writer.writerow(
+                [
+                    entry.entity_id,
+                    entry.condition_a,
+                    entry.condition_b,
+                    entry.observations_a,
+                    entry.observations_b,
+                    entry.mean_log2_abundance_a,
+                    entry.mean_log2_abundance_b,
+                    entry.log2_fold_change,
+                    entry.p_value,
+                    "" if entry.adjusted_p_value is None else entry.adjusted_p_value,
+                    "" if entry.standard_error is None else entry.standard_error,
+                    (
+                        ""
+                        if entry.confidence_interval_low is None
+                        else entry.confidence_interval_low
+                    ),
+                    (
+                        ""
+                        if entry.confidence_interval_high is None
+                        else entry.confidence_interval_high
+                    ),
+                    (
+                        ""
+                        if entry.effect_size_cohens_d is None
+                        else entry.effect_size_cohens_d
+                    ),
+                    entry.uncertainty_note or "",
+                ]
+            )
+    return buffer.getvalue()
