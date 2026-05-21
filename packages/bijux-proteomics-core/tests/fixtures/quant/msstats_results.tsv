@@ -1,0 +1,3 @@
+Protein	Label	log2FC	pvalue	adj.pvalue
+P001	control_vs_treatment	2.00	0.001	0.003
+P002	control_vs_treatment	-0.90	0.020	0.040
