@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.quantification.contracts import *  # noqa: F401,F403
+from bijux_proteomics.quantification.differential_abundance import *  # noqa: F401,F403
 from bijux_proteomics.quantification.imputation import *  # noqa: F401,F403
 from bijux_proteomics.quantification.missingness import *  # noqa: F401,F403
 from bijux_proteomics.quantification.normalization import *  # noqa: F401,F403
