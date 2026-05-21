@@ -6,15 +6,23 @@
 from __future__ import annotations
 
 from itertools import combinations
+import math
+
+import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
+    LabelFreeQuantTable,
     QuantDesignContrast,
     QuantDesignMatrixColumn,
     QuantDesignMatrixColumnEncoding,
     QuantDesignMatrixColumnKind,
+    QuantDesignContrastEstimateEntry,
     QuantDesignMatrixReport,
+    QuantDesignModelCoefficientEntry,
+    QuantDesignModelFitReport,
     QuantDesignMatrixSampleRow,
+    _matrix_value_index,
 )
 
 
@@ -246,5 +254,86 @@ def build_quant_design_matrix_report(
         ),
         note=(
             "design matrix preserves intercept, condition contrasts, optional batch blocking, optional pairing blocks, and declared sample covariates"
+        ),
+    )
+
+
+def fit_quant_design_matrix_model(
+    table: LabelFreeQuantTable,
+    design_matrix: QuantDesignMatrixReport,
+) -> QuantDesignModelFitReport:
+    """Fit one lightweight least-squares model per quantified entity."""
+    sample_ids = tuple(row.sample_id for row in design_matrix.rows)
+    full_matrix = np.array(
+        [row.column_values for row in design_matrix.rows],
+        dtype=float,
+    )
+    lookup = _matrix_value_index(table)
+    coefficient_entries: list[QuantDesignModelCoefficientEntry] = []
+    contrast_estimates: list[QuantDesignContrastEstimateEntry] = []
+    fitted_entity_count = 0
+    skipped_entity_count = 0
+    column_index = {
+        column.column_name: index
+        for index, column in enumerate(design_matrix.columns)
+    }
+    for entity_id in table.entity_ids:
+        observed_rows: list[np.ndarray] = []
+        observed_values: list[float] = []
+        for row_index, sample_id in enumerate(sample_ids):
+            cell = lookup.get((entity_id, sample_id))
+            if cell is None or cell.abundance is None:
+                continue
+            observed_rows.append(full_matrix[row_index])
+            observed_values.append(math.log2(cell.abundance + 1.0))
+        if len(observed_values) < 2:
+            skipped_entity_count += 1
+            continue
+        x_matrix = np.vstack(observed_rows)
+        y_vector = np.array(observed_values, dtype=float)
+        coefficients, _, _, _ = np.linalg.lstsq(x_matrix, y_vector, rcond=None)
+        rank = int(np.linalg.matrix_rank(x_matrix))
+        residual_df = max(len(observed_values) - rank, 0)
+        fitted_entity_count += 1
+        for column, estimate in zip(
+            design_matrix.columns,
+            coefficients,
+            strict=False,
+        ):
+            coefficient_entries.append(
+                QuantDesignModelCoefficientEntry(
+                    entity_id=entity_id,
+                    coefficient_name=column.column_name,
+                    estimate=float(estimate),
+                    observed_sample_count=len(observed_values),
+                    design_rank=rank,
+                    residual_degrees_of_freedom=residual_df,
+                )
+            )
+        for contrast in design_matrix.contrasts:
+            estimate = sum(
+                coefficients[column_index[column_name]] * weight
+                for column_name, weight in contrast.coefficient_weights.items()
+            )
+            contrast_estimates.append(
+                QuantDesignContrastEstimateEntry(
+                    entity_id=entity_id,
+                    contrast_name=contrast.contrast_name,
+                    condition_a=contrast.condition_a,
+                    condition_b=contrast.condition_b,
+                    estimate=float(estimate),
+                )
+            )
+    return QuantDesignModelFitReport(
+        entity_level=table.entity_level,
+        normalization_method=table.normalization_method,
+        imputation_method=table.imputation_method,
+        design_matrix=design_matrix,
+        fitted_entity_count=fitted_entity_count,
+        skipped_entity_count=skipped_entity_count,
+        coefficient_entries=tuple(coefficient_entries),
+        contrast_estimates=tuple(contrast_estimates),
+        note=(
+            "design-model coefficients use one least-squares fit per entity over observed samples, so underdetermined designs remain descriptive rather than inferential"
         ),
     )

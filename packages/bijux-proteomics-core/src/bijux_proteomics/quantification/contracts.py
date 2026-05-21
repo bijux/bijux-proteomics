@@ -1085,6 +1085,51 @@ class QuantDesignMatrixReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class QuantDesignModelCoefficientEntry(JsonModel):
+    """One per-entity coefficient estimated from the owned design matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    coefficient_name: str = Field(..., min_length=1)
+    estimate: float
+    observed_sample_count: int = Field(..., ge=1)
+    design_rank: int = Field(..., ge=1)
+    residual_degrees_of_freedom: int = Field(..., ge=0)
+
+
+class QuantDesignContrastEstimateEntry(JsonModel):
+    """One per-entity estimate for a named condition contrast."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    contrast_name: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    estimate: float
+
+
+class QuantDesignModelFitReport(JsonModel):
+    """Least-squares coefficient report over a quantification table and design matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    normalization_method: NormalizationMethod
+    imputation_method: ImputationMethod = ImputationMethod.NONE
+    design_matrix: QuantDesignMatrixReport
+    fitted_entity_count: int = Field(..., ge=0)
+    skipped_entity_count: int = Field(..., ge=0)
+    coefficient_entries: tuple[QuantDesignModelCoefficientEntry, ...] = Field(
+        default_factory=tuple
+    )
+    contrast_estimates: tuple[QuantDesignContrastEstimateEntry, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
 class LabelFreeFeatureProvenanceEntry(JsonModel):
     """Feature-level provenance preserved inside an LFQ workflow bundle."""
 
@@ -2962,3 +3007,15 @@ def build_quant_design_matrix_report(
         pairing_field=pairing_field,
         condition_field=condition_field,
     )
+
+
+def fit_quant_design_matrix_model(
+    table: LabelFreeQuantTable,
+    design_matrix: QuantDesignMatrixReport,
+) -> QuantDesignModelFitReport:
+    """Fit one coefficient report over a quantification table and design matrix."""
+    from bijux_proteomics.quantification.design_matrix import (
+        fit_quant_design_matrix_model as _implementation,
+    )
+
+    return _implementation(table, design_matrix)
