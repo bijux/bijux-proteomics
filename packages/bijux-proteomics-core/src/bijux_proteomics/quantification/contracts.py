@@ -410,6 +410,30 @@ class StudyScaleBatchEffectReport(JsonModel):
     flagged_batch_count: int = Field(..., ge=0)
 
 
+class QcOutlierSampleEntry(JsonModel):
+    """One sample flagged as an outlier from replicate or batch QC context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    batch: str | None = None
+    instrument: str | None = None
+    spectra_file: str = Field(..., min_length=1)
+    reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ReplicateAndBatchQcReport(JsonModel):
+    """Integrated replicate and batch QC report for quantification outputs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    replicate_correlation_count: int = Field(..., ge=0)
+    flagged_batch_count: int = Field(..., ge=0)
+    outlier_samples: tuple[QcOutlierSampleEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class QuantReproducibilityManifest(JsonModel):
     """Stable manifest proving one quant table can be reproduced exactly."""
 

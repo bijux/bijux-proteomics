@@ -29,8 +29,8 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     QuantEntityLevel,
     QuantRollupMethod,
+    ReplicateAndBatchQcReport,
     apply_benjamini_hochberg,
-    build_batch_effect_advisory,
     build_differential_abundance_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
@@ -44,7 +44,6 @@ from bijux_proteomics.quantification import (
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_quant_artifact_bundle,
-    build_replicate_correlation_report,
     impute_label_free_table,
     normalize_label_free_table,
     summarize_missing_values,
@@ -52,6 +51,9 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.quantification.readiness import (
     QuantDecisionReadinessReport,
     build_quant_decision_readiness_report,
+)
+from bijux_proteomics.quantification.replicate_qc import (
+    build_replicate_and_batch_qc_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -1005,97 +1007,6 @@ def build_missingness_mechanism_profile_report(
     return MissingnessMechanismProfileReport(
         entries=tuple(entries),
         summary_counts=summary,
-    )
-
-
-class QcOutlierSampleEntry(JsonModel):
-    """One sample flagged as an outlier from replicate or batch QC context."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    sample_id: str = Field(..., min_length=1)
-    condition: str = Field(..., min_length=1)
-    batch: str | None = None
-    instrument: str | None = None
-    spectra_file: str = Field(..., min_length=1)
-    reasons: tuple[str, ...] = Field(default_factory=tuple)
-
-
-class ReplicateAndBatchQcReport(JsonModel):
-    """Integrated replicate and batch QC report for quantification outputs."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    replicate_correlation_count: int = Field(..., ge=0)
-    flagged_batch_count: int = Field(..., ge=0)
-    outlier_samples: tuple[QcOutlierSampleEntry, ...] = Field(default_factory=tuple)
-    note: str = Field(..., min_length=1)
-
-
-def build_replicate_and_batch_qc_report(
-    table: LabelFreeQuantTable,
-    *,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
-    within_condition_warning_threshold: float = 0.8,
-    batch_shift_threshold: float = 0.5,
-) -> ReplicateAndBatchQcReport:
-    """Build integrated replicate-correlation and batch-shift QC diagnostics."""
-    replicate = build_replicate_correlation_report(table, design_entries)
-    batch = build_batch_effect_advisory(
-        table,
-        design_entries,
-        shift_threshold=batch_shift_threshold,
-    )
-    design_by_sample = {entry.sample_id: entry for entry in design_entries}
-    flagged_samples: dict[str, set[str]] = {}
-    for entry in replicate.entries:
-        if (
-            entry.condition_a == entry.condition_b
-            and entry.correlation < within_condition_warning_threshold
-        ):
-            flagged_samples.setdefault(entry.sample_a, set()).add(
-                "low within-condition replicate correlation"
-            )
-            flagged_samples.setdefault(entry.sample_b, set()).add(
-                "low within-condition replicate correlation"
-            )
-    batch_lookup = {
-        batch_entry.batch_id: batch_entry
-        for batch_entry in batch.batches
-        if batch_entry.flagged
-    }
-    for sample_id, design in design_by_sample.items():
-        if design.batch and design.batch in batch_lookup:
-            flagged_samples.setdefault(sample_id, set()).add(
-                "sample belongs to a batch with flagged global-abundance shift"
-            )
-    outliers = tuple(
-        sorted(
-            (
-                QcOutlierSampleEntry(
-                    sample_id=sample_id,
-                    condition=design_by_sample[sample_id].condition,
-                    batch=design_by_sample[sample_id].batch,
-                    instrument=design_by_sample[sample_id].instrument,
-                    spectra_file=design_by_sample[sample_id].spectra_file,
-                    reasons=tuple(sorted(reasons)),
-                )
-                for sample_id, reasons in flagged_samples.items()
-                if sample_id in design_by_sample
-            ),
-            key=lambda entry: entry.sample_id,
-        )
-    )
-    note = (
-        "replicate and batch qc detected one or more outlier samples requiring review"
-        if outliers
-        else "replicate and batch qc did not detect sample-level outlier signals under configured thresholds"
-    )
-    return ReplicateAndBatchQcReport(
-        replicate_correlation_count=len(replicate.entries),
-        flagged_batch_count=sum(1 for entry in batch.batches if entry.flagged),
-        outlier_samples=outliers,
-        note=note,
     )
 
 
