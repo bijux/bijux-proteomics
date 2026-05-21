@@ -155,7 +155,13 @@ from bijux_proteomics.dia import (
     build_dia_protein_matrix_report,
     build_diann_peptide_matrix_report,
     build_diann_precursor_matrix_report,
+    build_diann_run_qc_report,
     render_dia_peptide_quantity_matrix_tsv,
+    render_dia_run_qc_correlation_tsv,
+    render_dia_run_qc_intensity_distribution_tsv,
+    render_dia_run_qc_outlier_tsv,
+    render_dia_run_qc_run_table_tsv,
+    render_dia_run_qc_summary_tsv,
     render_dia_protein_matrix_summary_tsv,
     render_dia_protein_quantity_matrix_tsv,
     render_dia_precursor_matrix_summary_tsv,
@@ -1749,6 +1755,103 @@ def diann_protein_matrix_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("diann-run-qc")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-decoys/--exclude-decoys",
+    default=False,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--run-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--intensity-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option("--outlier-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def diann_run_qc_command(
+    result_tsv: Path,
+    config_path: Path | None,
+    include_decoys: bool,
+    max_q_value: float | None,
+    summary_tsv_out: Path | None,
+    run_tsv_out: Path | None,
+    intensity_tsv_out: Path | None,
+    correlation_tsv_out: Path | None,
+    outlier_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build DIA run-level QC from one DIA-NN report."""
+    try:
+        report = build_diann_run_qc_report(
+            result_tsv,
+            config_path=config_path,
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_dia_run_qc_summary_tsv(report))
+    if run_tsv_out is not None:
+        _write_text_output(run_tsv_out, render_dia_run_qc_run_table_tsv(report))
+    if intensity_tsv_out is not None:
+        _write_text_output(
+            intensity_tsv_out,
+            render_dia_run_qc_intensity_distribution_tsv(report),
+        )
+    if correlation_tsv_out is not None:
+        _write_text_output(
+            correlation_tsv_out,
+            render_dia_run_qc_correlation_tsv(report),
+        )
+    if outlier_tsv_out is not None:
+        _write_text_output(outlier_tsv_out, render_dia_run_qc_outlier_tsv(report))
+
+    payload = {
+        "source_name": report.source_name,
+        "summary": report.summary.to_dict(),
+        "run_entries": [entry.to_dict() for entry in report.run_entries],
+        "intensity_distribution": [
+            entry.to_dict() for entry in report.intensity_distribution
+        ],
+        "pairwise_correlations": [
+            entry.to_dict() for entry in report.pairwise_correlations
+        ],
+        "outlier_runs": [entry.to_dict() for entry in report.outlier_runs],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "run_tsv": None if run_tsv_out is None else str(run_tsv_out),
+            "intensity_tsv": (
+                None if intensity_tsv_out is None else str(intensity_tsv_out)
+            ),
+            "correlation_tsv": (
+                None if correlation_tsv_out is None else str(correlation_tsv_out)
+            ),
+            "outlier_tsv": (
+                None if outlier_tsv_out is None else str(outlier_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)

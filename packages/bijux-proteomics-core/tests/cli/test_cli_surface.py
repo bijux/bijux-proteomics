@@ -2792,6 +2792,65 @@ def test_diann_protein_matrix_command_emits_peptide_and_protein_outputs() -> Non
         )
 
 
+def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        shutil.copy(
+            fixture_dir / "diann_run_qc_report.tsv",
+            "diann_run_qc_report.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-run-qc",
+                "diann_run_qc_report.tsv",
+                "--summary-tsv-out",
+                "diann.run_qc.summary.tsv",
+                "--run-tsv-out",
+                "diann.run_qc.runs.tsv",
+                "--intensity-tsv-out",
+                "diann.run_qc.intensity.tsv",
+                "--correlation-tsv-out",
+                "diann.run_qc.correlation.tsv",
+                "--outlier-tsv-out",
+                "diann.run_qc.outliers.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["summary"]["run_count"] == 3
+        assert payload["summary"]["flagged_run_count"] == 1
+        assert payload["run_entries"][2]["run_name"] == "raw_C"
+        assert payload["run_entries"][2]["flagged"] is True
+        assert payload["outlier_runs"][0]["run_name"] == "raw_C"
+        assert payload["outputs"]["summary_tsv"] == "diann.run_qc.summary.tsv"
+        assert payload["outputs"]["run_tsv"] == "diann.run_qc.runs.tsv"
+        assert payload["outputs"]["intensity_tsv"] == "diann.run_qc.intensity.tsv"
+        assert (
+            payload["outputs"]["correlation_tsv"]
+            == "diann.run_qc.correlation.tsv"
+        )
+        assert payload["outputs"]["outlier_tsv"] == "diann.run_qc.outliers.tsv"
+        assert Path("diann.run_qc.summary.tsv").exists()
+        assert Path("diann.run_qc.runs.tsv").exists()
+        assert Path("diann.run_qc.intensity.tsv").exists()
+        assert Path("diann.run_qc.correlation.tsv").exists()
+        assert Path("diann.run_qc.outliers.tsv").exists()
+        assert "run_name\tsample_name\tprecursor_id_count" in Path(
+            "diann.run_qc.runs.tsv"
+        ).read_text(encoding="utf-8")
+        assert "run_name_a\tsample_name_a\trun_name_b\tsample_name_b" in Path(
+            "diann.run_qc.correlation.tsv"
+        ).read_text(encoding="utf-8")
+        assert "raw_C\tsample_C\t" in Path("diann.run_qc.outliers.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
