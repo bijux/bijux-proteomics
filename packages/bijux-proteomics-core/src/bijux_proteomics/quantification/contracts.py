@@ -64,6 +64,7 @@ class NormalizationMethod(StrEnum):
     TIC = "tic"
     MEDIAN = "median"
     QUANTILE = "quantile"
+    VSN_LIKE = "vsn_like"
 
 
 class QuantAssessmentDisposition(StrEnum):
@@ -1857,6 +1858,7 @@ def build_normalization_strategy_comparison_report(
         NormalizationMethod.TIC,
         NormalizationMethod.MEDIAN,
         NormalizationMethod.QUANTILE,
+        NormalizationMethod.VSN_LIKE,
     ),
 ) -> NormalizationStrategyComparisonReport:
     """Compare normalization methods using stable sample-balance summary metrics."""

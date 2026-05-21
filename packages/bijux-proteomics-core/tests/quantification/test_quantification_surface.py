@@ -262,6 +262,7 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
     tic = normalize_label_free_table(table, method=NormalizationMethod.TIC)
     median = normalize_label_free_table(table, method=NormalizationMethod.MEDIAN)
     quantile = normalize_label_free_table(table, method=NormalizationMethod.QUANTILE)
+    vsn_like = normalize_label_free_table(table, method=NormalizationMethod.VSN_LIKE)
 
     def sample_values(active_table: LabelFreeQuantTable, sample_id: str) -> np.ndarray:
         values = [
@@ -287,6 +288,12 @@ def test_normalization_methods_align_sample_totals_medians_and_rank_profiles() -
         for sample_id in quantile.sample_ids
     ]
     assert len(set(quantile_sorted)) == 1
+
+    vsn_log_medians = [
+        float(np.median(np.log2(sample_values(vsn_like, sample_id) + 1.0)))
+        for sample_id in vsn_like.sample_ids
+    ]
+    assert max(vsn_log_medians) - min(vsn_log_medians) < 1e-6
 
     comparison = build_normalization_comparison_report(table, median)
     before_totals = [entry.total_abundance for entry in comparison.before]
@@ -619,7 +626,10 @@ def test_normalization_strategy_comparison_reports_rank_methods_explicitly() -> 
     comparison = build_normalization_strategy_comparison_report(table)
 
     assert isinstance(comparison, NormalizationStrategyComparisonReport)
-    assert len(comparison.entries) == 4
+    assert len(comparison.entries) == 5
+    assert any(
+        entry.method is NormalizationMethod.VSN_LIKE for entry in comparison.entries
+    )
     assert comparison.entries[0].balance_score <= comparison.entries[-1].balance_score
     assert comparison.recommended_method is comparison.entries[0].method
 
