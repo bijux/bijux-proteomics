@@ -149,6 +149,7 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert bundle.missingness_intensity_dependence.plot_points
     assert len(bundle.evidence_pointers) >= 14
     assert bundle.rollup_strategy_comparison.entries
+    assert bundle.limma_compatible_package.sample_annotations
     assert bundle.design_matrix_report.columns
     assert bundle.design_model_fit_report.coefficient_entries
     assert bundle.missingness_profile.entries
@@ -156,6 +157,7 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert bundle.qc_report.replicate_cv_report.entries
     assert bundle.qc_report.sample_pca_report is not None
     assert bundle.qc_report.condition_clustering_report is not None
+    assert "quant_artifact_bundle.limma_compatible_package" in bundle.evidence_pointers
     assert "quant_artifact_bundle.design_matrix_report" in bundle.evidence_pointers
     assert "quant_artifact_bundle.design_model_fit_report" in bundle.evidence_pointers
     assert "qc_report.replicate_cv_report.entries" in bundle.evidence_pointers

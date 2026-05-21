@@ -43,6 +43,7 @@ from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_limma_compatible_quant_package,
     build_quant_design_matrix_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
@@ -752,6 +753,11 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         imputed_table,
         design_matrix,
     )
+    limma_package = build_limma_compatible_quant_package(
+        imputed_table,
+        design_report.accepted_entries,
+        batch_field="batch",
+    )
 
     bundle = build_quant_artifact_bundle(
         imputed_table,
@@ -763,6 +769,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         missingness_intensity_dependence=missingness_intensity_dependence,
         replicate_qc_report=replicate_qc,
         normalization_comparison_report=comparison,
+        limma_compatible_package=limma_package,
         design_matrix_report=design_matrix,
         design_model_fit_report=design_model_fit,
         differential_abundance_report=differential,
@@ -785,6 +792,8 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.replicate_qc_report.replicate_cv_report.entries
     assert bundle.replicate_qc_report.sample_pca_report is not None
     assert bundle.replicate_qc_report.condition_clustering_report is not None
+    assert bundle.limma_compatible_package is not None
+    assert bundle.limma_compatible_package.sample_annotations
     assert bundle.design_matrix_report is not None
     assert bundle.design_matrix_report.contrasts
     assert bundle.design_model_fit_report is not None
