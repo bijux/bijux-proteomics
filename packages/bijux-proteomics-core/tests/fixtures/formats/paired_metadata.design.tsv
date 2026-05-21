@@ -1,0 +1,3 @@
+sample_id	cohort	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine	pair_id	age_years	sex
+CTRL-01	discovery	control	1	1	ctrl-01.mzml	ctrl-01.psm.tsv	batch-01	Orbitrap	Sage	pair-a	41	female
+TRT-01	discovery	treatment	1	1	trt-01.mzml	trt-01.psm.tsv	batch-01	Orbitrap	Sage	pair-a	41	female

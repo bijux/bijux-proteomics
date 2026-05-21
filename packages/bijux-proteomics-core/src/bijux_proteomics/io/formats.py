@@ -184,9 +184,11 @@ class ExperimentalDesignEntry(JsonModel):
     batch: str | None = None
     instrument: str | None = None
     search_engine: str | None = None
+    pair_id: str | None = None
     multiplex_group: str | None = None
     multiplex_channel: str | None = None
     sample_role: ExperimentalDesignSampleRole = ExperimentalDesignSampleRole.SAMPLE
+    metadata: dict[str, str] = Field(default_factory=dict)
 
     @field_validator(
         "sample_id",
@@ -197,6 +199,7 @@ class ExperimentalDesignEntry(JsonModel):
         "batch",
         "instrument",
         "search_engine",
+        "pair_id",
         "multiplex_group",
         "multiplex_channel",
         mode="before",
@@ -1154,6 +1157,22 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         "fraction",
         "spectra_file",
     }
+    owned_fields = {
+        "sample_id",
+        "cohort",
+        "condition",
+        "replicate",
+        "fraction",
+        "spectra_file",
+        "identifications_file",
+        "batch",
+        "instrument",
+        "search_engine",
+        "pair_id",
+        "multiplex_group",
+        "multiplex_channel",
+        "sample_role",
+    }
     header_fields = set(reader.fieldnames or [])
     missing_fields = required_fields - header_fields
     if missing_fields:
@@ -1207,9 +1226,15 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 batch=values.get("batch"),
                 instrument=values.get("instrument"),
                 search_engine=values.get("search_engine"),
+                pair_id=values.get("pair_id"),
                 multiplex_group=values.get("multiplex_group"),
                 multiplex_channel=values.get("multiplex_channel"),
                 sample_role=ExperimentalDesignSampleRole(sample_role_value),
+                metadata={
+                    key: value
+                    for key, value in values.items()
+                    if key not in owned_fields and value
+                },
             )
         except Exception as exc:  # noqa: BLE001
             issues.append(

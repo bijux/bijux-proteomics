@@ -154,6 +154,19 @@ def test_design_table_parser_preserves_cohort_and_multiplex_semantics() -> None:
     )
 
 
+def test_design_table_parser_preserves_pairing_and_extra_metadata() -> None:
+    report = parse_experimental_design_table(
+        _format_fixture("paired_metadata.design.tsv")
+    )
+
+    assert len(report.accepted_entries) == 2
+    assert report.accepted_entries[0].pair_id == "pair-a"
+    assert report.accepted_entries[0].metadata == {
+        "age_years": "41",
+        "sex": "female",
+    }
+
+
 def test_design_table_parser_rejects_partial_multiplex_semantics() -> None:
     report = parse_experimental_design_table(
         _format_fixture("invalid_multiplex.design.tsv")
