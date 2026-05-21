@@ -593,6 +593,9 @@ class QuantArtifactBundle(JsonModel):
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
+    differential_abundance_multi_condition_report: (
+        MultiConditionDifferentialAbundanceReport | None
+    ) = None
 
 
 class LabelFreeQuantTable(JsonModel):
@@ -2101,6 +2104,9 @@ def build_quant_artifact_bundle(
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
+    differential_abundance_multi_condition_report: (
+        MultiConditionDifferentialAbundanceReport | None
+    ) = None,
 ) -> QuantArtifactBundle:
     """Bundle quant outputs so review can happen without workflow runtime logs."""
     bundle = QuantArtifactBundle(
@@ -2127,6 +2133,9 @@ def build_quant_artifact_bundle(
         normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,
         differential_abundance_report=differential_abundance_report,
+        differential_abundance_multi_condition_report=(
+            differential_abundance_multi_condition_report
+        ),
     )
     return bundle.model_copy(
         update={

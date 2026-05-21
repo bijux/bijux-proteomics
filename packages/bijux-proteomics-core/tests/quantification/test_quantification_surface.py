@@ -7,7 +7,10 @@ from pathlib import Path
 
 import numpy as np
 
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.quantification import (
     DifferentialReplicatePolicy,
     ImputationMethod,
@@ -20,8 +23,10 @@ from bijux_proteomics.quantification import (
     MissingChannelPolicy,
     MissingDataMechanism,
     MissingDataMechanismReport,
+    MissingValueKind,
     MissingValueCorrectionPolicy,
     MissingValueSummaryPolicy,
+    Ms1FeatureRecord,
     MultiplexChannelBalanceReport,
     MultiplexNormalizationPolicy,
     NormalizationMethod,
@@ -47,6 +52,7 @@ from bijux_proteomics.quantification import (
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
+    build_multi_condition_differential_abundance_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -774,6 +780,128 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         assert "quant_artifact_bundle" in output_path.read_text(encoding="utf-8")
     finally:
         output_path.unlink(missing_ok=True)
+
+
+def test_quant_artifact_bundle_accepts_multi_condition_differential_report() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="mda-001",
+            sample_id="c1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mda-002",
+            sample_id="c2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=110.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mda-003",
+            sample_id="t1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=400.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mda-004",
+            sample_id="t2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=420.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mda-005",
+            sample_id="r1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=250.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mda-006",
+            sample_id="r2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=260.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="c1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="c1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="c2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="c2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t1",
+            condition="treatment",
+            replicate=1,
+            fraction=1,
+            spectra_file="t1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t2",
+            condition="treatment",
+            replicate=2,
+            fraction=1,
+            spectra_file="t2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="r1",
+            condition="rescue",
+            replicate=1,
+            fraction=1,
+            spectra_file="r1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="r2",
+            condition="rescue",
+            replicate=2,
+            fraction=1,
+            spectra_file="r2.mzml",
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    multi_condition = build_multi_condition_differential_abundance_report(
+        table,
+        design,
+    )
+
+    bundle = build_quant_artifact_bundle(
+        table,
+        design_entries=design,
+        differential_abundance_multi_condition_report=multi_condition,
+    )
+
+    assert bundle.differential_abundance_report is None
+    assert bundle.differential_abundance_multi_condition_report is not None
+    assert len(bundle.differential_abundance_multi_condition_report.reports) == 3
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (

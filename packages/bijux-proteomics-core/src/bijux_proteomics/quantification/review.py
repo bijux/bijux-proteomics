@@ -30,6 +30,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     ReplicateAndBatchQcReport,
+    MultiConditionDifferentialAbundanceReport,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_imputation_report,
@@ -37,6 +38,7 @@ from bijux_proteomics.quantification import (
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_multi_condition_differential_abundance_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
@@ -1023,6 +1025,9 @@ class QuantReviewBundle(JsonModel):
     normalization_matrix: NormalizationPolicyComparisonMatrixReport
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
+    differential_abundance_multi_condition_report: (
+        MultiConditionDifferentialAbundanceReport | None
+    ) = None
     missingness_profile: MissingnessMechanismProfileReport
     missingness_entity_summary: MissingnessEntitySummaryReport
     missingness_condition_summary: MissingnessConditionSummaryReport
@@ -1089,6 +1094,26 @@ def build_quant_review_bundle(
         if len(conditions) >= 2
         else None
     )
+    differential_report = (
+        apply_benjamini_hochberg(
+            build_differential_abundance_report(
+                imputed_table,
+                design_entries,
+                condition_a=conditions[0],
+                condition_b=conditions[1],
+            )
+        )
+        if len(conditions) == 2
+        else None
+    )
+    multi_condition_differential_report = (
+        build_multi_condition_differential_abundance_report(
+            imputed_table,
+            design_entries,
+        )
+        if len(conditions) > 2
+        else None
+    )
     qc_report = build_replicate_and_batch_qc_report(
         imputed_table,
         design_entries=design_entries,
@@ -1106,6 +1131,10 @@ def build_quant_review_bundle(
         normalization_strategy_report=build_normalization_strategy_comparison_report(
             peptide_table
         ),
+        differential_abundance_report=differential_report,
+        differential_abundance_multi_condition_report=(
+            multi_condition_differential_report
+        ),
     )
     lfq_provenance = build_lfq_feature_peptide_protein_provenance_report(
         records,
@@ -1121,7 +1150,7 @@ def build_quant_review_bundle(
         design_entries=design_entries,
     )
     da_report = None
-    if len(conditions) >= 2:
+    if len(conditions) == 2:
         da_report = build_effect_size_first_differential_abundance_report(
             imputed_table,
             design_entries=design_entries,
@@ -1129,9 +1158,13 @@ def build_quant_review_bundle(
             condition_b=conditions[1],
         )
     caveats: list[str] = []
-    if da_report is None:
+    if da_report is None and multi_condition_differential_report is None:
         caveats.append(
             "differential abundance report is unavailable because fewer than two conditions were provided"
+        )
+    if multi_condition_differential_report is not None:
+        caveats.append(
+            "multi-condition study emitted a pairwise differential contrast collection instead of one primary effect-size ranking"
         )
     if qc_report.outlier_samples:
         caveats.append(
@@ -1147,6 +1180,8 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.replicate_qc_report.replicate_correlation_report.entries",
         "quant_artifact_bundle.replicate_qc_report.replicate_cv_report.entries",
         "quant_artifact_bundle.replicate_qc_report.outlier_samples",
+        "quant_artifact_bundle.differential_abundance_report",
+        "quant_artifact_bundle.differential_abundance_multi_condition_report",
         "lfq_provenance.feature_entries",
         "quant_review_bundle.normalization_comparison",
         "quant_review_bundle.imputation_report",
@@ -1171,6 +1206,9 @@ def build_quant_review_bundle(
         normalization_matrix=normalization_matrix,
         rollup_strategy_comparison=rollup_strategy,
         effect_size_da_report=da_report,
+        differential_abundance_multi_condition_report=(
+            multi_condition_differential_report
+        ),
         missingness_profile=missingness,
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,

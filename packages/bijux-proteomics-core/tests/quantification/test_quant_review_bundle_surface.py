@@ -161,3 +161,80 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
         "review_grade",
         "blocked",
     }
+
+
+def test_quant_review_bundle_preserves_multi_condition_differential_collection() -> (
+    None
+):
+    records = _records() + (
+        Ms1FeatureRecord(
+            feature_id="qb-009",
+            sample_id="s5",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=500.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-010",
+            sample_id="s6",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=520.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-011",
+            sample_id="s5",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=350.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="qb-012",
+            sample_id="s6",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=360.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = _design() + (
+        ExperimentalDesignEntry(
+            sample_id="s5",
+            condition="rescue",
+            replicate=1,
+            fraction=1,
+            spectra_file="s5.mzml",
+            batch="b3",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s6",
+            condition="rescue",
+            replicate=2,
+            fraction=1,
+            spectra_file="s6.mzml",
+            batch="b3",
+        ),
+    )
+
+    bundle = build_quant_review_bundle(
+        records,
+        design_entries=design,
+        normalization_method=NormalizationMethod.MEDIAN,
+        imputation_method=ImputationMethod.NONE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    assert bundle.effect_size_da_report is None
+    assert bundle.differential_abundance_multi_condition_report is not None
+    assert len(bundle.differential_abundance_multi_condition_report.reports) == 3
+    assert (
+        "quant_artifact_bundle.differential_abundance_multi_condition_report"
+        in bundle.evidence_pointers
+    )
