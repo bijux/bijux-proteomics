@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 import math
+from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -291,6 +293,162 @@ def build_diann_run_qc_report(
         include_decoys=include_decoys,
         max_q_value=max_q_value,
     )
+
+
+def render_dia_run_qc_summary_tsv(report: DiaRunQcReport) -> str:
+    """Render a compact summary for one DIA run-QC report."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "run_count",
+            "sample_count",
+            "union_precursor_key_count",
+            "union_protein_group_id_count",
+            "union_protein_id_count",
+            "flagged_run_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.summary.run_count,
+            report.summary.sample_count,
+            report.summary.union_precursor_key_count,
+            report.summary.union_protein_group_id_count,
+            report.summary.union_protein_id_count,
+            report.summary.flagged_run_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_run_qc_run_table_tsv(report: DiaRunQcReport) -> str:
+    """Render one DIA run-QC table with run-level counts and burden."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "run_name",
+            "sample_name",
+            "precursor_id_count",
+            "precursor_key_count",
+            "protein_group_id_count",
+            "protein_id_count",
+            "observed_precursor_quantity_count",
+            "observed_protein_quantity_count",
+            "median_log10_precursor_quantity",
+            "precursor_missing_fraction",
+            "protein_missing_fraction",
+            "flagged",
+        ]
+    )
+    for entry in report.run_entries:
+        writer.writerow(
+            [
+                entry.run_name,
+                entry.sample_name,
+                entry.precursor_id_count,
+                entry.precursor_key_count,
+                entry.protein_group_id_count,
+                entry.protein_id_count,
+                entry.observed_precursor_quantity_count,
+                entry.observed_protein_quantity_count,
+                ""
+                if entry.median_log10_precursor_quantity is None
+                else f"{entry.median_log10_precursor_quantity:.6g}",
+                f"{entry.precursor_missing_fraction:.6g}",
+                f"{entry.protein_missing_fraction:.6g}",
+                str(entry.flagged).lower(),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_run_qc_intensity_distribution_tsv(report: DiaRunQcReport) -> str:
+    """Render one DIA run-QC intensity distribution ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["run_name", "sample_name", "bucket", "count"])
+    for entry in report.intensity_distribution:
+        writer.writerow(
+            [entry.run_name, entry.sample_name, entry.bucket, entry.count]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_run_qc_correlation_tsv(report: DiaRunQcReport) -> str:
+    """Render pairwise DIA run correlations."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "run_name_a",
+            "sample_name_a",
+            "run_name_b",
+            "sample_name_b",
+            "shared_precursor_key_count",
+            "pearson_correlation",
+        ]
+    )
+    for entry in report.pairwise_correlations:
+        writer.writerow(
+            [
+                entry.run_name_a,
+                entry.sample_name_a,
+                entry.run_name_b,
+                entry.sample_name_b,
+                entry.shared_precursor_key_count,
+                ""
+                if entry.pearson_correlation is None
+                else f"{entry.pearson_correlation:.6g}",
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_run_qc_outlier_tsv(report: DiaRunQcReport) -> str:
+    """Render flagged DIA runs and explicit reasons."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["run_name", "sample_name", "reasons"])
+    for entry in report.outlier_runs:
+        writer.writerow([entry.run_name, entry.sample_name, ";".join(entry.reasons)])
+    return buffer.getvalue()
+
+
+def export_dia_run_qc_summary_tsv(report: DiaRunQcReport, path: Path) -> None:
+    path.write_text(render_dia_run_qc_summary_tsv(report), encoding="utf-8")
+
+
+def export_dia_run_qc_run_table_tsv(report: DiaRunQcReport, path: Path) -> None:
+    path.write_text(render_dia_run_qc_run_table_tsv(report), encoding="utf-8")
+
+
+def export_dia_run_qc_intensity_distribution_tsv(
+    report: DiaRunQcReport,
+    path: Path,
+) -> None:
+    path.write_text(
+        render_dia_run_qc_intensity_distribution_tsv(report),
+        encoding="utf-8",
+    )
+
+
+def export_dia_run_qc_correlation_tsv(report: DiaRunQcReport, path: Path) -> None:
+    path.write_text(render_dia_run_qc_correlation_tsv(report), encoding="utf-8")
+
+
+def export_dia_run_qc_outlier_tsv(report: DiaRunQcReport, path: Path) -> None:
+    path.write_text(render_dia_run_qc_outlier_tsv(report), encoding="utf-8")
 
 
 def _filtered_precursor_rows(
