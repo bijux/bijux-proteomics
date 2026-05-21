@@ -3019,3 +3019,72 @@ def fit_quant_design_matrix_model(
     )
 
     return _implementation(table, design_matrix)
+
+
+def render_quant_design_matrix_tsv(
+    report: QuantDesignMatrixReport,
+) -> str:
+    """Render a design matrix as a stable TSV table."""
+    from bijux_proteomics.quantification.design_matrix import (
+        render_quant_design_matrix_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_quant_design_matrix_tsv(
+    report: QuantDesignMatrixReport,
+    path: Path,
+) -> None:
+    """Write a design matrix to a stable TSV artifact."""
+    from bijux_proteomics.quantification.design_matrix import (
+        export_quant_design_matrix_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def render_quant_design_model_coefficients_tsv(
+    report: QuantDesignModelFitReport,
+) -> str:
+    """Render design-model coefficients as a stable TSV table."""
+    from bijux_proteomics.quantification.design_matrix import (
+        render_quant_design_model_coefficients_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_quant_design_model_coefficients_tsv(
+    report: QuantDesignModelFitReport,
+    path: Path,
+) -> None:
+    """Write design-model coefficients to a stable TSV artifact."""
+    from bijux_proteomics.quantification.design_matrix import (
+        export_quant_design_model_coefficients_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def render_quant_design_contrast_estimates_tsv(
+    report: QuantDesignModelFitReport,
+) -> str:
+    """Render condition-contrast estimates as a stable TSV table."""
+    from bijux_proteomics.quantification.design_matrix import (
+        render_quant_design_contrast_estimates_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_quant_design_contrast_estimates_tsv(
+    report: QuantDesignModelFitReport,
+    path: Path,
+) -> None:
+    """Write condition-contrast estimates to a stable TSV artifact."""
+    from bijux_proteomics.quantification.design_matrix import (
+        export_quant_design_contrast_estimates_tsv as _implementation,
+    )
+
+    _implementation(report, path)

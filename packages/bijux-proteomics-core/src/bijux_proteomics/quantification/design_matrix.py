@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from itertools import combinations
 import math
+from pathlib import Path
 
 import numpy as np
 
@@ -337,3 +340,118 @@ def fit_quant_design_matrix_model(
             "design-model coefficients use one least-squares fit per entity over observed samples, so underdetermined designs remain descriptive rather than inferential"
         ),
     )
+
+
+def render_quant_design_matrix_tsv(
+    report: QuantDesignMatrixReport,
+) -> str:
+    """Render one design matrix as a stable TSV table."""
+    metadata_fields = tuple(
+        sorted({key for row in report.rows for key in row.metadata.keys()})
+    )
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "condition",
+            "batch",
+            "pair_id",
+            *metadata_fields,
+            *[column.column_name for column in report.columns],
+        ]
+    )
+    for row in report.rows:
+        writer.writerow(
+            [
+                row.sample_id,
+                row.condition,
+                row.batch or "",
+                row.pair_id or "",
+                *[row.metadata.get(field, "") for field in metadata_fields],
+                *[f"{value:.6g}" for value in row.column_values],
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_quant_design_matrix_tsv(
+    report: QuantDesignMatrixReport,
+    path: Path,
+) -> None:
+    """Write one design matrix to a stable TSV artifact."""
+    path.write_text(render_quant_design_matrix_tsv(report), encoding="utf-8")
+
+
+def render_quant_design_model_coefficients_tsv(
+    report: QuantDesignModelFitReport,
+) -> str:
+    """Render per-entity design-model coefficients as a stable TSV table."""
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_id",
+            "coefficient_name",
+            "estimate",
+            "observed_sample_count",
+            "design_rank",
+            "residual_degrees_of_freedom",
+        ]
+    )
+    for entry in report.coefficient_entries:
+        writer.writerow(
+            [
+                entry.entity_id,
+                entry.coefficient_name,
+                f"{entry.estimate:.6g}",
+                entry.observed_sample_count,
+                entry.design_rank,
+                entry.residual_degrees_of_freedom,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_quant_design_model_coefficients_tsv(
+    report: QuantDesignModelFitReport,
+    path: Path,
+) -> None:
+    """Write design-model coefficients to a stable TSV artifact."""
+    path.write_text(render_quant_design_model_coefficients_tsv(report), encoding="utf-8")
+
+
+def render_quant_design_contrast_estimates_tsv(
+    report: QuantDesignModelFitReport,
+) -> str:
+    """Render per-entity condition-contrast estimates as a stable TSV table."""
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_id",
+            "contrast_name",
+            "condition_a",
+            "condition_b",
+            "estimate",
+        ]
+    )
+    for entry in report.contrast_estimates:
+        writer.writerow(
+            [
+                entry.entity_id,
+                entry.contrast_name,
+                entry.condition_a,
+                entry.condition_b,
+                f"{entry.estimate:.6g}",
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_quant_design_contrast_estimates_tsv(
+    report: QuantDesignModelFitReport,
+    path: Path,
+) -> None:
+    """Write condition-contrast estimates to a stable TSV artifact."""
+    path.write_text(render_quant_design_contrast_estimates_tsv(report), encoding="utf-8")
