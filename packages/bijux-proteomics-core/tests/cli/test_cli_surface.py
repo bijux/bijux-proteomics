@@ -2918,6 +2918,8 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
                 "2",
                 "--normalization",
                 "median",
+                "--imputation",
+                "low_intensity",
                 "--condition-a",
                 "control",
                 "--condition-b",
@@ -2938,6 +2940,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["normalization_comparison"]["method"] == "median"
         assert payload["normalization_comparison"]["after"]
         assert payload["normalization_strategy"]["recommended_method"] is not None
+        assert payload["imputation_report"]["method"] == "low_intensity"
+        assert payload["imputation_report"]["imputed_value_count"] > 0
+        assert payload["imputation_sensitivity"]["entries"]
         assert payload["batch_effect"]["disposition"] == "ADVISORY"
         assert payload["replicate_correlations"]["entries"]
         assert payload["differential_abundance"]["condition_a"] == "control"

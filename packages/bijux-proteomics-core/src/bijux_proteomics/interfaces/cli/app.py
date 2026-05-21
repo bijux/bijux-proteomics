@@ -224,6 +224,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_localization_tsv,
 )
 from bijux_proteomics.quantification import (
+    ImputationMethod,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     PeptideMatrixGroupingMode,
@@ -234,6 +235,8 @@ from bijux_proteomics.quantification import (
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
     build_differential_abundance_report,
+    build_imputation_report,
+    build_imputation_sensitivity_report,
     build_label_free_intensity_table,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
@@ -248,6 +251,7 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_psms,
     build_replicate_correlation_report,
     build_spectral_count_table,
+    impute_label_free_table,
     normalize_label_free_table,
     parse_ms1_feature_table,
     render_peptide_intensity_matrix_summary_tsv,
@@ -594,6 +598,12 @@ def _quant_rollup_choice() -> click.Choice[str]:
 def _normalization_choice() -> click.Choice[str]:
     return click.Choice(
         [method.value for method in NormalizationMethod], case_sensitive=False
+    )
+
+
+def _imputation_choice() -> click.Choice[str]:
+    return click.Choice(
+        [method.value for method in ImputationMethod], case_sensitive=False
     )
 
 
@@ -4306,6 +4316,12 @@ def infer_proteins_command(
     default=NormalizationMethod.MEDIAN.value,
     show_default=True,
 )
+@click.option(
+    "--imputation",
+    type=_imputation_choice(),
+    default=ImputationMethod.NONE.value,
+    show_default=True,
+)
 @click.option("--sample-column", default="sample_id", show_default=True)
 @click.option("--feature-id-column", default="feature_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
@@ -4343,6 +4359,7 @@ def quantify_command(
     aggregation: str,
     top_n: int,
     normalization: str,
+    imputation: str,
     sample_column: str,
     feature_id_column: str,
     peptide_column: str,
@@ -4385,6 +4402,8 @@ def quantify_command(
         missingness_intensity_dependence = None
         normalization_comparison = None
         normalization_strategy = None
+        imputation_report = None
+        imputation_sensitivity = None
         if quant_measure is QuantMeasureKind.SPECTRAL_COUNT:
             table = build_spectral_count_table(
                 parse_report.accepted_records,
@@ -4400,12 +4419,20 @@ def quantify_command(
             normalization_strategy = build_normalization_strategy_comparison_report(
                 raw_table
             )
-            table = normalize_label_free_table(
+            normalized_table = normalize_label_free_table(
                 raw_table,
                 method=NormalizationMethod(normalization),
             )
             normalization_comparison = build_normalization_comparison_report(
                 raw_table,
+                normalized_table,
+            )
+            table = impute_label_free_table(
+                normalized_table,
+                method=ImputationMethod(imputation),
+            )
+            imputation_report = build_imputation_report(
+                normalized_table,
                 table,
             )
         missing_summary = summarize_missing_values(table)
@@ -4434,6 +4461,12 @@ def quantify_command(
                 )
                 missingness_intensity_dependence = (
                     build_missingness_intensity_dependence_report(table)
+                )
+                imputation_sensitivity = build_imputation_sensitivity_report(
+                    normalized_table,
+                    design_entries,
+                    condition_a=condition_a,
+                    condition_b=condition_b,
                 )
                 differential = apply_benjamini_hochberg(
                     build_differential_abundance_report(
@@ -4474,6 +4507,14 @@ def quantify_command(
         "normalization_strategy": (
             normalization_strategy.to_dict()
             if normalization_strategy is not None
+            else None
+        ),
+        "imputation_report": (
+            imputation_report.to_dict() if imputation_report is not None else None
+        ),
+        "imputation_sensitivity": (
+            imputation_sensitivity.to_dict()
+            if imputation_sensitivity is not None
             else None
         ),
         "design_entries": len(design_entries),
