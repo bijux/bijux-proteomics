@@ -234,6 +234,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
+    build_quant_design_matrix_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_free_intensity_table,
@@ -252,7 +253,11 @@ from bijux_proteomics.quantification import (
     build_replicate_and_batch_qc_report,
     build_spectral_count_table,
     export_differential_abundance_tsv,
+    export_quant_design_contrast_estimates_tsv,
+    export_quant_design_matrix_tsv,
+    export_quant_design_model_coefficients_tsv,
     export_multi_condition_differential_abundance_tsv,
+    fit_quant_design_matrix_model,
     impute_label_free_table,
     normalize_label_free_table,
     parse_ms1_feature_table,
@@ -4350,6 +4355,35 @@ def infer_proteins_command(
     default=None,
 )
 @click.option(
+    "--design-covariate",
+    "design_covariates",
+    multiple=True,
+)
+@click.option(
+    "--design-batch-field",
+    default="batch",
+    show_default=True,
+)
+@click.option(
+    "--design-pairing-field",
+    default=None,
+)
+@click.option(
+    "--design-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--design-coefficients-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--design-contrasts-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--report-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
@@ -4381,6 +4415,12 @@ def quantify_command(
     condition_a: str | None,
     condition_b: str | None,
     differential_tsv_out: Path | None,
+    design_covariates: tuple[str, ...],
+    design_batch_field: str,
+    design_pairing_field: str | None,
+    design_matrix_tsv_out: Path | None,
+    design_coefficients_tsv_out: Path | None,
+    design_contrasts_tsv_out: Path | None,
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -4448,6 +4488,8 @@ def quantify_command(
         batch_effect = None
         replicate_correlations = None
         replicate_qc = None
+        design_matrix = None
+        design_model_fit = None
         differential = None
         differential_multi_condition = None
         if design_path is not None:
@@ -4455,6 +4497,21 @@ def quantify_command(
             if design_report.rejected_rows:
                 raise click.ClickException("design table contains rejected rows")
             design_entries = design_report.accepted_entries
+            effective_pairing_field = design_pairing_field
+            if effective_pairing_field is None and all(
+                entry.pair_id not in (None, "") for entry in design_entries
+            ):
+                effective_pairing_field = "pair_id"
+            design_matrix = build_quant_design_matrix_report(
+                design_entries,
+                batch_field=design_batch_field,
+                covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                pairing_field=effective_pairing_field,
+            )
+            design_model_fit = fit_quant_design_matrix_model(
+                table,
+                design_matrix,
+            )
             replicate_qc = build_replicate_and_batch_qc_report(
                 table,
                 design_entries=design_entries,
@@ -4524,6 +4581,24 @@ def quantify_command(
             raise click.ClickException(
                 "differential tsv export requires a resolvable contrast or at least two conditions"
             )
+    if design_matrix_tsv_out is not None:
+        if design_matrix is None:
+            raise click.ClickException("design matrix export requires --design")
+        export_quant_design_matrix_tsv(design_matrix, design_matrix_tsv_out)
+    if design_coefficients_tsv_out is not None:
+        if design_model_fit is None:
+            raise click.ClickException("design coefficient export requires --design")
+        export_quant_design_model_coefficients_tsv(
+            design_model_fit,
+            design_coefficients_tsv_out,
+        )
+    if design_contrasts_tsv_out is not None:
+        if design_model_fit is None:
+            raise click.ClickException("design contrast export requires --design")
+        export_quant_design_contrast_estimates_tsv(
+            design_model_fit,
+            design_contrasts_tsv_out,
+        )
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -4564,6 +4639,10 @@ def quantify_command(
             else None
         ),
         "design_entries": len(design_entries),
+        "design_matrix": design_matrix.to_dict() if design_matrix is not None else None,
+        "design_model_fit": (
+            design_model_fit.to_dict() if design_model_fit is not None else None
+        ),
         "batch_effect": batch_effect.to_dict() if batch_effect is not None else None,
         "replicate_correlations": (
             replicate_correlations.to_dict()
@@ -4599,6 +4678,21 @@ def quantify_command(
             "differential_tsv": (
                 str(differential_tsv_out)
                 if differential_tsv_out is not None
+                else None
+            ),
+            "design_matrix_tsv": (
+                str(design_matrix_tsv_out)
+                if design_matrix_tsv_out is not None
+                else None
+            ),
+            "design_coefficients_tsv": (
+                str(design_coefficients_tsv_out)
+                if design_coefficients_tsv_out is not None
+                else None
+            ),
+            "design_contrasts_tsv": (
+                str(design_contrasts_tsv_out)
+                if design_contrasts_tsv_out is not None
                 else None
             ),
             "json_report": str(report_out or out_path)

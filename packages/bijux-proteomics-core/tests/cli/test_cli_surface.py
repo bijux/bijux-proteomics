@@ -2926,6 +2926,12 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
                 "treatment",
                 "--differential-tsv-out",
                 "quantify.differential.tsv",
+                "--design-matrix-tsv-out",
+                "quantify.design.tsv",
+                "--design-coefficients-tsv-out",
+                "quantify.design_coefficients.tsv",
+                "--design-contrasts-tsv-out",
+                "quantify.design_contrasts.tsv",
             ],
         )
 
@@ -2953,11 +2959,34 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["replicate_cv"]["entries"]
         assert payload["sample_pca"]["entries"]
         assert payload["condition_clustering"]["condition_count"] == 2
+        assert payload["design_matrix"]["columns"]
+        assert payload["design_model_fit"]["coefficient_entries"]
         assert payload["differential_abundance"]["condition_a"] == "control"
         assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
+        assert payload["outputs"]["design_matrix_tsv"] == "quantify.design.tsv"
+        assert (
+            payload["outputs"]["design_coefficients_tsv"]
+            == "quantify.design_coefficients.tsv"
+        )
+        assert (
+            payload["outputs"]["design_contrasts_tsv"]
+            == "quantify.design_contrasts.tsv"
+        )
         assert Path("quantify.differential.tsv").exists()
+        assert Path("quantify.design.tsv").exists()
+        assert Path("quantify.design_coefficients.tsv").exists()
+        assert Path("quantify.design_contrasts.tsv").exists()
         assert "P001\tcontrol\ttreatment" in Path(
             "quantify.differential.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
+            "quantify.design.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P001\tcondition[treatment]" in Path(
+            "quantify.design_coefficients.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P001\tcontrol_vs_treatment" in Path(
+            "quantify.design_contrasts.tsv"
         ).read_text(encoding="utf-8")
         assert any(
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
@@ -2998,6 +3027,8 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
+        assert payload["design_matrix"] is not None
+        assert payload["design_model_fit"] is not None
         assert payload["differential_abundance"] is None
         assert payload["differential_abundance_multi_condition"] is not None
         assert payload["outputs"]["differential_tsv"] == "quantify.multi_condition.tsv"
