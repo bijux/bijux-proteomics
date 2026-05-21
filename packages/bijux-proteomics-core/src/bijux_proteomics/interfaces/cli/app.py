@@ -235,6 +235,9 @@ from bijux_proteomics.quantification import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_missingness_condition_summary_report,
+    build_missingness_entity_summary_report,
+    build_missingness_intensity_dependence_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_peptide_intensity_matrix_from_features,
@@ -4377,6 +4380,9 @@ def quantify_command(
         quant_entity_level = QuantEntityLevel(entity_level)
         quant_measure = QuantMeasureKind(measure)
         rollup_method = QuantRollupMethod(aggregation)
+        missingness_entity_summary = None
+        missingness_condition_summary = None
+        missingness_intensity_dependence = None
         normalization_comparison = None
         normalization_strategy = None
         if quant_measure is QuantMeasureKind.SPECTRAL_COUNT:
@@ -4417,6 +4423,18 @@ def quantify_command(
                 table, design_entries
             )
             if quant_measure is QuantMeasureKind.INTENSITY:
+                missingness_entity_summary = build_missingness_entity_summary_report(
+                    table
+                )
+                missingness_condition_summary = (
+                    build_missingness_condition_summary_report(
+                        table,
+                        design_entries=design_entries,
+                    )
+                )
+                missingness_intensity_dependence = (
+                    build_missingness_intensity_dependence_report(table)
+                )
                 differential = apply_benjamini_hochberg(
                     build_differential_abundance_report(
                         table,
@@ -4433,6 +4451,21 @@ def quantify_command(
         "rejected_features": len(parse_report.rejected_rows),
         "table": table.to_dict(),
         "missing_summary": missing_summary.to_dict(),
+        "missingness_entity_summary": (
+            missingness_entity_summary.to_dict()
+            if missingness_entity_summary is not None
+            else None
+        ),
+        "missingness_condition_summary": (
+            missingness_condition_summary.to_dict()
+            if missingness_condition_summary is not None
+            else None
+        ),
+        "missingness_intensity_dependence": (
+            missingness_intensity_dependence.to_dict()
+            if missingness_intensity_dependence is not None
+            else None
+        ),
         "normalization_comparison": (
             normalization_comparison.to_dict()
             if normalization_comparison is not None
