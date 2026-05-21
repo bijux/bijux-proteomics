@@ -628,6 +628,52 @@ class MissingValueSummaryReport(JsonModel):
     excluded_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class MissingnessEntitySummaryEntry(JsonModel):
+    """Missingness burden for one quantified entity across all samples."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    observed_sample_count: int = Field(..., ge=0)
+    zero_sample_count: int = Field(..., ge=0)
+    not_observed_sample_count: int = Field(..., ge=0)
+    filtered_sample_count: int = Field(..., ge=0)
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+
+
+class MissingnessEntitySummaryReport(JsonModel):
+    """Entity-level missingness summary over one quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[MissingnessEntitySummaryEntry, ...] = Field(default_factory=tuple)
+
+
+class MissingnessConditionSummaryEntry(JsonModel):
+    """Missingness burden for one experimental condition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition: str = Field(..., min_length=1)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    observed_value_count: int = Field(..., ge=0)
+    zero_value_count: int = Field(..., ge=0)
+    not_observed_value_count: int = Field(..., ge=0)
+    filtered_value_count: int = Field(..., ge=0)
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    condition_specific_absence_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class MissingnessConditionSummaryReport(JsonModel):
+    """Condition-level missingness summary with condition-specific absence signals."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[MissingnessConditionSummaryEntry, ...] = Field(default_factory=tuple)
+
+
 class BatchEffectBatchEntry(JsonModel):
     """One batch-level median-shift advisory row."""
 

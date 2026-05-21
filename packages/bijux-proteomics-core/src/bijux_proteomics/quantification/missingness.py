@@ -11,6 +11,10 @@ from bijux_proteomics.quantification.contracts import (
     MissingDataMechanism,
     MissingDataMechanismEntry,
     MissingDataMechanismReport,
+    MissingnessConditionSummaryEntry,
+    MissingnessConditionSummaryReport,
+    MissingnessEntitySummaryEntry,
+    MissingnessEntitySummaryReport,
     MissingValueCorrectionPolicy,
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -19,6 +23,136 @@ from bijux_proteomics.quantification.contracts import (
     _condition_lookup,
     _matrix_value_index,
 )
+
+
+def build_missingness_entity_summary_report(
+    table: LabelFreeQuantTable,
+    *,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessEntitySummaryReport:
+    """Summarize missingness per quantified entity across all samples."""
+    active_policy = policy or MissingValueSummaryPolicy()
+    lookup = _matrix_value_index(table)
+    entries: list[MissingnessEntitySummaryEntry] = []
+    for entity_id in table.entity_ids:
+        counts = {
+            MissingValueKind.OBSERVED: 0,
+            MissingValueKind.ZERO: 0,
+            MissingValueKind.NOT_OBSERVED: 0,
+            MissingValueKind.FILTERED: 0,
+        }
+        for sample_id in table.sample_ids:
+            kind = _apply_missing_value_summary_policy(
+                lookup[(entity_id, sample_id)].missing_value_kind,
+                policy=active_policy,
+            )
+            counts[kind] += 1
+        missing_count = (
+            counts[MissingValueKind.NOT_OBSERVED] + counts[MissingValueKind.FILTERED]
+        )
+        entries.append(
+            MissingnessEntitySummaryEntry(
+                entity_id=entity_id,
+                observed_sample_count=counts[MissingValueKind.OBSERVED],
+                zero_sample_count=counts[MissingValueKind.ZERO],
+                not_observed_sample_count=counts[MissingValueKind.NOT_OBSERVED],
+                filtered_sample_count=counts[MissingValueKind.FILTERED],
+                missing_fraction=(
+                    float(missing_count / len(table.sample_ids)) if table.sample_ids else 0.0
+                ),
+            )
+        )
+    return MissingnessEntitySummaryReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+    )
+
+
+def build_missingness_condition_summary_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessConditionSummaryReport:
+    """Summarize missingness per condition and surface condition-specific absence."""
+    active_policy = policy or MissingValueSummaryPolicy()
+    lookup = _matrix_value_index(table)
+    sample_ids_by_condition: dict[str, list[str]] = {}
+    for entry in design_entries:
+        sample_ids_by_condition.setdefault(entry.condition, []).append(entry.sample_id)
+
+    observed_conditions_by_entity: dict[str, set[str]] = {}
+    missing_conditions_by_entity: dict[str, set[str]] = {}
+    for entity_id in table.entity_ids:
+        observed_conditions: set[str] = set()
+        missing_conditions: set[str] = set()
+        for condition, sample_ids in sample_ids_by_condition.items():
+            condition_kinds = [
+                _apply_missing_value_summary_policy(
+                    lookup[(entity_id, sample_id)].missing_value_kind,
+                    policy=active_policy,
+                )
+                for sample_id in sample_ids
+            ]
+            if any(
+                kind in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+                for kind in condition_kinds
+            ):
+                observed_conditions.add(condition)
+            if all(
+                kind in (MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED)
+                for kind in condition_kinds
+            ):
+                missing_conditions.add(condition)
+        observed_conditions_by_entity[entity_id] = observed_conditions
+        missing_conditions_by_entity[entity_id] = missing_conditions
+
+    entries: list[MissingnessConditionSummaryEntry] = []
+    for condition, sample_ids in sorted(sample_ids_by_condition.items()):
+        counts = {
+            MissingValueKind.OBSERVED: 0,
+            MissingValueKind.ZERO: 0,
+            MissingValueKind.NOT_OBSERVED: 0,
+            MissingValueKind.FILTERED: 0,
+        }
+        for entity_id in table.entity_ids:
+            for sample_id in sample_ids:
+                kind = _apply_missing_value_summary_policy(
+                    lookup[(entity_id, sample_id)].missing_value_kind,
+                    policy=active_policy,
+                )
+                counts[kind] += 1
+        total_values = len(table.entity_ids) * len(sample_ids)
+        missing_count = (
+            counts[MissingValueKind.NOT_OBSERVED] + counts[MissingValueKind.FILTERED]
+        )
+        condition_specific_absence = tuple(
+            sorted(
+                entity_id
+                for entity_id in table.entity_ids
+                if condition in missing_conditions_by_entity[entity_id]
+                and observed_conditions_by_entity[entity_id]
+                and condition not in observed_conditions_by_entity[entity_id]
+            )
+        )
+        entries.append(
+            MissingnessConditionSummaryEntry(
+                condition=condition,
+                sample_ids=tuple(sample_ids),
+                observed_value_count=counts[MissingValueKind.OBSERVED],
+                zero_value_count=counts[MissingValueKind.ZERO],
+                not_observed_value_count=counts[MissingValueKind.NOT_OBSERVED],
+                filtered_value_count=counts[MissingValueKind.FILTERED],
+                missing_fraction=(
+                    float(missing_count / total_values) if total_values else 0.0
+                ),
+                condition_specific_absence_entity_ids=condition_specific_absence,
+            )
+        )
+    return MissingnessConditionSummaryReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+    )
 
 
 def summarize_missing_values(
@@ -154,6 +288,8 @@ def _apply_missing_value_summary_policy(
 
 
 __all__ = [
+    "build_missingness_condition_summary_report",
     "build_missing_data_mechanism_report",
+    "build_missingness_entity_summary_report",
     "summarize_missing_values",
 ]
