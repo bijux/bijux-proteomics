@@ -11,6 +11,7 @@ import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
+    ConditionClusteringReport,
     LabelFreeQuantTable,
     QcOutlierSampleEntry,
     ReplicateAndBatchQcReport,
@@ -96,6 +97,7 @@ def build_replicate_and_batch_qc_report(
     """Build integrated replicate-correlation and batch-shift QC diagnostics."""
     replicate = build_replicate_correlation_report(table, design_entries)
     sample_pca = build_sample_pca_report(table, design_entries)
+    condition_clustering = build_condition_clustering_report(table, design_entries)
     batch = build_batch_effect_advisory(
         table,
         design_entries,
@@ -155,6 +157,7 @@ def build_replicate_and_batch_qc_report(
         replicate_correlation_count=len(replicate.entries),
         flagged_batch_count=sum(1 for entry in batch.batches if entry.flagged),
         sample_pca_report=sample_pca,
+        condition_clustering_report=condition_clustering,
         outlier_samples=outliers,
         note=note,
     )
@@ -274,6 +277,72 @@ def build_sample_pca_report(
     )
 
 
+def build_condition_clustering_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> ConditionClusteringReport:
+    """Summarize whether nearby samples cluster by biological condition."""
+    pca_report = build_sample_pca_report(table, design_entries)
+    if len(pca_report.entries) < 2:
+        return ConditionClusteringReport(
+            entity_level=table.entity_level,
+            condition_count=0,
+            nearest_same_condition_fraction=0.0,
+            mean_within_condition_distance=None,
+            mean_between_condition_distance=None,
+            clustered_by_condition=False,
+            note="condition clustering was not informative because fewer than two samples were available",
+        )
+    within_distances: list[float] = []
+    between_distances: list[float] = []
+    nearest_same_condition_count = 0
+    entries = list(pca_report.entries)
+    for index, entry in enumerate(entries):
+        nearest_distance: float | None = None
+        nearest_same_condition = False
+        for other_index, other_entry in enumerate(entries):
+            if index == other_index:
+                continue
+            distance = float(
+                np.linalg.norm(
+                    np.array((entry.pc1, entry.pc2), dtype=float)
+                    - np.array((other_entry.pc1, other_entry.pc2), dtype=float)
+                )
+            )
+            if entry.condition == other_entry.condition:
+                within_distances.append(distance)
+            else:
+                between_distances.append(distance)
+            if nearest_distance is None or distance < nearest_distance:
+                nearest_distance = distance
+                nearest_same_condition = entry.condition == other_entry.condition
+        nearest_same_condition_count += int(nearest_same_condition)
+    condition_count = len({entry.condition for entry in entries})
+    nearest_same_fraction = nearest_same_condition_count / len(entries)
+    mean_within = float(np.mean(within_distances)) if within_distances else None
+    mean_between = float(np.mean(between_distances)) if between_distances else None
+    clustered = (
+        mean_within is not None
+        and mean_between is not None
+        and mean_within < mean_between
+        and nearest_same_fraction >= 0.75
+    )
+    note = (
+        "sample neighborhoods cluster by biological condition in the current qc space"
+        if clustered
+        else "sample neighborhoods do not separate cleanly by biological condition in the current qc space"
+    )
+    return ConditionClusteringReport(
+        entity_level=table.entity_level,
+        condition_count=condition_count,
+        nearest_same_condition_fraction=nearest_same_fraction,
+        mean_within_condition_distance=mean_within,
+        mean_between_condition_distance=mean_between,
+        clustered_by_condition=clustered,
+        note=note,
+    )
+
+
 def _sample_feature_matrix(table: LabelFreeQuantTable) -> np.ndarray:
     lookup = _matrix_value_index(table)
     matrix = np.full((len(table.sample_ids), len(table.entity_ids)), np.nan, dtype=float)
@@ -304,6 +373,7 @@ def _distance_outlier_threshold(distances: np.ndarray) -> float:
 
 
 __all__ = [
+    "build_condition_clustering_report",
     "build_replicate_and_batch_qc_report",
     "build_replicate_cv_report",
     "build_sample_pca_report",

@@ -431,6 +431,7 @@ class ReplicateAndBatchQcReport(JsonModel):
     replicate_correlation_count: int = Field(..., ge=0)
     flagged_batch_count: int = Field(..., ge=0)
     sample_pca_report: SamplePcaReport | None = None
+    condition_clustering_report: ConditionClusteringReport | None = None
     outlier_samples: tuple[QcOutlierSampleEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
@@ -484,6 +485,20 @@ class SamplePcaReport(JsonModel):
     explained_variance_ratio_pc1: float = Field(..., ge=0.0, le=1.0)
     explained_variance_ratio_pc2: float = Field(..., ge=0.0, le=1.0)
     entries: tuple[SamplePcaEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class ConditionClusteringReport(JsonModel):
+    """Condition-separation summary over sample-level QC space."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    condition_count: int = Field(..., ge=0)
+    nearest_same_condition_fraction: float = Field(..., ge=0.0, le=1.0)
+    mean_within_condition_distance: float | None = Field(default=None, ge=0.0)
+    mean_between_condition_distance: float | None = Field(default=None, ge=0.0)
+    clustered_by_condition: bool
     note: str = Field(..., min_length=1)
 
 
