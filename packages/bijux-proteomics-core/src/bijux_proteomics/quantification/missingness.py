@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import math
+
+import numpy as np
+
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
@@ -15,6 +19,9 @@ from bijux_proteomics.quantification.contracts import (
     MissingnessConditionSummaryReport,
     MissingnessEntitySummaryEntry,
     MissingnessEntitySummaryReport,
+    MissingnessIntensityBinEntry,
+    MissingnessIntensityDependenceReport,
+    MissingnessIntensityPoint,
     MissingValueCorrectionPolicy,
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -155,6 +162,101 @@ def build_missingness_condition_summary_report(
     )
 
 
+def build_missingness_intensity_dependence_report(
+    table: LabelFreeQuantTable,
+    *,
+    bin_count: int = 4,
+    policy: MissingValueSummaryPolicy | None = None,
+) -> MissingnessIntensityDependenceReport:
+    """Profile how missingness burden changes with observed abundance intensity."""
+    active_policy = policy or MissingValueSummaryPolicy()
+    lookup = _matrix_value_index(table)
+    points: list[MissingnessIntensityPoint] = []
+    for entity_id in table.entity_ids:
+        observed_abundances = [
+            float(value.abundance or 0.0)
+            for value in table.values
+            if value.entity_id == entity_id
+            and value.abundance is not None
+            and _apply_missing_value_summary_policy(
+                value.missing_value_kind,
+                policy=active_policy,
+            )
+            in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+        ]
+        if not observed_abundances:
+            continue
+        missing_count = sum(
+            1
+            for sample_id in table.sample_ids
+            if _apply_missing_value_summary_policy(
+                lookup[(entity_id, sample_id)].missing_value_kind,
+                policy=active_policy,
+            )
+            in (MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED)
+        )
+        points.append(
+            MissingnessIntensityPoint(
+                entity_id=entity_id,
+                mean_log2_observed_abundance=float(
+                    np.mean(np.log2(np.array(observed_abundances, dtype=float) + 1.0))
+                ),
+                missing_fraction=float(missing_count / len(table.sample_ids))
+                if table.sample_ids
+                else 0.0,
+            )
+        )
+
+    ordered_points = tuple(
+        sorted(points, key=lambda point: point.mean_log2_observed_abundance)
+    )
+    bins: list[MissingnessIntensityBinEntry] = []
+    if ordered_points:
+        active_bin_count = max(1, min(bin_count, len(ordered_points)))
+        groups = np.array_split(np.array(ordered_points, dtype=object), active_bin_count)
+        for group in groups:
+            bucket = [point for point in group.tolist() if point is not None]
+            if not bucket:
+                continue
+            bins.append(
+                MissingnessIntensityBinEntry(
+                    lower_log2_abundance=bucket[0].mean_log2_observed_abundance,
+                    upper_log2_abundance=bucket[-1].mean_log2_observed_abundance,
+                    entity_count=len(bucket),
+                    mean_missing_fraction=float(
+                        np.mean(
+                            np.array(
+                                [point.missing_fraction for point in bucket],
+                                dtype=float,
+                            )
+                        )
+                    ),
+                )
+            )
+
+    trend_correlation: float | None = None
+    if len(ordered_points) >= 2:
+        x = np.array(
+            [point.mean_log2_observed_abundance for point in ordered_points],
+            dtype=float,
+        )
+        y = np.array([point.missing_fraction for point in ordered_points], dtype=float)
+        correlation = float(np.corrcoef(x, y)[0, 1])
+        trend_correlation = correlation if math.isfinite(correlation) else None
+    detected = (
+        trend_correlation is not None
+        and trend_correlation <= -0.5
+        and any(point.missing_fraction > 0.0 for point in ordered_points)
+    )
+    return MissingnessIntensityDependenceReport(
+        entity_level=table.entity_level,
+        plot_points=ordered_points,
+        bins=tuple(bins),
+        trend_correlation=trend_correlation,
+        intensity_dependent_missingness_detected=detected,
+    )
+
+
 def summarize_missing_values(
     table: LabelFreeQuantTable,
     *,
@@ -291,5 +393,6 @@ __all__ = [
     "build_missingness_condition_summary_report",
     "build_missing_data_mechanism_report",
     "build_missingness_entity_summary_report",
+    "build_missingness_intensity_dependence_report",
     "summarize_missing_values",
 ]

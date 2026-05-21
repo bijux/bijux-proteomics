@@ -674,6 +674,39 @@ class MissingnessConditionSummaryReport(JsonModel):
     entries: tuple[MissingnessConditionSummaryEntry, ...] = Field(default_factory=tuple)
 
 
+class MissingnessIntensityPoint(JsonModel):
+    """One entity-level point for missingness-versus-intensity plotting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    mean_log2_observed_abundance: float
+    missing_fraction: float = Field(..., ge=0.0, le=1.0)
+
+
+class MissingnessIntensityBinEntry(JsonModel):
+    """One intensity bin summarizing mean missingness burden."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lower_log2_abundance: float
+    upper_log2_abundance: float
+    entity_count: int = Field(..., ge=0)
+    mean_missing_fraction: float = Field(..., ge=0.0, le=1.0)
+
+
+class MissingnessIntensityDependenceReport(JsonModel):
+    """Intensity-dependent missingness profile suitable for plotting and review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    plot_points: tuple[MissingnessIntensityPoint, ...] = Field(default_factory=tuple)
+    bins: tuple[MissingnessIntensityBinEntry, ...] = Field(default_factory=tuple)
+    trend_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
+    intensity_dependent_missingness_detected: bool
+
+
 class BatchEffectBatchEntry(JsonModel):
     """One batch-level median-shift advisory row."""
 

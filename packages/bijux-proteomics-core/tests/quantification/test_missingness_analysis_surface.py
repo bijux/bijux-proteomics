@@ -12,6 +12,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
+    build_missingness_intensity_dependence_report,
 )
 
 
@@ -156,3 +157,130 @@ def test_missingness_condition_summary_reports_condition_specific_absence() -> N
     assert by_condition["ctrl"].not_observed_value_count == 2
     assert by_condition["ctrl"].filtered_value_count == 1
     assert by_condition["ctrl"].condition_specific_absence_entity_ids == ("PEPA",)
+
+
+def test_missingness_intensity_dependence_report_exposes_plot_points_and_bins() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="mid-001",
+            sample_id="s1",
+            peptide="HIGHPEP",
+            canonical_peptide="HIGHPEP",
+            intensity=2048.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-002",
+            sample_id="s2",
+            peptide="HIGHPEP",
+            canonical_peptide="HIGHPEP",
+            intensity=1980.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-003",
+            sample_id="s3",
+            peptide="HIGHPEP",
+            canonical_peptide="HIGHPEP",
+            intensity=2100.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-004",
+            sample_id="s4",
+            peptide="HIGHPEP",
+            canonical_peptide="HIGHPEP",
+            intensity=2000.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-005",
+            sample_id="s1",
+            peptide="MIDPEP",
+            canonical_peptide="MIDPEP",
+            intensity=256.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-006",
+            sample_id="s2",
+            peptide="MIDPEP",
+            canonical_peptide="MIDPEP",
+            intensity=240.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-007",
+            sample_id="s3",
+            peptide="MIDPEP",
+            canonical_peptide="MIDPEP",
+            intensity=None,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-008",
+            sample_id="s4",
+            peptide="MIDPEP",
+            canonical_peptide="MIDPEP",
+            intensity=250.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-009",
+            sample_id="s1",
+            peptide="LOWPEP",
+            canonical_peptide="LOWPEP",
+            intensity=32.0,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-010",
+            sample_id="s2",
+            peptide="LOWPEP",
+            canonical_peptide="LOWPEP",
+            intensity=None,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-011",
+            sample_id="s3",
+            peptide="LOWPEP",
+            canonical_peptide="LOWPEP",
+            intensity=None,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="mid-012",
+            sample_id="s4",
+            peptide="LOWPEP",
+            canonical_peptide="LOWPEP",
+            intensity=None,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_missingness_intensity_dependence_report(table, bin_count=3)
+
+    assert len(report.plot_points) == 3
+    assert len(report.bins) == 3
+    assert report.trend_correlation is not None
+    assert report.intensity_dependent_missingness_detected is True
+    assert report.plot_points[0].entity_id == "LOWPEP"
+    assert report.plot_points[-1].entity_id == "HIGHPEP"
