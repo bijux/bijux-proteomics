@@ -235,6 +235,8 @@ from bijux_proteomics.quantification import (
     build_batch_effect_advisory,
     build_differential_abundance_report,
     build_label_free_intensity_table,
+    build_normalization_comparison_report,
+    build_normalization_strategy_comparison_report,
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
     build_protein_intensity_matrix_from_features,
@@ -4375,21 +4377,30 @@ def quantify_command(
         quant_entity_level = QuantEntityLevel(entity_level)
         quant_measure = QuantMeasureKind(measure)
         rollup_method = QuantRollupMethod(aggregation)
+        normalization_comparison = None
+        normalization_strategy = None
         if quant_measure is QuantMeasureKind.SPECTRAL_COUNT:
             table = build_spectral_count_table(
                 parse_report.accepted_records,
                 entity_level=quant_entity_level,
             )
         else:
-            table = build_label_free_intensity_table(
+            raw_table = build_label_free_intensity_table(
                 parse_report.accepted_records,
                 entity_level=quant_entity_level,
                 aggregation_method=rollup_method,
                 top_n=top_n,
             )
+            normalization_strategy = build_normalization_strategy_comparison_report(
+                raw_table
+            )
             table = normalize_label_free_table(
-                table,
+                raw_table,
                 method=NormalizationMethod(normalization),
+            )
+            normalization_comparison = build_normalization_comparison_report(
+                raw_table,
+                table,
             )
         missing_summary = summarize_missing_values(table)
         design_entries: tuple[ExperimentalDesignEntry, ...] = ()
@@ -4422,6 +4433,16 @@ def quantify_command(
         "rejected_features": len(parse_report.rejected_rows),
         "table": table.to_dict(),
         "missing_summary": missing_summary.to_dict(),
+        "normalization_comparison": (
+            normalization_comparison.to_dict()
+            if normalization_comparison is not None
+            else None
+        ),
+        "normalization_strategy": (
+            normalization_strategy.to_dict()
+            if normalization_strategy is not None
+            else None
+        ),
         "design_entries": len(design_entries),
         "batch_effect": batch_effect.to_dict() if batch_effect is not None else None,
         "replicate_correlations": (

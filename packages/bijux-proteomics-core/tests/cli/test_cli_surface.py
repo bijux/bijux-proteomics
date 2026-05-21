@@ -2932,6 +2932,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["table"]["entity_level"] == "protein"
         assert payload["table"]["normalization_method"] == "median"
         assert payload["missing_summary"]["entries"][0]["zero_count"] == 1
+        assert payload["normalization_comparison"]["method"] == "median"
+        assert payload["normalization_comparison"]["after"]
+        assert payload["normalization_strategy"]["recommended_method"] is not None
         assert payload["batch_effect"]["disposition"] == "ADVISORY"
         assert payload["replicate_correlations"]["entries"]
         assert payload["differential_abundance"]["condition_a"] == "control"
