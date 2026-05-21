@@ -5,15 +5,84 @@
 
 from __future__ import annotations
 
+import math
+
+import numpy as np
+
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QcOutlierSampleEntry,
     ReplicateAndBatchQcReport,
+    ReplicateCvConditionEntry,
+    ReplicateCvReport,
     build_batch_effect_advisory,
     build_replicate_correlation_report,
+    _condition_lookup,
+    _matrix_value_index,
 )
 
+
+def build_replicate_cv_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    high_cv_threshold: float = 0.3,
+) -> ReplicateCvReport:
+    """Summarize within-condition replicate spread using entity-level CV."""
+    condition_by_sample = _condition_lookup(design_entries)
+    sample_ids_by_condition: dict[str, list[str]] = {}
+    for sample_id in table.sample_ids:
+        condition = condition_by_sample.get(sample_id)
+        if condition:
+            sample_ids_by_condition.setdefault(condition, []).append(sample_id)
+    lookup = _matrix_value_index(table)
+    entries: list[ReplicateCvConditionEntry] = []
+    for condition in sorted(sample_ids_by_condition):
+        sample_ids = tuple(sample_ids_by_condition[condition])
+        entity_cvs: list[float] = []
+        for entity_id in table.entity_ids:
+            abundances = np.array(
+                [
+                    float(cell.abundance)
+                    for sample_id in sample_ids
+                    if (cell := lookup[(entity_id, sample_id)]).abundance is not None
+                ],
+                dtype=float,
+            )
+            if abundances.size < 2:
+                continue
+            mean_abundance = float(np.mean(abundances))
+            if mean_abundance <= 0.0:
+                continue
+            cv = float(np.std(abundances, ddof=1) / mean_abundance)
+            if math.isfinite(cv):
+                entity_cvs.append(cv)
+        high_cv_entity_count = sum(cv > high_cv_threshold for cv in entity_cvs)
+        median_cv = float(np.median(entity_cvs)) if entity_cvs else None
+        entries.append(
+            ReplicateCvConditionEntry(
+                condition=condition,
+                replicate_count=len(sample_ids),
+                evaluated_entity_count=len(entity_cvs),
+                mean_entity_cv=float(np.mean(entity_cvs)) if entity_cvs else None,
+                median_entity_cv=median_cv,
+                high_cv_entity_count=high_cv_entity_count,
+                flagged=(median_cv is not None and median_cv > high_cv_threshold),
+            )
+        )
+    flagged_conditions = sum(entry.flagged for entry in entries)
+    note = (
+        "replicate cv indicates one or more conditions with unstable within-condition spread"
+        if flagged_conditions > 0
+        else "replicate cv did not detect unstable within-condition spread under the current threshold"
+    )
+    return ReplicateCvReport(
+        entity_level=table.entity_level,
+        high_cv_threshold=high_cv_threshold,
+        entries=tuple(entries),
+        note=note,
+    )
 
 def build_replicate_and_batch_qc_report(
     table: LabelFreeQuantTable,
@@ -82,4 +151,7 @@ def build_replicate_and_batch_qc_report(
     )
 
 
-__all__ = ["build_replicate_and_batch_qc_report"]
+__all__ = [
+    "build_replicate_and_batch_qc_report",
+    "build_replicate_cv_report",
+]

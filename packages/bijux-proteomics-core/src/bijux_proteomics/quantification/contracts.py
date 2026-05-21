@@ -434,6 +434,31 @@ class ReplicateAndBatchQcReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class ReplicateCvConditionEntry(JsonModel):
+    """Condition-level coefficient-of-variation summary over shared entities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition: str = Field(..., min_length=1)
+    replicate_count: int = Field(..., ge=1)
+    evaluated_entity_count: int = Field(..., ge=0)
+    mean_entity_cv: float | None = Field(default=None, ge=0.0)
+    median_entity_cv: float | None = Field(default=None, ge=0.0)
+    high_cv_entity_count: int = Field(..., ge=0)
+    flagged: bool
+
+
+class ReplicateCvReport(JsonModel):
+    """Replicate-spread summary that makes within-condition variance explicit."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    high_cv_threshold: float = Field(..., ge=0.0)
+    entries: tuple[ReplicateCvConditionEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class QuantReproducibilityManifest(JsonModel):
     """Stable manifest proving one quant table can be reproduced exactly."""
 
