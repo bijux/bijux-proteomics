@@ -237,6 +237,7 @@ from bijux_proteomics.quantification import (
     build_limma_compatible_quant_package,
     build_msstats_compatible_input_report,
     build_quant_design_matrix_report,
+    build_statistical_backend_validation_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_free_intensity_table,
@@ -267,7 +268,9 @@ from bijux_proteomics.quantification import (
     fit_quant_design_matrix_model,
     impute_label_free_table,
     normalize_label_free_table,
+    parse_limma_result_table,
     parse_ms1_feature_table,
+    parse_msstats_result_table,
     render_peptide_intensity_matrix_summary_tsv,
     render_peptide_intensity_matrix_tsv,
     render_peptide_intensity_missingness_tsv,
@@ -4416,6 +4419,18 @@ def infer_proteins_command(
     default=None,
 )
 @click.option(
+    "--limma-results",
+    "limma_results_path",
+    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--msstats-results",
+    "msstats_results_path",
+    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--report-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
@@ -4458,6 +4473,8 @@ def quantify_command(
     limma_design_tsv_out: Path | None,
     limma_contrasts_tsv_out: Path | None,
     msstats_input_tsv_out: Path | None,
+    limma_results_path: Path | None,
+    msstats_results_path: Path | None,
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -4529,6 +4546,7 @@ def quantify_command(
         design_model_fit = None
         limma_package = None
         msstats_input_report = None
+        selected_contrast: tuple[str, str] | None = None
         differential = None
         differential_multi_condition = None
         if design_path is not None:
@@ -4585,7 +4603,6 @@ def quantify_command(
                 missingness_intensity_dependence = (
                     build_missingness_intensity_dependence_report(table)
                 )
-                selected_contrast: tuple[str, str] | None = None
                 if condition_a is not None or condition_b is not None:
                     if not condition_a or not condition_b:
                         raise click.ClickException(
@@ -4683,6 +4700,38 @@ def quantify_command(
             msstats_input_report,
             msstats_input_tsv_out,
         )
+    limma_result_import = None
+    limma_validation = None
+    if limma_results_path is not None:
+        if selected_contrast is None or differential is None:
+            raise click.ClickException(
+                "limma result import requires intensity quantification with --design and a resolvable contrast"
+            )
+        limma_result_import = parse_limma_result_table(
+            limma_results_path,
+            condition_a=selected_contrast[0],
+            condition_b=selected_contrast[1],
+        )
+        limma_validation = build_statistical_backend_validation_report(
+            limma_result_import,
+            differential,
+        )
+    msstats_result_import = None
+    msstats_validation = None
+    if msstats_results_path is not None:
+        if selected_contrast is None or differential is None:
+            raise click.ClickException(
+                "msstats result import requires intensity quantification with --design and a resolvable contrast"
+            )
+        msstats_result_import = parse_msstats_result_table(
+            msstats_results_path,
+            condition_a=selected_contrast[0],
+            condition_b=selected_contrast[1],
+        )
+        msstats_validation = build_statistical_backend_validation_report(
+            msstats_result_import,
+            differential,
+        )
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -4734,6 +4783,20 @@ def quantify_command(
             msstats_input_report.to_dict()
             if msstats_input_report is not None
             else None
+        ),
+        "limma_result_import": (
+            limma_result_import.to_dict() if limma_result_import is not None else None
+        ),
+        "limma_validation": (
+            limma_validation.to_dict() if limma_validation is not None else None
+        ),
+        "msstats_result_import": (
+            msstats_result_import.to_dict()
+            if msstats_result_import is not None
+            else None
+        ),
+        "msstats_validation": (
+            msstats_validation.to_dict() if msstats_validation is not None else None
         ),
         "batch_effect": batch_effect.to_dict() if batch_effect is not None else None,
         "replicate_correlations": (

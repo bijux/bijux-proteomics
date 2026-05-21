@@ -3087,6 +3087,61 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
         )
 
 
+def test_quantify_command_validates_imported_statistical_backend_results() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+        shutil.copy(fixture_dir / "limma_results.tsv", "limma_results.tsv")
+        shutil.copy(fixture_dir / "msstats_results.tsv", "msstats_results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--normalization",
+                "median",
+                "--imputation",
+                "low_intensity",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--limma-results",
+                "limma_results.tsv",
+                "--msstats-results",
+                "msstats_results.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["limma_result_import"]["row_count"] == 2
+        assert payload["msstats_result_import"]["row_count"] == 2
+        assert payload["limma_validation"]["matched_row_count"] == 2
+        assert payload["limma_validation"]["directionally_concordant_count"] == 2
+        assert payload["msstats_validation"]["matched_row_count"] == 2
+        assert payload["msstats_validation"]["directionally_concordant_count"] == 2
+        assert (
+            payload["limma_validation"]["mean_absolute_log2_fold_change_delta"]
+            is not None
+        )
+        assert (
+            payload["msstats_validation"]["mean_absolute_log2_fold_change_delta"]
+            is not None
+        )
+
+
 def test_peptide_matrix_command_emits_feature_backed_matrix_and_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
