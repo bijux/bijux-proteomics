@@ -139,7 +139,10 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
     assert bundle.effect_size_da_report is not None
     assert bundle.normalization_comparison.after
     assert bundle.normalization_comparison.method is NormalizationMethod.MEDIAN
-    assert len(bundle.evidence_pointers) >= 8
+    assert bundle.missingness_entity_summary.entries
+    assert bundle.missingness_condition_summary.entries
+    assert bundle.missingness_intensity_dependence.plot_points
+    assert len(bundle.evidence_pointers) >= 11
     assert bundle.rollup_strategy_comparison.entries
     assert bundle.missingness_profile.entries
     assert bundle.decision_readiness.readiness_state.value in {

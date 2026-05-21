@@ -14,6 +14,9 @@ from bijux_proteomics.quantification import (
     LabelBasedQuantPolicy,
     LabelFreeQuantTable,
     MissingValueSummaryReport,
+    MissingnessConditionSummaryReport,
+    MissingnessEntitySummaryReport,
+    MissingnessIntensityDependenceReport,
     Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
     NormalizationMethod,
@@ -21,6 +24,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
+    build_missingness_condition_summary_report,
+    build_missingness_entity_summary_report,
+    build_missingness_intensity_dependence_report,
     normalize_label_free_table,
     summarize_missing_values,
 )
@@ -48,6 +54,9 @@ class QuantMissingnessRobustnessReport(JsonModel):
     entity_level: QuantEntityLevel
     normalization_method: NormalizationMethod
     missing_value_summary: MissingValueSummaryReport
+    missingness_entity_summary: MissingnessEntitySummaryReport
+    missingness_condition_summary: MissingnessConditionSummaryReport
+    missingness_intensity_dependence: MissingnessIntensityDependenceReport
     mechanism_profile: MissingnessMechanismProfileReport
     decision_readiness: QuantDecisionReadinessReport
     sparse_biology_candidate_count: int = Field(..., ge=0)
@@ -240,6 +249,12 @@ def build_quant_missingness_robustness_report(
         normalization_method=normalization_method,
     )
     missingness = summarize_missing_values(table)
+    entity_summary = build_missingness_entity_summary_report(table)
+    condition_summary = build_missingness_condition_summary_report(
+        table,
+        design_entries=design_entries,
+    )
+    intensity_dependence = build_missingness_intensity_dependence_report(table)
     mechanism_profile = build_missingness_mechanism_profile_report(
         table,
         design_entries=design_entries,
@@ -264,6 +279,9 @@ def build_quant_missingness_robustness_report(
         entity_level=entity_level,
         normalization_method=normalization_method,
         missing_value_summary=missingness,
+        missingness_entity_summary=entity_summary,
+        missingness_condition_summary=condition_summary,
+        missingness_intensity_dependence=intensity_dependence,
         mechanism_profile=mechanism_profile,
         decision_readiness=readiness,
         sparse_biology_candidate_count=sparse_count,

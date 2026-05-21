@@ -189,6 +189,9 @@ def test_quant_missingness_robustness_report_surfaces_sparse_and_technical_patte
 
     assert report.sparse_biology_candidate_count >= 1
     assert report.technical_failure_count >= 1
+    assert report.missingness_entity_summary.entries
+    assert report.missingness_condition_summary.entries
+    assert report.missingness_intensity_dependence.plot_points
     assert report.decision_readiness.readiness_state.value in {
         "decision_grade",
         "review_grade",

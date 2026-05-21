@@ -241,8 +241,9 @@ def build_missingness_intensity_dependence_report(
             dtype=float,
         )
         y = np.array([point.missing_fraction for point in ordered_points], dtype=float)
-        correlation = float(np.corrcoef(x, y)[0, 1])
-        trend_correlation = correlation if math.isfinite(correlation) else None
+        if np.std(x) > 0.0 and np.std(y) > 0.0:
+            correlation = float(np.corrcoef(x, y)[0, 1])
+            trend_correlation = correlation if math.isfinite(correlation) else None
     detected = (
         trend_correlation is not None
         and trend_correlation <= -0.5

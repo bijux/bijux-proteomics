@@ -16,6 +16,9 @@ from bijux_proteomics.quantification import (
     LabelFreeProvenanceBundle,
     LabelFreeQuantTable,
     MissingChannelPolicy,
+    MissingnessConditionSummaryReport,
+    MissingnessEntitySummaryReport,
+    MissingnessIntensityDependenceReport,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
     MultiplexNormalizationPolicy,
@@ -29,6 +32,9 @@ from bijux_proteomics.quantification import (
     build_label_based_quant_bundle,
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
+    build_missingness_condition_summary_report,
+    build_missingness_entity_summary_report,
+    build_missingness_intensity_dependence_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -1099,6 +1105,9 @@ class QuantReviewBundle(JsonModel):
     rollup_strategy_comparison: ProteinRollupStrategyComparisonReport
     effect_size_da_report: EffectSizeFirstDaReport | None = None
     missingness_profile: MissingnessMechanismProfileReport
+    missingness_entity_summary: MissingnessEntitySummaryReport
+    missingness_condition_summary: MissingnessConditionSummaryReport
+    missingness_intensity_dependence: MissingnessIntensityDependenceReport
     qc_report: ReplicateAndBatchQcReport
     decision_readiness: QuantDecisionReadinessReport
     evidence_pointers: tuple[str, ...] = Field(default_factory=tuple)
@@ -1148,6 +1157,16 @@ def build_quant_review_bundle(
         normalized_table,
         design_entries=design_entries,
     )
+    missingness_entity_summary = build_missingness_entity_summary_report(
+        normalized_table
+    )
+    missingness_condition_summary = build_missingness_condition_summary_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
+    missingness_intensity_dependence = build_missingness_intensity_dependence_report(
+        normalized_table
+    )
     qc_report = build_replicate_and_batch_qc_report(
         normalized_table,
         design_entries=design_entries,
@@ -1183,6 +1202,9 @@ def build_quant_review_bundle(
         "quant_review_bundle.normalization_comparison",
         "rollup_strategy_comparison.entries",
         "missingness_profile.entries",
+        "missingness_entity_summary.entries",
+        "missingness_condition_summary.entries",
+        "missingness_intensity_dependence.plot_points",
         "replicate_batch_qc.outlier_samples",
         "quant_decision_readiness",
     )
@@ -1194,6 +1216,9 @@ def build_quant_review_bundle(
         rollup_strategy_comparison=rollup_strategy,
         effect_size_da_report=da_report,
         missingness_profile=missingness,
+        missingness_entity_summary=missingness_entity_summary,
+        missingness_condition_summary=missingness_condition_summary,
+        missingness_intensity_dependence=missingness_intensity_dependence,
         qc_report=qc_report,
         decision_readiness=decision_readiness,
         evidence_pointers=evidence_pointers,
