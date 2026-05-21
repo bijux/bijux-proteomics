@@ -480,6 +480,9 @@ class QuantArtifactBundle(JsonModel):
     document_schema: DocumentSchema
     matrix_export: QuantMatrixExport
     missing_value_summary: MissingValueSummaryReport
+    missingness_entity_summary: MissingnessEntitySummaryReport | None = None
+    missingness_condition_summary: MissingnessConditionSummaryReport | None = None
+    missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None
     reproducibility_manifest: QuantReproducibilityManifest
     normalization_comparison_report: NormalizationComparisonReport | None = None
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None
@@ -1882,6 +1885,9 @@ def build_quant_artifact_bundle(
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
     missing_value_policy: MissingValueSummaryPolicy | None = None,
+    missingness_entity_summary: MissingnessEntitySummaryReport | None = None,
+    missingness_condition_summary: MissingnessConditionSummaryReport | None = None,
+    missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
     differential_abundance_report: DifferentialAbundanceReport | None = None,
@@ -1901,6 +1907,9 @@ def build_quant_artifact_bundle(
             table,
             policy=missing_value_policy,
         ),
+        missingness_entity_summary=missingness_entity_summary,
+        missingness_condition_summary=missingness_condition_summary,
+        missingness_intensity_dependence=missingness_intensity_dependence,
         reproducibility_manifest=build_quant_reproducibility_manifest(table),
         normalization_comparison_report=normalization_comparison_report,
         normalization_strategy_report=normalization_strategy_report,

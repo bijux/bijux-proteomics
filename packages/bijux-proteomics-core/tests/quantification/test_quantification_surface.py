@@ -41,6 +41,9 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
     build_missing_data_mechanism_report,
+    build_missingness_condition_summary_report,
+    build_missingness_entity_summary_report,
+    build_missingness_intensity_dependence_report,
     build_multiplex_channel_balance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -688,6 +691,14 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
             top_n=2,
         )
     )
+    missingness_entity_summary = build_missingness_entity_summary_report(table)
+    missingness_condition_summary = build_missingness_condition_summary_report(
+        table,
+        design_entries=design_report.accepted_entries,
+    )
+    missingness_intensity_dependence = build_missingness_intensity_dependence_report(
+        table
+    )
     comparison = build_normalization_comparison_report(
         build_label_free_intensity_table(
             feature_report.accepted_records,
@@ -701,6 +712,9 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     bundle = build_quant_artifact_bundle(
         table,
         design_entries=design_report.accepted_entries,
+        missingness_entity_summary=missingness_entity_summary,
+        missingness_condition_summary=missingness_condition_summary,
+        missingness_intensity_dependence=missingness_intensity_dependence,
         normalization_comparison_report=comparison,
         differential_abundance_report=differential,
         normalization_strategy_report=strategy,
@@ -711,6 +725,9 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.matrix_export.rows
     assert bundle.reproducibility_manifest.reproducibility_hash
     assert bundle.normalization_comparison_report is not None
+    assert bundle.missingness_entity_summary is not None
+    assert bundle.missingness_condition_summary is not None
+    assert bundle.missingness_intensity_dependence is not None
 
     output_path = _quant_fixture("quant_artifact_bundle.json")
     try:

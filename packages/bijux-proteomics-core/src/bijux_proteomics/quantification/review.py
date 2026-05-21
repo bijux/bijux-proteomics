@@ -1136,9 +1136,26 @@ def build_quant_review_bundle(
         peptide_table,
         normalized_table,
     )
+    missingness_entity_summary = build_missingness_entity_summary_report(
+        normalized_table
+    )
+    missingness_condition_summary = build_missingness_condition_summary_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
+    missingness_intensity_dependence = build_missingness_intensity_dependence_report(
+        normalized_table
+    )
+    missingness = build_missingness_mechanism_profile_report(
+        normalized_table,
+        design_entries=design_entries,
+    )
     artifact_bundle = build_quant_artifact_bundle(
         normalized_table,
         design_entries=design_entries,
+        missingness_entity_summary=missingness_entity_summary,
+        missingness_condition_summary=missingness_condition_summary,
+        missingness_intensity_dependence=missingness_intensity_dependence,
         normalization_comparison_report=normalization_comparison,
         normalization_strategy_report=build_normalization_strategy_comparison_report(
             peptide_table
@@ -1153,20 +1170,6 @@ def build_quant_review_bundle(
         peptide_table
     )
     rollup_strategy = build_protein_rollup_strategy_comparison_report(records)
-    missingness = build_missingness_mechanism_profile_report(
-        normalized_table,
-        design_entries=design_entries,
-    )
-    missingness_entity_summary = build_missingness_entity_summary_report(
-        normalized_table
-    )
-    missingness_condition_summary = build_missingness_condition_summary_report(
-        normalized_table,
-        design_entries=design_entries,
-    )
-    missingness_intensity_dependence = build_missingness_intensity_dependence_report(
-        normalized_table
-    )
     qc_report = build_replicate_and_batch_qc_report(
         normalized_table,
         design_entries=design_entries,
