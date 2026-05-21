@@ -153,6 +153,8 @@ def build_dia_workflow_scientific_support_report(
     expected_transition_precursor_count: int,
     protein_group_count: int,
     expected_protein_group_count: int,
+    sample_resolved_protein_count: int,
+    expected_sample_resolved_protein_count: int,
     ion_mobility_observed_count: int,
     ion_mobility_expected_count: int,
     library_matched_peptide_count: int,
@@ -171,6 +173,10 @@ def build_dia_workflow_scientific_support_report(
         expected_transition_precursor_count,
     )
     protein_fraction = _fraction(protein_group_count, expected_protein_group_count)
+    protein_matrix_fraction = _fraction(
+        sample_resolved_protein_count,
+        expected_sample_resolved_protein_count,
+    )
     ion_mobility_fraction = _fraction(
         ion_mobility_observed_count,
         ion_mobility_expected_count,
@@ -200,7 +206,11 @@ def build_dia_workflow_scientific_support_report(
         partial_threshold=0.7,
     )
     protein_tier = _tier_from_fraction(
-        fraction=min(protein_fraction, library_coverage_fraction),
+        fraction=min(
+            protein_fraction,
+            protein_matrix_fraction,
+            library_coverage_fraction,
+        ),
         supported_threshold=0.8,
         partial_threshold=0.5,
     )
@@ -255,11 +265,15 @@ def build_dia_workflow_scientific_support_report(
         DiaWorkflowSupportTierEntry(
             surface="protein_level_evidence",
             support_tier=protein_tier,
-            observed_fraction=min(protein_fraction, library_coverage_fraction),
+            observed_fraction=min(
+                protein_fraction,
+                protein_matrix_fraction,
+                library_coverage_fraction,
+            ),
             supported_threshold=0.8,
             partial_threshold=0.5,
             detail=(
-                "protein-level evidence is downgraded whenever library coverage collapses even if imported precursors still look healthy"
+                "protein-level evidence is downgraded whenever protein-by-sample matrix coverage or library coverage collapses even if imported precursors still look healthy"
             ),
         ),
         DiaWorkflowSupportTierEntry(
@@ -280,7 +294,7 @@ def build_dia_workflow_scientific_support_report(
         absent_expected_peptide_fraction=absent_expected_fraction,
         partial_support_definition=(
             "partial DIA support means imported evidence remains reviewable, but one or more realism pressures "
-            "such as incomplete library coverage, weak transition retention, missing ion-mobility evidence, or absent expected peptides "
+            "such as incomplete library coverage, weak transition retention, weak protein-matrix coverage, missing ion-mobility evidence, or absent expected peptides "
             "still block strong biological interpretation"
         ),
         ready_for_biological_interpretation=(

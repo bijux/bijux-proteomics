@@ -28,6 +28,8 @@ def test_dia_pressure_corpus_report_keeps_library_conditioning_visible() -> None
         expected_transition_precursor_count=100,
         protein_group_count=61,
         expected_protein_group_count=100,
+        sample_resolved_protein_count=58,
+        expected_sample_resolved_protein_count=100,
         ion_mobility_observed_count=54,
         ion_mobility_expected_count=100,
         library_matched_peptide_count=81,

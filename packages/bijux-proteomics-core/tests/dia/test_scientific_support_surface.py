@@ -19,6 +19,8 @@ def test_build_dia_workflow_scientific_support_report_separates_tiers() -> None:
         expected_transition_precursor_count=100,
         protein_group_count=61,
         expected_protein_group_count=100,
+        sample_resolved_protein_count=58,
+        expected_sample_resolved_protein_count=100,
         ion_mobility_observed_count=54,
         ion_mobility_expected_count=100,
         library_matched_peptide_count=81,
