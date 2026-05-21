@@ -24,6 +24,11 @@ def build_imputation_report(
 ) -> ImputationReport:
     """Build a stable ledger of values introduced by imputation."""
     _validate_imputation_pair(before, after)
+    knn_neighbors = (
+        _knn_neighbor_lookup(before)
+        if after.imputation_method is ImputationMethod.KNN
+        else {}
+    )
     before_lookup = {
         (value.entity_id, value.sample_id): value for value in before.values
     }
@@ -38,6 +43,7 @@ def build_imputation_report(
                     sample_id=value.sample_id,
                     original_missing_value_kind=prior.missing_value_kind,
                     imputed_abundance=float(value.abundance),
+                    neighbor_entity_ids=knn_neighbors.get(key, ()),
                 )
             )
     return ImputationReport(
@@ -65,11 +71,87 @@ def impute_label_free_table(
         return table.model_copy(update={"imputation_method": method})
     if method is ImputationMethod.LOW_INTENSITY:
         return _low_intensity_imputed_table(table)
+    if method is ImputationMethod.KNN:
+        return _knn_imputed_table(table)
     raise ValueError(f"unsupported imputation method: {method.value}")
 
 
 def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
     """Impute absent low-signal intensities from the lower tail of each sample."""
+    matrix, sample_ids, _, sample_index, _ = _table_grid(table)
+    sample_fill_values = _sample_low_intensity_fill_values(
+        matrix,
+        sample_ids,
+        sample_index,
+    )
+    return _rebuild_imputed_table(
+        table,
+        fill_lookup={
+            (value.entity_id, value.sample_id): sample_fill_values[value.sample_id]
+            for value in table.values
+            if value.abundance is None
+            and value.missing_value_kind
+            in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
+        },
+        method=ImputationMethod.LOW_INTENSITY,
+    )
+
+
+def _knn_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
+    """Impute missing abundances from nearby entity profiles within each sample."""
+    (
+        matrix,
+        sample_ids,
+        entity_ids,
+        sample_index,
+        entity_index,
+    ) = _table_grid(table)
+    sample_fill_values = _sample_low_intensity_fill_values(
+        matrix,
+        sample_ids,
+        sample_index,
+    )
+    fill_lookup: dict[tuple[str, str], float] = {}
+    for value in table.values:
+        if value.abundance is not None or value.missing_value_kind not in {
+            MissingValueKind.NOT_OBSERVED,
+            MissingValueKind.FILTERED,
+        }:
+            continue
+        row_index = entity_index[value.entity_id]
+        col_index = sample_index[value.sample_id]
+        neighbors = _select_knn_neighbors(
+            matrix,
+            entity_ids=entity_ids,
+            target_row=row_index,
+            target_col=col_index,
+        )
+        if neighbors:
+            weights = np.array(
+                [1.0 / max(distance, 1e-6) for _, distance in neighbors],
+                dtype=float,
+            )
+            abundances = np.array(
+                [matrix[entity_index[entity_id], col_index] for entity_id, _ in neighbors],
+                dtype=float,
+            )
+            fill_lookup[(value.entity_id, value.sample_id)] = float(
+                np.average(abundances, weights=weights)
+            )
+            continue
+        fill_lookup[(value.entity_id, value.sample_id)] = sample_fill_values[
+            value.sample_id
+        ]
+    return _rebuild_imputed_table(
+        table,
+        fill_lookup=fill_lookup,
+        method=ImputationMethod.KNN,
+    )
+
+
+def _table_grid(
+    table: LabelFreeQuantTable,
+) -> tuple[np.ndarray, list[str], list[str], dict[str, int], dict[str, int]]:
     sample_ids = list(table.sample_ids)
     entity_ids = list(table.entity_ids)
     sample_index = {sample_id: index for index, sample_id in enumerate(sample_ids)}
@@ -81,6 +163,14 @@ def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTa
         matrix[entity_index[value.entity_id], sample_index[value.sample_id]] = float(
             value.abundance
         )
+    return matrix, sample_ids, entity_ids, sample_index, entity_index
+
+
+def _sample_low_intensity_fill_values(
+    matrix: np.ndarray,
+    sample_ids: list[str],
+    sample_index: dict[str, int],
+) -> dict[str, float]:
     sample_fill_values: dict[str, float] = {}
     finite_positive = matrix[np.isfinite(matrix) & (matrix > 0.0)]
     global_floor = (
@@ -96,7 +186,15 @@ def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTa
             continue
         fill_value = max(float(np.nanpercentile(positives, 5.0)) * 0.5, 1e-6)
         sample_fill_values[sample_id] = fill_value
+    return sample_fill_values
 
+
+def _rebuild_imputed_table(
+    table: LabelFreeQuantTable,
+    *,
+    fill_lookup: dict[tuple[str, str], float],
+    method: ImputationMethod,
+) -> LabelFreeQuantTable:
     rebuilt_values: list[QuantValue] = []
     for value in table.values:
         if value.abundance is not None:
@@ -108,15 +206,93 @@ def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTa
         ):
             rebuilt_values.append(value)
             continue
-        fill_value = sample_fill_values[value.sample_id]
+        fill_value = fill_lookup[(value.entity_id, value.sample_id)]
         rebuilt_values.append(
             value.model_copy(update={"abundance": max(fill_value, 0.0)})
         )
     return table.model_copy(
         update={
             "values": tuple(rebuilt_values),
-            "imputation_method": ImputationMethod.LOW_INTENSITY,
+            "imputation_method": method,
         }
+    )
+
+
+def _knn_neighbor_lookup(
+    table: LabelFreeQuantTable,
+) -> dict[tuple[str, str], tuple[str, ...]]:
+    matrix, _, entity_ids, sample_index, entity_index = _table_grid(table)
+    neighbors: dict[tuple[str, str], tuple[str, ...]] = {}
+    for value in table.values:
+        if value.abundance is not None or value.missing_value_kind not in {
+            MissingValueKind.NOT_OBSERVED,
+            MissingValueKind.FILTERED,
+        }:
+            continue
+        selected = _select_knn_neighbors(
+            matrix,
+            entity_ids=entity_ids,
+            target_row=entity_index[value.entity_id],
+            target_col=sample_index[value.sample_id],
+        )
+        neighbors[(value.entity_id, value.sample_id)] = tuple(
+            entity_id for entity_id, _ in selected
+        )
+    return neighbors
+
+
+def _select_knn_neighbors(
+    matrix: np.ndarray,
+    *,
+    entity_ids: list[str],
+    target_row: int,
+    target_col: int,
+    max_neighbors: int = 3,
+) -> tuple[tuple[str, float], ...]:
+    target_row_values = matrix[target_row, :]
+    candidates: list[tuple[int, float, str]] = []
+    for candidate_row, entity_id in enumerate(entity_ids):
+        if candidate_row == target_row or np.isnan(matrix[candidate_row, target_col]):
+            continue
+        candidate_values = matrix[candidate_row, :]
+        shared = np.isfinite(target_row_values) & np.isfinite(candidate_values)
+        shared[target_col] = False
+        overlap_count = int(np.count_nonzero(shared))
+        if overlap_count > 0:
+            distance = float(
+                np.sqrt(
+                    np.mean(
+                        np.square(
+                            np.log2(target_row_values[shared] + 1.0)
+                            - np.log2(candidate_values[shared] + 1.0)
+                        )
+                    )
+                )
+            )
+        else:
+            target_profile = target_row_values[
+                np.isfinite(target_row_values)
+                & (np.arange(target_row_values.size) != target_col)
+            ]
+            candidate_profile = candidate_values[
+                np.isfinite(candidate_values)
+                & (np.arange(candidate_values.size) != target_col)
+            ]
+            if target_profile.size == 0 or candidate_profile.size == 0:
+                continue
+            distance = abs(
+                float(np.median(np.log2(target_profile + 1.0)))
+                - float(np.median(np.log2(candidate_profile + 1.0)))
+            )
+        candidates.append((overlap_count, distance, entity_id))
+    if not candidates:
+        return ()
+    candidates.sort(
+        key=lambda item: (0 if item[0] > 0 else 1, item[1], -item[0], item[2])
+    )
+    return tuple(
+        (entity_id, distance)
+        for overlap_count, distance, entity_id in candidates[:max_neighbors]
     )
 
 

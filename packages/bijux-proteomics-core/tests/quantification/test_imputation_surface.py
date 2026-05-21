@@ -136,3 +136,79 @@ def test_low_intensity_imputation_fills_missing_abundances_and_preserves_ledger(
     assert by_cell[("PEPC", "s2")].original_missing_value_kind is (
         MissingValueKind.FILTERED
     )
+
+
+def test_knn_imputation_uses_nearest_entity_profiles_and_reports_neighbors() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="imp-knn-001",
+            sample_id="s1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=10.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-knn-002",
+            sample_id="s2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=20.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-knn-003",
+            sample_id="s3",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=None,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-knn-004",
+            sample_id="s1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=11.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-knn-005",
+            sample_id="s2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=19.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-knn-006",
+            sample_id="s3",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=30.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    imputed = impute_label_free_table(table, method=ImputationMethod.KNN)
+    report = build_imputation_report(table, imputed)
+    lookup = {(value.entity_id, value.sample_id): value for value in imputed.values}
+
+    assert imputed.imputation_method is ImputationMethod.KNN
+    assert lookup[("PEPA", "s3")].abundance == 30.0
+    assert report.method is ImputationMethod.KNN
+    assert report.imputed_value_count == 1
+    assert report.entries[0].entity_id == "PEPA"
+    assert report.entries[0].sample_id == "s3"
+    assert report.entries[0].neighbor_entity_ids == ("PEPB",)
