@@ -7,14 +7,19 @@ from __future__ import annotations
 
 import numpy as np
 
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     ImputationEntry,
     ImputationMethod,
     ImputationReport,
+    ImputationSensitivityEntry,
+    ImputationSensitivityReport,
     LabelFreeQuantTable,
     MissingValueKind,
     QuantMeasureKind,
     QuantValue,
+    apply_benjamini_hochberg,
+    build_differential_abundance_report,
 )
 
 
@@ -74,6 +79,88 @@ def impute_label_free_table(
     if method is ImputationMethod.KNN:
         return _knn_imputed_table(table)
     raise ValueError(f"unsupported imputation method: {method.value}")
+
+
+def build_imputation_sensitivity_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    methods: tuple[ImputationMethod, ...] = (
+        ImputationMethod.NONE,
+        ImputationMethod.LOW_INTENSITY,
+        ImputationMethod.KNN,
+    ),
+) -> ImputationSensitivityReport:
+    """Compare downstream differential behavior across imputation policies."""
+    entries: list[ImputationSensitivityEntry] = []
+    primary_narratives: set[tuple[str | None, str | None]] = set()
+    resolved_condition_a = condition_a
+    resolved_condition_b = condition_b
+    for method in methods:
+        try:
+            imputed = impute_label_free_table(table, method=method)
+            imputation_report = build_imputation_report(table, imputed)
+            differential = apply_benjamini_hochberg(
+                build_differential_abundance_report(
+                    imputed,
+                    design_entries,
+                    condition_a=condition_a,
+                    condition_b=condition_b,
+                )
+            )
+            resolved_condition_a = differential.condition_a
+            resolved_condition_b = differential.condition_b
+            top_entry = differential.entries[0] if differential.entries else None
+            top_direction = (
+                "up_in_condition_b"
+                if top_entry is not None and top_entry.log2_fold_change > 0.0
+                else "up_in_condition_a"
+                if top_entry is not None and top_entry.log2_fold_change < 0.0
+                else "neutral"
+                if top_entry is not None
+                else None
+            )
+            primary_narratives.add(
+                (None if top_entry is None else top_entry.entity_id, top_direction)
+            )
+            entries.append(
+                ImputationSensitivityEntry(
+                    method=method,
+                    supported=True,
+                    imputed_value_count=imputation_report.imputed_value_count,
+                    top_entity_id=None if top_entry is None else top_entry.entity_id,
+                    top_entity_direction=top_direction,
+                    top_entity_effect_size=(
+                        None
+                        if top_entry is None
+                        else top_entry.effect_size_cohens_d
+                    ),
+                    note=(
+                        "downstream differential abundance was recomputed under one explicit imputation policy"
+                    ),
+                )
+            )
+        except Exception as exc:  # noqa: BLE001
+            entries.append(
+                ImputationSensitivityEntry(
+                    method=method,
+                    supported=False,
+                    imputed_value_count=0,
+                    note=str(exc),
+                )
+            )
+    if resolved_condition_a is None or resolved_condition_b is None:
+        raise ValueError(
+            "imputation sensitivity requires resolvable contrast conditions"
+        )
+    return ImputationSensitivityReport(
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+        entries=tuple(entries),
+        primary_narrative_changed=len(primary_narratives) > 1,
+    )
 
 
 def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
@@ -306,5 +393,6 @@ def _validate_imputation_pair(
 
 __all__ = [
     "build_imputation_report",
+    "build_imputation_sensitivity_report",
     "impute_label_free_table",
 ]

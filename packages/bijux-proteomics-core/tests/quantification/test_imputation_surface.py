@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     ImputationMethod,
     MissingValueKind,
@@ -10,6 +11,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_imputation_report,
+    build_imputation_sensitivity_report,
     build_label_free_intensity_table,
     impute_label_free_table,
 )
@@ -212,3 +214,173 @@ def test_knn_imputation_uses_nearest_entity_profiles_and_reports_neighbors() -> 
     assert report.entries[0].entity_id == "PEPA"
     assert report.entries[0].sample_id == "s3"
     assert report.entries[0].neighbor_entity_ids == ("PEPB",)
+
+
+def test_imputation_sensitivity_report_compares_downstream_policies() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="imp-sens-001",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-002",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=120.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-003",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=None,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-004",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=None,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.NOT_OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-005",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=101.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-006",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=119.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-007",
+            sample_id="ctrl-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=30.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-008",
+            sample_id="ctrl-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=31.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-009",
+            sample_id="case-1",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=80.0,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-010",
+            sample_id="case-2",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=82.0,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-011",
+            sample_id="ctrl-1",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=78.0,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="imp-sens-012",
+            sample_id="ctrl-2",
+            peptide="PEPC",
+            canonical_peptide="PEPC",
+            intensity=79.0,
+            protein_refs=("P3",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_imputation_sensitivity_report(
+        table,
+        design,
+        condition_a="case",
+        condition_b="ctrl",
+    )
+    by_method = {entry.method: entry for entry in report.entries}
+
+    assert report.condition_a == "case"
+    assert report.condition_b == "ctrl"
+    assert tuple(by_method) == (
+        ImputationMethod.NONE,
+        ImputationMethod.LOW_INTENSITY,
+        ImputationMethod.KNN,
+    )
+    assert by_method[ImputationMethod.NONE].supported is True
+    assert by_method[ImputationMethod.NONE].imputed_value_count == 0
+    assert by_method[ImputationMethod.LOW_INTENSITY].imputed_value_count == 2
+    assert by_method[ImputationMethod.KNN].imputed_value_count == 2
+    assert by_method[ImputationMethod.LOW_INTENSITY].top_entity_id is not None
+    assert by_method[ImputationMethod.KNN].top_entity_id is not None
