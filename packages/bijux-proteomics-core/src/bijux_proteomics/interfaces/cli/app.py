@@ -234,6 +234,8 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
+    build_limma_compatible_quant_package,
+    build_msstats_compatible_input_report,
     build_quant_design_matrix_report,
     build_imputation_report,
     build_imputation_sensitivity_report,
@@ -252,6 +254,11 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_psms,
     build_replicate_and_batch_qc_report,
     build_spectral_count_table,
+    export_limma_assay_matrix_tsv,
+    export_limma_contrast_matrix_tsv,
+    export_limma_design_matrix_tsv,
+    export_limma_sample_annotations_tsv,
+    export_msstats_compatible_input_tsv,
     export_differential_abundance_tsv,
     export_quant_design_contrast_estimates_tsv,
     export_quant_design_matrix_tsv,
@@ -4384,6 +4391,31 @@ def infer_proteins_command(
     default=None,
 )
 @click.option(
+    "--limma-assay-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--limma-samples-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--limma-design-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--limma-contrasts-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--msstats-input-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--report-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
@@ -4421,6 +4453,11 @@ def quantify_command(
     design_matrix_tsv_out: Path | None,
     design_coefficients_tsv_out: Path | None,
     design_contrasts_tsv_out: Path | None,
+    limma_assay_tsv_out: Path | None,
+    limma_samples_tsv_out: Path | None,
+    limma_design_tsv_out: Path | None,
+    limma_contrasts_tsv_out: Path | None,
+    msstats_input_tsv_out: Path | None,
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -4490,6 +4527,8 @@ def quantify_command(
         replicate_qc = None
         design_matrix = None
         design_model_fit = None
+        limma_package = None
+        msstats_input_report = None
         differential = None
         differential_multi_condition = None
         if design_path is not None:
@@ -4512,6 +4551,18 @@ def quantify_command(
                 table,
                 design_matrix,
             )
+            if quant_measure is QuantMeasureKind.INTENSITY:
+                limma_package = build_limma_compatible_quant_package(
+                    table,
+                    design_entries,
+                    batch_field=design_batch_field,
+                    covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                    pairing_field=effective_pairing_field,
+                )
+                msstats_input_report = build_msstats_compatible_input_report(
+                    parse_report.accepted_records,
+                    design_entries,
+                )
             replicate_qc = build_replicate_and_batch_qc_report(
                 table,
                 design_entries=design_entries,
@@ -4599,6 +4650,39 @@ def quantify_command(
             design_model_fit,
             design_contrasts_tsv_out,
         )
+    if limma_assay_tsv_out is not None:
+        if limma_package is None:
+            raise click.ClickException(
+                "limma assay export requires intensity quantification with --design"
+            )
+        export_limma_assay_matrix_tsv(limma_package, limma_assay_tsv_out)
+    if limma_samples_tsv_out is not None:
+        if limma_package is None:
+            raise click.ClickException(
+                "limma sample export requires intensity quantification with --design"
+            )
+        export_limma_sample_annotations_tsv(limma_package, limma_samples_tsv_out)
+    if limma_design_tsv_out is not None:
+        if limma_package is None:
+            raise click.ClickException(
+                "limma design export requires intensity quantification with --design"
+            )
+        export_limma_design_matrix_tsv(limma_package, limma_design_tsv_out)
+    if limma_contrasts_tsv_out is not None:
+        if limma_package is None:
+            raise click.ClickException(
+                "limma contrast export requires intensity quantification with --design"
+            )
+        export_limma_contrast_matrix_tsv(limma_package, limma_contrasts_tsv_out)
+    if msstats_input_tsv_out is not None:
+        if msstats_input_report is None:
+            raise click.ClickException(
+                "msstats input export requires intensity quantification with --design"
+            )
+        export_msstats_compatible_input_tsv(
+            msstats_input_report,
+            msstats_input_tsv_out,
+        )
 
     payload = {
         "accepted_features": len(parse_report.accepted_records),
@@ -4642,6 +4726,14 @@ def quantify_command(
         "design_matrix": design_matrix.to_dict() if design_matrix is not None else None,
         "design_model_fit": (
             design_model_fit.to_dict() if design_model_fit is not None else None
+        ),
+        "limma_compatible_package": (
+            limma_package.to_dict() if limma_package is not None else None
+        ),
+        "msstats_compatible_input_report": (
+            msstats_input_report.to_dict()
+            if msstats_input_report is not None
+            else None
         ),
         "batch_effect": batch_effect.to_dict() if batch_effect is not None else None,
         "replicate_correlations": (
@@ -4693,6 +4785,29 @@ def quantify_command(
             "design_contrasts_tsv": (
                 str(design_contrasts_tsv_out)
                 if design_contrasts_tsv_out is not None
+                else None
+            ),
+            "limma_assay_tsv": (
+                str(limma_assay_tsv_out) if limma_assay_tsv_out is not None else None
+            ),
+            "limma_samples_tsv": (
+                str(limma_samples_tsv_out)
+                if limma_samples_tsv_out is not None
+                else None
+            ),
+            "limma_design_tsv": (
+                str(limma_design_tsv_out)
+                if limma_design_tsv_out is not None
+                else None
+            ),
+            "limma_contrasts_tsv": (
+                str(limma_contrasts_tsv_out)
+                if limma_contrasts_tsv_out is not None
+                else None
+            ),
+            "msstats_input_tsv": (
+                str(msstats_input_tsv_out)
+                if msstats_input_tsv_out is not None
                 else None
             ),
             "json_report": str(report_out or out_path)

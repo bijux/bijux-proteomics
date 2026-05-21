@@ -2932,6 +2932,16 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
                 "quantify.design_coefficients.tsv",
                 "--design-contrasts-tsv-out",
                 "quantify.design_contrasts.tsv",
+                "--limma-assay-tsv-out",
+                "quantify.limma_assay.tsv",
+                "--limma-samples-tsv-out",
+                "quantify.limma_samples.tsv",
+                "--limma-design-tsv-out",
+                "quantify.limma_design.tsv",
+                "--limma-contrasts-tsv-out",
+                "quantify.limma_contrasts.tsv",
+                "--msstats-input-tsv-out",
+                "quantify.msstats.tsv",
             ],
         )
 
@@ -2961,6 +2971,8 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["condition_clustering"]["condition_count"] == 2
         assert payload["design_matrix"]["columns"]
         assert payload["design_model_fit"]["coefficient_entries"]
+        assert payload["limma_compatible_package"]["sample_annotations"]
+        assert payload["msstats_compatible_input_report"]["rows"]
         assert payload["differential_abundance"]["condition_a"] == "control"
         assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
         assert payload["outputs"]["design_matrix_tsv"] == "quantify.design.tsv"
@@ -2972,10 +2984,23 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
             payload["outputs"]["design_contrasts_tsv"]
             == "quantify.design_contrasts.tsv"
         )
+        assert payload["outputs"]["limma_assay_tsv"] == "quantify.limma_assay.tsv"
+        assert payload["outputs"]["limma_samples_tsv"] == "quantify.limma_samples.tsv"
+        assert payload["outputs"]["limma_design_tsv"] == "quantify.limma_design.tsv"
+        assert (
+            payload["outputs"]["limma_contrasts_tsv"]
+            == "quantify.limma_contrasts.tsv"
+        )
+        assert payload["outputs"]["msstats_input_tsv"] == "quantify.msstats.tsv"
         assert Path("quantify.differential.tsv").exists()
         assert Path("quantify.design.tsv").exists()
         assert Path("quantify.design_coefficients.tsv").exists()
         assert Path("quantify.design_contrasts.tsv").exists()
+        assert Path("quantify.limma_assay.tsv").exists()
+        assert Path("quantify.limma_samples.tsv").exists()
+        assert Path("quantify.limma_design.tsv").exists()
+        assert Path("quantify.limma_contrasts.tsv").exists()
+        assert Path("quantify.msstats.tsv").exists()
         assert "P001\tcontrol\ttreatment" in Path(
             "quantify.differential.tsv"
         ).read_text(encoding="utf-8")
@@ -2987,6 +3012,21 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         ).read_text(encoding="utf-8")
         assert "P001\tcontrol_vs_treatment" in Path(
             "quantify.design_contrasts.tsv"
+        ).read_text(encoding="utf-8")
+        assert "entity_id\tC1\tC2\tT1\tT2" in Path(
+            "quantify.limma_assay.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
+            "quantify.limma_samples.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tpair_id" in Path(
+            "quantify.limma_design.tsv"
+        ).read_text(encoding="utf-8")
+        assert "coefficient_name\tcontrol_vs_treatment" in Path(
+            "quantify.limma_contrasts.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ProteinName\tPeptideSequence\tPrecursorCharge" in Path(
+            "quantify.msstats.tsv"
         ).read_text(encoding="utf-8")
         assert any(
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
