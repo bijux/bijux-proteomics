@@ -327,6 +327,7 @@ def build_normalization_policy_comparison_matrix_report(
             NormalizationMethod.TIC,
             NormalizationMethod.MEDIAN,
             NormalizationMethod.QUANTILE,
+            NormalizationMethod.VSN_LIKE,
         ),
     )
     score_by_method = {entry.method: entry.balance_score for entry in strategy.entries}
@@ -361,10 +362,10 @@ def build_normalization_policy_comparison_matrix_report(
         ),
         NormalizationPolicyComparisonEntry(
             policy=QuantNormalizationPolicyKind.VSN_LIKE,
-            supported=False,
-            mapped_method=None,
-            balance_score=None,
-            note="vsn-like normalization is not currently supported and remains an explicit gap",
+            supported=True,
+            mapped_method=NormalizationMethod.VSN_LIKE,
+            balance_score=score_by_method.get(NormalizationMethod.VSN_LIKE),
+            note="vsn-like normalization is supported through log-scale median centering",
         ),
         NormalizationPolicyComparisonEntry(
             policy=QuantNormalizationPolicyKind.REFERENCE_CHANNEL,

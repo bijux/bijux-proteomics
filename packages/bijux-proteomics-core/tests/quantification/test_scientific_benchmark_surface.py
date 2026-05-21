@@ -204,8 +204,8 @@ def test_quant_normalization_impact_benchmark_report_tracks_policy_drift() -> No
         condition_b="ctrl",
     )
 
-    assert len(report.entries) == 4
-    assert report.unsupported_policies
+    assert len(report.entries) == 5
+    assert report.unsupported_policies == ()
     supported = [entry for entry in report.entries if entry.supported]
     assert all(entry.top_entity_id is not None for entry in supported)
 

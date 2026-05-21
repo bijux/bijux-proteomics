@@ -67,6 +67,9 @@ def test_normalization_policy_comparison_matrix_reports_supported_and_gaps() -> 
 
     by_policy = {entry.policy: entry for entry in report.entries}
     assert by_policy[QuantNormalizationPolicyKind.MEDIAN].supported is True
-    assert by_policy[QuantNormalizationPolicyKind.VSN_LIKE].supported is False
+    assert by_policy[QuantNormalizationPolicyKind.VSN_LIKE].supported is True
+    assert by_policy[QuantNormalizationPolicyKind.VSN_LIKE].mapped_method.value == (
+        "vsn_like"
+    )
     assert by_policy[QuantNormalizationPolicyKind.REFERENCE_CHANNEL].supported is False
     assert report.recommended_supported_policy is not None

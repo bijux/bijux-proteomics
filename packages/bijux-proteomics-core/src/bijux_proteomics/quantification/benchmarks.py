@@ -292,9 +292,10 @@ def build_quant_normalization_impact_benchmark_report(
         tuple[QuantNormalizationPolicyKind, NormalizationMethod | None], ...
     ] = (
         (QuantNormalizationPolicyKind.NONE, NormalizationMethod.NONE),
+        (QuantNormalizationPolicyKind.TOTAL, NormalizationMethod.TIC),
         (QuantNormalizationPolicyKind.MEDIAN, NormalizationMethod.MEDIAN),
         (QuantNormalizationPolicyKind.QUANTILE, NormalizationMethod.QUANTILE),
-        (QuantNormalizationPolicyKind.VSN_LIKE, None),
+        (QuantNormalizationPolicyKind.VSN_LIKE, NormalizationMethod.VSN_LIKE),
     )
     entries: list[QuantNormalizationImpactEntry] = []
     supported_tops: list[tuple[str | None, str | None]] = []
