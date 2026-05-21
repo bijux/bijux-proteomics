@@ -2739,6 +2739,59 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
         )
 
 
+def test_diann_protein_matrix_command_emits_peptide_and_protein_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        shutil.copy(fixture_dir / "diann_report.tsv", "diann_report.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-protein-matrix",
+                "diann_report.tsv",
+                "--target-kind",
+                "protein_group",
+                "--shared-peptides",
+                "include",
+                "--summary-tsv-out",
+                "diann.protein.summary.tsv",
+                "--peptide-tsv-out",
+                "diann.peptide.matrix.tsv",
+                "--protein-tsv-out",
+                "diann.protein.matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["sample_ids"] == ["sample_A", "sample_B"]
+        assert payload["peptide_rollup_method"] == "max"
+        assert payload["target_kind"] == "protein_group"
+        assert payload["shared_peptide_policy"] == "include"
+        assert payload["protein_rollup_method"] == "sum"
+        assert payload["peptide_summary"]["peptide_row_count"] == 2
+        assert payload["protein_summary"]["protein_row_count"] == 2
+        assert payload["protein_summary"]["observed_cell_count"] == 3
+        assert payload["protein_rows"][0]["entity_id"] == "PG001"
+        assert payload["outputs"]["summary_tsv"] == "diann.protein.summary.tsv"
+        assert payload["outputs"]["peptide_tsv"] == "diann.peptide.matrix.tsv"
+        assert payload["outputs"]["protein_tsv"] == "diann.protein.matrix.tsv"
+        assert Path("diann.protein.summary.tsv").exists()
+        assert Path("diann.peptide.matrix.tsv").exists()
+        assert Path("diann.protein.matrix.tsv").exists()
+        assert "peptide_key\tpeptide_sequence\tmodified_peptide" in Path(
+            "diann.peptide.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "entity_id\ttarget_kind\tprotein_refs\tpeptide_count" in Path(
+            "diann.protein.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "source_name\ttarget_kind\tshared_peptide_policy\trollup_method" in (
+            Path("diann.protein.summary.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
