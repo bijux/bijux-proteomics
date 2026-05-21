@@ -27,7 +27,7 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert report.summary.union_protein_group_id_count == 3
     assert report.summary.union_protein_id_count == 4
     assert report.summary.flagged_run_count == 0
-    assert "identity burden visible per run" in report.note
+    assert "intensity distribution" in report.note
 
     first_run = report.run_entries[0]
     assert first_run.run_name == "raw_A"
@@ -38,6 +38,9 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert first_run.protein_id_count == 4
     assert first_run.observed_precursor_quantity_count == 4
     assert first_run.observed_protein_quantity_count == 3
+    assert first_run.median_log10_precursor_quantity is not None
+    assert first_run.precursor_missing_fraction == 0.0
+    assert first_run.protein_missing_fraction == 0.0
 
     weak_run = report.run_entries[2]
     assert weak_run.run_name == "raw_C"
@@ -45,6 +48,16 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert weak_run.precursor_key_count == 1
     assert weak_run.protein_group_id_count == 1
     assert weak_run.protein_id_count == 1
+    assert weak_run.precursor_missing_fraction == 0.75
+    assert weak_run.protein_missing_fraction == 0.75
+
+    intensity_distribution = {
+        (entry.run_name, entry.bucket): entry.count
+        for entry in report.intensity_distribution
+    }
+    assert intensity_distribution[("raw_A", "1e6+")] == 2
+    assert intensity_distribution[("raw_A", "1e5-1e6")] == 2
+    assert intensity_distribution[("raw_C", "<1e5")] == 1
 
 
 def test_build_diann_run_qc_report_respects_decoy_and_q_value_filters() -> None:

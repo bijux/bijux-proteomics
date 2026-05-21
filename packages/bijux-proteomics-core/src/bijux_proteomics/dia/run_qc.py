@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -34,7 +35,21 @@ class DiaRunQcRunEntry(JsonModel):
     protein_id_count: int = Field(..., ge=0)
     observed_precursor_quantity_count: int = Field(..., ge=0)
     observed_protein_quantity_count: int = Field(..., ge=0)
+    median_log10_precursor_quantity: float | None = None
+    precursor_missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    protein_missing_fraction: float = Field(..., ge=0.0, le=1.0)
     flagged: bool = False
+
+
+class DiaRunQcIntensityDistributionEntry(JsonModel):
+    """One run-specific precursor intensity distribution bucket."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    bucket: str = Field(..., min_length=1)
+    count: int = Field(..., ge=0)
 
 
 class DiaRunQcSummary(JsonModel):
@@ -57,6 +72,9 @@ class DiaRunQcReport(JsonModel):
 
     source_name: str = Field(default="DIA-NN", min_length=1)
     run_entries: tuple[DiaRunQcRunEntry, ...] = Field(default_factory=tuple)
+    intensity_distribution: tuple[DiaRunQcIntensityDistributionEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaRunQcSummary
     note: str = Field(..., min_length=1)
 
@@ -86,39 +104,77 @@ def build_dia_run_qc_report(
         protein_ref for row in protein_rows for protein_ref in row.protein_refs
     }
     run_entries: list[DiaRunQcRunEntry] = []
+    intensity_distribution: list[DiaRunQcIntensityDistributionEntry] = []
     for run_name in run_names:
         run_precursors = [row for row in precursor_rows if row.run_name == run_name]
         run_proteins = [row for row in protein_rows if row.run_name == run_name]
         sample_names = sorted({row.sample_name for row in run_precursors})
+        sample_name = sample_names[0] if sample_names else "unknown"
+        precursor_keys = {_stable_precursor_key(row) for row in run_precursors}
+        protein_ids = {
+            protein_ref for row in run_proteins for protein_ref in row.protein_refs
+        }
+        observed_precursor_quantities = [
+            row.precursor_quantity
+            for row in run_precursors
+            if row.precursor_quantity is not None
+        ]
+        median_log10_precursor_quantity = (
+            float(
+                sorted(
+                    math.log10(quantity)
+                    for quantity in observed_precursor_quantities
+                    if quantity > 0.0
+                )[len(observed_precursor_quantities) // 2]
+            )
+            if observed_precursor_quantities
+            else None
+        )
         run_entries.append(
             DiaRunQcRunEntry(
                 run_name=run_name,
-                sample_name=sample_names[0] if sample_names else "unknown",
+                sample_name=sample_name,
                 precursor_id_count=len({row.precursor_id for row in run_precursors}),
-                precursor_key_count=len(
-                    {_stable_precursor_key(row) for row in run_precursors}
-                ),
+                precursor_key_count=len(precursor_keys),
                 protein_group_id_count=len(
                     {row.protein_group_id for row in run_proteins}
                 ),
-                protein_id_count=len(
-                    {
-                        protein_ref
-                        for row in run_proteins
-                        for protein_ref in row.protein_refs
-                    }
-                ),
+                protein_id_count=len(protein_ids),
                 observed_precursor_quantity_count=sum(
                     row.precursor_quantity is not None for row in run_precursors
                 ),
                 observed_protein_quantity_count=sum(
                     row.protein_group_quantity is not None for row in run_proteins
                 ),
+                median_log10_precursor_quantity=median_log10_precursor_quantity,
+                precursor_missing_fraction=_fraction(
+                    len(union_precursor_keys) - len(precursor_keys),
+                    len(union_precursor_keys),
+                ),
+                protein_missing_fraction=_fraction(
+                    len(union_protein_ids) - len(protein_ids),
+                    len(union_protein_ids),
+                ),
             )
         )
+        for bucket, count in _intensity_distribution(observed_precursor_quantities).items():
+            intensity_distribution.append(
+                DiaRunQcIntensityDistributionEntry(
+                    run_name=run_name,
+                    sample_name=sample_name,
+                    bucket=bucket,
+                    count=count,
+                )
+            )
     sample_count = len({entry.sample_name for entry in run_entries})
     return DiaRunQcReport(
         run_entries=tuple(sorted(run_entries, key=lambda entry: entry.run_name)),
+        intensity_distribution=tuple(
+            sorted(
+                intensity_distribution,
+                key=lambda entry: (entry.run_name, entry.bucket),
+            )
+        ),
         summary=DiaRunQcSummary(
             run_count=len(run_entries),
             sample_count=sample_count,
@@ -128,7 +184,7 @@ def build_dia_run_qc_report(
             flagged_run_count=0,
         ),
         note=(
-            "run qc keeps precursor and protein identity burden visible per run before higher-order missingness, correlation, and outlier review are applied"
+            "run qc keeps precursor and protein identity burden, intensity distribution, and missingness visible per run before higher-order correlation and outlier review are applied"
         ),
     )
 
@@ -185,3 +241,29 @@ def _filtered_protein_rows(
 
 def _stable_precursor_key(row: DiaNnPrecursorReviewEntry) -> str:
     return f"{row.modified_peptide}|z{row.charge}|{row.protein_group_id}"
+
+
+def _fraction(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return min(1.0, max(0.0, numerator / denominator))
+
+
+def _intensity_distribution(
+    observed_precursor_quantities: list[float | None],
+) -> dict[str, int]:
+    distribution = {
+        "<1e5": 0,
+        "1e5-1e6": 0,
+        "1e6+": 0,
+    }
+    for quantity in observed_precursor_quantities:
+        if quantity is None:
+            continue
+        if quantity < 1.0e5:
+            distribution["<1e5"] += 1
+        elif quantity < 1.0e6:
+            distribution["1e5-1e6"] += 1
+        else:
+            distribution["1e6+"] += 1
+    return distribution
