@@ -430,6 +430,7 @@ class ReplicateAndBatchQcReport(JsonModel):
 
     replicate_correlation_count: int = Field(..., ge=0)
     flagged_batch_count: int = Field(..., ge=0)
+    sample_pca_report: SamplePcaReport | None = None
     outlier_samples: tuple[QcOutlierSampleEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
@@ -456,6 +457,33 @@ class ReplicateCvReport(JsonModel):
     entity_level: QuantEntityLevel
     high_cv_threshold: float = Field(..., ge=0.0)
     entries: tuple[ReplicateCvConditionEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class SamplePcaEntry(JsonModel):
+    """One sample projected into a compact principal-component QC space."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    batch: str | None = None
+    pc1: float
+    pc2: float
+    distance_from_global_centroid: float = Field(..., ge=0.0)
+    distance_from_condition_centroid: float = Field(..., ge=0.0)
+    outlier: bool
+
+
+class SamplePcaReport(JsonModel):
+    """Principal-component view over replicate structure and sample outliers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    explained_variance_ratio_pc1: float = Field(..., ge=0.0, le=1.0)
+    explained_variance_ratio_pc2: float = Field(..., ge=0.0, le=1.0)
+    entries: tuple[SamplePcaEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 

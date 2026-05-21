@@ -11,6 +11,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
     build_replicate_cv_report,
+    build_sample_pca_report,
 )
 
 
@@ -137,3 +138,152 @@ def test_replicate_cv_report_flags_unstable_condition_spread() -> None:
     assert by_condition["case"].high_cv_entity_count == 2
     assert by_condition["ctrl"].flagged is False
     assert by_condition["ctrl"].high_cv_entity_count == 0
+
+
+def test_sample_pca_report_surfaces_study_space_outlier() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="pca-001",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-002",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=105.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-003",
+            sample_id="case-3",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=800.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-004",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=40.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-005",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=42.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-006",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=120.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-007",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=118.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-008",
+            sample_id="case-3",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=920.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-009",
+            sample_id="ctrl-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=55.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="pca-010",
+            sample_id="ctrl-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=54.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-3",
+            condition="case",
+            replicate=3,
+            fraction=1,
+            spectra_file="case-3.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+            batch="b2",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+            batch="b2",
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_sample_pca_report(table, design)
+    by_sample = {entry.sample_id: entry for entry in report.entries}
+
+    assert report.explained_variance_ratio_pc1 > 0.5
+    assert by_sample["case-3"].outlier is True
+    assert by_sample["case-1"].outlier is False
