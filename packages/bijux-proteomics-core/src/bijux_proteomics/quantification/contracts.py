@@ -67,6 +67,14 @@ class NormalizationMethod(StrEnum):
     VSN_LIKE = "vsn_like"
 
 
+class ImputationMethod(StrEnum):
+    """Supported label-free missing-value imputation methods."""
+
+    NONE = "none"
+    LOW_INTENSITY = "low_intensity"
+    KNN = "knn"
+
+
 class QuantAssessmentDisposition(StrEnum):
     """Whether a quantification report changes behavior or remains advisory."""
 
@@ -480,6 +488,8 @@ class QuantArtifactBundle(JsonModel):
     document_schema: DocumentSchema
     matrix_export: QuantMatrixExport
     missing_value_summary: MissingValueSummaryReport
+    imputation_report: ImputationReport | None = None
+    imputation_sensitivity_report: ImputationSensitivityReport | None = None
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None
     missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None
@@ -498,6 +508,7 @@ class LabelFreeQuantTable(JsonModel):
     measure_kind: QuantMeasureKind
     aggregation_method: QuantRollupMethod
     normalization_method: NormalizationMethod = NormalizationMethod.NONE
+    imputation_method: ImputationMethod = ImputationMethod.NONE
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     values: tuple[QuantValue, ...] = Field(default_factory=tuple)
@@ -530,6 +541,16 @@ class QuantNormalizationProvenance(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class QuantImputationProvenance(JsonModel):
+    """Imputation context preserved alongside exported quant matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    imputation_method: ImputationMethod = ImputationMethod.NONE
+    imputed_value_count: int = Field(default=0, ge=0)
+    note: str = Field(..., min_length=1)
+
+
 class QuantMatrixExportRow(JsonModel):
     """One stable export row from a quantification matrix."""
 
@@ -557,6 +578,7 @@ class QuantMatrixExport(JsonModel):
     aggregation_method: QuantRollupMethod
     rows: tuple[QuantMatrixExportRow, ...] = Field(default_factory=tuple)
     normalization_provenance: QuantNormalizationProvenance
+    imputation_provenance: QuantImputationProvenance
 
 
 class ProteinQuantRollupEvidenceEntry(JsonModel):
@@ -593,6 +615,55 @@ class NormalizationComparisonReport(JsonModel):
     normalization_factors: dict[str, float] = Field(default_factory=dict)
     before: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
     after: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+
+
+class ImputationEntry(JsonModel):
+    """One imputed abundance with explicit source missingness context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    original_missing_value_kind: MissingValueKind
+    imputed_abundance: float = Field(..., ge=0.0)
+    neighbor_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class ImputationReport(JsonModel):
+    """Explicit ledger of values introduced by one imputation method."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    method: ImputationMethod
+    entries: tuple[ImputationEntry, ...] = Field(default_factory=tuple)
+    imputed_value_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+class ImputationSensitivityEntry(JsonModel):
+    """Downstream DA summary for one imputation policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: ImputationMethod
+    supported: bool
+    imputed_value_count: int = Field(..., ge=0)
+    top_entity_id: str | None = None
+    top_entity_direction: str | None = None
+    top_entity_effect_size: float | None = None
+    note: str = Field(..., min_length=1)
+
+
+class ImputationSensitivityReport(JsonModel):
+    """Comparison of downstream DA behavior across imputation methods."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    entries: tuple[ImputationSensitivityEntry, ...] = Field(default_factory=tuple)
+    primary_narrative_changed: bool
 
 
 class MissingValueSummaryEntry(JsonModel):
@@ -807,6 +878,7 @@ class DifferentialAbundanceReport(JsonModel):
 
     entity_level: QuantEntityLevel
     normalization_method: NormalizationMethod
+    imputation_method: ImputationMethod = ImputationMethod.NONE
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     replicate_policy: DifferentialReplicatePolicy = Field(
@@ -1157,6 +1229,14 @@ def build_quant_matrix_export(
         if table.normalization_method is NormalizationMethod.NONE
         else "table preserves explicit sample normalization factors"
     )
+    imputation_note = (
+        "table preserves only observed abundances"
+        if table.imputation_method is ImputationMethod.NONE
+        else "table includes explicit imputed abundances for downstream statistical use"
+    )
+    imputed_value_count = sum(
+        1 for value in table.values if value.abundance is not None and value.missing_value_kind is not MissingValueKind.OBSERVED
+    )
     return QuantMatrixExport(
         entity_level=table.entity_level,
         measure_kind=table.measure_kind,
@@ -1171,6 +1251,11 @@ def build_quant_matrix_export(
             normalization_method=table.normalization_method,
             normalization_factors=table.normalization_factors,
             note=note,
+        ),
+        imputation_provenance=QuantImputationProvenance(
+            imputation_method=table.imputation_method,
+            imputed_value_count=imputed_value_count,
+            note=imputation_note,
         ),
     )
 
@@ -2669,6 +2754,7 @@ def build_differential_abundance_report(
     return DifferentialAbundanceReport(
         entity_level=table.entity_level,
         normalization_method=table.normalization_method,
+        imputation_method=table.imputation_method,
         condition_a=condition_a,
         condition_b=condition_b,
         replicate_policy=active_policy,
