@@ -66,6 +66,7 @@ class SpectralLibraryEntry(JsonModel):
     peptide_sequence: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     modification_count: int = Field(..., ge=0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     spectrum: SpectrumModel
 
@@ -661,6 +662,7 @@ def _parse_msp_entry(
             parsed_peptide, registry=registry
         ),
         modification_count=len(parsed_peptide.modifications),
+        protein_refs=_parse_library_protein_refs(comment_fields),
         target_decoy_label=_parse_explicit_decoy_label(comment_fields),
         spectrum=spectrum,
     )
@@ -734,6 +736,7 @@ def _build_library_entry_from_mgf_spectrum(
             parsed_peptide, registry=registry
         ),
         modification_count=len(parsed_peptide.modifications),
+        protein_refs=_parse_library_protein_refs(header_fields),
         target_decoy_label=_parse_explicit_decoy_label(header_fields),
         spectrum=spectrum,
     )
@@ -833,6 +836,25 @@ def _parse_explicit_decoy_label(fields: dict[str, str]) -> TargetDecoyLabel:
         if value in {"0", "false", "no", "target"}:
             return TargetDecoyLabel.TARGET
     return TargetDecoyLabel.UNKNOWN
+
+
+def _parse_library_protein_refs(fields: dict[str, str]) -> tuple[str, ...]:
+    for key in ("proteins", "protein_ids", "protein", "protein_id"):
+        value = fields.get(key)
+        if value is None:
+            continue
+        refs = tuple(
+            sorted(
+                {
+                    token.strip()
+                    for token in value.replace(",", ";").split(";")
+                    if token.strip()
+                }
+            )
+        )
+        if refs:
+            return refs
+    return ()
 
 
 def _resolve_search_strategy(

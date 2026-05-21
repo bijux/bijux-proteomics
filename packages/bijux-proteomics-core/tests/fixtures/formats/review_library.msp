@@ -1,13 +1,13 @@
 Name: PEPTIDE/2
 MW: 998.4
-Comment: Parent=500.2
+Comment: Parent=500.2 Proteins=P11111
 Num peaks: 2
 100.0 1500.0
 250.0 800.0
 
 Name: PEPM[Oxidation]TIDE/2
 MW: 1014.4
-Comment: Parent=508.2
+Comment: Parent=508.2 Proteins=P22222
 Num peaks: 2
 110.0 1200.0
 260.0 640.0
