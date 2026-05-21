@@ -251,6 +251,8 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_psms,
     build_replicate_and_batch_qc_report,
     build_spectral_count_table,
+    export_differential_abundance_tsv,
+    export_multi_condition_differential_abundance_tsv,
     impute_label_free_table,
     normalize_label_free_table,
     parse_ms1_feature_table,
@@ -4343,6 +4345,11 @@ def infer_proteins_command(
 @click.option("--condition-a", default=None)
 @click.option("--condition-b", default=None)
 @click.option(
+    "--differential-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--report-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
@@ -4373,6 +4380,7 @@ def quantify_command(
     design_path: Path | None,
     condition_a: str | None,
     condition_b: str | None,
+    differential_tsv_out: Path | None,
     report_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -4504,6 +4512,19 @@ def quantify_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    if differential_tsv_out is not None:
+        if differential is not None:
+            export_differential_abundance_tsv(differential, differential_tsv_out)
+        elif differential_multi_condition is not None:
+            export_multi_condition_differential_abundance_tsv(
+                differential_multi_condition,
+                differential_tsv_out,
+            )
+        else:
+            raise click.ClickException(
+                "differential tsv export requires a resolvable contrast or at least two conditions"
+            )
+
     payload = {
         "accepted_features": len(parse_report.accepted_records),
         "rejected_features": len(parse_report.rejected_rows),
@@ -4574,6 +4595,16 @@ def quantify_command(
         "differential_abundance": differential.to_dict()
         if differential is not None
         else None,
+        "outputs": {
+            "differential_tsv": (
+                str(differential_tsv_out)
+                if differential_tsv_out is not None
+                else None
+            ),
+            "json_report": str(report_out or out_path)
+            if (report_out or out_path) is not None
+            else None,
+        },
     }
     _emit_json(payload, out_path=report_out or out_path)
 

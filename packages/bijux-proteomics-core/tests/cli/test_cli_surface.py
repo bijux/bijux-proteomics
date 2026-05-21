@@ -2924,6 +2924,8 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
                 "control",
                 "--condition-b",
                 "treatment",
+                "--differential-tsv-out",
+                "quantify.differential.tsv",
             ],
         )
 
@@ -2952,6 +2954,11 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["sample_pca"]["entries"]
         assert payload["condition_clustering"]["condition_count"] == 2
         assert payload["differential_abundance"]["condition_a"] == "control"
+        assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
+        assert Path("quantify.differential.tsv").exists()
+        assert "P001\tcontrol\ttreatment" in Path(
+            "quantify.differential.tsv"
+        ).read_text(encoding="utf-8")
         assert any(
             entry["entity_id"] == "P001" and entry["log2_fold_change"] > 0
             for entry in payload["differential_abundance"]["entries"]
@@ -2984,6 +2991,8 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
                 "sum",
                 "--normalization",
                 "median",
+                "--differential-tsv-out",
+                "quantify.multi_condition.tsv",
             ],
         )
 
@@ -2991,6 +3000,11 @@ def test_quantify_command_emits_multi_condition_differential_collection() -> Non
         payload = json.loads(result.output)
         assert payload["differential_abundance"] is None
         assert payload["differential_abundance_multi_condition"] is not None
+        assert payload["outputs"]["differential_tsv"] == "quantify.multi_condition.tsv"
+        assert Path("quantify.multi_condition.tsv").exists()
+        tsv = Path("quantify.multi_condition.tsv").read_text(encoding="utf-8")
+        assert "P001\tcontrol\trescue" in tsv
+        assert "P001\tcontrol\ttreatment" in tsv
         assert (
             payload["differential_abundance_multi_condition"]["condition_count"] == 3
         )
