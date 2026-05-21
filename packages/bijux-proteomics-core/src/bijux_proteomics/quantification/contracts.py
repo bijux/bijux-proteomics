@@ -1013,6 +1013,78 @@ class MultiConditionDifferentialAbundanceReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class QuantDesignMatrixColumnKind(StrEnum):
+    """Durable ownership categories for design-matrix columns."""
+
+    INTERCEPT = "intercept"
+    CONDITION = "condition"
+    BATCH = "batch"
+    COVARIATE = "covariate"
+    PAIRING = "pairing"
+
+
+class QuantDesignMatrixColumnEncoding(StrEnum):
+    """Encoding applied to one design-matrix column."""
+
+    BINARY = "binary"
+    CATEGORICAL_ONE_HOT = "categorical_one_hot"
+    NUMERIC = "numeric"
+
+
+class QuantDesignMatrixColumn(JsonModel):
+    """One explicit design-matrix column with stable ownership metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    column_name: str = Field(..., min_length=1)
+    kind: QuantDesignMatrixColumnKind
+    encoding: QuantDesignMatrixColumnEncoding
+    source_field: str = Field(..., min_length=1)
+    level: str | None = None
+    reference_level: str | None = None
+
+
+class QuantDesignMatrixSampleRow(JsonModel):
+    """One sample row plus encoded matrix values and preserved design metadata."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    batch: str | None = None
+    pair_id: str | None = None
+    metadata: dict[str, str] = Field(default_factory=dict)
+    column_values: tuple[float, ...] = Field(default_factory=tuple)
+
+
+class QuantDesignContrast(JsonModel):
+    """One named condition contrast expressed against design-matrix columns."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contrast_name: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    coefficient_weights: dict[str, float] = Field(default_factory=dict)
+
+
+class QuantDesignMatrixReport(JsonModel):
+    """Stable design-matrix report over conditions, batches, covariates, and pairs."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_count: int = Field(..., ge=1)
+    column_count: int = Field(..., ge=1)
+    condition_field: str = Field(..., min_length=1)
+    batch_field: str | None = None
+    pairing_field: str | None = None
+    covariate_fields: tuple[str, ...] = Field(default_factory=tuple)
+    columns: tuple[QuantDesignMatrixColumn, ...] = Field(default_factory=tuple)
+    rows: tuple[QuantDesignMatrixSampleRow, ...] = Field(default_factory=tuple)
+    contrasts: tuple[QuantDesignContrast, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class LabelFreeFeatureProvenanceEntry(JsonModel):
     """Feature-level provenance preserved inside an LFQ workflow bundle."""
 
@@ -2868,3 +2940,25 @@ def export_multi_condition_differential_abundance_tsv(
     )
 
     _implementation(report, path)
+
+
+def build_quant_design_matrix_report(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    batch_field: str | None = "batch",
+    covariate_fields: tuple[str, ...] = (),
+    pairing_field: str | None = None,
+    condition_field: str = "condition",
+) -> QuantDesignMatrixReport:
+    """Build an explicit design matrix over one quantification study design."""
+    from bijux_proteomics.quantification.design_matrix import (
+        build_quant_design_matrix_report as _implementation,
+    )
+
+    return _implementation(
+        design_entries,
+        batch_field=batch_field,
+        covariate_fields=covariate_fields,
+        pairing_field=pairing_field,
+        condition_field=condition_field,
+    )
