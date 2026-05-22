@@ -395,27 +395,40 @@ def _lookup_by_token(
     registry: ModificationRegistryDocument | None,
 ) -> StaticModification | VariableModification | None:
     normalized = token.strip().lower()
+    canonical_token = _MODIFICATION_TOKEN_ALIASES.get(normalized, normalized)
     mapping = _registry_lookup(registry)
     exact = mapping.get(normalized)
+    if exact is None and canonical_token != normalized:
+        exact = mapping.get(canonical_token)
     if site is None:
         return exact or _family_candidate(
-            token=normalized,
+            token=canonical_token,
             mapping=mapping,
             site=site,
             residue=residue,
             at_protein_n_term=at_protein_n_term,
             at_protein_c_term=at_protein_c_term,
         )
-    if exact is not None and _site_compatibility_rejection(
-        definition=exact,
-        site=site,
-        residue=residue,
-        at_protein_n_term=at_protein_n_term,
-        at_protein_c_term=at_protein_c_term,
-    ) is None:
-        return exact
+    if exact is not None:
+        if _site_compatibility_rejection(
+            definition=exact,
+            site=site,
+            residue=residue,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+        ) is None:
+            return exact
+        family_definition = _family_candidate(
+            token=canonical_token,
+            mapping=mapping,
+            site=site,
+            residue=residue,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+        )
+        return family_definition or exact
     return _family_candidate(
-        token=normalized,
+        token=canonical_token,
         mapping=mapping,
         site=site,
         residue=residue,
