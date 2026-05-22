@@ -3305,6 +3305,88 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
         ).read_text(encoding="utf-8")
 
 
+def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        diann_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            diann_dir / "diann_differential_report.tsv",
+            "diann_differential_report.tsv",
+        )
+        shutil.copy(
+            format_dir / "diann_differential.design.tsv",
+            "diann_differential.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "dia-differential",
+                "diann_differential_report.tsv",
+                "diann_differential.design.tsv",
+                "--source-kind",
+                "diann",
+                "--matrix-tsv-out",
+                "dia.raw.tsv",
+                "--normalized-matrix-tsv-out",
+                "dia.normalized.tsv",
+                "--differential-tsv-out",
+                "dia.differential.tsv",
+                "--design-matrix-tsv-out",
+                "dia.design.tsv",
+                "--design-coefficients-tsv-out",
+                "dia.coefficients.tsv",
+                "--volcano-tsv-out",
+                "dia.volcano.tsv",
+                "--sample-balance-tsv-out",
+                "dia.balance.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "diann"
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["matrix_summary"]["entity_count"] == 3
+        assert payload["normalization_comparison"]["method"] == "median"
+        assert payload["differential_abundance"]["condition_a"] == "control"
+        assert payload["differential_abundance"]["condition_b"] == "treatment"
+        assert payload["volcano_plot"]["significant_point_count"] == 2
+        assert payload["outputs"]["matrix_tsv"] == "dia.raw.tsv"
+        assert payload["outputs"]["normalized_matrix_tsv"] == "dia.normalized.tsv"
+        assert payload["outputs"]["differential_tsv"] == "dia.differential.tsv"
+        assert payload["outputs"]["design_matrix_tsv"] == "dia.design.tsv"
+        assert payload["outputs"]["design_coefficients_tsv"] == "dia.coefficients.tsv"
+        assert payload["outputs"]["volcano_tsv"] == "dia.volcano.tsv"
+        assert payload["outputs"]["sample_balance_tsv"] == "dia.balance.tsv"
+        assert Path("dia.raw.tsv").exists()
+        assert Path("dia.normalized.tsv").exists()
+        assert Path("dia.differential.tsv").exists()
+        assert Path("dia.design.tsv").exists()
+        assert Path("dia.coefficients.tsv").exists()
+        assert Path("dia.volcano.tsv").exists()
+        assert Path("dia.balance.tsv").exists()
+        assert "PG001\tP11111\tPESTIDE\t100000\t110000\t400000\t420000" in Path(
+            "dia.raw.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PG001\tcontrol\ttreatment\t2\t2" in Path(
+            "dia.differential.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tpair_id\tintercept" in Path(
+            "dia.design.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PG001\tcondition[treatment]" in Path(
+            "dia.coefficients.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PG001\tP11111\t2.00208\t0.0136062\t1.86626\ttrue" in Path(
+            "dia.volcano.tsv"
+        ).read_text(encoding="utf-8")
+        assert "C1\tbefore\t600000\t200000\t100000" in Path(
+            "dia.balance.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):

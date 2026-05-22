@@ -400,7 +400,14 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_tsv,
 )
 from bijux_proteomics.workflow import (
+    DiaDifferentialSourceKind,
+    build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
+    build_spectronaut_differential_analysis_report,
+    export_dia_differential_matrix_tsv,
+    export_dia_differential_results_tsv,
+    export_dia_differential_volcano_plot_tsv,
+    export_dia_normalization_balance_plot_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
@@ -2291,6 +2298,186 @@ def targeted_assay_qc_command(
             ),
             "unreliable_tsv": (
                 None if unreliable_tsv_out is None else str(unreliable_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("dia-differential")
+@click.argument("input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in DiaDifferentialSourceKind]),
+    required=True,
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--max-q-value", type=float, default=0.01, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--design-batch-field", default="batch", show_default=True)
+@click.option("--design-pairing-field", default=None)
+@click.option("--design-covariate", "design_covariates", multiple=True)
+@click.option("--matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--normalized-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--differential-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--design-matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--design-coefficients-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--volcano-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--sample-balance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def dia_differential_command(
+    input_path: Path,
+    design_path: Path,
+    source_kind: str,
+    config_path: Path | None,
+    max_q_value: float,
+    normalization: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    design_batch_field: str,
+    design_pairing_field: str | None,
+    design_covariates: tuple[str, ...],
+    matrix_tsv_out: Path | None,
+    normalized_matrix_tsv_out: Path | None,
+    differential_tsv_out: Path | None,
+    design_matrix_tsv_out: Path | None,
+    design_coefficients_tsv_out: Path | None,
+    volcano_tsv_out: Path | None,
+    sample_balance_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run DIA-native differential analysis from DIA-NN or Spectronaut evidence."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        selected_source = DiaDifferentialSourceKind(source_kind)
+        if selected_source is DiaDifferentialSourceKind.DIANN:
+            report = build_diann_differential_analysis_report(
+                input_path,
+                design_report.accepted_entries,
+                config_path=config_path,
+                max_q_value=max_q_value,
+                normalization_method=NormalizationMethod(normalization),
+                condition_a=condition_a,
+                condition_b=condition_b,
+                batch_field=design_batch_field,
+                covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                pairing_field=design_pairing_field,
+            )
+        else:
+            report = build_spectronaut_differential_analysis_report(
+                input_path,
+                design_report.accepted_entries,
+                config_path=config_path,
+                max_q_value=max_q_value,
+                normalization_method=NormalizationMethod(normalization),
+                condition_a=condition_a,
+                condition_b=condition_b,
+                batch_field=design_batch_field,
+                covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                pairing_field=design_pairing_field,
+            )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if matrix_tsv_out is not None:
+        export_dia_differential_matrix_tsv(report.input_report.table, matrix_tsv_out)
+    if normalized_matrix_tsv_out is not None:
+        export_dia_differential_matrix_tsv(report.normalized_table, normalized_matrix_tsv_out)
+    if differential_tsv_out is not None:
+        export_dia_differential_results_tsv(report, differential_tsv_out)
+    if design_matrix_tsv_out is not None:
+        export_quant_design_matrix_tsv(report.design_matrix, design_matrix_tsv_out)
+    if design_coefficients_tsv_out is not None:
+        export_quant_design_model_coefficients_tsv(
+            report.design_model_fit,
+            design_coefficients_tsv_out,
+        )
+    if sample_balance_tsv_out is not None:
+        export_dia_normalization_balance_plot_tsv(
+            report.normalization_balance_plot,
+            sample_balance_tsv_out,
+        )
+    if volcano_tsv_out is not None:
+        if report.volcano_plot is None:
+            raise click.ClickException(
+                "volcano export requires a resolvable contrast or exactly two conditions"
+            )
+        export_dia_differential_volcano_plot_tsv(report.volcano_plot, volcano_tsv_out)
+
+    payload = {
+        "source_kind": report.input_report.source_kind.value,
+        "source_name": report.input_report.source_name,
+        "matrix_summary": report.input_report.matrix_summary.to_dict(),
+        "table": report.input_report.table.to_dict(),
+        "normalized_table": report.normalized_table.to_dict(),
+        "normalization_comparison": report.normalization_comparison.to_dict(),
+        "design_matrix": report.design_matrix.to_dict(),
+        "design_model_fit": report.design_model_fit.to_dict(),
+        "differential_abundance": (
+            report.differential_abundance_report.to_dict()
+            if report.differential_abundance_report is not None
+            else None
+        ),
+        "differential_abundance_multi_condition": (
+            report.differential_abundance_multi_condition_report.to_dict()
+            if report.differential_abundance_multi_condition_report is not None
+            else None
+        ),
+        "normalization_balance_plot": report.normalization_balance_plot.to_dict(),
+        "volcano_plot": (
+            report.volcano_plot.to_dict() if report.volcano_plot is not None else None
+        ),
+        "note": report.note,
+        "outputs": {
+            "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
+            "normalized_matrix_tsv": (
+                None if normalized_matrix_tsv_out is None else str(normalized_matrix_tsv_out)
+            ),
+            "differential_tsv": (
+                None if differential_tsv_out is None else str(differential_tsv_out)
+            ),
+            "design_matrix_tsv": (
+                None if design_matrix_tsv_out is None else str(design_matrix_tsv_out)
+            ),
+            "design_coefficients_tsv": (
+                None
+                if design_coefficients_tsv_out is None
+                else str(design_coefficients_tsv_out)
+            ),
+            "volcano_tsv": None if volcano_tsv_out is None else str(volcano_tsv_out),
+            "sample_balance_tsv": (
+                None if sample_balance_tsv_out is None else str(sample_balance_tsv_out)
             ),
         },
     }
