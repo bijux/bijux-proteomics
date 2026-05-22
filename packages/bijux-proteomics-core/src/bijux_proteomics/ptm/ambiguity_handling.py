@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 
 from bijux_proteomics.ptm.contracts import PtmSiteEntry, PtmSiteGroupEvidenceEntry
 from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
@@ -446,6 +448,210 @@ def build_ptm_site_group_quantification_report(
             "ptm site-group quantification preserves unresolved localization as one ambiguity group and quantifies unique localized-peptide feature signal without duplicating candidate-site rows"
         ),
     )
+
+
+def render_ptm_ambiguity_review_summary_tsv(report: PtmAmbiguityReviewReport) -> str:
+    """Render compact PTM ambiguity review summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "localized_site_count",
+            "unlocalized_group_count",
+            "possible_residue_count",
+            "decisive_localized_site_count",
+            "ambiguous_group_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.localized_site_count,
+            report.summary.unlocalized_group_count,
+            report.summary.possible_residue_count,
+            report.summary.decisive_localized_site_count,
+            report.summary.ambiguous_group_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_localized_site_review_tsv(report: PtmAmbiguityReviewReport) -> str:
+    """Render localized PTM site claims as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "localized_peptides",
+            "sample_ids",
+            "localization_score",
+            "localization_probability",
+            "confidence_tier",
+            "note",
+        ]
+    )
+    for entry in report.localized_sites:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.protein_ref,
+                entry.residue,
+                entry.position,
+                entry.modification_name,
+                ";".join(entry.localized_peptides),
+                ";".join(entry.sample_ids),
+                entry.localization_score,
+                "" if entry.localization_probability is None else entry.localization_probability,
+                entry.confidence_tier.value,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_unlocalized_group_review_tsv(report: PtmAmbiguityReviewReport) -> str:
+    """Render unresolved PTM ambiguity groups as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "group_key",
+            "protein_ref",
+            "modification_name",
+            "candidate_positions",
+            "possible_residues",
+            "site_keys",
+            "localized_peptides",
+            "sample_ids",
+            "localization_score",
+            "localization_probability",
+            "confidence_tier",
+            "note",
+        ]
+    )
+    for entry in report.unlocalized_groups:
+        writer.writerow(
+            [
+                entry.group_key,
+                entry.protein_ref,
+                entry.modification_name,
+                ";".join(str(position) for position in entry.candidate_positions),
+                ";".join(entry.possible_residues),
+                ";".join(entry.site_keys),
+                ";".join(entry.localized_peptides),
+                ";".join(entry.sample_ids),
+                entry.localization_score,
+                "" if entry.localization_probability is None else entry.localization_probability,
+                entry.confidence_tier.value,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_site_group_quant_summary_tsv(
+    report: PtmSiteGroupQuantificationReport,
+) -> str:
+    """Render compact ambiguity-group quantification summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "group_row_count",
+            "sample_count",
+            "observed_cell_count",
+            "zero_cell_count",
+            "missing_cell_count",
+            "filtered_cell_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.group_row_count,
+            report.summary.sample_count,
+            report.summary.observed_cell_count,
+            report.summary.zero_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.filtered_cell_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_site_group_quant_matrix_tsv(
+    report: PtmSiteGroupQuantificationReport,
+) -> str:
+    """Render ambiguity-group abundance matrix as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "group_key",
+            "protein_ref",
+            "modification_name",
+            "candidate_positions",
+            "possible_residues",
+            "confidence_tier",
+            *report.sample_ids,
+        ]
+    )
+    for row in report.rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        writer.writerow(
+            [
+                row.group_key,
+                row.protein_ref,
+                row.modification_name,
+                ";".join(str(position) for position in row.candidate_positions),
+                ";".join(row.possible_residues),
+                row.confidence_tier.value,
+                *[
+                    ""
+                    if value_lookup[sample_id].abundance is None
+                    else value_lookup[sample_id].abundance
+                    for sample_id in report.sample_ids
+                ],
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_site_group_quant_missingness_tsv(
+    report: PtmSiteGroupQuantificationReport,
+) -> str:
+    """Render ambiguity-group missingness by sample as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "observed_count",
+            "zero_count",
+            "not_observed_count",
+            "filtered_count",
+        ]
+    )
+    for entry in report.missing_summary.entries:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.observed_count,
+                entry.zero_count,
+                entry.not_observed_count,
+                entry.filtered_count,
+            ]
+        )
+    return buffer.getvalue()
 
 
 def _build_probability_lookup(
