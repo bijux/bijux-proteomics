@@ -4445,7 +4445,7 @@ def peptide_index_command(
     "--fragment-series",
     multiple=True,
     type=_fragment_series_choice(),
-    default=("b", "y"),
+    default=("a", "b", "y"),
     show_default=True,
 )
 @click.option("--include-neutral-losses", is_flag=True, default=False)
@@ -4535,14 +4535,14 @@ def peptide_mass_command(
     "charges",
     multiple=True,
     type=int,
-    default=(1, 2),
+    default=(1, 2, 3),
     show_default=True,
 )
 @click.option(
     "--fragment-series",
     multiple=True,
     type=_fragment_series_choice(),
-    default=("b", "y"),
+    default=("a", "b", "y"),
     show_default=True,
 )
 @click.option("--include-neutral-losses", is_flag=True, default=False)
