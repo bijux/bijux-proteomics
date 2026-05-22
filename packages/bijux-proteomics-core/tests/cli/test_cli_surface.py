@@ -2338,6 +2338,8 @@ def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
                 "PEPTIDE",
                 "--tsv-out",
                 "annotation.tsv",
+                "--unmatched-peak-tsv-out",
+                "unmatched.tsv",
                 "--plot-out",
                 "plot.json",
             ],
@@ -2349,11 +2351,21 @@ def test_spectrum_annotate_command_writes_annotation_and_plot_payload() -> None:
             payload["annotation"]["document_schema"]["document_kind"]
             == "spectrum_annotation"
         )
+        assert (
+            payload["peak_matching_report"]["document_schema"]["document_kind"]
+            == "spectrum_peak_matching_report"
+        )
         assert payload["annotation"]["matches"]
         assert payload["annotation"]["matched_peak_count"] > 0
         assert payload["annotation"]["explained_intensity_fraction"] > 0.0
+        assert payload["peak_matching_report"]["matched_peak_count"] > 0
         assert Path("annotation.tsv").exists()
+        assert Path("unmatched.tsv").exists()
         assert Path("plot.json").exists()
+        assert (
+            Path("unmatched.tsv").read_text().splitlines()[0]
+            == "spectrum_id\tpeptide\ttolerance_mode\tmz\tintensity"
+        )
 
 
 def test_spectrum_annotate_command_supports_ppm_tolerance() -> None:
@@ -2379,6 +2391,9 @@ def test_spectrum_annotate_command_supports_ppm_tolerance() -> None:
         assert payload["annotation"]["tolerance_unit"] == "ppm"
         assert payload["annotation"]["tolerance_da"] is None
         assert payload["annotation"]["tolerance_ppm"] == 20.0
+        assert payload["peak_matching_report"]["tolerance_mode"] == "ppm"
+        assert payload["peak_matching_report"]["tolerance_da"] is None
+        assert payload["peak_matching_report"]["tolerance_ppm"] == 20.0
 
 
 def test_spectrum_similarity_command_reports_pairwise_comparison() -> None:
