@@ -64,6 +64,68 @@ def test_program_template_writes_manifest() -> None:
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
 
 
+def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_input.tsv",
+            "protein_annotation_input.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_reference.fasta",
+            "protein_annotation_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "annotate-proteins",
+                "protein_annotation_input.tsv",
+                "protein_annotation_reference.fasta",
+                "--annotation-tsv",
+                "protein_annotation_custom.tsv",
+                "--summary-tsv-out",
+                "protein_annotation.summary.tsv",
+                "--mapped-tsv-out",
+                "protein_annotation.mapped.tsv",
+                "--unmapped-tsv-out",
+                "protein_annotation.unmapped.tsv",
+                "--rejected-input-tsv-out",
+                "protein_annotation.input_rejected.tsv",
+                "--rejected-annotation-tsv-out",
+                "protein_annotation.annotation_rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["mapping_report"]["summary"]["input_entry_count"] == 6
+        assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 6
+        assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 0
+        assert Path("protein_annotation.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("input_entry_count\tmapped_entry_count")
+        assert "TRP53" in Path("protein_annotation.mapped.tsv").read_text()
+        assert (
+            Path("protein_annotation.unmapped.tsv").read_text().splitlines()[0]
+            == "row_number\tsource_row_id\tinput_protein_ref\tprotein_ref\tinput_metadata\treason"
+        )
+        assert (
+            "protein row requires at least one protein reference"
+            in Path("protein_annotation.input_rejected.tsv").read_text()
+        )
+        assert (
+            "duplicate protein annotation for P04637"
+            in Path("protein_annotation.annotation_rejected.tsv").read_text()
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
