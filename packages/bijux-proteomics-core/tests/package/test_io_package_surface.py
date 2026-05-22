@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import io
+from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 
 
 def _format_fixture(name: str) -> Path:
@@ -21,3 +22,27 @@ def test_io_package_exports_mzml_reader_owner_surface() -> None:
     assert hasattr(io, "build_mzml_practical_review_report")
     assert report.metadata.instrument_names == ("Q Exactive",)
     assert review.decoding_support.supported is True
+
+
+def test_io_package_exports_spectrum_quality_owner_surface() -> None:
+    report = io.build_spectrum_run_qc_report(
+        (
+            SpectrumModel(
+                spectrum_id="scan=1",
+                precursor_mz=500.2,
+                precursor_intensity=50000.0,
+                precursor_charge=2,
+                peaks=tuple(
+                    SpectrumPeak(mz=100.0 + offset, intensity=100.0)
+                    for offset in range(8)
+                ),
+            ),
+        ),
+        source_kind="mgf",
+    )
+    rendered = io.render_spectrum_run_qc_spectra_tsv(report)
+
+    assert hasattr(io, "build_spectrum_run_qc_report")
+    assert hasattr(io, "render_spectrum_run_qc_spectra_tsv")
+    assert report.spectrum_metrics[0].quality_tier.value == "high"
+    assert "quality_tier" in rendered
