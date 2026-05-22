@@ -126,6 +126,60 @@ def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() 
         )
 
 
+def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "go_foreground.tsv",
+            "go_foreground.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "go_background.tsv",
+            "go_background.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "go_annotations.tsv",
+            "go_annotations.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "go-enrichment",
+                "go_foreground.tsv",
+                "go_background.tsv",
+                "go_annotations.tsv",
+                "--summary-tsv-out",
+                "go_enrichment.summary.tsv",
+                "--term-tsv-out",
+                "go_enrichment.term.tsv",
+                "--unannotated-tsv-out",
+                "go_enrichment.unannotated.tsv",
+                "--rejected-annotation-tsv-out",
+                "go_enrichment.rejected.tsv",
+                "--max-adjusted-p-value",
+                "0.6",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["foreground_size"] == 3
+        assert payload["report"]["summary"]["background_size"] == 6
+        assert payload["report"]["summary"]["evaluated_term_count"] == 3
+        assert Path("go_enrichment.summary.tsv").read_text().splitlines()[0].startswith(
+            "foreground_size\tbackground_size"
+        )
+        assert "GO:0006915" in Path("go_enrichment.term.tsv").read_text()
+        assert "background\tQ88888" in Path("go_enrichment.unannotated.tsv").read_text()
+        assert (
+            "duplicate GO membership for P04637 and GO:0006915"
+            in Path("go_enrichment.rejected.tsv").read_text()
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
