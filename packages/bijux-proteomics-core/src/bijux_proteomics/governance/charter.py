@@ -200,6 +200,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "interfaces/cli/app.py",
             "governance/charter.py",
             "benchmarks/adoption.py",
+            "benchmarks/scientific_fixture_corpus.py",
         ),
         release_blocker="Core cannot ship if its public package surface describes the wrong owner story or hides the scientific boundary behind stale compatibility language.",
     ),

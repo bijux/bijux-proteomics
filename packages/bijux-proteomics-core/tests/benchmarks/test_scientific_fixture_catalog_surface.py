@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.benchmarks.scientific_fixture_corpus import (
+from bijux_proteomics.benchmarks import (
     ScientificFixtureCaseKind,
     build_scientific_fixture_catalog,
     get_scientific_fixture_manifest,
