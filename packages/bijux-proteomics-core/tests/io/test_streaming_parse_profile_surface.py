@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from pathlib import Path
 
 from pytest import MonkeyPatch
@@ -73,6 +74,7 @@ def test_build_streaming_parse_profile_reports_chunking_for_mgf_and_mzml() -> No
 
 def test_build_streaming_parse_profile_counts_large_generated_mgf(
     tmp_path: Path,
+    monkeypatch: MonkeyPatch,
 ) -> None:
     path = tmp_path / "large_profile_input.mgf"
     with path.open("w", encoding="utf-8") as handle:
@@ -85,6 +87,43 @@ def test_build_streaming_parse_profile_counts_large_generated_mgf(
             handle.write("100.0 10.0\n")
             handle.write("200.0 20.0\n")
             handle.write("END IONS\n")
+
+    original_open = Path.open
+
+    class _StreamingHandle:
+        def __init__(self, wrapped: object) -> None:
+            self._wrapped = wrapped
+
+        def __iter__(self) -> Iterator[str]:
+            yield from self._wrapped  # type: ignore[operator]
+
+        def __enter__(self) -> _StreamingHandle:
+            self._wrapped.__enter__()  # type: ignore[attr-defined]
+            return self
+
+        def __exit__(self, exc_type: object, exc: object, tb: object) -> object:
+            return self._wrapped.__exit__(exc_type, exc, tb)  # type: ignore[attr-defined]
+
+        def read(self, *args: object, **kwargs: object) -> str:
+            raise AssertionError(
+                "build_streaming_parse_profile should not call read() for mgf"
+            )
+
+        def readlines(self, *args: object, **kwargs: object) -> list[str]:
+            raise AssertionError(
+                "build_streaming_parse_profile should not call readlines() for mgf"
+            )
+
+        def __getattr__(self, name: str) -> object:
+            return getattr(self._wrapped, name)
+
+    def _wrapped_open(self: Path, *args: object, **kwargs: object) -> object:
+        handle = original_open(self, *args, **kwargs)
+        if self == path:
+            return _StreamingHandle(handle)
+        return handle
+
+    monkeypatch.setattr(Path, "open", _wrapped_open)
 
     profile = build_streaming_parse_profile(path, format_name="mgf", chunk_size=128)
 
