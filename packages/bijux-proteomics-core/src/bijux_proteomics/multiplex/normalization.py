@@ -124,15 +124,20 @@ def build_tmt_normalization_report(
     active_policy = policy or TmtNormalizationPolicy()
     before_report = build_tmt_reporter_matrix_report(feature_bundle)
 
-    if active_policy.method is not TmtNormalizationMethod.MEDIAN:
-        raise ValueError(
-            "tmt normalization currently supports only the median method in the owned multiplex surface"
+    if active_policy.method is TmtNormalizationMethod.MEDIAN:
+        normalized_records, transforms = _apply_median_normalization(
+            feature_bundle,
+            policy=active_policy,
         )
-
-    normalized_records, transforms = _apply_median_normalization(
-        feature_bundle,
-        policy=active_policy,
-    )
+    elif active_policy.method is TmtNormalizationMethod.TOTAL_SIGNAL:
+        normalized_records, transforms = _apply_total_signal_normalization(
+            feature_bundle,
+            policy=active_policy,
+        )
+    else:
+        raise ValueError(
+            "tmt normalization currently supports median and total-signal methods in the owned multiplex surface"
+        )
     after_bundle = feature_bundle.model_copy(
         update={
             "feature_records": normalized_records,
@@ -244,6 +249,84 @@ def _apply_median_normalization(
                     reference_sample_id=None,
                     reference_channel=None,
                     note="sample channel is scaled toward the plex median reporter intensity",
+                )
+            )
+
+    normalized_records = tuple(
+        record.model_copy(
+            update={
+                "intensity": (
+                    None
+                    if record.intensity is None
+                    else float(record.intensity) * factors.get(record.sample_id, 1.0)
+                )
+            }
+        )
+        for record in feature_bundle.feature_records
+    )
+    return normalized_records, tuple(transforms)
+
+
+def _apply_total_signal_normalization(
+    feature_bundle: TmtReporterFeatureBundle,
+    *,
+    policy: TmtNormalizationPolicy,
+) -> tuple[tuple, tuple[TmtNormalizationTransformEntry, ...]]:
+    sample_records: dict[str, list] = {}
+    for record in feature_bundle.feature_records:
+        sample_records.setdefault(record.sample_id, []).append(record)
+
+    mapping_by_sample = {
+        entry.sample_id: entry
+        for entry in feature_bundle.channel_mapping
+        if entry.mapped_to_design and entry.sample_id is not None
+    }
+    grouped_sample_ids: dict[str, list[str]] = {}
+    for sample_id, entry in mapping_by_sample.items():
+        grouped_sample_ids.setdefault(entry.multiplex_group, []).append(sample_id)
+
+    factors: dict[str, float] = {}
+    transforms: list[TmtNormalizationTransformEntry] = []
+    for multiplex_group, group_sample_ids in sorted(grouped_sample_ids.items()):
+        sample_totals = {
+            sample_id: float(
+                sum(
+                    float(record.intensity)
+                    for record in sample_records.get(sample_id, ())
+                    if record.intensity is not None
+                )
+            )
+            for sample_id in group_sample_ids
+        }
+        positive_totals = [
+            value for value in sample_totals.values() if np.isfinite(value) and value > 0.0
+        ]
+        group_target = (
+            float(np.mean(np.array(positive_totals, dtype=float)))
+            if positive_totals
+            else 1.0
+        )
+        for sample_id in sorted(group_sample_ids):
+            sample_total = sample_totals[sample_id]
+            factor = (
+                group_target / sample_total
+                if np.isfinite(sample_total) and sample_total > 0.0
+                else 1.0
+            )
+            factors[sample_id] = factor
+            mapping_entry = mapping_by_sample[sample_id]
+            transforms.append(
+                TmtNormalizationTransformEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=mapping_entry.multiplex_channel,
+                    sample_id=sample_id,
+                    condition=mapping_entry.condition,
+                    channel_role=mapping_entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                    method=policy.method,
+                    scale_factor=factor,
+                    reference_sample_id=None,
+                    reference_channel=None,
+                    note="sample channel is scaled toward the plex mean total reporter signal",
                 )
             )
 
