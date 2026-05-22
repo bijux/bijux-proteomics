@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.domain.records import (
     MissingValueState,
@@ -33,6 +33,7 @@ from bijux_proteomics.quantification.peptide_intensity_matrix import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
 )
+from bijux_proteomics.quantification.core_matrix import build_numeric_quant_matrix
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -97,9 +98,16 @@ class ProteinIntensityMatrixReport(JsonModel):
     unique_only: bool = False
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[ProteinIntensityMatrixRow, ...] = Field(default_factory=tuple)
+    quant_matrix: CanonicalQuantMatrix | None = None
     missing_summary: MissingValueSummaryReport
     summary: ProteinIntensityMatrixSummary
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _bind_quant_matrix(self) -> ProteinIntensityMatrixReport:
+        if self.quant_matrix is None:
+            self.quant_matrix = self._build_quant_matrix()
+        return self
 
     def to_quant_matrix(
         self,
@@ -109,39 +117,65 @@ class ProteinIntensityMatrixReport(JsonModel):
     ) -> CanonicalQuantMatrix:
         """Convert this protein matrix into the canonical matrix contract."""
 
+        if (
+            self.quant_matrix is not None
+            and self.quant_matrix.matrix_id == matrix_id
+            and (
+                not sample_metadata
+                or self.quant_matrix.sample_metadata == sample_metadata
+            )
+        ):
+            return self.quant_matrix
+        return self._build_quant_matrix(
+            matrix_id=matrix_id,
+            sample_metadata=sample_metadata,
+        )
+
+    def _build_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "protein_intensity_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
         entity_kind = (
             QuantEntityKind.PROTEIN
             if self.target_kind is ProteinMatrixTargetKind.PROTEIN
             else QuantEntityKind.PROTEIN_GROUP
         )
-        row_metadata = tuple(
-            {
-                "target_kind": row.target_kind.value,
-                "protein_refs": ";".join(row.protein_refs),
-                "peptide_count": str(row.peptide_count),
-                "unique_peptide_count": str(row.unique_peptide_count),
-                "shared_peptide_count": str(row.shared_peptide_count),
-                "contributing_peptides": ";".join(row.contributing_peptides),
-            }
-            for row in self.rows
-        )
-        return CanonicalQuantMatrix(
+        return build_numeric_quant_matrix(
             matrix_id=matrix_id,
             entity_kind=entity_kind,
             measure_kind=QuantMeasureKind.INTENSITY,
             entity_ids=tuple(row.entity_id for row in self.rows),
             sample_ids=self.sample_ids,
-            values=tuple(
-                tuple(value.abundance for value in row.values) for row in self.rows
-            ),
-            missing_value_states=tuple(
-                tuple(
-                    MissingValueState(value.missing_value_kind.value)
-                    for value in row.values
+            value_lookup={
+                (row.entity_id, value.sample_id): value.abundance
+                for row in self.rows
+                for value in row.values
+            },
+            missing_state_lookup={
+                (row.entity_id, value.sample_id): MissingValueState(
+                    value.missing_value_kind.value
                 )
                 for row in self.rows
-            ),
-            row_metadata=row_metadata,
+                for value in row.values
+            },
+            support_count_lookup={
+                (row.entity_id, value.sample_id): value.contributing_peptide_count
+                for row in self.rows
+                for value in row.values
+            },
+            row_metadata_lookup={
+                row.entity_id: {
+                    "target_kind": row.target_kind.value,
+                    "protein_refs": ";".join(row.protein_refs),
+                    "peptide_count": str(row.peptide_count),
+                    "unique_peptide_count": str(row.unique_peptide_count),
+                    "shared_peptide_count": str(row.shared_peptide_count),
+                    "contributing_peptides": ";".join(row.contributing_peptides),
+                }
+                for row in self.rows
+            },
             sample_metadata=sample_metadata,
             transformation_history=(
                 f"source_kind:{self.source_kind.value}",
@@ -150,12 +184,19 @@ class ProteinIntensityMatrixReport(JsonModel):
                 f"aggregation_method:{self.aggregation_method.value}",
                 f"unique_only:{str(self.unique_only).lower()}",
             ),
-            metadata={"note": self.note},
+            metadata={
+                "note": self.note,
+                "source_kind": self.source_kind.value,
+                "grouping_mode": self.grouping_mode.value,
+                "target_kind": self.target_kind.value,
+                "aggregation_method": self.aggregation_method.value,
+                "unique_only": str(self.unique_only).lower(),
+            },
         )
 
 
 def build_protein_intensity_matrix_from_peptides(
-    peptide_matrix: PeptideIntensityMatrixReport,
+    peptide_matrix: PeptideIntensityMatrixReport | CanonicalQuantMatrix,
     *,
     target_kind: ProteinMatrixTargetKind = ProteinMatrixTargetKind.PROTEIN,
     aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
@@ -163,6 +204,8 @@ def build_protein_intensity_matrix_from_peptides(
     top_n: int = 3,
 ) -> ProteinIntensityMatrixReport:
     """Roll one peptide-intensity matrix up to protein or protein-group targets."""
+    if isinstance(peptide_matrix, CanonicalQuantMatrix):
+        peptide_matrix = PeptideIntensityMatrixReport.from_quant_matrix(peptide_matrix)
     if top_n < 1:
         raise ValueError("top_n must be at least 1")
 

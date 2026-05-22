@@ -9,7 +9,7 @@ from collections import defaultdict
 import math
 
 import numpy as np
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.domain.records import (
     MissingValueState,
@@ -35,6 +35,7 @@ from bijux_proteomics.quantification.peptide_intensity_matrix import (
     build_peptide_intensity_matrix_from_features,
     build_peptide_intensity_matrix_from_psms,
 )
+from bijux_proteomics.quantification.core_matrix import build_numeric_quant_matrix
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinMatrixTargetKind,
 )
@@ -117,9 +118,16 @@ class ProteinLfqReport(JsonModel):
     minimum_shared_peptides: int = Field(..., ge=1)
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[ProteinLfqRow, ...] = Field(default_factory=tuple)
+    quant_matrix: CanonicalQuantMatrix | None = None
     missing_summary: MissingValueSummaryReport
     summary: ProteinLfqSummary
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _bind_quant_matrix(self) -> ProteinLfqReport:
+        if self.quant_matrix is None:
+            self.quant_matrix = self._build_quant_matrix()
+        return self
 
     def to_quant_matrix(
         self,
@@ -129,42 +137,68 @@ class ProteinLfqReport(JsonModel):
     ) -> CanonicalQuantMatrix:
         """Convert this MaxLFQ-like report into the canonical quant matrix."""
 
+        if (
+            self.quant_matrix is not None
+            and self.quant_matrix.matrix_id == matrix_id
+            and (
+                not sample_metadata
+                or self.quant_matrix.sample_metadata == sample_metadata
+            )
+        ):
+            return self.quant_matrix
+        return self._build_quant_matrix(
+            matrix_id=matrix_id,
+            sample_metadata=sample_metadata,
+        )
+
+    def _build_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "protein_lfq_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
         entity_kind = (
             QuantEntityKind.PROTEIN
             if self.target_kind is ProteinMatrixTargetKind.PROTEIN
             else QuantEntityKind.PROTEIN_GROUP
         )
-        row_metadata = tuple(
-            {
-                "target_kind": row.target_kind.value,
-                "protein_refs": ";".join(row.protein_refs),
-                "peptide_count": str(row.peptide_count),
-                "unique_peptide_count": str(row.unique_peptide_count),
-                "shared_peptide_count": str(row.shared_peptide_count),
-                "pairwise_ratio_count": str(row.pairwise_ratio_count),
-                "connected_component_count": str(row.connected_component_count),
-                "fully_connected": str(row.fully_connected).lower(),
-                "contributing_peptides": ";".join(row.contributing_peptides),
-            }
-            for row in self.rows
-        )
-        return CanonicalQuantMatrix(
+        return build_numeric_quant_matrix(
             matrix_id=matrix_id,
             entity_kind=entity_kind,
             measure_kind=QuantMeasureKind.INTENSITY,
             entity_ids=tuple(row.entity_id for row in self.rows),
             sample_ids=self.sample_ids,
-            values=tuple(
-                tuple(value.abundance for value in row.values) for row in self.rows
-            ),
-            missing_value_states=tuple(
-                tuple(
-                    MissingValueState(value.missing_value_kind.value)
-                    for value in row.values
+            value_lookup={
+                (row.entity_id, value.sample_id): value.abundance
+                for row in self.rows
+                for value in row.values
+            },
+            missing_state_lookup={
+                (row.entity_id, value.sample_id): MissingValueState(
+                    value.missing_value_kind.value
                 )
                 for row in self.rows
-            ),
-            row_metadata=row_metadata,
+                for value in row.values
+            },
+            support_count_lookup={
+                (row.entity_id, value.sample_id): value.contributing_peptide_count
+                for row in self.rows
+                for value in row.values
+            },
+            row_metadata_lookup={
+                row.entity_id: {
+                    "target_kind": row.target_kind.value,
+                    "protein_refs": ";".join(row.protein_refs),
+                    "peptide_count": str(row.peptide_count),
+                    "unique_peptide_count": str(row.unique_peptide_count),
+                    "shared_peptide_count": str(row.shared_peptide_count),
+                    "pairwise_ratio_count": str(row.pairwise_ratio_count),
+                    "connected_component_count": str(row.connected_component_count),
+                    "fully_connected": str(row.fully_connected).lower(),
+                    "contributing_peptides": ";".join(row.contributing_peptides),
+                }
+                for row in self.rows
+            },
             sample_metadata=sample_metadata,
             transformation_history=(
                 "maxlfq_like",
@@ -174,18 +208,27 @@ class ProteinLfqReport(JsonModel):
                 f"unique_only:{str(self.unique_only).lower()}",
                 f"minimum_shared_peptides:{self.minimum_shared_peptides}",
             ),
-            metadata={"note": self.note},
+            metadata={
+                "note": self.note,
+                "source_kind": self.source_kind.value,
+                "grouping_mode": self.grouping_mode.value,
+                "target_kind": self.target_kind.value,
+                "unique_only": str(self.unique_only).lower(),
+                "minimum_shared_peptides": str(self.minimum_shared_peptides),
+            },
         )
 
 
 def build_protein_lfq_report_from_peptides(
-    peptide_matrix: PeptideIntensityMatrixReport,
+    peptide_matrix: PeptideIntensityMatrixReport | CanonicalQuantMatrix,
     *,
     target_kind: ProteinMatrixTargetKind = ProteinMatrixTargetKind.PROTEIN,
     unique_only: bool = False,
     minimum_shared_peptides: int = 1,
 ) -> ProteinLfqReport:
     """Build one MaxLFQ-like protein matrix from a peptide-intensity matrix."""
+    if isinstance(peptide_matrix, CanonicalQuantMatrix):
+        peptide_matrix = PeptideIntensityMatrixReport.from_quant_matrix(peptide_matrix)
     if minimum_shared_peptides < 1:
         raise ValueError("minimum_shared_peptides must be at least 1")
 

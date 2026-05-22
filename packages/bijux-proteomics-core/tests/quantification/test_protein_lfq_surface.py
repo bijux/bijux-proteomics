@@ -8,9 +8,12 @@ from pathlib import Path
 
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.quantification import (
+    PeptideMatrixGroupingMode,
     ProteinMatrixTargetKind,
     QuantRollupMethod,
+    build_peptide_intensity_matrix_from_features,
     build_protein_lfq_report_from_features,
+    build_protein_lfq_report_from_peptides,
     build_protein_lfq_report_from_psms,
     parse_ms1_feature_table,
     render_protein_lfq_matrix_tsv,
@@ -145,3 +148,21 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
         "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count"
         in missingness_tsv
     )
+
+
+def test_protein_lfq_accepts_canonical_peptide_matrix_input() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("protein_lfq_features.tsv"))
+    peptide_matrix = build_peptide_intensity_matrix_from_features(
+        report.accepted_records,
+        grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    ).to_quant_matrix()
+
+    lfq = build_protein_lfq_report_from_peptides(
+        peptide_matrix,
+        target_kind=ProteinMatrixTargetKind.PROTEIN,
+    )
+
+    assert lfq.quant_matrix is not None
+    assert lfq.quant_matrix.entity_kind.value == "protein"
+    assert lfq.quant_matrix.support_counts

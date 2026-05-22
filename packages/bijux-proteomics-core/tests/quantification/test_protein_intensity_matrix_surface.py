@@ -7,9 +7,12 @@ from pathlib import Path
 
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.quantification import (
+    PeptideMatrixGroupingMode,
     ProteinMatrixTargetKind,
     QuantRollupMethod,
+    build_peptide_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_features,
+    build_protein_intensity_matrix_from_peptides,
     build_protein_intensity_matrix_from_psms,
     parse_ms1_feature_table,
     render_protein_intensity_matrix_summary_tsv,
@@ -147,3 +150,26 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
         in matrix_tsv
     )
     assert "R1\t1\t0\t0\t0" in missingness_tsv
+
+
+def test_protein_intensity_matrix_accepts_canonical_peptide_matrix_input() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("protein_matrix_features.tsv"))
+    peptide_matrix = build_peptide_intensity_matrix_from_features(
+        report.accepted_records,
+        grouping_mode=PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    ).to_quant_matrix()
+
+    matrix = build_protein_intensity_matrix_from_peptides(
+        peptide_matrix,
+        target_kind=ProteinMatrixTargetKind.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    assert matrix.quant_matrix is not None
+    assert matrix.quant_matrix.entity_kind.value == "protein"
+    assert any(
+        support_count >= 1
+        for row in matrix.quant_matrix.support_counts
+        for support_count in row
+    )

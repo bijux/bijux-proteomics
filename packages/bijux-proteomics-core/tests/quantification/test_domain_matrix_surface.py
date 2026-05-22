@@ -184,7 +184,9 @@ def test_peptide_and_protein_reports_convert_to_quant_matrices() -> None:
 
     assert peptide_matrix.entity_ids == ("PEPTIDE",)
     assert peptide_matrix.sample_metadata[1].sample_id == "sample-b"
+    assert peptide_matrix.support_counts == ((1, 0),)
     assert protein_matrix.entity_ids == ("P001",)
+    assert protein_matrix.support_counts == ((1, 0),)
     assert protein_matrix.row_metadata[0]["target_kind"] == "protein"
 
 
@@ -253,4 +255,5 @@ def test_protein_lfq_reports_convert_to_quant_matrices() -> None:
 
     assert matrix.entity_ids == ("P001;P002",)
     assert matrix.values[0][0] == 11.0
+    assert matrix.support_counts == ((2,),)
     assert matrix.row_metadata[0]["fully_connected"] == "true"

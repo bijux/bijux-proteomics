@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.domain.records import (
@@ -28,6 +28,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
     QuantRollupMethod,
 )
+from bijux_proteomics.quantification.core_matrix import build_numeric_quant_matrix
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -95,9 +96,16 @@ class PeptideIntensityMatrixReport(JsonModel):
     aggregation_method: QuantRollupMethod
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[PeptideIntensityMatrixRow, ...] = Field(default_factory=tuple)
+    quant_matrix: CanonicalQuantMatrix | None = None
     missing_summary: MissingValueSummaryReport
     summary: PeptideIntensityMatrixSummary
     note: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _bind_quant_matrix(self) -> PeptideIntensityMatrixReport:
+        if self.quant_matrix is None:
+            self.quant_matrix = self._build_quant_matrix()
+        return self
 
     def to_quant_matrix(
         self,
@@ -107,32 +115,60 @@ class PeptideIntensityMatrixReport(JsonModel):
     ) -> CanonicalQuantMatrix:
         """Convert this reviewer-facing peptide matrix into the canonical matrix."""
 
-        row_metadata = tuple(
-            {
-                "peptide_sequence": row.peptide_sequence,
-                "modified_peptides": ";".join(row.modified_peptides),
-                "charge_states": ";".join(str(charge) for charge in row.charge_states),
-                "protein_refs": ";".join(row.protein_refs),
-            }
-            for row in self.rows
+        if (
+            self.quant_matrix is not None
+            and self.quant_matrix.matrix_id == matrix_id
+            and (
+                not sample_metadata
+                or self.quant_matrix.sample_metadata == sample_metadata
+            )
+        ):
+            return self.quant_matrix
+        return self._build_quant_matrix(
+            matrix_id=matrix_id,
+            sample_metadata=sample_metadata,
         )
-        return CanonicalQuantMatrix(
+
+    def _build_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "peptide_intensity_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
+        return build_numeric_quant_matrix(
             matrix_id=matrix_id,
             entity_kind=QuantEntityKind.PEPTIDE,
             measure_kind=QuantMeasureKind.INTENSITY,
             entity_ids=tuple(row.entity_id for row in self.rows),
             sample_ids=self.sample_ids,
-            values=tuple(
-                tuple(value.abundance for value in row.values) for row in self.rows
-            ),
-            missing_value_states=tuple(
-                tuple(
-                    MissingValueState(value.missing_value_kind.value)
-                    for value in row.values
+            value_lookup={
+                (row.entity_id, value.sample_id): value.abundance
+                for row in self.rows
+                for value in row.values
+            },
+            missing_state_lookup={
+                (row.entity_id, value.sample_id): MissingValueState(
+                    value.missing_value_kind.value
                 )
                 for row in self.rows
-            ),
-            row_metadata=row_metadata,
+                for value in row.values
+            },
+            support_count_lookup={
+                (row.entity_id, value.sample_id): value.source_record_count
+                for row in self.rows
+                for value in row.values
+            },
+            row_metadata_lookup={
+                row.entity_id: {
+                    "peptide_sequence": row.peptide_sequence,
+                    "modified_peptides": ";".join(row.modified_peptides),
+                    "charge_states": ";".join(
+                        str(charge) for charge in row.charge_states
+                    ),
+                    "protein_refs": ";".join(row.protein_refs),
+                }
+                for row in self.rows
+            },
             sample_metadata=sample_metadata,
             transformation_history=(
                 f"source_kind:{self.source_kind.value}",
@@ -140,7 +176,158 @@ class PeptideIntensityMatrixReport(JsonModel):
                 f"aggregation_method:{self.aggregation_method.value}",
                 f"separate_charge_states:{str(self.separate_charge_states).lower()}",
             ),
-            metadata={"note": self.note},
+            metadata={
+                "note": self.note,
+                "source_kind": self.source_kind.value,
+                "grouping_mode": self.grouping_mode.value,
+                "aggregation_method": self.aggregation_method.value,
+                "separate_charge_states": str(self.separate_charge_states).lower(),
+            },
+        )
+
+    @classmethod
+    def from_quant_matrix(cls, matrix: CanonicalQuantMatrix) -> PeptideIntensityMatrixReport:
+        """Rebuild one peptide matrix report from a canonical peptide matrix."""
+
+        row_metadata_lookup = {
+            entity_id: matrix.row_metadata[index]
+            for index, entity_id in enumerate(matrix.entity_ids)
+        }
+        rows: list[PeptideIntensityMatrixRow] = []
+        for row_index, entity_id in enumerate(matrix.entity_ids):
+            metadata = row_metadata_lookup.get(entity_id, {})
+            rows.append(
+                PeptideIntensityMatrixRow(
+                    entity_id=entity_id,
+                    peptide_sequence=metadata.get("peptide_sequence", entity_id),
+                    modified_peptides=tuple(
+                        token
+                        for token in metadata.get("modified_peptides", "").split(";")
+                        if token
+                    ),
+                    charge_states=tuple(
+                        int(token)
+                        for token in metadata.get("charge_states", "").split(";")
+                        if token
+                    ),
+                    protein_refs=tuple(
+                        token
+                        for token in metadata.get("protein_refs", "").split(";")
+                        if token
+                    ),
+                    values=tuple(
+                        PeptideIntensityMatrixValue(
+                            sample_id=sample_id,
+                            abundance=matrix.values[row_index][column_index],
+                            missing_value_kind=MissingValueKind(
+                                matrix.missing_value_states[row_index][column_index].value
+                            ),
+                            source_record_count=(
+                                0
+                                if not matrix.support_counts
+                                else matrix.support_counts[row_index][column_index]
+                            ),
+                        )
+                        for column_index, sample_id in enumerate(matrix.sample_ids)
+                    ),
+                )
+            )
+        observed_cell_count = sum(
+            1
+            for row in rows
+            for value in row.values
+            if value.missing_value_kind is MissingValueKind.OBSERVED
+        )
+        zero_cell_count = sum(
+            1
+            for row in rows
+            for value in row.values
+            if value.missing_value_kind is MissingValueKind.ZERO
+        )
+        missing_cell_count = sum(
+            1
+            for row in rows
+            for value in row.values
+            if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
+        )
+        filtered_cell_count = sum(
+            1
+            for row in rows
+            for value in row.values
+            if value.missing_value_kind is MissingValueKind.FILTERED
+        )
+        return cls(
+            source_kind=PeptideMatrixSourceKind(
+                matrix.metadata.get("source_kind", PeptideMatrixSourceKind.FEATURE.value)
+            ),
+            grouping_mode=PeptideMatrixGroupingMode(
+                matrix.metadata.get(
+                    "grouping_mode",
+                    PeptideMatrixGroupingMode.MODIFIED_PEPTIDE.value,
+                )
+            ),
+            separate_charge_states=matrix.metadata.get("separate_charge_states", "false")
+            == "true",
+            aggregation_method=QuantRollupMethod(
+                matrix.metadata.get("aggregation_method", QuantRollupMethod.SUM.value)
+            ),
+            sample_ids=matrix.sample_ids,
+            rows=tuple(rows),
+            quant_matrix=matrix,
+            missing_summary=MissingValueSummaryReport(
+                entity_level=QuantEntityLevel.PEPTIDE,
+                policy=MissingValueSummaryPolicy(),
+                entries=tuple(
+                    MissingValueSummaryEntry(
+                        sample_id=sample_id,
+                        observed_count=sum(
+                            1
+                            for row in rows
+                            for value in row.values
+                            if value.sample_id == sample_id
+                            and value.missing_value_kind is MissingValueKind.OBSERVED
+                        ),
+                        zero_count=sum(
+                            1
+                            for row in rows
+                            for value in row.values
+                            if value.sample_id == sample_id
+                            and value.missing_value_kind is MissingValueKind.ZERO
+                        ),
+                        not_observed_count=sum(
+                            1
+                            for row in rows
+                            for value in row.values
+                            if value.sample_id == sample_id
+                            and value.missing_value_kind
+                            is MissingValueKind.NOT_OBSERVED
+                        ),
+                        filtered_count=sum(
+                            1
+                            for row in rows
+                            for value in row.values
+                            if value.sample_id == sample_id
+                            and value.missing_value_kind is MissingValueKind.FILTERED
+                        ),
+                    )
+                    for sample_id in matrix.sample_ids
+                ),
+                included_entity_ids=matrix.entity_ids,
+                excluded_entity_ids=(),
+            ),
+            summary=PeptideIntensityMatrixSummary(
+                accepted_source_record_count=sum(
+                    value.source_record_count for row in rows for value in row.values
+                ),
+                skipped_source_record_count=0,
+                sample_count=len(matrix.sample_ids),
+                peptide_row_count=len(rows),
+                observed_cell_count=observed_cell_count,
+                zero_cell_count=zero_cell_count,
+                missing_cell_count=missing_cell_count,
+                filtered_cell_count=filtered_cell_count,
+            ),
+            note=matrix.metadata.get("note", "canonical peptide matrix"),
         )
 
 
