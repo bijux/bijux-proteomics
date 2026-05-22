@@ -3023,6 +3023,58 @@ def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> 
         assert "P001" in Path("tmt.ratio.proteins.tsv").read_text(encoding="utf-8")
 
 
+def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-integrate-plexes",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--summary-tsv-out",
+                "tmt.integration.summary.tsv",
+                "--alignment-tsv-out",
+                "tmt.integration.alignment.tsv",
+                "--plex-effect-tsv-out",
+                "tmt.integration.effects.tsv",
+                "--protein-matrix-tsv-out",
+                "tmt.integration.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["report"]["summary"]["multiplex_group_count"] == 2
+        assert payload["report"]["summary"]["integrated_sample_count"] == 4
+        assert payload["report"]["summary"]["protein_row_count"] == 2
+        assert payload["outputs"]["summary_tsv"] == "tmt.integration.summary.tsv"
+        assert Path("tmt.integration.summary.tsv").exists()
+        assert Path("tmt.integration.alignment.tsv").exists()
+        assert Path("tmt.integration.effects.tsv").exists()
+        assert Path("tmt.integration.proteins.tsv").exists()
+        assert "bridge_sample_id" in Path(
+            "tmt.integration.alignment.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ratio_to_global_bridge_median" in Path(
+            "tmt.integration.effects.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P001" in Path("tmt.integration.proteins.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
