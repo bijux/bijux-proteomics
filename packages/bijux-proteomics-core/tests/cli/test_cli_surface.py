@@ -3434,12 +3434,22 @@ def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
         assert payload["control_channel"] == "126"
         assert payload["report"]["summary"]["sample_qc_entry_count"] == 8
         report_dir = Path("tmt_report")
+        assert (report_dir / "tmt_workflow_manifest.json").exists()
+        assert (report_dir / "tmt_workflow_summary.tsv").exists()
+        assert (report_dir / "tmt_reporter_import_summary.tsv").exists()
+        assert (report_dir / "tmt_reporter_rows.tsv").exists()
+        assert (report_dir / "tmt_reporter_rejected_rows.tsv").exists()
+        assert (report_dir / "tmt_metadata_summary.tsv").exists()
+        assert (report_dir / "tmt_channel_assignments.tsv").exists()
         assert (report_dir / "label_based_report_manifest.json").exists()
         assert (report_dir / "label_based_report_summary.tsv").exists()
         assert (report_dir / "label_based_sample_qc.tsv").exists()
         assert (report_dir / "tmt_channel_totals.tsv").exists()
         assert (report_dir / "tmt_protein_ratios.tsv").exists()
         assert (report_dir / "label_based_differential_results.tsv").exists()
+        assert "accepted_input_row_count" in (
+            report_dir / "tmt_workflow_summary.tsv"
+        ).read_text(encoding="utf-8")
         assert "quality_entry_count" in (
             report_dir / "label_based_report_summary.tsv"
         ).read_text(encoding="utf-8")
