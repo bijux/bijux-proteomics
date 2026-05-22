@@ -2972,6 +2972,57 @@ def test_tmt_normalize_command_emits_distribution_and_normalized_matrices() -> N
         ).read_text(encoding="utf-8")
 
 
+def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-ratios",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--control-channel",
+                "126",
+                "--summary-tsv-out",
+                "tmt.ratio.summary.tsv",
+                "--peptide-tsv-out",
+                "tmt.ratio.peptides.tsv",
+                "--protein-tsv-out",
+                "tmt.ratio.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["control_channel"] == "126"
+        assert payload["report"]["summary"]["control_channel"] == "126"
+        assert payload["report"]["summary"]["normalization_method"] == "none"
+        assert payload["report"]["summary"]["peptide_ratio_count"] == 12
+        assert payload["report"]["summary"]["protein_ratio_count"] == 12
+        assert payload["report"]["summary"]["missing_ratio_count"] == 8
+        assert Path("tmt.ratio.summary.tsv").exists()
+        assert Path("tmt.ratio.peptides.tsv").exists()
+        assert Path("tmt.ratio.proteins.tsv").exists()
+        assert "missing_ratio_count" in Path("tmt.ratio.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "sample_channel_missing" in Path(
+            "tmt.ratio.peptides.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P001" in Path("tmt.ratio.proteins.tsv").read_text(encoding="utf-8")
+
+
 def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
