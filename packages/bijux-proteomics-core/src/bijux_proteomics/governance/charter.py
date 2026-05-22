@@ -107,10 +107,11 @@ DEFAULT_CORE_CHARTER = CoreProductCharter(
 DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
     CoreDomainFamilyEntry(
         family=CoreScientificDomainFamily.PROGRAM_GOVERNANCE,
-        owned_surface="Program, target, review-gate, and validation semantics that define durable scientific state and progression meaning.",
+        owned_surface="Program, target, canonical scientific record, review-gate, and validation semantics that define durable scientific state and progression meaning.",
         required_modules=(
             "domain/program_spec.py",
             "domain/programs.py",
+            "domain/records.py",
             "domain/targets.py",
             "domain/validation.py",
         ),
