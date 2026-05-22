@@ -4474,6 +4474,98 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         ).read_text(encoding="utf-8")
 
 
+def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "dda_biological_results.tsv",
+            "dda_biological_results.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "dda_biological_mapping.json",
+            "dda_biological_mapping.json",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv",
+            "biological_report_go.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "dda-biological-report",
+                "dda_biological_results.tsv",
+                "biological_report.design.tsv",
+                "biological_report_reference.fasta",
+                "--adapter-kind",
+                "generic",
+                "--mapping-path",
+                "dda_biological_mapping.json",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--output-dir",
+                "dda_biological_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["design_rows"] == 6
+        assert payload["report"]["summary"]["accepted_psm_count"] == 30
+        assert payload["report"]["summary"]["filtered_psm_count"] == 3
+        assert payload["report"]["summary"]["inferred_protein_count"] == 5
+        assert payload["report"]["biological_report"]["summary"][
+            "significant_protein_count"
+        ] >= 3
+        report_dir = Path("dda_biological_report")
+        assert (report_dir / "dda_biological_report_manifest.json").exists()
+        assert (report_dir / "dda_biological_psms.tsv").exists()
+        assert (report_dir / "dda_biological_filtered_psms.tsv").exists()
+        assert (report_dir / "dda_parsimony_proteins.tsv").exists()
+        assert (report_dir / "dda_protein_lfq_matrix.tsv").exists()
+        assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_report.html").exists()
+        assert "filter_reasons" in (
+            report_dir / "dda_biological_filtered_psms.tsv"
+        ).read_text(encoding="utf-8")
+        assert "selected_protein_count" in (
+            report_dir / "dda_parsimony_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "entity_id" in (
+            report_dir / "dda_protein_lfq_matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "Biological result report" in (
+            report_dir / "biological_report.html"
+        ).read_text(encoding="utf-8")
+
+
 def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
