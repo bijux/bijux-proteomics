@@ -25,6 +25,7 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,
+    count_missed_cleavages as count_sequence_missed_cleavages,
     get_protease_rule,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel, hash_model
@@ -1287,28 +1288,7 @@ def _is_contaminant_reference(reference: str, policy: QcContaminantPolicy) -> bo
 
 
 def _count_missed_cleavages(sequence: str, rule: ProteaseRule) -> int:
-    if len(sequence) < 2:
-        return 0
-    count = 0
-    if rule.cleavage_mode is ProteaseCleavageMode.C_TERMINAL:
-        for index in range(len(sequence) - 1):
-            residue = sequence[index]
-            next_residue = sequence[index + 1]
-            if (
-                residue in rule.cleavage_residues
-                and next_residue not in rule.blocked_by_next
-            ):
-                count += 1
-        return count
-    for index in range(1, len(sequence)):
-        residue = sequence[index]
-        previous_residue = sequence[index - 1]
-        if (
-            residue in rule.cleavage_residues
-            and previous_residue not in rule.blocked_by_previous
-        ):
-            count += 1
-    return count
+    return count_sequence_missed_cleavages(sequence, rule)
 
 
 def _boundary_valid(
