@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, field_validator, model_validator
 import yaml
 
 from bijux_proteomics.identification.contracts import (
@@ -18,8 +18,12 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabelPolicy,
 )
 from bijux_proteomics.identification.search_adapters import (
+    ScoreOrientation,
+    SearchAdapterDialectManifest,
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
+    SearchResultFamily,
+    SearchScoreFamily,
     normalize_search_results_with_adapter,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -30,25 +34,59 @@ class GenericPsmTableColumnMapping(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    run_id: str = Field(..., min_length=1)
     spectrum_id: str = Field(..., min_length=1)
-    peptide: str = Field(..., min_length=1)
+    peptide: str | None = None
     modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
+    score_orientation: str = Field(
+        ..., pattern="^(higher_better|lower_better)$"
+    )
     intensity: str | None = None
-    run_id: str | None = None
-    protein_refs: str | None = None
+    protein_refs: str = Field(..., min_length=1)
     q_value: str | None = None
     decoy_label: str | None = None
     contaminant_label: str | None = None
+    decoy_prefix: str | None = "DECOY_"
+    decoy_suffix: str | None = None
+    explicit_decoy_values: tuple[str, ...] = ("decoy", "true", "1")
+    explicit_target_values: tuple[str, ...] = ("target", "false", "0")
     protein_separator: str = ";"
+
+    @field_validator("explicit_decoy_values", "explicit_target_values", mode="before")
+    @classmethod
+    def _normalize_values(cls, value: object) -> tuple[str, ...]:
+        if value is None:
+            return ()
+        if isinstance(value, str):
+            values: tuple[str, ...] = (value,)
+        else:
+            values = tuple(str(token) for token in value)
+        return tuple(token.strip().lower() for token in values if token.strip())
+
+    @model_validator(mode="after")
+    def _require_generic_mapper_semantics(self) -> GenericPsmTableColumnMapping:
+        if self.peptide is None and self.modified_peptide is None:
+            raise ValueError(
+                "generic PSM mapping requires a peptide or modified_peptide column"
+            )
+        if (
+            self.decoy_label is None
+            and not self.decoy_prefix
+            and not self.decoy_suffix
+        ):
+            raise ValueError(
+                "generic PSM mapping requires a decoy label column or decoy naming rule"
+            )
+        return self
 
     def to_search_result_mapping(self) -> SearchResultColumnMapping:
         """Convert the generic mapper config into the base search-result mapping."""
         return SearchResultColumnMapping(
             run_id=self.run_id,
             spectrum_id=self.spectrum_id,
-            peptide=self.peptide,
+            peptide=self.peptide or self.modified_peptide or self.spectrum_id,
             modified_peptide=self.modified_peptide,
             charge=self.charge,
             score=self.score,
@@ -59,6 +97,21 @@ class GenericPsmTableColumnMapping(JsonModel):
             contaminant_label=self.contaminant_label,
             protein_separator=self.protein_separator,
         )
+
+    def to_target_decoy_policy(self) -> TargetDecoyLabelPolicy:
+        """Build the explicit decoy policy requested by one generic mapping."""
+
+        return TargetDecoyLabelPolicy(
+            protein_prefix=self.decoy_prefix,
+            protein_suffix=self.decoy_suffix,
+            explicit_decoy_values=self.explicit_decoy_values,
+            explicit_target_values=self.explicit_target_values,
+        )
+
+    def to_score_orientation(self) -> ScoreOrientation:
+        """Convert the declared score orientation into the shared contract."""
+
+        return ScoreOrientation(self.score_orientation)
 
 
 class GenericMappedPsmRow(JsonModel):
@@ -132,11 +185,14 @@ def build_generic_psm_mapper_report(
 ) -> GenericPsmMapperReport:
     """Normalize one lab-local PSM table through an explicit generic column map."""
     column_mapping = load_generic_psm_table_mapping(mapping_path)
+    dialect = _build_generic_mapper_dialect(column_mapping)
     normalization = normalize_search_results_with_adapter(
         source_path=source_path,
         adapter_kind=SearchAdapterKind.GENERIC,
+        dialect_id=dialect.dialect_id,
         mapping=column_mapping.to_search_result_mapping(),
-        decoy_policy=decoy_policy,
+        decoy_policy=decoy_policy or column_mapping.to_target_decoy_policy(),
+        additional_dialects=(dialect,),
     )
     mapped_rows = _build_mapped_rows(
         normalization_report=normalization,
@@ -209,6 +265,53 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
             )
         )
     return "\n".join(lines) + "\n"
+
+
+def render_generic_psm_rejected_row_tsv(rows: tuple[RejectedPsmRow, ...]) -> str:
+    """Render rejected generic PSM rows as TSV."""
+
+    ordered_rows = tuple(sorted(rows, key=lambda row: row.row_number))
+    lines = [
+        "\t".join(
+            (
+                "row_number",
+                "issue_codes",
+                "issue_messages",
+                "raw_fields_json",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    str(row.row_number),
+                    ";".join(issue.code for issue in row.issues),
+                    ";".join(issue.message for issue in row.issues),
+                    json.dumps(row.raw_fields, sort_keys=True, separators=(",", ":")),
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _build_generic_mapper_dialect(
+    mapping: GenericPsmTableColumnMapping,
+) -> SearchAdapterDialectManifest:
+    return SearchAdapterDialectManifest(
+        adapter_kind=SearchAdapterKind.GENERIC,
+        dialect_id="mapped-generic-psm-table",
+        display_name="Mapped generic search table",
+        description=(
+            "Normalize a user-mapped generic search-result table with explicit score "
+            "orientation and target-decoy semantics."
+        ),
+        score_orientation=mapping.to_score_orientation(),
+        score_family=SearchScoreFamily.GENERIC_NUMERIC,
+        result_family=SearchResultFamily.DATABASE_TARGET_DECOY,
+        native_columns=tuple(sorted(_mapped_source_columns(mapping))),
+        mapping=mapping.to_search_result_mapping(),
+    )
 
 
 def _build_mapped_rows(

@@ -114,6 +114,7 @@ class SearchAdapterDialectManifest(JsonModel):
     dialect_id: str = Field(..., min_length=1)
     display_name: str = Field(..., min_length=1)
     description: str = Field(..., min_length=1)
+    score_orientation: ScoreOrientation | None = None
     score_family: SearchScoreFamily = SearchScoreFamily.GENERIC_NUMERIC
     result_family: SearchResultFamily = SearchResultFamily.DATABASE_TARGET_DECOY
     native_columns: tuple[str, ...] = Field(default_factory=tuple)
@@ -1191,6 +1192,7 @@ def _manifest_for_dialect(
         update={
             "description": dialect.description,
             "display_name": dialect.display_name,
+            "score_orientation": dialect.score_orientation or manifest.score_orientation,
             "score_family": dialect.score_family,
             "result_family": dialect.result_family,
             "native_columns": dialect.native_columns,
