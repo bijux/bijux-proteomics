@@ -256,6 +256,19 @@ from bijux_proteomics.panels import (
     render_target_panel_summary_tsv,
     render_target_panel_target_tsv,
 )
+from bijux_proteomics.multiplex import (
+    TmtReporterChannelColumn,
+    TmtReporterColumnMapping,
+    TmtSearchResultSourceKind,
+    build_tmt_reporter_feature_bundle,
+    build_tmt_reporter_matrix_report,
+    export_tmt_channel_mapping_tsv,
+    export_tmt_channel_totals_tsv,
+    export_tmt_peptide_matrix_tsv,
+    export_tmt_protein_matrix_tsv,
+    export_tmt_report_summary_tsv,
+    parse_tmt_reporter_table,
+)
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
     build_targeted_assay_qc_report,
@@ -772,10 +785,41 @@ def _protein_matrix_target_choice() -> click.Choice[str]:
     )
 
 
+def _tmt_source_kind_choice() -> click.Choice[str]:
+    return click.Choice(
+        [kind.value for kind in TmtSearchResultSourceKind], case_sensitive=False
+    )
+
+
 def _workflow_scheduler_choice() -> click.Choice[str]:
     return click.Choice(
         [scheduler.value for scheduler in WorkflowSchedulerKind], case_sensitive=False
     )
+
+
+def _parse_tmt_channel_column_specs(
+    specs: tuple[str, ...],
+) -> tuple[TmtReporterChannelColumn, ...]:
+    resolved: list[TmtReporterChannelColumn] = []
+    for spec in specs:
+        if "=" not in spec:
+            raise click.ClickException(
+                "channel-column must use CHANNEL=COLUMN syntax"
+            )
+        channel, column_name = spec.split("=", 1)
+        channel = channel.strip()
+        column_name = column_name.strip()
+        if not channel or not column_name:
+            raise click.ClickException(
+                "channel-column must use CHANNEL=COLUMN syntax"
+            )
+        resolved.append(
+            TmtReporterChannelColumn(
+                multiplex_channel=channel,
+                column_name=column_name,
+            )
+        )
+    return tuple(resolved)
 
 
 def _select_design_entry(
@@ -7987,6 +8031,140 @@ def workflow_validate_command(
 @cli.group("qc")
 def qc_group() -> None:
     """Build operator-facing LC-MS QC reports and artifacts."""
+
+
+@cli.group("multiplex")
+def multiplex_group() -> None:
+    """Build multiplex reporter-ion import and matrix review outputs."""
+
+
+@multiplex_group.command("tmt-reporter-matrix")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--channel-mapping-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--channel-totals-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--peptide-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_reporter_matrix_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    channel_mapping_tsv_out: Path | None,
+    channel_totals_tsv_out: Path | None,
+    peptide_matrix_tsv_out: Path | None,
+    protein_matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import TMT reporter-ion search results and build sample-channel matrices."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        feature_bundle = build_tmt_reporter_feature_bundle(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+        )
+        report = build_tmt_reporter_matrix_report(feature_bundle)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_report_summary_tsv(report, summary_tsv_out)
+    if channel_mapping_tsv_out is not None:
+        export_tmt_channel_mapping_tsv(report, channel_mapping_tsv_out)
+    if channel_totals_tsv_out is not None:
+        export_tmt_channel_totals_tsv(report, channel_totals_tsv_out)
+    if peptide_matrix_tsv_out is not None:
+        export_tmt_peptide_matrix_tsv(report, peptide_matrix_tsv_out)
+    if protein_matrix_tsv_out is not None:
+        export_tmt_protein_matrix_tsv(report, protein_matrix_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_report": import_report.to_dict(),
+        "feature_bundle": feature_bundle.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "channel_mapping_tsv": (
+                None
+                if channel_mapping_tsv_out is None
+                else str(channel_mapping_tsv_out)
+            ),
+            "channel_totals_tsv": (
+                None
+                if channel_totals_tsv_out is None
+                else str(channel_totals_tsv_out)
+            ),
+            "peptide_matrix_tsv": (
+                None if peptide_matrix_tsv_out is None else str(peptide_matrix_tsv_out)
+            ),
+            "protein_matrix_tsv": (
+                None if protein_matrix_tsv_out is None else str(protein_matrix_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @qc_group.command("report")

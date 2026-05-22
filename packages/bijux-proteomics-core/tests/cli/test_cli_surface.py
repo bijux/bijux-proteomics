@@ -2851,6 +2851,64 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         )
 
 
+def test_tmt_reporter_matrix_command_emits_mapping_totals_and_matrices() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-reporter-matrix",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--summary-tsv-out",
+                "tmt.summary.tsv",
+                "--channel-mapping-tsv-out",
+                "tmt.channel_mapping.tsv",
+                "--channel-totals-tsv-out",
+                "tmt.channel_totals.tsv",
+                "--peptide-matrix-tsv-out",
+                "tmt.peptide_matrix.tsv",
+                "--protein-matrix-tsv-out",
+                "tmt.protein_matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["source_report"]["summary"]["accepted_row_count"] == 4
+        assert payload["feature_bundle"]["summary"]["missing_channel_count"] == 2
+        assert payload["report"]["summary"]["peptide_row_count"] == 2
+        assert payload["report"]["summary"]["protein_row_count"] == 2
+        assert payload["outputs"]["summary_tsv"] == "tmt.summary.tsv"
+        assert payload["outputs"]["peptide_matrix_tsv"] == "tmt.peptide_matrix.tsv"
+        assert Path("tmt.summary.tsv").exists()
+        assert Path("tmt.channel_mapping.tsv").exists()
+        assert Path("tmt.channel_totals.tsv").exists()
+        assert Path("tmt.peptide_matrix.tsv").exists()
+        assert Path("tmt.protein_matrix.tsv").exists()
+        assert "plex_a_129N" in Path("tmt.peptide_matrix.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "P001" in Path("tmt.protein_matrix.tsv").read_text(encoding="utf-8")
+        assert "total_intensity" in Path("tmt.channel_totals.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "mapped_to_design" in Path("tmt.channel_mapping.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
