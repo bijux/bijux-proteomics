@@ -72,6 +72,8 @@ def test_fragpipe_psm_dialect_normalizes_realistic_psm_exports() -> None:
     assert report.adapter_manifest.display_name == "FragPipe psm export"
     assert report.normalized_records[0].canonical_peptide == "PEPTIDE"
     assert report.normalized_records[0].q_value == 0.002
+    assert report.normalized_records[0].run_id == "runA.raw"
+    assert report.normalized_records[0].intensity is None
     assert (
         report.evidence_rows[0].raw_fields["Modified Peptide"] == "PEP[+15.994915]TIDE"
     )
