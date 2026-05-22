@@ -26,6 +26,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.scientific_tables import (
     build_maxquant_peptides_schema,
     build_maxquant_protein_groups_schema,
@@ -112,6 +113,27 @@ class MaxquantProteinGroupReviewEntry(JsonModel):
     )
 
 
+class MaxquantLfqMatrixCandidateEntry(JsonModel):
+    """Owned LFQ-ready protein candidate derived from one MaxQuant protein group."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    protein_ids: tuple[str, ...] = Field(default_factory=tuple)
+    majority_protein_ids: tuple[str, ...] = Field(default_factory=tuple)
+    gene_names: tuple[str, ...] = Field(default_factory=tuple)
+    fasta_headers: tuple[str, ...] = Field(default_factory=tuple)
+    member_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    target_decoy_label: TargetDecoyLabel
+    reverse_flag: bool = False
+    contaminant_flag: bool = False
+    only_identified_by_site: bool = False
+    observed_lfq_experiment_count: int = Field(..., ge=0)
+    lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(
+        default_factory=tuple
+    )
+
+
 class MaxquantImportSummary(JsonModel):
     """Compact summary over one imported MaxQuant result bundle."""
 
@@ -125,6 +147,7 @@ class MaxquantImportSummary(JsonModel):
     modified_peptide_row_count: int = Field(..., ge=0)
     experiment_count: int = Field(..., ge=0)
     lfq_experiment_count: int = Field(..., ge=0)
+    lfq_candidate_count: int = Field(..., ge=0)
     contaminant_evidence_count: int = Field(..., ge=0)
     reverse_evidence_count: int = Field(..., ge=0)
     contaminant_peptide_count: int = Field(..., ge=0)
@@ -148,6 +171,9 @@ class MaxquantImportReport(JsonModel):
     protein_group_rows: tuple[MaxquantProteinGroupReviewEntry, ...] = Field(
         default_factory=tuple
     )
+    lfq_matrix_candidates: tuple[MaxquantLfqMatrixCandidateEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: MaxquantImportSummary
     parameter_report: SearchParameterReport | None = None
 
@@ -169,6 +195,10 @@ def build_maxquant_import_report(
     peptide_rows = _parse_maxquant_peptide_table(peptides_txt_path)
     protein_group_rows, lfq_experiment_names = _parse_maxquant_protein_groups_table(
         protein_groups_txt_path
+    )
+    lfq_matrix_candidates = build_maxquant_lfq_matrix_candidates(
+        protein_group_rows,
+        peptide_rows=peptide_rows,
     )
     experiment_names = tuple(
         sorted(
@@ -200,6 +230,7 @@ def build_maxquant_import_report(
         ),
         experiment_count=len(experiment_names),
         lfq_experiment_count=len(lfq_experiment_names),
+        lfq_candidate_count=len(lfq_matrix_candidates),
         contaminant_evidence_count=sum(
             1 for row in evidence_rows if row.contaminant_flag
         ),
@@ -222,6 +253,7 @@ def build_maxquant_import_report(
         evidence_rows=evidence_rows,
         peptide_rows=peptide_rows,
         protein_group_rows=protein_group_rows,
+        lfq_matrix_candidates=lfq_matrix_candidates,
         summary=summary,
         parameter_report=parameter_report,
     )
@@ -238,6 +270,7 @@ def render_maxquant_summary_tsv(summary: MaxquantImportSummary) -> str:
         "modified_peptide_row_count",
         "experiment_count",
         "lfq_experiment_count",
+        "lfq_candidate_count",
         "contaminant_evidence_count",
         "reverse_evidence_count",
         "contaminant_peptide_count",
@@ -256,6 +289,7 @@ def render_maxquant_summary_tsv(summary: MaxquantImportSummary) -> str:
         str(summary.modified_peptide_row_count),
         str(summary.experiment_count),
         str(summary.lfq_experiment_count),
+        str(summary.lfq_candidate_count),
         str(summary.contaminant_evidence_count),
         str(summary.reverse_evidence_count),
         str(summary.contaminant_peptide_count),
@@ -270,6 +304,11 @@ def render_maxquant_summary_tsv(summary: MaxquantImportSummary) -> str:
 
 def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) -> str:
     """Render reviewer-facing MaxQuant evidence rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "posterior_error_probability",
+        "spectrum_id",
+    )
     lines = [
         "\t".join(
             (
@@ -289,7 +328,7 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -304,7 +343,7 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
                     ""
                     if row.posterior_error_probability is None
                     else f"{row.posterior_error_probability:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
@@ -316,6 +355,11 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
 
 def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) -> str:
     """Render reviewer-facing MaxQuant peptide rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "posterior_error_probability",
+        "sequence",
+    )
     lines = [
         "\t".join(
             (
@@ -336,7 +380,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -346,7 +390,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
                     row.canonical_modified_peptide or "",
                     str(row.modification_count),
                     row.leading_razor_protein or "",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     "" if row.score is None else f"{row.score:.6g}",
                     ""
                     if row.posterior_error_probability is None
@@ -366,6 +410,13 @@ def render_maxquant_protein_group_tsv(
     rows: tuple[MaxquantProteinGroupReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing MaxQuant protein-group rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "reverse_flag",
+        "contaminant_flag",
+        "majority_protein_ids",
+        "protein_ids",
+    )
     lines = [
         "\t".join(
             (
@@ -385,7 +436,7 @@ def render_maxquant_protein_group_tsv(
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lfq_payload = ";".join(
             f"{entry.experiment_name}:{entry.intensity:.6g}"
             for entry in row.lfq_intensities
@@ -393,10 +444,10 @@ def render_maxquant_protein_group_tsv(
         lines.append(
             "\t".join(
                 (
-                    ";".join(row.protein_ids),
-                    ";".join(row.majority_protein_ids),
-                    ";".join(row.gene_names),
-                    ";".join(row.fasta_headers),
+                    ";".join(sort_strings(row.protein_ids)),
+                    ";".join(sort_strings(row.majority_protein_ids)),
+                    ";".join(sort_strings(row.gene_names)),
+                    ";".join(sort_strings(row.fasta_headers)),
                     "" if row.peptide_count is None else str(row.peptide_count),
                     ""
                     if row.razor_unique_peptide_count is None
@@ -409,6 +460,61 @@ def render_maxquant_protein_group_tsv(
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
                     str(row.only_identified_by_site).lower(),
+                    lfq_payload,
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_maxquant_lfq_candidate_tsv(
+    rows: tuple[MaxquantLfqMatrixCandidateEntry, ...],
+) -> str:
+    """Render LFQ-ready MaxQuant protein candidates as TSV."""
+
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "reverse_flag",
+        "contaminant_flag",
+        "entity_id",
+    )
+    lines = [
+        "\t".join(
+            (
+                "entity_id",
+                "protein_ids",
+                "majority_protein_ids",
+                "gene_names",
+                "fasta_headers",
+                "member_peptides",
+                "target_decoy_label",
+                "reverse_flag",
+                "contaminant_flag",
+                "only_identified_by_site",
+                "observed_lfq_experiment_count",
+                "lfq_intensities",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lfq_payload = ";".join(
+            f"{entry.experiment_name}:{entry.intensity:.6g}"
+            for entry in row.lfq_intensities
+        )
+        lines.append(
+            "\t".join(
+                (
+                    row.entity_id,
+                    ";".join(sort_strings(row.protein_ids)),
+                    ";".join(sort_strings(row.majority_protein_ids)),
+                    ";".join(sort_strings(row.gene_names)),
+                    ";".join(sort_strings(row.fasta_headers)),
+                    ";".join(sort_strings(row.member_peptides)),
+                    row.target_decoy_label.value,
+                    str(row.reverse_flag).lower(),
+                    str(row.contaminant_flag).lower(),
+                    str(row.only_identified_by_site).lower(),
+                    str(row.observed_lfq_experiment_count),
                     lfq_payload,
                 )
             )
@@ -596,6 +702,48 @@ def _parse_maxquant_protein_groups_table(
     )
 
 
+def build_maxquant_lfq_matrix_candidates(
+    protein_group_rows: tuple[MaxquantProteinGroupReviewEntry, ...],
+    *,
+    peptide_rows: tuple[MaxquantPeptideReviewEntry, ...],
+) -> tuple[MaxquantLfqMatrixCandidateEntry, ...]:
+    """Build LFQ-ready protein candidates from imported MaxQuant protein groups."""
+
+    member_peptides = _build_member_peptides_by_entity(
+        protein_group_rows,
+        peptide_rows=peptide_rows,
+    )
+    rows = [
+        MaxquantLfqMatrixCandidateEntry(
+            entity_id=_protein_group_entity_id(row),
+            protein_ids=row.protein_ids,
+            majority_protein_ids=row.majority_protein_ids,
+            gene_names=row.gene_names,
+            fasta_headers=row.fasta_headers,
+            member_peptides=member_peptides.get(_protein_group_entity_id(row), ()),
+            target_decoy_label=row.target_decoy_label,
+            reverse_flag=row.reverse_flag,
+            contaminant_flag=row.contaminant_flag,
+            only_identified_by_site=row.only_identified_by_site,
+            observed_lfq_experiment_count=sum(
+                1 for entry in row.lfq_intensities if entry.intensity > 0.0
+            ),
+            lfq_intensities=row.lfq_intensities,
+        )
+        for row in protein_group_rows
+    ]
+    return tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.reverse_flag,
+                row.contaminant_flag,
+                row.entity_id,
+            ),
+        )
+    )
+
+
 def _required_text(row: dict[str, str], column: str) -> str:
     value = row.get(column, "").strip()
     if not value:
@@ -639,3 +787,35 @@ def _coverage_fraction(value: str | None) -> float | None:
     if parsed is None:
         return None
     return parsed / 100.0
+
+
+def _protein_group_entity_id(row: MaxquantProteinGroupReviewEntry) -> str:
+    protein_ids = row.majority_protein_ids or row.protein_ids
+    if protein_ids:
+        return ";".join(protein_ids)
+    return "unassigned_protein_group"
+
+
+def _build_member_peptides_by_entity(
+    protein_group_rows: tuple[MaxquantProteinGroupReviewEntry, ...],
+    *,
+    peptide_rows: tuple[MaxquantPeptideReviewEntry, ...],
+) -> dict[str, tuple[str, ...]]:
+    peptides_by_entity: dict[str, set[str]] = {
+        _protein_group_entity_id(row): set() for row in protein_group_rows
+    }
+    for peptide_row in peptide_rows:
+        peptide_protein_refs = set(peptide_row.protein_refs)
+        if peptide_row.leading_razor_protein is not None:
+            peptide_protein_refs.add(peptide_row.leading_razor_protein)
+        if not peptide_protein_refs:
+            continue
+        for protein_group_row in protein_group_rows:
+            if peptide_protein_refs.intersection(protein_group_row.protein_ids):
+                peptides_by_entity[_protein_group_entity_id(protein_group_row)].add(
+                    peptide_row.residue_sequence
+                )
+    return {
+        entity_id: tuple(sorted(peptides))
+        for entity_id, peptides in peptides_by_entity.items()
+    }
