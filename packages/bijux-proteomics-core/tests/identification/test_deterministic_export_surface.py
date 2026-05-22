@@ -15,6 +15,12 @@ from bijux_proteomics.identification.diann_import import (
     render_diann_protein_group_tsv,
     render_diann_rejected_row_tsv,
 )
+from bijux_proteomics.identification.maxquant_import import (
+    build_maxquant_import_report,
+    render_maxquant_lfq_candidate_tsv,
+    render_maxquant_peptide_tsv,
+    render_maxquant_protein_group_tsv,
+)
 from bijux_proteomics.identification.fragpipe_import import (
     build_fragpipe_import_report,
     render_fragpipe_peptide_tsv,
@@ -142,6 +148,28 @@ def test_diann_rejected_row_renderer_ignores_input_row_order(tmp_path: Path) -> 
     assert render_diann_rejected_row_tsv(
         report.rejected_rows
     ) == render_diann_rejected_row_tsv(_reversed_rows(report.rejected_rows))
+
+
+def test_maxquant_export_renderers_ignore_input_row_order() -> None:
+    root = _bundle_root("maxquant")
+    report = build_maxquant_import_report(
+        root / "evidence.txt",
+        peptides_txt_path=root / "peptides.txt",
+        protein_groups_txt_path=root / "proteinGroups.txt",
+        config_path=root / "maxquant_settings.txt",
+    )
+
+    assert render_maxquant_peptide_tsv(
+        report.peptide_rows
+    ) == render_maxquant_peptide_tsv(_reversed_rows(report.peptide_rows))
+    assert render_maxquant_protein_group_tsv(
+        report.protein_group_rows
+    ) == render_maxquant_protein_group_tsv(_reversed_rows(report.protein_group_rows))
+    assert render_maxquant_lfq_candidate_tsv(
+        report.lfq_matrix_candidates
+    ) == render_maxquant_lfq_candidate_tsv(
+        _reversed_rows(report.lfq_matrix_candidates)
+    )
 
 
 def test_spectronaut_export_renderers_ignore_input_row_order() -> None:

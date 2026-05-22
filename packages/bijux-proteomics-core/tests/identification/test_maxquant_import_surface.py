@@ -10,6 +10,7 @@ import pytest
 from bijux_proteomics.identification.maxquant_import import (
     build_maxquant_import_report,
     render_maxquant_evidence_tsv,
+    render_maxquant_lfq_candidate_tsv,
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
@@ -44,6 +45,7 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert report.summary.modified_peptide_row_count == 2
     assert report.summary.experiment_count == 2
     assert report.summary.lfq_experiment_count == 2
+    assert report.summary.lfq_candidate_count == 4
     assert report.summary.experiment_names == ("raw_A", "raw_B")
     assert report.summary.lfq_experiment_names == ("raw_A", "raw_B")
     assert report.summary.contaminant_evidence_count == 1
@@ -61,11 +63,17 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert report.protein_group_rows[0].lfq_intensities[0].experiment_name == "raw_A"
     assert report.protein_group_rows[2].contaminant_flag is True
     assert report.protein_group_rows[3].reverse_flag is True
+    assert report.lfq_matrix_candidates[2].contaminant_flag is True
+    assert report.lfq_matrix_candidates[3].reverse_flag is True
+    assert report.lfq_matrix_candidates[0].member_peptides == ("PESTIDE",)
     assert "experiment_names" in render_maxquant_summary_tsv(report.summary)
     assert "contaminant_flag" in render_maxquant_evidence_tsv(report.evidence_rows)
     assert "leading_razor_protein" in render_maxquant_peptide_tsv(report.peptide_rows)
     assert "lfq_intensities" in render_maxquant_protein_group_tsv(
         report.protein_group_rows
+    )
+    assert "member_peptides" in render_maxquant_lfq_candidate_tsv(
+        report.lfq_matrix_candidates
     )
 
 
