@@ -11,6 +11,11 @@ from bijux_proteomics.isotope_labeling.silac_quantification import (
     SilacImportReport,
     SilacLabel,
 )
+from bijux_proteomics.multiplex.reporter_matrix import (
+    TmtReporterFeatureBundle,
+    build_tmt_reporter_matrix_report,
+)
+from bijux_proteomics.quantification import LabelBasedChannelRole
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -106,6 +111,90 @@ class SilacValidationReport(JsonModel):
     distribution_entries: tuple[SilacLabelDistributionEntry, ...] = Field(default_factory=tuple)
     weak_evidence: tuple[SilacWeakEvidenceEntry, ...] = Field(default_factory=tuple)
     summary: SilacValidationSummary
+    note: str = Field(..., min_length=1)
+
+
+class TmtValidationPolicy(JsonModel):
+    """Policy for TMT channel-presence and weak-channel validation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    weak_channel_ratio_floor: float = Field(default=0.5, gt=0.0)
+    abnormal_distribution_floor: float = Field(default=0.7, gt=0.0)
+    abnormal_distribution_ceiling: float = Field(default=1.5, gt=0.0)
+
+
+class TmtChannelValidationEntry(JsonModel):
+    """One expected TMT channel ledger row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    condition: str | None = None
+    channel_role: LabelBasedChannelRole | None = None
+    source_column_present: bool
+    observed_row_count: int = Field(..., ge=0)
+    missing_row_count: int = Field(..., ge=0)
+    total_intensity: float = Field(..., ge=0.0)
+    present: bool
+    note: str = Field(..., min_length=1)
+
+
+class TmtChannelDistributionEntry(JsonModel):
+    """One TMT channel-distribution review row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    channel_role: LabelBasedChannelRole | None = None
+    total_intensity: float = Field(..., ge=0.0)
+    channel_median_total_intensity: float | None = Field(default=None, ge=0.0)
+    ratio_to_channel_median: float | None = Field(default=None, ge=0.0)
+    abnormal_distribution: bool
+    note: str = Field(..., min_length=1)
+
+
+class TmtWeakEvidenceEntry(JsonModel):
+    """One weak TMT channel-evidence finding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    channel_role: LabelBasedChannelRole | None = None
+    issue_kind: str = Field(..., min_length=1)
+    total_intensity_ratio_to_channel_max: float = Field(..., ge=0.0)
+    note: str = Field(..., min_length=1)
+
+
+class TmtValidationSummary(JsonModel):
+    """Compact summary over one TMT channel-validation run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group_count: int = Field(..., ge=0)
+    expected_channel_count: int = Field(..., ge=0)
+    missing_channel_count: int = Field(..., ge=0)
+    abnormal_distribution_count: int = Field(..., ge=0)
+    weak_channel_count: int = Field(..., ge=0)
+
+
+class TmtValidationReport(JsonModel):
+    """Owned TMT channel-validation surface."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    feature_bundle: TmtReporterFeatureBundle
+    policy: TmtValidationPolicy
+    channel_entries: tuple[TmtChannelValidationEntry, ...] = Field(default_factory=tuple)
+    distribution_entries: tuple[TmtChannelDistributionEntry, ...] = Field(default_factory=tuple)
+    weak_evidence: tuple[TmtWeakEvidenceEntry, ...] = Field(default_factory=tuple)
+    summary: TmtValidationSummary
     note: str = Field(..., min_length=1)
 
 
@@ -255,6 +344,148 @@ def build_silac_validation_report(
         ),
         note=(
             "silac validation preserves expected label coverage, intensity distribution, and weak-label evidence for isotope-health review"
+        ),
+    )
+
+
+def build_tmt_validation_report(
+    feature_bundle: TmtReporterFeatureBundle,
+    *,
+    policy: TmtValidationPolicy | None = None,
+) -> TmtValidationReport:
+    """Validate expected TMT channels and weak evidence over one feature bundle."""
+
+    active_policy = policy or TmtValidationPolicy()
+    matrix_report = build_tmt_reporter_matrix_report(feature_bundle)
+
+    totals_by_key = {
+        (entry.multiplex_group, entry.multiplex_channel): entry
+        for entry in matrix_report.channel_totals
+    }
+    channel_entries: list[TmtChannelValidationEntry] = []
+    mapped_entries = tuple(
+        entry for entry in feature_bundle.channel_mapping if entry.mapped_to_design
+    )
+    for entry in sorted(
+        mapped_entries,
+        key=lambda item: (item.multiplex_group, item.multiplex_channel),
+    ):
+        total_entry = totals_by_key[(entry.multiplex_group, entry.multiplex_channel)]
+        present = entry.source_column_present and total_entry.observed_row_count > 0
+        channel_entries.append(
+            TmtChannelValidationEntry(
+                multiplex_group=entry.multiplex_group,
+                multiplex_channel=entry.multiplex_channel,
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                channel_role=entry.channel_role,
+                source_column_present=entry.source_column_present,
+                observed_row_count=total_entry.observed_row_count,
+                missing_row_count=total_entry.missing_row_count,
+                total_intensity=total_entry.total_intensity,
+                present=present,
+                note=(
+                    "expected multiplex channel is backed by observed reporter evidence"
+                    if present
+                    else "expected multiplex channel is preserved even though source evidence is missing or empty"
+                ),
+            )
+        )
+
+    totals_by_channel: dict[str, list[float]] = {}
+    for entry in channel_entries:
+        if entry.total_intensity > 0.0:
+            totals_by_channel.setdefault(entry.multiplex_channel, []).append(
+                entry.total_intensity
+            )
+
+    distribution_entries: list[TmtChannelDistributionEntry] = []
+    weak_evidence: list[TmtWeakEvidenceEntry] = []
+    max_total_by_channel = {
+        channel: max(values) for channel, values in totals_by_channel.items()
+    }
+    for entry in channel_entries:
+        channel_median_total_intensity = None
+        if entry.multiplex_channel in totals_by_channel:
+            channel_median_total_intensity = _median(
+                sorted(totals_by_channel[entry.multiplex_channel])
+            )
+        ratio_to_channel_median = _ratio_or_none(
+            numerator=entry.total_intensity,
+            denominator=channel_median_total_intensity,
+        )
+        abnormal_distribution = (
+            ratio_to_channel_median is not None
+            and (
+                ratio_to_channel_median < active_policy.abnormal_distribution_floor
+                or ratio_to_channel_median > active_policy.abnormal_distribution_ceiling
+            )
+        )
+        distribution_entries.append(
+            TmtChannelDistributionEntry(
+                multiplex_group=entry.multiplex_group,
+                multiplex_channel=entry.multiplex_channel,
+                sample_id=entry.sample_id,
+                channel_role=entry.channel_role,
+                total_intensity=entry.total_intensity,
+                channel_median_total_intensity=channel_median_total_intensity,
+                ratio_to_channel_median=ratio_to_channel_median,
+                abnormal_distribution=abnormal_distribution,
+                note=(
+                    "channel total intensity is consistent with the same channel across multiplex groups"
+                    if not abnormal_distribution
+                    else "channel total intensity falls outside the same-channel study envelope"
+                ),
+            )
+        )
+        channel_max_total_intensity = max_total_by_channel.get(entry.multiplex_channel, 0.0)
+        total_intensity_ratio_to_channel_max = (
+            float(entry.total_intensity) / float(channel_max_total_intensity)
+            if channel_max_total_intensity > 0.0
+            else 0.0
+        )
+        if not entry.source_column_present or entry.observed_row_count == 0:
+            weak_evidence.append(
+                TmtWeakEvidenceEntry(
+                    multiplex_group=entry.multiplex_group,
+                    multiplex_channel=entry.multiplex_channel,
+                    sample_id=entry.sample_id,
+                    channel_role=entry.channel_role,
+                    issue_kind="channel_missing",
+                    total_intensity_ratio_to_channel_max=total_intensity_ratio_to_channel_max,
+                    note="expected multiplex channel is missing from the source table or has no observed reporter evidence",
+                )
+            )
+        elif total_intensity_ratio_to_channel_max < active_policy.weak_channel_ratio_floor:
+            weak_evidence.append(
+                TmtWeakEvidenceEntry(
+                    multiplex_group=entry.multiplex_group,
+                    multiplex_channel=entry.multiplex_channel,
+                    sample_id=entry.sample_id,
+                    channel_role=entry.channel_role,
+                    issue_kind="weak_channel_intensity",
+                    total_intensity_ratio_to_channel_max=total_intensity_ratio_to_channel_max,
+                    note="channel total intensity is weak relative to the strongest observation for the same channel",
+                )
+            )
+
+    return TmtValidationReport(
+        feature_bundle=feature_bundle,
+        policy=active_policy,
+        channel_entries=tuple(channel_entries),
+        distribution_entries=tuple(distribution_entries),
+        weak_evidence=tuple(weak_evidence),
+        summary=TmtValidationSummary(
+            multiplex_group_count=feature_bundle.summary.multiplex_group_count,
+            expected_channel_count=len(channel_entries),
+            missing_channel_count=sum(1 for entry in channel_entries if not entry.present),
+            abnormal_distribution_count=sum(
+                1 for entry in distribution_entries if entry.abnormal_distribution
+            ),
+            weak_channel_count=len(weak_evidence),
+        ),
+        note=(
+            "tmt validation preserves expected channel presence, same-channel distribution, and weak-channel evidence over design-aware reporter mappings"
         ),
     )
 
