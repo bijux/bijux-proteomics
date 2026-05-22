@@ -16,7 +16,7 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterMatrixReport,
     build_tmt_reporter_matrix_report,
 )
-from bijux_proteomics.quantification import LabelBasedChannelRole
+from bijux_proteomics.quantification import LabelBasedChannelRole, MissingValueKind
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -134,10 +134,19 @@ def build_tmt_normalization_report(
             feature_bundle,
             policy=active_policy,
         )
+    elif active_policy.method is TmtNormalizationMethod.REFERENCE_CHANNEL:
+        normalized_records, transforms, reference_group_count = (
+            _apply_reference_channel_normalization(
+                feature_bundle,
+                policy=active_policy,
+            )
+        )
     else:
         raise ValueError(
-            "tmt normalization currently supports median and total-signal methods in the owned multiplex surface"
+            "tmt normalization currently supports median, total-signal, and reference-channel methods in the owned multiplex surface"
         )
+    if active_policy.method is not TmtNormalizationMethod.REFERENCE_CHANNEL:
+        reference_group_count = 0
     after_bundle = feature_bundle.model_copy(
         update={
             "feature_records": normalized_records,
@@ -180,7 +189,7 @@ def build_tmt_normalization_report(
             transform_count=len(transforms),
             before_flagged_channel_count=before_flagged,
             after_flagged_channel_count=after_flagged,
-            reference_group_count=0,
+            reference_group_count=reference_group_count,
         ),
         note=(
             "tmt normalization preserves before and after multiplex channel distributions alongside normalized peptide and protein matrices"
@@ -345,6 +354,84 @@ def _apply_total_signal_normalization(
     return normalized_records, tuple(transforms)
 
 
+def _apply_reference_channel_normalization(
+    feature_bundle: TmtReporterFeatureBundle,
+    *,
+    policy: TmtNormalizationPolicy,
+) -> tuple[tuple, tuple[TmtNormalizationTransformEntry, ...], int]:
+    mapped_entries = [
+        entry
+        for entry in feature_bundle.channel_mapping
+        if entry.mapped_to_design and entry.sample_id is not None
+    ]
+    group_entries: dict[str, list[TmtChannelMappingEntry]] = {}
+    for entry in mapped_entries:
+        group_entries.setdefault(entry.multiplex_group, []).append(entry)
+
+    reference_entry_by_group: dict[str, TmtChannelMappingEntry] = {}
+    transforms: list[TmtNormalizationTransformEntry] = []
+    for multiplex_group, entries in sorted(group_entries.items()):
+        reference_entry = _select_reference_channel_entry(
+            entries,
+            role_priority=policy.reference_role_priority,
+        )
+        reference_entry_by_group[multiplex_group] = reference_entry
+        for entry in sorted(entries, key=lambda item: item.multiplex_channel):
+            transforms.append(
+                TmtNormalizationTransformEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=entry.multiplex_channel,
+                    sample_id=entry.sample_id or "",
+                    condition=entry.condition,
+                    channel_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                    method=policy.method,
+                    scale_factor=None,
+                    reference_sample_id=reference_entry.sample_id,
+                    reference_channel=reference_entry.multiplex_channel,
+                    note=(
+                        "reference channel is normalized to one and all other channels are expressed as per-observation ratios to that governed reference"
+                        if entry.sample_id == reference_entry.sample_id
+                        else "sample channel is expressed as a per-observation ratio to the governed reference channel"
+                    ),
+                )
+            )
+
+    normalized_records = []
+    for observation in feature_bundle.source_report.accepted_rows:
+        intensity_lookup = {
+            item.multiplex_channel: item.intensity
+            for item in observation.channel_intensities
+        }
+        group = observation.multiplex_group
+        reference_entry = reference_entry_by_group[group]
+        reference_intensity = intensity_lookup.get(reference_entry.multiplex_channel)
+        for entry in sorted(group_entries[group], key=lambda item: item.multiplex_channel):
+            raw_intensity = intensity_lookup.get(entry.multiplex_channel)
+            normalized_intensity, missing_kind, missing_reason = _reference_ratio_value(
+                raw_intensity=raw_intensity,
+                reference_intensity=reference_intensity,
+            )
+            normalized_records.append(
+                next(
+                    record.model_copy(
+                        update={
+                            "intensity": normalized_intensity,
+                            "missing_value_kind": missing_kind,
+                            "missing_reason": missing_reason,
+                        }
+                    )
+                    for record in feature_bundle.feature_records
+                    if record.feature_id
+                    == f"{observation.source_row_id}:{entry.multiplex_channel}"
+                )
+            )
+    return (
+        tuple(normalized_records),
+        tuple(transforms),
+        len(reference_entry_by_group),
+    )
+
+
 def _build_channel_distribution_entries(
     *,
     before_bundle: TmtReporterFeatureBundle,
@@ -447,3 +534,38 @@ def _bundle_distribution_entries(
             )
         )
     return rendered
+
+
+def _select_reference_channel_entry(
+    entries: list[TmtChannelMappingEntry],
+    *,
+    role_priority: tuple[LabelBasedChannelRole, ...],
+) -> TmtChannelMappingEntry:
+    for role in role_priority:
+        matches = [
+            entry
+            for entry in entries
+            if entry.channel_role is role and entry.sample_id is not None
+        ]
+        if matches:
+            return sorted(matches, key=lambda entry: entry.multiplex_channel)[0]
+    raise ValueError(
+        "reference-channel normalization requires at least one reference or qc bridge channel per multiplex group"
+    )
+
+
+def _reference_ratio_value(
+    *,
+    raw_intensity: float | None,
+    reference_intensity: float | None,
+) -> tuple[float | None, MissingValueKind, str | None]:
+    if raw_intensity is None:
+        return None, MissingValueKind.NOT_OBSERVED, "reporter_channel_missing"
+    if reference_intensity is None:
+        return None, MissingValueKind.FILTERED, "reference_channel_missing"
+    if reference_intensity <= 0.0:
+        return None, MissingValueKind.FILTERED, "reference_channel_zero"
+    normalized = float(raw_intensity) / float(reference_intensity)
+    if normalized == 0.0:
+        return 0.0, MissingValueKind.ZERO, None
+    return normalized, MissingValueKind.OBSERVED, None
