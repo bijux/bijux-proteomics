@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -478,6 +479,181 @@ def build_ptm_site_annotation_biology_summary(
         note=(
             "ptm site annotation biology summary preserves known function, kinase, and pathway labels over the mapped observed-site set"
         ),
+    )
+
+
+def render_ptm_site_annotation_mapping_summary_tsv(
+    report: PtmSiteAnnotationMappingReport,
+) -> str:
+    """Render PTM site-annotation mapping summary as a stable TSV ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "target_species",
+            "matched_annotation_count",
+            "matched_site_count",
+            "unmapped_annotation_count",
+            "species_mismatch_count",
+        )
+    )
+    writer.writerow(
+        (
+            report.target_species or "",
+            report.summary.matched_annotation_count,
+            report.summary.matched_site_count,
+            report.summary.unmapped_annotation_count,
+            report.summary.species_mismatch_count,
+        )
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_mapped_site_annotation_tsv(
+    report: PtmSiteAnnotationMappingReport,
+) -> str:
+    """Render mapped PTM site annotations as a stable TSV ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "site_key",
+            "annotation_species",
+            "observed_species",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "site_function",
+            "kinases",
+            "pathways",
+            "source_name",
+            "source_accession",
+            "ambiguous_site",
+            "shared_peptide_site",
+        )
+    )
+    for entry in report.matched_annotations:
+        writer.writerow(
+            (
+                entry.site_key,
+                entry.annotation_species,
+                entry.observed_species or "",
+                entry.protein_ref,
+                entry.residue,
+                entry.position,
+                entry.modification_name,
+                entry.site_function or "",
+                ";".join(entry.kinases),
+                ";".join(entry.pathways),
+                entry.source_name or "",
+                entry.source_accession or "",
+                str(entry.ambiguous_site).lower(),
+                str(entry.shared_peptide_site).lower(),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_unmapped_site_annotation_tsv(
+    report: PtmSiteAnnotationMappingReport,
+) -> str:
+    """Render unmapped PTM site annotations as a stable TSV ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "annotation_species",
+            "observed_species",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "source_name",
+            "source_accession",
+            "reason",
+        )
+    )
+    for entry in report.unmapped_annotations:
+        writer.writerow(
+            (
+                entry.annotation_species,
+                entry.observed_species or "",
+                entry.protein_ref,
+                entry.residue,
+                entry.position,
+                entry.modification_name,
+                entry.source_name or "",
+                entry.source_accession or "",
+                entry.reason,
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_site_annotation_biology_tsv(
+    summary: PtmSiteAnnotationBiologySummary,
+    *,
+    category: str,
+) -> str:
+    """Render one PTM site-annotation biology category as a stable TSV ledger."""
+
+    category_entries = {
+        "function": summary.function_entries,
+        "kinase": summary.kinase_entries,
+        "pathway": summary.pathway_entries,
+    }
+    if category not in category_entries:
+        raise ValueError("category must be one of function, kinase, or pathway")
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("term", "site_count", "site_keys"))
+    for entry in category_entries[category]:
+        writer.writerow((entry.term, entry.site_count, ";".join(entry.site_keys)))
+    return buffer.getvalue()
+
+
+def export_ptm_site_annotation_mapping_summary_tsv(
+    report: PtmSiteAnnotationMappingReport,
+    path: Path,
+) -> None:
+    """Write PTM site-annotation mapping summary to a stable TSV artifact."""
+
+    path.write_text(render_ptm_site_annotation_mapping_summary_tsv(report), encoding="utf-8")
+
+
+def export_ptm_mapped_site_annotation_tsv(
+    report: PtmSiteAnnotationMappingReport,
+    path: Path,
+) -> None:
+    """Write mapped PTM site annotations to a stable TSV artifact."""
+
+    path.write_text(render_ptm_mapped_site_annotation_tsv(report), encoding="utf-8")
+
+
+def export_ptm_unmapped_site_annotation_tsv(
+    report: PtmSiteAnnotationMappingReport,
+    path: Path,
+) -> None:
+    """Write unmapped PTM site annotations to a stable TSV artifact."""
+
+    path.write_text(render_ptm_unmapped_site_annotation_tsv(report), encoding="utf-8")
+
+
+def export_ptm_site_annotation_biology_tsv(
+    summary: PtmSiteAnnotationBiologySummary,
+    *,
+    category: str,
+    path: Path,
+) -> None:
+    """Write one PTM site-annotation biology category to a stable TSV artifact."""
+
+    path.write_text(
+        render_ptm_site_annotation_biology_tsv(summary, category=category),
+        encoding="utf-8",
     )
 
 
