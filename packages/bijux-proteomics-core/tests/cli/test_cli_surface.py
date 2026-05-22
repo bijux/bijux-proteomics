@@ -5741,11 +5741,15 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
                 "generic_mapper_mapping.yaml",
                 "--normalized-tsv-out",
                 "mapped.tsv",
+                "--rejected-tsv-out",
+                "rejected.tsv",
             ],
         )
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
+        assert payload["column_mapping"]["score_orientation"] == "higher_better"
+        assert payload["normalization"]["adapter"]["score_orientation"] == "higher_better"
         assert payload["summary"]["accepted_rows"] == 2
         assert payload["summary"]["mapped_run_count"] == 2
         assert payload["summary"]["unmapped_source_columns"] == [
@@ -5758,6 +5762,45 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
         assert payload["mapped_rows"][1]["target_decoy_label"] == "decoy"
         assert payload["mapped_rows"][1]["contaminant_flag"] is True
         assert Path("mapped.tsv").exists()
+        assert Path("rejected.tsv").exists()
+
+
+def test_psm_map_command_blocks_missing_required_mapping() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_adapters"
+        shutil.copy(
+            fixture_dir / "generic_mapper_results.tsv",
+            "generic_mapper_results.tsv",
+        )
+        Path("generic_mapper_mapping.yaml").write_text(
+            "\n".join(
+                (
+                    "run_id: run_name",
+                    "spectrum_id: scan_ref",
+                    "peptide: sequence_text",
+                    "charge: z",
+                    "score: state_score",
+                    "protein_refs: accessions",
+                    "decoy_label: decoy_state",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-map",
+                "generic_mapper_results.tsv",
+                "--mapping",
+                "generic_mapper_mapping.yaml",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "score_orientation" in result.output
 
 
 def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
