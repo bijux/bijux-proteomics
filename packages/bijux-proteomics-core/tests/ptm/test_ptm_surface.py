@@ -59,6 +59,16 @@ def test_ptm_localization_parser_accepts_fixture_and_candidate_sites() -> None:
     assert ambiguous.target_decoy_label.value == "target"
 
 
+def test_ptm_localization_parser_preserves_reported_probability() -> None:
+    report = parse_ptm_localization_tsv(
+        _ptm_fixture("localization_probability_results.tsv")
+    )
+
+    assert report.total_rows == 2
+    assert report.accepted_records[0].localization_probability == 0.982
+    assert report.accepted_records[1].localization_probability == 0.61
+
+
 def test_ptm_localization_parser_rejects_malformed_rows() -> None:
     report = parse_ptm_localization_tsv(
         _ptm_fixture("malformed_localization_results.tsv")

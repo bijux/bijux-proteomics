@@ -38,6 +38,7 @@ class PtmLocalizationColumnMapping(JsonModel):
     score: str = Field(..., min_length=1)
     protein_refs: str = Field(..., min_length=1)
     localization_score: str = Field(..., min_length=1)
+    localization_probability: str | None = None
     q_value: str | None = None
     sample_id: str | None = None
     candidate_sites: str | None = None
@@ -79,6 +80,7 @@ class PtmEvidenceRecord(JsonModel):
     charge: int = Field(..., ge=1)
     score: float
     q_value: float | None = Field(default=None, ge=0.0)
+    localization_probability: float | None = Field(default=None, ge=0.0, le=1.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     localization_score: float = Field(..., ge=0.0)
@@ -340,6 +342,7 @@ def parse_ptm_localization_tsv(
         score="score",
         protein_refs="proteins",
         localization_score="localization_score",
+        localization_probability="localization_probability",
         q_value="q_value",
         sample_id="sample_id",
         candidate_sites="candidate_sites",
@@ -432,6 +435,29 @@ def parse_ptm_localization_tsv(
                             _row_issue("invalid_q_value", "invalid q-value", row_number)
                         )
 
+            localization_probability: float | None = None
+            if active_mapping.localization_probability:
+                probability_token = raw_fields.get(
+                    active_mapping.localization_probability,
+                    "",
+                ).strip()
+                if probability_token:
+                    try:
+                        localization_probability = float(probability_token)
+                        if (
+                            localization_probability < 0.0
+                            or localization_probability > 1.0
+                        ):
+                            raise ValueError
+                    except ValueError:
+                        issues.append(
+                            _row_issue(
+                                "invalid_localization_probability",
+                                "invalid localization probability",
+                                row_number,
+                            )
+                        )
+
             protein_refs = _parse_protein_refs(
                 raw_fields.get(active_mapping.protein_refs, ""),
                 active_mapping.protein_separator,
@@ -522,6 +548,7 @@ def parse_ptm_localization_tsv(
                     charge=charge,
                     score=score,
                     q_value=q_value,
+                    localization_probability=localization_probability,
                     protein_refs=protein_refs,
                     target_decoy_label=parse_target_decoy_label(
                         protein_refs=protein_refs,
