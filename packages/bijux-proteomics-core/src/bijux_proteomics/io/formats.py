@@ -22,6 +22,12 @@ from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import load_modification_registry
+from bijux_proteomics.domain.records import (
+    Contrast,
+    ContrastKind,
+    RejectedEvidence as CanonicalRejectedEvidence,
+    SampleMetadata as CanonicalSampleMetadata,
+)
 from bijux_proteomics.identification import (
     PsmRecord,
     SearchResultColumnMapping,
@@ -226,6 +232,26 @@ class ExperimentalDesignEntry(JsonModel):
             )
         return self
 
+    def to_domain_record(self) -> CanonicalSampleMetadata:
+        """Convert one design-table row into canonical sample metadata."""
+
+        return CanonicalSampleMetadata(
+            sample_id=self.sample_id,
+            run_id=self.spectra_file,
+            condition=self.condition,
+            replicate=self.replicate,
+            fraction=self.fraction,
+            batch=self.batch,
+            pair_id=self.pair_id,
+            plex_id=self.multiplex_group,
+            channel=self.multiplex_channel,
+            sample_role=self.sample_role.value,
+            cohort=self.cohort,
+            instrument=self.instrument,
+            search_engine=self.search_engine,
+            metadata=self.metadata,
+        )
+
 
 class ExperimentalDesignRejectedRow(JsonModel):
     """One rejected design-table row."""
@@ -236,6 +262,21 @@ class ExperimentalDesignRejectedRow(JsonModel):
     values: dict[str, str] = Field(default_factory=dict)
     issues: tuple[FormatValidationIssue, ...] = Field(default_factory=tuple)
 
+    def to_domain_record(self) -> CanonicalRejectedEvidence:
+        """Expose one rejected design row as canonical rejected evidence."""
+
+        return CanonicalRejectedEvidence(
+            record_kind="sample_metadata",
+            rejection_reason="; ".join(issue.message for issue in self.issues)
+            or "rejected design row",
+            row_number=self.row_number,
+            raw_fields=self.values,
+            metadata={
+                "source_contract": "io.experimental_design_rejected_row",
+                "issue_codes": ";".join(issue.code for issue in self.issues),
+            },
+        )
+
 
 class ExperimentalDesignReport(JsonModel):
     """Stable parse report for one experimental-design table."""
@@ -245,6 +286,26 @@ class ExperimentalDesignReport(JsonModel):
     accepted_entries: tuple[ExperimentalDesignEntry, ...] = Field(default_factory=tuple)
     rejected_rows: tuple[ExperimentalDesignRejectedRow, ...] = Field(
         default_factory=tuple
+    )
+
+
+def build_pairwise_contrast_record(
+    *,
+    left_condition: str,
+    right_condition: str,
+    kind: ContrastKind = ContrastKind.PAIRWISE,
+    pair_id_field: str | None = None,
+    metadata: dict[str, str] | None = None,
+) -> Contrast:
+    """Build one canonical pairwise contrast record for workflow exchange."""
+
+    return Contrast(
+        contrast_id=f"{left_condition}__vs__{right_condition}",
+        left_condition=left_condition,
+        right_condition=right_condition,
+        kind=kind,
+        pair_id_field=pair_id_field,
+        metadata=metadata or {},
     )
 
 

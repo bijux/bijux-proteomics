@@ -10,6 +10,10 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator
 
+from bijux_proteomics.domain.records import (
+    RejectedEvidence as CanonicalRejectedEvidence,
+    TransitionRecord as CanonicalTransitionRecord,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -55,6 +59,24 @@ class TransitionTableEntry(JsonModel):
             return None
         return "".join(character for character in value.upper() if not character.isspace())
 
+    def to_domain_record(self) -> CanonicalTransitionRecord:
+        """Convert one transition-table row into the canonical transition record."""
+
+        return CanonicalTransitionRecord(
+            transition_id=self.transition_id,
+            precursor_id=self.precursor_id,
+            sample_id=self.sample_id,
+            intensity=self.intensity,
+            peptide_sequence=self.peptide_sequence or self.precursor_id,
+            run_id=self.run_id,
+            protein_ref=self.protein_ref,
+            fragment_label=self.fragment_label,
+            precursor_mz=self.precursor_mz,
+            fragment_mz=self.fragment_mz,
+            q_value=self.q_value,
+            metadata=dict(self.metadata),
+        )
+
 
 class TransitionTableRejectedRow(JsonModel):
     """One rejected transition-table row with explicit stable reason."""
@@ -64,6 +86,17 @@ class TransitionTableRejectedRow(JsonModel):
     row_number: int = Field(..., ge=2)
     values: dict[str, str] = Field(default_factory=dict)
     reason: str = Field(..., min_length=1)
+
+    def to_domain_record(self) -> CanonicalRejectedEvidence:
+        """Expose one rejected transition row as canonical rejected evidence."""
+
+        return CanonicalRejectedEvidence(
+            record_kind="transition",
+            rejection_reason=self.reason,
+            row_number=self.row_number,
+            raw_fields=self.values,
+            metadata={"source_contract": "io.transition_table_rejected_row"},
+        )
 
 
 class TransitionTableParseReport(JsonModel):

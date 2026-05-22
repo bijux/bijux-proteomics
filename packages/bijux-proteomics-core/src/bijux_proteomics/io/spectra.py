@@ -24,6 +24,7 @@ from bijux_proteomics.chemistry import (
     calculate_peptide_mz,
     canonicalize_modified_peptide,
 )
+from bijux_proteomics.domain.records import SpectrumRecord as CanonicalSpectrumRecord
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -61,6 +62,25 @@ class SpectrumModel(JsonModel):
         if not text:
             raise ValueError("spectrum_id must not be blank")
         return text
+
+    def to_domain_record(self) -> CanonicalSpectrumRecord:
+        """Convert one parsed spectrum into the canonical domain record."""
+
+        return CanonicalSpectrumRecord(
+            spectrum_id=self.spectrum_id,
+            precursor_mz=self.precursor_mz,
+            peak_count=len(self.peaks),
+            native_id=self.native_id,
+            ms_level=self.ms_level,
+            precursor_charge=self.precursor_charge,
+            retention_time_seconds=self.retention_time_seconds,
+            precursor_intensity=self.precursor_intensity,
+            metadata={
+                "source_contract": "io.spectrum_model",
+                "title": self.title or "",
+                "parent_spectrum_id": self.parent_spectrum_id or "",
+            },
+        )
 
 
 class SpectrumValidationIssue(JsonModel):
