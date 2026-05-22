@@ -42,6 +42,20 @@ class TargetedFragmentRatioEntry(JsonModel):
     relative_share: float = Field(..., ge=0.0, le=1.0)
 
 
+class TargetedRetentionTimeConsistencyEntry(JsonModel):
+    """One sample-level retention-time consistency record for a targeted precursor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    observed_transition_count: int = Field(..., ge=0)
+    mean_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    reference_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    absolute_delta_minutes: float | None = Field(default=None, ge=0.0)
+    flagged: bool = False
+
+
 class TargetedAssayQcSummary(JsonModel):
     """Compact summary over one targeted assay QC report."""
 
@@ -51,6 +65,8 @@ class TargetedAssayQcSummary(JsonModel):
     sample_count: int = Field(..., ge=0)
     transition_consistency_entry_count: int = Field(..., ge=0)
     fragment_ratio_entry_count: int = Field(..., ge=0)
+    retention_time_entry_count: int = Field(..., ge=0)
+    flagged_retention_time_entry_count: int = Field(..., ge=0)
 
 
 class TargetedAssayQcReport(JsonModel):
@@ -63,12 +79,17 @@ class TargetedAssayQcReport(JsonModel):
         default_factory=tuple
     )
     fragment_ratios: tuple[TargetedFragmentRatioEntry, ...] = Field(default_factory=tuple)
+    retention_time_consistency: tuple[TargetedRetentionTimeConsistencyEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: TargetedAssayQcSummary
     note: str = Field(..., min_length=1)
 
 
 def build_targeted_assay_qc_report(
     import_report: TargetedResultImportReport,
+    *,
+    retention_time_delta_threshold_minutes: float = 0.75,
 ) -> TargetedAssayQcReport:
     """Build targeted assay QC ledgers over one imported targeted result bundle."""
 
@@ -87,9 +108,17 @@ def build_targeted_assay_qc_report(
 
     consistency_entries: list[TargetedTransitionConsistencyEntry] = []
     ratio_entries: list[TargetedFragmentRatioEntry] = []
+    retention_time_entries: list[TargetedRetentionTimeConsistencyEntry] = []
     for target_id in target_ids:
         expected_transition_ids = target_to_transitions[target_id]
         expected_count = len(expected_transition_ids)
+        reference_retention_time = _median(
+            [
+                item.retention_time_minutes
+                for item in import_report.observations
+                if item.precursor_id == target_id and item.retention_time_minutes is not None
+            ]
+        )
         for sample_id in sample_ids:
             sample_observations = [
                 item
@@ -124,19 +153,53 @@ def build_targeted_assay_qc_report(
                         ),
                     )
                 )
+            sample_retention_times = [
+                item.retention_time_minutes
+                for item in sample_observations
+                if item.retention_time_minutes is not None
+            ]
+            mean_retention_time = (
+                sum(sample_retention_times) / len(sample_retention_times)
+                if sample_retention_times
+                else None
+            )
+            absolute_delta = (
+                abs(mean_retention_time - reference_retention_time)
+                if mean_retention_time is not None and reference_retention_time is not None
+                else None
+            )
+            retention_time_entries.append(
+                TargetedRetentionTimeConsistencyEntry(
+                    target_id=target_id,
+                    sample_id=sample_id,
+                    observed_transition_count=len(sample_observations),
+                    mean_retention_time_minutes=mean_retention_time,
+                    reference_retention_time_minutes=reference_retention_time,
+                    absolute_delta_minutes=absolute_delta,
+                    flagged=(
+                        absolute_delta is not None
+                        and absolute_delta > retention_time_delta_threshold_minutes
+                    ),
+                )
+            )
 
     return TargetedAssayQcReport(
         source_name=import_report.source_name,
         transition_consistency=tuple(consistency_entries),
         fragment_ratios=tuple(ratio_entries),
+        retention_time_consistency=tuple(retention_time_entries),
         summary=TargetedAssayQcSummary(
             target_count=len(target_ids),
             sample_count=len(sample_ids),
             transition_consistency_entry_count=len(consistency_entries),
             fragment_ratio_entry_count=len(ratio_entries),
+            retention_time_entry_count=len(retention_time_entries),
+            flagged_retention_time_entry_count=sum(
+                entry.flagged for entry in retention_time_entries
+            ),
         ),
         note=(
-            "targeted assay qc keeps transition consistency and fragment-ion ratio evidence explicit before any sample or target is trusted"
+            "targeted assay qc keeps transition consistency, fragment-ion ratio, and retention-time consistency evidence explicit before any sample or target is trusted"
         ),
     )
 
@@ -151,3 +214,13 @@ def build_transition_table_targeted_assay_qc_report(path: Path) -> TargetedAssay
     """Build targeted assay QC directly from one exported transition table."""
 
     return build_targeted_assay_qc_report(build_transition_table_result_import_report(path))
+
+
+def _median(values: list[float]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return ordered[midpoint]
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
