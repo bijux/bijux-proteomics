@@ -1919,8 +1919,15 @@ def normalize_multiplex_quant_table(
     if not multiplex_lookup:
         raise ValueError("multiplex normalization requires multiplex design metadata")
     if active_policy.method is NormalizationMethod.NONE:
+        quant_matrix = rebuild_quant_matrix_from_dense_array(
+            table.to_quant_matrix(),
+            quant_matrix_to_dense_array(table.to_quant_matrix()),
+            transformation_step="normalization:none",
+            metadata_updates={"normalization_method": NormalizationMethod.NONE.value},
+        )
         return table.model_copy(
             update={
+                "quant_matrix": quant_matrix,
                 "normalization_method": NormalizationMethod.NONE,
                 "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
             }

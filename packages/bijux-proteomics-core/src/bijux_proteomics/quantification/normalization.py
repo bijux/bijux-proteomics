@@ -9,6 +9,10 @@ import math
 
 import numpy as np
 
+from bijux_proteomics.quantification.core_matrix import (
+    quant_matrix_to_dense_array,
+    rebuild_quant_matrix_from_dense_array,
+)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationComparisonReport,
@@ -101,8 +105,15 @@ def normalize_label_free_table(
     if table.measure_kind is not QuantMeasureKind.INTENSITY:
         raise ValueError("normalization only applies to intensity-based quant tables")
     if method is NormalizationMethod.NONE:
+        quant_matrix = rebuild_quant_matrix_from_dense_array(
+            table.to_quant_matrix(),
+            quant_matrix_to_dense_array(table.to_quant_matrix()),
+            transformation_step="normalization:none",
+            metadata_updates={"normalization_method": method.value},
+        )
         return table.model_copy(
             update={
+                "quant_matrix": quant_matrix,
                 "normalization_method": method,
                 "normalization_factors": dict.fromkeys(table.sample_ids, 1.0),
             }

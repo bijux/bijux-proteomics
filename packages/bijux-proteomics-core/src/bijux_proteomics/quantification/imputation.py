@@ -8,6 +8,10 @@ from __future__ import annotations
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification.core_matrix import (
+    quant_matrix_to_dense_array,
+    rebuild_quant_matrix_from_dense_array,
+)
 from bijux_proteomics.quantification.contracts import (
     ImputationEntry,
     ImputationMethod,
@@ -73,7 +77,18 @@ def impute_label_free_table(
     if table.measure_kind is not QuantMeasureKind.INTENSITY:
         raise ValueError("imputation only applies to intensity-based quant tables")
     if method is ImputationMethod.NONE:
-        return table.model_copy(update={"imputation_method": method})
+        quant_matrix = rebuild_quant_matrix_from_dense_array(
+            table.to_quant_matrix(),
+            quant_matrix_to_dense_array(table.to_quant_matrix()),
+            transformation_step="imputation:none",
+            metadata_updates={"imputation_method": method.value},
+        )
+        return table.model_copy(
+            update={
+                "quant_matrix": quant_matrix,
+                "imputation_method": method,
+            }
+        )
     if method is ImputationMethod.LOW_INTENSITY:
         return _low_intensity_imputed_table(table)
     if method is ImputationMethod.KNN:
@@ -282,6 +297,13 @@ def _rebuild_imputed_table(
     fill_lookup: dict[tuple[str, str], float],
     method: ImputationMethod,
 ) -> LabelFreeQuantTable:
+    dense_matrix = quant_matrix_to_dense_array(table.to_quant_matrix())
+    sample_index = {
+        sample_id: index for index, sample_id in enumerate(table.sample_ids)
+    }
+    entity_index = {
+        entity_id: index for index, entity_id in enumerate(table.entity_ids)
+    }
     rebuilt_values: list[QuantValue] = []
     for value in table.values:
         if value.abundance is not None:
@@ -294,12 +316,23 @@ def _rebuild_imputed_table(
             rebuilt_values.append(value)
             continue
         fill_value = fill_lookup[(value.entity_id, value.sample_id)]
+        dense_matrix[
+            entity_index[value.entity_id],
+            sample_index[value.sample_id],
+        ] = max(fill_value, 0.0)
         rebuilt_values.append(
             value.model_copy(update={"abundance": max(fill_value, 0.0)})
         )
+    quant_matrix = rebuild_quant_matrix_from_dense_array(
+        table.to_quant_matrix(),
+        dense_matrix,
+        transformation_step=f"imputation:{method.value}",
+        metadata_updates={"imputation_method": method.value},
+    )
     return table.model_copy(
         update={
             "values": tuple(rebuilt_values),
+            "quant_matrix": quant_matrix,
             "imputation_method": method,
         }
     )

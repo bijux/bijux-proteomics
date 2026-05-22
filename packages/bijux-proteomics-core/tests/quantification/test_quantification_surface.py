@@ -175,6 +175,28 @@ def test_label_free_intensity_table_binds_canonical_quant_matrix() -> None:
     )
 
 
+def test_normalization_and_imputation_keep_canonical_quant_matrix_in_sync() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    normalized = normalize_label_free_table(
+        build_label_free_intensity_table(
+            report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.NONE,
+    )
+    imputed = impute_label_free_table(normalized, method=ImputationMethod.LOW_INTENSITY)
+
+    normalized_matrix = normalized.to_quant_matrix()
+    imputed_matrix = imputed.to_quant_matrix()
+
+    assert normalized_matrix.metadata["normalization_method"] == "none"
+    assert normalized_matrix.transformation_history[-1] == "normalization:none"
+    assert imputed_matrix.metadata["imputation_method"] == "low_intensity"
+    assert imputed_matrix.transformation_history[-1] == "imputation:low_intensity"
+
+
 def test_spectral_count_table_and_missing_summary_distinguish_zero_filtered_and_missing() -> (
     None
 ):
