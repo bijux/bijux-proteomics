@@ -6396,13 +6396,20 @@ def test_ptm_report_command_emits_full_report_bundle() -> None:
         assert payload["report"]["summary"]["differential_site_count"] == 5
         assert payload["export_manifest"]["motif_summary_included"] is True
         report_dir = Path("ptm_report")
+        assert (report_dir / "ptm_site_workflow_manifest.json").exists()
         assert (report_dir / "ptm_report_manifest.json").exists()
+        assert (report_dir / "ptm_site_workflow_summary.tsv").exists()
+        assert (report_dir / "ptm_site_workflow_accepted_evidence.tsv").exists()
+        assert (report_dir / "ptm_site_workflow_rejected_evidence.tsv").exists()
         assert (report_dir / "ptm_peptides.tsv").exists()
         assert (report_dir / "ptm_sites.tsv").exists()
         assert (report_dir / "ptm_localization.tsv").exists()
         assert (report_dir / "ptm_site_quant_matrix.tsv").exists()
         assert (report_dir / "ptm_differential.tsv").exists()
         assert (report_dir / "ptm_motif_terms.tsv").exists()
+        assert "accepted_evidence_count" in (
+            report_dir / "ptm_site_workflow_summary.tsv"
+        ).read_text()
         assert "S[Phospho]PEPTIDEK" in (report_dir / "ptm_peptides.tsv").read_text()
         assert "P11111:S5:Phospho" in (report_dir / "ptm_sites.tsv").read_text()
         assert "probability_source" in (
