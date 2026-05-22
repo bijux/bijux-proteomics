@@ -24,6 +24,9 @@ from bijux_proteomics.chemistry import (
     calculate_peptide_mz,
     canonicalize_modified_peptide,
 )
+from bijux_proteomics.io.spectrum_peak_matching import (
+    build_spectrum_peak_match_report,
+)
 from bijux_proteomics.domain.records import SpectrumRecord as CanonicalSpectrumRecord
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -481,6 +484,15 @@ class SpectrumAnnotationAmbiguityWarning(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class SpectrumAnnotationUnmatchedPeak(JsonModel):
+    """One observed peak that remained unmatched in annotation output."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mz: float = Field(..., gt=0.0)
+    intensity: float = Field(..., ge=0.0)
+
+
 class SpectrumAnnotation(JsonModel):
     """Stable annotation output for one spectrum and peptide."""
 
@@ -495,10 +507,15 @@ class SpectrumAnnotation(JsonModel):
     tolerance_da: float | None = Field(default=None, gt=0.0)
     tolerance_ppm: float | None = Field(default=None, gt=0.0)
     matches: tuple[SpectrumAnnotationMatch, ...] = Field(default_factory=tuple)
+    unmatched_peaks: tuple[SpectrumAnnotationUnmatchedPeak, ...] = Field(
+        default_factory=tuple
+    )
     ambiguity_warnings: tuple[SpectrumAnnotationAmbiguityWarning, ...] = Field(
         default_factory=tuple
     )
     matched_peak_count: int = Field(..., ge=0)
+    explained_intensity: float = Field(..., ge=0.0)
+    total_observed_intensity: float = Field(..., ge=0.0)
     explained_intensity_fraction: float = Field(..., ge=0.0, le=1.0)
     unmatched_peak_count: int = Field(..., ge=0)
 
@@ -2070,103 +2087,13 @@ def annotate_spectrum_fragments(
 ) -> SpectrumAnnotation:
     """Match theoretical fragments against observed peaks within one tolerance."""
     canonical = _canonical_peptide_text(peptide)
-    tolerance_unit, resolved_tolerance_da, resolved_tolerance_ppm = (
-        _resolve_annotation_tolerance(
-            tolerance_da=tolerance_da,
-            tolerance_ppm=tolerance_ppm,
-        )
-    )
-    fragments = calculate_fragment_ions(
-        peptide,
+    peak_match_report = build_spectrum_peak_match_report(
+        spectrum,
+        peptide=peptide,
+        tolerance_da=tolerance_da,
+        tolerance_ppm=tolerance_ppm,
         include_neutral_losses=include_neutral_losses,
     )
-    matches: list[SpectrumAnnotationMatch] = []
-    ambiguity_warnings: list[SpectrumAnnotationAmbiguityWarning] = []
-    matched_peak_keys: set[tuple[float, float]] = set()
-    candidate_fragments_by_peak: dict[tuple[float, float], list[str]] = {}
-    for fragment in fragments:
-        candidate_peaks = tuple(
-            peak
-            for peak in spectrum.peaks
-            if _matches_fragment_tolerance(
-                observed_mz=peak.mz,
-                fragment_mz=fragment.mz_monoisotopic,
-                tolerance_unit=tolerance_unit,
-                tolerance_da=resolved_tolerance_da,
-                tolerance_ppm=resolved_tolerance_ppm,
-            )
-        )
-        fragment_label = _fragment_label(fragment)
-        if len(candidate_peaks) > 1:
-            ambiguity_warnings.append(
-                SpectrumAnnotationAmbiguityWarning(
-                    kind=SpectrumAnnotationAmbiguityKind.FRAGMENT_TO_MULTIPLE_PEAKS,
-                    fragment_labels=(fragment_label,),
-                    peak_mzs=tuple(sorted(peak.mz for peak in candidate_peaks)),
-                    tolerance_unit=tolerance_unit,
-                    tolerance_da=resolved_tolerance_da,
-                    tolerance_ppm=resolved_tolerance_ppm,
-                    note="one fragment is compatible with multiple observed peaks under the requested tolerance",
-                )
-            )
-        for peak in candidate_peaks:
-            candidate_fragments_by_peak.setdefault(
-                (peak.mz, peak.intensity), []
-            ).append(fragment_label)
-        best_peak: SpectrumPeak | None = None
-        best_error: float | None = None
-        for peak in spectrum.peaks:
-            error = peak.mz - fragment.mz_monoisotopic
-            if not _matches_fragment_tolerance(
-                observed_mz=peak.mz,
-                fragment_mz=fragment.mz_monoisotopic,
-                tolerance_unit=tolerance_unit,
-                tolerance_da=resolved_tolerance_da,
-                tolerance_ppm=resolved_tolerance_ppm,
-            ):
-                continue
-            if (
-                best_peak is None
-                or best_error is None
-                or abs(error) < abs(best_error)
-                or (
-                    abs(error) == abs(best_error)
-                    and peak.intensity > best_peak.intensity
-                )
-            ):
-                best_peak = peak
-                best_error = error
-        if best_peak is None or best_error is None:
-            continue
-        matched_peak_keys.add((best_peak.mz, best_peak.intensity))
-        matches.append(
-            SpectrumAnnotationMatch(
-                fragment=fragment,
-                fragment_label=fragment_label,
-                observed_mz=best_peak.mz,
-                observed_intensity=best_peak.intensity,
-                mass_error_da=best_error,
-                mass_error_ppm=(best_error / fragment.mz_monoisotopic) * 1_000_000.0,
-            )
-        )
-    for peak_key, fragment_labels in sorted(
-        candidate_fragments_by_peak.items(),
-        key=lambda item: (item[0][0], item[0][1]),
-    ):
-        unique_labels = tuple(sorted(set(fragment_labels)))
-        if len(unique_labels) < 2:
-            continue
-        ambiguity_warnings.append(
-            SpectrumAnnotationAmbiguityWarning(
-                kind=SpectrumAnnotationAmbiguityKind.PEAK_TO_MULTIPLE_FRAGMENTS,
-                fragment_labels=unique_labels,
-                peak_mzs=(peak_key[0],),
-                tolerance_unit=tolerance_unit,
-                tolerance_da=resolved_tolerance_da,
-                tolerance_ppm=resolved_tolerance_ppm,
-                note="one observed peak is compatible with multiple theoretical fragments under the requested tolerance",
-            )
-        )
     schema = DocumentSchema(
         created_by="bijux-proteomics-core",
         document_kind="spectrum_annotation",
@@ -2179,47 +2106,48 @@ def annotate_spectrum_fragments(
         peptide=canonical,
         precursor_mz=spectrum.precursor_mz,
         precursor_charge=spectrum.precursor_charge,
-        tolerance_unit=tolerance_unit,
-        tolerance_da=resolved_tolerance_da,
-        tolerance_ppm=resolved_tolerance_ppm,
+        tolerance_unit=SpectrumAnnotationToleranceUnit(
+            peak_match_report.tolerance_mode.value
+        ),
+        tolerance_da=peak_match_report.tolerance_da,
+        tolerance_ppm=peak_match_report.tolerance_ppm,
         matches=tuple(
-            sorted(
-                matches,
-                key=lambda match: (
-                    match.fragment.series.value,
-                    match.fragment.ordinal,
-                    match.fragment.charge,
-                ),
+            SpectrumAnnotationMatch(
+                fragment=match.fragment,
+                fragment_label=match.fragment_label,
+                observed_mz=match.observed_mz,
+                observed_intensity=match.observed_intensity,
+                mass_error_da=match.mass_error_da,
+                mass_error_ppm=match.mass_error_ppm,
             )
+            for match in peak_match_report.matches
+        ),
+        unmatched_peaks=tuple(
+            SpectrumAnnotationUnmatchedPeak(
+                mz=peak.mz,
+                intensity=peak.intensity,
+            )
+            for peak in peak_match_report.unmatched_peaks
         ),
         ambiguity_warnings=tuple(
-            sorted(
-                ambiguity_warnings,
-                key=lambda warning: (
-                    warning.kind.value,
-                    warning.fragment_labels,
-                    warning.peak_mzs,
+            SpectrumAnnotationAmbiguityWarning(
+                kind=SpectrumAnnotationAmbiguityKind(warning.kind.value),
+                fragment_labels=warning.fragment_labels,
+                peak_mzs=warning.peak_mzs,
+                tolerance_unit=SpectrumAnnotationToleranceUnit(
+                    warning.tolerance_mode.value
                 ),
+                tolerance_da=warning.tolerance_da,
+                tolerance_ppm=warning.tolerance_ppm,
+                note=warning.note,
             )
+            for warning in peak_match_report.ambiguity_warnings
         ),
-        matched_peak_count=len(matched_peak_keys),
-        explained_intensity_fraction=(
-            (
-                sum(
-                    peak.intensity
-                    for peak in spectrum.peaks
-                    if (peak.mz, peak.intensity) in matched_peak_keys
-                )
-                / sum(peak.intensity for peak in spectrum.peaks)
-            )
-            if spectrum.peaks and sum(peak.intensity for peak in spectrum.peaks) > 0
-            else 0.0
-        ),
-        unmatched_peak_count=sum(
-            1
-            for peak in spectrum.peaks
-            if (peak.mz, peak.intensity) not in matched_peak_keys
-        ),
+        matched_peak_count=peak_match_report.matched_peak_count,
+        explained_intensity=peak_match_report.explained_intensity,
+        total_observed_intensity=peak_match_report.total_observed_intensity,
+        explained_intensity_fraction=peak_match_report.explained_intensity_fraction,
+        unmatched_peak_count=peak_match_report.unmatched_peak_count,
     )
     payload = annotation.to_dict()
     return annotation.model_copy(
@@ -2237,10 +2165,15 @@ def export_spectrum_annotation_tsv(annotation: SpectrumAnnotation, path: Path) -
             [
                 "spectrum_id",
                 "peptide",
+                "tolerance_mode",
                 "series",
                 "ordinal",
                 "fragment_charge",
+                "span_start",
+                "span_end",
+                "fragment_sequence",
                 "fragment_mz",
+                "neutral_loss",
                 "observed_mz",
                 "observed_intensity",
                 "mass_error_da",
@@ -2253,10 +2186,19 @@ def export_spectrum_annotation_tsv(annotation: SpectrumAnnotation, path: Path) -
                 [
                     annotation.spectrum_id,
                     annotation.peptide,
+                    annotation.tolerance_unit.value,
                     match.fragment.series.value,
                     match.fragment.ordinal,
                     match.fragment.charge,
+                    match.fragment.span_start,
+                    match.fragment.span_end,
+                    match.fragment.sequence,
                     match.fragment.mz_monoisotopic,
+                    (
+                        None
+                        if match.fragment.neutral_loss is None
+                        else match.fragment.neutral_loss.name
+                    ),
                     match.observed_mz,
                     match.observed_intensity,
                     match.mass_error_da,
