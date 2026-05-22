@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import TransitionRecord as CanonicalTransitionRecord
 from bijux_proteomics.io import parse_transition_table
 from bijux_proteomics_foundation import JsonModel
 
@@ -40,6 +41,24 @@ class TargetedResultObservation(JsonModel):
     fragment_label: str | None = None
     precursor_mz: float | None = Field(default=None, gt=0.0)
     fragment_mz: float | None = Field(default=None, gt=0.0)
+
+    def to_domain_record(self) -> CanonicalTransitionRecord:
+        """Convert one targeted observation into the canonical transition record."""
+
+        return CanonicalTransitionRecord(
+            transition_id=self.transition_id,
+            precursor_id=self.precursor_id,
+            sample_id=self.sample_id,
+            intensity=self.intensity,
+            peptide_sequence=self.peptide_sequence,
+            protein_ref=self.protein_ref,
+            fragment_label=self.fragment_label,
+            retention_time_minutes=self.retention_time_minutes,
+            precursor_mz=self.precursor_mz,
+            fragment_mz=self.fragment_mz,
+            quality_flag=self.quality_flag,
+            metadata={"source_contract": f"targeted.{self.source_kind.value}"},
+        )
 
 
 class TargetedResultImportSummary(JsonModel):

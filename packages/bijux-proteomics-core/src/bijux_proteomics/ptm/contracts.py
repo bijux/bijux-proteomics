@@ -17,6 +17,10 @@ from bijux_proteomics.chemistry import (
     build_modification_localization_advisory,
     parse_modified_peptide,
 )
+from bijux_proteomics.domain.records import (
+    PTMSite as CanonicalPtmSite,
+    RejectedEvidence as CanonicalRejectedEvidence,
+)
 from bijux_proteomics.identification import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
@@ -65,6 +69,21 @@ class RejectedPtmEvidenceRow(JsonModel):
     row_number: int = Field(..., ge=2)
     raw_fields: dict[str, str] = Field(default_factory=dict)
     issues: tuple[PtmValidationIssue, ...] = Field(default_factory=tuple)
+
+    def to_domain_record(self) -> CanonicalRejectedEvidence:
+        """Expose one rejected PTM evidence row as canonical rejected evidence."""
+
+        return CanonicalRejectedEvidence(
+            record_kind="ptm_evidence",
+            rejection_reason="; ".join(issue.message for issue in self.issues)
+            or "rejected ptm evidence row",
+            row_number=self.row_number,
+            raw_fields=self.raw_fields,
+            metadata={
+                "source_contract": "ptm.rejected_evidence_row",
+                "issue_codes": ";".join(issue.code for issue in self.issues),
+            },
+        )
 
 
 class PtmEvidenceRecord(JsonModel):
@@ -163,6 +182,30 @@ class PtmSiteEntry(JsonModel):
     candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
     ambiguous: bool = False
     shared_peptide: bool = False
+
+    def to_domain_record(self) -> CanonicalPtmSite:
+        """Convert one PTM site row into the canonical domain site record."""
+
+        return CanonicalPtmSite(
+            site_key=self.site_key,
+            protein_ref=self.protein_ref,
+            residue=self.residue,
+            position=self.position,
+            modification_name=self.modification_name,
+            localized_peptides=self.localized_peptides,
+            sample_ids=self.sample_ids,
+            localization_score=self.localization_score,
+            q_value=self.best_q_value,
+            ambiguous=self.ambiguous,
+            candidate_positions=self.candidate_positions,
+            metadata={
+                "source_contract": "ptm.site_entry",
+                "spectrum_count": str(self.spectrum_count),
+                "peptide_count": str(self.peptide_count),
+                "shared_peptide": str(self.shared_peptide).lower(),
+                "target_decoy_state": self.target_decoy_label.value,
+            },
+        )
 
 
 class PtmSiteGroupEvidenceEntry(JsonModel):
