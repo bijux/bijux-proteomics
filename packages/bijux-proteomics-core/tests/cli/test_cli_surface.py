@@ -3023,6 +3023,51 @@ def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> 
         assert "P001" in Path("tmt.ratio.proteins.tsv").read_text(encoding="utf-8")
 
 
+def test_silac_quantify_command_emits_peptide_and_protein_ratio_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "isotope_labeling"
+        shutil.copy(fixture_dir / "silac_features.tsv", "silac_features.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-labeling",
+                "silac-quantify",
+                "silac_features.tsv",
+                "--labels",
+                "light,medium,heavy",
+                "--collapse-charge-states",
+                "--summary-tsv-out",
+                "silac.summary.tsv",
+                "--peptide-tsv-out",
+                "silac.peptides.tsv",
+                "--protein-tsv-out",
+                "silac.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["import_report"]["summary"]["sample_count"] == 2
+        assert payload["report"]["summary"]["expected_label_count"] == 3
+        assert payload["report"]["summary"]["peptide_ratio_count"] == 8
+        assert payload["report"]["summary"]["protein_ratio_count"] == 8
+        assert payload["report"]["summary"]["missing_ratio_count"] == 4
+        assert Path("silac.summary.tsv").exists()
+        assert Path("silac.peptides.tsv").exists()
+        assert Path("silac.proteins.tsv").exists()
+        assert "protein_ratio_count" in Path("silac.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "numerator_label_missing" in Path("silac.peptides.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "sample_a\tP001\tP001\tPEPTIDE\tmedium\tlight\t2000.0\t1500.0" in Path(
+            "silac.proteins.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

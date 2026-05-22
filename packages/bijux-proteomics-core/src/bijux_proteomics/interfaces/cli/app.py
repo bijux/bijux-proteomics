@@ -287,6 +287,16 @@ from bijux_proteomics.multiplex import (
     export_tmt_ratio_summary_tsv,
     parse_tmt_reporter_table,
 )
+from bijux_proteomics.isotope_labeling import (
+    SilacColumnMapping,
+    SilacLabel,
+    SilacQuantificationPolicy,
+    build_silac_ratio_report,
+    export_silac_peptide_ratio_tsv,
+    export_silac_protein_ratio_tsv,
+    export_silac_ratio_summary_tsv,
+    parse_silac_feature_table,
+)
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
     build_targeted_assay_qc_report,
@@ -822,6 +832,10 @@ def _tmt_ratio_normalization_choice() -> click.Choice[str]:
     )
 
 
+def _silac_label_choice() -> click.Choice[str]:
+    return click.Choice([label.value for label in SilacLabel], case_sensitive=False)
+
+
 def _workflow_scheduler_choice() -> click.Choice[str]:
     return click.Choice(
         [scheduler.value for scheduler in WorkflowSchedulerKind], case_sensitive=False
@@ -851,6 +865,17 @@ def _parse_tmt_channel_column_specs(
             )
         )
     return tuple(resolved)
+
+
+def _parse_silac_label_spec(spec: str) -> tuple[SilacLabel, ...]:
+    labels = tuple(
+        SilacLabel(token.strip().lower())
+        for token in spec.split(",")
+        if token.strip()
+    )
+    if len(labels) < 2:
+        raise click.ClickException("labels must name at least two SILAC label states")
+    return labels
 
 
 def _select_design_entry(
@@ -8064,9 +8089,108 @@ def qc_group() -> None:
     """Build operator-facing LC-MS QC reports and artifacts."""
 
 
+@cli.group("isotope-labeling")
+def isotope_labeling_group() -> None:
+    """Build stable-isotope labeling review outputs and quantification ledgers."""
+
+
 @cli.group("multiplex")
 def multiplex_group() -> None:
     """Build multiplex reporter-ion import and matrix review outputs."""
+
+
+@isotope_labeling_group.command("silac-quantify")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--sample-id-column", default="sample_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--protein-refs-column", default="protein_refs", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--label-column", default="label", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--labels", default="light,heavy", show_default=True)
+@click.option(
+    "--reference-label",
+    type=_silac_label_choice(),
+    default=SilacLabel.LIGHT.value,
+    show_default=True,
+)
+@click.option("--collapse-charge-states", is_flag=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def silac_quantify_command(
+    input_tsv: Path,
+    sample_id_column: str,
+    peptide_column: str,
+    protein_refs_column: str,
+    charge_column: str,
+    label_column: str,
+    intensity_column: str,
+    feature_id_column: str,
+    protein_separator: str,
+    labels: str,
+    reference_label: str,
+    collapse_charge_states: bool,
+    summary_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Quantify SILAC pair or triplet evidence from labeled feature tables."""
+    try:
+        import_report = parse_silac_feature_table(
+            input_tsv,
+            mapping=SilacColumnMapping(
+                sample_id=sample_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                charge=charge_column,
+                label=label_column,
+                intensity=intensity_column,
+                feature_id=feature_id_column,
+                protein_separator=protein_separator,
+            ),
+        )
+        report = build_silac_ratio_report(
+            import_report,
+            policy=SilacQuantificationPolicy(
+                expected_labels=_parse_silac_label_spec(labels),
+                reference_label=SilacLabel(reference_label),
+                separate_charge_states=not collapse_charge_states,
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_silac_ratio_summary_tsv(report, summary_tsv_out)
+    if peptide_tsv_out is not None:
+        export_silac_peptide_ratio_tsv(report, peptide_tsv_out)
+    if protein_tsv_out is not None:
+        export_silac_protein_ratio_tsv(report, protein_tsv_out)
+
+    payload = {
+        "import_report": import_report.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
 
 
 @multiplex_group.command("tmt-reporter-matrix")
