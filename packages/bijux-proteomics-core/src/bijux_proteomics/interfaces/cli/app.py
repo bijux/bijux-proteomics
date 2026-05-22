@@ -606,6 +606,7 @@ from bijux_proteomics.workflow import (
     build_dda_biological_workflow_bundle,
     build_diann_benchmark_report,
     build_diann_biological_workflow_bundle,
+    build_lfq_cohort_biological_case_study_report,
     build_maxquant_benchmark_report,
     build_maxquant_biological_workflow_bundle,
     build_ptm_site_workflow_bundle,
@@ -623,6 +624,7 @@ from bijux_proteomics.workflow import (
     export_diann_biological_workflow_bundle,
     export_biological_result_report_bundle,
     export_dda_biological_workflow_bundle,
+    export_public_biological_case_study_report,
     export_maxquant_biological_workflow_bundle,
     export_ptm_site_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
@@ -643,6 +645,7 @@ from bijux_proteomics.workflow import (
     render_maxquant_filtering_comparison_tsv,
     render_maxquant_lfq_comparison_tsv,
     render_maxquant_protein_identity_comparison_tsv,
+    render_public_biological_case_study_summary_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
@@ -2269,6 +2272,63 @@ def diann_benchmark_command(
             "protein_quantities_tsv": None
             if protein_quantities_tsv_out is None
             else str(protein_quantities_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("public-case-study")
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--report-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def public_case_study_command(
+    summary_tsv_out: Path | None,
+    report_dir: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run the owned public LFQ case study through final biological reporting."""
+
+    try:
+        report = build_lfq_cohort_biological_case_study_report()
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    export_manifest = None
+    manifest_path = None
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_public_biological_case_study_summary_tsv(report),
+        )
+    if report_dir is not None:
+        export_manifest = export_public_biological_case_study_report(report, report_dir)
+        manifest_path = report_dir / "public_case_study_manifest.json"
+        manifest_path.write_text(
+            export_manifest.to_stable_json() + "\n",
+            encoding="utf-8",
+        )
+
+    payload = {
+        "case_study_id": report.summary.case_study_id,
+        "workflow_family": report.summary.workflow_family,
+        "source_package_id": report.case_study.source_package_id,
+        "public_dataset_identity": report.case_study.public_dataset_identity,
+        "summary": report.summary.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "report_dir": None if report_dir is None else str(report_dir),
+            "report_manifest_json": None
+            if manifest_path is None
+            else str(manifest_path),
         },
     }
     _emit_json(payload, out_path=out_path)
