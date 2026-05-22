@@ -2902,6 +2902,63 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert Path("fragpipe.protein.tsv").exists()
 
 
+def test_fragpipe_benchmark_command_reports_import_fidelity_and_exports() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "fragpipe"
+        shutil.copy(fixture_dir / "psm.tsv", "psm.tsv")
+        shutil.copy(fixture_dir / "combined_peptide.tsv", "combined_peptide.tsv")
+        shutil.copy(fixture_dir / "combined_protein.tsv", "combined_protein.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fragpipe-benchmark",
+                "psm.tsv",
+                "--peptide-tsv",
+                "combined_peptide.tsv",
+                "--protein-tsv",
+                "combined_protein.tsv",
+                "--summary-tsv-out",
+                "fragpipe.benchmark.summary.tsv",
+                "--count-comparisons-tsv-out",
+                "fragpipe.benchmark.counts.tsv",
+                "--protein-groups-tsv-out",
+                "fragpipe.benchmark.proteins.tsv",
+                "--psm-qvalues-tsv-out",
+                "fragpipe.benchmark.psm_qvalues.tsv",
+                "--peptide-qvalues-tsv-out",
+                "fragpipe.benchmark.peptide_qvalues.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["psm_count_matched"] is True
+        assert payload["summary"]["peptide_count_matched"] is True
+        assert payload["summary"]["protein_group_count_matched"] is True
+        assert payload["summary"]["q_value_behavior_matched"] is True
+        assert payload["protein_group_comparison"]["matched"] is True
+        assert payload["q_value_behavior"]["max_psm_absolute_difference"] == 0.0
+        assert Path("fragpipe.benchmark.summary.tsv").exists()
+        assert Path("fragpipe.benchmark.counts.tsv").exists()
+        assert Path("fragpipe.benchmark.proteins.tsv").exists()
+        assert Path("fragpipe.benchmark.psm_qvalues.tsv").exists()
+        assert Path("fragpipe.benchmark.peptide_qvalues.tsv").exists()
+        assert "source_psm_count" in Path(
+            "fragpipe.benchmark.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "comparison_id" in Path(
+            "fragpipe.benchmark.counts.tsv"
+        ).read_text(encoding="utf-8")
+        assert "missing_in_import" in Path(
+            "fragpipe.benchmark.proteins.tsv"
+        ).read_text(encoding="utf-8")
+        assert "absolute_difference" in Path(
+            "fragpipe.benchmark.psm_qvalues.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_sage_import_command_reports_scores_and_modifications() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
