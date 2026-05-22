@@ -4280,6 +4280,55 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         )
 
 
+def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        shutil.copy(
+            ptm_fixture_dir / "localization_probability_results.tsv",
+            "localization_probability_results.tsv",
+        )
+        Path("fragment_support.json").write_text(
+            json.dumps(
+                {
+                    "scan=ptm-prob-001": ["b5", "y7"],
+                    "scan=ptm-prob-002": ["b2"],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "score-localization",
+                "localization_probability_results.tsv",
+                "--fragment-support-json",
+                "fragment_support.json",
+                "--summary-tsv-out",
+                "ptm.localization.summary.tsv",
+                "--entry-tsv-out",
+                "ptm.localization.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 2
+        assert (
+            payload["localization_scoring"]["entries"][0]["probability_source"]
+            == "reported_probability"
+        )
+        assert "reported_probability" in Path(
+            "ptm.localization.entries.tsv"
+        ).read_text()
+        assert Path("ptm.localization.summary.tsv").read_text().splitlines()[0] == (
+            "entry_count\tambiguous_entry_count\tconfident_entry_count\t"
+            "multi_phosphorylated_entry_count\tfragment_supported_entry_count"
+        )
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
