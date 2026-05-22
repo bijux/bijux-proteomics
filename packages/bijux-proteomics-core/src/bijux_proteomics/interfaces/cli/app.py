@@ -607,12 +607,14 @@ from bijux_proteomics.study.qc import (
 from bijux_proteomics.workflow import (
     BiologicalResultSelectionPolicy,
     DiaDifferentialSourceKind,
+    ProteomicsRunEngine,
     build_biological_result_report_bundle,
     build_dda_biological_workflow_bundle,
     build_diann_benchmark_report,
     build_diann_biological_workflow_bundle,
     build_maxquant_benchmark_report,
     build_maxquant_biological_workflow_bundle,
+    build_proteomics_run_bundle,
     build_ptm_site_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
@@ -640,6 +642,7 @@ from bijux_proteomics.workflow import (
     export_label_based_differential_results_tsv,
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
+    export_proteomics_run_bundle,
     render_diann_benchmark_count_comparisons_tsv,
     render_diann_benchmark_protein_quantities_tsv,
     render_diann_benchmark_summary_tsv,
@@ -648,6 +651,7 @@ from bijux_proteomics.workflow import (
     render_maxquant_filtering_comparison_tsv,
     render_maxquant_lfq_comparison_tsv,
     render_maxquant_protein_identity_comparison_tsv,
+    render_proteomics_run_summary_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
@@ -681,6 +685,40 @@ def _build_volcano_review_policy(
         absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
         top_label_count=top_label_count,
     )
+
+
+def _validate_proteomics_run_inputs(
+    *,
+    engine: ProteomicsRunEngine,
+    report_path: Path | None,
+    peptides_path: Path | None,
+    protein_groups_path: Path | None,
+    config_path: Path | None,
+) -> None:
+    if report_path is None:
+        raise click.ClickException("--report is required")
+    if engine is ProteomicsRunEngine.MAXQUANT:
+        if peptides_path is None:
+            raise click.ClickException(
+                "MaxQuant runs require --peptides with peptides.txt"
+            )
+        if protein_groups_path is None:
+            raise click.ClickException(
+                "MaxQuant runs require --protein-groups with proteinGroups.txt"
+            )
+        return
+    if peptides_path is not None:
+        raise click.ClickException(
+            f"{engine.value} runs do not accept --peptides; that input is MaxQuant-specific"
+        )
+    if protein_groups_path is not None:
+        raise click.ClickException(
+            f"{engine.value} runs do not accept --protein-groups; that input is MaxQuant-specific"
+        )
+    if engine is ProteomicsRunEngine.FRAGPIPE and config_path is not None:
+        raise click.ClickException(
+            "fragpipe runs do not accept --config-path in the flagship command"
+        )
 
 
 def _export_volcano_review_assets(
@@ -9670,6 +9708,216 @@ def bundle_run_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
     _emit_json(manifest)
+
+
+@cli.command("run")
+@click.option(
+    "--engine",
+    type=click.Choice([engine.value for engine in ProteomicsRunEngine]),
+    required=True,
+)
+@click.option(
+    "--report",
+    "report_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Primary engine result table: DIA-NN report.tsv, MaxQuant evidence.txt, or FragPipe psm.tsv.",
+)
+@click.option(
+    "--peptides",
+    "peptides_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="MaxQuant-only peptides.txt input.",
+)
+@click.option(
+    "--protein-groups",
+    "protein_groups_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="MaxQuant-only proteinGroups.txt input.",
+)
+@click.option(
+    "--metadata",
+    "metadata_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--proteins-fasta",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--contrast", required=True)
+@click.option(
+    "--config-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--go-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--complex-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=0.01, show_default=True)
+@click.option(
+    "--psm-q-value-threshold",
+    type=float,
+    default=0.01,
+    show_default=True,
+)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-max-entities",
+    type=int,
+    default=50,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "output_dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    required=True,
+    help="Directory where the final flagship result package should be written.",
+)
+@click.option(
+    "--json-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON summary output path.",
+)
+def proteomics_run_command(
+    engine: str,
+    report_path: Path | None,
+    peptides_path: Path | None,
+    protein_groups_path: Path | None,
+    metadata_path: Path,
+    proteins_fasta: Path,
+    contrast: str,
+    config_path: Path | None,
+    annotation_tsv: Path | None,
+    go_annotation_tsv: Path | None,
+    pathway_membership_tsv: Path | None,
+    complex_membership_tsv: Path | None,
+    normalization: str,
+    max_q_value: float,
+    psm_q_value_threshold: float,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    heatmap_max_entities: int,
+    heatmap_min_observed_fraction: float,
+    volcano_top_label_count: int,
+    output_dir: Path,
+    json_out: Path | None,
+) -> None:
+    """Run one flagship proteomics workflow from engine output to final biology report."""
+
+    try:
+        resolved_engine = ProteomicsRunEngine(engine)
+        _validate_proteomics_run_inputs(
+            engine=resolved_engine,
+            report_path=report_path,
+            peptides_path=peptides_path,
+            protein_groups_path=protein_groups_path,
+            config_path=config_path,
+        )
+        metadata_report = parse_experimental_design_table(metadata_path)
+        if metadata_report.rejected_rows:
+            raise click.ClickException("metadata table contains rejected rows")
+        report = build_proteomics_run_bundle(
+            engine=resolved_engine,
+            metadata_entries=tuple(metadata_report.accepted_entries),
+            proteins_fasta_path=proteins_fasta,
+            report_tsv_path=report_path,
+            contrast=contrast,
+            peptides_tsv_path=peptides_path,
+            protein_groups_tsv_path=protein_groups_path,
+            config_path=config_path,
+            annotation_tsv_path=annotation_tsv,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            normalization_method=NormalizationMethod(normalization),
+            max_q_value=max_q_value,
+            psm_q_value_threshold=psm_q_value_threshold,
+            selection_policy=BiologicalResultSelectionPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+                heatmap_max_entity_count=heatmap_max_entities,
+                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+            ),
+            volcano_policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=max_adjusted_p_value,
+                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+        manifest = export_proteomics_run_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "proteomics_run_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "metadata_rows": len(metadata_report.accepted_entries),
+            "summary_tsv": render_proteomics_run_summary_tsv(report),
+            "run": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=json_out,
+    )
 
 
 @cli.command("workflow-plan")
