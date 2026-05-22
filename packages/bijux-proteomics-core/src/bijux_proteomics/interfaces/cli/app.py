@@ -103,6 +103,7 @@ from bijux_proteomics.identification import (
     render_comet_summary_tsv,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
+    render_diann_rejected_row_tsv,
     render_diann_summary_tsv,
     render_evidence_level_fdr_entries_tsv,
     render_evidence_level_fdr_summary_tsv,
@@ -2348,6 +2349,7 @@ def maxquant_benchmark_command(
 @click.option(
     "--protein-group-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
 )
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -2360,6 +2362,7 @@ def diann_import_command(
     summary_tsv_out: Path | None,
     precursor_tsv_out: Path | None,
     protein_group_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one DIA-NN report with explicit precursor and protein-group review."""
@@ -2380,10 +2383,17 @@ def diann_import_command(
             protein_group_tsv_out,
             render_diann_protein_group_tsv(report.protein_group_rows),
         )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_diann_rejected_row_tsv(report.rejected_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
-        "normalization": {
+        "normalization": None
+        if report.normalization is None
+        else {
             "adapter": report.normalization.adapter_manifest.to_dict(),
             "accepted_rows": len(report.normalization.parse_report.accepted_records),
             "rejected_rows": len(report.normalization.parse_report.rejected_rows),
@@ -2393,6 +2403,7 @@ def diann_import_command(
         else report.parameter_report.to_dict(),
         "precursor_rows": [row.to_dict() for row in report.precursor_rows],
         "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
+        "rejected_rows": [row.to_dict() for row in report.rejected_rows],
         "dia_native_report": report.dia_native_report.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -2402,6 +2413,9 @@ def diann_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)

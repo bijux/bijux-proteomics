@@ -3355,9 +3355,48 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert payload["precursor_rows"][0]["run_name"] == "raw_A"
         assert payload["precursor_rows"][2]["modified_peptide"] == "ACDM[Oxidation]K"
         assert payload["dia_native_report"]["imported_count"] == 4
+        assert payload["dia_native_report"]["imported_protein_groups"][0]["quantity"] == 3400000.0
         assert Path("diann.summary.tsv").exists()
         assert Path("diann.precursors.tsv").exists()
         assert Path("diann.protein_groups.tsv").exists()
+
+
+def test_diann_import_command_exports_rejected_rows_without_failing() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("diann_invalid.tsv").write_text(
+            "\n".join(
+                (
+                    "Precursor.Id\tStripped.Sequence\tModified.Sequence\tPrecursor.Charge\tQ.Value\tProtein.Group\tProtein.Ids\tRun\tSample\tPrecursor.Quantity\tPG.Quantity\tDecoy",
+                    "raw_A_PEPTIDE_2\tPEPTIDE\tPEPTIDE\t2\t0.01\tPG001\tP11111\traw_A\tsample_A\t50\t1000\t0",
+                    "raw_B_BADQ_2\tBADQ\tBADQ\t2\t1.2\tPG002\tP22222\traw_B\tsample_B\t120\t2000\t0",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-import",
+                "diann_invalid.tsv",
+                "--summary-tsv-out",
+                "diann.summary.tsv",
+                "--rejected-tsv-out",
+                "diann.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["accepted_precursor_count"] == 1
+        assert payload["summary"]["rejected_precursor_count"] == 1
+        assert payload["normalization"] is None
+        assert payload["rejected_rows"][0]["issues"][0]["code"] == "invalid_q_value"
+        assert Path("diann.rejected.tsv").read_text(encoding="utf-8").count(
+            "raw_B_BADQ_2"
+        ) == 1
 
 
 def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
