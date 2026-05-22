@@ -3068,6 +3068,95 @@ def test_silac_quantify_command_emits_peptide_and_protein_ratio_outputs() -> Non
         ).read_text(encoding="utf-8")
 
 
+def test_silac_validate_command_emits_label_distribution_and_weak_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "isotope_labeling"
+        shutil.copy(fixture_dir / "silac_features.tsv", "silac_features.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-labeling",
+                "silac-validate",
+                "silac_features.tsv",
+                "--labels",
+                "light,medium,heavy",
+                "--summary-tsv-out",
+                "silac.validation.summary.tsv",
+                "--label-tsv-out",
+                "silac.validation.labels.tsv",
+                "--distribution-tsv-out",
+                "silac.validation.distribution.tsv",
+                "--weak-tsv-out",
+                "silac.validation.weak.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["sample_count"] == 2
+        assert payload["report"]["summary"]["missing_pair_member_count"] == 2
+        assert payload["report"]["summary"]["abnormal_distribution_count"] == 1
+        assert payload["report"]["summary"]["weak_label_count"] == 2
+        assert "sample_b\tmedium\t2\t1\t1" in Path(
+            "silac.validation.labels.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_b\tmedium\t1500.0\t2200.0" in Path(
+            "silac.validation.distribution.tsv"
+        ).read_text(encoding="utf-8")
+        assert "weak_total_intensity" in Path(
+            "silac.validation.weak.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_tmt_validate_command_emits_channel_distribution_and_weak_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-labeling",
+                "tmt-validate",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--summary-tsv-out",
+                "tmt.validation.summary.tsv",
+                "--channel-tsv-out",
+                "tmt.validation.channels.tsv",
+                "--distribution-tsv-out",
+                "tmt.validation.distribution.tsv",
+                "--weak-tsv-out",
+                "tmt.validation.weak.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["report"]["summary"]["expected_channel_count"] == 8
+        assert payload["report"]["summary"]["missing_channel_count"] == 2
+        assert payload["report"]["summary"]["weak_channel_count"] == 2
+        assert "plex-a\t129N\tplex_a_129N" in Path(
+            "tmt.validation.channels.tsv"
+        ).read_text(encoding="utf-8")
+        assert "plex-a\t126\tplex_a_126" in Path(
+            "tmt.validation.distribution.tsv"
+        ).read_text(encoding="utf-8")
+        assert "channel_missing" in Path("tmt.validation.weak.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

@@ -291,10 +291,22 @@ from bijux_proteomics.isotope_labeling import (
     SilacColumnMapping,
     SilacLabel,
     SilacQuantificationPolicy,
+    SilacValidationPolicy,
+    TmtValidationPolicy,
     build_silac_ratio_report,
+    build_silac_validation_report,
+    build_tmt_validation_report,
+    export_silac_validation_distribution_tsv,
+    export_silac_validation_label_tsv,
     export_silac_peptide_ratio_tsv,
     export_silac_protein_ratio_tsv,
     export_silac_ratio_summary_tsv,
+    export_silac_validation_summary_tsv,
+    export_silac_validation_weak_tsv,
+    export_tmt_validation_channel_tsv,
+    export_tmt_validation_distribution_tsv,
+    export_tmt_validation_summary_tsv,
+    export_tmt_validation_weak_tsv,
     parse_silac_feature_table,
 )
 from bijux_proteomics.targeted import (
@@ -8188,6 +8200,206 @@ def silac_quantify_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@isotope_labeling_group.command("silac-validate")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--sample-id-column", default="sample_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--protein-refs-column", default="protein_refs", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--label-column", default="label", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--labels", default="light,heavy", show_default=True)
+@click.option("--collapse-charge-states", is_flag=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--label-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option("--weak-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def silac_validate_command(
+    input_tsv: Path,
+    sample_id_column: str,
+    peptide_column: str,
+    protein_refs_column: str,
+    charge_column: str,
+    label_column: str,
+    intensity_column: str,
+    feature_id_column: str,
+    protein_separator: str,
+    labels: str,
+    collapse_charge_states: bool,
+    summary_tsv_out: Path | None,
+    label_tsv_out: Path | None,
+    distribution_tsv_out: Path | None,
+    weak_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Validate expected SILAC labels and weak labeling evidence."""
+    try:
+        import_report = parse_silac_feature_table(
+            input_tsv,
+            mapping=SilacColumnMapping(
+                sample_id=sample_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                charge=charge_column,
+                label=label_column,
+                intensity=intensity_column,
+                feature_id=feature_id_column,
+                protein_separator=protein_separator,
+            ),
+        )
+        report = build_silac_validation_report(
+            import_report,
+            policy=SilacValidationPolicy(
+                expected_labels=_parse_silac_label_spec(labels),
+                separate_charge_states=not collapse_charge_states,
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_silac_validation_summary_tsv(report, summary_tsv_out)
+    if label_tsv_out is not None:
+        export_silac_validation_label_tsv(report, label_tsv_out)
+    if distribution_tsv_out is not None:
+        export_silac_validation_distribution_tsv(report, distribution_tsv_out)
+    if weak_tsv_out is not None:
+        export_silac_validation_weak_tsv(report, weak_tsv_out)
+
+    payload = {
+        "import_report": import_report.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "label_tsv": None if label_tsv_out is None else str(label_tsv_out),
+            "distribution_tsv": (
+                None if distribution_tsv_out is None else str(distribution_tsv_out)
+            ),
+            "weak_tsv": None if weak_tsv_out is None else str(weak_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@isotope_labeling_group.command("tmt-validate")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--channel-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--distribution-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option("--weak-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_validate_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    channel_tsv_out: Path | None,
+    distribution_tsv_out: Path | None,
+    weak_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Validate expected TMT channels and weak reporter evidence."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        feature_bundle = build_tmt_reporter_feature_bundle(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+        )
+        report = build_tmt_validation_report(
+            feature_bundle,
+            policy=TmtValidationPolicy(),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_validation_summary_tsv(report, summary_tsv_out)
+    if channel_tsv_out is not None:
+        export_tmt_validation_channel_tsv(report, channel_tsv_out)
+    if distribution_tsv_out is not None:
+        export_tmt_validation_distribution_tsv(report, distribution_tsv_out)
+    if weak_tsv_out is not None:
+        export_tmt_validation_weak_tsv(report, weak_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "channel_tsv": None if channel_tsv_out is None else str(channel_tsv_out),
+            "distribution_tsv": (
+                None if distribution_tsv_out is None else str(distribution_tsv_out)
+            ),
+            "weak_tsv": None if weak_tsv_out is None else str(weak_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
