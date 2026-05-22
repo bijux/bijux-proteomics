@@ -9,6 +9,12 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.workflow import build_biological_result_report_bundle
+from bijux_proteomics.workflow.biological_reporting import (
+    BiologicalResultReportBundle,
+    BiologicalResultSelectionPolicy,
+)
 from bijux_proteomics_foundation import JsonModel
 
 _CASE_STUDY_ROOT = "packages/bijux-proteomics-core/benchmark-assets/public-case-studies"
@@ -56,6 +62,35 @@ class PublicBiologicalCaseStudyCatalog(JsonModel):
     entries: tuple[PublicBiologicalCaseStudyDefinition, ...] = Field(
         default_factory=tuple
     )
+
+
+class PublicBiologicalCaseStudyReportSummary(JsonModel):
+    """Compact summary over one public biological case study run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_study_id: str = Field(..., min_length=1)
+    workflow_family: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    protein_count: int = Field(..., ge=0)
+    significant_protein_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    go_enriched_term_count: int = Field(..., ge=0)
+    pathway_enriched_entry_count: int = Field(..., ge=0)
+    complex_enriched_entry_count: int = Field(..., ge=0)
+
+
+class PublicBiologicalCaseStudyReport(JsonModel):
+    """Owned end-to-end report for one public biological case study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_study: PublicBiologicalCaseStudyDefinition
+    biological_report: BiologicalResultReportBundle
+    selection_policy: BiologicalResultSelectionPolicy
+    summary: PublicBiologicalCaseStudyReportSummary
+    note: str = Field(..., min_length=1)
 
 
 def _repo_root() -> Path:
@@ -125,6 +160,66 @@ def build_public_biological_case_study_catalog() -> PublicBiologicalCaseStudyCat
     )
 
 
+def build_lfq_cohort_biological_case_study_report() -> PublicBiologicalCaseStudyReport:
+    """Run the owned LFQ cohort public case study into a final biology bundle."""
+
+    case_study = build_lfq_cohort_biological_case_study()
+    selection_policy = BiologicalResultSelectionPolicy(
+        max_adjusted_p_value=1.0,
+        min_absolute_log2_fold_change=0.1,
+        heatmap_max_entity_count=10,
+        heatmap_min_observed_fraction=0.5,
+    )
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _repo_path(case_study.input_paths.design_table_path)
+        ).accepted_entries
+    )
+    biological_report = build_biological_result_report_bundle(
+        _repo_path(case_study.input_paths.feature_table_path),
+        design_entries,
+        proteins_fasta_path=_repo_path(case_study.input_paths.proteins_fasta_path),
+        annotation_tsv_path=_repo_path(case_study.input_paths.annotation_tsv_path),
+        go_annotation_tsv_path=_repo_path(case_study.input_paths.go_annotation_tsv_path),
+        pathway_membership_tsv_path=_repo_path(
+            case_study.input_paths.pathway_membership_tsv_path
+        ),
+        complex_membership_tsv_path=_repo_path(
+            case_study.input_paths.complex_membership_tsv_path
+        ),
+        condition_a="control",
+        condition_b="treatment",
+        selection_policy=selection_policy,
+    )
+    return PublicBiologicalCaseStudyReport(
+        case_study=case_study,
+        biological_report=biological_report,
+        selection_policy=selection_policy,
+        summary=PublicBiologicalCaseStudyReportSummary(
+            case_study_id=case_study.case_study_id,
+            workflow_family=case_study.workflow_family,
+            condition_a="control",
+            condition_b="treatment",
+            protein_count=biological_report.summary.protein_count,
+            significant_protein_count=biological_report.summary.significant_protein_count,
+            sample_count=biological_report.summary.sample_count,
+            go_enriched_term_count=biological_report.summary.go_enriched_term_count,
+            pathway_enriched_entry_count=(
+                biological_report.summary.pathway_enriched_entry_count
+            ),
+            complex_enriched_entry_count=(
+                biological_report.summary.complex_enriched_entry_count
+            ),
+        ),
+        note=(
+            "the LFQ cohort public case study preserves the public feature snapshot, "
+            "sample metadata, exploratory effect-size policy, protein differential "
+            "output, sample QC, enrichment ledgers, and final biological report in "
+            "one owned workflow surface"
+        ),
+    )
+
+
 def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) -> None:
     required_paths = (
         case_study.readme_path,
@@ -148,7 +243,10 @@ def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) 
 __all__ = [
     "PublicBiologicalCaseStudyCatalog",
     "PublicBiologicalCaseStudyDefinition",
+    "PublicBiologicalCaseStudyReport",
+    "PublicBiologicalCaseStudyReportSummary",
     "PublicCaseStudyInputPaths",
     "build_lfq_cohort_biological_case_study",
+    "build_lfq_cohort_biological_case_study_report",
     "build_public_biological_case_study_catalog",
 ]
