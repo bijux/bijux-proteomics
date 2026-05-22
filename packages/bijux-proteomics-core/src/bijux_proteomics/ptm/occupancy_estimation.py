@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 
 from pydantic import ConfigDict, Field
 
@@ -237,3 +239,109 @@ def build_ptm_occupancy_counterpart_report(
             if entry.counterpart_status is PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
         ),
     )
+
+
+def render_ptm_site_occupancy_summary_tsv(report: PtmSiteOccupancyReport) -> str:
+    """Render compact PTM occupancy summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entry_count",
+            "complete_count",
+            "missing_counterpart_count",
+            "ambiguous_site_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.entry_count,
+            report.summary.complete_count,
+            report.summary.missing_counterpart_count,
+            report.summary.ambiguous_site_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_site_occupancy_entry_tsv(report: PtmSiteOccupancyReport) -> str:
+    """Render PTM occupancy entries as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "sample_id",
+            "modified_intensity",
+            "unmodified_intensity",
+            "occupancy_fraction",
+            "uncertainty",
+            "modified_peptides",
+            "unmodified_peptides",
+            "modified_feature_count",
+            "unmodified_feature_count",
+            "note",
+        ]
+    )
+    for entry in report.entries:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.sample_id,
+                entry.modified_intensity,
+                entry.unmodified_intensity,
+                "" if entry.occupancy_fraction is None else entry.occupancy_fraction,
+                entry.uncertainty.value,
+                ";".join(entry.modified_peptides),
+                ";".join(entry.unmodified_peptides),
+                entry.modified_feature_count,
+                entry.unmodified_feature_count,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_occupancy_counterpart_tsv(
+    report: PtmOccupancyCounterpartEvidenceReport,
+) -> str:
+    """Render PTM occupancy counterpart evidence as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "sample_id",
+            "modified_intensity",
+            "unmodified_intensity",
+            "occupancy_fraction",
+            "uncertainty",
+            "counterpart_status",
+            "modified_peptides",
+            "unmodified_peptides",
+            "modified_feature_count",
+            "unmodified_feature_count",
+            "caveat",
+        ]
+    )
+    for entry in report.entries:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.sample_id,
+                entry.modified_intensity,
+                entry.unmodified_intensity,
+                "" if entry.occupancy_fraction is None else entry.occupancy_fraction,
+                entry.uncertainty.value,
+                entry.counterpart_status.value,
+                ";".join(entry.modified_peptides),
+                ";".join(entry.unmodified_peptides),
+                entry.modified_feature_count,
+                entry.unmodified_feature_count,
+                entry.caveat,
+            ]
+        )
+    return buffer.getvalue()
