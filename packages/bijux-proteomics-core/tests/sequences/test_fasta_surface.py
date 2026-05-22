@@ -28,6 +28,7 @@ from bijux_proteomics.sequences import (
     parse_uniprot_accession,
     relabel_contaminant_records,
     render_fasta_profile_length_distribution_tsv,
+    render_fasta_profile_invalid_sequence_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
     sequence_checksum,
@@ -430,6 +431,12 @@ def test_build_fasta_database_profile_reports_length_and_organism_distribution(
     assert profile.organism_distribution[0].decoy_count == 1
     assert profile.organism_distribution[0].contaminant_count == 1
     assert profile.organism_distribution[1].protein_count == 1
+    assert [row.source_identifier for row in profile.invalid_sequence_report] == [
+        "custom_empty",
+        "custom_invalid",
+    ]
+    assert profile.invalid_sequence_report[0].primary_issue_code == "empty_sequence"
+    assert profile.invalid_sequence_report[1].primary_issue_code == "invalid_character"
 
 
 def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
@@ -447,6 +454,7 @@ def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
     summary_tsv = render_fasta_profile_summary_tsv(profile)
     length_tsv = render_fasta_profile_length_distribution_tsv(profile)
     organism_tsv = render_fasta_profile_organism_distribution_tsv(profile)
+    invalid_sequence_tsv = render_fasta_profile_invalid_sequence_tsv(profile)
 
     assert summary_tsv.splitlines()[0].startswith("input_record_count\tprotein_count")
     assert "\t6\t3\t6\t5\t1\t1\t" in summary_tsv
@@ -458,6 +466,17 @@ def test_render_fasta_profile_ledgers_emit_tsv_headers_and_rows(
         "organism\tprotein_count\ttarget_count\tdecoy_count\tcontaminant_count"
     )
     assert "Homo sapiens\t4\t3\t1\t1" in organism_tsv
+    assert invalid_sequence_tsv.splitlines()[0] == (
+        "source_identifier\tsource_header\tprimary_issue_code\tprimary_issue_message\tissue_codes\tissue_messages"
+    )
+    assert (
+        "custom_empty\tcustom_empty Example empty\tempty_sequence\tsequence must contain at least one amino-acid residue"
+        in invalid_sequence_tsv
+    )
+    assert (
+        "custom_invalid\tcustom_invalid Example invalid\tinvalid_character\tsequence contains invalid non-residue characters"
+        in invalid_sequence_tsv
+    )
 
 
 def test_deduplicate_fasta_records_prefers_first_accession_then_sequence(
