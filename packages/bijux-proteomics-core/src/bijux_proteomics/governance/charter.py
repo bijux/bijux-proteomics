@@ -146,6 +146,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Study design, MS1 feature parsing, quantification rollup, normalization, and QC semantics for reproducible quantitative analysis.",
         required_modules=(
             "study/contracts.py",
+            "study/sample_metadata.py",
             "study/laboratory_plans.py",
             "study/laboratory_operations.py",
             "study/qc.py",
