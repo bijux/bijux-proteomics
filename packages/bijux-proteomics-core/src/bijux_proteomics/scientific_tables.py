@@ -508,10 +508,12 @@ def build_contrast_table_schema() -> ScientificTableSchema:
         table_kind="contrast_table",
         column_specs=(
             DelimitedColumnSpec(name="contrast_id", required=True),
-            DelimitedColumnSpec(name="left_condition", required=True),
-            DelimitedColumnSpec(name="right_condition", required=True),
             DelimitedColumnSpec(name="kind", required=True),
+            DelimitedColumnSpec(name="left_condition"),
+            DelimitedColumnSpec(name="right_condition"),
+            DelimitedColumnSpec(name="condition_set"),
             DelimitedColumnSpec(name="pair_id_field"),
+            DelimitedColumnSpec(name="timepoint_field"),
         ),
         unique_key_columns=("contrast_id",),
         allowed_values_by_column={
