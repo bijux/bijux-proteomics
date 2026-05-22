@@ -53,6 +53,9 @@ from bijux_proteomics_dev.release.governance.runtime_black_box_docs import (
 from bijux_proteomics_dev.release.governance.scientific_readiness import (
     validate_scientific_release_dossier,
 )
+from bijux_proteomics_dev.release.governance.test_collection_gate import (
+    build_test_collection_gate_report,
+)
 from bijux_proteomics_dev.release.governance.workflow_authority_docs import (
     validate_workflow_authority_docs,
 )
@@ -95,6 +98,7 @@ __all__ = [
 FINAL_PREFLIGHT_STAGE_IDS = (
     "docs-clarity",
     "package-boundaries",
+    "test-collection",
     "benchmark-assets",
     "runtime-reproducibility",
     "consequence-coherence",
@@ -214,6 +218,25 @@ def _package_boundaries_stage(repo_root: Path) -> FinalPreflightStage:
     )
 
 
+def _test_collection_stage(repo_root: Path) -> FinalPreflightStage:
+    report = build_test_collection_gate_report(repo_root=repo_root)
+    issues = tuple(
+        FinalPreflightIssue(
+            code=f"{check.check_kind}-check-failed",
+            detail=(
+                f"{check.package_name} {check.check_kind} check failed for "
+                f"{check.target}: {check.detail}"
+            ),
+        )
+        for check in report.failed_checks
+    )
+    return FinalPreflightStage(
+        stage_id="test-collection",
+        label="test collection",
+        issues=issues,
+    )
+
+
 def _benchmark_assets_stage(repo_root: Path) -> FinalPreflightStage:
     issues = [
         *_normalize_issues(
@@ -320,6 +343,7 @@ def build_final_preflight_report(repo_root: Path = REPO_ROOT) -> FinalPreflightR
     stages = (
         _docs_stage(repo_root),
         _package_boundaries_stage(repo_root),
+        _test_collection_stage(repo_root),
         _benchmark_assets_stage(repo_root),
         _runtime_reproducibility_stage(repo_root),
         _consequence_coherence_stage(repo_root),
