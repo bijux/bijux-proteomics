@@ -5,12 +5,17 @@
 
 from __future__ import annotations
 
-import csv
+from collections.abc import Mapping
 from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from bijux_proteomics.io.table_engine import (
+    DelimitedColumnSpec,
+    DelimitedTableIssue,
+    parse_delimited_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -68,7 +73,7 @@ class TargetPanelRejectedRow(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    row_number: int = Field(..., ge=2)
+    row_number: int = Field(..., ge=1)
     values: dict[str, str] = Field(default_factory=dict)
     reason: str = Field(..., min_length=1)
 
@@ -85,36 +90,37 @@ class TargetPanelParseReport(JsonModel):
 
 def parse_target_panel_table(path: Path) -> TargetPanelParseReport:
     """Parse one peptide/protein target panel from TSV or CSV."""
-
-    raw_text = path.read_text(encoding="utf-8")
-    lines = raw_text.splitlines()
-    if not lines:
-        return TargetPanelParseReport(
-            source_path=str(path),
-            rejected_rows=(
-                TargetPanelRejectedRow(
-                    row_number=2,
-                    reason="target panel is empty",
-                ),
+    table_report = parse_delimited_table(
+        path,
+        column_specs=(
+            DelimitedColumnSpec(name="target_id", source_columns=("id",)),
+            DelimitedColumnSpec(name="target_kind", source_columns=("kind",)),
+            DelimitedColumnSpec(
+                name="peptide_sequence",
+                source_columns=("peptide",),
             ),
-        )
-    delimiter = "\t" if "\t" in lines[0] else ","
-    reader = csv.DictReader(lines, delimiter=delimiter)
-    fieldnames = {field.strip() for field in reader.fieldnames or () if field is not None}
+            DelimitedColumnSpec(name="protein_ref", source_columns=("protein",)),
+            DelimitedColumnSpec(name="display_name", source_columns=("name",)),
+        ),
+    )
     accepted_entries: list[TargetPanelEntry] = []
-    rejected_rows: list[TargetPanelRejectedRow] = []
-    for row_number, raw_row in enumerate(reader, start=2):
-        normalized_row = {
-            (key or "").strip(): (value or "").strip()
-            for key, value in raw_row.items()
-            if key is not None
-        }
+    rejected_rows = [
+        TargetPanelRejectedRow(
+            row_number=row.row_number,
+            values=row.raw_values,
+            reason=_stable_reason_from_issues(row.issues),
+        )
+        for row in table_report.rejected_rows
+    ]
+    fieldnames = set(table_report.header)
+    for accepted_row in table_report.accepted_rows:
+        normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
         try:
             accepted_entries.append(_parse_target_panel_row(normalized_row, fieldnames))
         except (ValueError, ValidationError) as exc:
             rejected_rows.append(
                 TargetPanelRejectedRow(
-                    row_number=row_number,
+                    row_number=accepted_row.row_number,
                     values=normalized_row,
                     reason=_stable_reason(exc),
                 )
@@ -127,7 +133,7 @@ def parse_target_panel_table(path: Path) -> TargetPanelParseReport:
 
 
 def _parse_target_panel_row(
-    row: dict[str, str],
+    row: Mapping[str, str],
     fieldnames: set[str],
 ) -> TargetPanelEntry:
     peptide_sequence = row.get("peptide_sequence") or row.get("peptide") or None
@@ -184,3 +190,21 @@ def _stable_reason(error: ValueError | ValidationError) -> str:
             if isinstance(message, str):
                 return message.removeprefix("Value error, ")
     return str(error)
+
+
+def _stable_reason_from_issues(issues: tuple[DelimitedTableIssue, ...]) -> str:
+    if not issues:
+        return "target panel row was rejected"
+    if any(issue.code == "empty_table" for issue in issues):
+        return "target panel is empty"
+    return issues[0].message
+
+
+def _render_table_row_values(
+    values: Mapping[str, str | int | float | bool | None],
+    extra_values: Mapping[str, str],
+) -> dict[str, str]:
+    rendered: dict[str, str] = dict(extra_values)
+    for key, value in values.items():
+        rendered[key] = "" if value is None else str(value)
+    return rendered

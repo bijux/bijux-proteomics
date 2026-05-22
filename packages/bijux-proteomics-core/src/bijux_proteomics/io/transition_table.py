@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-import csv
+from collections.abc import Mapping
 from pathlib import Path
 
 from pydantic import ConfigDict, Field, ValidationError, field_validator
@@ -13,6 +13,12 @@ from pydantic import ConfigDict, Field, ValidationError, field_validator
 from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TransitionRecord as CanonicalTransitionRecord,
+)
+from bijux_proteomics.io.table_engine import (
+    DelimitedColumnSpec,
+    DelimitedTableIssue,
+    DelimitedColumnValueType,
+    parse_delimited_table,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -83,7 +89,7 @@ class TransitionTableRejectedRow(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    row_number: int = Field(..., ge=2)
+    row_number: int = Field(..., ge=1)
     values: dict[str, str] = Field(default_factory=dict)
     reason: str = Field(..., min_length=1)
 
@@ -111,36 +117,74 @@ class TransitionTableParseReport(JsonModel):
 
 def parse_transition_table(path: Path) -> TransitionTableParseReport:
     """Parse one transition-level table from TSV or CSV."""
-
-    raw_text = path.read_text(encoding="utf-8")
-    lines = raw_text.splitlines()
-    if not lines:
-        return TransitionTableParseReport(
-            source_path=str(path),
-            rejected_rows=(
-                TransitionTableRejectedRow(
-                    row_number=2,
-                    reason="transition table is empty",
-                ),
+    table_report = parse_delimited_table(
+        path,
+        column_specs=(
+            DelimitedColumnSpec(
+                name="transition_id",
+                source_columns=("transition", "fragment_id"),
+                required=True,
             ),
-        )
-    delimiter = "\t" if "\t" in lines[0] else ","
-    reader = csv.DictReader(lines, delimiter=delimiter)
-    fieldnames = {field.strip() for field in reader.fieldnames or () if field is not None}
+            DelimitedColumnSpec(
+                name="precursor_id",
+                source_columns=("precursor",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="sample_id",
+                source_columns=("sample",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="intensity",
+                source_columns=("area", "peak_area"),
+                required=True,
+                value_type=DelimitedColumnValueType.FLOAT,
+            ),
+            DelimitedColumnSpec(name="run_id", source_columns=("run",)),
+            DelimitedColumnSpec(
+                name="peptide_sequence",
+                source_columns=("peptide",),
+            ),
+            DelimitedColumnSpec(name="protein_ref", source_columns=("protein",)),
+            DelimitedColumnSpec(
+                name="fragment_label",
+                source_columns=("fragment", "product_ion"),
+            ),
+            DelimitedColumnSpec(
+                name="precursor_mz",
+                source_columns=("q1",),
+                value_type=DelimitedColumnValueType.FLOAT,
+            ),
+            DelimitedColumnSpec(
+                name="fragment_mz",
+                source_columns=("product_mz", "q3"),
+                value_type=DelimitedColumnValueType.FLOAT,
+            ),
+            DelimitedColumnSpec(
+                name="q_value",
+                source_columns=("qvalue",),
+                value_type=DelimitedColumnValueType.FLOAT,
+            ),
+        ),
+    )
     accepted_entries: list[TransitionTableEntry] = []
-    rejected_rows: list[TransitionTableRejectedRow] = []
-    for row_number, raw_row in enumerate(reader, start=2):
-        normalized_row = {
-            (key or "").strip(): (value or "").strip()
-            for key, value in raw_row.items()
-            if key is not None
-        }
+    rejected_rows = [
+        TransitionTableRejectedRow(
+            row_number=row.row_number,
+            values=row.raw_values,
+            reason=_stable_reason_from_issues(row.issues),
+        )
+        for row in table_report.rejected_rows
+    ]
+    for accepted_row in table_report.accepted_rows:
+        normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
         try:
-            accepted_entries.append(_parse_transition_row(normalized_row, fieldnames))
+            accepted_entries.append(_parse_transition_row(normalized_row))
         except (ValueError, ValidationError) as exc:
             rejected_rows.append(
                 TransitionTableRejectedRow(
-                    row_number=row_number,
+                    row_number=accepted_row.row_number,
                     values=normalized_row,
                     reason=_stable_reason(exc),
                 )
@@ -153,18 +197,12 @@ def parse_transition_table(path: Path) -> TransitionTableParseReport:
 
 
 def _parse_transition_row(
-    row: dict[str, str],
-    fieldnames: set[str],
+    row: Mapping[str, str],
 ) -> TransitionTableEntry:
-    transition_id = (
-        row.get("transition_id")
-        or row.get("transition")
-        or row.get("fragment_id")
-        or None
-    )
-    precursor_id = row.get("precursor_id") or row.get("precursor") or None
-    sample_id = row.get("sample_id") or row.get("sample") or None
-    intensity = row.get("intensity") or row.get("area") or row.get("peak_area") or None
+    transition_id = row.get("transition_id") or None
+    precursor_id = row.get("precursor_id") or None
+    sample_id = row.get("sample_id") or None
+    intensity = row.get("intensity") or None
     if transition_id is None:
         raise ValueError("transition row requires transition_id")
     if precursor_id is None:
@@ -176,35 +214,19 @@ def _parse_transition_row(
     metadata = {
         key: value
         for key, value in row.items()
-        if key in fieldnames
-        and key
+        if key
         not in {
             "transition_id",
-            "transition",
-            "fragment_id",
             "precursor_id",
-            "precursor",
             "sample_id",
-            "sample",
             "intensity",
-            "area",
-            "peak_area",
             "run_id",
-            "run",
             "peptide_sequence",
-            "peptide",
             "protein_ref",
-            "protein",
             "fragment_label",
-            "fragment",
-            "product_ion",
             "precursor_mz",
-            "q1",
             "fragment_mz",
-            "product_mz",
-            "q3",
             "q_value",
-            "qvalue",
         }
         and value
     }
@@ -248,3 +270,26 @@ def _stable_reason(error: ValueError | ValidationError) -> str:
             if isinstance(message, str):
                 return message.removeprefix("Value error, ")
     return str(error)
+
+
+def _stable_reason_from_issues(issues: tuple[DelimitedTableIssue, ...]) -> str:
+    if not issues:
+        return "transition table row was rejected"
+    issue = issues[0]
+    if issue.code == "empty_table":
+        return "transition table is empty"
+    if issue.code in {"missing_required_column", "missing_required_value"} and issue.column:
+        return f"transition row requires {issue.column}"
+    if issue.code == "invalid_float_value" and issue.column:
+        return f"transition row has invalid numeric value for {issue.column}"
+    return issue.message
+
+
+def _render_table_row_values(
+    values: Mapping[str, str | int | float | bool | None],
+    extra_values: Mapping[str, str],
+) -> dict[str, str]:
+    rendered: dict[str, str] = dict(extra_values)
+    for key, value in values.items():
+        rendered[key] = "" if value is None else str(value)
+    return rendered
