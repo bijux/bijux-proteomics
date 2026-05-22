@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+import json
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -74,6 +75,181 @@ class _CanonicalRecord(JsonModel):
             field_name
             for field_name, field_info in cls.model_fields.items()
             if field_info.is_required()
+        )
+
+
+class ImportedEvidenceProvenance(_CanonicalRecord):
+    """Traceback contract from one imported scientific row to its source evidence."""
+
+    source_engine: str = Field(..., min_length=1)
+    source_files: tuple[str, ...] = Field(default_factory=tuple)
+    source_row_numbers: tuple[int, ...] = Field(default_factory=tuple)
+    original_identifiers: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("source_engine", mode="before")
+    @classmethod
+    def _normalize_source_engine(cls, value: object) -> str:
+        text = str(value).strip()
+        if not text:
+            raise ValueError("source_engine must not be blank")
+        return text
+
+    @field_validator("source_files", mode="before")
+    @classmethod
+    def _normalize_source_files(cls, value: object) -> tuple[str, ...]:
+        if value in (None, ""):
+            return ()
+        if isinstance(value, str):
+            tokens = (value,)
+        else:
+            if not isinstance(value, Iterable):
+                raise ValueError("source_files must be iterable")
+            tokens = tuple(str(token) for token in value)
+        normalized = tuple(token.strip() for token in tokens if token.strip())
+        return tuple(dict.fromkeys(normalized))
+
+    @field_validator("source_row_numbers", mode="before")
+    @classmethod
+    def _normalize_source_row_numbers(cls, value: object) -> tuple[int, ...]:
+        if value in (None, ""):
+            return ()
+        if isinstance(value, int):
+            values = (value,)
+        else:
+            if not isinstance(value, Iterable):
+                raise ValueError("source_row_numbers must be iterable")
+            values = tuple(int(token) for token in value)
+        return tuple(sorted({row_number for row_number in values if row_number >= 1}))
+
+    @field_validator("original_identifiers", mode="before")
+    @classmethod
+    def _normalize_original_identifiers(cls, value: object) -> dict[str, str]:
+        if value in (None, ""):
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError("original_identifiers must be a mapping")
+        normalized: dict[str, str] = {}
+        for key, raw_value in value.items():
+            normalized_key = str(key).strip()
+            normalized_value = str(raw_value).strip()
+            if normalized_key and normalized_value:
+                normalized[normalized_key] = normalized_value
+        return normalized
+
+    @classmethod
+    def from_single_row(
+        cls,
+        *,
+        source_engine: str,
+        source_file: str,
+        source_row_number: int,
+        original_identifiers: dict[str, str] | None = None,
+    ) -> ImportedEvidenceProvenance:
+        """Create one row-level provenance record from a single imported row."""
+
+        return cls(
+            source_engine=source_engine,
+            source_files=(source_file,),
+            source_row_numbers=(source_row_number,),
+            original_identifiers=original_identifiers or {},
+        )
+
+    @classmethod
+    def combine(
+        cls,
+        records: Iterable[ImportedEvidenceProvenance],
+        *,
+        original_identifiers: dict[str, str] | None = None,
+    ) -> ImportedEvidenceProvenance:
+        """Merge related provenance rows into one traceable aggregate contract."""
+
+        entries = tuple(records)
+        if not entries:
+            raise ValueError("records must not be empty")
+        source_engines = tuple(dict.fromkeys(entry.source_engine for entry in entries))
+        if len(source_engines) != 1:
+            raise ValueError("combined provenance requires one source engine")
+        source_files = tuple(
+            dict.fromkeys(
+                source_file
+                for entry in entries
+                for source_file in entry.source_files
+                if source_file
+            )
+        )
+        source_row_numbers = tuple(
+            sorted(
+                {
+                    row_number
+                    for entry in entries
+                    for row_number in entry.source_row_numbers
+                    if row_number >= 1
+                }
+            )
+        )
+        combined_identifiers = dict(original_identifiers or {})
+        if not combined_identifiers:
+            for entry in entries:
+                for key, value in entry.original_identifiers.items():
+                    combined_identifiers.setdefault(key, value)
+        return cls(
+            source_engine=source_engines[0],
+            source_files=source_files,
+            source_row_numbers=source_row_numbers,
+            original_identifiers=combined_identifiers,
+        )
+
+    @property
+    def source_file(self) -> str:
+        """Render one stable file cell for TSV and metadata surfaces."""
+
+        return ";".join(self.source_files)
+
+    @property
+    def source_row_number(self) -> str:
+        """Render one stable row-number cell for TSV and metadata surfaces."""
+
+        return ";".join(str(row_number) for row_number in self.source_row_numbers)
+
+    @property
+    def original_identifiers_json(self) -> str:
+        """Render stable original identifiers for TSV and metadata surfaces."""
+
+        return json.dumps(
+            self.original_identifiers,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+
+    def to_metadata_fields(self) -> dict[str, str]:
+        """Flatten provenance onto canonical metadata fields."""
+
+        return {
+            "source_engine": self.source_engine,
+            "source_file": self.source_file,
+            "source_row_numbers": self.source_row_number,
+            "original_identifiers": self.original_identifiers_json,
+        }
+
+    @classmethod
+    def tsv_header(cls) -> tuple[str, ...]:
+        """Return the stable TSV column order for imported evidence provenance."""
+
+        return (
+            "source_engine",
+            "source_file",
+            "source_row_numbers",
+            "original_identifiers",
+        )
+
+    def to_tsv_row(self) -> tuple[str, ...]:
+        """Render provenance cells in the stable TSV header order."""
+
+        return (
+            self.source_engine,
+            self.source_file,
+            self.source_row_number,
+            self.original_identifiers_json,
         )
 
 

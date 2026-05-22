@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain import ImportedEvidenceProvenance
 from bijux_proteomics.identification import (
     CalibrationPlotData,
     FdrAuditTrail,
@@ -1344,6 +1345,8 @@ def _mapped_field_values(
 
 def _build_evidence_rows(
     *,
+    source_path: Path,
+    adapter_kind: SearchAdapterKind,
     source_rows: tuple[dict[str, str], ...],
     parse_report: PsmParseReport,
 ) -> tuple[SearchNormalizedEvidenceEntry, ...]:
@@ -1377,25 +1380,60 @@ def _build_evidence_rows(
             continue
         record = parse_report.accepted_records[accepted_index]
         accepted_index += 1
+        mapped_field_values = _mapped_field_values(raw_fields, parse_report.column_mapping)
+        original_identifiers = _build_original_identifiers(
+            mapped_field_values=mapped_field_values,
+            raw_fields=raw_fields,
+        )
         entries.append(
             SearchNormalizedEvidenceEntry(
                 row_number=row_index,
                 accepted=True,
                 raw_fields=raw_fields,
-                mapped_field_values=_mapped_field_values(
-                    raw_fields,
-                    parse_report.column_mapping,
-                ),
+                mapped_field_values=mapped_field_values,
                 unmapped_native_fields={
                     key: value
                     for key, value in raw_fields.items()
                     if key not in mapped_columns
                 },
-                normalized_record=record,
+                normalized_record=record.model_copy(
+                    update={
+                        "provenance": ImportedEvidenceProvenance.from_single_row(
+                            source_engine=adapter_kind.value,
+                            source_file=str(source_path),
+                            source_row_number=row_index,
+                            original_identifiers=original_identifiers,
+                        )
+                    }
+                ),
                 issues=(),
             )
         )
     return tuple(entries)
+
+
+def _build_original_identifiers(
+    *,
+    mapped_field_values: dict[str, str],
+    raw_fields: dict[str, str],
+) -> dict[str, str]:
+    identifiers: dict[str, str] = {}
+    for key in (
+        "run_id",
+        "spectrum_id",
+        "peptide",
+        "modified_peptide",
+        "protein_refs",
+    ):
+        value = mapped_field_values.get(key, "").strip()
+        if value:
+            identifiers[key] = value
+    if not identifiers:
+        for key in ("ScanNr", "SpecId", "NativeID", "Precursor.Id", "EG.PrecursorId"):
+            value = raw_fields.get(key, "").strip()
+            if value:
+                identifiers[key] = value
+    return identifiers
 
 
 def _required_mapping_columns(mapping: SearchResultColumnMapping) -> tuple[str, ...]:
@@ -2374,16 +2412,25 @@ def normalize_search_results_with_adapter(
         mapping=resolved_mapping,
         decoy_policy=decoy_policy or manifest.default_decoy_policy,
     )
+    evidence_rows = _build_evidence_rows(
+        source_path=source_path,
+        adapter_kind=manifest.adapter_kind,
+        source_rows=source_rows,
+        parse_report=parse_report,
+    )
     return SearchAdapterNormalizationReport(
         adapter_manifest=manifest,
         family_policy=build_search_result_family_policy(manifest),
         source_columns=source_columns,
         parse_report=parse_report,
-        normalized_records=normalize_psm_records(parse_report.accepted_records),
-        evidence_rows=_build_evidence_rows(
-            source_rows=source_rows,
-            parse_report=parse_report,
+        normalized_records=normalize_psm_records(
+            tuple(
+                row.normalized_record
+                for row in evidence_rows
+                if row.accepted and row.normalized_record is not None
+            )
         ),
+        evidence_rows=evidence_rows,
     )
 
 

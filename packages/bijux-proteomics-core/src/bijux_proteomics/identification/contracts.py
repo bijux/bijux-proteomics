@@ -21,6 +21,7 @@ from bijux_proteomics.chemistry import (
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
     ModifiedPeptide as CanonicalModifiedPeptide,
     PSMRecord as CanonicalPsmRecord,
     PeptideRecord as CanonicalPeptideRecord,
@@ -148,6 +149,7 @@ class PsmRecord(JsonModel):
     target_decoy_contaminant_class: TargetDecoyContaminantClass = (
         TargetDecoyContaminantClass.UNKNOWN
     )
+    provenance: ImportedEvidenceProvenance | None = None
 
     @field_validator(
         "run_id",
@@ -240,7 +242,14 @@ class PsmRecord(JsonModel):
             protein_refs=self.protein_refs,
             target_decoy_state=TargetDecoyState(self.target_decoy_label.value),
             contaminant_flag=self.contaminant_flag,
-            metadata={"source_contract": "identification.psm_record"},
+            metadata={
+                "source_contract": "identification.psm_record",
+                **(
+                    self.provenance.to_metadata_fields()
+                    if self.provenance is not None
+                    else {}
+                ),
+            },
         )
 
     def to_modified_peptide_record(self) -> CanonicalModifiedPeptide:
@@ -1921,6 +1930,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
             "target_decoy_label",
             "target_decoy_contaminant_class",
             "contaminant_flag",
+            *ImportedEvidenceProvenance.tsv_header(),
         ),
         rows=tuple(
             {
@@ -1940,6 +1950,17 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                     record.target_decoy_contaminant_class.value
                 ),
                 "contaminant_flag": record.contaminant_flag,
+                **dict(
+                    zip(
+                        ImportedEvidenceProvenance.tsv_header(),
+                        (
+                            record.provenance.to_tsv_row()
+                            if record.provenance is not None
+                            else ("", "", "", "")
+                        ),
+                        strict=True,
+                    )
+                ),
             }
             for record in normalized
         ),

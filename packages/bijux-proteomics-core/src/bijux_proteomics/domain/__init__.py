@@ -111,6 +111,7 @@ from bijux_proteomics.domain.targets import (
 from bijux_proteomics.domain.records import (
     Contrast,
     ContrastKind,
+    ImportedEvidenceProvenance,
     MissingValueState,
     ModifiedPeptide,
     PSMRecord,
@@ -138,6 +139,7 @@ __all__ = [
     "DecisionQuery",
     "DuplicateReviewDecisionError",
     "EvidenceNeed",
+    "ImportedEvidenceProvenance",
     "HYDROPATHY",
     "LifecycleTransition",
     "LiabilityCategory",

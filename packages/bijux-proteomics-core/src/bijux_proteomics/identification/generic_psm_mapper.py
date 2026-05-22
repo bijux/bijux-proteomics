@@ -11,6 +11,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, field_validator, model_validator
 import yaml
 
+from bijux_proteomics.domain import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
     SearchResultColumnMapping,
@@ -134,6 +135,7 @@ class GenericMappedPsmRow(JsonModel):
     target_decoy_label: TargetDecoyLabel
     target_decoy_contaminant_class: TargetDecoyContaminantClass
     contaminant_flag: bool = False
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class GenericPsmMapperSummary(JsonModel):
@@ -244,6 +246,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                 "target_decoy_label",
                 "target_decoy_contaminant_class",
                 "contaminant_flag",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -265,6 +268,11 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                     row.target_decoy_label.value,
                     row.target_decoy_contaminant_class.value,
                     "true" if row.contaminant_flag else "false",
+                    *(
+                        row.provenance.to_tsv_row()
+                        if row.provenance is not None
+                        else ("", "", "", "")
+                    ),
                 )
             )
         )
@@ -348,6 +356,7 @@ def _build_mapped_rows(
                 target_decoy_label=record.target_decoy_label,
                 target_decoy_contaminant_class=record.target_decoy_contaminant_class,
                 contaminant_flag=record.contaminant_flag,
+                provenance=record.provenance,
             )
         )
     return tuple(
