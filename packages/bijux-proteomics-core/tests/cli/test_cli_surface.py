@@ -4187,6 +4187,48 @@ def test_ptm_parse_peptide_command_emits_explicit_site_records() -> None:
     assert [site["protein_position"] for site in payload["sites"]] == [15, 15, 18]
 
 
+def test_ptm_parse_peptides_command_emits_review_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        shutil.copy(ptm_fixture_dir / "ptm_peptides.tsv", "ptm_peptides.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "parse-peptides",
+                "ptm_peptides.tsv",
+                "--summary-tsv-out",
+                "ptm_peptides.summary.tsv",
+                "--record-tsv-out",
+                "ptm_peptides.records.tsv",
+                "--site-tsv-out",
+                "ptm_peptides.sites.tsv",
+                "--rejected-tsv-out",
+                "ptm_peptides.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"] == {
+            "accepted_record_count": 3,
+            "rejected_row_count": 2,
+            "parsed_site_count": 5,
+            "protein_mapped_site_count": 4,
+            "multi_modified_record_count": 1,
+        }
+        assert Path("ptm_peptides.summary.tsv").read_text().splitlines()[1] == "3\t2\t5\t4\t1"
+        assert "AAS[Phospho]PEP" in Path("ptm_peptides.records.tsv").read_text()
+        assert "UNIMOD:21\tS\t3\t6\tanywhere" in Path(
+            "ptm_peptides.sites.tsv"
+        ).read_text()
+        assert "invalid_peptide_start_position" in Path(
+            "ptm_peptides.rejected.tsv"
+        ).read_text()
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

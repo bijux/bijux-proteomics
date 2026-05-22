@@ -276,6 +276,7 @@ from bijux_proteomics.targeted import (
 )
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
+    PtmPeptideColumnMapping,
     build_ptm_enrichment_input,
     build_ptm_motif_windows,
     build_ptm_site_ambiguity_report,
@@ -285,7 +286,12 @@ from bijux_proteomics.ptm import (
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_peptide,
+    parse_ptm_peptide_tsv,
     parse_ptm_localization_tsv,
+    render_ptm_peptide_record_tsv,
+    render_ptm_peptide_rejected_tsv,
+    render_ptm_peptide_site_tsv,
+    render_ptm_peptide_summary_tsv,
 )
 from bijux_proteomics.quantification import (
     ImputationMethod,
@@ -8228,6 +8234,94 @@ def ptm_parse_peptide_command(
         raise click.ClickException(str(exc)) from exc
 
     _emit_json(record.to_dict(), out_path=out_path)
+
+
+@ptm_group.command("parse-peptides")
+@click.argument(
+    "peptide_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--protein-ref-column", default="protein_ref", show_default=True)
+@click.option(
+    "--peptide-start-position-column",
+    default="peptide_start_position",
+    show_default=True,
+)
+@click.option("--sample-id-column", default="sample_id", show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--record-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--site-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def ptm_parse_peptides_command(
+    peptide_tsv: Path,
+    peptide_column: str,
+    protein_ref_column: str | None,
+    peptide_start_position_column: str | None,
+    sample_id_column: str | None,
+    spectrum_id_column: str | None,
+    summary_tsv_out: Path | None,
+    record_tsv_out: Path | None,
+    site_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Parse a PTM peptide table into peptide and site review ledgers."""
+    try:
+        report = parse_ptm_peptide_tsv(
+            peptide_tsv,
+            mapping=PtmPeptideColumnMapping(
+                peptide=peptide_column,
+                protein_ref=protein_ref_column,
+                peptide_start_position=peptide_start_position_column,
+                sample_id=sample_id_column,
+                spectrum_id=spectrum_id_column,
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_ptm_peptide_summary_tsv(report),
+            encoding="utf-8",
+        )
+    if record_tsv_out is not None:
+        record_tsv_out.write_text(
+            render_ptm_peptide_record_tsv(report),
+            encoding="utf-8",
+        )
+    if site_tsv_out is not None:
+        site_tsv_out.write_text(
+            render_ptm_peptide_site_tsv(report),
+            encoding="utf-8",
+        )
+    if rejected_tsv_out is not None:
+        rejected_tsv_out.write_text(
+            render_ptm_peptide_rejected_tsv(report),
+            encoding="utf-8",
+        )
+
+    _emit_json(report.to_dict(), out_path=out_path)
 
 
 @ptm_group.command("summarize")
