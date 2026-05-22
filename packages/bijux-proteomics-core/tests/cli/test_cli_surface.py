@@ -4653,6 +4653,87 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         ).read_text(encoding="utf-8")
 
 
+def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        bundle_dir = workflow_dir / "maxquant_biological"
+        shutil.copy(bundle_dir / "evidence.txt", "evidence.txt")
+        shutil.copy(bundle_dir / "peptides.txt", "peptides.txt")
+        shutil.copy(bundle_dir / "proteinGroups.txt", "proteinGroups.txt")
+        shutil.copy(bundle_dir / "design.tsv", "design.tsv")
+        shutil.copy(bundle_dir / "maxquant_settings.txt", "maxquant_settings.txt")
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv",
+            "biological_report_go.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "maxquant-biological-report",
+                "evidence.txt",
+                "peptides.txt",
+                "proteinGroups.txt",
+                "design.tsv",
+                "biological_report_reference.fasta",
+                "--config-path",
+                "maxquant_settings.txt",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--output-dir",
+                "maxquant_biological_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["design_rows"] == 6
+        assert payload["report"]["summary"]["accepted_protein_group_count"] == 5
+        assert payload["report"]["summary"]["filtered_protein_group_count"] == 3
+        assert payload["report"]["summary"]["quantified_protein_count"] == 5
+        assert payload["report"]["summary"]["go_enriched_term_count"] == 1
+        report_dir = Path("maxquant_biological_report")
+        assert (report_dir / "maxquant_biological_report_manifest.json").exists()
+        assert (report_dir / "maxquant_import_summary.tsv").exists()
+        assert (report_dir / "maxquant_accepted_protein_groups.tsv").exists()
+        assert (report_dir / "maxquant_filtered_protein_groups.tsv").exists()
+        assert (report_dir / "maxquant_lfq_matrix.tsv").exists()
+        assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_report.html").exists()
+        assert "accepted_evidence_count" in (
+            report_dir / "maxquant_import_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "filter_reasons" in (
+            report_dir / "maxquant_filtered_protein_groups.tsv"
+        ).read_text(encoding="utf-8")
+        assert "entity_id\tprotein_refs\tmember_peptides" in (
+            report_dir / "maxquant_lfq_matrix.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
