@@ -12,22 +12,35 @@ def test_import_dia_nn_rows_builds_precursor_and_protein_group_quantities() -> N
             DiaNnImportRow(
                 precursor_id="p1",
                 peptide_sequence="PEPTIDEK",
+                modified_peptide="PEPTIDEK",
                 charge=2,
                 q_value=0.01,
-                quantity=100.0,
+                precursor_quantity=100.0,
                 protein_group_id="pg-1",
+                protein_refs=("P11111", "P11112"),
+                run_name="raw_A",
+                sample_name="sample_A",
+                protein_group_quantity=340.0,
             ),
             DiaNnImportRow(
                 precursor_id="p2",
                 peptide_sequence="PEPTIDER",
+                modified_peptide="PEPTIDER",
                 charge=2,
                 q_value=0.02,
-                quantity=120.0,
+                precursor_quantity=120.0,
                 protein_group_id="pg-1",
+                protein_refs=("P11111",),
+                run_name="raw_A",
+                sample_name="sample_A",
+                protein_group_quantity=340.0,
             ),
         )
     )
 
     assert report.imported_count == 2
     assert len(report.imported_precursors) == 2
-    assert report.imported_protein_groups[0].quantity == 220.0
+    assert report.imported_precursors[0].run_name == "raw_A"
+    assert report.imported_precursors[0].protein_group_id == "pg-1"
+    assert report.imported_protein_groups[0].quantity == 340.0
+    assert report.imported_protein_groups[0].source_precursor_count == 2

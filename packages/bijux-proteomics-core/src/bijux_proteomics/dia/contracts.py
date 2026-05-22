@@ -19,9 +19,14 @@ class DiaNativePrecursor(JsonModel):
 
     precursor_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
     charge: int = Field(..., ge=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
     quantity: float = Field(..., ge=0.0)
+    protein_group_id: str | None = None
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str | None = None
+    sample_name: str | None = None
 
 
 class DiaNativeFragment(JsonModel):
@@ -43,6 +48,10 @@ class DiaNativeProteinGroupQuantity(JsonModel):
     protein_group_id: str = Field(..., min_length=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
     quantity: float = Field(..., ge=0.0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str | None = None
+    sample_name: str | None = None
+    source_precursor_count: int = Field(default=1, ge=1)
 
 
 class DiaNativeLibraryEntryReference(JsonModel):
@@ -202,10 +211,15 @@ class DiaNnImportRow(JsonModel):
 
     precursor_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     q_value: float = Field(..., ge=0.0, le=1.0)
-    quantity: float = Field(..., ge=0.0)
+    precursor_quantity: float | None = Field(default=None, ge=0.0)
     protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    protein_group_quantity: float | None = Field(default=None, ge=0.0)
 
 
 class DiaNnImportReport(JsonModel):
@@ -229,30 +243,50 @@ def import_dia_nn_rows(
         DiaNativePrecursor(
             precursor_id=row.precursor_id,
             peptide_sequence=row.peptide_sequence,
+            modified_peptide=row.modified_peptide,
             charge=row.charge,
             q_value=row.q_value,
-            quantity=row.quantity,
+            quantity=row.precursor_quantity or 0.0,
+            protein_group_id=row.protein_group_id,
+            protein_refs=row.protein_refs,
+            run_name=row.run_name,
+            sample_name=row.sample_name,
         )
         for row in rows
     ]
 
-    protein_quantity: dict[str, float] = {}
-    protein_q: dict[str, float] = {}
+    protein_quantity: dict[tuple[str, str, str], float] = {}
+    protein_q: dict[tuple[str, str, str], float] = {}
+    protein_refs: dict[tuple[str, str, str], set[str]] = {}
+    protein_source_counts: dict[tuple[str, str, str], int] = {}
     for row in rows:
-        protein_quantity[row.protein_group_id] = (
-            protein_quantity.get(row.protein_group_id, 0.0) + row.quantity
+        group_key = (row.protein_group_id, row.run_name, row.sample_name)
+        protein_quantity[group_key] = (
+            row.protein_group_quantity
+            if row.protein_group_quantity is not None
+            else protein_quantity.get(group_key, 0.0) + (row.precursor_quantity or 0.0)
         )
-        protein_q[row.protein_group_id] = min(
-            protein_q.get(row.protein_group_id, 1.0), row.q_value
+        protein_q[group_key] = min(
+            protein_q.get(group_key, 1.0), row.q_value
         )
+        protein_refs.setdefault(group_key, set()).update(row.protein_refs)
+        protein_source_counts[group_key] = protein_source_counts.get(group_key, 0) + 1
 
     proteins = [
         DiaNativeProteinGroupQuantity(
             protein_group_id=protein_group_id,
-            q_value=protein_q[protein_group_id],
+            q_value=protein_q[(protein_group_id, run_name, sample_name)],
             quantity=quantity,
+            protein_refs=tuple(sorted(protein_refs[(protein_group_id, run_name, sample_name)])),
+            run_name=run_name,
+            sample_name=sample_name,
+            source_precursor_count=protein_source_counts[
+                (protein_group_id, run_name, sample_name)
+            ],
         )
-        for protein_group_id, quantity in sorted(protein_quantity.items())
+        for (protein_group_id, run_name, sample_name), quantity in sorted(
+            protein_quantity.items()
+        )
     ]
 
     return DiaNnImportReport(
