@@ -503,6 +503,13 @@ from bijux_proteomics.quantification import (
     render_protein_lfq_summary_tsv,
     summarize_missing_values,
 )
+from bijux_proteomics.review import (
+    VolcanoReviewPolicy,
+    build_dia_volcano_review,
+    export_volcano_review_html,
+    export_volcano_review_json,
+    export_volcano_review_svg,
+)
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
     FastaDatabaseProfile,
@@ -558,6 +565,7 @@ from bijux_proteomics.study.qc import (
 )
 from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
+    build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
     build_silac_label_based_report_bundle,
@@ -594,6 +602,34 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
 
 def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def _build_volcano_review_policy(
+    *,
+    adjusted_p_value_threshold: float,
+    absolute_log2_fold_change_threshold: float,
+    top_label_count: int,
+) -> VolcanoReviewPolicy:
+    return VolcanoReviewPolicy(
+        adjusted_p_value_threshold=adjusted_p_value_threshold,
+        absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
+        top_label_count=top_label_count,
+    )
+
+
+def _export_volcano_review_assets(
+    *,
+    review_report: Any,
+    json_out: Path | None,
+    svg_out: Path | None,
+    html_out: Path | None,
+) -> None:
+    if json_out is not None:
+        export_volcano_review_json(review_report, json_out)
+    if svg_out is not None:
+        export_volcano_review_svg(review_report, svg_out)
+    if html_out is not None:
+        export_volcano_review_html(review_report, html_out)
 
 
 def _load_similarity_spectra(
@@ -2576,6 +2612,27 @@ def targeted_assay_qc_command(
     type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option("--volcano-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-svg-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--volcano-adjusted-p-value-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--volcano-absolute-log2-fold-change-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
 @click.option(
     "--sample-balance-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -2604,6 +2661,12 @@ def dia_differential_command(
     design_matrix_tsv_out: Path | None,
     design_coefficients_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
     sample_balance_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -2642,6 +2705,37 @@ def dia_differential_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    volcano_plot = None
+    volcano_review = None
+    if (
+        volcano_tsv_out is not None
+        or volcano_json_out is not None
+        or volcano_svg_out is not None
+        or volcano_html_out is not None
+    ):
+        if report.differential_abundance_report is None:
+            raise click.ClickException(
+                "volcano export requires a resolvable contrast or exactly two conditions"
+            )
+        volcano_plot = build_dia_differential_volcano_plot(
+            report.differential_abundance_report,
+            protein_refs_by_entity=report.input_report.table.entity_protein_refs,
+            adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+            absolute_log2_fold_change_threshold=(
+                volcano_absolute_log2_fold_change_threshold
+            ),
+        )
+        volcano_review = build_dia_volcano_review(
+            volcano_plot,
+            policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change_threshold
+                ),
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+
     if matrix_tsv_out is not None:
         export_dia_differential_matrix_tsv(report.input_report.table, matrix_tsv_out)
     if normalized_matrix_tsv_out is not None:
@@ -2661,11 +2755,15 @@ def dia_differential_command(
             sample_balance_tsv_out,
         )
     if volcano_tsv_out is not None:
-        if report.volcano_plot is None:
-            raise click.ClickException(
-                "volcano export requires a resolvable contrast or exactly two conditions"
-            )
-        export_dia_differential_volcano_plot_tsv(report.volcano_plot, volcano_tsv_out)
+        assert volcano_plot is not None
+        export_dia_differential_volcano_plot_tsv(volcano_plot, volcano_tsv_out)
+    if volcano_review is not None:
+        _export_volcano_review_assets(
+            review_report=volcano_review,
+            json_out=volcano_json_out,
+            svg_out=volcano_svg_out,
+            html_out=volcano_html_out,
+        )
 
     payload = {
         "source_kind": report.input_report.source_kind.value,
@@ -2687,8 +2785,9 @@ def dia_differential_command(
             else None
         ),
         "normalization_balance_plot": report.normalization_balance_plot.to_dict(),
-        "volcano_plot": (
-            report.volcano_plot.to_dict() if report.volcano_plot is not None else None
+        "volcano_plot": None if volcano_plot is None else volcano_plot.to_dict(),
+        "volcano_review": (
+            None if volcano_review is None else volcano_review.to_dict()
         ),
         "note": report.note,
         "outputs": {
@@ -2708,6 +2807,13 @@ def dia_differential_command(
                 else str(design_coefficients_tsv_out)
             ),
             "volcano_tsv": None if volcano_tsv_out is None else str(volcano_tsv_out),
+            "volcano_json": (
+                None if volcano_json_out is None else str(volcano_json_out)
+            ),
+            "volcano_svg": None if volcano_svg_out is None else str(volcano_svg_out),
+            "volcano_html": (
+                None if volcano_html_out is None else str(volcano_html_out)
+            ),
             "sample_balance_tsv": (
                 None if sample_balance_tsv_out is None else str(sample_balance_tsv_out)
             ),

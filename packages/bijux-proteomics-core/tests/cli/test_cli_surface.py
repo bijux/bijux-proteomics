@@ -4250,6 +4250,14 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
                 "dia.coefficients.tsv",
                 "--volcano-tsv-out",
                 "dia.volcano.tsv",
+                "--volcano-json-out",
+                "dia.volcano.json",
+                "--volcano-svg-out",
+                "dia.volcano.svg",
+                "--volcano-html-out",
+                "dia.volcano.html",
+                "--volcano-top-label-count",
+                "1",
                 "--sample-balance-tsv-out",
                 "dia.balance.tsv",
             ],
@@ -4264,12 +4272,16 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert payload["differential_abundance"]["condition_a"] == "control"
         assert payload["differential_abundance"]["condition_b"] == "treatment"
         assert payload["volcano_plot"]["significant_point_count"] == 2
+        assert payload["volcano_review"]["labeled_point_count"] == 1
         assert payload["outputs"]["matrix_tsv"] == "dia.raw.tsv"
         assert payload["outputs"]["normalized_matrix_tsv"] == "dia.normalized.tsv"
         assert payload["outputs"]["differential_tsv"] == "dia.differential.tsv"
         assert payload["outputs"]["design_matrix_tsv"] == "dia.design.tsv"
         assert payload["outputs"]["design_coefficients_tsv"] == "dia.coefficients.tsv"
         assert payload["outputs"]["volcano_tsv"] == "dia.volcano.tsv"
+        assert payload["outputs"]["volcano_json"] == "dia.volcano.json"
+        assert payload["outputs"]["volcano_svg"] == "dia.volcano.svg"
+        assert payload["outputs"]["volcano_html"] == "dia.volcano.html"
         assert payload["outputs"]["sample_balance_tsv"] == "dia.balance.tsv"
         assert Path("dia.raw.tsv").exists()
         assert Path("dia.normalized.tsv").exists()
@@ -4277,6 +4289,9 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert Path("dia.design.tsv").exists()
         assert Path("dia.coefficients.tsv").exists()
         assert Path("dia.volcano.tsv").exists()
+        assert Path("dia.volcano.json").exists()
+        assert Path("dia.volcano.svg").exists()
+        assert Path("dia.volcano.html").exists()
         assert Path("dia.balance.tsv").exists()
         assert "PG001\tP11111\tPESTIDE\t100000\t110000\t400000\t420000" in Path(
             "dia.raw.tsv"
@@ -4290,8 +4305,16 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert "PG001\tcondition[treatment]" in Path(
             "dia.coefficients.tsv"
         ).read_text(encoding="utf-8")
-        assert "PG001\tP11111\t2.00208\t0.0136062\t1.86626\ttrue" in Path(
+        assert "raw_p_value" in Path("dia.volcano.tsv").read_text(encoding="utf-8")
+        assert "PG001\tP11111\t2.00208\t0.00729495\t0.0136062\t1.86626\ttrue" in Path(
             "dia.volcano.tsv"
+        ).read_text(encoding="utf-8")
+        assert '"source_kind": "dia"' in Path("dia.volcano.json").read_text(
+            encoding="utf-8"
+        )
+        assert "<svg" in Path("dia.volcano.svg").read_text(encoding="utf-8")
+        assert "Volcano plot: control vs treatment" in Path(
+            "dia.volcano.html"
         ).read_text(encoding="utf-8")
         assert "C1\tbefore\t600000\t200000\t100000" in Path(
             "dia.balance.tsv"
