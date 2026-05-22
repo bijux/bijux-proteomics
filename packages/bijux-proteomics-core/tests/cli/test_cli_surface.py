@@ -3095,6 +3095,7 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         shutil.copy(fixture_dir / "psm.tsv", "psm.tsv")
         shutil.copy(fixture_dir / "combined_peptide.tsv", "combined_peptide.tsv")
         shutil.copy(fixture_dir / "combined_protein.tsv", "combined_protein.tsv")
+        shutil.copy(fixture_dir / "combined_quant.tsv", "combined_quant.tsv")
 
         result = runner.invoke(
             cli,
@@ -3105,14 +3106,22 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
                 "combined_peptide.tsv",
                 "--protein-tsv",
                 "combined_protein.tsv",
+                "--quant-tsv",
+                "combined_quant.tsv",
                 "--summary-tsv-out",
                 "fragpipe.summary.tsv",
+                "--canonical-psm-tsv-out",
+                "fragpipe.canonical_psm.tsv",
                 "--psm-tsv-out",
                 "fragpipe.psm.tsv",
                 "--peptide-review-tsv-out",
                 "fragpipe.peptide.tsv",
                 "--protein-review-tsv-out",
                 "fragpipe.protein.tsv",
+                "--open-search-tsv-out",
+                "fragpipe.open_search.tsv",
+                "--protein-quantity-tsv-out",
+                "fragpipe.quant.tsv",
             ],
         )
 
@@ -3122,15 +3131,24 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert payload["summary"]["open_search_psm_count"] == 1
         assert payload["summary"]["peptide_row_count"] == 2
         assert payload["summary"]["protein_row_count"] == 3
+        assert payload["summary"]["canonical_psm_count"] == 3
+        assert payload["summary"]["open_search_evidence_count"] == 2
+        assert payload["summary"]["protein_quantity_count"] == 6
         assert (
             payload["psm_normalization"]["adapter"]["display_name"]
             == "FragPipe psm export"
         )
+        assert payload["canonical_psms"][1]["open_search_candidate"] is True
         assert payload["psm_rows"][1]["open_search_candidate"] is True
+        assert payload["open_search_evidence"][0]["mass_difference"] == 42.0106
+        assert payload["protein_quantity_rows"][0]["quantity_kind"] == "maxlfq_intensity"
         assert Path("fragpipe.summary.tsv").exists()
+        assert Path("fragpipe.canonical_psm.tsv").exists()
         assert Path("fragpipe.psm.tsv").exists()
         assert Path("fragpipe.peptide.tsv").exists()
         assert Path("fragpipe.protein.tsv").exists()
+        assert Path("fragpipe.open_search.tsv").exists()
+        assert Path("fragpipe.quant.tsv").exists()
 
 
 def test_fragpipe_benchmark_command_reports_import_fidelity_and_exports() -> None:
