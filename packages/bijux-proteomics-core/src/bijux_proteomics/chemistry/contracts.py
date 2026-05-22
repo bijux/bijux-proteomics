@@ -14,59 +14,18 @@ import re
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from bijux_proteomics.chemistry.amino_acid_mass import (
+    _AVERAGE_RESIDUE_MASS,
+    _CANONICAL_RESIDUES,
+    _MONOISOTOPIC_RESIDUE_MASS,
+    _PROTON_AVERAGE_MASS,
+    _PROTON_MONOISOTOPIC_MASS,
+    _WATER_AVERAGE_MASS,
+    _WATER_MONOISOTOPIC_MASS,
+    calculate_sequence_average_mass,
+    calculate_sequence_monoisotopic_mass,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
-
-_MONOISOTOPIC_RESIDUE_MASS: dict[str, float] = {
-    "A": 71.03711,
-    "R": 156.10111,
-    "N": 114.04293,
-    "D": 115.02694,
-    "C": 103.00919,
-    "E": 129.04259,
-    "Q": 128.05858,
-    "G": 57.02146,
-    "H": 137.05891,
-    "I": 113.08406,
-    "L": 113.08406,
-    "K": 128.09496,
-    "M": 131.04049,
-    "F": 147.06841,
-    "P": 97.05276,
-    "S": 87.03203,
-    "T": 101.04768,
-    "W": 186.07931,
-    "Y": 163.06333,
-    "V": 99.06841,
-}
-
-_AVERAGE_RESIDUE_MASS: dict[str, float] = {
-    "A": 71.0788,
-    "R": 156.1875,
-    "N": 114.1038,
-    "D": 115.0886,
-    "C": 103.1388,
-    "E": 129.1155,
-    "Q": 128.1307,
-    "G": 57.0519,
-    "H": 137.1411,
-    "I": 113.1594,
-    "L": 113.1594,
-    "K": 128.1741,
-    "M": 131.1926,
-    "F": 147.1766,
-    "P": 97.1167,
-    "S": 87.0782,
-    "T": 101.1051,
-    "W": 186.2132,
-    "Y": 163.176,
-    "V": 99.1326,
-}
-
-_CANONICAL_RESIDUES = frozenset(_MONOISOTOPIC_RESIDUE_MASS)
-_PROTON_MONOISOTOPIC_MASS = 1.007276466812
-_PROTON_AVERAGE_MASS = 1.007276466812
-_WATER_MONOISOTOPIC_MASS = 18.01056
-_WATER_AVERAGE_MASS = 18.01528
 _AMMONIA_MONOISOTOPIC_MASS = 17.026549
 _AMMONIA_AVERAGE_MASS = 17.03052
 _PHOSPHORIC_ACID_MONOISOTOPIC_MASS = 97.976896
@@ -939,20 +898,6 @@ def _mass_delta_for(
     return mono if mass_type is MassType.MONOISOTOPIC else average
 
 
-def _base_residue_mass(sequence: str, mass_type: MassType) -> float:
-    table = (
-        _MONOISOTOPIC_RESIDUE_MASS
-        if mass_type is MassType.MONOISOTOPIC
-        else _AVERAGE_RESIDUE_MASS
-    )
-    water_mass = (
-        _WATER_MONOISOTOPIC_MASS
-        if mass_type is MassType.MONOISOTOPIC
-        else _WATER_AVERAGE_MASS
-    )
-    return water_mass + sum(table[residue] for residue in sequence)
-
-
 def _matching_static_mass_delta(
     sequence: str,
     static_modifications: tuple[StaticModification, ...],
@@ -1041,7 +986,7 @@ def calculate_monoisotopic_peptide_mass(
     """Calculate the monoisotopic neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     return (
-        _base_residue_mass(parsed.sequence, MassType.MONOISOTOPIC)
+        calculate_sequence_monoisotopic_mass(parsed.sequence)
         + _matching_static_mass_delta(
             parsed.sequence,
             static_modifications,
@@ -1060,7 +1005,7 @@ def calculate_average_peptide_mass(
     """Calculate the average neutral mass for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     return (
-        _base_residue_mass(parsed.sequence, MassType.AVERAGE)
+        calculate_sequence_average_mass(parsed.sequence)
         + _matching_static_mass_delta(
             parsed.sequence,
             static_modifications,
