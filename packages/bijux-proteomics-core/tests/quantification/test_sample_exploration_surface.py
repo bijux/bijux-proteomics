@@ -12,6 +12,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
+    build_sample_cluster_report,
     build_sample_distance_report,
     build_sample_pca_variance_report,
 )
@@ -169,3 +170,26 @@ def test_sample_distance_report_orders_closest_pairs_first() -> None:
     assert report.entries[0].same_batch is True
     assert report.entries[-1].same_condition is False
     assert report.entries[-1].euclidean_distance > report.entries[0].euclidean_distance
+
+
+def test_sample_cluster_report_preserves_average_linkage_merge_order() -> None:
+    records, design = _sample_exploration_inputs()
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_sample_cluster_report(table, design)
+
+    assert report.sample_count == 4
+    assert len(report.entries) == 3
+    assert report.entries[0].member_sample_ids == ("case-1", "case-2")
+    assert report.entries[1].member_sample_ids == ("ctrl-1", "ctrl-2")
+    assert report.entries[-1].member_sample_ids == (
+        "case-1",
+        "case-2",
+        "ctrl-1",
+        "ctrl-2",
+    )
+    assert report.entries[-1].member_conditions == ("case", "ctrl")
