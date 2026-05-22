@@ -12,10 +12,12 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
     PtmEvidenceRecord,
+    PtmLocalizationProbabilitySource,
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
     PtmSiteEntry,
     build_ptm_motif_windows,
+    build_ptm_localization_scoring_report,
     estimate_ptm_site_occupancy,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord
@@ -41,8 +43,11 @@ class PtmSiteLocalizationEvidenceNode(JsonModel):
     candidate_protein_positions: tuple[int, ...] = Field(default_factory=tuple)
     localization_scores: tuple[float, ...] = Field(default_factory=tuple)
     localization_probability: float = Field(..., ge=0.0, le=1.0)
+    localization_probability_source: PtmLocalizationProbabilitySource
     ambiguous: bool
     fragment_ions: tuple[str, ...] = Field(default_factory=tuple)
+    site_determining_ions: tuple[str, ...] = Field(default_factory=tuple)
+    supported_site_determining_ions: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class PtmSiteLocalizationEvidenceGraph(JsonModel):
@@ -248,15 +253,6 @@ class PtmCooccurrenceCautionReport(JsonModel):
     true_colocalization_pair_count: int = Field(..., ge=0)
 
 
-def _to_probability(score: float) -> float:
-    """Map non-negative localization score to a bounded probability-like signal."""
-    if score <= 0.0:
-        return 0.0
-    if score <= 1.0:
-        return round(score, 4)
-    return round(score / (score + 1.0), 4)
-
-
 def build_ptm_site_localization_evidence_graph(
     records: tuple[PtmEvidenceRecord, ...],
     mappings: tuple[PtmProteinSiteMapping, ...],
@@ -265,6 +261,14 @@ def build_ptm_site_localization_evidence_graph(
 ) -> PtmSiteLocalizationEvidenceGraph:
     """Build a PTM site-localization evidence graph from records and mappings."""
     record_by_spectrum = {record.spectrum_id: record for record in records}
+    scoring_report = build_ptm_localization_scoring_report(
+        records,
+        fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
+    )
+    scoring_by_spectrum_and_index = {
+        (entry.spectrum_id, entry.peptide_site_index): entry
+        for entry in scoring_report.entries
+    }
     grouped: dict[str, list[PtmProteinSiteMapping]] = {}
     for mapping in mappings:
         site_key = (
@@ -278,14 +282,46 @@ def build_ptm_site_localization_evidence_graph(
         scores = tuple(
             sorted((mapping.localization_score for mapping in bucket), reverse=True)
         )
-        max_score = scores[0] if scores else 0.0
         spectrum_ids = tuple(sorted({mapping.spectrum_id for mapping in bucket}))
         fragment_ions: set[str] = set()
+        site_determining_ions: set[str] = set()
+        supported_site_determining_ions: set[str] = set()
+        probability_source = PtmLocalizationProbabilitySource.NORMALIZED_SCORE
+        probability = 0.0
+        probability_candidates: list[tuple[float, PtmLocalizationProbabilitySource]] = []
+        scoring_entries = [
+            scoring_by_spectrum_and_index[(mapping.spectrum_id, mapping.peptide_site_index)]
+            for mapping in bucket
+            if (mapping.spectrum_id, mapping.peptide_site_index)
+            in scoring_by_spectrum_and_index
+        ]
         if fragment_ion_support_by_spectrum:
             for spectrum_id in spectrum_ids:
                 fragment_ions.update(
                     fragment_ion_support_by_spectrum.get(spectrum_id, ())
                 )
+        for scoring_entry in scoring_entries:
+            site_determining_ions.update(scoring_entry.site_determining_ions)
+            supported_site_determining_ions.update(
+                scoring_entry.supported_site_determining_ions
+            )
+            probability_candidates.append(
+                (
+                    scoring_entry.localization_probability,
+                    scoring_entry.probability_source,
+                )
+            )
+        if probability_candidates:
+            probability, probability_source = max(
+                probability_candidates,
+                key=lambda candidate: (
+                    candidate[0],
+                    1
+                    if candidate[1]
+                    is PtmLocalizationProbabilitySource.REPORTED_PROBABILITY
+                    else 0,
+                ),
+            )
         peptide_site_indices = tuple(
             sorted({mapping.peptide_site_index for mapping in bucket})
         )
@@ -312,9 +348,14 @@ def build_ptm_site_localization_evidence_graph(
                 peptide_site_indices=peptide_site_indices,
                 candidate_protein_positions=candidate_positions,
                 localization_scores=scores,
-                localization_probability=_to_probability(max_score),
+                localization_probability=probability,
+                localization_probability_source=probability_source,
                 ambiguous=any(mapping.ambiguous for mapping in bucket),
                 fragment_ions=tuple(sorted(fragment_ions)),
+                site_determining_ions=tuple(sorted(site_determining_ions)),
+                supported_site_determining_ions=tuple(
+                    sorted(supported_site_determining_ions)
+                ),
             )
         )
     return PtmSiteLocalizationEvidenceGraph(

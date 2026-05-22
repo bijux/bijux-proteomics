@@ -274,7 +274,9 @@ def build_ptm_localization_confidence_benchmark_report(
     )
     entries: list[PtmLocalizationConfidenceBenchmarkEntry] = []
     for node in graph.nodes:
-        fragment_ion_count = len(node.fragment_ions)
+        fragment_ion_count = len(
+            node.supported_site_determining_ions or node.fragment_ions
+        )
         if node.ambiguous:
             tier = PtmLocalizationConfidenceTier.AMBIGUOUS
             note = "site remains ambiguous and should not travel as a decisive localization claim"
@@ -283,7 +285,11 @@ def build_ptm_localization_confidence_benchmark_report(
             and fragment_ion_count >= minimum_fragment_ion_count
         ):
             tier = PtmLocalizationConfidenceTier.DECISIVE
-            note = "site has high localization support and sufficient fragment-ion evidence"
+            note = (
+                "site has high localization support and sufficient fragment-ion "
+                "evidence, with site-determining ions preferred when alternative "
+                "placement exists"
+            )
         elif node.localization_probability >= supported_probability_threshold:
             tier = PtmLocalizationConfidenceTier.SUPPORTED
             note = (
