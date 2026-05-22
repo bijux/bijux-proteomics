@@ -6,6 +6,8 @@ from __future__ import annotations
 import pytest
 
 from bijux_proteomics.domain import (
+    Contrast,
+    ContrastKind,
     MissingValueState,
     PSMRecord,
     PTMSite,
@@ -125,3 +127,61 @@ def test_domain_records_cover_shared_scientific_boundaries() -> None:
         rejection_reason="missing score",
     ).record_kind == "psm"
     assert TargetDecoyState.TARGET.value == "target"
+
+
+def test_contrast_records_require_kind_specific_semantic_fields() -> None:
+    paired = Contrast(
+        contrast_id="treated_vs_control_paired",
+        left_condition="treated",
+        right_condition="control",
+        kind=ContrastKind.PAIRED,
+        pair_id_field="pair_id",
+    )
+    time_course = Contrast(
+        contrast_id="t1_vs_t0",
+        left_condition="t1",
+        right_condition="t0",
+        kind=ContrastKind.TIME_COURSE,
+        timepoint_field="timepoint",
+    )
+    multi_condition = Contrast(
+        contrast_id="case_vs_control_multi",
+        left_condition="case",
+        right_condition="control",
+        kind=ContrastKind.MULTI_CONDITION,
+        condition_set=("case", "control", "rescue"),
+    )
+
+    assert paired.pair_id_field == "pair_id"
+    assert time_course.timepoint_field == "timepoint"
+    assert multi_condition.condition_set == ("case", "control", "rescue")
+
+    with pytest.raises(ValueError, match="paired contrasts require pair_id_field"):
+        Contrast(
+            contrast_id="bad_paired",
+            left_condition="treated",
+            right_condition="control",
+            kind=ContrastKind.PAIRED,
+        )
+
+    with pytest.raises(
+        ValueError, match="time-course contrasts require timepoint_field"
+    ):
+        Contrast(
+            contrast_id="bad_time_course",
+            left_condition="t1",
+            right_condition="t0",
+            kind=ContrastKind.TIME_COURSE,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="multi-condition contrasts require at least three declared conditions",
+    ):
+        Contrast(
+            contrast_id="bad_multi_condition",
+            left_condition="case",
+            right_condition="control",
+            kind=ContrastKind.MULTI_CONDITION,
+            condition_set=("case", "control"),
+        )

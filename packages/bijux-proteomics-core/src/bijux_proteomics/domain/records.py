@@ -197,7 +197,59 @@ class Contrast(_CanonicalRecord):
     right_condition: str = Field(..., min_length=1)
     kind: ContrastKind
     pair_id_field: str | None = None
+    timepoint_field: str | None = None
+    condition_set: tuple[str, ...] = Field(default_factory=tuple)
     metadata: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator(
+        "left_condition",
+        "right_condition",
+        "pair_id_field",
+        "timepoint_field",
+        mode="before",
+    )
+    @classmethod
+    def _normalize_optional_text(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    @field_validator("condition_set", mode="before")
+    @classmethod
+    def _normalize_condition_set(cls, value: object) -> tuple[str, ...]:
+        if value in (None, ""):
+            return ()
+        if isinstance(value, str):
+            raw_items = value.split(",")
+        else:
+            raw_items = [str(item) for item in value]
+        normalized = tuple(
+            dict.fromkeys(item.strip() for item in raw_items if item and item.strip())
+        )
+        return normalized
+
+    @model_validator(mode="after")
+    def _validate_semantics(self) -> Contrast:
+        if self.left_condition == self.right_condition:
+            raise ValueError("contrast conditions must be distinct")
+        if self.kind is ContrastKind.PAIRED and not self.pair_id_field:
+            raise ValueError("paired contrasts require pair_id_field")
+        if self.kind is ContrastKind.TIME_COURSE and not self.timepoint_field:
+            raise ValueError("time-course contrasts require timepoint_field")
+        if self.kind is ContrastKind.MULTI_CONDITION:
+            if len(self.condition_set) < 3:
+                raise ValueError(
+                    "multi-condition contrasts require at least three declared conditions"
+                )
+            if (
+                self.left_condition not in self.condition_set
+                or self.right_condition not in self.condition_set
+            ):
+                raise ValueError(
+                    "multi-condition contrasts must compare conditions inside condition_set"
+                )
+        return self
 
 
 class QuantMatrix(_CanonicalRecord):
