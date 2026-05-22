@@ -9,6 +9,13 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import (
+    MissingValueState,
+    QuantEntityKind,
+    QuantMatrix as CanonicalQuantMatrix,
+    QuantMeasureKind,
+    SampleMetadata as CanonicalSampleMetadata,
+)
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -93,6 +100,58 @@ class ProteinIntensityMatrixReport(JsonModel):
     missing_summary: MissingValueSummaryReport
     summary: ProteinIntensityMatrixSummary
     note: str = Field(..., min_length=1)
+
+    def to_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "protein_intensity_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
+        """Convert this protein matrix into the canonical matrix contract."""
+
+        entity_kind = (
+            QuantEntityKind.PROTEIN
+            if self.target_kind is ProteinMatrixTargetKind.PROTEIN
+            else QuantEntityKind.PROTEIN_GROUP
+        )
+        row_metadata = tuple(
+            {
+                "target_kind": row.target_kind.value,
+                "protein_refs": ";".join(row.protein_refs),
+                "peptide_count": str(row.peptide_count),
+                "unique_peptide_count": str(row.unique_peptide_count),
+                "shared_peptide_count": str(row.shared_peptide_count),
+                "contributing_peptides": ";".join(row.contributing_peptides),
+            }
+            for row in self.rows
+        )
+        return CanonicalQuantMatrix(
+            matrix_id=matrix_id,
+            entity_kind=entity_kind,
+            measure_kind=QuantMeasureKind.INTENSITY,
+            entity_ids=tuple(row.entity_id for row in self.rows),
+            sample_ids=self.sample_ids,
+            values=tuple(
+                tuple(value.abundance for value in row.values) for row in self.rows
+            ),
+            missing_value_states=tuple(
+                tuple(
+                    MissingValueState(value.missing_value_kind.value)
+                    for value in row.values
+                )
+                for row in self.rows
+            ),
+            row_metadata=row_metadata,
+            sample_metadata=sample_metadata,
+            transformation_history=(
+                f"source_kind:{self.source_kind.value}",
+                f"grouping_mode:{self.grouping_mode.value}",
+                f"target_kind:{self.target_kind.value}",
+                f"aggregation_method:{self.aggregation_method.value}",
+                f"unique_only:{str(self.unique_only).lower()}",
+            ),
+            metadata={"note": self.note},
+        )
 
 
 def build_protein_intensity_matrix_from_peptides(

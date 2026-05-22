@@ -11,6 +11,13 @@ import math
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import (
+    MissingValueState,
+    QuantEntityKind,
+    QuantMatrix as CanonicalQuantMatrix,
+    QuantMeasureKind,
+    SampleMetadata as CanonicalSampleMetadata,
+)
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -113,6 +120,62 @@ class ProteinLfqReport(JsonModel):
     missing_summary: MissingValueSummaryReport
     summary: ProteinLfqSummary
     note: str = Field(..., min_length=1)
+
+    def to_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "protein_lfq_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
+        """Convert this MaxLFQ-like report into the canonical quant matrix."""
+
+        entity_kind = (
+            QuantEntityKind.PROTEIN
+            if self.target_kind is ProteinMatrixTargetKind.PROTEIN
+            else QuantEntityKind.PROTEIN_GROUP
+        )
+        row_metadata = tuple(
+            {
+                "target_kind": row.target_kind.value,
+                "protein_refs": ";".join(row.protein_refs),
+                "peptide_count": str(row.peptide_count),
+                "unique_peptide_count": str(row.unique_peptide_count),
+                "shared_peptide_count": str(row.shared_peptide_count),
+                "pairwise_ratio_count": str(row.pairwise_ratio_count),
+                "connected_component_count": str(row.connected_component_count),
+                "fully_connected": str(row.fully_connected).lower(),
+                "contributing_peptides": ";".join(row.contributing_peptides),
+            }
+            for row in self.rows
+        )
+        return CanonicalQuantMatrix(
+            matrix_id=matrix_id,
+            entity_kind=entity_kind,
+            measure_kind=QuantMeasureKind.INTENSITY,
+            entity_ids=tuple(row.entity_id for row in self.rows),
+            sample_ids=self.sample_ids,
+            values=tuple(
+                tuple(value.abundance for value in row.values) for row in self.rows
+            ),
+            missing_value_states=tuple(
+                tuple(
+                    MissingValueState(value.missing_value_kind.value)
+                    for value in row.values
+                )
+                for row in self.rows
+            ),
+            row_metadata=row_metadata,
+            sample_metadata=sample_metadata,
+            transformation_history=(
+                "maxlfq_like",
+                f"source_kind:{self.source_kind.value}",
+                f"grouping_mode:{self.grouping_mode.value}",
+                f"target_kind:{self.target_kind.value}",
+                f"unique_only:{str(self.unique_only).lower()}",
+                f"minimum_shared_peptides:{self.minimum_shared_peptides}",
+            ),
+            metadata={"note": self.note},
+        )
 
 
 def build_protein_lfq_report_from_peptides(

@@ -11,6 +11,13 @@ from enum import StrEnum
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.domain.records import (
+    MissingValueState,
+    QuantEntityKind,
+    QuantMatrix as CanonicalQuantMatrix,
+    QuantMeasureKind,
+    SampleMetadata as CanonicalSampleMetadata,
+)
 from bijux_proteomics.identification import PsmRecord
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -91,6 +98,50 @@ class PeptideIntensityMatrixReport(JsonModel):
     missing_summary: MissingValueSummaryReport
     summary: PeptideIntensityMatrixSummary
     note: str = Field(..., min_length=1)
+
+    def to_quant_matrix(
+        self,
+        *,
+        matrix_id: str = "peptide_intensity_matrix",
+        sample_metadata: tuple[CanonicalSampleMetadata, ...] = (),
+    ) -> CanonicalQuantMatrix:
+        """Convert this reviewer-facing peptide matrix into the canonical matrix."""
+
+        row_metadata = tuple(
+            {
+                "peptide_sequence": row.peptide_sequence,
+                "modified_peptides": ";".join(row.modified_peptides),
+                "charge_states": ";".join(str(charge) for charge in row.charge_states),
+                "protein_refs": ";".join(row.protein_refs),
+            }
+            for row in self.rows
+        )
+        return CanonicalQuantMatrix(
+            matrix_id=matrix_id,
+            entity_kind=QuantEntityKind.PEPTIDE,
+            measure_kind=QuantMeasureKind.INTENSITY,
+            entity_ids=tuple(row.entity_id for row in self.rows),
+            sample_ids=self.sample_ids,
+            values=tuple(
+                tuple(value.abundance for value in row.values) for row in self.rows
+            ),
+            missing_value_states=tuple(
+                tuple(
+                    MissingValueState(value.missing_value_kind.value)
+                    for value in row.values
+                )
+                for row in self.rows
+            ),
+            row_metadata=row_metadata,
+            sample_metadata=sample_metadata,
+            transformation_history=(
+                f"source_kind:{self.source_kind.value}",
+                f"grouping_mode:{self.grouping_mode.value}",
+                f"aggregation_method:{self.aggregation_method.value}",
+                f"separate_charge_states:{str(self.separate_charge_states).lower()}",
+            ),
+            metadata={"note": self.note},
+        )
 
 
 @dataclass(frozen=True)
