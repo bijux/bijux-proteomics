@@ -601,6 +601,7 @@ from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
     build_biological_result_report_bundle,
     build_dda_biological_workflow_bundle,
+    build_diann_biological_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
@@ -611,6 +612,7 @@ from bijux_proteomics.workflow import (
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     DdaPsmAcceptancePolicy,
+    export_diann_biological_workflow_bundle,
     export_biological_result_report_bundle,
     export_dda_biological_workflow_bundle,
     export_dia_differential_matrix_tsv,
@@ -7184,6 +7186,197 @@ def dda_biological_report_command(
         raise click.ClickException(str(exc)) from exc
 
     manifest_path = output_dir / "dda_biological_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "design_rows": len(design_report.accepted_entries),
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("diann-biological-report")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--go-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--complex-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--max-q-value",
+    type=float,
+    default=0.01,
+    show_default=True,
+)
+@click.option(
+    "--peptide-rollup",
+    type=click.Choice([method.value for method in DiaPeptideRollupMethod]),
+    default=DiaPeptideRollupMethod.MAX.value,
+    show_default=True,
+)
+@click.option(
+    "--target-kind",
+    type=click.Choice([kind.value for kind in DiaProteinMatrixTargetKind]),
+    default=DiaProteinMatrixTargetKind.PROTEIN_GROUP.value,
+    show_default=True,
+)
+@click.option(
+    "--shared-peptide-policy",
+    type=click.Choice([policy.value for policy in DiaSharedPeptidePolicy]),
+    default=DiaSharedPeptidePolicy.INCLUDE.value,
+    show_default=True,
+)
+@click.option(
+    "--protein-rollup",
+    type=click.Choice([method.value for method in DiaProteinRollupMethod]),
+    default=DiaProteinRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-max-entities",
+    type=int,
+    default=50,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("diann_biological_report"),
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def diann_biological_report_command(
+    result_tsv: Path,
+    design_tsv: Path,
+    proteins_fasta: Path,
+    config_path: Path | None,
+    go_annotation_tsv: Path | None,
+    pathway_membership_tsv: Path | None,
+    complex_membership_tsv: Path | None,
+    max_q_value: float,
+    peptide_rollup: str,
+    target_kind: str,
+    shared_peptide_policy: str,
+    protein_rollup: str,
+    normalization: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    heatmap_max_entities: int,
+    heatmap_min_observed_fraction: float,
+    volcano_top_label_count: int,
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build one DIA-NN-to-biology report bundle."""
+
+    try:
+        design_report = parse_experimental_design_table(design_tsv)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_diann_biological_workflow_bundle(
+            result_tsv,
+            tuple(design_report.accepted_entries),
+            proteins_fasta_path=proteins_fasta,
+            config_path=config_path,
+            max_q_value=max_q_value,
+            peptide_rollup_method=DiaPeptideRollupMethod(peptide_rollup),
+            target_kind=DiaProteinMatrixTargetKind(target_kind),
+            shared_peptide_policy=DiaSharedPeptidePolicy(shared_peptide_policy),
+            protein_rollup_method=DiaProteinRollupMethod(protein_rollup),
+            normalization_method=NormalizationMethod(normalization),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            selection_policy=BiologicalResultSelectionPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+                heatmap_max_entity_count=heatmap_max_entities,
+                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+            ),
+            volcano_policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=max_adjusted_p_value,
+                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+        manifest = export_diann_biological_workflow_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "diann_biological_report_manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
 
     _emit_json(
