@@ -570,12 +570,14 @@ from bijux_proteomics.sequences import (
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
+    PeptideUniquenessClass,
     append_contaminant_database,
     build_decoy_generation_manifest,
     build_decoy_generation_report,
     build_fasta_database_profile,
     build_fasta_provenance_manifest,
     build_fasta_stats,
+    build_peptide_detectability_report,
     build_peptide_property_report,
     deduplicate_fasta_records,
     filter_fasta_records,
@@ -586,6 +588,7 @@ from bijux_proteomics.sequences import (
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
     render_fasta_records,
+    render_peptide_detectability_tsv,
     build_theoretical_digest_bundle,
     export_theoretical_digest_bundle,
     sequence_checksum,
@@ -4783,6 +4786,117 @@ def peptide_properties_command(
 
     payload = report.to_dict()
     payload["custom_protease"] = custom_specification
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("peptide-detectability")
+@click.argument("sequence")
+@click.option(
+    "--mod",
+    "modifications",
+    multiple=True,
+    help="Modification assignment like Oxidation@3 or Acetyl@n-term.",
+)
+@click.option("--charge", type=int, default=2, show_default=True)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option(
+    "--custom-protease",
+    default=None,
+    help=(
+        "Custom rule such as 'after=KR;block_next=P', "
+        "'before=D;block_previous=P', or "
+        "'pattern=(?<!P)(?P<site>D);cut_before=site'."
+    ),
+)
+@click.option(
+    "--custom-protease-name",
+    default="custom",
+    show_default=True,
+    help="Stable name recorded for a custom protease rule.",
+)
+@click.option(
+    "--uniqueness-class",
+    type=click.Choice([entry.value for entry in PeptideUniquenessClass]),
+    default=None,
+    help="Optional database uniqueness class from the owned uniqueness index.",
+)
+@click.option(
+    "--uniqueness-score",
+    type=float,
+    default=None,
+    help="Optional explicit uniqueness score from 0.0 to 1.0.",
+)
+@click.option(
+    "--observed-psm-count",
+    type=int,
+    default=None,
+    help="Optional observed PSM count to boost detectability with real evidence.",
+)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional detectability TSV output path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def peptide_detectability_command(
+    sequence: str,
+    modifications: tuple[str, ...],
+    charge: int,
+    protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
+    uniqueness_class: str | None,
+    uniqueness_score: float | None,
+    observed_psm_count: int | None,
+    registry_path: Path | None,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score peptide observability from owned sequence and chemistry semantics."""
+    try:
+        protease_rule, custom_specification = _resolve_cli_protease_rule(
+            protease=protease,
+            custom_protease=custom_protease,
+            custom_protease_name=custom_protease_name,
+        )
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        report = build_peptide_detectability_report(
+            sequence,
+            modification_assignments=modifications,
+            charge=charge,
+            protease=protease_rule,
+            registry=registry,
+            uniqueness_class=uniqueness_class,
+            uniqueness_score=uniqueness_score,
+            observed_psm_count=observed_psm_count,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if tsv_out is not None:
+        _write_text_output(tsv_out, render_peptide_detectability_tsv(report))
+
+    payload = report.to_dict()
+    payload["custom_protease"] = custom_specification
+    payload["tsv_out"] = str(tsv_out) if tsv_out else None
     _emit_json(payload, out_path=out_path)
 
 
