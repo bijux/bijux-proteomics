@@ -4890,6 +4890,250 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
         ).read_text(encoding="utf-8")
 
 
+def test_proteomics_run_command_emits_diann_result_package() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "diann_biological_report.tsv",
+            "diann_biological_report.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "diann_biological.design.tsv",
+            "diann_biological.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "run",
+                "--engine",
+                "diann",
+                "--report",
+                "diann_biological_report.tsv",
+                "--metadata",
+                "diann_biological.design.tsv",
+                "--proteins-fasta",
+                "biological_report_reference.fasta",
+                "--contrast",
+                "control-treatment",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--out",
+                "proteomics_run",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["metadata_rows"] == 6
+        assert payload["run"]["engine"] == "diann"
+        assert payload["run"]["summary"]["protein_count"] == 5
+        report_dir = Path("proteomics_run")
+        assert (report_dir / "proteomics_run_manifest.json").exists()
+        assert (report_dir / "proteomics_run_summary.tsv").exists()
+        assert (report_dir / "proteomics_qc_summary.tsv").exists()
+        assert (report_dir / "proteomics_normalized_matrix.tsv").exists()
+        assert (report_dir / "proteomics_differential.tsv").exists()
+        assert (report_dir / "proteomics_enrichment.tsv").exists()
+        assert (report_dir / "proteomics_report.html").exists()
+        assert "engine\tdiann" in (report_dir / "proteomics_run_summary.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
+def test_proteomics_run_command_emits_maxquant_result_package() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        bundle_dir = workflow_dir / "maxquant_biological"
+        shutil.copy(bundle_dir / "evidence.txt", "evidence.txt")
+        shutil.copy(bundle_dir / "peptides.txt", "peptides.txt")
+        shutil.copy(bundle_dir / "proteinGroups.txt", "proteinGroups.txt")
+        shutil.copy(bundle_dir / "design.tsv", "design.tsv")
+        shutil.copy(bundle_dir / "maxquant_settings.txt", "maxquant_settings.txt")
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "run",
+                "--engine",
+                "maxquant",
+                "--report",
+                "evidence.txt",
+                "--peptides",
+                "peptides.txt",
+                "--protein-groups",
+                "proteinGroups.txt",
+                "--metadata",
+                "design.tsv",
+                "--proteins-fasta",
+                "biological_report_reference.fasta",
+                "--contrast",
+                "control-treatment",
+                "--config-path",
+                "maxquant_settings.txt",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--out",
+                "proteomics_run",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["metadata_rows"] == 6
+        assert payload["run"]["engine"] == "maxquant"
+        assert payload["run"]["summary"]["protein_count"] == 5
+        report_dir = Path("proteomics_run")
+        assert (report_dir / "proteomics_run_manifest.json").exists()
+        assert (report_dir / "proteomics_run_summary.tsv").exists()
+        assert (report_dir / "proteomics_normalized_matrix.tsv").exists()
+        assert (report_dir / "proteomics_differential.tsv").exists()
+        assert (report_dir / "proteomics_enrichment.tsv").exists()
+        assert (report_dir / "proteomics_report.html").exists()
+        assert "P04637" in (report_dir / "proteomics_normalized_matrix.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
+def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "fragpipe_biological_psms.tsv",
+            "fragpipe_biological_psms.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(workflow_dir / "biological_report_go.tsv", "biological_report_go.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "run",
+                "--engine",
+                "fragpipe",
+                "--report",
+                "fragpipe_biological_psms.tsv",
+                "--metadata",
+                "biological_report.design.tsv",
+                "--proteins-fasta",
+                "biological_report_reference.fasta",
+                "--contrast",
+                "control-treatment",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--out",
+                "proteomics_run",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["metadata_rows"] == 6
+        assert payload["run"]["engine"] == "fragpipe"
+        assert payload["run"]["fragpipe_workflow"]["summary"]["accepted_psm_count"] == 30
+        report_dir = Path("proteomics_run")
+        assert (report_dir / "proteomics_run_manifest.json").exists()
+        assert (report_dir / "proteomics_qc_summary.tsv").exists()
+        assert (report_dir / "proteomics_normalized_matrix.tsv").exists()
+        assert (report_dir / "proteomics_differential.tsv").exists()
+        assert (report_dir / "proteomics_enrichment.tsv").exists()
+        assert (report_dir / "proteomics_report.html").exists()
+        assert "go\tgene_ontology" in (
+            report_dir / "proteomics_enrichment.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_proteomics_run_command_rejects_incomplete_maxquant_inputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        bundle_dir = workflow_dir / "maxquant_biological"
+        shutil.copy(bundle_dir / "evidence.txt", "evidence.txt")
+        shutil.copy(bundle_dir / "design.tsv", "design.tsv")
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "run",
+                "--engine",
+                "maxquant",
+                "--report",
+                "evidence.txt",
+                "--metadata",
+                "design.tsv",
+                "--proteins-fasta",
+                "biological_report_reference.fasta",
+                "--contrast",
+                "control-treatment",
+                "--out",
+                "proteomics_run",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "MaxQuant runs require --peptides" in result.output
+
+
 def test_maxquant_benchmark_command_reports_import_lfq_and_differential_fidelity() -> (
     None
 ):
