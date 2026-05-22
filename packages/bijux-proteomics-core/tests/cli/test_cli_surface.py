@@ -2909,6 +2909,69 @@ def test_tmt_reporter_matrix_command_emits_mapping_totals_and_matrices() -> None
         )
 
 
+def test_tmt_normalize_command_emits_distribution_and_normalized_matrices() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-normalize",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--method",
+                "reference_channel",
+                "--summary-tsv-out",
+                "tmt.normalize.summary.tsv",
+                "--transform-tsv-out",
+                "tmt.normalize.transforms.tsv",
+                "--distribution-tsv-out",
+                "tmt.normalize.distributions.tsv",
+                "--peptide-matrix-tsv-out",
+                "tmt.normalize.peptides.tsv",
+                "--protein-matrix-tsv-out",
+                "tmt.normalize.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert (
+            payload["report"]["summary"]["method"] == "reference_channel"
+        )
+        assert payload["report"]["summary"]["reference_group_count"] == 2
+        assert Path("tmt.normalize.summary.tsv").exists()
+        assert Path("tmt.normalize.transforms.tsv").exists()
+        assert Path("tmt.normalize.distributions.tsv").exists()
+        assert Path("tmt.normalize.peptides.tsv").exists()
+        assert Path("tmt.normalize.proteins.tsv").exists()
+        assert "reference_group_count" in Path(
+            "tmt.normalize.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "reference_channel" in Path(
+            "tmt.normalize.transforms.tsv"
+        ).read_text(encoding="utf-8")
+        assert "stage\tmultiplex_group\tmultiplex_channel" in Path(
+            "tmt.normalize.distributions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "plex_a_128N" in Path("tmt.normalize.peptides.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "entity_id\ttarget_kind\tprotein_refs" in Path(
+            "tmt.normalize.proteins.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

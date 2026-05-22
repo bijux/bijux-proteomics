@@ -257,13 +257,21 @@ from bijux_proteomics.panels import (
     render_target_panel_target_tsv,
 )
 from bijux_proteomics.multiplex import (
+    TmtNormalizationMethod,
+    TmtNormalizationPolicy,
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
+    build_tmt_normalization_report,
     build_tmt_reporter_feature_bundle,
     build_tmt_reporter_matrix_report,
+    export_tmt_channel_distribution_tsv,
     export_tmt_channel_mapping_tsv,
     export_tmt_channel_totals_tsv,
+    export_tmt_normalization_summary_tsv,
+    export_tmt_normalization_transform_tsv,
+    export_tmt_normalized_peptide_matrix_tsv,
+    export_tmt_normalized_protein_matrix_tsv,
     export_tmt_peptide_matrix_tsv,
     export_tmt_protein_matrix_tsv,
     export_tmt_report_summary_tsv,
@@ -788,6 +796,12 @@ def _protein_matrix_target_choice() -> click.Choice[str]:
 def _tmt_source_kind_choice() -> click.Choice[str]:
     return click.Choice(
         [kind.value for kind in TmtSearchResultSourceKind], case_sensitive=False
+    )
+
+
+def _tmt_normalization_method_choice() -> click.Choice[str]:
+    return click.Choice(
+        [method.value for method in TmtNormalizationMethod], case_sensitive=False
     )
 
 
@@ -8155,6 +8169,143 @@ def tmt_reporter_matrix_command(
                 None
                 if channel_totals_tsv_out is None
                 else str(channel_totals_tsv_out)
+            ),
+            "peptide_matrix_tsv": (
+                None if peptide_matrix_tsv_out is None else str(peptide_matrix_tsv_out)
+            ),
+            "protein_matrix_tsv": (
+                None if protein_matrix_tsv_out is None else str(protein_matrix_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@multiplex_group.command("tmt-normalize")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--method",
+    type=_tmt_normalization_method_choice(),
+    default=TmtNormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--transform-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--distribution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--peptide-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_normalize_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    method: str,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    transform_tsv_out: Path | None,
+    distribution_tsv_out: Path | None,
+    peptide_matrix_tsv_out: Path | None,
+    protein_matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Normalize TMT reporter-channel evidence and export before/after review ledgers."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        feature_bundle = build_tmt_reporter_feature_bundle(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+        )
+        report = build_tmt_normalization_report(
+            feature_bundle,
+            policy=TmtNormalizationPolicy(
+                method=TmtNormalizationMethod(method),
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_normalization_summary_tsv(report, summary_tsv_out)
+    if transform_tsv_out is not None:
+        export_tmt_normalization_transform_tsv(report, transform_tsv_out)
+    if distribution_tsv_out is not None:
+        export_tmt_channel_distribution_tsv(report, distribution_tsv_out)
+    if peptide_matrix_tsv_out is not None:
+        export_tmt_normalized_peptide_matrix_tsv(report, peptide_matrix_tsv_out)
+    if protein_matrix_tsv_out is not None:
+        export_tmt_normalized_protein_matrix_tsv(report, protein_matrix_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "transform_tsv": (
+                None if transform_tsv_out is None else str(transform_tsv_out)
+            ),
+            "distribution_tsv": (
+                None
+                if distribution_tsv_out is None
+                else str(distribution_tsv_out)
             ),
             "peptide_matrix_tsv": (
                 None if peptide_matrix_tsv_out is None else str(peptide_matrix_tsv_out)
