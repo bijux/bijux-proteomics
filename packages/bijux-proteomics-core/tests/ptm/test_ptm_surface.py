@@ -85,6 +85,28 @@ def test_ptm_localization_parser_rejects_malformed_rows() -> None:
     } <= codes
 
 
+def test_ptm_localization_parser_rejects_out_of_range_q_values(
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "ptm_invalid_q.tsv"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "spectrum_id\tpeptide\tcharge\tscore\tproteins\tlocalization_score\tq_value",
+                "scan=1\tPES[Phospho]TIDE\t2\t100\tP11111\t15\t1.2",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_ptm_localization_tsv(evidence_path)
+
+    assert report.accepted_records == ()
+    assert len(report.rejected_rows) == 1
+    assert report.rejected_rows[0].issues[0].code == "invalid_q_value"
+
+
 def test_ptm_site_mapping_and_table_cover_unique_and_ambiguous_sites() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(

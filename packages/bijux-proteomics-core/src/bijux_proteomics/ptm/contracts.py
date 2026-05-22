@@ -28,6 +28,11 @@ from bijux_proteomics.identification import (
 )
 from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
 from bijux_proteomics.quantification import Ms1FeatureRecord
+from bijux_proteomics.scientific_tables import (
+    ScientificTableValidationIssue,
+    build_ptm_evidence_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -353,6 +358,54 @@ def _row_issue(code: str, message: str, row_number: int) -> PtmValidationIssue:
     return PtmValidationIssue(code=code, message=message, row_number=row_number)
 
 
+def _ptm_issues_from_scientific_issues(
+    issues: tuple[ScientificTableValidationIssue, ...],
+) -> tuple[PtmValidationIssue, ...]:
+    translated: list[PtmValidationIssue] = []
+    for issue in issues:
+        if issue.code == "missing_value":
+            if issue.column == "spectrum_id":
+                translated.append(
+                    _row_issue(
+                        "missing_spectrum_id",
+                        "missing spectrum identifier",
+                        issue.row_number,
+                    )
+                )
+                continue
+            if issue.column == "peptide":
+                translated.append(
+                    _row_issue(
+                        "missing_peptide",
+                        "missing localized peptide",
+                        issue.row_number,
+                    )
+                )
+                continue
+            if issue.column == "protein_refs":
+                translated.append(
+                    _row_issue(
+                        "missing_protein_refs",
+                        "missing protein references",
+                        issue.row_number,
+                    )
+                )
+                continue
+        if issue.code == "wrong_type":
+            if issue.column == "charge":
+                translated.append(
+                    _row_issue("invalid_charge", "invalid charge value", issue.row_number)
+                )
+                continue
+            if issue.column == "score":
+                translated.append(
+                    _row_issue("invalid_score", "invalid score value", issue.row_number)
+                )
+                continue
+        translated.append(_row_issue(issue.code, issue.message, issue.row_number))
+    return tuple(translated)
+
+
 def _localization_candidates_from_field(value: str, separator: str) -> tuple[int, ...]:
     if not value.strip():
         return ()
@@ -396,47 +449,35 @@ def parse_ptm_localization_tsv(
         decoy_label="decoy_label",
     )
     active_decoy_policy = decoy_policy or TargetDecoyLabelPolicy()
+    validation_report = validate_scientific_table(
+        path,
+        schema=build_ptm_evidence_schema(active_mapping),
+    )
+    accepted: list[PtmEvidenceRecord] = []
+    rejected: list[RejectedPtmEvidenceRow] = [
+        RejectedPtmEvidenceRow(
+            row_number=row.row_number,
+            raw_fields=row.raw_values,
+            issues=_ptm_issues_from_scientific_issues(row.issues),
+        )
+        for row in validation_report.rejected_rows
+    ]
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        if reader.fieldnames is None:
-            raise ValueError("PTM evidence TSV must include a header row")
-        required = (
-            active_mapping.spectrum_id,
-            active_mapping.peptide,
-            active_mapping.charge,
-            active_mapping.score,
-            active_mapping.protein_refs,
-            active_mapping.localization_score,
-        )
-        for required_column in required:
-            if required_column not in reader.fieldnames:
-                raise ValueError(
-                    f"missing required PTM evidence column {required_column!r}"
-                )
-
-        accepted: list[PtmEvidenceRecord] = []
-        rejected: list[RejectedPtmEvidenceRow] = []
-        for row_number, row in enumerate(reader, start=2):
-            raw_fields = {
+        rows_by_number = {
+            row_number: {
                 str(key): str(value or "")
                 for key, value in row.items()
                 if key is not None
             }
+            for row_number, row in enumerate(reader, start=2)
+        }
+        for accepted_row in validation_report.accepted_rows:
+            row_number = accepted_row.row_number
+            raw_fields = rows_by_number.get(row_number, {})
             issues: list[PtmValidationIssue] = []
             spectrum_id = raw_fields.get(active_mapping.spectrum_id, "").strip()
             peptide = raw_fields.get(active_mapping.peptide, "").strip()
-            if not spectrum_id:
-                issues.append(
-                    _row_issue(
-                        "missing_spectrum_id", "missing spectrum identifier", row_number
-                    )
-                )
-            if not peptide:
-                issues.append(
-                    _row_issue(
-                        "missing_peptide", "missing localized peptide", row_number
-                    )
-                )
             try:
                 charge = int(raw_fields.get(active_mapping.charge, "").strip())
                 if charge < 1:
