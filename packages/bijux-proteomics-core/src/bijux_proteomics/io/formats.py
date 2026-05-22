@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import base64
 from collections.abc import Iterator
-import csv
 from dataclasses import dataclass, field
 from enum import StrEnum
 import hashlib
@@ -45,6 +44,12 @@ from bijux_proteomics.io.spectra import (
     render_mgf,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.tabular import (
+    DelimitedColumnSpec,
+    DelimitedColumnValueType,
+    DelimitedTableIssue,
+    parse_delimited_table,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 _NS_MZML = "http://psi.hupo.org/ms/mzml"
@@ -258,7 +263,7 @@ class ExperimentalDesignRejectedRow(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    row_number: int = Field(..., ge=2)
+    row_number: int = Field(..., ge=1)
     values: dict[str, str] = Field(default_factory=dict)
     issues: tuple[FormatValidationIssue, ...] = Field(default_factory=tuple)
 
@@ -436,6 +441,59 @@ def _issue(
         line_number=line_number,
         record_id=record_id,
     )
+
+
+def _design_issues_from_table_issues(
+    issues: tuple[DelimitedTableIssue, ...],
+) -> tuple[FormatValidationIssue, ...]:
+    translated: list[FormatValidationIssue] = []
+    for issue in issues:
+        if issue.code == "missing_required_column":
+            translated.append(
+                _issue(
+                    "missing_design_column",
+                    f"design table is missing required column {issue.column!r}",
+                    field=issue.column,
+                    line_number=issue.row_number,
+                )
+            )
+            continue
+        if issue.code == "missing_required_value":
+            translated.append(
+                _issue(
+                    "missing_design_value",
+                    f"design table row is missing required value for {issue.column!r}",
+                    field=issue.column,
+                    line_number=issue.row_number,
+                )
+            )
+            continue
+        translated.append(
+            _issue(
+                "invalid_design_row",
+                issue.message,
+                field=issue.column,
+                line_number=issue.row_number,
+            )
+        )
+    return tuple(translated)
+
+
+def _render_design_row_values(
+    values: dict[str, str | int | float | bool | None],
+    extra_values: dict[str, str],
+) -> dict[str, str]:
+    rendered = dict(extra_values)
+    for key, value in values.items():
+        rendered[key] = "" if value is None else str(value)
+    return rendered
+
+
+def _optional_design_text(value: str | int | float | bool | None) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def _default_psm_mapping() -> SearchResultColumnMapping:
@@ -1204,20 +1262,36 @@ def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
 
 def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
     """Parse one experimental-design TSV or CSV table."""
-    lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines:
+    if not path.read_text(encoding="utf-8").splitlines():
         return ExperimentalDesignReport()
-    delimiter = _detect_delimiter(lines[0])
-    reader = csv.DictReader(lines, delimiter=delimiter)
+    table_report = parse_delimited_table(
+        path,
+        column_specs=(
+            DelimitedColumnSpec(name="sample_id", required=True),
+            DelimitedColumnSpec(name="cohort"),
+            DelimitedColumnSpec(name="condition", required=True),
+            DelimitedColumnSpec(
+                name="replicate",
+                required=True,
+                value_type=DelimitedColumnValueType.INTEGER,
+            ),
+            DelimitedColumnSpec(
+                name="fraction",
+                required=True,
+                value_type=DelimitedColumnValueType.INTEGER,
+            ),
+            DelimitedColumnSpec(name="spectra_file", required=True),
+            DelimitedColumnSpec(name="identifications_file"),
+            DelimitedColumnSpec(name="batch"),
+            DelimitedColumnSpec(name="instrument"),
+            DelimitedColumnSpec(name="search_engine"),
+            DelimitedColumnSpec(name="pair_id"),
+            DelimitedColumnSpec(name="multiplex_group"),
+            DelimitedColumnSpec(name="multiplex_channel"),
+            DelimitedColumnSpec(name="sample_role"),
+        ),
+    )
     accepted_entries: list[ExperimentalDesignEntry] = []
-    rejected_rows: list[ExperimentalDesignRejectedRow] = []
-    required_fields = {
-        "sample_id",
-        "condition",
-        "replicate",
-        "fraction",
-        "spectra_file",
-    }
     owned_fields = {
         "sample_id",
         "cohort",
@@ -1234,63 +1308,40 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         "multiplex_channel",
         "sample_role",
     }
-    header_fields = set(reader.fieldnames or [])
-    missing_fields = required_fields - header_fields
-    if missing_fields:
-        header_issues = tuple(
-            _issue(
-                "missing_design_column",
-                f"design table is missing required column {field!r}",
-                field=field,
-                line_number=1,
-            )
-            for field in sorted(missing_fields)
+    rejected_rows = [
+        ExperimentalDesignRejectedRow(
+            row_number=row.row_number,
+            values=row.raw_values,
+            issues=_design_issues_from_table_issues(row.issues),
         )
-        return ExperimentalDesignReport(
-            accepted_entries=(),
-            rejected_rows=(
-                ExperimentalDesignRejectedRow(
-                    row_number=1,
-                    values={},
-                    issues=header_issues,
-                ),
-            ),
-        )
+        for row in table_report.rejected_rows
+    ]
 
-    for row_number, row in enumerate(reader, start=2):
-        values = {
-            key: (value or "").strip() for key, value in row.items() if key is not None
-        }
-        issues: list[FormatValidationIssue] = []
-        for field_name in sorted(required_fields):
-            if not values.get(field_name):
-                issues.append(
-                    _issue(
-                        "missing_design_value",
-                        f"design table row is missing required value for {field_name!r}",
-                        field=field_name,
-                        line_number=row_number,
-                    )
-                )
+    for row in table_report.accepted_rows:
+        values = _render_design_row_values(row.values, row.extra_values)
         try:
             sample_role_value = (
-                values.get("sample_role") or ExperimentalDesignSampleRole.SAMPLE.value
+                row.values.get("sample_role") or ExperimentalDesignSampleRole.SAMPLE.value
             )
             entry = ExperimentalDesignEntry(
-                sample_id=values.get("sample_id") or "",
-                cohort=values.get("cohort"),
-                condition=values.get("condition") or "",
-                replicate=int(values.get("replicate") or "0"),
-                fraction=int(values.get("fraction") or "0"),
-                spectra_file=values.get("spectra_file") or "",
-                identifications_file=values.get("identifications_file"),
-                batch=values.get("batch"),
-                instrument=values.get("instrument"),
-                search_engine=values.get("search_engine"),
-                pair_id=values.get("pair_id"),
-                multiplex_group=values.get("multiplex_group"),
-                multiplex_channel=values.get("multiplex_channel"),
-                sample_role=ExperimentalDesignSampleRole(sample_role_value),
+                sample_id=str(row.values.get("sample_id") or ""),
+                cohort=_optional_design_text(row.values.get("cohort")),
+                condition=str(row.values.get("condition") or ""),
+                replicate=int(row.values.get("replicate") or 0),
+                fraction=int(row.values.get("fraction") or 0),
+                spectra_file=str(row.values.get("spectra_file") or ""),
+                identifications_file=_optional_design_text(
+                    row.values.get("identifications_file")
+                ),
+                batch=_optional_design_text(row.values.get("batch")),
+                instrument=_optional_design_text(row.values.get("instrument")),
+                search_engine=_optional_design_text(row.values.get("search_engine")),
+                pair_id=_optional_design_text(row.values.get("pair_id")),
+                multiplex_group=_optional_design_text(row.values.get("multiplex_group")),
+                multiplex_channel=_optional_design_text(
+                    row.values.get("multiplex_channel")
+                ),
+                sample_role=ExperimentalDesignSampleRole(str(sample_role_value)),
                 metadata={
                     key: value
                     for key, value in values.items()
@@ -1298,20 +1349,17 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 },
             )
         except Exception as exc:  # noqa: BLE001
-            issues.append(
-                _issue(
-                    "invalid_design_row",
-                    str(exc),
-                    line_number=row_number,
-                )
-            )
-            entry = None
-        if issues or entry is None:
             rejected_rows.append(
                 ExperimentalDesignRejectedRow(
-                    row_number=row_number,
+                    row_number=row.row_number,
                     values=values,
-                    issues=tuple(issues),
+                    issues=(
+                        _issue(
+                            "invalid_design_row",
+                            str(exc),
+                            line_number=row.row_number,
+                        ),
+                    ),
                 )
             )
             continue
