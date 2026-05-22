@@ -1,0 +1,4 @@
+complex_id	complex_name	source_name	source_accession	protein_ref	gene_symbol
+custom:stress	Stress response complex	custom	LFQ-CPLX-01	P003	
+custom:baseline	Baseline abundance complex	custom	LFQ-CPLX-02	P001	
+custom:baseline	Baseline abundance complex	custom	LFQ-CPLX-02	P002	

@@ -1,0 +1,4 @@
+protein_ref	gene_symbol	description	organism	annotation_identifier
+P001	SIGA	Signaling protein A	Homo sapiens	lfq-case-study:P001
+P002	SIGB	Signaling protein B	Homo sapiens	lfq-case-study:P002
+P003	SIGC	Signaling protein C	Homo sapiens	lfq-case-study:P003
