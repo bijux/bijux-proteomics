@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 from itertools import combinations
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -49,6 +52,8 @@ from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_multi_condition_differential_abundance_report,
+    render_differential_abundance_tsv,
+    render_multi_condition_differential_abundance_tsv,
 )
 from bijux_proteomics.quantification.normalization import (
     build_normalization_comparison_report,
@@ -99,10 +104,59 @@ class DiaDifferentialAnalysisReport(JsonModel):
     normalization_comparison: NormalizationComparisonReport
     design_matrix: QuantDesignMatrixReport
     design_model_fit: QuantDesignModelFitReport
+    normalization_balance_plot: DiaNormalizationBalancePlot
+    volcano_plot: DiaDifferentialVolcanoPlot | None = None
     differential_abundance_report: DifferentialAbundanceReport | None = None
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None
+    note: str = Field(..., min_length=1)
+
+
+class DiaNormalizationBalancePoint(JsonModel):
+    """One sample point for before/after DIA normalization plotting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    stage: str = Field(..., min_length=1)
+    total_abundance: float = Field(..., ge=0.0)
+    median_abundance: float = Field(..., ge=0.0)
+    interquartile_range: float = Field(..., ge=0.0)
+
+
+class DiaNormalizationBalancePlot(JsonModel):
+    """Plot-ready before/after DIA sample-balance payload."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method: NormalizationMethod
+    points: tuple[DiaNormalizationBalancePoint, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class DiaDifferentialVolcanoPoint(JsonModel):
+    """One entity point for DIA differential volcano plotting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    log2_fold_change: float
+    adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
+    negative_log10_adjusted_p_value: float = Field(..., ge=0.0)
+    highlighted: bool
+
+
+class DiaDifferentialVolcanoPlot(JsonModel):
+    """Plot-ready volcano payload for one DIA differential contrast."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    significant_point_count: int = Field(..., ge=0)
+    points: tuple[DiaDifferentialVolcanoPoint, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -241,6 +295,7 @@ def build_dia_differential_analysis_report(
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None
+    volcano_plot: DiaDifferentialVolcanoPlot | None = None
     if selected_contrast is not None:
         differential_abundance_report = apply_benjamini_hochberg(
             build_differential_abundance_report(
@@ -249,6 +304,10 @@ def build_dia_differential_analysis_report(
                 condition_a=selected_contrast[0],
                 condition_b=selected_contrast[1],
             )
+        )
+        volcano_plot = build_dia_differential_volcano_plot(
+            differential_abundance_report,
+            protein_refs_by_entity=normalized_table.entity_protein_refs,
         )
     else:
         differential_abundance_multi_condition_report = (
@@ -264,6 +323,10 @@ def build_dia_differential_analysis_report(
         normalization_comparison=normalization_comparison,
         design_matrix=design_matrix,
         design_model_fit=design_model_fit,
+        normalization_balance_plot=build_dia_normalization_balance_plot(
+            normalization_comparison
+        ),
+        volcano_plot=volcano_plot,
         differential_abundance_report=differential_abundance_report,
         differential_abundance_multi_condition_report=(
             differential_abundance_multi_condition_report
@@ -386,6 +449,229 @@ def _build_label_free_table_from_protein_matrix(
     )
 
 
+def build_dia_normalization_balance_plot(
+    comparison: NormalizationComparisonReport,
+) -> DiaNormalizationBalancePlot:
+    """Build one before/after sample-balance plot payload from normalization review."""
+
+    points = tuple(
+        [
+            *[
+                DiaNormalizationBalancePoint(
+                    sample_id=entry.sample_id,
+                    stage="before",
+                    total_abundance=entry.total_abundance,
+                    median_abundance=entry.median_abundance,
+                    interquartile_range=entry.interquartile_range,
+                )
+                for entry in comparison.before
+            ],
+            *[
+                DiaNormalizationBalancePoint(
+                    sample_id=entry.sample_id,
+                    stage="after",
+                    total_abundance=entry.total_abundance,
+                    median_abundance=entry.median_abundance,
+                    interquartile_range=entry.interquartile_range,
+                )
+                for entry in comparison.after
+            ],
+        ]
+    )
+    return DiaNormalizationBalancePlot(
+        method=comparison.method,
+        points=tuple(sorted(points, key=lambda entry: (entry.sample_id, entry.stage))),
+        note=(
+            "sample-balance plot preserves before-and-after totals, medians, and spread for DIA normalization review"
+        ),
+    )
+
+
+def build_dia_differential_volcano_plot(
+    report: DifferentialAbundanceReport,
+    *,
+    protein_refs_by_entity: dict[str, tuple[str, ...]],
+    adjusted_p_value_threshold: float = 0.1,
+    absolute_log2_fold_change_threshold: float = 1.0,
+) -> DiaDifferentialVolcanoPlot:
+    """Build one volcano payload over a BH-corrected DIA differential report."""
+
+    points: list[DiaDifferentialVolcanoPoint] = []
+    for entry in report.entries:
+        adjusted_p_value = entry.adjusted_p_value or entry.p_value
+        highlighted = (
+            adjusted_p_value <= adjusted_p_value_threshold
+            and abs(entry.log2_fold_change) >= absolute_log2_fold_change_threshold
+        )
+        points.append(
+            DiaDifferentialVolcanoPoint(
+                entity_id=entry.entity_id,
+                protein_refs=protein_refs_by_entity.get(entry.entity_id, ()),
+                log2_fold_change=entry.log2_fold_change,
+                adjusted_p_value=adjusted_p_value,
+                negative_log10_adjusted_p_value=_negative_log10(adjusted_p_value),
+                highlighted=highlighted,
+            )
+        )
+    return DiaDifferentialVolcanoPlot(
+        condition_a=report.condition_a,
+        condition_b=report.condition_b,
+        significant_point_count=sum(1 for point in points if point.highlighted),
+        points=tuple(
+            sorted(
+                points,
+                key=lambda point: (
+                    -point.negative_log10_adjusted_p_value,
+                    -abs(point.log2_fold_change),
+                    point.entity_id,
+                ),
+            )
+        ),
+        note=(
+            "volcano plot preserves fold change and adjusted significance for one explicit DIA contrast"
+        ),
+    )
+
+
+def render_dia_differential_matrix_tsv(table: LabelFreeQuantTable) -> str:
+    """Render one DIA differential matrix as a stable wide TSV table."""
+
+    sample_ids = list(table.sample_ids)
+    value_lookup = {(value.entity_id, value.sample_id): value for value in table.values}
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "protein_refs",
+            "member_peptides",
+            *sample_ids,
+        )
+    )
+    for entity_id in table.entity_ids:
+        writer.writerow(
+            (
+                entity_id,
+                ";".join(table.entity_protein_refs.get(entity_id, ())),
+                ";".join(table.entity_member_peptides.get(entity_id, ())),
+                *[
+                    ""
+                    if (value := value_lookup[(entity_id, sample_id)]).abundance is None
+                    else f"{value.abundance:g}"
+                    for sample_id in sample_ids
+                ],
+            )
+        )
+    return handle.getvalue()
+
+
+def render_dia_differential_results_tsv(
+    report: DiaDifferentialAnalysisReport,
+) -> str:
+    """Render one DIA differential result surface as TSV."""
+
+    if report.differential_abundance_report is not None:
+        return render_differential_abundance_tsv(report.differential_abundance_report)
+    if report.differential_abundance_multi_condition_report is not None:
+        return render_multi_condition_differential_abundance_tsv(
+            report.differential_abundance_multi_condition_report
+        )
+    raise ValueError("dia differential analysis report does not contain differential results")
+
+
+def render_dia_normalization_balance_plot_tsv(
+    plot: DiaNormalizationBalancePlot,
+) -> str:
+    """Render one normalization-balance plot payload as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id",
+            "stage",
+            "total_abundance",
+            "median_abundance",
+            "interquartile_range",
+        )
+    )
+    for point in plot.points:
+        writer.writerow(
+            (
+                point.sample_id,
+                point.stage,
+                f"{point.total_abundance:g}",
+                f"{point.median_abundance:g}",
+                f"{point.interquartile_range:g}",
+            )
+        )
+    return handle.getvalue()
+
+
+def render_dia_differential_volcano_plot_tsv(
+    plot: DiaDifferentialVolcanoPlot,
+) -> str:
+    """Render one DIA volcano plot payload as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "protein_refs",
+            "log2_fold_change",
+            "adjusted_p_value",
+            "negative_log10_adjusted_p_value",
+            "highlighted",
+        )
+    )
+    for point in plot.points:
+        writer.writerow(
+            (
+                point.entity_id,
+                ";".join(point.protein_refs),
+                f"{point.log2_fold_change:.6g}",
+                f"{point.adjusted_p_value:.6g}",
+                f"{point.negative_log10_adjusted_p_value:.6g}",
+                str(point.highlighted).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def export_dia_differential_matrix_tsv(table: LabelFreeQuantTable, path: Path) -> None:
+    """Write one DIA differential matrix to a stable TSV artifact."""
+
+    path.write_text(render_dia_differential_matrix_tsv(table), encoding="utf-8")
+
+
+def export_dia_differential_results_tsv(
+    report: DiaDifferentialAnalysisReport,
+    path: Path,
+) -> None:
+    """Write one DIA differential result surface to a stable TSV artifact."""
+
+    path.write_text(render_dia_differential_results_tsv(report), encoding="utf-8")
+
+
+def export_dia_normalization_balance_plot_tsv(
+    plot: DiaNormalizationBalancePlot,
+    path: Path,
+) -> None:
+    """Write one normalization-balance plot payload to a stable TSV artifact."""
+
+    path.write_text(render_dia_normalization_balance_plot_tsv(plot), encoding="utf-8")
+
+
+def export_dia_differential_volcano_plot_tsv(
+    plot: DiaDifferentialVolcanoPlot,
+    path: Path,
+) -> None:
+    """Write one DIA volcano plot payload to a stable TSV artifact."""
+
+    path.write_text(render_dia_differential_volcano_plot_tsv(plot), encoding="utf-8")
+
+
 def _build_label_free_table_from_spectronaut_report(
     import_report: SpectronautImportReport,
     *,
@@ -490,3 +776,8 @@ def _resolve_selected_contrast(
     if len(conditions) == 2:
         return (conditions[0], conditions[1])
     return None
+
+
+def _negative_log10(value: float) -> float:
+    bounded = max(value, 1e-300)
+    return -math.log10(bounded)
