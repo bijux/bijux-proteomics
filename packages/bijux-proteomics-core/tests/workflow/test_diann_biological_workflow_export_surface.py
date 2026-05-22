@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.workflow import (
+    build_diann_biological_workflow_bundle,
+    export_diann_biological_workflow_bundle,
+)
+
+
+def _fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
+
+
+def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_report_assets(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("diann_biological.design.tsv")
+        ).accepted_entries
+    )
+    report = build_diann_biological_workflow_bundle(
+        _fixture("diann_biological_report.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_diann_biological_workflow_bundle(
+        report,
+        tmp_path / "diann_biological_report",
+    )
+    output_dir = tmp_path / "diann_biological_report"
+
+    assert (output_dir / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.import_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.precursor_quantity_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_quantity_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.run_qc_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
+    assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
+    assert (output_dir / manifest.artifacts.report_html).exists()
+    assert "filtered_q_value_row_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "accepted_precursor_count" in (
+        output_dir / manifest.artifacts.import_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "precursor_key" in (
+        output_dir / manifest.artifacts.precursor_quantity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "entity_id" in (
+        output_dir / manifest.artifacts.protein_quantity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "run_name\tsample_name\tprecursor_id_count" in (
+        output_dir / manifest.artifacts.run_qc_runs_tsv
+    ).read_text(encoding="utf-8")
+    assert "entity_id\tcondition_a\tcondition_b" in (
+        output_dir / manifest.artifacts.differential_results_tsv
+    ).read_text(encoding="utf-8")
+    assert "Biological result report" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
