@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.chemistry.amino_acid_mass import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.contracts import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.fragment_ion_review import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.isotope_adduct_annotation import *  # noqa: F401,F403
