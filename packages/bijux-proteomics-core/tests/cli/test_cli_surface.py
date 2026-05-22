@@ -249,6 +249,75 @@ def test_pathway_enrichment_command_emits_pathway_and_unresolved_ledgers() -> No
         )
 
 
+def test_complex_enrichment_command_emits_complex_and_unresolved_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "complex_foreground.tsv",
+            "complex_foreground.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "complex_background.tsv",
+            "complex_background.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "complex_memberships.tsv",
+            "complex_memberships.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_reference.fasta",
+            "protein_annotation_reference.fasta",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "complex-enrichment",
+                "complex_foreground.tsv",
+                "complex_background.tsv",
+                "complex_memberships.tsv",
+                "--fasta",
+                "protein_annotation_reference.fasta",
+                "--annotation-tsv",
+                "protein_annotation_custom.tsv",
+                "--summary-tsv-out",
+                "complex_enrichment.summary.tsv",
+                "--complex-tsv-out",
+                "complex_enrichment.complex.tsv",
+                "--unresolved-tsv-out",
+                "complex_enrichment.unresolved.tsv",
+                "--rejected-complex-tsv-out",
+                "complex_enrichment.rejected.tsv",
+                "--max-adjusted-p-value",
+                "1.0",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["foreground_size"] == 3
+        assert payload["report"]["summary"]["background_size"] == 6
+        assert payload["report"]["summary"]["evaluated_entry_count"] == 4
+        assert Path("complex_enrichment.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("foreground_size\tbackground_size")
+        assert "CORUM:0176" in Path("complex_enrichment.complex.tsv").read_text()
+        assert (
+            "background\tQ88888\t"
+            in Path("complex_enrichment.unresolved.tsv").read_text()
+        )
+        assert (
+            "duplicate complex membership for custom:stressosome and gene member TP53"
+            in Path("complex_enrichment.rejected.tsv").read_text()
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
