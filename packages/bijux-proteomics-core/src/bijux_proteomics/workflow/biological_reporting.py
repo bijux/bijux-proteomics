@@ -311,7 +311,8 @@ def build_biological_result_report_bundle_from_quant_table(
         )
     )
     differential_reference_entries = _build_differential_reference_entries(
-        differential_report
+        differential_report,
+        protein_refs_by_entity=normalized_table.entity_protein_refs,
     )
     annotation_report = build_protein_annotation_mapping_report(
         differential_reference_entries,
@@ -323,6 +324,7 @@ def build_biological_result_report_bundle_from_quant_table(
     background_entries = _build_background_reference_entries(normalized_table)
     foreground_entries = _build_foreground_reference_entries(
         differential_report,
+        protein_refs_by_entity=normalized_table.entity_protein_refs,
         policy=active_selection_policy,
     )
     go_enrichment_report = None
@@ -502,47 +504,63 @@ def _select_heatmap_entity_ids(
 
 def _build_differential_reference_entries(
     report: DifferentialAbundanceReport,
+    *,
+    protein_refs_by_entity: dict[str, tuple[str, ...]] | None = None,
 ) -> tuple[ProteinReferenceEntry, ...]:
-    return tuple(
-        ProteinReferenceEntry(
-            row_number=index + 2,
-            source_row_id=entry.entity_id,
-            input_protein_ref=entry.entity_id,
-            protein_ref=entry.entity_id,
+    return _build_protein_reference_entries(
+        (
+            (entry.entity_id, protein_refs_by_entity or {})
+            for entry in report.entries
         )
-        for index, entry in enumerate(report.entries)
     )
 
 
 def _build_background_reference_entries(
     normalized_table,
 ) -> tuple[ProteinReferenceEntry, ...]:
-    return tuple(
-        ProteinReferenceEntry(
-            row_number=index + 2,
-            source_row_id=entity_id,
-            input_protein_ref=entity_id,
-            protein_ref=entity_id,
+    return _build_protein_reference_entries(
+        (
+            (entity_id, normalized_table.entity_protein_refs)
+            for entity_id in normalized_table.entity_ids
         )
-        for index, entity_id in enumerate(normalized_table.entity_ids)
     )
 
 
 def _build_foreground_reference_entries(
     report: DifferentialAbundanceReport,
     *,
+    protein_refs_by_entity: dict[str, tuple[str, ...]] | None = None,
     policy: BiologicalResultSelectionPolicy,
 ) -> tuple[ProteinReferenceEntry, ...]:
     significant_entity_ids = _select_significant_entity_ids(report, policy=policy)
-    return tuple(
-        ProteinReferenceEntry(
-            row_number=index + 2,
-            source_row_id=entity_id,
-            input_protein_ref=entity_id,
-            protein_ref=entity_id,
+    return _build_protein_reference_entries(
+        (
+            (entity_id, protein_refs_by_entity or {})
+            for entity_id in significant_entity_ids
         )
-        for index, entity_id in enumerate(significant_entity_ids)
     )
+
+
+def _build_protein_reference_entries(
+    entity_rows: tuple[tuple[str, dict[str, tuple[str, ...]]], ...]
+    | list[tuple[str, dict[str, tuple[str, ...]]]]
+    | object,
+) -> tuple[ProteinReferenceEntry, ...]:
+    entries: list[ProteinReferenceEntry] = []
+    row_number = 2
+    for entity_id, protein_refs_by_entity in entity_rows:
+        protein_refs = protein_refs_by_entity.get(entity_id, ()) or (entity_id,)
+        for protein_ref in protein_refs:
+            entries.append(
+                ProteinReferenceEntry(
+                    row_number=row_number,
+                    source_row_id=entity_id,
+                    input_protein_ref=protein_ref,
+                    protein_ref=protein_ref,
+                )
+            )
+            row_number += 1
+    return tuple(entries)
 
 
 def render_biological_result_report_summary_tsv(
