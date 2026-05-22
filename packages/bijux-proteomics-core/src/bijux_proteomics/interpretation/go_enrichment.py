@@ -7,10 +7,14 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
@@ -81,6 +85,63 @@ class GoAnnotationImportReport(JsonModel):
     rejected_rows: tuple[RejectedGoAnnotationRow, ...] = Field(default_factory=tuple)
     column_mapping: GoAnnotationColumnMapping
     summary: GoAnnotationImportSummary
+    note: str = Field(..., min_length=1)
+
+
+class GoTermEnrichmentEntry(JsonModel):
+    """One GO term evaluated for protein-set enrichment."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    go_term_id: str = Field(..., min_length=1)
+    go_term_name: str | None = None
+    go_aspect: GoAspect | None = None
+    foreground_overlap_count: int = Field(..., ge=0)
+    background_term_count: int = Field(..., ge=0)
+    foreground_size: int = Field(..., ge=0)
+    background_size: int = Field(..., ge=0)
+    expected_overlap_count: float = Field(..., ge=0.0)
+    enrichment_ratio: float | None = Field(default=None, ge=0.0)
+    p_value: float = Field(..., ge=0.0, le=1.0)
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    foreground_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    background_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class UnannotatedProteinSetEntry(JsonModel):
+    """One foreground or background protein missing GO annotation support."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    set_role: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+
+
+class GoEnrichmentSummary(JsonModel):
+    """Stable summary over one GO enrichment run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    foreground_size: int = Field(..., ge=0)
+    background_size: int = Field(..., ge=0)
+    evaluated_term_count: int = Field(..., ge=0)
+    foreground_annotated_count: int = Field(..., ge=0)
+    background_annotated_count: int = Field(..., ge=0)
+    unannotated_foreground_count: int = Field(..., ge=0)
+    unannotated_background_count: int = Field(..., ge=0)
+    enriched_term_count: int = Field(..., ge=0)
+
+
+class GoEnrichmentReport(JsonModel):
+    """Owned GO enrichment report over foreground and background protein sets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    term_entries: tuple[GoTermEnrichmentEntry, ...] = Field(default_factory=tuple)
+    unannotated_proteins: tuple[UnannotatedProteinSetEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: GoEnrichmentSummary
     note: str = Field(..., min_length=1)
 
 
@@ -220,6 +281,129 @@ def parse_go_annotation_table(
     )
 
 
+def build_go_enrichment_report(
+    foreground_entries: tuple[ProteinReferenceEntry, ...],
+    background_entries: tuple[ProteinReferenceEntry, ...],
+    go_annotations: tuple[GoAnnotationRecord, ...],
+) -> GoEnrichmentReport:
+    """Run one-sided GO term enrichment over foreground and background proteins."""
+
+    foreground = _distinct_protein_refs(foreground_entries)
+    background = _distinct_protein_refs(background_entries)
+    if not foreground:
+        raise ValueError("foreground protein set must contain at least one protein")
+    if not background:
+        raise ValueError("background protein set must contain at least one protein")
+    if not foreground <= background:
+        missing = sorted(foreground - background)
+        raise ValueError(
+            "foreground proteins must be present in the background set: "
+            + ", ".join(missing)
+        )
+
+    term_to_proteins = _background_term_memberships(background, go_annotations)
+    annotation_by_term = _term_metadata(go_annotations)
+    annotated_foreground = {
+        protein_ref for protein_ref in foreground if protein_ref in _annotated_proteins(go_annotations)
+    }
+    annotated_background = {
+        protein_ref for protein_ref in background if protein_ref in _annotated_proteins(go_annotations)
+    }
+    unannotated_entries = tuple(
+        sorted(
+            (
+                *[
+                    UnannotatedProteinSetEntry(
+                        set_role="foreground",
+                        protein_ref=protein_ref,
+                    )
+                    for protein_ref in sorted(foreground - annotated_foreground)
+                ],
+                *[
+                    UnannotatedProteinSetEntry(
+                        set_role="background",
+                        protein_ref=protein_ref,
+                    )
+                    for protein_ref in sorted(background - annotated_background)
+                ],
+            ),
+            key=lambda entry: (entry.set_role, entry.protein_ref),
+        )
+    )
+
+    term_entries: list[GoTermEnrichmentEntry] = []
+    background_size = len(background)
+    foreground_size = len(foreground)
+    for go_term_id, background_proteins in sorted(term_to_proteins.items()):
+        foreground_proteins = tuple(sorted(background_proteins & foreground))
+        if not foreground_proteins:
+            continue
+        background_protein_refs = tuple(sorted(background_proteins))
+        background_term_count = len(background_protein_refs)
+        expected_overlap_count = foreground_size * background_term_count / background_size
+        enrichment_ratio = (
+            len(foreground_proteins) / expected_overlap_count
+            if expected_overlap_count > 0.0
+            else None
+        )
+        term_metadata = annotation_by_term[go_term_id]
+        term_entries.append(
+            GoTermEnrichmentEntry(
+                go_term_id=go_term_id,
+                go_term_name=term_metadata.go_term_name,
+                go_aspect=term_metadata.go_aspect,
+                foreground_overlap_count=len(foreground_proteins),
+                background_term_count=background_term_count,
+                foreground_size=foreground_size,
+                background_size=background_size,
+                expected_overlap_count=round(expected_overlap_count, 6),
+                enrichment_ratio=(
+                    None if enrichment_ratio is None else round(enrichment_ratio, 6)
+                ),
+                p_value=_hypergeometric_upper_tail(
+                    overlap_count=len(foreground_proteins),
+                    term_background_count=background_term_count,
+                    foreground_size=foreground_size,
+                    background_size=background_size,
+                ),
+                foreground_protein_refs=foreground_proteins,
+                background_protein_refs=background_protein_refs,
+            )
+        )
+
+    return GoEnrichmentReport(
+        term_entries=tuple(
+            sorted(
+                term_entries,
+                key=lambda entry: (
+                    entry.p_value,
+                    -(entry.enrichment_ratio or 0.0),
+                    entry.go_term_id,
+                ),
+            )
+        ),
+        unannotated_proteins=unannotated_entries,
+        summary=GoEnrichmentSummary(
+            foreground_size=foreground_size,
+            background_size=background_size,
+            evaluated_term_count=len(term_entries),
+            foreground_annotated_count=len(annotated_foreground),
+            background_annotated_count=len(annotated_background),
+            unannotated_foreground_count=sum(
+                1 for entry in unannotated_entries if entry.set_role == "foreground"
+            ),
+            unannotated_background_count=sum(
+                1 for entry in unannotated_entries if entry.set_role == "background"
+            ),
+            enriched_term_count=len(term_entries),
+        ),
+        note=(
+            "GO term enrichment compares foreground overlap against the explicit background "
+            "set with a one-sided hypergeometric test and preserves unannotated proteins explicitly"
+        ),
+    )
+
+
 def _parse_go_aspect(
     value: str | None,
     *,
@@ -251,6 +435,59 @@ def _parse_go_aspect(
             )
         )
     return aspect
+
+
+def _distinct_protein_refs(entries: tuple[ProteinReferenceEntry, ...]) -> set[str]:
+    return {entry.protein_ref for entry in entries}
+
+
+def _annotated_proteins(
+    go_annotations: tuple[GoAnnotationRecord, ...],
+) -> set[str]:
+    return {record.protein_ref for record in go_annotations}
+
+
+def _background_term_memberships(
+    background: set[str],
+    go_annotations: tuple[GoAnnotationRecord, ...],
+) -> dict[str, set[str]]:
+    memberships: dict[str, set[str]] = {}
+    for record in go_annotations:
+        if record.protein_ref not in background:
+            continue
+        memberships.setdefault(record.go_term_id, set()).add(record.protein_ref)
+    return memberships
+
+
+def _term_metadata(
+    go_annotations: tuple[GoAnnotationRecord, ...],
+) -> dict[str, GoAnnotationRecord]:
+    metadata: dict[str, GoAnnotationRecord] = {}
+    for record in go_annotations:
+        metadata.setdefault(record.go_term_id, record)
+    return metadata
+
+
+def _hypergeometric_upper_tail(
+    *,
+    overlap_count: int,
+    term_background_count: int,
+    foreground_size: int,
+    background_size: int,
+) -> float:
+    maximum_overlap = min(term_background_count, foreground_size)
+    denominator = math.comb(background_size, foreground_size)
+    probability = 0.0
+    for overlap in range(overlap_count, maximum_overlap + 1):
+        probability += (
+            math.comb(term_background_count, overlap)
+            * math.comb(
+                background_size - term_background_count,
+                foreground_size - overlap,
+            )
+            / denominator
+        )
+    return round(min(probability, 1.0), 12)
 
 
 def _infer_delimiter(header_line: str) -> str:
