@@ -5760,6 +5760,7 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
         assert payload["mapped_rows"][0]["peptide_sequence"] == "PESTIDE"
         assert payload["mapped_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
         assert payload["mapped_rows"][1]["target_decoy_label"] == "decoy"
+        assert payload["mapped_rows"][1]["target_decoy_contaminant_class"] == "mixed"
         assert payload["mapped_rows"][1]["contaminant_flag"] is True
         assert Path("mapped.tsv").exists()
         assert Path("rejected.tsv").exists()
