@@ -445,6 +445,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import (
+    HeatmapPreparationPolicy,
     ImputationMethod,
     Ms1FeatureColumnMapping,
     NormalizationMethod,
@@ -455,6 +456,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
+    build_heatmap_preparation_report,
     build_limma_compatible_quant_package,
     build_msstats_compatible_input_report,
     build_quant_design_matrix_report,
@@ -482,6 +484,7 @@ from bijux_proteomics.quantification import (
     export_limma_sample_annotations_tsv,
     export_msstats_compatible_input_tsv,
     export_differential_abundance_tsv,
+    export_heatmap_matrix_tsv,
     export_quant_design_contrast_estimates_tsv,
     export_quant_design_matrix_tsv,
     export_quant_design_model_coefficients_tsv,
@@ -6376,6 +6379,133 @@ def quantify_command(
         },
     }
     _emit_json(payload, out_path=report_out or out_path)
+
+
+@cli.command("heatmap-matrix")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--entity-level",
+    type=_quant_entity_level_choice(),
+    default=QuantEntityLevel.PROTEIN.value,
+    show_default=True,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def heatmap_matrix_command(
+    input_table: Path,
+    entity_level: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    design_path: Path | None,
+    matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Prepare one normalized matrix for heatmaps and clustering."""
+
+    try:
+        mapping = Ms1FeatureColumnMapping(
+            sample_id=sample_column,
+            feature_id=feature_id_column,
+            peptide=peptide_column,
+            intensity=intensity_column,
+            protein_refs=protein_refs_column,
+            charge=charge_column,
+            mz=mz_column,
+            retention_time_seconds=retention_time_column,
+            missing_reason=missing_reason_column,
+            protein_separator=protein_separator,
+        )
+        parse_report = parse_ms1_feature_table(input_table, mapping=mapping)
+        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
+        raw_table = build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel(entity_level),
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+        )
+        report = build_heatmap_preparation_report(
+            normalize_label_free_table(
+                raw_table,
+                method=NormalizationMethod(normalization),
+            ),
+            design_entries=design_entries,
+            policy=HeatmapPreparationPolicy(),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if matrix_tsv_out is not None:
+        export_heatmap_matrix_tsv(report, matrix_tsv_out)
+
+    _emit_json(
+        {
+            "accepted_features": len(parse_report.accepted_records),
+            "rejected_features": len(parse_report.rejected_rows),
+            "heatmap_report": report.to_dict(),
+            "outputs": {
+                "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
+            },
+        },
+        out_path=out_path,
+    )
 
 
 @cli.command("peptide-matrix")

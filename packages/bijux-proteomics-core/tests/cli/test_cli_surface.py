@@ -4703,6 +4703,44 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
 
 
+def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "heatmap-matrix",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--matrix-tsv-out",
+                "heatmap.matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert payload["heatmap_report"]["summary"]["entity_level"] == "protein"
+        assert payload["heatmap_report"]["summary"]["z_scored"] is True
+        assert payload["outputs"]["matrix_tsv"] == "heatmap.matrix.tsv"
+        assert Path("heatmap.matrix.tsv").exists()
+        assert "entity_id\tC1\tC2\tT1\tT2" in Path("heatmap.matrix.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_quantify_command_emits_multi_condition_differential_collection() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
