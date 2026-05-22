@@ -9,6 +9,14 @@ from enum import StrEnum
 
 from bijux_proteomics.ptm.contracts import PtmSiteEntry, PtmSiteGroupEvidenceEntry
 from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
+from bijux_proteomics.quantification.contracts import (
+    MissingValueKind,
+    MissingValueSummaryEntry,
+    MissingValueSummaryPolicy,
+    MissingValueSummaryReport,
+    Ms1FeatureRecord,
+    QuantEntityLevel,
+)
 from bijux_proteomics_foundation import JsonModel
 from pydantic import ConfigDict, Field
 
@@ -80,6 +88,60 @@ class PtmAmbiguityReviewReport(JsonModel):
         default_factory=tuple
     )
     summary: PtmAmbiguityReviewSummary
+    note: str = Field(..., min_length=1)
+
+
+class PtmSiteGroupQuantValue(JsonModel):
+    """One sample-specific PTM ambiguity-group quantification cell."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    contributing_feature_count: int = Field(..., ge=0)
+
+
+class PtmSiteGroupQuantRow(JsonModel):
+    """One unresolved PTM ambiguity group across all quantified samples."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    modification_name: str = Field(..., min_length=1)
+    candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
+    possible_residues: tuple[str, ...] = Field(default_factory=tuple)
+    site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    localized_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    localization_score: float = Field(..., ge=0.0)
+    localization_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_tier: PtmAmbiguityConfidenceTier
+    values: tuple[PtmSiteGroupQuantValue, ...] = Field(default_factory=tuple)
+
+
+class PtmSiteGroupQuantSummary(JsonModel):
+    """Compact summary over ambiguity-group quantification."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_row_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    observed_cell_count: int = Field(..., ge=0)
+    zero_cell_count: int = Field(..., ge=0)
+    missing_cell_count: int = Field(..., ge=0)
+    filtered_cell_count: int = Field(..., ge=0)
+
+
+class PtmSiteGroupQuantificationReport(JsonModel):
+    """Owned PTM quantification report over unresolved site groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    rows: tuple[PtmSiteGroupQuantRow, ...] = Field(default_factory=tuple)
+    missing_summary: MissingValueSummaryReport
+    summary: PtmSiteGroupQuantSummary
     note: str = Field(..., min_length=1)
 
 
@@ -245,6 +307,147 @@ def build_ptm_ambiguity_review_report(
     )
 
 
+def build_ptm_site_group_quantification_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+    localization_scoring_report: PtmLocalizationScoringReport | None = None,
+    protein_sequences: dict[str, str] | None = None,
+) -> PtmSiteGroupQuantificationReport:
+    """Quantify unresolved PTM site groups without overclaiming one exact site."""
+
+    review = build_ptm_ambiguity_review_report(
+        site_entries,
+        localization_scoring_report=localization_scoring_report,
+        protein_sequences=protein_sequences,
+    )
+    sample_ids = tuple(
+        sorted(
+            {
+                record.sample_id
+                for record in feature_records
+            }
+            | {
+                sample_id
+                for entry in review.unlocalized_groups
+                for sample_id in entry.sample_ids
+            }
+        )
+    )
+    feature_lookup: dict[tuple[str, str], list[Ms1FeatureRecord]] = {}
+    for record in feature_records:
+        for protein_ref in record.protein_refs:
+            feature_lookup.setdefault((record.sample_id, protein_ref), []).append(record)
+
+    rows: list[PtmSiteGroupQuantRow] = []
+    missing_entries: list[MissingValueSummaryEntry] = []
+    grouped_values: dict[tuple[str, str], PtmSiteGroupQuantValue] = {}
+    observed_cell_count = 0
+    zero_cell_count = 0
+    missing_cell_count = 0
+    filtered_cell_count = 0
+    for entry in review.unlocalized_groups:
+        peptides = set(entry.localized_peptides)
+        values: list[PtmSiteGroupQuantValue] = []
+        for sample_id in sample_ids:
+            matching_records = [
+                record
+                for record in feature_lookup.get((sample_id, entry.protein_ref), ())
+                if record.canonical_peptide in peptides
+            ]
+            missing_kind = _aggregate_missing_kind(
+                tuple(record.missing_value_kind for record in matching_records)
+                or (MissingValueKind.NOT_OBSERVED,)
+            )
+            observed_values = tuple(
+                record.intensity
+                for record in matching_records
+                if record.intensity is not None
+                and record.missing_value_kind
+                in (MissingValueKind.OBSERVED, MissingValueKind.ZERO)
+            )
+            abundance = float(sum(observed_values)) if observed_values else None
+            if missing_kind is MissingValueKind.OBSERVED:
+                observed_cell_count += 1
+            elif missing_kind is MissingValueKind.ZERO:
+                zero_cell_count += 1
+            elif missing_kind is MissingValueKind.FILTERED:
+                filtered_cell_count += 1
+            else:
+                missing_cell_count += 1
+            value = PtmSiteGroupQuantValue(
+                sample_id=sample_id,
+                abundance=abundance,
+                missing_value_kind=missing_kind,
+                contributing_feature_count=len(matching_records),
+            )
+            grouped_values[(entry.group_key, sample_id)] = value
+            values.append(value)
+        rows.append(
+            PtmSiteGroupQuantRow(
+                group_key=entry.group_key,
+                protein_ref=entry.protein_ref,
+                modification_name=entry.modification_name,
+                candidate_positions=entry.candidate_positions,
+                possible_residues=entry.possible_residues,
+                site_keys=entry.site_keys,
+                localized_peptides=entry.localized_peptides,
+                localization_score=entry.localization_score,
+                localization_probability=entry.localization_probability,
+                confidence_tier=entry.confidence_tier,
+                values=tuple(values),
+            )
+        )
+
+    for sample_id in sample_ids:
+        observed = 0
+        zero = 0
+        not_observed = 0
+        filtered = 0
+        for row in rows:
+            value = grouped_values[(row.group_key, sample_id)]
+            if value.missing_value_kind is MissingValueKind.OBSERVED:
+                observed += 1
+            elif value.missing_value_kind is MissingValueKind.ZERO:
+                zero += 1
+            elif value.missing_value_kind is MissingValueKind.FILTERED:
+                filtered += 1
+            else:
+                not_observed += 1
+        missing_entries.append(
+            MissingValueSummaryEntry(
+                sample_id=sample_id,
+                observed_count=observed,
+                zero_count=zero,
+                not_observed_count=not_observed,
+                filtered_count=filtered,
+            )
+        )
+
+    return PtmSiteGroupQuantificationReport(
+        sample_ids=sample_ids,
+        rows=tuple(rows),
+        missing_summary=MissingValueSummaryReport(
+            entity_level=QuantEntityLevel.PEPTIDE,
+            policy=MissingValueSummaryPolicy(),
+            entries=tuple(missing_entries),
+            included_entity_ids=tuple(row.group_key for row in rows),
+            excluded_entity_ids=(),
+        ),
+        summary=PtmSiteGroupQuantSummary(
+            group_row_count=len(rows),
+            sample_count=len(sample_ids),
+            observed_cell_count=observed_cell_count,
+            zero_cell_count=zero_cell_count,
+            missing_cell_count=missing_cell_count,
+            filtered_cell_count=filtered_cell_count,
+        ),
+        note=(
+            "ptm site-group quantification preserves unresolved localization as one ambiguity group and quantifies unique localized-peptide feature signal without duplicating candidate-site rows"
+        ),
+    )
+
+
 def _build_probability_lookup(
     report: PtmLocalizationScoringReport | None,
 ) -> dict[tuple[str, str], float]:
@@ -330,3 +533,15 @@ def _possible_residues(
     if not residues:
         return tuple(sorted({entry.residue for entry in bucket}))
     return tuple(sorted(set(residues)))
+
+
+def _aggregate_missing_kind(
+    kinds: tuple[MissingValueKind, ...],
+) -> MissingValueKind:
+    if MissingValueKind.OBSERVED in kinds:
+        return MissingValueKind.OBSERVED
+    if MissingValueKind.ZERO in kinds:
+        return MissingValueKind.ZERO
+    if MissingValueKind.FILTERED in kinds:
+        return MissingValueKind.FILTERED
+    return MissingValueKind.NOT_OBSERVED
