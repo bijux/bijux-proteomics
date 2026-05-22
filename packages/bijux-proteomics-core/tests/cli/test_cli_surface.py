@@ -3097,6 +3097,70 @@ def test_transition_qc_command_emits_transition_and_weak_outputs() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            format_dir / "skyline_targeted_results.tsv",
+            "skyline_targeted_results.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-target-matrix",
+                "skyline_targeted_results.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--summary-tsv-out",
+                "targeted.summary.tsv",
+                "--observation-tsv-out",
+                "targeted.observations.tsv",
+                "--target-tsv-out",
+                "targeted.targets.tsv",
+                "--sample-tsv-out",
+                "targeted.samples.tsv",
+                "--flagged-tsv-out",
+                "targeted.flagged.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "skyline_export"
+        assert payload["source_name"] == "Skyline"
+        assert payload["import_summary"]["observation_count"] == 6
+        assert payload["matrix_summary"]["target_count"] == 2
+        assert payload["matrix_summary"]["quality_flag_count"] == 2
+        assert payload["targets"][1]["target_id"] == "PEPTIDEK/2"
+        assert payload["outputs"]["summary_tsv"] == "targeted.summary.tsv"
+        assert payload["outputs"]["observation_tsv"] == "targeted.observations.tsv"
+        assert payload["outputs"]["target_tsv"] == "targeted.targets.tsv"
+        assert payload["outputs"]["sample_tsv"] == "targeted.samples.tsv"
+        assert payload["outputs"]["flagged_tsv"] == "targeted.flagged.tsv"
+        assert Path("targeted.summary.tsv").exists()
+        assert Path("targeted.observations.tsv").exists()
+        assert Path("targeted.targets.tsv").exists()
+        assert Path("targeted.samples.tsv").exists()
+        assert Path("targeted.flagged.tsv").exists()
+        assert "Skyline\t2\t2\t3\t1\t2" in Path("targeted.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "skyline_export\ty8\tPEPTIDEK/2\tPEPTIDEK\tsample_B\t8000" in Path(
+            "targeted.observations.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\tPEPTIDEK\tP001\ty7;y8\t2\t281000" in Path(
+            "targeted.targets.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\tsample_B\ty7;y8\t123000\t12.55\tinterference\ttrue" in (
+            Path("targeted.samples.tsv").read_text(encoding="utf-8")
+        )
+        assert "PEPTIDEK/2\tPEPTIDEK\tP001\t1\t1" in Path(
+            "targeted.flagged.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):

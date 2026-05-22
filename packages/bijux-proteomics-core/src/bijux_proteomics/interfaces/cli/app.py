@@ -256,6 +256,17 @@ from bijux_proteomics.panels import (
     render_target_panel_summary_tsv,
     render_target_panel_target_tsv,
 )
+from bijux_proteomics.targeted import (
+    TargetedResultSourceKind,
+    build_skyline_result_import_report,
+    build_targeted_matrix_report,
+    build_transition_table_result_import_report,
+    render_targeted_matrix_flagged_tsv,
+    render_targeted_matrix_sample_tsv,
+    render_targeted_matrix_summary_tsv,
+    render_targeted_matrix_target_tsv,
+    render_targeted_result_observation_tsv,
+)
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
     build_ptm_enrichment_input,
@@ -2065,6 +2076,82 @@ def transition_qc_command(
             ),
             "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
             "weak_tsv": None if weak_tsv_out is None else str(weak_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-target-matrix")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--observation-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--target-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--sample-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--flagged-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_target_matrix_command(
+    input_path: Path,
+    source_kind: str,
+    summary_tsv_out: Path | None,
+    observation_tsv_out: Path | None,
+    target_tsv_out: Path | None,
+    sample_tsv_out: Path | None,
+    flagged_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import targeted assay results and build a precursor-target matrix review."""
+    try:
+        selected_source = TargetedResultSourceKind(source_kind)
+        if selected_source is TargetedResultSourceKind.SKYLINE_EXPORT:
+            import_report = build_skyline_result_import_report(input_path)
+        else:
+            import_report = build_transition_table_result_import_report(input_path)
+        matrix_report = build_targeted_matrix_report(import_report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_targeted_matrix_summary_tsv(matrix_report))
+    if observation_tsv_out is not None:
+        _write_text_output(
+            observation_tsv_out,
+            render_targeted_result_observation_tsv(import_report),
+        )
+    if target_tsv_out is not None:
+        _write_text_output(target_tsv_out, render_targeted_matrix_target_tsv(matrix_report))
+    if sample_tsv_out is not None:
+        _write_text_output(sample_tsv_out, render_targeted_matrix_sample_tsv(matrix_report))
+    if flagged_tsv_out is not None:
+        _write_text_output(flagged_tsv_out, render_targeted_matrix_flagged_tsv(matrix_report))
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": matrix_report.source_name,
+        "import_summary": import_report.summary.to_dict(),
+        "matrix_summary": matrix_report.summary.to_dict(),
+        "observations": [item.to_dict() for item in import_report.observations],
+        "targets": [row.to_dict() for row in matrix_report.rows],
+        "note": matrix_report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "observation_tsv": (
+                None if observation_tsv_out is None else str(observation_tsv_out)
+            ),
+            "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
+            "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
+            "flagged_tsv": None if flagged_tsv_out is None else str(flagged_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
