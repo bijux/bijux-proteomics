@@ -80,3 +80,24 @@ def test_sequences_package_exports_fasta_duplicate_accession_policy() -> None:
     )
     assert len(strict_report.accepted_records) == 1
     assert len(permissive_report.accepted_records) == 2
+
+
+def test_sequences_package_exports_fasta_invalid_sequence_profile_surface() -> None:
+    report = sequences.parse_fasta_document(
+        (
+            ">sp|P12345|DEMO_HUMAN Canonical GN=DEMO\nMPEPTIDEK\n"
+            ">custom_empty Empty example\n\n"
+            ">custom_invalid Invalid example\nACDU?\n"
+        ),
+        mode=sequences.FastaParseMode.STRICT,
+    )
+    profile = sequences.build_fasta_database_profile(
+        report.accepted_records,
+        rejected_records=report.rejected_records,
+    )
+
+    assert hasattr(sequences, "render_fasta_profile_invalid_sequence_tsv")
+    assert [row.source_identifier for row in profile.invalid_sequence_report] == [
+        "custom_empty",
+        "custom_invalid",
+    ]
