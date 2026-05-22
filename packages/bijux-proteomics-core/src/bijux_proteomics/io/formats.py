@@ -304,13 +304,29 @@ def build_pairwise_contrast_record(
 ) -> Contrast:
     """Build one canonical pairwise contrast record for workflow exchange."""
 
-    return Contrast(
-        contrast_id=f"{left_condition}__vs__{right_condition}",
+    from bijux_proteomics.study.contrasts import (
+        build_case_control_contrast,
+        build_paired_contrast,
+        build_pairwise_contrast,
+    )
+
+    if kind is ContrastKind.CASE_CONTROL:
+        return build_case_control_contrast(
+            case_condition=left_condition,
+            control_condition=right_condition,
+            metadata=metadata,
+        )
+    if kind is ContrastKind.PAIRED:
+        return build_paired_contrast(
+            left_condition=left_condition,
+            right_condition=right_condition,
+            pair_id_field=pair_id_field or "pair_id",
+            metadata=metadata,
+        )
+    return build_pairwise_contrast(
         left_condition=left_condition,
         right_condition=right_condition,
-        kind=kind,
-        pair_id_field=pair_id_field,
-        metadata=metadata or {},
+        metadata=metadata,
     )
 
 
