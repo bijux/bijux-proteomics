@@ -54,24 +54,34 @@ def test_spectronaut_import_preserves_samples_quantities_and_modified_peptides()
     assert report.parameter_report.enzyme == "trypsin"
     assert report.precursor_evidence_rows == report.precursor_rows
     assert report.precursor_rows[0].sample_name == "sample_A"
+    assert report.precursor_rows[0].provenance.source_engine == "spectronaut"
+    assert report.precursor_rows[0].provenance.source_row_numbers == (2,)
     assert report.precursor_rows[0].modified_peptide == "PES[Phospho]TIDE"
     assert report.precursor_rows[0].canonical_modified_peptide == "PES[Phospho]TIDE"
     assert report.precursor_rows[1].protein_group_quantity == 3950000
     assert report.precursor_rows[3].target_decoy_label.value == "decoy"
     assert report.protein_group_rows[0].protein_group_id == "PG001"
     assert report.protein_group_rows[0].source_precursor_count == 1
+    assert report.protein_group_rows[0].provenance.original_identifiers[
+        "protein_group_id"
+    ] == "PG001"
     assert report.precursor_quantity_rows[0].precursor_id == "sn_rawA_pestide_2"
     assert report.precursor_quantity_rows[0].precursor_quantity == 1420000
+    assert report.precursor_quantity_rows[0].provenance.source_engine == "spectronaut"
     assert report.protein_group_quantity_rows[0].protein_group_id == "PG001"
     assert report.protein_group_quantity_rows[0].protein_group_quantity == 3800000
     assert "modified_precursor_count" in render_spectronaut_summary_tsv(report.summary)
     assert "canonical_modified_peptide" in render_spectronaut_precursor_tsv(
         report.precursor_rows
     )
+    assert "source_engine" in render_spectronaut_precursor_tsv(report.precursor_rows)
     assert "source_precursor_count" in render_spectronaut_protein_group_tsv(
         report.protein_group_rows
     )
     assert "precursor_quantity" in render_spectronaut_precursor_quantity_tsv(
+        report.precursor_quantity_rows
+    )
+    assert "original_identifiers" in render_spectronaut_precursor_quantity_tsv(
         report.precursor_quantity_rows
     )
     assert "protein_group_quantity" in render_spectronaut_protein_group_quantity_tsv(

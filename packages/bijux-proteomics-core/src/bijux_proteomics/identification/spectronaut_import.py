@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
@@ -45,6 +46,7 @@ class SpectronautPrecursorReviewEntry(JsonModel):
     precursor_quantity: float | None = Field(default=None, ge=0.0)
     protein_group_quantity: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class SpectronautProteinGroupReviewEntry(JsonModel):
@@ -60,6 +62,7 @@ class SpectronautProteinGroupReviewEntry(JsonModel):
     protein_group_quantity: float | None = Field(default=None, ge=0.0)
     source_precursor_count: int = Field(..., ge=1)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class SpectronautPrecursorQuantityEntry(JsonModel):
@@ -74,6 +77,7 @@ class SpectronautPrecursorQuantityEntry(JsonModel):
     sample_name: str = Field(..., min_length=1)
     precursor_quantity: float = Field(..., ge=0.0)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class SpectronautProteinGroupQuantityEntry(JsonModel):
@@ -89,6 +93,7 @@ class SpectronautProteinGroupQuantityEntry(JsonModel):
     protein_group_quantity: float = Field(..., ge=0.0)
     source_precursor_count: int = Field(..., ge=1)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class SpectronautImportSummary(JsonModel):
@@ -274,6 +279,7 @@ def render_spectronaut_precursor_tsv(
                 "precursor_quantity",
                 "protein_group_quantity",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -299,6 +305,7 @@ def render_spectronaut_precursor_tsv(
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -326,6 +333,7 @@ def render_spectronaut_protein_group_tsv(
                 "protein_group_quantity",
                 "source_precursor_count",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -343,6 +351,7 @@ def render_spectronaut_protein_group_tsv(
                     else f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -371,6 +380,7 @@ def render_spectronaut_precursor_quantity_tsv(
                 "sample_name",
                 "precursor_quantity",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -385,6 +395,7 @@ def render_spectronaut_precursor_quantity_tsv(
                     row.sample_name,
                     f"{row.precursor_quantity:.6g}",
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -413,6 +424,7 @@ def render_spectronaut_protein_group_quantity_tsv(
                 "protein_group_quantity",
                 "source_precursor_count",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -428,6 +440,7 @@ def render_spectronaut_protein_group_quantity_tsv(
                     f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -461,6 +474,21 @@ def _build_spectronaut_precursor_rows(
                 precursor_quantity=_optional_float(raw.get("FG.Quantity")),
                 protein_group_quantity=_optional_float(raw.get("PG.Quantity")),
                 target_decoy_label=record.target_decoy_label,
+                provenance=ImportedEvidenceProvenance.from_single_row(
+                    source_engine="spectronaut",
+                    source_file=(
+                        record.provenance.source_file
+                        if record.provenance is not None
+                        else ""
+                    ),
+                    source_row_number=evidence_row.row_number,
+                    original_identifiers={
+                        "precursor_id": record.spectrum_id,
+                        "protein_group_id": _required_value(raw, "PG.ProteinGroups"),
+                        "run_name": _required_value(raw, "R.FileName"),
+                        "sample_name": _required_value(raw, "R.Condition"),
+                    },
+                ),
             )
         )
     return tuple(
@@ -501,6 +529,17 @@ def _build_spectronaut_protein_group_rows(
                 protein_group_quantity=quantity,
                 source_precursor_count=len(entries),
                 target_decoy_label=_combine_labels(entries),
+                provenance=ImportedEvidenceProvenance.combine(
+                    tuple(entry.provenance for entry in entries),
+                    original_identifiers={
+                        "protein_group_id": protein_group_id,
+                        "run_name": run_name,
+                        "sample_name": sample_name,
+                        "precursor_ids": ";".join(
+                            sorted(entry.precursor_id for entry in entries)
+                        ),
+                    },
+                ),
             )
         )
     return tuple(rows)
@@ -518,6 +557,7 @@ def _build_spectronaut_precursor_quantity_rows(
             sample_name=row.sample_name,
             precursor_quantity=row.precursor_quantity,
             target_decoy_label=row.target_decoy_label,
+            provenance=row.provenance,
         )
         for row in precursor_rows
         if row.precursor_quantity is not None
@@ -548,6 +588,7 @@ def _build_spectronaut_protein_group_quantity_rows(
             protein_group_quantity=row.protein_group_quantity,
             source_precursor_count=row.source_precursor_count,
             target_decoy_label=row.target_decoy_label,
+            provenance=row.provenance,
         )
         for row in protein_group_rows
         if row.protein_group_quantity is not None

@@ -9,6 +9,7 @@ from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -27,6 +28,7 @@ class DiaNativePrecursor(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     run_name: str | None = None
     sample_name: str | None = None
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNativeFragment(JsonModel):
@@ -52,6 +54,7 @@ class DiaNativeProteinGroupQuantity(JsonModel):
     run_name: str | None = None
     sample_name: str | None = None
     source_precursor_count: int = Field(default=1, ge=1)
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNativeLibraryEntryReference(JsonModel):
@@ -220,6 +223,7 @@ class DiaNnImportRow(JsonModel):
     run_name: str = Field(..., min_length=1)
     sample_name: str = Field(..., min_length=1)
     protein_group_quantity: float | None = Field(default=None, ge=0.0)
+    provenance: ImportedEvidenceProvenance | None = None
 
 
 class DiaNnImportReport(JsonModel):
@@ -251,6 +255,7 @@ def import_dia_nn_rows(
             protein_refs=row.protein_refs,
             run_name=row.run_name,
             sample_name=row.sample_name,
+            provenance=row.provenance,
         )
         for row in rows
     ]
@@ -271,6 +276,49 @@ def import_dia_nn_rows(
         )
         protein_refs.setdefault(group_key, set()).update(row.protein_refs)
         protein_source_counts[group_key] = protein_source_counts.get(group_key, 0) + 1
+    protein_provenance = {
+        group_key: ImportedEvidenceProvenance.combine(
+            tuple(
+                row.provenance
+                for row in rows
+                if (
+                    row.protein_group_id,
+                    row.run_name,
+                    row.sample_name,
+                )
+                == group_key
+                and row.provenance is not None
+            ),
+            original_identifiers={
+                "protein_group_id": group_key[0],
+                "run_name": group_key[1],
+                "sample_name": group_key[2],
+                "precursor_ids": ";".join(
+                    sorted(
+                        row.precursor_id
+                        for row in rows
+                        if (
+                            row.protein_group_id,
+                            row.run_name,
+                            row.sample_name,
+                        )
+                        == group_key
+                    )
+                ),
+            },
+        )
+        for group_key in protein_quantity
+        if any(
+            (
+                row.protein_group_id,
+                row.run_name,
+                row.sample_name,
+            )
+            == group_key
+            and row.provenance is not None
+            for row in rows
+        )
+    }
 
     proteins = [
         DiaNativeProteinGroupQuantity(
@@ -283,6 +331,9 @@ def import_dia_nn_rows(
             source_precursor_count=protein_source_counts[
                 (protein_group_id, run_name, sample_name)
             ],
+            provenance=protein_provenance.get(
+                (protein_group_id, run_name, sample_name)
+            ),
         )
         for (protein_group_id, run_name, sample_name), quantity in sorted(
             protein_quantity.items()

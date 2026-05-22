@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.dia import DiaNnImportReport, DiaNnImportRow, import_dia_nn_rows
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
@@ -48,6 +49,7 @@ class DiaNnPrecursorReviewEntry(JsonModel):
     precursor_quantity: float | None = Field(default=None, ge=0.0)
     protein_group_quantity: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class DiaNnProteinGroupReviewEntry(JsonModel):
@@ -63,6 +65,7 @@ class DiaNnProteinGroupReviewEntry(JsonModel):
     protein_group_quantity: float | None = Field(default=None, ge=0.0)
     source_precursor_count: int = Field(..., ge=1)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class DiaNnImportSummary(JsonModel):
@@ -129,7 +132,10 @@ def build_diann_import_report(
             adapter_kind=SearchAdapterKind.DIANN,
         )
     )
-    precursor_rows = _build_diann_precursor_rows(validation_report.accepted_rows)
+    precursor_rows = _build_diann_precursor_rows(
+        validation_report.accepted_rows,
+        source_path=result_tsv_path,
+    )
     protein_group_rows = _build_diann_protein_group_rows(precursor_rows)
     rejected_rows = _build_diann_rejected_rows(validation_report.rejected_rows)
     dia_native_report = import_dia_nn_rows(
@@ -146,6 +152,7 @@ def build_diann_import_report(
                 run_name=row.run_name,
                 sample_name=row.sample_name,
                 protein_group_quantity=row.protein_group_quantity,
+                provenance=row.provenance,
             )
             for row in precursor_rows
         )
@@ -252,6 +259,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
                 "precursor_quantity",
                 "protein_group_quantity",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -276,6 +284,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
                     if row.protein_group_quantity is None
                     else f"{row.protein_group_quantity:.6g}",
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -303,6 +312,7 @@ def render_diann_protein_group_tsv(
                 "protein_group_quantity",
                 "source_precursor_count",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -320,6 +330,7 @@ def render_diann_protein_group_tsv(
                     else f"{row.protein_group_quantity:.6g}",
                     str(row.source_precursor_count),
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -378,6 +389,8 @@ def render_diann_rejected_row_tsv(rows: tuple[DiaNnRejectedRowEntry, ...]) -> st
 
 def _build_diann_precursor_rows(
     accepted_rows: tuple[AcceptedDelimitedRow, ...],
+    *,
+    source_path: Path,
 ) -> tuple[DiaNnPrecursorReviewEntry, ...]:
     rows: list[DiaNnPrecursorReviewEntry] = []
     for accepted_row in accepted_rows:
@@ -403,6 +416,17 @@ def _build_diann_precursor_rows(
                     values.get("protein_group_quantity")
                 ),
                 target_decoy_label=_parse_target_decoy_label(raw.get("Decoy")),
+                provenance=ImportedEvidenceProvenance.from_single_row(
+                    source_engine="diann",
+                    source_file=str(source_path),
+                    source_row_number=accepted_row.row_number,
+                    original_identifiers={
+                        "precursor_id": _required_text(values, "precursor_id"),
+                        "protein_group_id": protein_group_id,
+                        "run_name": run_name,
+                        "sample_name": sample_name,
+                    },
+                ),
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.q_value, row.precursor_id)))
@@ -441,6 +465,17 @@ def _build_diann_protein_group_rows(
                 protein_group_quantity=quantity,
                 source_precursor_count=len(entries),
                 target_decoy_label=_combine_labels(entries),
+                provenance=ImportedEvidenceProvenance.combine(
+                    tuple(entry.provenance for entry in entries),
+                    original_identifiers={
+                        "protein_group_id": protein_group_id,
+                        "run_name": run_name,
+                        "sample_name": sample_name,
+                        "precursor_ids": ";".join(
+                            sorted(entry.precursor_id for entry in entries)
+                        ),
+                    },
+                ),
             )
         )
     return tuple(rows)
