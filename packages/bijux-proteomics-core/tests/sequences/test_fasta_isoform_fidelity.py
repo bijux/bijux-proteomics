@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from bijux_proteomics.sequences import (
+    DuplicateAccessionPolicy,
     FastaParseMode,
     build_fasta_stats,
     deduplicate_fasta_records,
@@ -34,6 +35,7 @@ def test_fasta_deduplication_keeps_distinct_isoform_accessions() -> None:
             ">sp|P12345-2|PROT_HUMAN_DUP isoform 2 duplicate\nMPEPTIDER\n"
         ),
         mode=FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=DuplicateAccessionPolicy.ACCEPT_WITH_WARNING,
     )
 
     records, dedup_report = deduplicate_fasta_records(report.accepted_records)
