@@ -61,10 +61,14 @@ def test_generic_psm_mapper_report_preserves_run_mapping_and_unmapped_columns() 
     assert report.mapped_rows[0].modified_peptide == "PES[Phospho]TIDE"
     assert report.mapped_rows[0].intensity == 125000.0
     assert report.mapped_rows[1].target_decoy_label.value == "decoy"
+    assert report.mapped_rows[1].target_decoy_contaminant_class.value == "mixed"
     assert report.mapped_rows[1].contaminant_flag is True
     assert "run_id" in render_generic_psm_mapper_tsv(report.mapped_rows)
     assert "intensity" in render_generic_psm_mapper_tsv(report.mapped_rows)
     assert "modified_peptide" in render_generic_psm_mapper_tsv(report.mapped_rows)
+    assert "target_decoy_contaminant_class" in render_generic_psm_mapper_tsv(
+        report.mapped_rows
+    )
 
 
 def test_generic_psm_mapper_supports_modified_only_mapping_and_explicit_orientation(

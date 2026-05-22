@@ -14,6 +14,7 @@ import yaml
 from bijux_proteomics.identification.contracts import (
     RejectedPsmRow,
     SearchResultColumnMapping,
+    TargetDecoyContaminantClass,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
@@ -131,6 +132,7 @@ class GenericMappedPsmRow(JsonModel):
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
+    target_decoy_contaminant_class: TargetDecoyContaminantClass
     contaminant_flag: bool = False
 
 
@@ -240,6 +242,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                 "q_value",
                 "protein_refs",
                 "target_decoy_label",
+                "target_decoy_contaminant_class",
                 "contaminant_flag",
             )
         )
@@ -260,6 +263,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                     "" if row.q_value is None else f"{row.q_value:.6g}",
                     ";".join(row.protein_refs),
                     row.target_decoy_label.value,
+                    row.target_decoy_contaminant_class.value,
                     "true" if row.contaminant_flag else "false",
                 )
             )
@@ -342,6 +346,7 @@ def _build_mapped_rows(
                 q_value=record.q_value,
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
+                target_decoy_contaminant_class=record.target_decoy_contaminant_class,
                 contaminant_flag=record.contaminant_flag,
             )
         )
