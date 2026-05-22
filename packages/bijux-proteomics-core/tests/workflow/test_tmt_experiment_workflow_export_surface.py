@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from bijux_proteomics.multiplex import TmtSearchResultSourceKind
+from bijux_proteomics.workflow import (
+    build_tmt_experiment_workflow_bundle,
+    export_tmt_experiment_workflow_bundle,
+)
+
+
+def _workflow_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
+
+
+def _multiplex_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / name
+
+
+def test_tmt_experiment_workflow_export_writes_import_metadata_and_report_assets(
+    tmp_path: Path,
+) -> None:
+    report = build_tmt_experiment_workflow_bundle(
+        _workflow_fixture("tmt_reporter_parse_issues.tsv"),
+        _multiplex_fixture("tmt.design.tsv"),
+        control_channel="126",
+        source_kind=TmtSearchResultSourceKind.MAXQUANT,
+    )
+
+    manifest = export_tmt_experiment_workflow_bundle(report, tmp_path / "tmt_workflow")
+    output_dir = tmp_path / "tmt_workflow"
+
+    assert (output_dir / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.reporter_import_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.accepted_reporter_rows_tsv).exists()
+    assert (output_dir / manifest.artifacts.rejected_reporter_rows_tsv).exists()
+    assert (output_dir / manifest.artifacts.metadata_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.channel_assignments_tsv).exists()
+    assert (output_dir / manifest.artifacts.duplicate_assignments_tsv).exists()
+    assert (output_dir / manifest.artifacts.missing_conditions_tsv).exists()
+    assert (output_dir / manifest.artifacts.label_based_report_manifest_json).exists()
+    assert "accepted_input_row_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "reporter_channel_count" in (
+        output_dir / manifest.artifacts.reporter_import_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "channel_intensities" in (
+        output_dir / manifest.artifacts.accepted_reporter_rows_tsv
+    ).read_text(encoding="utf-8")
+    assert "row_number\tissue_codes\tissue_messages\traw_fields" == (
+        output_dir / manifest.artifacts.rejected_reporter_rows_tsv
+    ).read_text(encoding="utf-8").splitlines()[0]
+    assert "assigned_channel_count" in (
+        output_dir / manifest.artifacts.metadata_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert (output_dir / manifest.label_based_report_manifest.artifacts.summary_tsv).exists()
+    assert (
+        output_dir / manifest.label_based_report_manifest.artifacts.tmt_channel_totals_tsv
+    ).exists()
+    assert (
+        output_dir / manifest.label_based_report_manifest.artifacts.differential_results_tsv
+    ).exists()
