@@ -36,6 +36,7 @@ from bijux_proteomics.identification.openms_import import (
     render_openms_feature_tsv,
     render_openms_protein_tsv,
     render_openms_psm_tsv,
+    render_openms_rejected_feature_tsv,
 )
 from bijux_proteomics.identification.sage_import import (
     build_sage_import_report,
@@ -139,6 +140,9 @@ def test_openms_export_renderers_ignore_input_row_order() -> None:
     assert render_openms_feature_tsv(
         report.feature_rows
     ) == render_openms_feature_tsv(_reversed_rows(report.feature_rows))
+    assert render_openms_rejected_feature_tsv(
+        report.rejected_feature_rows
+    ) == render_openms_rejected_feature_tsv(_reversed_rows(report.rejected_feature_rows))
 
 
 def test_diann_export_renderers_ignore_input_row_order() -> None:

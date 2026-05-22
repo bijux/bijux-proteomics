@@ -10,6 +10,7 @@ from bijux_proteomics.identification.openms_import import (
     render_openms_feature_tsv,
     render_openms_protein_tsv,
     render_openms_psm_tsv,
+    render_openms_rejected_feature_tsv,
     render_openms_summary_tsv,
 )
 
@@ -47,6 +48,7 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert report.feature_parse_summary.total_rows == 5
     assert report.feature_parse_summary.accepted_rows == 4
     assert report.feature_parse_summary.rejected_rows == 1
+    assert len(report.rejected_feature_rows) == 1
 
     assert report.psm_rows[0].run_id == "openms-run-01"
     assert report.psm_rows[0].spectrum_id.endswith("scan=1002")
@@ -64,8 +66,46 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert feature_rows_by_id["feature-002"].protein_refs == ("P11111", "P22222")
     assert feature_rows_by_id["feature-004"].peptide_sequence == "M[Oxidation]PEPTIDE"
     assert feature_rows_by_id["feature-004"].canonical_peptide == "M[Oxidation]PEPTIDE"
+    assert report.rejected_feature_rows[0].row_number == 6
+    assert report.rejected_feature_rows[0].issues[0].code == "invalid_intensity"
 
     assert "accepted_psm_count" in render_openms_summary_tsv(report.summary)
     assert "protein_refs" in render_openms_psm_tsv(report.psm_rows)
     assert "target_decoy_label" in render_openms_protein_tsv(report.protein_rows)
     assert "canonical_peptide" in render_openms_feature_tsv(report.feature_rows)
+    assert "raw_fields_json" in render_openms_rejected_feature_tsv(
+        report.rejected_feature_rows
+    )
+
+
+def test_openms_import_rejects_malformed_idxml_with_clear_location(tmp_path: Path) -> None:
+    root = _bundle_root()
+    malformed_idxml = tmp_path / "malformed.idxml"
+    malformed_idxml.write_text(
+        "\n".join(
+            (
+                '<?xml version="1.0" encoding="UTF-8"?>',
+                "<IdXML>",
+                '  <ProteinIdentification id="openms-run-01">',
+                "    <ProteinHit accession=\"P11111\" score=\"0.002\">",
+                "  </ProteinIdentification>",
+                "</IdXML>",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    try:
+        build_openms_import_report(
+            malformed_idxml,
+            feature_table_path=root / "openms_features.tsv",
+        )
+    except ValueError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("expected malformed idXML to fail")
+
+    assert "OpenMS idXML parse error" in message
+    assert "line" in message
+    assert "column" in message
