@@ -3224,6 +3224,8 @@ def test_sage_import_command_reports_scores_and_modifications() -> None:
                 "sage_search.json",
                 "--summary-tsv-out",
                 "sage.summary.tsv",
+                "--canonical-psm-tsv-out",
+                "sage.canonical_psm.tsv",
                 "--psm-tsv-out",
                 "sage.psm.tsv",
             ],
@@ -3233,12 +3235,19 @@ def test_sage_import_command_reports_scores_and_modifications() -> None:
         payload = json.loads(result.output)
         assert payload["dialect_id"] == "sage-psm"
         assert payload["summary"]["accepted_psm_count"] == 3
+        assert payload["summary"]["canonical_psm_count"] == 3
         assert payload["summary"]["modified_psm_count"] == 2
         assert payload["summary"]["hyperscore_psm_count"] == 3
         assert payload["summary"]["multi_protein_psm_count"] == 1
         assert payload["parameter_report"]["enzyme"] == "trypsin"
+        assert payload["canonical_psms"][0]["record"]["run_id"] == "run01.mzML"
+        assert payload["canonical_psms"][1]["record"]["protein_refs"] == [
+            "sp|P23456|TRANSFER_HUMAN",
+            "sp|P34567|TRANSFER_MOUSE",
+        ]
         assert payload["psm_rows"][0]["hyperscore"] == 41.2
         assert Path("sage.summary.tsv").exists()
+        assert Path("sage.canonical_psm.tsv").exists()
         assert Path("sage.psm.tsv").exists()
 
 
