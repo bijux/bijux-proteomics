@@ -18,9 +18,11 @@ from bijux_proteomics.identification.maxquant_import import (
     MaxquantProteinGroupReviewEntry,
     build_maxquant_import_report,
 )
+from bijux_proteomics.quantification import LabelFreeQuantTable
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
     MaxquantProteinGroupAcceptanceReason,
+    build_label_free_quant_table_from_maxquant_protein_groups,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -77,6 +79,19 @@ class MaxquantBenchmarkFilteringComparisonEntry(JsonModel):
     matched: bool
 
 
+class MaxquantBenchmarkLfqComparisonEntry(JsonModel):
+    """One LFQ intensity preservation row between source and Bijux quant bridge."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    source_intensity: float | None = Field(default=None, ge=0.0)
+    imported_intensity: float | None = Field(default=None, ge=0.0)
+    absolute_difference: float = Field(..., ge=0.0)
+    exact_match: bool
+
+
 class MaxquantBenchmarkSummary(JsonModel):
     """Compact summary over one MaxQuant fidelity benchmark."""
 
@@ -90,8 +105,13 @@ class MaxquantBenchmarkSummary(JsonModel):
     imported_filtered_protein_group_count: int = Field(..., ge=0)
     missing_in_import_count: int = Field(..., ge=0)
     extra_in_import_count: int = Field(..., ge=0)
+    source_lfq_value_count: int = Field(..., ge=0)
+    imported_lfq_value_count: int = Field(..., ge=0)
+    exact_lfq_value_match_count: int = Field(..., ge=0)
+    max_lfq_absolute_difference: float = Field(..., ge=0.0)
     protein_identity_matched: bool
     filtering_matched: bool
+    lfq_values_matched: bool
 
 
 class MaxquantBenchmarkReport(JsonModel):
@@ -101,9 +121,13 @@ class MaxquantBenchmarkReport(JsonModel):
 
     import_report: MaxquantImportReport
     acceptance_policy: MaxquantProteinGroupAcceptancePolicy
+    lfq_table: LabelFreeQuantTable
     protein_identity_comparison: MaxquantBenchmarkProteinIdentityComparison
     filtering_comparisons: tuple[MaxquantBenchmarkFilteringComparisonEntry, ...] = (
         Field(default_factory=tuple)
+    )
+    lfq_comparisons: tuple[MaxquantBenchmarkLfqComparisonEntry, ...] = Field(
+        default_factory=tuple
     )
     summary: MaxquantBenchmarkSummary
     note: str = Field(..., min_length=1)
@@ -135,6 +159,10 @@ def build_maxquant_benchmark_report(
         import_report.protein_group_rows,
         policy=active_policy,
     )
+    lfq_table = build_label_free_quant_table_from_maxquant_protein_groups(
+        imported_accepted,
+        peptide_rows=import_report.peptide_rows,
+    )
     protein_identity_comparison = _build_protein_identity_comparison(
         source_rows=source_accepted,
         imported_rows=imported_accepted,
@@ -144,11 +172,17 @@ def build_maxquant_benchmark_report(
         imported_rows=import_report.protein_group_rows,
         policy=active_policy,
     )
+    lfq_comparisons = _build_lfq_comparisons(
+        source_rows=source_accepted,
+        lfq_table=lfq_table,
+    )
     return MaxquantBenchmarkReport(
         import_report=import_report,
         acceptance_policy=active_policy,
+        lfq_table=lfq_table,
         protein_identity_comparison=protein_identity_comparison,
         filtering_comparisons=filtering_comparisons,
+        lfq_comparisons=lfq_comparisons,
         summary=MaxquantBenchmarkSummary(
             source_protein_group_count=len(source_rows),
             imported_protein_group_count=import_report.summary.protein_group_row_count,
@@ -158,13 +192,23 @@ def build_maxquant_benchmark_report(
             imported_filtered_protein_group_count=len(imported_filtered),
             missing_in_import_count=len(protein_identity_comparison.missing_in_import),
             extra_in_import_count=len(protein_identity_comparison.extra_in_import),
+            source_lfq_value_count=len(source_accepted) * len(lfq_table.sample_ids),
+            imported_lfq_value_count=len(lfq_comparisons),
+            exact_lfq_value_match_count=sum(
+                1 for entry in lfq_comparisons if entry.exact_match
+            ),
+            max_lfq_absolute_difference=max(
+                (entry.absolute_difference for entry in lfq_comparisons),
+                default=0.0,
+            ),
             protein_identity_matched=protein_identity_comparison.matched,
             filtering_matched=all(
                 entry.matched for entry in filtering_comparisons
             ),
+            lfq_values_matched=all(entry.exact_match for entry in lfq_comparisons),
         ),
         note=(
-            "MaxQuant benchmark compares source protein-group acceptance and filtering behavior against the governed Bijux import surface before downstream quantification"
+            "MaxQuant benchmark compares source protein-group acceptance, LFQ intensity preservation, and filtering behavior against the governed Bijux import and quantification bridge"
         ),
     )
 
@@ -196,11 +240,22 @@ def render_maxquant_benchmark_summary_tsv(report: MaxquantBenchmarkReport) -> st
         ),
         ("missing_in_import_count", report.summary.missing_in_import_count),
         ("extra_in_import_count", report.summary.extra_in_import_count),
+        ("source_lfq_value_count", report.summary.source_lfq_value_count),
+        ("imported_lfq_value_count", report.summary.imported_lfq_value_count),
+        (
+            "exact_lfq_value_match_count",
+            report.summary.exact_lfq_value_match_count,
+        ),
+        (
+            "max_lfq_absolute_difference",
+            f"{report.summary.max_lfq_absolute_difference:g}",
+        ),
         (
             "protein_identity_matched",
             str(report.summary.protein_identity_matched).lower(),
         ),
         ("filtering_matched", str(report.summary.filtering_matched).lower()),
+        ("lfq_values_matched", str(report.summary.lfq_values_matched).lower()),
         ("note", report.note),
     ):
         writer.writerow((field_name, value))
@@ -262,6 +317,39 @@ def render_maxquant_filtering_comparison_tsv(report: MaxquantBenchmarkReport) ->
                 ";".join(reason.value for reason in entry.source_reasons),
                 ";".join(reason.value for reason in entry.imported_reasons),
                 str(entry.matched).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_maxquant_lfq_comparison_tsv(report: MaxquantBenchmarkReport) -> str:
+    """Render one MaxQuant LFQ intensity comparison ledger as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "sample_id",
+            "source_intensity",
+            "imported_intensity",
+            "absolute_difference",
+            "exact_match",
+        )
+    )
+    for entry in report.lfq_comparisons:
+        writer.writerow(
+            (
+                entry.entity_id,
+                entry.sample_id,
+                "" if entry.source_intensity is None else f"{entry.source_intensity:g}",
+                (
+                    ""
+                    if entry.imported_intensity is None
+                    else f"{entry.imported_intensity:g}"
+                ),
+                f"{entry.absolute_difference:g}",
+                str(entry.exact_match).lower(),
             )
         )
     return handle.getvalue()
@@ -414,6 +502,39 @@ def _build_filtering_comparisons(
                 source_reasons=source_reasons,
                 imported_reasons=imported_reasons,
                 matched=source_reasons == imported_reasons,
+            )
+        )
+    return tuple(comparisons)
+
+
+def _build_lfq_comparisons(
+    *,
+    source_rows: tuple[MaxquantBenchmarkSourceProteinGroup, ...],
+    lfq_table: LabelFreeQuantTable,
+) -> tuple[MaxquantBenchmarkLfqComparisonEntry, ...]:
+    source_by_entity_sample = {
+        (row.entity_id, intensity.experiment_name): (
+            intensity.intensity if intensity.intensity > 0.0 else None
+        )
+        for row in source_rows
+        for intensity in row.lfq_intensities
+    }
+    comparisons: list[MaxquantBenchmarkLfqComparisonEntry] = []
+    for value in sorted(
+        lfq_table.values,
+        key=lambda entry: (entry.entity_id, entry.sample_id),
+    ):
+        source_intensity = source_by_entity_sample[(value.entity_id, value.sample_id)]
+        imported_intensity = value.abundance
+        absolute_difference = abs((source_intensity or 0.0) - (imported_intensity or 0.0))
+        comparisons.append(
+            MaxquantBenchmarkLfqComparisonEntry(
+                entity_id=value.entity_id,
+                sample_id=value.sample_id,
+                source_intensity=source_intensity,
+                imported_intensity=imported_intensity,
+                absolute_difference=absolute_difference,
+                exact_match=source_intensity == imported_intensity,
             )
         )
     return tuple(comparisons)
