@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+
 from bijux_proteomics.chemistry import ModificationPosition, ModificationRegistryDocument
 from bijux_proteomics.chemistry import parse_modified_peptide
 from bijux_proteomics.identification import TargetDecoyLabel
@@ -329,6 +332,100 @@ def validate_ptm_site_coordinates(
                     )
                 )
     return PtmCoordinateValidationReport(valid=not issues, issues=tuple(issues))
+
+
+def render_ptm_protein_site_mapping_tsv(
+    mappings: tuple[PtmProteinSiteMapping, ...],
+) -> str:
+    """Render peptide-level PTM protein-site mappings as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "spectrum_id",
+            "sample_id",
+            "protein_ref",
+            "localized_peptide",
+            "canonical_peptide",
+            "modification_name",
+            "residue",
+            "peptide_site_index",
+            "protein_position",
+            "localization_score",
+            "q_value",
+            "candidate_protein_positions",
+            "ambiguous",
+            "shared_peptide",
+            "target_decoy_label",
+        ]
+    )
+    for mapping in mappings:
+        writer.writerow(
+            [
+                mapping.spectrum_id,
+                mapping.sample_id or "",
+                mapping.protein_ref,
+                mapping.localized_peptide,
+                mapping.canonical_peptide,
+                mapping.modification_name,
+                mapping.residue,
+                mapping.peptide_site_index,
+                mapping.protein_position,
+                mapping.localization_score,
+                mapping.q_value if mapping.q_value is not None else "",
+                ";".join(str(position) for position in mapping.candidate_protein_positions),
+                str(mapping.ambiguous).lower(),
+                str(mapping.shared_peptide).lower(),
+                mapping.target_decoy_label.value,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
+    """Render aggregated PTM site entries as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "localization_score",
+            "best_q_value",
+            "spectrum_count",
+            "peptide_count",
+            "sample_ids",
+            "candidate_positions",
+            "ambiguous",
+            "shared_peptide",
+            "target_decoy_label",
+        ]
+    )
+    for entry in site_entries:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.protein_ref,
+                entry.residue,
+                entry.position,
+                entry.modification_name,
+                entry.localization_score,
+                entry.best_q_value if entry.best_q_value is not None else "",
+                entry.spectrum_count,
+                entry.peptide_count,
+                ";".join(entry.sample_ids),
+                ";".join(str(position) for position in entry.candidate_positions),
+                str(entry.ambiguous).lower(),
+                str(entry.shared_peptide).lower(),
+                entry.target_decoy_label.value,
+            ]
+        )
+    return buffer.getvalue()
 
 
 def _find_occurrences(sequence: str, peptide_sequence: str) -> tuple[int, ...]:
