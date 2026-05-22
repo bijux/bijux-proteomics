@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
@@ -18,6 +20,13 @@ from bijux_proteomics.quantification.contracts import (
     QuantEntityLevel,
 )
 from bijux_proteomics_foundation import JsonModel
+
+
+class PtmSiteQuantAmbiguityPolicy(StrEnum):
+    """Policy for PTM sites whose localization remains ambiguous."""
+
+    PRESERVE = "preserve"
+    EXCLUDE = "exclude"
 
 
 class PtmSiteQuantValue(JsonModel):
@@ -57,6 +66,7 @@ class PtmSiteQuantSummary(JsonModel):
     site_row_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
     ambiguous_row_count: int = Field(..., ge=0)
+    excluded_ambiguous_row_count: int = Field(..., ge=0)
     observed_cell_count: int = Field(..., ge=0)
     zero_cell_count: int = Field(..., ge=0)
     missing_cell_count: int = Field(..., ge=0)
@@ -68,8 +78,10 @@ class PtmSiteQuantificationReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    ambiguity_policy: PtmSiteQuantAmbiguityPolicy
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[PtmSiteQuantRow, ...] = Field(default_factory=tuple)
+    excluded_ambiguous_site_keys: tuple[str, ...] = Field(default_factory=tuple)
     missing_summary: MissingValueSummaryReport
     summary: PtmSiteQuantSummary
     note: str = Field(..., min_length=1)
@@ -79,6 +91,7 @@ def build_ptm_site_quantification_report(
     site_entries: tuple[PtmSiteEntry, ...],
     *,
     feature_records: tuple[Ms1FeatureRecord, ...],
+    ambiguity_policy: PtmSiteQuantAmbiguityPolicy = PtmSiteQuantAmbiguityPolicy.PRESERVE,
 ) -> PtmSiteQuantificationReport:
     """Build a PTM site-by-sample intensity matrix from localized peptide features."""
 
@@ -103,6 +116,7 @@ def build_ptm_site_quantification_report(
 
     rows: list[PtmSiteQuantRow] = []
     missing_entries: list[MissingValueSummaryEntry] = []
+    excluded_ambiguous_site_keys: list[str] = []
     observed_cell_count = 0
     zero_cell_count = 0
     missing_cell_count = 0
@@ -110,6 +124,12 @@ def build_ptm_site_quantification_report(
 
     grouped_rows: dict[tuple[str, str], PtmSiteQuantValue] = {}
     for entry in sorted(site_entries, key=lambda row: row.site_key):
+        if (
+            ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
+            and entry.ambiguous
+        ):
+            excluded_ambiguous_site_keys.append(entry.site_key)
+            continue
         localized_peptides = set(entry.localized_peptides)
         values: list[PtmSiteQuantValue] = []
         for sample_id in sample_ids:
@@ -190,8 +210,10 @@ def build_ptm_site_quantification_report(
         )
 
     return PtmSiteQuantificationReport(
+        ambiguity_policy=ambiguity_policy,
         sample_ids=sample_ids,
         rows=tuple(rows),
+        excluded_ambiguous_site_keys=tuple(excluded_ambiguous_site_keys),
         missing_summary=MissingValueSummaryReport(
             entity_level=QuantEntityLevel.PEPTIDE,
             policy=MissingValueSummaryPolicy(),
@@ -203,6 +225,7 @@ def build_ptm_site_quantification_report(
             site_row_count=len(rows),
             sample_count=len(sample_ids),
             ambiguous_row_count=sum(1 for row in rows if row.ambiguous),
+            excluded_ambiguous_row_count=len(excluded_ambiguous_site_keys),
             observed_cell_count=observed_cell_count,
             zero_cell_count=zero_cell_count,
             missing_cell_count=missing_cell_count,
@@ -210,7 +233,8 @@ def build_ptm_site_quantification_report(
         ),
         note=(
             "ptm site quantification aggregates localized peptide feature intensities "
-            "onto protein-mapped PTM sites while preserving per-sample missingness"
+            "onto protein-mapped PTM sites while preserving per-sample missingness "
+            "and an explicit ambiguity policy"
         ),
     )
 

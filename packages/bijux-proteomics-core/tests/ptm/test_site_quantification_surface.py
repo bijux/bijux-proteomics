@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmSiteQuantAmbiguityPolicy,
     build_ptm_site_quantification_report,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
@@ -80,3 +81,27 @@ def test_ptm_site_quantification_report_preserves_ambiguous_site_signal() -> Non
     assert ambiguous.shared_peptide is True
     assert lookup["C1"].abundance == 60.0
     assert lookup["T1"].abundance == 140.0
+
+
+def test_ptm_site_quantification_report_can_exclude_ambiguous_sites() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+
+    report = build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+        ambiguity_policy=PtmSiteQuantAmbiguityPolicy.EXCLUDE,
+    )
+
+    assert report.ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
+    assert report.summary.site_row_count == 3
+    assert report.summary.excluded_ambiguous_row_count == 2
+    assert report.excluded_ambiguous_site_keys == (
+        "P11111:S17:Phospho",
+        "P22222:S4:Phospho",
+    )
