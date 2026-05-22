@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 
 from pydantic import ConfigDict, Field
 
@@ -237,6 +239,120 @@ def build_ptm_site_quantification_report(
             "and an explicit ambiguity policy"
         ),
     )
+
+
+def render_ptm_site_quant_summary_tsv(report: PtmSiteQuantificationReport) -> str:
+    """Render compact PTM site quantification summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "ambiguity_policy",
+            "site_row_count",
+            "sample_count",
+            "ambiguous_row_count",
+            "excluded_ambiguous_row_count",
+            "observed_cell_count",
+            "zero_cell_count",
+            "missing_cell_count",
+            "filtered_cell_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.ambiguity_policy.value,
+            report.summary.site_row_count,
+            report.summary.sample_count,
+            report.summary.ambiguous_row_count,
+            report.summary.excluded_ambiguous_row_count,
+            report.summary.observed_cell_count,
+            report.summary.zero_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.filtered_cell_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str:
+    """Render the PTM site-by-sample matrix as one wide TSV."""
+
+    header = [
+        "site_key",
+        "protein_ref",
+        "residue",
+        "position",
+        "modification_name",
+        "target_decoy_label",
+        "ambiguous",
+        "shared_peptide",
+        "candidate_positions",
+        "localized_peptides",
+    ]
+    header.extend(report.sample_ids)
+    rows = ["\t".join(header)]
+    for row in report.rows:
+        lookup = {value.sample_id: value for value in row.values}
+        matrix_values = []
+        for sample_id in report.sample_ids:
+            value = lookup[sample_id]
+            matrix_values.append("" if value.abundance is None else f"{value.abundance:g}")
+        rows.append(
+            "\t".join(
+                (
+                    row.site_key,
+                    row.protein_ref,
+                    row.residue,
+                    str(row.position),
+                    row.modification_name,
+                    row.target_decoy_label.value,
+                    str(row.ambiguous).lower(),
+                    str(row.shared_peptide).lower(),
+                    ";".join(str(position) for position in row.candidate_positions),
+                    ";".join(row.localized_peptides),
+                    *matrix_values,
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_ptm_site_quant_missingness_tsv(report: PtmSiteQuantificationReport) -> str:
+    """Render one per-sample missingness ledger for the PTM site matrix."""
+
+    header = (
+        "sample_id",
+        "observed_count",
+        "zero_count",
+        "not_observed_count",
+        "filtered_count",
+    )
+    rows = ["\t".join(header)]
+    for entry in report.missing_summary.entries:
+        rows.append(
+            "\t".join(
+                (
+                    entry.sample_id,
+                    str(entry.observed_count),
+                    str(entry.zero_count),
+                    str(entry.not_observed_count),
+                    str(entry.filtered_count),
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_ptm_site_quant_excluded_tsv(report: PtmSiteQuantificationReport) -> str:
+    """Render the excluded ambiguous PTM site rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["site_key"])
+    for site_key in report.excluded_ambiguous_site_keys:
+        writer.writerow([site_key])
+    return buffer.getvalue()
 
 
 def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValueKind:
