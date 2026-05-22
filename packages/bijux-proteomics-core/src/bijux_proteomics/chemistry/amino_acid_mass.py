@@ -74,6 +74,7 @@ __all__ = [
     "calculate_sequence_monoisotopic_mass",
     "calculate_sequence_mz",
     "free_peptide_termini",
+    "render_peptide_mass_contributions_tsv",
 ]
 
 
@@ -243,6 +244,23 @@ def build_peptide_mass_report(
             use_average_mass=True,
         ),
     )
+
+
+def render_peptide_mass_contributions_tsv(report: PeptideMassReport) -> str:
+    """Render the residue contribution table for one peptide mass report."""
+    lines = ["position\tresidue\tmonoisotopic_mass\taverage_mass"]
+    for contribution in report.residue_contributions:
+        lines.append(
+            "\t".join(
+                (
+                    str(contribution.position),
+                    contribution.residue,
+                    f"{contribution.monoisotopic_mass:.5f}",
+                    f"{contribution.average_mass:.5f}",
+                )
+            )
+        )
+    return "\n".join(lines)
 
 
 def _normalize_sequence(sequence: str) -> str:
