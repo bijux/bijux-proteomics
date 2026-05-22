@@ -72,6 +72,7 @@ class TmtReporterFeatureBundle(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_report: TmtReporterImportReport
+    design_entries: tuple[ExperimentalDesignEntry, ...] = Field(default_factory=tuple)
     feature_records: tuple[Ms1FeatureRecord, ...] = Field(default_factory=tuple)
     channel_mapping: tuple[TmtChannelMappingEntry, ...] = Field(default_factory=tuple)
     summary: TmtReporterFeatureSummary
@@ -196,6 +197,7 @@ def build_tmt_reporter_feature_bundle(
     )
     return TmtReporterFeatureBundle(
         source_report=import_report,
+        design_entries=tuple(multiplex_design_entries),
         feature_records=tuple(feature_records),
         channel_mapping=tuple(channel_mapping),
         summary=TmtReporterFeatureSummary(

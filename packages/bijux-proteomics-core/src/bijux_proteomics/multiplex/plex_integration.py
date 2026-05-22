@@ -56,6 +56,25 @@ class TmtPlexIntegrationSummary(JsonModel):
     flagged_plex_effect_count: int = Field(..., ge=0)
 
 
+class TmtPlexSampleAlignmentEntry(JsonModel):
+    """One sample-metadata alignment row inside a multi-plex TMT integration run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    replicate: int = Field(..., ge=1)
+    batch: str | None = None
+    sample_role: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    analysis_included: bool
+    bridge_sample_id: str | None = None
+    bridge_channel: str | None = None
+    note: str = Field(..., min_length=1)
+
+
 class TmtPlexIntegrationReport(JsonModel):
     """Owned TMT plex-integration report over bridge-normalized protein values."""
 
@@ -63,6 +82,7 @@ class TmtPlexIntegrationReport(JsonModel):
 
     policy: TmtPlexIntegrationPolicy
     normalization_report: TmtNormalizationReport
+    sample_alignment: tuple[TmtPlexSampleAlignmentEntry, ...] = Field(default_factory=tuple)
     integrated_protein_matrix: ProteinIntensityMatrixReport
     summary: TmtPlexIntegrationSummary
     note: str = Field(..., min_length=1)
@@ -101,6 +121,11 @@ def build_tmt_plex_integration_report(
         normalization_report.after_report.protein_matrix,
         sample_ids=included_sample_ids,
     )
+    sample_alignment = _build_sample_alignment_entries(
+        feature_bundle=feature_bundle,
+        included_sample_ids=included_sample_ids,
+        normalization_report=normalization_report,
+    )
     missing_bridge_value_count = sum(
         1
         for row in integrated_protein_matrix.rows
@@ -117,6 +142,7 @@ def build_tmt_plex_integration_report(
     return TmtPlexIntegrationReport(
         policy=active_policy,
         normalization_report=normalization_report,
+        sample_alignment=sample_alignment,
         integrated_protein_matrix=integrated_protein_matrix,
         summary=TmtPlexIntegrationSummary(
             multiplex_group_count=len(
@@ -136,6 +162,59 @@ def build_tmt_plex_integration_report(
             "tmt plex integration expresses protein abundances as bridge-normalized sample values across multiplex groups"
         ),
     )
+
+
+def _build_sample_alignment_entries(
+    *,
+    feature_bundle: TmtReporterFeatureBundle,
+    included_sample_ids: tuple[str, ...],
+    normalization_report: TmtNormalizationReport,
+) -> tuple[TmtPlexSampleAlignmentEntry, ...]:
+    included_sample_id_set = set(included_sample_ids)
+    bridge_by_group = {
+        transform.multiplex_group: (transform.reference_sample_id, transform.reference_channel)
+        for transform in normalization_report.transforms
+        if transform.reference_sample_id is not None and transform.reference_channel is not None
+    }
+    mapping_by_sample = {
+        entry.sample_id: entry
+        for entry in feature_bundle.channel_mapping
+        if entry.mapped_to_design and entry.sample_id is not None
+    }
+    rows: list[TmtPlexSampleAlignmentEntry] = []
+    for design_entry in sorted(
+        feature_bundle.design_entries,
+        key=lambda item: (item.multiplex_group or "", item.multiplex_channel or ""),
+    ):
+        mapping_entry = mapping_by_sample.get(design_entry.sample_id)
+        if mapping_entry is None:
+            continue
+        bridge_sample_id, bridge_channel = bridge_by_group.get(
+            design_entry.multiplex_group or "",
+            (None, None),
+        )
+        analysis_included = design_entry.sample_id in included_sample_id_set
+        rows.append(
+            TmtPlexSampleAlignmentEntry(
+                sample_id=design_entry.sample_id,
+                multiplex_group=design_entry.multiplex_group or "",
+                multiplex_channel=design_entry.multiplex_channel or "",
+                condition=design_entry.condition,
+                replicate=design_entry.replicate,
+                batch=design_entry.batch,
+                sample_role=design_entry.sample_role.value,
+                channel_role=mapping_entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                analysis_included=analysis_included,
+                bridge_sample_id=bridge_sample_id,
+                bridge_channel=bridge_channel,
+                note=(
+                    "sample channel is aligned into the integrated matrix through the governed bridge/reference channel"
+                    if analysis_included
+                    else "non-sample channel metadata is preserved for plex integration review but excluded from the integrated analysis matrix"
+                ),
+            )
+        )
+    return tuple(rows)
 
 
 def _filter_protein_matrix_samples(
