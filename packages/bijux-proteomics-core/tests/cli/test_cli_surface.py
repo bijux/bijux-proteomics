@@ -5782,6 +5782,8 @@ def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
                 "openms.protein.tsv",
                 "--feature-tsv-out",
                 "openms.feature.tsv",
+                "--rejected-feature-tsv-out",
+                "openms.rejected_features.tsv",
             ],
         )
 
@@ -5795,10 +5797,13 @@ def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
         assert payload["psm_rows"][0]["spectrum_id"].endswith("scan=1002")
         assert payload["protein_rows"][0]["target_decoy_label"] == "decoy"
         assert payload["feature_rows"][2]["peptide_sequence"] == "M[Oxidation]PEPTIDE"
+        assert payload["rejected_feature_rows"][0]["row_number"] == 6
+        assert payload["rejected_feature_rows"][0]["issues"][0]["code"] == "invalid_intensity"
         assert Path("openms.summary.tsv").exists()
         assert Path("openms.psm.tsv").exists()
         assert Path("openms.protein.tsv").exists()
         assert Path("openms.feature.tsv").exists()
+        assert Path("openms.rejected_features.tsv").exists()
 
 
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
