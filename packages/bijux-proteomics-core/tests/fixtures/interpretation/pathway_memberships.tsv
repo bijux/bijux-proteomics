@@ -1,0 +1,8 @@
+pathway_id	pathway_name	source_name	source_accession	protein_ref	gene_symbol
+R-HSA-109581	Apoptosis	Reactome	R-HSA-109581	P04637	
+R-HSA-5673001	MAPK targets	Reactome	R-HSA-5673001		MAPK1
+hsa04115	p53 signaling pathway	KEGG	hsa04115		TP53
+custom:stress	Stress response module	custom	STR-01	Q99999	
+custom:stress	Stress response module	custom	STR-01		TP53
+custom:stress	Stress response module	custom	STR-01		TP53
+broken:row	Broken pathway	custom	BRK-01		
