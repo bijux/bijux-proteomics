@@ -87,7 +87,7 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
     assert summary_lines[0] == (
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
         "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
-        "quantified_site_row_count\tdifferential_site_count"
+        "quantified_site_row_count\tdifferential_site_count\tmotif_term_count"
     )
     assert peptide_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide"

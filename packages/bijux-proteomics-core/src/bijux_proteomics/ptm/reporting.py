@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from io import StringIO
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -20,6 +21,7 @@ from bijux_proteomics.ptm.contracts import (
 )
 from bijux_proteomics.ptm.differential_analysis import (
     PtmDifferentialAnalysisReport,
+    render_ptm_differential_volcano_tsv,
     PtmProteinCorrectionMode,
     build_ptm_differential_analysis_report,
     render_ptm_site_differential_tsv,
@@ -29,11 +31,23 @@ from bijux_proteomics.ptm.localization_scoring import (
     build_ptm_localization_scoring_report,
     render_ptm_localization_scoring_entry_tsv,
 )
+from bijux_proteomics.ptm.motif_analysis import (
+    PtmMotifComparisonPolicy,
+    PtmPhosphositeMotifEnrichmentReport,
+    PtmPhosphositeSelectionPolicy,
+    build_ptm_phosphosite_motif_enrichment_report,
+    render_ptm_phosphosite_motif_enriched_term_tsv,
+    render_ptm_phosphosite_motif_frequency_tsv,
+    render_ptm_phosphosite_motif_logo_tsv,
+    render_ptm_phosphosite_motif_window_tsv,
+)
+from bijux_proteomics.ptm.protein_site_mapping import render_ptm_site_table_tsv
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantAmbiguityPolicy,
     PtmSiteQuantificationReport,
     build_ptm_site_quantification_report,
     render_ptm_site_quant_matrix_tsv,
+    render_ptm_site_quant_missingness_tsv,
 )
 from bijux_proteomics.quantification import Ms1FeatureRecord, NormalizationMethod
 from bijux_proteomics_foundation import JsonModel
@@ -72,6 +86,7 @@ class PtmReportSummary(JsonModel):
     localization_entry_count: int = Field(..., ge=0)
     quantified_site_row_count: int = Field(..., ge=0)
     differential_site_count: int = Field(..., ge=0)
+    motif_term_count: int = Field(..., ge=0)
 
 
 class PtmReportBundle(JsonModel):
@@ -84,7 +99,38 @@ class PtmReportBundle(JsonModel):
     localization_scoring: PtmLocalizationScoringReport
     site_quantification: PtmSiteQuantificationReport | None = None
     differential_analysis: PtmDifferentialAnalysisReport | None = None
+    motif_enrichment: PtmPhosphositeMotifEnrichmentReport | None = None
     summary: PtmReportSummary
+    note: str = Field(..., min_length=1)
+
+
+class PtmReportArtifactPaths(JsonModel):
+    """Relative PTM report artifact paths written into one output directory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary_tsv: str = Field(..., min_length=1)
+    peptide_tsv: str = Field(..., min_length=1)
+    site_tsv: str = Field(..., min_length=1)
+    localization_tsv: str = Field(..., min_length=1)
+    site_quant_matrix_tsv: str | None = None
+    site_quant_missingness_tsv: str | None = None
+    differential_tsv: str | None = None
+    differential_volcano_tsv: str | None = None
+    motif_window_tsv: str | None = None
+    motif_frequency_tsv: str | None = None
+    motif_term_tsv: str | None = None
+    motif_logo_tsv: str | None = None
+
+
+class PtmReportExportManifest(JsonModel):
+    """Stable PTM report manifest over one exported report directory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: PtmReportSummary
+    artifacts: PtmReportArtifactPaths
+    motif_summary_included: bool
     note: str = Field(..., min_length=1)
 
 
@@ -103,6 +149,9 @@ def build_ptm_report_bundle(
     batch_field: str = "batch",
     covariate_fields: tuple[str, ...] = (),
     pairing_field: str | None = None,
+    motif_flank_size: int = 7,
+    motif_selection_policy: PtmPhosphositeSelectionPolicy | None = None,
+    motif_comparison_policy: PtmMotifComparisonPolicy | None = None,
 ) -> PtmReportBundle:
     """Build the core PTM report bundle from evidence rows and protein context."""
 
@@ -145,6 +194,7 @@ def build_ptm_report_bundle(
     )
     site_quantification = None
     differential_analysis = None
+    motif_enrichment = None
     if feature_records is not None:
         site_quantification = build_ptm_site_quantification_report(
             site_table,
@@ -168,12 +218,21 @@ def build_ptm_report_bundle(
             covariate_fields=tuple(dict.fromkeys(covariate_fields)),
             pairing_field=pairing_field,
         )
+        if any(entry.modification_name == "Phospho" for entry in site_table):
+            motif_enrichment = build_ptm_phosphosite_motif_enrichment_report(
+                differential_analysis,
+                protein_sequences=protein_sequences,
+                flank_size=motif_flank_size,
+                selection_policy=motif_selection_policy,
+                comparison_policy=motif_comparison_policy,
+            )
     return PtmReportBundle(
         peptide_entries=peptide_entries,
         site_table=site_table,
         localization_scoring=localization_scoring,
         site_quantification=site_quantification,
         differential_analysis=differential_analysis,
+        motif_enrichment=motif_enrichment,
         summary=PtmReportSummary(
             accepted_evidence_count=len(records),
             peptide_entry_count=len(peptide_entries),
@@ -194,9 +253,12 @@ def build_ptm_report_bundle(
                 if differential_analysis is None
                 else len(differential_analysis.differential_report.entries)
             ),
+            motif_term_count=(
+                0 if motif_enrichment is None else len(motif_enrichment.enriched_terms)
+            ),
         ),
         note=(
-            "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, and optional differential analysis into one owned report bundle"
+            "ptm reporting assembles governed peptide observations, site rows, localization review, site quantification, differential analysis, and motif summaries into one owned report bundle"
         ),
     )
 
@@ -216,6 +278,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             "localization_entry_count",
             "quantified_site_row_count",
             "differential_site_count",
+            "motif_term_count",
         ]
     )
     writer.writerow(
@@ -228,6 +291,7 @@ def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
             report.summary.localization_entry_count,
             report.summary.quantified_site_row_count,
             report.summary.differential_site_count,
+            report.summary.motif_term_count,
         ]
     )
     return buffer.getvalue()
@@ -299,4 +363,111 @@ def render_ptm_report_differential_tsv(report: PtmReportBundle) -> str:
         raise ValueError("ptm report bundle does not include differential analysis")
     return render_ptm_site_differential_tsv(
         report.differential_analysis.differential_report
+    )
+
+
+def export_ptm_report_bundle(
+    report: PtmReportBundle,
+    output_dir: Path,
+) -> PtmReportExportManifest:
+    """Write one PTM report bundle into a stable output directory."""
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_name = "ptm_report_summary.tsv"
+    peptide_name = "ptm_peptides.tsv"
+    site_name = "ptm_sites.tsv"
+    localization_name = "ptm_localization.tsv"
+    (output_dir / summary_name).write_text(
+        render_ptm_report_summary_tsv(report),
+        encoding="utf-8",
+    )
+    (output_dir / peptide_name).write_text(
+        render_ptm_report_peptide_tsv(report),
+        encoding="utf-8",
+    )
+    (output_dir / site_name).write_text(
+        render_ptm_site_table_tsv(report.site_table),
+        encoding="utf-8",
+    )
+    (output_dir / localization_name).write_text(
+        render_ptm_report_localization_tsv(report),
+        encoding="utf-8",
+    )
+
+    site_quant_matrix_name = None
+    site_quant_missingness_name = None
+    if report.site_quantification is not None:
+        site_quant_matrix_name = "ptm_site_quant_matrix.tsv"
+        site_quant_missingness_name = "ptm_site_quant_missingness.tsv"
+        (output_dir / site_quant_matrix_name).write_text(
+            render_ptm_report_site_quant_matrix_tsv(report),
+            encoding="utf-8",
+        )
+        (output_dir / site_quant_missingness_name).write_text(
+            render_ptm_site_quant_missingness_tsv(report.site_quantification),
+            encoding="utf-8",
+        )
+
+    differential_name = None
+    volcano_name = None
+    if report.differential_analysis is not None:
+        differential_name = "ptm_differential.tsv"
+        volcano_name = "ptm_differential_volcano.tsv"
+        (output_dir / differential_name).write_text(
+            render_ptm_report_differential_tsv(report),
+            encoding="utf-8",
+        )
+        (output_dir / volcano_name).write_text(
+            render_ptm_differential_volcano_tsv(
+                report.differential_analysis.volcano_plot
+            ),
+            encoding="utf-8",
+        )
+
+    motif_window_name = None
+    motif_frequency_name = None
+    motif_term_name = None
+    motif_logo_name = None
+    if report.motif_enrichment is not None:
+        motif_window_name = "ptm_motif_windows.tsv"
+        motif_frequency_name = "ptm_motif_frequency.tsv"
+        motif_term_name = "ptm_motif_terms.tsv"
+        motif_logo_name = "ptm_motif_logo.tsv"
+        (output_dir / motif_window_name).write_text(
+            render_ptm_phosphosite_motif_window_tsv(report.motif_enrichment),
+            encoding="utf-8",
+        )
+        (output_dir / motif_frequency_name).write_text(
+            render_ptm_phosphosite_motif_frequency_tsv(report.motif_enrichment),
+            encoding="utf-8",
+        )
+        (output_dir / motif_term_name).write_text(
+            render_ptm_phosphosite_motif_enriched_term_tsv(report.motif_enrichment),
+            encoding="utf-8",
+        )
+        (output_dir / motif_logo_name).write_text(
+            render_ptm_phosphosite_motif_logo_tsv(report.motif_enrichment),
+            encoding="utf-8",
+        )
+
+    return PtmReportExportManifest(
+        summary=report.summary,
+        artifacts=PtmReportArtifactPaths(
+            summary_tsv=summary_name,
+            peptide_tsv=peptide_name,
+            site_tsv=site_name,
+            localization_tsv=localization_name,
+            site_quant_matrix_tsv=site_quant_matrix_name,
+            site_quant_missingness_tsv=site_quant_missingness_name,
+            differential_tsv=differential_name,
+            differential_volcano_tsv=volcano_name,
+            motif_window_tsv=motif_window_name,
+            motif_frequency_tsv=motif_frequency_name,
+            motif_term_tsv=motif_term_name,
+            motif_logo_tsv=motif_logo_name,
+        ),
+        motif_summary_included=report.motif_enrichment is not None,
+        note=(
+            "ptm report export writes stable peptide, site, localization, quantification, differential, and motif files into one durable output directory"
+        ),
     )
