@@ -52,4 +52,5 @@ def test_render_dia_differential_exports_keep_matrix_results_and_plots_visible()
     assert "PG001\tP11111\tPESTIDE" in normalized_matrix_tsv
     assert "PG001\tcontrol\ttreatment\t2\t2" in differential_tsv
     assert "C1\tbefore\t600000\t200000\t100000" in balance_tsv
-    assert "PG001\tP11111\t2.00208\t0.0136062\t1.86626\ttrue" in volcano_tsv
+    assert "raw_p_value" in volcano_tsv
+    assert "PG001\tP11111\t2.00208\t0.00729495\t0.0136062\t1.86626\ttrue" in volcano_tsv

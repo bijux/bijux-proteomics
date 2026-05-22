@@ -121,6 +121,7 @@ class PtmDifferentialVolcanoPoint(JsonModel):
     raw_log2_fold_change: float
     corrected_log2_fold_change: float | None = None
     plotted_log2_fold_change: float
+    raw_p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
     negative_log10_adjusted_p_value: float = Field(..., ge=0.0)
     highlighted: bool = False
@@ -265,6 +266,7 @@ def build_ptm_differential_volcano_plot(
                 raw_log2_fold_change=entry.log2_fold_change,
                 corrected_log2_fold_change=entry.corrected_log2_fold_change,
                 plotted_log2_fold_change=plotted_log2_fold_change,
+                raw_p_value=entry.p_value,
                 adjusted_p_value=adjusted_p_value,
                 negative_log10_adjusted_p_value=_negative_log10(adjusted_p_value),
                 highlighted=highlighted,
@@ -531,6 +533,7 @@ def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str
             "raw_log2_fold_change",
             "corrected_log2_fold_change",
             "plotted_log2_fold_change",
+            "raw_p_value",
             "adjusted_p_value",
             "negative_log10_adjusted_p_value",
             "highlighted",
@@ -550,6 +553,7 @@ def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str
                 if point.corrected_log2_fold_change is None
                 else f"{point.corrected_log2_fold_change:g}",
                 f"{point.plotted_log2_fold_change:g}",
+                f"{point.raw_p_value:g}",
                 f"{point.adjusted_p_value:g}",
                 f"{point.negative_log10_adjusted_p_value:g}",
                 str(point.highlighted).lower(),

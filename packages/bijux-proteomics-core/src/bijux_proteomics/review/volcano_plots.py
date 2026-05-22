@@ -19,6 +19,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
+    from bijux_proteomics.ptm.differential_analysis import PtmDifferentialVolcanoPlot
+    from bijux_proteomics.workflow.dia_differential_analysis import (
+        DiaDifferentialVolcanoPlot,
+    )
     from bijux_proteomics.workflow.label_based_differential_analysis import (
         LabelBasedDifferentialVolcanoPlot,
     )
@@ -295,6 +299,86 @@ def build_label_based_volcano_review(
         points=labeled_points,
         note=(
             "shared volcano review preserves raw and adjusted significance over one labeled differential contrast"
+        ),
+    )
+
+
+def build_dia_volcano_review(
+    plot: DiaDifferentialVolcanoPlot,
+    *,
+    policy: VolcanoReviewPolicy | None = None,
+) -> VolcanoReviewReport:
+    """Build a shared volcano review payload from a DIA differential volcano plot."""
+
+    active_policy = policy or VolcanoReviewPolicy()
+    points = tuple(
+        VolcanoReviewPoint(
+            entity_id=point.entity_id,
+            label=point.protein_refs[0] if point.protein_refs else point.entity_id,
+            secondary_label=(
+                point.entity_id
+                if point.protein_refs and point.protein_refs[0] != point.entity_id
+                else None
+            ),
+            log2_fold_change=point.log2_fold_change,
+            raw_p_value=point.raw_p_value,
+            adjusted_p_value=point.adjusted_p_value,
+            negative_log10_adjusted_p_value=point.negative_log10_adjusted_p_value,
+            highlighted=point.highlighted,
+        )
+        for point in plot.points
+    )
+    labeled_points = apply_volcano_review_policy(points, policy=active_policy)
+    return VolcanoReviewReport(
+        source_kind=VolcanoReviewSourceKind.DIA,
+        condition_a=plot.condition_a,
+        condition_b=plot.condition_b,
+        x_axis_label="log2 fold change",
+        y_axis_label="-log10 adjusted p-value",
+        significant_point_count=plot.significant_point_count,
+        labeled_point_count=sum(1 for point in labeled_points if point.top_labeled),
+        policy=active_policy,
+        points=labeled_points,
+        note=(
+            "shared volcano review preserves raw and adjusted significance over one DIA differential contrast"
+        ),
+    )
+
+
+def build_ptm_volcano_review(
+    plot: PtmDifferentialVolcanoPlot,
+    *,
+    policy: VolcanoReviewPolicy | None = None,
+) -> VolcanoReviewReport:
+    """Build a shared volcano review payload from a PTM differential volcano plot."""
+
+    active_policy = policy or VolcanoReviewPolicy()
+    points = tuple(
+        VolcanoReviewPoint(
+            entity_id=point.site_key,
+            label=f"{point.protein_ref}:{point.residue}{point.position}",
+            secondary_label=point.modification_name,
+            log2_fold_change=point.plotted_log2_fold_change,
+            raw_p_value=point.raw_p_value,
+            adjusted_p_value=point.adjusted_p_value,
+            negative_log10_adjusted_p_value=point.negative_log10_adjusted_p_value,
+            highlighted=point.highlighted,
+        )
+        for point in plot.points
+    )
+    labeled_points = apply_volcano_review_policy(points, policy=active_policy)
+    return VolcanoReviewReport(
+        source_kind=VolcanoReviewSourceKind.PTM,
+        condition_a=plot.condition_a,
+        condition_b=plot.condition_b,
+        x_axis_label="log2 fold change",
+        y_axis_label="-log10 adjusted p-value",
+        significant_point_count=plot.significant_point_count,
+        labeled_point_count=sum(1 for point in labeled_points if point.top_labeled),
+        policy=active_policy,
+        points=labeled_points,
+        note=(
+            "shared volcano review preserves raw and adjusted significance over one PTM site differential contrast"
         ),
     )
 

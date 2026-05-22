@@ -13,10 +13,9 @@ from bijux_proteomics.ptm import (
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
-    render_ptm_differential_volcano_tsv,
-    render_ptm_site_differential_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
+from bijux_proteomics.review import VolcanoReviewPolicy, build_ptm_volcano_review
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -38,7 +37,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
+def test_build_ptm_volcano_review_preserves_raw_p_values_and_labels() -> None:
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -59,14 +58,12 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
     )
 
-    result_lines = render_ptm_site_differential_tsv(report.differential_report).splitlines()
-    volcano_lines = render_ptm_differential_volcano_tsv(report.volcano_plot).splitlines()
-
-    assert result_lines[0].startswith("site_key\tprotein_ref\tresidue\tposition")
-    assert any("P11111:S5:Phospho" in line and "corrected" in line for line in result_lines)
-    assert volcano_lines[0] == (
-        "site_key\tprotein_ref\tresidue\tposition\tmodification_name\t"
-        "raw_log2_fold_change\tcorrected_log2_fold_change\tplotted_log2_fold_change\t"
-        "raw_p_value\tadjusted_p_value\tnegative_log10_adjusted_p_value\thighlighted\tprotein_correction_status"
+    review = build_ptm_volcano_review(
+        report.volcano_plot,
+        policy=VolcanoReviewPolicy(top_label_count=1),
     )
-    assert any("P11111:S5:Phospho" in line for line in volcano_lines)
+
+    assert review.source_kind.value == "ptm"
+    assert review.labeled_point_count == 1
+    assert any(point.raw_p_value > 0.0 for point in review.points)
+    assert sum(1 for point in review.points if point.top_labeled) == 1

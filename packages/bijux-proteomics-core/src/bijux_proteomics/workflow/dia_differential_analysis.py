@@ -143,6 +143,7 @@ class DiaDifferentialVolcanoPoint(JsonModel):
     entity_id: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     log2_fold_change: float
+    raw_p_value: float = Field(..., ge=0.0, le=1.0)
     adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
     negative_log10_adjusted_p_value: float = Field(..., ge=0.0)
     highlighted: bool
@@ -508,6 +509,7 @@ def build_dia_differential_volcano_plot(
                 entity_id=entry.entity_id,
                 protein_refs=protein_refs_by_entity.get(entry.entity_id, ()),
                 log2_fold_change=entry.log2_fold_change,
+                raw_p_value=entry.p_value,
                 adjusted_p_value=adjusted_p_value,
                 negative_log10_adjusted_p_value=_negative_log10(adjusted_p_value),
                 highlighted=highlighted,
@@ -620,6 +622,7 @@ def render_dia_differential_volcano_plot_tsv(
             "entity_id",
             "protein_refs",
             "log2_fold_change",
+            "raw_p_value",
             "adjusted_p_value",
             "negative_log10_adjusted_p_value",
             "highlighted",
@@ -631,6 +634,7 @@ def render_dia_differential_volcano_plot_tsv(
                 point.entity_id,
                 ";".join(point.protein_refs),
                 f"{point.log2_fold_change:.6g}",
+                f"{point.raw_p_value:.6g}",
                 f"{point.adjusted_p_value:.6g}",
                 f"{point.negative_log10_adjusted_p_value:.6g}",
                 str(point.highlighted).lower(),
