@@ -29,6 +29,6 @@ def test_validate_theoretical_fragment_reference_cases_matches_curated_fixture()
     report = validate_theoretical_fragment_reference_cases(cases)
 
     assert report.valid is True
-    assert report.case_count == 3
-    assert report.entry_count == 9
+    assert report.case_count == 4
+    assert report.entry_count == 17
     assert report.failed_entry_count == 0

@@ -42,6 +42,22 @@
     "modified_peptide": "[Acetyl]-PEMTIDE",
     "expected_ions": [
       {
+        "series": "a",
+        "ordinal": 2,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 241.11827684724196,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "a",
+        "ordinal": 2,
+        "charge": 3,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 81.04427659362199,
+        "tolerance_da": 0.0001
+      },
+      {
         "series": "b",
         "ordinal": 2,
         "charge": 1,
@@ -72,6 +88,22 @@
     "modified_peptide": "PES[Phospho]TIDE",
     "expected_ions": [
       {
+        "series": "a",
+        "ordinal": 3,
+        "charge": 1,
+        "neutral_loss": "phosphoric_acid",
+        "expected_mz_monoisotopic": 268.12917684724204,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "a",
+        "ordinal": 3,
+        "charge": 3,
+        "neutral_loss": "phosphoric_acid",
+        "expected_mz_monoisotopic": 90.04790992695534,
+        "tolerance_da": 0.0001
+      },
+      {
         "series": "b",
         "ordinal": 3,
         "charge": 1,
@@ -85,6 +117,44 @@
         "charge": 2,
         "neutral_loss": null,
         "expected_mz_monoisotopic": 248.077971966812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "y",
+        "ordinal": 2,
+        "charge": 3,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 88.367306466812,
+        "tolerance_da": 0.0001
+      }
+    ]
+  },
+  {
+    "case_id": "amidated_peptide_c_term",
+    "modified_peptide": "PEPTIDE-[Amidated]",
+    "expected_ions": [
+      {
+        "series": "y",
+        "ordinal": 2,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 262.103350466812,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "y",
+        "ordinal": 2,
+        "charge": 3,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 88.03930113347866,
+        "tolerance_da": 0.0001
+      },
+      {
+        "series": "b",
+        "ordinal": 3,
+        "charge": 1,
+        "neutral_loss": null,
+        "expected_mz_monoisotopic": 324.155386466812,
         "tolerance_da": 0.0001
       }
     ]
