@@ -74,6 +74,7 @@ class TmtReporterColumnMapping(JsonModel):
     peptide: str | None = None
     protein_refs: str | None = None
     multiplex_group: str | None = None
+    isolation_interference: str | None = None
     default_multiplex_group: str | None = None
     protein_separator: str = ";"
 
@@ -97,6 +98,9 @@ class TmtReporterObservation(JsonModel):
     modified_peptide: str = Field(..., min_length=1)
     canonical_peptide: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    isolation_interference_fraction: float | None = Field(
+        default=None, ge=0.0, le=1.0
+    )
     channel_intensities: tuple[TmtReporterIntensity, ...] = Field(default_factory=tuple)
 
 
@@ -160,6 +164,11 @@ def parse_tmt_reporter_table(
         source_kind=source_kind,
         target="protein_refs",
     )
+    isolation_interference_column = _resolve_column_name(
+        explicit=active_mapping.isolation_interference,
+        source_kind=source_kind,
+        target="isolation_interference",
+    )
     row_id_column = _resolve_column_name(
         explicit=active_mapping.source_row_id,
         source_kind=source_kind,
@@ -179,6 +188,16 @@ def parse_tmt_reporter_table(
         raise ValueError(
             f"configured protein-reference column {protein_refs_column!r} is missing"
         )
+    if (
+        isolation_interference_column is not None
+        and isolation_interference_column not in header
+    ):
+        if active_mapping.isolation_interference is not None:
+            raise ValueError(
+                "configured isolation-interference column "
+                f"{isolation_interference_column!r} is missing"
+            )
+        isolation_interference_column = None
     if row_id_column is not None and row_id_column not in header:
         raise ValueError(f"configured source-row-id column {row_id_column!r} is missing")
 
@@ -218,6 +237,7 @@ def parse_tmt_reporter_table(
                 )
             )
         canonical_peptide = ""
+        isolation_interference_fraction: float | None = None
         if modified_peptide:
             try:
                 canonical_peptide = canonicalize_modified_peptide(modified_peptide)
@@ -229,6 +249,24 @@ def parse_tmt_reporter_table(
                         row_number=row_number,
                     )
                 )
+
+        if isolation_interference_column is not None:
+            raw_interference = (
+                raw_fields.get(isolation_interference_column) or ""
+            ).strip()
+            if raw_interference:
+                try:
+                    isolation_interference_fraction = _parse_interference_fraction(
+                        raw_interference
+                    )
+                except ValueError as exc:
+                    issues.append(
+                        TmtReporterValidationIssue(
+                            code="invalid_isolation_interference",
+                            message=str(exc),
+                            row_number=row_number,
+                        )
+                    )
 
         reporter_values: list[TmtReporterIntensity] = []
         observed_reporter_count = 0
@@ -309,6 +347,7 @@ def parse_tmt_reporter_table(
                 )
                 if protein_refs_column is not None
                 else (),
+                isolation_interference_fraction=isolation_interference_fraction,
                 channel_intensities=tuple(reporter_values),
             )
         )
@@ -328,7 +367,7 @@ def parse_tmt_reporter_table(
         rejected_rows=tuple(rejected_rows),
         summary=summary,
         note=(
-            "tmt reporter-ion import preserves one governed peptide row with multiplex-group identity and explicit per-channel intensities"
+            "tmt reporter-ion import preserves one governed peptide row with multiplex-group identity, optional isolation interference, and explicit per-channel intensities"
         ),
     )
 
@@ -346,6 +385,7 @@ def _resolve_column_name(
             "peptide": "Modified sequence",
             "protein_refs": "Leading proteins",
             "multiplex_group": "Experiment",
+            "isolation_interference": "Isolation interference [%]",
             "source_row_id": "id",
         }
         return defaults.get(target)
@@ -354,6 +394,7 @@ def _resolve_column_name(
             "peptide": "Modified Peptide",
             "protein_refs": "Protein",
             "multiplex_group": "Spectrum File",
+            "isolation_interference": "Isolation Interference",
             "source_row_id": "Spectrum",
         }
         return defaults.get(target)
@@ -361,6 +402,7 @@ def _resolve_column_name(
         "peptide": "modified_peptide",
         "protein_refs": "proteins",
         "multiplex_group": "multiplex_group",
+        "isolation_interference": "isolation_interference",
         "source_row_id": "source_row_id",
     }
     return generic_defaults.get(target)
@@ -412,3 +454,14 @@ def _parse_protein_refs(raw_value: str | None, *, separator: str) -> tuple[str, 
         token.strip() for token in str(raw_value).split(separator) if token.strip()
     )
     return tuple(dict.fromkeys(refs))
+
+
+def _parse_interference_fraction(raw_value: str) -> float:
+    value = float(raw_value)
+    if value < 0.0:
+        raise ValueError("isolation interference must not be negative")
+    if value > 1.0:
+        if value <= 100.0:
+            return value / 100.0
+        raise ValueError("isolation interference above 100% is invalid")
+    return value

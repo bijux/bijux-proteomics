@@ -67,3 +67,15 @@ def test_tmt_reporter_import_respects_explicit_channel_overrides_for_generic_tab
         "126",
         "127N",
     ]
+
+
+def test_tmt_reporter_import_preserves_isolation_interference_fraction() -> None:
+    report = parse_tmt_reporter_table(
+        _fixture("maxquant_tmt_interference.tsv"),
+        source_kind=TmtSearchResultSourceKind.MAXQUANT,
+    )
+
+    assert report.summary.accepted_row_count == 4
+    assert report.accepted_rows[0].isolation_interference_fraction == 0.08
+    assert report.accepted_rows[1].isolation_interference_fraction == 0.35
+    assert report.accepted_rows[-1].isolation_interference_fraction == 0.42
