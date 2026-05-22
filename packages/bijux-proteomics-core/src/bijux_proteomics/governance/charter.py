@@ -138,9 +138,11 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "tabular.py",
             "scientific_tables.py",
+            "io/format_validation.py",
             "io/formats.py",
             "io/ingestion.py",
             "io/mgf_streaming.py",
+            "io/mzml_reader.py",
             "io/spectrum_peak_matching.py",
             "io/spectra.py",
             "io/stable_outputs.py",
