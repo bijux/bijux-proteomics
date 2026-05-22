@@ -47,3 +47,22 @@ def test_multiplex_metadata_validation_report_preserves_missing_group_channel_as
     )
     assert missing.sample_id is None
     assert missing.assigned is False
+
+
+def test_multiplex_metadata_validation_report_flags_duplicate_assignments_and_missing_conditions() -> None:
+    design_report = parse_experimental_design_table(_fixture("tmt_metadata_issues.design.tsv"))
+
+    report = build_multiplex_metadata_validation_report(design_report)
+
+    assert report.summary.missing_channel_assignment_count == 1
+    assert report.summary.duplicate_assignment_count == 2
+    assert report.summary.missing_condition_count == 1
+    duplicate_issue_kinds = {entry.issue_kind for entry in report.duplicate_assignments}
+    assert duplicate_issue_kinds == {
+        "duplicate_channel_assignment",
+        "duplicate_sample_assignment",
+    }
+    missing_condition = report.missing_conditions[0]
+    assert missing_condition.multiplex_group == "plex-b"
+    assert missing_condition.multiplex_channel == "128N"
+    assert missing_condition.sample_id == "plex_b_128N"

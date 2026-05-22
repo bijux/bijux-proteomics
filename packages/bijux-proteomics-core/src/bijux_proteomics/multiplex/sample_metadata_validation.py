@@ -41,6 +41,31 @@ class MultiplexMetadataSummary(JsonModel):
     missing_condition_count: int = Field(..., ge=0)
 
 
+class MultiplexDuplicateAssignmentEntry(JsonModel):
+    """One duplicate multiplex assignment finding."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    issue_kind: str = Field(..., min_length=1)
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str | None = None
+    sample_id: str | None = None
+    entry_count: int = Field(..., ge=2)
+    note: str = Field(..., min_length=1)
+
+
+class MultiplexMissingConditionEntry(JsonModel):
+    """One multiplex design row with a missing condition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    sample_role: str = Field(..., min_length=1)
+    note: str = Field(..., min_length=1)
+
+
 class MultiplexMetadataValidationReport(JsonModel):
     """Owned multiplex metadata-validation surface."""
 
@@ -48,6 +73,12 @@ class MultiplexMetadataValidationReport(JsonModel):
 
     design_report: ExperimentalDesignReport
     channel_assignments: tuple[MultiplexChannelAssignmentEntry, ...] = Field(
+        default_factory=tuple
+    )
+    duplicate_assignments: tuple[MultiplexDuplicateAssignmentEntry, ...] = Field(
+        default_factory=tuple
+    )
+    missing_conditions: tuple[MultiplexMissingConditionEntry, ...] = Field(
         default_factory=tuple
     )
     summary: MultiplexMetadataSummary
@@ -63,15 +94,19 @@ def build_multiplex_metadata_validation_report(
     channel_union = tuple(
         sorted({entry.multiplex_channel or "" for entry in multiplex_entries})
     )
-    entries_by_group_and_channel = {
-        (entry.multiplex_group or "", entry.multiplex_channel or ""): entry
-        for entry in multiplex_entries
-    }
+    entries_by_group_and_channel: dict[tuple[str, str], list[ExperimentalDesignEntry]] = {}
+    entries_by_group_and_sample: dict[tuple[str, str], list[ExperimentalDesignEntry]] = {}
+    for entry in multiplex_entries:
+        group = entry.multiplex_group or ""
+        channel = entry.multiplex_channel or ""
+        entries_by_group_and_channel.setdefault((group, channel), []).append(entry)
+        entries_by_group_and_sample.setdefault((group, entry.sample_id), []).append(entry)
+
     assignments: list[MultiplexChannelAssignmentEntry] = []
     for multiplex_group in sorted({entry.multiplex_group or "" for entry in multiplex_entries}):
         for multiplex_channel in channel_union:
-            entry = entries_by_group_and_channel.get((multiplex_group, multiplex_channel))
-            if entry is None:
+            matches = entries_by_group_and_channel.get((multiplex_group, multiplex_channel), [])
+            if not matches:
                 assignments.append(
                     MultiplexChannelAssignmentEntry(
                         multiplex_group=multiplex_group,
@@ -84,6 +119,7 @@ def build_multiplex_metadata_validation_report(
                     )
                 )
                 continue
+            entry = sorted(matches, key=lambda item: item.sample_id)[0]
             assignments.append(
                 MultiplexChannelAssignmentEntry(
                     multiplex_group=multiplex_group,
@@ -92,12 +128,58 @@ def build_multiplex_metadata_validation_report(
                     condition=entry.condition,
                     sample_role=entry.sample_role.value,
                     assigned=True,
-                    note="design row provides an explicit multiplex channel to sample mapping",
+                    note=(
+                        "design row provides an explicit multiplex channel to sample mapping"
+                        if len(matches) == 1
+                        else "design channel maps to more than one sample row and requires duplicate-assignment review"
+                    ),
                 )
             )
+
+    duplicate_assignments: list[MultiplexDuplicateAssignmentEntry] = []
+    for (multiplex_group, multiplex_channel), matches in sorted(entries_by_group_and_channel.items()):
+        if len(matches) > 1:
+            duplicate_assignments.append(
+                MultiplexDuplicateAssignmentEntry(
+                    issue_kind="duplicate_channel_assignment",
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=None,
+                    entry_count=len(matches),
+                    note="more than one design row assigns the same multiplex channel within one group",
+                )
+            )
+    for (multiplex_group, sample_id), matches in sorted(entries_by_group_and_sample.items()):
+        if len(matches) > 1:
+            duplicate_assignments.append(
+                MultiplexDuplicateAssignmentEntry(
+                    issue_kind="duplicate_sample_assignment",
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=None,
+                    sample_id=sample_id,
+                    entry_count=len(matches),
+                    note="the same sample id is assigned to more than one multiplex channel within one group",
+                )
+            )
+
+    missing_conditions = tuple(
+        MultiplexMissingConditionEntry(
+            multiplex_group=entry.multiplex_group or "",
+            multiplex_channel=entry.multiplex_channel or "",
+            sample_id=entry.sample_id,
+            sample_role=entry.sample_role.value,
+            note="design row leaves condition empty or placeholder-valued even though multiplex sample metadata requires it for biological comparison",
+        )
+        for entry in sorted(
+            (entry for entry in multiplex_entries if _condition_missing(entry.condition)),
+            key=lambda item: (item.multiplex_group or "", item.multiplex_channel or ""),
+        )
+    )
     return MultiplexMetadataValidationReport(
         design_report=design_report,
         channel_assignments=tuple(assignments),
+        duplicate_assignments=tuple(duplicate_assignments),
+        missing_conditions=missing_conditions,
         summary=MultiplexMetadataSummary(
             multiplex_group_count=len(
                 {entry.multiplex_group for entry in multiplex_entries}
@@ -107,13 +189,11 @@ def build_multiplex_metadata_validation_report(
             missing_channel_assignment_count=sum(
                 1 for entry in assignments if not entry.assigned
             ),
-            duplicate_assignment_count=0,
-            missing_condition_count=sum(
-                1 for entry in multiplex_entries if not entry.condition
-            ),
+            duplicate_assignment_count=len(duplicate_assignments),
+            missing_condition_count=len(missing_conditions),
         ),
         note=(
-            "multiplex metadata validation preserves expected channel assignment coverage before duplicate-assignment review is applied"
+            "multiplex metadata validation preserves expected channel coverage, duplicate-assignment findings, and missing-condition evidence for biological comparison review"
         ),
     )
 
@@ -126,3 +206,9 @@ def _multiplex_entries(
         for entry in accepted_entries
         if entry.multiplex_group and entry.multiplex_channel
     )
+
+
+def _condition_missing(condition: str | None) -> bool:
+    if condition is None:
+        return True
+    return condition.strip().lower() in {"", "na", "n/a", "unknown", "unassigned"}
