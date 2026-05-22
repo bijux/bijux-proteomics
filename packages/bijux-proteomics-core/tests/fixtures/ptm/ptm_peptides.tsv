@@ -1,0 +1,6 @@
+spectrum_id	sample_id	peptide	protein_ref	peptide_start_position
+scan=ptm-peptide-001	C1	AAS[Phospho]PEP	P11111	4
+scan=ptm-peptide-002	T1	[Acetyl]-M[Oxidation]STY[Phospho]K	P22222	15
+scan=ptm-peptide-003	C2	N[Deamidated]QPEP		
+scan=ptm-peptide-004	C3	M[Oxidation]PEP	P33333	not-a-position
+scan=ptm-peptide-005	C4		P44444	7
