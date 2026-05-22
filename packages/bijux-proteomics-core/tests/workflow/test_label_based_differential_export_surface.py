@@ -52,7 +52,7 @@ def test_render_labeled_differential_exports_keep_matrix_results_and_plots_visib
     assert "P001\tP001\tPEPA" in normalized_matrix_tsv
     assert "P001\tcontrol\ttreatment\t2\t2" in results_tsv
     assert "C1\tbefore\t3\t1\t0" in balance_tsv
-    assert "P001\tP001\t1\t" in volcano_tsv
+    assert "P001\tP001\t1\t1\t1\t-0\tfalse" in volcano_tsv
 
 
 def test_export_labeled_differential_ledgers_write_stable_tsv_outputs(
@@ -95,6 +95,6 @@ def test_export_labeled_differential_ledgers_write_stable_tsv_outputs(
     assert "member_peptides" in raw_matrix_path.read_text(encoding="utf-8")
     assert "adjusted_p_value" in results_path.read_text(encoding="utf-8")
     assert "interquartile_range" in balance_path.read_text(encoding="utf-8")
-    assert "negative_log10_adjusted_p_value" in volcano_path.read_text(
+    assert "raw_p_value" in volcano_path.read_text(
         encoding="utf-8"
     )
