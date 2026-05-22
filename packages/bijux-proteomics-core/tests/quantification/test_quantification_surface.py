@@ -11,6 +11,7 @@ from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     parse_experimental_design_table,
 )
+from bijux_proteomics.domain import MissingValueState, QuantEntityKind
 from bijux_proteomics.quantification import (
     DifferentialReplicatePolicy,
     ImputationMethod,
@@ -150,6 +151,28 @@ def test_label_free_intensity_rollups_cover_sum_median_and_top_n() -> None:
     assert lookup_sum[("P001", "C1")].abundance == 2200.0
     assert lookup_median[("P001", "C1")].abundance == 900.0
     assert lookup_top_n[("P001", "C1")].abundance == 1900.0
+
+
+def test_label_free_intensity_table_binds_canonical_quant_matrix() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+
+    table = build_label_free_intensity_table(
+        report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    matrix = table.to_quant_matrix()
+
+    assert matrix.entity_kind is QuantEntityKind.PROTEIN
+    assert matrix.entity_ids == table.entity_ids
+    assert matrix.sample_ids == table.sample_ids
+    assert matrix.values[0][0] is not None
+    assert matrix.support_counts[0][0] >= 1
+    assert any(
+        state is MissingValueState.NOT_OBSERVED
+        for row in matrix.missing_value_states
+        for state in row
+    )
 
 
 def test_spectral_count_table_and_missing_summary_distinguish_zero_filtered_and_missing() -> (

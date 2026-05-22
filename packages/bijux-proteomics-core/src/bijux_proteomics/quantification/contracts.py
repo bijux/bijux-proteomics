@@ -16,12 +16,24 @@ import math
 from pathlib import Path
 
 import numpy as np
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
+from bijux_proteomics.domain.records import (
+    MissingValueState as CanonicalMissingValueState,
+    QuantEntityKind as CanonicalQuantEntityKind,
+    QuantMatrix as CanonicalQuantMatrix,
+    QuantMeasureKind as CanonicalQuantMeasureKind,
+)
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
     ExperimentalDesignSampleRole,
+)
+from bijux_proteomics.quantification.core_matrix import (
+    build_numeric_quant_matrix,
+    iter_quant_matrix_cells,
+    quant_matrix_to_dense_array,
+    rebuild_quant_matrix_from_dense_array,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -615,9 +627,140 @@ class LabelFreeQuantTable(JsonModel):
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     values: tuple[QuantValue, ...] = Field(default_factory=tuple)
+    quant_matrix: CanonicalQuantMatrix | None = None
     normalization_factors: dict[str, float] = Field(default_factory=dict)
     entity_protein_refs: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     entity_member_peptides: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _bind_canonical_quant_matrix(self) -> LabelFreeQuantTable:
+        quant_matrix = self.quant_matrix
+        if quant_matrix is None:
+            quant_matrix = self._build_canonical_quant_matrix()
+            self.quant_matrix = quant_matrix
+        elif quant_matrix.entity_ids != self.entity_ids:
+            raise ValueError("quant_matrix entity_ids must match entity_ids")
+        elif quant_matrix.sample_ids != self.sample_ids:
+            raise ValueError("quant_matrix sample_ids must match sample_ids")
+        return self
+
+    def _build_canonical_quant_matrix(self) -> CanonicalQuantMatrix:
+        return build_numeric_quant_matrix(
+            matrix_id=f"{self.entity_level.value}_{self.measure_kind.value}_table",
+            entity_kind=_canonical_entity_kind(self.entity_level),
+            measure_kind=_canonical_measure_kind(self.measure_kind),
+            entity_ids=self.entity_ids,
+            sample_ids=self.sample_ids,
+            value_lookup={
+                (value.entity_id, value.sample_id): value.abundance for value in self.values
+            },
+            missing_state_lookup={
+                (value.entity_id, value.sample_id): _canonical_missing_value_state(
+                    value.missing_value_kind
+                )
+                for value in self.values
+            },
+            support_count_lookup={
+                (value.entity_id, value.sample_id): value.source_feature_count
+                for value in self.values
+            },
+            row_metadata_lookup={
+                entity_id: {
+                    "protein_refs": ";".join(self.entity_protein_refs.get(entity_id, ())),
+                    "member_peptides": ";".join(
+                        self.entity_member_peptides.get(entity_id, ())
+                    ),
+                }
+                for entity_id in self.entity_ids
+            },
+            transformation_history=(
+                f"entity_level:{self.entity_level.value}",
+                f"measure_kind:{self.measure_kind.value}",
+                f"aggregation_method:{self.aggregation_method.value}",
+                f"normalization_method:{self.normalization_method.value}",
+                f"imputation_method:{self.imputation_method.value}",
+            ),
+            metadata={
+                "normalization_method": self.normalization_method.value,
+                "imputation_method": self.imputation_method.value,
+            },
+        )
+
+    def to_quant_matrix(self) -> CanonicalQuantMatrix:
+        """Return the canonical numeric matrix that backs this quant table."""
+
+        assert self.quant_matrix is not None
+        return self.quant_matrix
+
+    @classmethod
+    def from_quant_matrix(
+        cls,
+        matrix: CanonicalQuantMatrix,
+        *,
+        entity_level: QuantEntityLevel,
+        aggregation_method: QuantRollupMethod,
+        normalization_method: NormalizationMethod = NormalizationMethod.NONE,
+        imputation_method: ImputationMethod = ImputationMethod.NONE,
+        normalization_factors: dict[str, float] | None = None,
+        entity_protein_refs: dict[str, tuple[str, ...]] | None = None,
+        entity_member_peptides: dict[str, tuple[str, ...]] | None = None,
+    ) -> LabelFreeQuantTable:
+        """Build one label-free table from a canonical numeric matrix."""
+
+        row_metadata_lookup = {
+            entity_id: matrix.row_metadata[index]
+            for index, entity_id in enumerate(matrix.entity_ids)
+        }
+        resolved_protein_refs = (
+            entity_protein_refs
+            if entity_protein_refs is not None
+            else {
+                entity_id: _split_row_metadata_values(
+                    row_metadata_lookup.get(entity_id, {}).get("protein_refs", "")
+                )
+                for entity_id in matrix.entity_ids
+            }
+        )
+        resolved_member_peptides = (
+            entity_member_peptides
+            if entity_member_peptides is not None
+            else {
+                entity_id: _split_row_metadata_values(
+                    row_metadata_lookup.get(entity_id, {}).get("member_peptides", "")
+                )
+                for entity_id in matrix.entity_ids
+            }
+        )
+        values = tuple(
+            QuantValue(
+                entity_id=entity_id,
+                sample_id=sample_id,
+                abundance=abundance,
+                missing_value_kind=_missing_value_kind_from_canonical(state),
+                source_feature_count=support_count,
+            )
+            for entity_id, sample_id, abundance, state, support_count in _iter_label_free_quant_cells(
+                matrix
+            )
+        )
+        return cls(
+            entity_level=entity_level,
+            measure_kind=_quant_measure_kind_from_canonical(matrix.measure_kind),
+            aggregation_method=aggregation_method,
+            normalization_method=normalization_method,
+            imputation_method=imputation_method,
+            sample_ids=matrix.sample_ids,
+            entity_ids=matrix.entity_ids,
+            values=values,
+            quant_matrix=matrix,
+            normalization_factors=(
+                dict.fromkeys(matrix.sample_ids, 1.0)
+                if normalization_factors is None
+                else normalization_factors
+            ),
+            entity_protein_refs=resolved_protein_refs,
+            entity_member_peptides=resolved_member_peptides,
+        )
 
 
 class QuantSampleMetadataEntry(JsonModel):
@@ -1205,6 +1348,66 @@ def _row_issue(code: str, message: str, row_number: int) -> QuantValidationIssue
     return QuantValidationIssue(code=code, message=message, row_number=row_number)
 
 
+def _canonical_entity_kind(
+    entity_level: QuantEntityLevel,
+) -> CanonicalQuantEntityKind:
+    if entity_level is QuantEntityLevel.PEPTIDE:
+        return CanonicalQuantEntityKind.PEPTIDE
+    return CanonicalQuantEntityKind.PROTEIN
+
+
+def _canonical_measure_kind(
+    measure_kind: QuantMeasureKind,
+) -> CanonicalQuantMeasureKind:
+    if measure_kind is QuantMeasureKind.SPECTRAL_COUNT:
+        return CanonicalQuantMeasureKind.SPECTRAL_COUNT
+    return CanonicalQuantMeasureKind.INTENSITY
+
+
+def _quant_measure_kind_from_canonical(
+    measure_kind: CanonicalQuantMeasureKind,
+) -> QuantMeasureKind:
+    if measure_kind is CanonicalQuantMeasureKind.SPECTRAL_COUNT:
+        return QuantMeasureKind.SPECTRAL_COUNT
+    return QuantMeasureKind.INTENSITY
+
+
+def _canonical_missing_value_state(
+    missing_value_kind: MissingValueKind,
+) -> CanonicalMissingValueState:
+    return CanonicalMissingValueState(missing_value_kind.value)
+
+
+def _missing_value_kind_from_canonical(
+    missing_value_state: CanonicalMissingValueState,
+) -> MissingValueKind:
+    return MissingValueKind(missing_value_state.value)
+
+
+def _split_row_metadata_values(value: str) -> tuple[str, ...]:
+    if not value:
+        return ()
+    return tuple(token for token in value.split(";") if token)
+
+
+def _iter_label_free_quant_cells(
+    matrix: CanonicalQuantMatrix,
+) -> tuple[tuple[str, str, float | None, CanonicalMissingValueState, int], ...]:
+    base_cells = iter_quant_matrix_cells(matrix)
+    rows: list[tuple[str, str, float | None, CanonicalMissingValueState, int]] = []
+    for row_index, cell in enumerate(base_cells):
+        entity_id, sample_id, abundance, state = cell
+        support_row_index = row_index // len(matrix.sample_ids)
+        support_column_index = row_index % len(matrix.sample_ids)
+        support_count = (
+            0
+            if not matrix.support_counts
+            else matrix.support_counts[support_row_index][support_column_index]
+        )
+        rows.append((entity_id, sample_id, abundance, state, support_count))
+    return tuple(rows)
+
+
 def _matrix_value_index(
     table: LabelFreeQuantTable,
 ) -> dict[tuple[str, str], QuantValue]:
@@ -1396,19 +1599,9 @@ def _build_table(
 def _table_matrix(
     table: LabelFreeQuantTable,
 ) -> tuple[np.ndarray, list[tuple[str, str]]]:
-    matrix = np.full(
-        (len(table.entity_ids), len(table.sample_ids)), np.nan, dtype=float
-    )
+    matrix = quant_matrix_to_dense_array(table.to_quant_matrix())
     rows = list(table.entity_ids)
     cols = list(table.sample_ids)
-    row_index = {entity_id: index for index, entity_id in enumerate(rows)}
-    col_index = {sample_id: index for index, sample_id in enumerate(cols)}
-    for value in table.values:
-        if value.abundance is None:
-            continue
-        matrix[row_index[value.entity_id], col_index[value.sample_id]] = float(
-            value.abundance
-        )
     return matrix, [(entity_id, sample_id) for entity_id in rows for sample_id in cols]
 
 
@@ -1434,9 +1627,16 @@ def _rebuild_table_from_matrix(
             )
             rebuilt = value.model_copy(update={"abundance": max(abundance, 0.0)})
         values.append(rebuilt)
+    canonical_matrix = rebuild_quant_matrix_from_dense_array(
+        table.to_quant_matrix(),
+        matrix,
+        transformation_step=f"normalization:{normalization_method.value}",
+        metadata_updates={"normalization_method": normalization_method.value},
+    )
     return table.model_copy(
         update={
             "values": tuple(values),
+            "quant_matrix": canonical_matrix,
             "normalization_method": normalization_method,
             "normalization_factors": normalization_factors,
         }
