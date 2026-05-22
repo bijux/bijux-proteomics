@@ -4471,6 +4471,46 @@ def test_ptm_estimate_occupancy_command_emits_occupancy_ledgers() -> None:
         ).read_text()
 
 
+def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(ptm_fixture_dir / "ptm.design.tsv", "ptm.design.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "differential",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "ptm.design.tsv",
+                "--protein-correction-mode",
+                "subtract_unmodified_protein",
+                "--results-tsv-out",
+                "ptm.differential.tsv",
+                "--volcano-tsv-out",
+                "ptm.volcano.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["feature_rows"] == 12
+        assert payload["protein_correction_mode"] == "subtract_unmodified_protein"
+        assert "P11111:S5:Phospho" in Path("ptm.differential.tsv").read_text()
+        assert "plotted_log2_fold_change" in Path("ptm.volcano.tsv").read_text()
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
