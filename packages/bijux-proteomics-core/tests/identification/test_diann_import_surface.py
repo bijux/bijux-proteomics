@@ -5,15 +5,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from bijux_proteomics.identification.diann_import import (
     build_diann_import_report,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
+    render_diann_rejected_row_tsv,
     render_diann_summary_tsv,
 )
-from bijux_proteomics.scientific_tables import ScientificTableValidationError
 
 
 def _bundle_root() -> Path:
@@ -54,17 +52,25 @@ def test_diann_import_preserves_runs_samples_and_quantities() -> None:
     assert report.precursor_rows[3].target_decoy_label.value == "decoy"
     assert report.protein_group_rows[0].protein_group_id == "PG001"
     assert report.protein_group_rows[0].source_precursor_count == 1
+    assert report.dia_native_report.imported_precursors[0].run_name == "raw_A"
+    assert {
+        precursor.modified_peptide
+        for precursor in report.dia_native_report.imported_precursors
+    } == {"PESTIDE", "ACDM[Oxidation]K", "DECOYPEP"}
     assert report.dia_native_report.imported_count == 4
-    assert len(report.dia_native_report.imported_protein_groups) == 3
+    assert len(report.dia_native_report.imported_protein_groups) == 4
+    assert report.dia_native_report.imported_protein_groups[0].quantity == 3400000
+    assert report.rejected_rows == ()
     assert "run_names" in render_diann_summary_tsv(report.summary)
     assert "modified_peptide" in render_diann_precursor_tsv(report.precursor_rows)
     assert "protein_group_quantity" in render_diann_precursor_tsv(report.precursor_rows)
     assert "source_precursor_count" in render_diann_protein_group_tsv(
         report.protein_group_rows
     )
+    assert "issue_codes" in render_diann_rejected_row_tsv(report.rejected_rows)
 
 
-def test_diann_import_rejects_invalid_report_ranges_before_normalization(
+def test_diann_import_keeps_invalid_report_rows_as_explicit_rejections(
     tmp_path: Path,
 ) -> None:
     report_path = tmp_path / "diann_invalid.tsv"
@@ -72,20 +78,27 @@ def test_diann_import_rejects_invalid_report_ranges_before_normalization(
         "\n".join(
             (
                 "Precursor.Id\tStripped.Sequence\tModified.Sequence\tPrecursor.Charge\tQ.Value\tProtein.Group\tProtein.Ids\tRun\tSample\tPrecursor.Quantity\tPG.Quantity\tDecoy",
-                "raw_A_PEPTIDE_2\tPEPTIDE\tPEPTIDE\t2\t1.2\tPG001\tP11111\traw_A\tsample_A\t-5\t1000\t0",
+                "raw_A_PEPTIDE_2\tPEPTIDE\tPEPTIDE\t2\t0.01\tPG001\tP11111\traw_A\tsample_A\t50\t1000\t0",
+                "raw_B_BADQ_2\tBADQ\tBADQ\t2\t1.2\tPG002\tP22222\traw_B\tsample_B\t120\t2000\t0",
+                "raw_C_NEGQTY_2\tNEGQTY\tNEGQTY\t2\t0.02\tPG003\tP33333\traw_C\tsample_C\t-5\t1000\t0",
             )
         )
         + "\n",
         encoding="utf-8",
     )
 
-    with pytest.raises(ScientificTableValidationError) as excinfo:
-        build_diann_import_report(report_path)
+    report = build_diann_import_report(report_path)
 
+    assert report.summary.accepted_precursor_count == 1
+    assert report.summary.rejected_precursor_count == 2
+    assert report.normalization is None
     issue_codes = {
-        issue.code
-        for row in excinfo.value.report.rejected_rows
-        for issue in row.issues
+        issue.code for row in report.rejected_rows for issue in row.issues
     }
     assert "invalid_q_value" in issue_codes
     assert "negative_intensity" in issue_codes
+    assert report.precursor_rows[0].precursor_id == "raw_A_PEPTIDE_2"
+    assert report.dia_native_report.imported_protein_groups[0].quantity == 1000.0
+    rejected_tsv = render_diann_rejected_row_tsv(report.rejected_rows)
+    assert "raw_B_BADQ_2" in rejected_tsv
+    assert "invalid_q_value" in rejected_tsv

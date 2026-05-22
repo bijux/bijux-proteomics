@@ -20,9 +20,13 @@ from bijux_proteomics.identification.search_adapters import (
 )
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.scientific_tables import (
+    ScientificTableRejectedRow,
+    ScientificTableValidationError,
+    ScientificTableValidationIssue,
     build_diann_report_schema,
-    require_valid_scientific_table,
+    validate_scientific_table,
 )
+from bijux_proteomics.tabular import AcceptedDelimitedRow
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -79,16 +83,27 @@ class DiaNnImportSummary(JsonModel):
     sample_names: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class DiaNnRejectedRowEntry(JsonModel):
+    """One DIA-NN row rejected during governed import."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=1)
+    raw_values: dict[str, str] = Field(default_factory=dict)
+    issues: tuple[ScientificTableValidationIssue, ...] = Field(default_factory=tuple)
+
+
 class DiaNnBundleImportReport(JsonModel):
     """One governed DIA-NN report import packet."""
 
     model_config = ConfigDict(extra="forbid")
 
-    normalization: SearchAdapterNormalizationReport
+    normalization: SearchAdapterNormalizationReport | None = None
     precursor_rows: tuple[DiaNnPrecursorReviewEntry, ...] = Field(default_factory=tuple)
     protein_group_rows: tuple[DiaNnProteinGroupReviewEntry, ...] = Field(
         default_factory=tuple
     )
+    rejected_rows: tuple[DiaNnRejectedRowEntry, ...] = Field(default_factory=tuple)
     summary: DiaNnImportSummary
     dia_native_report: DiaNnImportReport
     parameter_report: SearchParameterReport | None = None
@@ -100,25 +115,37 @@ def build_diann_import_report(
     config_path: Path | None = None,
 ) -> DiaNnBundleImportReport:
     """Import one DIA-NN precursor report into owned review surfaces."""
-    require_valid_scientific_table(
+    validation_report = validate_scientific_table(
         result_tsv_path,
         schema=build_diann_report_schema(),
     )
-    normalization = normalize_search_results_with_adapter(
-        source_path=result_tsv_path,
-        adapter_kind=SearchAdapterKind.DIANN,
+    if _has_structural_validation_failure(validation_report.rejected_rows):
+        raise ScientificTableValidationError(validation_report)
+    normalization = (
+        None
+        if validation_report.rejected_rows
+        else normalize_search_results_with_adapter(
+            source_path=result_tsv_path,
+            adapter_kind=SearchAdapterKind.DIANN,
+        )
     )
-    precursor_rows = _build_diann_precursor_rows(normalization)
+    precursor_rows = _build_diann_precursor_rows(validation_report.accepted_rows)
     protein_group_rows = _build_diann_protein_group_rows(precursor_rows)
+    rejected_rows = _build_diann_rejected_rows(validation_report.rejected_rows)
     dia_native_report = import_dia_nn_rows(
         tuple(
             DiaNnImportRow(
                 precursor_id=row.precursor_id,
                 peptide_sequence=row.peptide_sequence,
+                modified_peptide=row.modified_peptide,
                 charge=row.charge,
                 q_value=row.q_value,
-                quantity=row.precursor_quantity or 0.0,
+                precursor_quantity=row.precursor_quantity,
                 protein_group_id=row.protein_group_id,
+                protein_refs=row.protein_refs,
+                run_name=row.run_name,
+                sample_name=row.sample_name,
+                protein_group_quantity=row.protein_group_quantity,
             )
             for row in precursor_rows
         )
@@ -135,7 +162,7 @@ def build_diann_import_report(
     )
     summary = DiaNnImportSummary(
         accepted_precursor_count=len(precursor_rows),
-        rejected_precursor_count=len(normalization.parse_report.rejected_rows),
+        rejected_precursor_count=len(rejected_rows),
         protein_group_row_count=len(protein_group_rows),
         run_count=len(run_names),
         sample_count=len(sample_names),
@@ -162,6 +189,7 @@ def build_diann_import_report(
         normalization=normalization,
         precursor_rows=precursor_rows,
         protein_group_rows=protein_group_rows,
+        rejected_rows=rejected_rows,
         summary=summary,
         dia_native_report=dia_native_report,
         parameter_report=parameter_report,
@@ -298,34 +326,83 @@ def render_diann_protein_group_tsv(
     return "\n".join(lines) + "\n"
 
 
+def render_diann_rejected_row_tsv(rows: tuple[DiaNnRejectedRowEntry, ...]) -> str:
+    """Render rejected DIA-NN rows and their validation evidence as TSV."""
+
+    ordered_rows = sort_rows_by_fields(rows, "row_number")
+    lines = [
+        "\t".join(
+            (
+                "row_number",
+                "precursor_id",
+                "peptide_sequence",
+                "modified_peptide",
+                "charge",
+                "q_value",
+                "protein_group_id",
+                "protein_refs",
+                "run_name",
+                "sample_name",
+                "precursor_quantity",
+                "protein_group_quantity",
+                "decoy",
+                "issue_codes",
+                "issue_messages",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    str(row.row_number),
+                    row.raw_values.get("Precursor.Id", ""),
+                    row.raw_values.get("Stripped.Sequence", ""),
+                    row.raw_values.get("Modified.Sequence", ""),
+                    row.raw_values.get("Precursor.Charge", ""),
+                    row.raw_values.get("Q.Value", ""),
+                    row.raw_values.get("Protein.Group", ""),
+                    row.raw_values.get("Protein.Ids", ""),
+                    row.raw_values.get("Run", ""),
+                    row.raw_values.get("Sample", ""),
+                    row.raw_values.get("Precursor.Quantity", ""),
+                    row.raw_values.get("PG.Quantity", ""),
+                    row.raw_values.get("Decoy", ""),
+                    ";".join(issue.code for issue in row.issues),
+                    " | ".join(issue.message for issue in row.issues),
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _build_diann_precursor_rows(
-    normalization: SearchAdapterNormalizationReport,
+    accepted_rows: tuple[AcceptedDelimitedRow, ...],
 ) -> tuple[DiaNnPrecursorReviewEntry, ...]:
     rows: list[DiaNnPrecursorReviewEntry] = []
-    for evidence_row in normalization.evidence_rows:
-        if not evidence_row.accepted or evidence_row.normalized_record is None:
-            continue
-        record = evidence_row.normalized_record
-        raw = evidence_row.raw_fields
-        protein_group_id = _required_value(raw, "Protein.Group")
-        run_name = _required_value(raw, "Run")
-        sample_name = _required_value(raw, "Sample")
+    for accepted_row in accepted_rows:
+        values = accepted_row.values
+        raw = accepted_row.raw_values
+        protein_group_id = _required_text(values, "protein_group_id")
+        run_name = _required_text(values, "run_name")
+        sample_name = _required_text(values, "sample_name")
         rows.append(
             DiaNnPrecursorReviewEntry(
-                precursor_id=record.spectrum_id,
-                peptide_sequence=record.peptide,
-                modified_peptide=raw.get("Modified.Sequence", "").strip()
-                or record.canonical_peptide,
-                canonical_peptide=record.canonical_peptide,
-                charge=record.charge,
-                q_value=record.q_value if record.q_value is not None else record.score,
+                precursor_id=_required_text(values, "precursor_id"),
+                peptide_sequence=_required_text(values, "peptide_sequence"),
+                modified_peptide=_required_text(values, "modified_peptide"),
+                canonical_peptide=_required_text(values, "peptide_sequence"),
+                charge=_required_int(values, "charge"),
+                q_value=_required_float(values, "q_value"),
                 protein_group_id=protein_group_id,
-                protein_refs=record.protein_refs,
+                protein_refs=_split_protein_refs(_required_text(values, "protein_refs")),
                 run_name=run_name,
                 sample_name=sample_name,
-                precursor_quantity=_optional_float(raw.get("Precursor.Quantity")),
-                protein_group_quantity=_optional_float(raw.get("PG.Quantity")),
-                target_decoy_label=record.target_decoy_label,
+                precursor_quantity=_optional_float_value(values.get("precursor_quantity")),
+                protein_group_quantity=_optional_float_value(
+                    values.get("protein_group_quantity")
+                ),
+                target_decoy_label=_parse_target_decoy_label(raw.get("Decoy")),
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.q_value, row.precursor_id)))
@@ -369,6 +446,19 @@ def _build_diann_protein_group_rows(
     return tuple(rows)
 
 
+def _build_diann_rejected_rows(
+    rejected_rows: tuple[ScientificTableRejectedRow, ...],
+) -> tuple[DiaNnRejectedRowEntry, ...]:
+    return tuple(
+        DiaNnRejectedRowEntry(
+            row_number=row.row_number,
+            raw_values=row.raw_values,
+            issues=row.issues,
+        )
+        for row in rejected_rows
+    )
+
+
 def _combine_labels(entries: list[DiaNnPrecursorReviewEntry]) -> TargetDecoyLabel:
     labels = {entry.target_decoy_label for entry in entries}
     if labels == {TargetDecoyLabel.DECOY}:
@@ -380,14 +470,63 @@ def _combine_labels(entries: list[DiaNnPrecursorReviewEntry]) -> TargetDecoyLabe
     return TargetDecoyLabel.MIXED
 
 
-def _required_value(row: dict[str, str], column: str) -> str:
-    value = row.get(column, "").strip()
-    if not value:
-        raise ValueError(f"DIA-NN report is missing required {column!r} value")
+def _has_structural_validation_failure(
+    rejected_rows: tuple[ScientificTableRejectedRow, ...],
+) -> bool:
+    return any(not row.raw_values for row in rejected_rows)
+
+
+def _required_text(values: dict[str, str | int | float | bool | None], key: str) -> str:
+    value = values.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"DIA-NN report is missing required {key!r} value")
+    return value.strip()
+
+
+def _required_int(values: dict[str, str | int | float | bool | None], key: str) -> int:
+    value = values.get(key)
+    if not isinstance(value, int):
+        raise ValueError(f"DIA-NN report is missing required integer {key!r} value")
     return value
 
 
-def _optional_float(value: str | None) -> float | None:
-    if value is None or not value.strip():
+def _required_float(
+    values: dict[str, str | int | float | bool | None],
+    key: str,
+) -> float:
+    value = values.get(key)
+    if not isinstance(value, float):
+        raise ValueError(f"DIA-NN report is missing required numeric {key!r} value")
+    return value
+
+
+def _optional_float_value(value: str | int | float | bool | None) -> float | None:
+    if value is None:
         return None
-    return float(value.strip())
+    if isinstance(value, int | float):
+        return float(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return None
+        return float(stripped)
+    raise ValueError("DIA-NN quantity values must be numeric or empty")
+
+
+def _split_protein_refs(raw_protein_refs: str) -> tuple[str, ...]:
+    return tuple(
+        dict.fromkeys(
+            protein_ref.strip()
+            for protein_ref in raw_protein_refs.split(";")
+            if protein_ref.strip()
+        )
+    )
+
+
+def _parse_target_decoy_label(raw_decoy: str | None) -> TargetDecoyLabel:
+    normalized = (raw_decoy or "").strip().lower()
+    if normalized in {"1", "true", "yes", "y"}:
+        return TargetDecoyLabel.DECOY
+    if normalized in {"0", "false", "no", "n"}:
+        return TargetDecoyLabel.TARGET
+    return TargetDecoyLabel.UNKNOWN
