@@ -39,3 +39,60 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_protein_overlap_visible(
     )
     assert dda_only_entry.overlap_class == "dda_only"
     assert dda_only_entry.dda_total_intensity == 1340000.0
+
+
+def test_build_diann_vs_dda_psm_comparison_report_keeps_peptide_overlap_visible() -> None:
+    report = build_diann_vs_dda_psm_comparison_report(
+        _workflow_fixture("dia_dda_comparison_diann.tsv"),
+        _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
+    )
+
+    assert report.summary.dia_peptide_count == 3
+    assert report.summary.dda_peptide_count == 3
+    assert report.summary.shared_peptide_count == 2
+    assert report.summary.dia_only_peptide_count == 1
+    assert report.summary.dda_only_peptide_count == 1
+    shared_entry = next(
+        entry
+        for entry in report.peptide_overlap
+        if entry.peptide_sequence == "PESTIDE"
+    )
+    assert shared_entry.overlap_class == "shared"
+    assert shared_entry.dia_protein_refs == ("P11111",)
+    dia_only_entry = next(
+        entry
+        for entry in report.peptide_overlap
+        if entry.peptide_sequence == "DIAONLY"
+    )
+    assert dia_only_entry.overlap_class == "dia_only"
+    dda_only_entry = next(
+        entry
+        for entry in report.peptide_overlap
+        if entry.peptide_sequence == "DDAONLY"
+    )
+    assert dda_only_entry.overlap_class == "dda_only"
+
+
+def test_build_diann_vs_dda_psm_comparison_report_keeps_exclusive_evidence_visible() -> None:
+    report = build_diann_vs_dda_psm_comparison_report(
+        _workflow_fixture("dia_dda_comparison_diann.tsv"),
+        _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
+    )
+
+    assert report.summary.exclusive_evidence_entry_count == 4
+    dia_only_protein = next(
+        entry
+        for entry in report.exclusive_evidence
+        if entry.source_kind == "dia"
+        and entry.entity_level == "protein"
+        and entry.entity_id == "P55555"
+    )
+    assert dia_only_protein.total_intensity == 2000000.0
+    dda_only_peptide = next(
+        entry
+        for entry in report.exclusive_evidence
+        if entry.source_kind == "dda"
+        and entry.entity_level == "peptide"
+        and entry.entity_id == "DDAONLY"
+    )
+    assert dda_only_peptide.protein_refs == ("P33333",)
