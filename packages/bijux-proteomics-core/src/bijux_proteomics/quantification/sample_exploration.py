@@ -5,19 +5,152 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+import csv
+from dataclasses import dataclass
+from io import StringIO
 import math
+from pathlib import Path
 
 import numpy as np
+from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     ConditionClusteringReport,
     LabelFreeQuantTable,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
     SamplePcaEntry,
     SamplePcaReport,
     _condition_lookup,
     _matrix_value_index,
 )
+from bijux_proteomics_foundation import JsonModel
+
+
+@dataclass(frozen=True)
+class _SampleSpaceDecomposition:
+    sample_ids: tuple[str, ...]
+    feature_count: int
+    condition_by_sample: dict[str, str]
+    batch_by_sample: dict[str, str | None]
+    matrix: np.ndarray
+    centered_matrix: np.ndarray
+    scores: np.ndarray
+    eigenvalues: np.ndarray
+    total_variance: float
+
+
+@dataclass(frozen=True)
+class _SampleClusterState:
+    member_indexes: tuple[int, ...]
+
+
+class SamplePcaVarianceEntry(JsonModel):
+    """Explained-variance payload for one principal component."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    component_index: int = Field(..., ge=1)
+    component_label: str = Field(..., min_length=1)
+    explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
+    cumulative_explained_variance_ratio: float = Field(..., ge=0.0, le=1.0)
+
+
+class SamplePcaVarianceReport(JsonModel):
+    """Explained-variance report over one sample PCA decomposition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[SamplePcaVarianceEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class SampleDistanceEntry(JsonModel):
+    """One pairwise sample distance in centered feature space."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id_a: str = Field(..., min_length=1)
+    sample_id_b: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    batch_a: str | None = None
+    batch_b: str | None = None
+    euclidean_distance: float = Field(..., ge=0.0)
+    same_condition: bool
+    same_batch: bool
+
+
+class SampleDistanceReport(JsonModel):
+    """Pairwise sample-distance report over one quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    sample_count: int = Field(..., ge=0)
+    entries: tuple[SampleDistanceEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class SampleClusterEntry(JsonModel):
+    """One average-linkage merge row in a deterministic sample cluster table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    merge_order: int = Field(..., ge=1)
+    member_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    left_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    right_sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    member_conditions: tuple[str, ...] = Field(default_factory=tuple)
+    member_batches: tuple[str, ...] = Field(default_factory=tuple)
+    member_count: int = Field(..., ge=2)
+    average_linkage_distance: float = Field(..., ge=0.0)
+
+
+class SampleClusterReport(JsonModel):
+    """Deterministic average-linkage cluster table over study samples."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    sample_count: int = Field(..., ge=0)
+    entries: tuple[SampleClusterEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
+class SampleExplorationSummary(JsonModel):
+    """Compact study-space summary for one sample exploration run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    measure_kind: QuantMeasureKind
+    aggregation_method: QuantRollupMethod
+    normalization_method: str = Field(..., min_length=1)
+    sample_count: int = Field(..., ge=0)
+    feature_count: int = Field(..., ge=0)
+    pairwise_distance_count: int = Field(..., ge=0)
+    cluster_merge_count: int = Field(..., ge=0)
+    outlier_sample_count: int = Field(..., ge=0)
+    clustered_by_condition: bool
+
+
+class SampleExplorationReport(JsonModel):
+    """Integrated sample-level exploratory analysis over one quant table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: SampleExplorationSummary
+    sample_pca_report: SamplePcaReport
+    explained_variance_report: SamplePcaVarianceReport
+    condition_clustering_report: ConditionClusteringReport
+    sample_distance_report: SampleDistanceReport
+    sample_cluster_report: SampleClusterReport
+    note: str = Field(..., min_length=1)
 
 
 def build_sample_pca_report(
@@ -26,12 +159,8 @@ def build_sample_pca_report(
 ) -> SamplePcaReport:
     """Project samples into a compact principal-component exploratory space."""
 
-    sample_ids = tuple(table.sample_ids)
-    condition_by_sample = _condition_lookup(design_entries)
-    batch_by_sample = {entry.sample_id: entry.batch for entry in design_entries}
-    matrix = build_sample_feature_matrix(table)
-    centered = matrix - np.mean(matrix, axis=0, keepdims=True)
-    if centered.shape[0] < 2 or centered.shape[1] == 0:
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    if decomposition.centered_matrix.shape[0] < 2 or decomposition.feature_count == 0:
         return SamplePcaReport(
             entity_level=table.entity_level,
             explained_variance_ratio_pc1=0.0,
@@ -39,45 +168,43 @@ def build_sample_pca_report(
             entries=tuple(
                 SamplePcaEntry(
                     sample_id=sample_id,
-                    condition=condition_by_sample.get(sample_id, "unknown"),
-                    batch=batch_by_sample.get(sample_id),
+                    condition=decomposition.condition_by_sample.get(sample_id, "unknown"),
+                    batch=decomposition.batch_by_sample.get(sample_id),
                     pc1=0.0,
                     pc2=0.0,
                     distance_from_global_centroid=0.0,
                     distance_from_condition_centroid=0.0,
                     outlier=False,
                 )
-                for sample_id in sample_ids
+                for sample_id in decomposition.sample_ids
             ),
             note=(
                 "pca was not informative because fewer than two samples or features were available"
             ),
         )
-    u, singular_values, _ = np.linalg.svd(centered, full_matrices=False)
-    scores = u * singular_values
-    eigenvalues = np.square(singular_values)
-    total_variance = float(np.sum(eigenvalues))
-    for component in range(min(2, scores.shape[1])):
-        nonzero = next(
-            (value for value in scores[:, component] if abs(float(value)) > 1e-12),
-            None,
-        )
-        if nonzero is not None and nonzero < 0.0:
-            scores[:, component] *= -1.0
-    pc1 = scores[:, 0] if scores.shape[1] >= 1 else np.zeros(len(sample_ids))
-    pc2 = scores[:, 1] if scores.shape[1] >= 2 else np.zeros(len(sample_ids))
+    pc1 = (
+        decomposition.scores[:, 0]
+        if decomposition.scores.shape[1] >= 1
+        else np.zeros(len(decomposition.sample_ids))
+    )
+    pc2 = (
+        decomposition.scores[:, 1]
+        if decomposition.scores.shape[1] >= 2
+        else np.zeros(len(decomposition.sample_ids))
+    )
     coordinates = np.column_stack((pc1, pc2))
     global_distances = np.linalg.norm(coordinates, axis=1)
     global_threshold = distance_outlier_threshold(global_distances)
     condition_thresholds: dict[str, float] = {}
     condition_distances_by_sample: dict[str, float] = {}
     entries: list[SamplePcaEntry] = []
-    for condition in sorted(set(condition_by_sample.values())):
+    for condition in sorted(set(decomposition.condition_by_sample.values())):
         same_condition_indexes = np.array(
             [
                 index
-                for index, sample_id in enumerate(sample_ids)
-                if condition_by_sample.get(sample_id, "unknown") == condition
+                for index, sample_id in enumerate(decomposition.sample_ids)
+                if decomposition.condition_by_sample.get(sample_id, "unknown")
+                == condition
             ],
             dtype=int,
         )
@@ -93,11 +220,11 @@ def build_sample_pca_report(
             condition_distances
         )
         for offset, sample_index in enumerate(same_condition_indexes):
-            condition_distances_by_sample[sample_ids[sample_index]] = float(
-                condition_distances[offset]
+            condition_distances_by_sample[decomposition.sample_ids[sample_index]] = (
+                float(condition_distances[offset])
             )
-    for index, sample_id in enumerate(sample_ids):
-        condition = condition_by_sample.get(sample_id, "unknown")
+    for index, sample_id in enumerate(decomposition.sample_ids):
+        condition = decomposition.condition_by_sample.get(sample_id, "unknown")
         condition_distance = condition_distances_by_sample.get(sample_id, 0.0)
         outlier = (
             float(global_distances[index]) > global_threshold
@@ -107,7 +234,7 @@ def build_sample_pca_report(
             SamplePcaEntry(
                 sample_id=sample_id,
                 condition=condition,
-                batch=batch_by_sample.get(sample_id),
+                batch=decomposition.batch_by_sample.get(sample_id),
                 pc1=float(pc1[index]),
                 pc2=float(pc2[index]),
                 distance_from_global_centroid=float(global_distances[index]),
@@ -123,17 +250,56 @@ def build_sample_pca_report(
     return SamplePcaReport(
         entity_level=table.entity_level,
         explained_variance_ratio_pc1=(
-            float(eigenvalues[0] / total_variance)
-            if total_variance > 0.0 and eigenvalues.size >= 1
+            float(decomposition.eigenvalues[0] / decomposition.total_variance)
+            if decomposition.total_variance > 0.0
+            and decomposition.eigenvalues.size >= 1
             else 0.0
         ),
         explained_variance_ratio_pc2=(
-            float(eigenvalues[1] / total_variance)
-            if total_variance > 0.0 and eigenvalues.size >= 2
+            float(decomposition.eigenvalues[1] / decomposition.total_variance)
+            if decomposition.total_variance > 0.0
+            and decomposition.eigenvalues.size >= 2
             else 0.0
         ),
         entries=tuple(entries),
         note=note,
+    )
+
+
+def build_sample_pca_variance_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> SamplePcaVarianceReport:
+    """Summarize explained variance across the PCA decomposition."""
+
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    if decomposition.total_variance <= 0.0 or decomposition.eigenvalues.size == 0:
+        return SamplePcaVarianceReport(
+            entity_level=table.entity_level,
+            entries=(),
+            note=(
+                "explained variance was not informative because fewer than two samples or features were available"
+            ),
+        )
+    cumulative = 0.0
+    entries: list[SamplePcaVarianceEntry] = []
+    for index, eigenvalue in enumerate(decomposition.eigenvalues, start=1):
+        explained = float(eigenvalue / decomposition.total_variance)
+        cumulative = min(1.0, cumulative + explained)
+        entries.append(
+            SamplePcaVarianceEntry(
+                component_index=index,
+                component_label=f"PC{index}",
+                explained_variance_ratio=explained,
+                cumulative_explained_variance_ratio=cumulative,
+            )
+        )
+    return SamplePcaVarianceReport(
+        entity_level=table.entity_level,
+        entries=tuple(entries),
+        note=(
+            "explained variance preserves the contribution of each principal component to the centered study space"
+        ),
     )
 
 
@@ -206,6 +372,425 @@ def build_condition_clustering_report(
     )
 
 
+def build_sample_distance_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> SampleDistanceReport:
+    """Compute pairwise sample distances in centered feature space."""
+
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    entries: list[SampleDistanceEntry] = []
+    for left_index in range(len(decomposition.sample_ids)):
+        for right_index in range(left_index + 1, len(decomposition.sample_ids)):
+            left_sample_id = decomposition.sample_ids[left_index]
+            right_sample_id = decomposition.sample_ids[right_index]
+            entries.append(
+                SampleDistanceEntry(
+                    sample_id_a=left_sample_id,
+                    sample_id_b=right_sample_id,
+                    condition_a=decomposition.condition_by_sample.get(
+                        left_sample_id, "unknown"
+                    ),
+                    condition_b=decomposition.condition_by_sample.get(
+                        right_sample_id, "unknown"
+                    ),
+                    batch_a=decomposition.batch_by_sample.get(left_sample_id),
+                    batch_b=decomposition.batch_by_sample.get(right_sample_id),
+                    euclidean_distance=float(
+                        np.linalg.norm(
+                            decomposition.centered_matrix[left_index, :]
+                            - decomposition.centered_matrix[right_index, :]
+                        )
+                    ),
+                    same_condition=(
+                        decomposition.condition_by_sample.get(left_sample_id, "unknown")
+                        == decomposition.condition_by_sample.get(
+                            right_sample_id, "unknown"
+                        )
+                    ),
+                    same_batch=decomposition.batch_by_sample.get(left_sample_id)
+                    == decomposition.batch_by_sample.get(right_sample_id),
+                )
+            )
+    entries.sort(
+        key=lambda entry: (
+            entry.euclidean_distance,
+            entry.sample_id_a,
+            entry.sample_id_b,
+        )
+    )
+    return SampleDistanceReport(
+        entity_level=table.entity_level,
+        sample_count=len(decomposition.sample_ids),
+        entries=tuple(entries),
+        note=(
+            "sample distances preserve pairwise euclidean separation across the centered study feature space"
+        ),
+    )
+
+
+def build_sample_cluster_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> SampleClusterReport:
+    """Build a deterministic average-linkage sample cluster table."""
+
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    if len(decomposition.sample_ids) < 2:
+        return SampleClusterReport(
+            entity_level=table.entity_level,
+            sample_count=len(decomposition.sample_ids),
+            entries=(),
+            note=(
+                "sample clustering was not informative because fewer than two samples were available"
+            ),
+        )
+    distance_matrix = _pairwise_distance_matrix(decomposition.centered_matrix)
+    active_clusters = [
+        _SampleClusterState(member_indexes=(index,))
+        for index in range(len(decomposition.sample_ids))
+    ]
+    entries: list[SampleClusterEntry] = []
+    merge_order = 1
+    while len(active_clusters) > 1:
+        best_pair: tuple[int, int] | None = None
+        best_distance: float | None = None
+        best_key: tuple[str, str] | None = None
+        for left_index in range(len(active_clusters)):
+            for right_index in range(left_index + 1, len(active_clusters)):
+                left_cluster = active_clusters[left_index]
+                right_cluster = active_clusters[right_index]
+                distance = _average_linkage_distance(
+                    distance_matrix,
+                    left_cluster.member_indexes,
+                    right_cluster.member_indexes,
+                )
+                left_key = _cluster_member_key(
+                    decomposition.sample_ids,
+                    left_cluster.member_indexes,
+                )
+                right_key = _cluster_member_key(
+                    decomposition.sample_ids,
+                    right_cluster.member_indexes,
+                )
+                candidate_key = (left_key, right_key)
+                if (
+                    best_distance is None
+                    or distance < best_distance
+                    or (
+                        math.isclose(distance, best_distance, rel_tol=0.0, abs_tol=1e-12)
+                        and candidate_key < (best_key or ("", ""))
+                    )
+                ):
+                    best_pair = (left_index, right_index)
+                    best_distance = distance
+                    best_key = candidate_key
+        assert best_pair is not None  # sample_count >= 2 guarantees one merge
+        left_cluster = active_clusters[best_pair[0]]
+        right_cluster = active_clusters[best_pair[1]]
+        merged_indexes = tuple(
+            sorted((*left_cluster.member_indexes, *right_cluster.member_indexes))
+        )
+        entries.append(
+            SampleClusterEntry(
+                merge_order=merge_order,
+                member_sample_ids=tuple(
+                    decomposition.sample_ids[index] for index in merged_indexes
+                ),
+                left_sample_ids=tuple(
+                    decomposition.sample_ids[index]
+                    for index in left_cluster.member_indexes
+                ),
+                right_sample_ids=tuple(
+                    decomposition.sample_ids[index]
+                    for index in right_cluster.member_indexes
+                ),
+                member_conditions=tuple(
+                    sorted(
+                        {
+                            decomposition.condition_by_sample.get(
+                                decomposition.sample_ids[index], "unknown"
+                            )
+                            for index in merged_indexes
+                        }
+                    )
+                ),
+                member_batches=tuple(
+                    sorted(
+                        {
+                            batch
+                            for batch in (
+                                decomposition.batch_by_sample.get(
+                                    decomposition.sample_ids[index]
+                                )
+                                for index in merged_indexes
+                            )
+                            if batch is not None
+                        }
+                    )
+                ),
+                member_count=len(merged_indexes),
+                average_linkage_distance=float(best_distance),
+            )
+        )
+        merge_order += 1
+        next_clusters: list[_SampleClusterState] = []
+        for index, cluster in enumerate(active_clusters):
+            if index not in best_pair:
+                next_clusters.append(cluster)
+        next_clusters.append(_SampleClusterState(member_indexes=merged_indexes))
+        active_clusters = sorted(
+            next_clusters,
+            key=lambda cluster: _cluster_member_key(
+                decomposition.sample_ids,
+                cluster.member_indexes,
+            ),
+        )
+    return SampleClusterReport(
+        entity_level=table.entity_level,
+        sample_count=len(decomposition.sample_ids),
+        entries=tuple(entries),
+        note=(
+            "sample clustering preserves deterministic average-linkage merge steps over the centered study feature space"
+        ),
+    )
+
+
+def build_sample_exploration_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> SampleExplorationReport:
+    """Assemble one owned report for PCA, distances, and sample clustering."""
+
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    pca_report = build_sample_pca_report(table, design_entries)
+    variance_report = build_sample_pca_variance_report(table, design_entries)
+    condition_clustering_report = build_condition_clustering_report(
+        table,
+        design_entries,
+    )
+    distance_report = build_sample_distance_report(table, design_entries)
+    cluster_report = build_sample_cluster_report(table, design_entries)
+    return SampleExplorationReport(
+        summary=SampleExplorationSummary(
+            entity_level=table.entity_level,
+            measure_kind=table.measure_kind,
+            aggregation_method=table.aggregation_method,
+            normalization_method=table.normalization_method.value,
+            sample_count=len(decomposition.sample_ids),
+            feature_count=decomposition.feature_count,
+            pairwise_distance_count=len(distance_report.entries),
+            cluster_merge_count=len(cluster_report.entries),
+            outlier_sample_count=sum(entry.outlier for entry in pca_report.entries),
+            clustered_by_condition=condition_clustering_report.clustered_by_condition,
+        ),
+        sample_pca_report=pca_report,
+        explained_variance_report=variance_report,
+        condition_clustering_report=condition_clustering_report,
+        sample_distance_report=distance_report,
+        sample_cluster_report=cluster_report,
+        note=(
+            "sample exploration assembles pca, explained variance, pairwise distances, and average-linkage cluster review over one governed quantification table"
+        ),
+    )
+
+
+def render_sample_exploration_summary_tsv(report: SampleExplorationReport) -> str:
+    """Render one compact sample-exploration summary as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_level",
+            "measure_kind",
+            "aggregation_method",
+            "normalization_method",
+            "sample_count",
+            "feature_count",
+            "pairwise_distance_count",
+            "cluster_merge_count",
+            "outlier_sample_count",
+            "clustered_by_condition",
+        )
+    )
+    writer.writerow(
+        (
+            report.summary.entity_level.value,
+            report.summary.measure_kind.value,
+            report.summary.aggregation_method.value,
+            report.summary.normalization_method,
+            report.summary.sample_count,
+            report.summary.feature_count,
+            report.summary.pairwise_distance_count,
+            report.summary.cluster_merge_count,
+            report.summary.outlier_sample_count,
+            str(report.summary.clustered_by_condition).lower(),
+        )
+    )
+    return handle.getvalue()
+
+
+def render_sample_pca_scores_tsv(report: SampleExplorationReport) -> str:
+    """Render one sample-level PCA score table as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id",
+            "condition",
+            "batch",
+            "pc1",
+            "pc2",
+            "distance_from_global_centroid",
+            "distance_from_condition_centroid",
+            "outlier",
+        )
+    )
+    for entry in report.sample_pca_report.entries:
+        writer.writerow(
+            (
+                entry.sample_id,
+                entry.condition,
+                entry.batch or "",
+                f"{entry.pc1:g}",
+                f"{entry.pc2:g}",
+                f"{entry.distance_from_global_centroid:g}",
+                f"{entry.distance_from_condition_centroid:g}",
+                str(entry.outlier).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_sample_pca_variance_tsv(report: SampleExplorationReport) -> str:
+    """Render explained variance across principal components as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "component_index",
+            "component_label",
+            "explained_variance_ratio",
+            "cumulative_explained_variance_ratio",
+        )
+    )
+    for entry in report.explained_variance_report.entries:
+        writer.writerow(
+            (
+                entry.component_index,
+                entry.component_label,
+                f"{entry.explained_variance_ratio:g}",
+                f"{entry.cumulative_explained_variance_ratio:g}",
+            )
+        )
+    return handle.getvalue()
+
+
+def render_sample_distance_tsv(report: SampleExplorationReport) -> str:
+    """Render pairwise sample distances as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id_a",
+            "sample_id_b",
+            "condition_a",
+            "condition_b",
+            "batch_a",
+            "batch_b",
+            "euclidean_distance",
+            "same_condition",
+            "same_batch",
+        )
+    )
+    for entry in report.sample_distance_report.entries:
+        writer.writerow(
+            (
+                entry.sample_id_a,
+                entry.sample_id_b,
+                entry.condition_a,
+                entry.condition_b,
+                entry.batch_a or "",
+                entry.batch_b or "",
+                f"{entry.euclidean_distance:g}",
+                str(entry.same_condition).lower(),
+                str(entry.same_batch).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_sample_cluster_tsv(report: SampleExplorationReport) -> str:
+    """Render the deterministic average-linkage cluster table as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "merge_order",
+            "member_sample_ids",
+            "left_sample_ids",
+            "right_sample_ids",
+            "member_conditions",
+            "member_batches",
+            "member_count",
+            "average_linkage_distance",
+        )
+    )
+    for entry in report.sample_cluster_report.entries:
+        writer.writerow(
+            (
+                entry.merge_order,
+                ";".join(entry.member_sample_ids),
+                ";".join(entry.left_sample_ids),
+                ";".join(entry.right_sample_ids),
+                ";".join(entry.member_conditions),
+                ";".join(entry.member_batches),
+                entry.member_count,
+                f"{entry.average_linkage_distance:g}",
+            )
+        )
+    return handle.getvalue()
+
+
+def export_sample_exploration_summary_tsv(
+    report: SampleExplorationReport, path: Path
+) -> None:
+    """Write one compact sample-exploration summary to a stable TSV artifact."""
+
+    path.write_text(render_sample_exploration_summary_tsv(report), encoding="utf-8")
+
+
+def export_sample_pca_scores_tsv(report: SampleExplorationReport, path: Path) -> None:
+    """Write one sample-level PCA score table to a stable TSV artifact."""
+
+    path.write_text(render_sample_pca_scores_tsv(report), encoding="utf-8")
+
+
+def export_sample_pca_variance_tsv(
+    report: SampleExplorationReport, path: Path
+) -> None:
+    """Write PCA explained-variance rows to a stable TSV artifact."""
+
+    path.write_text(render_sample_pca_variance_tsv(report), encoding="utf-8")
+
+
+def export_sample_distance_tsv(report: SampleExplorationReport, path: Path) -> None:
+    """Write pairwise sample distances to a stable TSV artifact."""
+
+    path.write_text(render_sample_distance_tsv(report), encoding="utf-8")
+
+
+def export_sample_cluster_tsv(report: SampleExplorationReport, path: Path) -> None:
+    """Write the deterministic cluster table to a stable TSV artifact."""
+
+    path.write_text(render_sample_cluster_tsv(report), encoding="utf-8")
+
+
 def build_sample_feature_matrix(table: LabelFreeQuantTable) -> np.ndarray:
     """Build one log2 sample-by-feature matrix with median-filled missing cells."""
 
@@ -239,9 +824,100 @@ def distance_outlier_threshold(distances: np.ndarray) -> float:
     return median + 2.0 * mad
 
 
+def _build_sample_space_decomposition(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> _SampleSpaceDecomposition:
+    matrix = build_sample_feature_matrix(table)
+    centered = matrix - np.mean(matrix, axis=0, keepdims=True)
+    feature_count = int(centered.shape[1])
+    if centered.shape[0] < 2 or feature_count == 0:
+        scores = np.zeros((centered.shape[0], 0), dtype=float)
+        eigenvalues = np.zeros((0,), dtype=float)
+        total_variance = 0.0
+    else:
+        u, singular_values, _ = np.linalg.svd(centered, full_matrices=False)
+        scores = u * singular_values
+        eigenvalues = np.square(singular_values)
+        total_variance = float(np.sum(eigenvalues))
+        for component in range(min(2, scores.shape[1])):
+            nonzero = next(
+                (value for value in scores[:, component] if abs(float(value)) > 1e-12),
+                None,
+            )
+            if nonzero is not None and nonzero < 0.0:
+                scores[:, component] *= -1.0
+    return _SampleSpaceDecomposition(
+        sample_ids=table.sample_ids,
+        feature_count=feature_count,
+        condition_by_sample=_condition_lookup(design_entries),
+        batch_by_sample={entry.sample_id: entry.batch for entry in design_entries},
+        matrix=matrix,
+        centered_matrix=centered,
+        scores=scores,
+        eigenvalues=eigenvalues,
+        total_variance=total_variance,
+    )
+
+
+def _pairwise_distance_matrix(matrix: np.ndarray) -> np.ndarray:
+    sample_count = matrix.shape[0]
+    distances = np.zeros((sample_count, sample_count), dtype=float)
+    for left_index in range(sample_count):
+        for right_index in range(left_index + 1, sample_count):
+            distance = float(
+                np.linalg.norm(matrix[left_index, :] - matrix[right_index, :])
+            )
+            distances[left_index, right_index] = distance
+            distances[right_index, left_index] = distance
+    return distances
+
+
+def _average_linkage_distance(
+    distance_matrix: np.ndarray,
+    left_indexes: Sequence[int],
+    right_indexes: Sequence[int],
+) -> float:
+    distances = [
+        float(distance_matrix[left_index, right_index])
+        for left_index in left_indexes
+        for right_index in right_indexes
+    ]
+    return float(np.mean(distances)) if distances else 0.0
+
+
+def _cluster_member_key(sample_ids: tuple[str, ...], member_indexes: Sequence[int]) -> str:
+    return ";".join(sample_ids[index] for index in member_indexes)
+
+
 __all__ = [
+    "ConditionClusteringReport",
+    "SampleClusterEntry",
+    "SampleClusterReport",
+    "SampleDistanceEntry",
+    "SampleDistanceReport",
+    "SampleExplorationReport",
+    "SampleExplorationSummary",
+    "SamplePcaEntry",
+    "SamplePcaReport",
+    "SamplePcaVarianceEntry",
+    "SamplePcaVarianceReport",
     "build_condition_clustering_report",
+    "build_sample_cluster_report",
+    "build_sample_distance_report",
+    "build_sample_exploration_report",
     "build_sample_feature_matrix",
     "build_sample_pca_report",
+    "build_sample_pca_variance_report",
     "distance_outlier_threshold",
+    "export_sample_cluster_tsv",
+    "export_sample_distance_tsv",
+    "export_sample_exploration_summary_tsv",
+    "export_sample_pca_scores_tsv",
+    "export_sample_pca_variance_tsv",
+    "render_sample_cluster_tsv",
+    "render_sample_distance_tsv",
+    "render_sample_exploration_summary_tsv",
+    "render_sample_pca_scores_tsv",
+    "render_sample_pca_variance_tsv",
 ]
