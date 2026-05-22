@@ -128,6 +128,7 @@ from bijux_proteomics.identification import (
     render_openms_feature_tsv,
     render_openms_protein_tsv,
     render_openms_psm_tsv,
+    render_openms_rejected_feature_tsv,
     render_openms_summary_tsv,
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
@@ -3924,6 +3925,9 @@ def spectronaut_import_command(
 @click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--feature-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--rejected-feature-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -3936,6 +3940,7 @@ def openms_import_command(
     psm_tsv_out: Path | None,
     protein_tsv_out: Path | None,
     feature_tsv_out: Path | None,
+    rejected_feature_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one OpenMS idXML bundle with practical exported feature evidence."""
@@ -3961,6 +3966,11 @@ def openms_import_command(
             feature_tsv_out,
             render_openms_feature_tsv(report.feature_rows),
         )
+    if rejected_feature_tsv_out is not None:
+        _write_text_output(
+            rejected_feature_tsv_out,
+            render_openms_rejected_feature_tsv(report.rejected_feature_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -3968,11 +3978,17 @@ def openms_import_command(
         "psm_rows": [row.to_dict() for row in report.psm_rows],
         "protein_rows": [row.to_dict() for row in report.protein_rows],
         "feature_rows": [row.to_dict() for row in report.feature_rows],
+        "rejected_feature_rows": [
+            row.to_dict() for row in report.rejected_feature_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
             "feature_tsv": None if feature_tsv_out is None else str(feature_tsv_out),
+            "rejected_feature_tsv": None
+            if rejected_feature_tsv_out is None
+            else str(rejected_feature_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
