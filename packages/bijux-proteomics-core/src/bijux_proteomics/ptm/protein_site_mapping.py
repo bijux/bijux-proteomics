@@ -428,6 +428,89 @@ def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
     return buffer.getvalue()
 
 
+def render_ptm_site_ambiguity_tsv(
+    ambiguity_entries: tuple[PtmSiteAmbiguityEntry, ...],
+) -> str:
+    """Render PTM site ambiguity rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "protein_ref",
+            "modification_name",
+            "candidate_positions",
+            "localized_peptides",
+            "shared_peptide",
+            "reason",
+        ]
+    )
+    for entry in ambiguity_entries:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.protein_ref,
+                entry.modification_name,
+                ";".join(str(position) for position in entry.candidate_positions),
+                ";".join(entry.localized_peptides),
+                str(entry.shared_peptide).lower(),
+                entry.reason,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_site_coverage_tsv(coverage_entries: tuple[PtmSiteCoverageEntry, ...]) -> str:
+    """Render PTM site coverage rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "site_key",
+            "spectrum_count",
+            "peptide_count",
+            "sample_count",
+            "spectra",
+            "peptides",
+        ]
+    )
+    for entry in coverage_entries:
+        writer.writerow(
+            [
+                entry.site_key,
+                entry.spectrum_count,
+                entry.peptide_count,
+                entry.sample_count,
+                ";".join(entry.spectra),
+                ";".join(entry.peptides),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_coordinate_validation_tsv(
+    report: PtmCoordinateValidationReport,
+) -> str:
+    """Render PTM coordinate validation issues as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["spectrum_id", "protein_ref", "site_key", "code", "message"])
+    for issue in report.issues:
+        writer.writerow(
+            [
+                issue.spectrum_id,
+                issue.protein_ref,
+                issue.site_key,
+                issue.code,
+                issue.message,
+            ]
+        )
+    return buffer.getvalue()
+
+
 def _find_occurrences(sequence: str, peptide_sequence: str) -> tuple[int, ...]:
     starts: list[int] = []
     offset = sequence.find(peptide_sequence)
