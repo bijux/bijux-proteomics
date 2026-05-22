@@ -120,6 +120,7 @@ from bijux_proteomics.identification import (
     render_fragpipe_q_value_comparison_tsv,
     render_fragpipe_summary_tsv,
     render_generic_psm_mapper_tsv,
+    render_generic_psm_rejected_row_tsv,
     render_maxquant_evidence_tsv,
     render_maxquant_lfq_candidate_tsv,
     render_maxquant_peptide_tsv,
@@ -5310,12 +5311,18 @@ def modification_resolve_command(
     default=None,
 )
 @click.option(
+    "--rejected-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def psm_map_command(
     input_tsv: Path,
     mapping_path: Path,
     normalized_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Map a lab-local PSM table through an explicit YAML or JSON column map."""
@@ -5332,10 +5339,20 @@ def psm_map_command(
             normalized_tsv_out,
             render_generic_psm_mapper_tsv(report.mapped_rows),
         )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_generic_psm_rejected_row_tsv(report.rejected_rows),
+        )
 
     payload = {
         "column_mapping": report.column_mapping.to_dict(),
         "source_columns": list(report.source_columns),
+        "normalization": {
+            "adapter": report.normalization.adapter_manifest.to_dict(),
+            "accepted_rows": len(report.normalization.parse_report.accepted_records),
+            "rejected_rows": len(report.normalization.parse_report.rejected_rows),
+        },
         "summary": report.summary.to_dict(),
         "rejected_rows": [row.to_dict() for row in report.rejected_rows],
         "mapped_rows": [row.to_dict() for row in report.mapped_rows],
@@ -5343,6 +5360,7 @@ def psm_map_command(
             "normalized_tsv": None
             if normalized_tsv_out is None
             else str(normalized_tsv_out),
+            "rejected_tsv": None if rejected_tsv_out is None else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
