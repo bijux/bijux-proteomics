@@ -1051,8 +1051,11 @@ def test_peptide_index_command_reports_groups_il_equivalence_and_missed_cleavage
         assert by_query["M[+15.9949]PEPTIDEK"]["canonical_peptide"] == "MPEPTIDEK"
         assert by_query["M[+15.9949]PEPTIDEK"]["il_equivalence_applied"] is True
         assert by_query["M[+15.9949]PEPTIDEK"]["modification_stripped"] is True
+        assert by_query["M[+15.9949]PEPTIDEK"]["uniqueness_class"] == "unique"
         assert by_query["MPEPTLDEKAK"]["missed_cleavage_counts"] == [1]
+        assert by_query["MPEPTLDEKAK"]["uniqueness_class"] == "unique"
         assert by_query["SHADEQK"]["protein_groups"] == ["GROUP_SHARED"]
+        assert by_query["SHADEQK"]["uniqueness_class"] == "shared"
         assert by_query["SHADEQK"]["audit_class"] == "protein_group_specific"
 
 
