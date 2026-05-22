@@ -9,6 +9,7 @@ import csv
 import math
 from enum import StrEnum
 from pathlib import Path
+from typing import Iterable
 
 from pydantic import ConfigDict, Field, model_validator
 
@@ -127,6 +128,25 @@ class SilacPeptideRatioEntry(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class SilacProteinRatioEntry(JsonModel):
+    """One SILAC protein ratio against the governed reference label."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    protein_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    contributing_peptide_ids: tuple[str, ...] = Field(default_factory=tuple)
+    numerator_label: SilacLabel
+    reference_label: SilacLabel
+    numerator_abundance: float | None = Field(default=None, ge=0.0)
+    reference_abundance: float | None = Field(default=None, ge=0.0)
+    ratio: float | None = Field(default=None, ge=0.0)
+    log2_ratio: float | None = None
+    missing_reason: str | None = None
+    note: str = Field(..., min_length=1)
+
+
 class SilacRatioSummary(JsonModel):
     """Compact summary over one SILAC ratio-analysis run."""
 
@@ -147,7 +167,7 @@ class SilacRatioReport(JsonModel):
     import_report: SilacImportReport
     policy: SilacQuantificationPolicy
     peptide_ratios: tuple[SilacPeptideRatioEntry, ...] = Field(default_factory=tuple)
-    protein_ratios: tuple[dict, ...] = Field(default_factory=tuple)
+    protein_ratios: tuple[SilacProteinRatioEntry, ...] = Field(default_factory=tuple)
     summary: SilacRatioSummary
     note: str = Field(..., min_length=1)
 
@@ -263,23 +283,29 @@ def build_silac_ratio_report(
                     ),
                 )
             )
+    protein_ratios = _build_protein_ratios(
+        peptide_ratios=tuple(peptide_ratios),
+        policy=active_policy,
+    )
     missing_ratio_count = sum(
-        1 for entry in peptide_ratios if entry.missing_reason is not None
+        1
+        for entry in (*peptide_ratios, *protein_ratios)
+        if entry.missing_reason is not None
     )
     return SilacRatioReport(
         import_report=import_report,
         policy=active_policy,
         peptide_ratios=tuple(peptide_ratios),
-        protein_ratios=(),
+        protein_ratios=protein_ratios,
         summary=SilacRatioSummary(
             sample_count=import_report.summary.sample_count,
             expected_label_count=len(active_policy.expected_labels),
             peptide_ratio_count=len(peptide_ratios),
-            protein_ratio_count=0,
+            protein_ratio_count=len(protein_ratios),
             missing_ratio_count=missing_ratio_count,
         ),
         note=(
-            "silac ratio analysis preserves peptide-level label ratios before protein rollup and export policy are applied"
+            "silac ratio analysis preserves peptide and protein label ratios with explicit missing pair-member evidence"
         ),
     )
 
@@ -304,3 +330,66 @@ def _build_ratio(
         return None, None, "reference_label_zero"
     ratio = float(numerator_abundance) / float(reference_abundance)
     return ratio, float(math.log2(ratio)) if ratio > 0.0 else None, None
+
+
+def _build_protein_ratios(
+    *,
+    peptide_ratios: tuple[SilacPeptideRatioEntry, ...],
+    policy: SilacQuantificationPolicy,
+) -> tuple[SilacProteinRatioEntry, ...]:
+    grouped: dict[tuple[str, str, SilacLabel], list[SilacPeptideRatioEntry]] = {}
+    protein_refs_by_group: dict[tuple[str, str], tuple[str, ...]] = {}
+    peptide_ids_by_group: dict[tuple[str, str], set[str]] = {}
+    for entry in peptide_ratios:
+        for protein_ref in entry.protein_refs:
+            grouped.setdefault(
+                (entry.sample_id, protein_ref, entry.numerator_label),
+                [],
+            ).append(entry)
+            protein_refs_by_group[(entry.sample_id, protein_ref)] = (protein_ref,)
+            peptide_ids_by_group.setdefault((entry.sample_id, protein_ref), set()).add(
+                entry.peptide_id
+            )
+    rows: list[SilacProteinRatioEntry] = []
+    for sample_id, protein_id in sorted(peptide_ids_by_group):
+        contributing_peptide_ids = tuple(
+            sorted(peptide_ids_by_group[(sample_id, protein_id)])
+        )
+        for numerator_label in policy.expected_labels:
+            if numerator_label is policy.reference_label:
+                continue
+            numerator_entries = grouped.get((sample_id, protein_id, numerator_label), ())
+            numerator_abundance = _sum_present(entry.numerator_abundance for entry in numerator_entries)
+            reference_abundance = _sum_present(entry.reference_abundance for entry in numerator_entries)
+            ratio, log2_ratio, missing_reason = _build_ratio(
+                numerator_abundance=numerator_abundance,
+                reference_abundance=reference_abundance,
+            )
+            rows.append(
+                SilacProteinRatioEntry(
+                    sample_id=sample_id,
+                    protein_id=protein_id,
+                    protein_refs=protein_refs_by_group[(sample_id, protein_id)],
+                    contributing_peptide_ids=contributing_peptide_ids,
+                    numerator_label=numerator_label,
+                    reference_label=policy.reference_label,
+                    numerator_abundance=numerator_abundance,
+                    reference_abundance=reference_abundance,
+                    ratio=ratio,
+                    log2_ratio=log2_ratio,
+                    missing_reason=missing_reason,
+                    note=(
+                        "silac protein ratio aggregates labeled peptide abundances to the governed protein surface"
+                        if missing_reason is None
+                        else "silac protein ratio is preserved even though one protein-level label member is missing"
+                    ),
+                )
+            )
+    return tuple(rows)
+
+
+def _sum_present(values: Iterable[float | None]) -> float | None:
+    present = [value for value in values if value is not None]
+    if not present:
+        return None
+    return float(sum(present))
