@@ -13,7 +13,7 @@ def _fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "workflow" / name
 
 
-def test_build_biological_result_report_bundle_preserves_differential_and_review_surfaces() -> None:
+def test_build_biological_result_report_bundle_preserves_annotation_and_enrichment() -> None:
     design_entries = tuple(
         parse_experimental_design_table(
             _fixture("biological_report.design.tsv")
@@ -23,16 +23,19 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         _fixture("biological_report_features.tsv"),
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
         condition_a="control",
         condition_b="treatment",
     )
 
-    assert report.summary.protein_count == 5
-    assert report.summary.significant_protein_count >= 3
-    assert report.summary.sample_count == 6
     assert report.summary.annotation_entry_count == 5
-    assert report.summary.heatmap_entity_count >= 3
-    assert report.volcano_review.source_kind.value == "quantification"
-    assert report.volcano_review.significant_point_count >= 3
-    assert report.sample_exploration_report.summary.sample_count == 6
-    assert report.heatmap_report.summary.output_entity_count >= 3
+    assert report.summary.annotation_unmapped_count == 0
+    assert report.annotation_report.mapped_entries[0].gene_symbol is not None
+    assert report.go_enrichment_report is not None
+    assert report.go_enrichment_report.summary.enriched_term_count == 1
+    assert report.pathway_enrichment_report is not None
+    assert report.pathway_enrichment_report.summary.enriched_entry_count == 1
+    assert report.complex_enrichment_report is not None
+    assert report.complex_enrichment_report.summary.enriched_entry_count == 1
