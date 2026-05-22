@@ -152,6 +152,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/contracts.py",
             "identification/diann_import.py",
             "identification/fragpipe_import.py",
+            "identification/comet_import.py",
             "identification/maxquant_import.py",
             "identification/sage_import.py",
             "identification/search_adapters.py",
