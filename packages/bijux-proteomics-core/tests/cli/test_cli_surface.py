@@ -4381,6 +4381,99 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
         ).read_text(encoding="utf-8")
 
 
+def test_biological_report_command_emits_report_directory_and_manifest() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "biological_report_features.tsv",
+            "biological_report_features.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report.design.tsv",
+            "biological_report.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv",
+            "biological_report_go.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "biological-report",
+                "biological_report_features.tsv",
+                "biological_report.design.tsv",
+                "biological_report_reference.fasta",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--output-dir",
+                "biological_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["design_rows"] == 6
+        assert payload["report"]["summary"]["protein_count"] == 5
+        assert payload["report"]["summary"]["significant_protein_count"] >= 3
+        assert payload["report"]["summary"]["go_enriched_term_count"] == 1
+        assert payload["export_manifest"]["go_summary_included"] is True
+        report_dir = Path("biological_report")
+        assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_report_summary.tsv").exists()
+        assert (report_dir / "biological_differential.tsv").exists()
+        assert (report_dir / "biological_annotations.tsv").exists()
+        assert (report_dir / "biological_go_terms.tsv").exists()
+        assert (report_dir / "biological_pathway_entries.tsv").exists()
+        assert (report_dir / "biological_complex_entries.tsv").exists()
+        assert (report_dir / "biological_heatmap_matrix.tsv").exists()
+        assert (report_dir / "biological_sample_pca_scores.tsv").exists()
+        assert (report_dir / "biological_volcano.html").exists()
+        assert (report_dir / "biological_report.html").exists()
+        assert "annotation_entry_count" in (
+            report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "gene_symbol" in (
+            report_dir / "biological_annotations.tsv"
+        ).read_text(encoding="utf-8")
+        assert "go_term_id" in (
+            report_dir / "biological_go_terms.tsv"
+        ).read_text(encoding="utf-8")
+        assert "pathway_id" in (
+            report_dir / "biological_pathway_entries.tsv"
+        ).read_text(encoding="utf-8")
+        assert "complex_id" in (
+            report_dir / "biological_complex_entries.tsv"
+        ).read_text(encoding="utf-8")
+        assert "Volcano plot:" in (
+            report_dir / "biological_volcano.html"
+        ).read_text(encoding="utf-8")
+        assert "Biological result report" in (
+            report_dir / "biological_report.html"
+        ).read_text(encoding="utf-8")
+
+
 def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

@@ -597,7 +597,9 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_tsv,
 )
 from bijux_proteomics.workflow import (
+    BiologicalResultSelectionPolicy,
     DiaDifferentialSourceKind,
+    build_biological_result_report_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
@@ -607,6 +609,7 @@ from bijux_proteomics.workflow import (
     build_tmt_label_based_report_bundle,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
+    export_biological_result_report_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
@@ -6776,6 +6779,204 @@ def sample_exploration_command(
                 "clusters_tsv": (
                     None if clusters_tsv_out is None else str(clusters_tsv_out)
                 ),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("biological-report")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--go-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--complex-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column",
+    default="retention_time_seconds",
+    show_default=True,
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-max-entities",
+    type=int,
+    default=50,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("biological_report"),
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def biological_report_command(
+    input_tsv: Path,
+    design_tsv: Path,
+    proteins_fasta: Path,
+    annotation_tsv: Path | None,
+    go_annotation_tsv: Path | None,
+    pathway_membership_tsv: Path | None,
+    complex_membership_tsv: Path | None,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    heatmap_max_entities: int,
+    heatmap_min_observed_fraction: float,
+    volcano_top_label_count: int,
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build one biological interpretation report bundle over governed LFQ results."""
+
+    try:
+        design_report = parse_experimental_design_table(design_tsv)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_biological_result_report_bundle(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            proteins_fasta_path=proteins_fasta,
+            annotation_tsv_path=annotation_tsv,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            mapping=Ms1FeatureColumnMapping(
+                sample_id=sample_column,
+                feature_id=feature_id_column,
+                peptide=peptide_column,
+                intensity=intensity_column,
+                protein_refs=protein_refs_column,
+                charge=charge_column,
+                mz=mz_column,
+                retention_time_seconds=retention_time_column,
+                missing_reason=missing_reason_column,
+                protein_separator=protein_separator,
+            ),
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+            normalization_method=NormalizationMethod(normalization),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            selection_policy=BiologicalResultSelectionPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+                heatmap_max_entity_count=heatmap_max_entities,
+                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+            ),
+            volcano_policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=max_adjusted_p_value,
+                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+        manifest = export_biological_result_report_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "biological_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "design_rows": len(design_report.accepted_entries),
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
             },
         },
         out_path=out_path,
