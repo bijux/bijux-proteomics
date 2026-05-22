@@ -5683,8 +5683,12 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
                 "spectronaut.summary.tsv",
                 "--precursor-tsv-out",
                 "spectronaut.precursors.tsv",
+                "--precursor-quantity-tsv-out",
+                "spectronaut.precursor_quantities.tsv",
                 "--protein-group-tsv-out",
                 "spectronaut.protein_groups.tsv",
+                "--protein-group-quantity-tsv-out",
+                "spectronaut.protein_group_quantities.tsv",
             ],
         )
 
@@ -5697,15 +5701,22 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
         assert payload["summary"]["run_names"] == ["raw_A", "raw_B"]
         assert payload["summary"]["precursor_quantity_count"] == 4
         assert payload["summary"]["protein_group_quantity_count"] == 4
+        assert payload["summary"]["precursor_quantity_row_count"] == 4
+        assert payload["summary"]["protein_group_quantity_row_count"] == 4
         assert payload["parameter_report"]["enzyme"] == "trypsin"
         assert (
             payload["normalization"]["adapter"]["display_name"]
             == "Spectronaut review report"
         )
+        assert payload["precursor_evidence_rows"] == payload["precursor_rows"]
         assert payload["precursor_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
+        assert payload["precursor_quantity_rows"][0]["precursor_id"] == "sn_rawA_pestide_2"
+        assert payload["protein_group_quantity_rows"][0]["protein_group_id"] == "PG001"
         assert Path("spectronaut.summary.tsv").exists()
         assert Path("spectronaut.precursors.tsv").exists()
+        assert Path("spectronaut.precursor_quantities.tsv").exists()
         assert Path("spectronaut.protein_groups.tsv").exists()
+        assert Path("spectronaut.protein_group_quantities.tsv").exists()
 
 
 def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
