@@ -16,6 +16,17 @@ from bijux_proteomics.quantification import (
     LabelBasedChannelRole,
     MissingValueKind,
     Ms1FeatureRecord,
+    QuantRollupMethod,
+    build_peptide_intensity_matrix_from_features,
+    build_protein_intensity_matrix_from_features,
+)
+from bijux_proteomics.quantification.peptide_intensity_matrix import (
+    PeptideIntensityMatrixReport,
+    PeptideMatrixGroupingMode,
+)
+from bijux_proteomics.quantification.protein_intensity_matrix import (
+    ProteinIntensityMatrixReport,
+    ProteinMatrixTargetKind,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -199,6 +210,130 @@ def build_tmt_reporter_feature_bundle(
         ),
         note=(
             "tmt reporter channel mapping turns multiplex-group reporter rows into explicit sample-channel feature records while preserving missing and unmapped channels"
+        ),
+    )
+
+
+class TmtChannelTotalEntry(JsonModel):
+    """One multiplex channel total with explicit sample and missingness context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    condition: str | None = None
+    channel_role: LabelBasedChannelRole | None = None
+    total_intensity: float = Field(..., ge=0.0)
+    observed_row_count: int = Field(..., ge=0)
+    missing_row_count: int = Field(..., ge=0)
+    note: str = Field(..., min_length=1)
+
+
+class TmtReporterMatrixSummary(JsonModel):
+    """Compact summary over TMT channel totals plus peptide/protein matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    feature_record_count: int = Field(..., ge=0)
+    missing_channel_count: int = Field(..., ge=0)
+    peptide_row_count: int = Field(..., ge=0)
+    protein_row_count: int = Field(..., ge=0)
+    channel_total_count: int = Field(..., ge=0)
+
+
+class TmtReporterMatrixReport(JsonModel):
+    """Owned TMT reporter-ion review over channel mapping, totals, and matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_report: TmtReporterImportReport
+    feature_bundle: TmtReporterFeatureBundle
+    peptide_matrix: PeptideIntensityMatrixReport
+    protein_matrix: ProteinIntensityMatrixReport
+    channel_totals: tuple[TmtChannelTotalEntry, ...] = Field(default_factory=tuple)
+    summary: TmtReporterMatrixSummary
+    note: str = Field(..., min_length=1)
+
+
+def build_tmt_reporter_matrix_report(
+    feature_bundle: TmtReporterFeatureBundle,
+    *,
+    grouping_mode: PeptideMatrixGroupingMode = PeptideMatrixGroupingMode.MODIFIED_PEPTIDE,
+    separate_charge_states: bool = False,
+    target_kind: ProteinMatrixTargetKind = ProteinMatrixTargetKind.PROTEIN,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    unique_only: bool = False,
+    top_n: int = 3,
+) -> TmtReporterMatrixReport:
+    """Build channel totals plus peptide/protein matrices from TMT feature materialization."""
+
+    peptide_matrix = build_peptide_intensity_matrix_from_features(
+        feature_bundle.feature_records,
+        grouping_mode=grouping_mode,
+        separate_charge_states=separate_charge_states,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    protein_matrix = build_protein_intensity_matrix_from_features(
+        feature_bundle.feature_records,
+        grouping_mode=grouping_mode,
+        separate_charge_states=separate_charge_states,
+        target_kind=target_kind,
+        aggregation_method=aggregation_method,
+        unique_only=unique_only,
+        top_n=top_n,
+    )
+    records_by_sample: dict[str, list[Ms1FeatureRecord]] = {}
+    for record in feature_bundle.feature_records:
+        records_by_sample.setdefault(record.sample_id, []).append(record)
+    channel_totals: list[TmtChannelTotalEntry] = []
+    for entry in feature_bundle.channel_mapping:
+        if not entry.mapped_to_design or entry.sample_id is None:
+            continue
+        sample_records = records_by_sample.get(entry.sample_id, [])
+        total_intensity = float(
+            sum(record.intensity or 0.0 for record in sample_records if record.intensity is not None)
+        )
+        observed_row_count = sum(
+            1 for record in sample_records if record.intensity is not None
+        )
+        missing_row_count = sum(
+            1 for record in sample_records if record.intensity is None
+        )
+        channel_totals.append(
+            TmtChannelTotalEntry(
+                multiplex_group=entry.multiplex_group,
+                multiplex_channel=entry.multiplex_channel,
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                channel_role=entry.channel_role,
+                total_intensity=total_intensity,
+                observed_row_count=observed_row_count,
+                missing_row_count=missing_row_count,
+                note=entry.note,
+            )
+        )
+    return TmtReporterMatrixReport(
+        source_report=feature_bundle.source_report,
+        feature_bundle=feature_bundle,
+        peptide_matrix=peptide_matrix,
+        protein_matrix=protein_matrix,
+        channel_totals=tuple(
+            sorted(
+                channel_totals,
+                key=lambda entry: (entry.multiplex_group, entry.multiplex_channel),
+            )
+        ),
+        summary=TmtReporterMatrixSummary(
+            feature_record_count=len(feature_bundle.feature_records),
+            missing_channel_count=feature_bundle.summary.missing_channel_count,
+            peptide_row_count=peptide_matrix.summary.peptide_row_count,
+            protein_row_count=protein_matrix.summary.protein_row_count,
+            channel_total_count=len(channel_totals),
+        ),
+        note=(
+            "tmt reporter review preserves design-aware channel totals alongside peptide and protein channel matrices"
         ),
     )
 
