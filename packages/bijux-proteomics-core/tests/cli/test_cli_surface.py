@@ -2972,6 +2972,60 @@ def test_tmt_normalize_command_emits_distribution_and_normalized_matrices() -> N
         ).read_text(encoding="utf-8")
 
 
+def test_tmt_interference_command_emits_filtered_and_channel_summary_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_interference.tsv",
+            "maxquant_tmt_interference.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-interference",
+                "maxquant_tmt_interference.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--summary-tsv-out",
+                "tmt.interference.summary.tsv",
+                "--observation-tsv-out",
+                "tmt.interference.observations.tsv",
+                "--filtered-tsv-out",
+                "tmt.interference.filtered.tsv",
+                "--channel-summary-tsv-out",
+                "tmt.interference.channels.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["report"]["summary"]["observed_channel_row_count"] == 12
+        assert payload["report"]["summary"]["filtered_channel_row_count"] == 6
+        assert payload["report"]["summary"]["channel_summary_count"] == 6
+        assert Path("tmt.interference.summary.tsv").exists()
+        assert Path("tmt.interference.observations.tsv").exists()
+        assert Path("tmt.interference.filtered.tsv").exists()
+        assert Path("tmt.interference.channels.tsv").exists()
+        assert "filtered_channel_row_count" in Path(
+            "tmt.interference.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "threshold_exceeded" in Path(
+            "tmt.interference.observations.tsv"
+        ).read_text(encoding="utf-8")
+        assert "considered unreliable" in Path(
+            "tmt.interference.filtered.tsv"
+        ).read_text(encoding="utf-8")
+        assert "mean_interference_fraction" in Path(
+            "tmt.interference.channels.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

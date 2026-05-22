@@ -257,12 +257,14 @@ from bijux_proteomics.panels import (
     render_target_panel_target_tsv,
 )
 from bijux_proteomics.multiplex import (
+    TmtInterferencePolicy,
     TmtNormalizationMethod,
     TmtNormalizationPolicy,
     TmtPlexIntegrationPolicy,
     TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
+    build_tmt_interference_report,
     build_tmt_normalization_report,
     build_tmt_plex_integration_report,
     build_tmt_ratio_report,
@@ -273,9 +275,13 @@ from bijux_proteomics.multiplex import (
     export_multiplex_duplicate_assignment_tsv,
     export_multiplex_metadata_summary_tsv,
     export_multiplex_missing_condition_tsv,
+    export_tmt_filtered_interference_tsv,
     export_tmt_channel_distribution_tsv,
     export_tmt_channel_mapping_tsv,
     export_tmt_channel_totals_tsv,
+    export_tmt_interference_channel_summary_tsv,
+    export_tmt_interference_observation_tsv,
+    export_tmt_interference_summary_tsv,
     export_tmt_normalization_summary_tsv,
     export_tmt_normalization_transform_tsv,
     export_tmt_normalized_peptide_matrix_tsv,
@@ -8783,6 +8789,133 @@ def tmt_reporter_matrix_command(
             ),
             "protein_matrix_tsv": (
                 None if protein_matrix_tsv_out is None else str(protein_matrix_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@multiplex_group.command("tmt-interference")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--interference-threshold",
+    default=0.3,
+    show_default=True,
+    type=float,
+)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--interference-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--observation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--filtered-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--channel-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_interference_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    interference_threshold: float,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    interference_column: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    summary_tsv_out: Path | None,
+    observation_tsv_out: Path | None,
+    filtered_tsv_out: Path | None,
+    channel_summary_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review TMT reporter-ion isolation interference and export filter ledgers."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        import_report = parse_tmt_reporter_table(
+            input_tsv,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                isolation_interference=interference_column,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+        )
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_tmt_interference_report(
+            import_report,
+            design_entries=tuple(design_report.accepted_entries),
+            policy=TmtInterferencePolicy(
+                interference_fraction_threshold=interference_threshold
+            ),
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_tmt_interference_summary_tsv(report, summary_tsv_out)
+    if observation_tsv_out is not None:
+        export_tmt_interference_observation_tsv(report, observation_tsv_out)
+    if filtered_tsv_out is not None:
+        export_tmt_filtered_interference_tsv(report, filtered_tsv_out)
+    if channel_summary_tsv_out is not None:
+        export_tmt_interference_channel_summary_tsv(report, channel_summary_tsv_out)
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "observation_tsv": (
+                None if observation_tsv_out is None else str(observation_tsv_out)
+            ),
+            "filtered_tsv": (
+                None if filtered_tsv_out is None else str(filtered_tsv_out)
+            ),
+            "channel_summary_tsv": (
+                None
+                if channel_summary_tsv_out is None
+                else str(channel_summary_tsv_out)
             ),
         },
     }
