@@ -151,6 +151,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/stable_outputs.py",
             "identification/contracts.py",
             "identification/diann_import.py",
+            "identification/fragpipe_import.py",
             "identification/maxquant_import.py",
             "identification/search_adapters.py",
         ),
