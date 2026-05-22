@@ -617,7 +617,7 @@ def build_ptm_site_group_evidence(
     site_entries: tuple[PtmSiteEntry, ...],
 ) -> tuple[PtmSiteGroupEvidenceEntry, ...]:
     """Group PTM site evidence by candidate-position set when localization stays unresolved."""
-    from bijux_proteomics.ptm.protein_site_mapping import (
+    from bijux_proteomics.ptm.ambiguity_handling import (
         build_ptm_site_group_evidence as _build_ptm_site_group_evidence,
     )
 
