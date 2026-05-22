@@ -605,6 +605,7 @@ from bijux_proteomics.workflow import (
     build_biological_result_report_bundle,
     build_dda_biological_workflow_bundle,
     build_diann_biological_workflow_bundle,
+    build_maxquant_benchmark_report,
     build_maxquant_biological_workflow_bundle,
     build_ptm_site_workflow_bundle,
     build_dia_differential_volcano_plot,
@@ -633,6 +634,11 @@ from bijux_proteomics.workflow import (
     export_label_based_differential_results_tsv,
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
+    render_maxquant_benchmark_summary_tsv,
+    render_maxquant_differential_comparison_tsv,
+    render_maxquant_filtering_comparison_tsv,
+    render_maxquant_lfq_comparison_tsv,
+    render_maxquant_protein_identity_comparison_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
@@ -1977,6 +1983,141 @@ def maxquant_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("maxquant-benchmark")
+@click.argument(
+    "evidence_txt", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--peptides-txt",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--protein-groups-txt",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--design-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--condition-a", type=str, default=None)
+@click.option("--condition-b", type=str, default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--protein-identity-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--filtering-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--lfq-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--differential-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def maxquant_benchmark_command(
+    evidence_txt: Path,
+    peptides_txt: Path,
+    protein_groups_txt: Path,
+    config_path: Path | None,
+    design_tsv: Path | None,
+    condition_a: str | None,
+    condition_b: str | None,
+    summary_tsv_out: Path | None,
+    protein_identity_tsv_out: Path | None,
+    filtering_tsv_out: Path | None,
+    lfq_tsv_out: Path | None,
+    differential_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Benchmark governed MaxQuant import and LFQ behavior against source tables."""
+
+    design_entries: tuple[ExperimentalDesignEntry, ...] | None = None
+    if design_tsv is not None:
+        try:
+            design_report = parse_experimental_design_table(design_tsv)
+        except Exception as exc:  # noqa: BLE001
+            raise click.ClickException(str(exc)) from exc
+        if design_report.rejected_rows:
+            raise click.ClickException(
+                "design table contains rejected rows and cannot drive a MaxQuant benchmark differential comparison"
+            )
+        design_entries = tuple(design_report.accepted_entries)
+
+    try:
+        report = build_maxquant_benchmark_report(
+            evidence_txt,
+            peptides_txt_path=peptides_txt,
+            protein_groups_txt_path=protein_groups_txt,
+            config_path=config_path,
+            design_entries=design_entries,
+            condition_a=condition_a,
+            condition_b=condition_b,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_maxquant_benchmark_summary_tsv(report),
+        )
+    if protein_identity_tsv_out is not None:
+        _write_text_output(
+            protein_identity_tsv_out,
+            render_maxquant_protein_identity_comparison_tsv(report),
+        )
+    if filtering_tsv_out is not None:
+        _write_text_output(
+            filtering_tsv_out,
+            render_maxquant_filtering_comparison_tsv(report),
+        )
+    if lfq_tsv_out is not None:
+        _write_text_output(lfq_tsv_out, render_maxquant_lfq_comparison_tsv(report))
+    if differential_tsv_out is not None:
+        _write_text_output(
+            differential_tsv_out,
+            render_maxquant_differential_comparison_tsv(report),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "protein_identity_comparison": report.protein_identity_comparison.to_dict(),
+        "filtering_comparison_count": len(report.filtering_comparisons),
+        "lfq_comparison_count": len(report.lfq_comparisons),
+        "differential_comparison_count": len(report.differential_comparisons),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "protein_identity_tsv": None
+            if protein_identity_tsv_out is None
+            else str(protein_identity_tsv_out),
+            "filtering_tsv": None
+            if filtering_tsv_out is None
+            else str(filtering_tsv_out),
+            "lfq_tsv": None if lfq_tsv_out is None else str(lfq_tsv_out),
+            "differential_tsv": None
+            if differential_tsv_out is None
+            else str(differential_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
