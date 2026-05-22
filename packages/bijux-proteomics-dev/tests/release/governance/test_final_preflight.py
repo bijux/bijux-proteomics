@@ -11,8 +11,8 @@ from bijux_proteomics_dev.release.governance.final_preflight import (
     run,
 )
 from bijux_proteomics_dev.release.governance.test_collection_gate import (
+    CollectionGateReport,
     CollectionGateCheck,
-    TestCollectionGateReport,
 )
 
 
@@ -152,7 +152,7 @@ def test_test_collection_stage_normalizes_failed_gate_checks(
     monkeypatch.setattr(
         final_preflight_module,
         "build_test_collection_gate_report",
-        lambda repo_root: TestCollectionGateReport(
+        lambda repo_root: CollectionGateReport(
             import_checks=(
                 CollectionGateCheck(
                     check_kind="import",

@@ -69,7 +69,7 @@ def test_run_reports_failed_import_or_collection_checks(
     monkeypatch.setattr(
         test_collection_gate,
         "build_test_collection_gate_report",
-        lambda repo_root, python_executable=None: test_collection_gate.TestCollectionGateReport(
+        lambda repo_root, python_executable=None: test_collection_gate.CollectionGateReport(
             import_checks=(
                 test_collection_gate.CollectionGateCheck(
                     check_kind="import",
@@ -113,7 +113,7 @@ def test_run_reports_success_when_every_check_passes(
     monkeypatch.setattr(
         test_collection_gate,
         "build_test_collection_gate_report",
-        lambda repo_root, python_executable=None: test_collection_gate.TestCollectionGateReport(
+        lambda repo_root, python_executable=None: test_collection_gate.CollectionGateReport(
             import_checks=(),
             collection_checks=(),
         ),

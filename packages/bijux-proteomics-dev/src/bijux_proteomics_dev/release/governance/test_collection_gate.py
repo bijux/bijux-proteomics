@@ -17,7 +17,7 @@ from bijux_proteomics_dev.governance.support.workspace_inventory import (
 
 __all__ = [
     "CollectionGateCheck",
-    "TestCollectionGateReport",
+    "CollectionGateReport",
     "build_test_collection_gate_report",
     "run",
 ]
@@ -36,7 +36,7 @@ class CollectionGateCheck:
 
 
 @dataclass(frozen=True)
-class TestCollectionGateReport:
+class CollectionGateReport:
     """Workspace-wide import and collection gate report."""
 
     import_checks: tuple[CollectionGateCheck, ...]
@@ -145,7 +145,7 @@ def build_test_collection_gate_report(
     repo_root: Path = REPO_ROOT,
     *,
     python_executable: str | None = None,
-) -> TestCollectionGateReport:
+) -> CollectionGateReport:
     """Run package import checks and per-package pytest collection checks."""
 
     executable = python_executable or sys.executable
@@ -168,7 +168,7 @@ def build_test_collection_gate_report(
         )
         for package_name in package_names
     )
-    return TestCollectionGateReport(
+    return CollectionGateReport(
         import_checks=import_checks,
         collection_checks=collection_checks,
     )
