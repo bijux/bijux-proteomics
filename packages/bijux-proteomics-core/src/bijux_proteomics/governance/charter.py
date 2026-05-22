@@ -153,6 +153,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/diann_import.py",
             "identification/fragpipe_import.py",
             "identification/maxquant_import.py",
+            "identification/sage_import.py",
             "identification/search_adapters.py",
         ),
         release_blocker="Core cannot ship if external-engine normalization loses explicit support, loss, and refusal boundaries.",
