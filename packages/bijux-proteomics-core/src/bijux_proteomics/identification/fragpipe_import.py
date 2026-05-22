@@ -24,6 +24,7 @@ from bijux_proteomics.identification.search_adapters import (
     SearchAdapterNormalizationReport,
     normalize_search_results_with_adapter,
 )
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -228,6 +229,12 @@ def render_fragpipe_summary_tsv(summary: FragpipeImportSummary) -> str:
 
 def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
     """Render reviewer-facing FragPipe PSM rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "spectrum_id",
+        "charge",
+        "canonical_peptide",
+    )
     lines = [
         "\t".join(
             (
@@ -248,7 +255,7 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -260,10 +267,10 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
                     str(row.charge),
                     f"{row.hyperscore:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
-                    ";".join(row.assigned_modifications),
-                    ";".join(row.observed_modifications),
+                    ";".join(sort_strings(row.assigned_modifications)),
+                    ";".join(sort_strings(row.observed_modifications)),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
                 )
@@ -274,6 +281,12 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
 
 def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) -> str:
     """Render reviewer-facing FragPipe peptide rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "peptide",
+        "canonical_modified_peptide",
+        "charge",
+    )
     lines = [
         "\t".join(
             (
@@ -294,7 +307,7 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -302,10 +315,10 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
                     row.modified_peptide or "",
                     row.canonical_modified_peptide or "",
                     "" if row.charge is None else str(row.charge),
-                    ";".join(row.protein_refs),
-                    ";".join(row.mapped_protein_refs),
-                    ";".join(row.assigned_modifications),
-                    ";".join(row.observed_modifications),
+                    ";".join(sort_strings(row.protein_refs)),
+                    ";".join(sort_strings(row.mapped_protein_refs)),
+                    ";".join(sort_strings(row.assigned_modifications)),
+                    ";".join(sort_strings(row.observed_modifications)),
                     "" if row.hyperscore is None else f"{row.hyperscore:.6g}",
                     "" if row.probability is None else f"{row.probability:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
@@ -320,6 +333,7 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
 
 def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) -> str:
     """Render reviewer-facing FragPipe protein rows as TSV."""
+    ordered_rows = sort_rows_by_fields(rows, "protein_ref")
     lines = [
         "\t".join(
             (
@@ -336,7 +350,7 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (

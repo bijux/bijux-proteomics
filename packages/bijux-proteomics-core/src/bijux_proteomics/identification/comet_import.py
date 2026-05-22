@@ -23,6 +23,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -153,6 +154,7 @@ def render_comet_summary_tsv(summary: CometImportSummary) -> str:
 
 def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
     """Render reviewer-facing Comet rows as TSV."""
+    ordered_rows = sort_rows_by_fields(rows, "spectrum_id", "charge", "canonical_peptide")
     lines = [
         "\t".join(
             (
@@ -171,7 +173,7 @@ def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -185,7 +187,7 @@ def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
                     "" if row.xcorr is None else f"{row.xcorr:.6g}",
                     "" if row.delta_cn is None else f"{row.delta_cn:.6g}",
                     "" if row.sp_score is None else f"{row.sp_score:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
                 )
             )

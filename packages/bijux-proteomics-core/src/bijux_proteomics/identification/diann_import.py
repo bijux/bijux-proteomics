@@ -18,6 +18,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.scientific_tables import (
     build_diann_report_schema,
     require_valid_scientific_table,
@@ -200,6 +201,13 @@ def render_diann_summary_tsv(summary: DiaNnImportSummary) -> str:
 
 def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> str:
     """Render reviewer-facing DIA-NN precursor rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "protein_group_id",
+        "run_name",
+        "sample_name",
+        "precursor_id",
+    )
     lines = [
         "\t".join(
             (
@@ -219,7 +227,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -230,7 +238,7 @@ def render_diann_precursor_tsv(rows: tuple[DiaNnPrecursorReviewEntry, ...]) -> s
                     str(row.charge),
                     f"{row.q_value:.6g}",
                     row.protein_group_id,
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.run_name,
                     row.sample_name,
                     ""
@@ -250,6 +258,12 @@ def render_diann_protein_group_tsv(
     rows: tuple[DiaNnProteinGroupReviewEntry, ...],
 ) -> str:
     """Render reviewer-facing DIA-NN protein-group rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "protein_group_id",
+        "run_name",
+        "sample_name",
+    )
     lines = [
         "\t".join(
             (
@@ -264,12 +278,12 @@ def render_diann_protein_group_tsv(
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
                     row.protein_group_id,
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.run_name,
                     row.sample_name,
                     f"{row.q_value:.6g}",

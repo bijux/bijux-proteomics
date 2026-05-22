@@ -22,6 +22,7 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -150,6 +151,7 @@ def render_sage_summary_tsv(summary: SageImportSummary) -> str:
 
 def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
     """Render reviewer-facing Sage PSM rows as TSV."""
+    ordered_rows = sort_rows_by_fields(rows, "spectrum_id", "charge", "canonical_peptide")
     lines = [
         "\t".join(
             (
@@ -176,7 +178,7 @@ def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -192,7 +194,7 @@ def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
                     "" if row.peptide_q_value is None else f"{row.peptide_q_value:.6g}",
                     "" if row.protein_q_value is None else f"{row.protein_q_value:.6g}",
                     "" if row.posterior_error is None else f"{row.posterior_error:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
                     "" if row.matched_peaks is None else str(row.matched_peaks),
                     "" if row.longest_b is None else str(row.longest_b),

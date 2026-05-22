@@ -12,6 +12,7 @@ from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
@@ -195,6 +196,13 @@ def render_openms_summary_tsv(summary: OpenMsImportSummary) -> str:
 
 def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
     """Render reviewer-facing OpenMS PSM rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "run_id",
+        "spectrum_id",
+        "charge",
+        "peptide_sequence",
+    )
     lines = [
         "\t".join(
             (
@@ -211,7 +219,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -225,7 +233,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
                     ""
                     if row.retention_time_seconds is None
                     else f"{row.retention_time_seconds:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
                 )
             )
@@ -235,6 +243,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
 
 def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str:
     """Render reviewer-facing OpenMS protein rows as TSV."""
+    ordered_rows = sort_rows_by_fields(rows, "run_id", "protein_ref")
     lines = [
         "\t".join(
             (
@@ -246,7 +255,7 @@ def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -263,6 +272,12 @@ def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str
 
 def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str:
     """Render reviewer-facing OpenMS feature rows as TSV."""
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "sample_id",
+        "feature_id",
+        "canonical_peptide",
+    )
     lines = [
         "\t".join(
             (
@@ -279,7 +294,7 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
             )
         )
     ]
-    for row in rows:
+    for row in ordered_rows:
         lines.append(
             "\t".join(
                 (
@@ -288,7 +303,7 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
                     row.peptide_sequence,
                     row.canonical_peptide,
                     "" if row.intensity is None else f"{row.intensity:.6g}",
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     "" if row.charge is None else str(row.charge),
                     "" if row.mz is None else f"{row.mz:.6g}",
                     ""
