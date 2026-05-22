@@ -14,6 +14,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
     PtmSiteQuantificationReport,
@@ -468,7 +469,7 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
             "uncertainty_note",
         )
     )
-    for entry in report.entries:
+    for entry in sort_rows_by_fields(report.entries, "site_key"):
         writer.writerow(
             (
                 entry.site_key,
@@ -478,7 +479,7 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
                 entry.modification_name,
                 str(entry.ambiguous).lower(),
                 str(entry.shared_peptide).lower(),
-                ";".join(entry.localized_peptides),
+                ";".join(sort_strings(entry.localized_peptides)),
                 entry.condition_a,
                 entry.condition_b,
                 entry.observations_a,
@@ -540,7 +541,7 @@ def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str
             "protein_correction_status",
         )
     )
-    for point in plot.points:
+    for point in sort_rows_by_fields(plot.points, "site_key"):
         writer.writerow(
             (
                 point.site_key,

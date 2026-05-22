@@ -9,6 +9,7 @@ import csv
 from enum import StrEnum
 from io import StringIO
 
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import PtmSiteEntry, PtmSiteGroupEvidenceEntry
 from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
 from bijux_proteomics.quantification.contracts import (
@@ -496,7 +497,7 @@ def render_ptm_localized_site_review_tsv(report: PtmAmbiguityReviewReport) -> st
             "note",
         ]
     )
-    for entry in report.localized_sites:
+    for entry in sort_rows_by_fields(report.localized_sites, "site_key"):
         writer.writerow(
             [
                 entry.site_key,
@@ -504,8 +505,8 @@ def render_ptm_localized_site_review_tsv(report: PtmAmbiguityReviewReport) -> st
                 entry.residue,
                 entry.position,
                 entry.modification_name,
-                ";".join(entry.localized_peptides),
-                ";".join(entry.sample_ids),
+                ";".join(sort_strings(entry.localized_peptides)),
+                ";".join(sort_strings(entry.sample_ids)),
                 entry.localization_score,
                 "" if entry.localization_probability is None else entry.localization_probability,
                 entry.confidence_tier.value,
@@ -536,17 +537,17 @@ def render_ptm_unlocalized_group_review_tsv(report: PtmAmbiguityReviewReport) ->
             "note",
         ]
     )
-    for entry in report.unlocalized_groups:
+    for entry in sort_rows_by_fields(report.unlocalized_groups, "group_key"):
         writer.writerow(
             [
                 entry.group_key,
                 entry.protein_ref,
                 entry.modification_name,
-                ";".join(str(position) for position in entry.candidate_positions),
-                ";".join(entry.possible_residues),
-                ";".join(entry.site_keys),
-                ";".join(entry.localized_peptides),
-                ";".join(entry.sample_ids),
+                ";".join(str(position) for position in sorted(entry.candidate_positions)),
+                ";".join(sort_strings(entry.possible_residues)),
+                ";".join(sort_strings(entry.site_keys)),
+                ";".join(sort_strings(entry.localized_peptides)),
+                ";".join(sort_strings(entry.sample_ids)),
                 entry.localization_score,
                 "" if entry.localization_probability is None else entry.localization_probability,
                 entry.confidence_tier.value,
@@ -601,24 +602,25 @@ def render_ptm_site_group_quant_matrix_tsv(
             "candidate_positions",
             "possible_residues",
             "confidence_tier",
-            *report.sample_ids,
+            *sorted(report.sample_ids),
         ]
     )
-    for row in report.rows:
+    sample_ids = tuple(sorted(report.sample_ids))
+    for row in sort_rows_by_fields(report.rows, "group_key"):
         value_lookup = {value.sample_id: value for value in row.values}
         writer.writerow(
             [
                 row.group_key,
                 row.protein_ref,
                 row.modification_name,
-                ";".join(str(position) for position in row.candidate_positions),
-                ";".join(row.possible_residues),
+                ";".join(str(position) for position in sorted(row.candidate_positions)),
+                ";".join(sort_strings(row.possible_residues)),
                 row.confidence_tier.value,
                 *[
                     ""
                     if value_lookup[sample_id].abundance is None
                     else value_lookup[sample_id].abundance
-                    for sample_id in report.sample_ids
+                    for sample_id in sample_ids
                 ],
             ]
         )
@@ -641,7 +643,7 @@ def render_ptm_site_group_quant_missingness_tsv(
             "filtered_count",
         ]
     )
-    for entry in report.missing_summary.entries:
+    for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
         writer.writerow(
             [
                 entry.sample_id,

@@ -12,6 +12,7 @@ from io import StringIO
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -278,6 +279,7 @@ def render_ptm_site_quant_summary_tsv(report: PtmSiteQuantificationReport) -> st
 def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str:
     """Render the PTM site-by-sample matrix as one wide TSV."""
 
+    sample_ids = tuple(sorted(report.sample_ids))
     header = [
         "site_key",
         "protein_ref",
@@ -290,12 +292,12 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
         "candidate_positions",
         "localized_peptides",
     ]
-    header.extend(report.sample_ids)
+    header.extend(sample_ids)
     rows = ["\t".join(header)]
-    for row in report.rows:
+    for row in sort_rows_by_fields(report.rows, "site_key"):
         lookup = {value.sample_id: value for value in row.values}
         matrix_values = []
-        for sample_id in report.sample_ids:
+        for sample_id in sample_ids:
             value = lookup[sample_id]
             matrix_values.append("" if value.abundance is None else f"{value.abundance:g}")
         rows.append(
@@ -309,8 +311,8 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
                     row.target_decoy_label.value,
                     str(row.ambiguous).lower(),
                     str(row.shared_peptide).lower(),
-                    ";".join(str(position) for position in row.candidate_positions),
-                    ";".join(row.localized_peptides),
+                    ";".join(str(position) for position in sorted(row.candidate_positions)),
+                    ";".join(sort_strings(row.localized_peptides)),
                     *matrix_values,
                 )
             )
@@ -329,7 +331,7 @@ def render_ptm_site_quant_missingness_tsv(report: PtmSiteQuantificationReport) -
         "filtered_count",
     )
     rows = ["\t".join(header)]
-    for entry in report.missing_summary.entries:
+    for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
         rows.append(
             "\t".join(
                 (
@@ -350,7 +352,7 @@ def render_ptm_site_quant_excluded_tsv(report: PtmSiteQuantificationReport) -> s
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(["site_key"])
-    for site_key in report.excluded_ambiguous_site_keys:
+    for site_key in sort_strings(report.excluded_ambiguous_site_keys):
         writer.writerow([site_key])
     return buffer.getvalue()
 
