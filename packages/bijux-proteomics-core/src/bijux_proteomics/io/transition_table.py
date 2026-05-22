@@ -11,6 +11,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field, ValidationError, field_validator
 
 from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
     RejectedEvidence as CanonicalRejectedEvidence,
     TransitionRecord as CanonicalTransitionRecord,
 )
@@ -39,6 +40,7 @@ class TransitionTableEntry(JsonModel):
     fragment_mz: float | None = Field(default=None, gt=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
     metadata: dict[str, str] = Field(default_factory=dict)
+    provenance: ImportedEvidenceProvenance | None = None
 
     @field_validator(
         "transition_id",
@@ -79,7 +81,14 @@ class TransitionTableEntry(JsonModel):
             precursor_mz=self.precursor_mz,
             fragment_mz=self.fragment_mz,
             q_value=self.q_value,
-            metadata=dict(self.metadata),
+            metadata={
+                **dict(self.metadata),
+                **(
+                    self.provenance.to_metadata_fields()
+                    if self.provenance is not None
+                    else {}
+                ),
+            },
         )
 
 
@@ -132,7 +141,25 @@ def parse_transition_table(path: Path) -> TransitionTableParseReport:
     for accepted_row in validation_report.accepted_rows:
         normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
         try:
-            accepted_entries.append(_parse_transition_row(normalized_row))
+            accepted_entries.append(
+                _parse_transition_row(
+                    normalized_row,
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="transition-table",
+                        source_file=str(path),
+                        source_row_number=accepted_row.row_number,
+                        original_identifiers={
+                            "transition_id": str(
+                                accepted_row.values.get("transition_id") or ""
+                            ),
+                            "precursor_id": str(
+                                accepted_row.values.get("precursor_id") or ""
+                            ),
+                            "sample_id": str(accepted_row.values.get("sample_id") or ""),
+                        },
+                    ),
+                )
+            )
         except (ValueError, ValidationError) as exc:
             rejected_rows.append(
                 TransitionTableRejectedRow(
@@ -150,6 +177,8 @@ def parse_transition_table(path: Path) -> TransitionTableParseReport:
 
 def _parse_transition_row(
     row: Mapping[str, str],
+    *,
+    provenance: ImportedEvidenceProvenance | None = None,
 ) -> TransitionTableEntry:
     transition_id = row.get("transition_id") or None
     precursor_id = row.get("precursor_id") or None
@@ -202,6 +231,7 @@ def _parse_transition_row(
         ),
         q_value=_optional_float(row.get("q_value") or row.get("qvalue")),
         metadata=metadata,
+        provenance=provenance,
     )
 
 

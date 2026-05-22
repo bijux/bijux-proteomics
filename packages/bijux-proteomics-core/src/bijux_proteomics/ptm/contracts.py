@@ -18,6 +18,7 @@ from bijux_proteomics.chemistry import (
     parse_modified_peptide,
 )
 from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
     PTMSite as CanonicalPtmSite,
     RejectedEvidence as CanonicalRejectedEvidence,
 )
@@ -110,6 +111,7 @@ class PtmEvidenceRecord(JsonModel):
     localization_score: float = Field(..., ge=0.0)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
     modification_names: tuple[str, ...] = Field(default_factory=tuple)
+    provenance: ImportedEvidenceProvenance
 
 
 class PtmEvidenceParseReport(JsonModel):
@@ -144,6 +146,7 @@ class PtmProteinSiteMapping(JsonModel):
     candidate_protein_positions: tuple[int, ...] = Field(default_factory=tuple)
     ambiguous: bool = False
     shared_peptide: bool = False
+    provenance: ImportedEvidenceProvenance
 
 
 class PtmCoordinateValidationIssue(JsonModel):
@@ -187,6 +190,7 @@ class PtmSiteEntry(JsonModel):
     candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
     ambiguous: bool = False
     shared_peptide: bool = False
+    provenance: ImportedEvidenceProvenance
 
     def to_domain_record(self) -> CanonicalPtmSite:
         """Convert one PTM site row into the canonical domain site record."""
@@ -209,6 +213,7 @@ class PtmSiteEntry(JsonModel):
                 "peptide_count": str(self.peptide_count),
                 "shared_peptide": str(self.shared_peptide).lower(),
                 "target_decoy_state": self.target_decoy_label.value,
+                **self.provenance.to_metadata_fields(),
             },
         )
 
@@ -648,6 +653,16 @@ def parse_ptm_localization_tsv(
                     localization_score=localization_score,
                     candidate_site_indices=candidate_sites,
                     modification_names=modification_names,
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="ptm-localization",
+                        source_file=str(path),
+                        source_row_number=row_number,
+                        original_identifiers={
+                            "spectrum_id": spectrum_id,
+                            "localized_peptide": peptide,
+                            "sample_id": raw_fields.get(active_mapping.sample_id, "").strip(),
+                        },
+                    ),
                 )
             )
 

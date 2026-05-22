@@ -10,6 +10,7 @@ from io import StringIO
 
 from bijux_proteomics.chemistry import ModificationPosition, ModificationRegistryDocument
 from bijux_proteomics.chemistry import parse_modified_peptide
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import (
@@ -72,6 +73,7 @@ def map_ptm_evidence_to_protein_sites(
                             candidate_protein_positions=candidate_positions,
                             ambiguous=(len(candidate_positions) > 1 or len(starts) > 1),
                             shared_peptide=shared_peptide,
+                            provenance=record.provenance,
                         )
                     )
     return tuple(
@@ -150,6 +152,16 @@ def build_ptm_site_table(
                 ),
                 ambiguous=any(mapping.ambiguous for mapping in bucket),
                 shared_peptide=any(mapping.shared_peptide for mapping in bucket),
+                provenance=ImportedEvidenceProvenance.combine(
+                    tuple(mapping.provenance for mapping in bucket),
+                    original_identifiers={
+                        "site_key": site_key,
+                        "protein_ref": protein_ref,
+                        "spectrum_ids": ";".join(
+                            sorted({mapping.spectrum_id for mapping in bucket})
+                        ),
+                    },
+                ),
             )
         )
     return tuple(entries)
@@ -369,6 +381,7 @@ def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
             "ambiguous",
             "shared_peptide",
             "target_decoy_label",
+            *ImportedEvidenceProvenance.tsv_header(),
         ]
     )
     for entry in sort_rows_by_fields(site_entries, "site_key"):
@@ -388,6 +401,7 @@ def render_ptm_site_table_tsv(site_entries: tuple[PtmSiteEntry, ...]) -> str:
                 str(entry.ambiguous).lower(),
                 str(entry.shared_peptide).lower(),
                 entry.target_decoy_label.value,
+                *entry.provenance.to_tsv_row(),
             ]
         )
     return buffer.getvalue()

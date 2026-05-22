@@ -9,6 +9,7 @@ from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
     build_skyline_result_import_report,
     build_transition_table_result_import_report,
+    render_targeted_result_observation_tsv,
 )
 
 
@@ -29,7 +30,10 @@ def test_build_skyline_result_import_report_reads_targeted_identifiers() -> None
     assert report.observations[0].precursor_id == "ACDMPEP/3"
     assert report.observations[0].transition_id == "y5"
     assert report.observations[0].retention_time_minutes == 18.1
+    assert report.observations[0].provenance.source_engine == "skyline"
+    assert report.observations[0].provenance.source_row_numbers[0] >= 2
     assert report.observations[-1].quality_flag == "interference"
+    assert "source_engine" in render_targeted_result_observation_tsv(report)
 
 
 def test_build_transition_table_result_import_report_reads_transition_table_metadata() -> None:
@@ -46,4 +50,6 @@ def test_build_transition_table_result_import_report_reads_transition_table_meta
     assert report.summary.quality_flag_count == 6
     assert report.observations[0].transition_id == "tr_y7_a"
     assert report.observations[0].retention_time_minutes == 12.5
+    assert report.observations[0].provenance.source_engine == "transition-table"
     assert report.observations[-1].quality_flag == "low_signal"
+    assert "original_identifiers" in render_targeted_result_observation_tsv(report)

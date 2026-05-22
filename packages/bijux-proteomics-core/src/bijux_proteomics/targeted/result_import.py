@@ -12,7 +12,10 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.domain.records import TransitionRecord as CanonicalTransitionRecord
+from bijux_proteomics.domain.records import (
+    ImportedEvidenceProvenance,
+    TransitionRecord as CanonicalTransitionRecord,
+)
 from bijux_proteomics.io import parse_transition_table
 from bijux_proteomics_foundation import JsonModel
 
@@ -41,6 +44,7 @@ class TargetedResultObservation(JsonModel):
     fragment_label: str | None = None
     precursor_mz: float | None = Field(default=None, gt=0.0)
     fragment_mz: float | None = Field(default=None, gt=0.0)
+    provenance: ImportedEvidenceProvenance
 
     def to_domain_record(self) -> CanonicalTransitionRecord:
         """Convert one targeted observation into the canonical transition record."""
@@ -57,7 +61,10 @@ class TargetedResultObservation(JsonModel):
             precursor_mz=self.precursor_mz,
             fragment_mz=self.fragment_mz,
             quality_flag=self.quality_flag,
-            metadata={"source_contract": f"targeted.{self.source_kind.value}"},
+            metadata={
+                "source_contract": f"targeted.{self.source_kind.value}",
+                **self.provenance.to_metadata_fields(),
+            },
         )
 
 
@@ -91,7 +98,7 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
 
     reader = csv.DictReader(path.read_text(encoding="utf-8").splitlines(), delimiter="\t")
     observations: list[TargetedResultObservation] = []
-    for row in reader:
+    for row_number, row in enumerate(reader, start=2):
         peptide_sequence = _required_value(
             row,
             "PeptideModifiedSequence",
@@ -122,6 +129,16 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
                 fragment_label=_optional_value(row, "FragmentIon"),
                 precursor_mz=_optional_float(_optional_value(row, "PrecursorMz", "Q1")),
                 fragment_mz=_optional_float(_optional_value(row, "ProductMz", "Q3")),
+                provenance=ImportedEvidenceProvenance.from_single_row(
+                    source_engine="skyline",
+                    source_file=str(path),
+                    source_row_number=row_number,
+                    original_identifiers={
+                        "transition_id": transition_id,
+                        "precursor_id": precursor_id,
+                        "sample_id": _required_value(row, "ReplicateName", "SampleName"),
+                    },
+                ),
             )
         )
     return _build_import_report(
@@ -165,6 +182,17 @@ def build_transition_table_result_import_report(path: Path) -> TargetedResultImp
             fragment_label=entry.fragment_label,
             precursor_mz=entry.precursor_mz,
             fragment_mz=entry.fragment_mz,
+            provenance=entry.provenance
+            or ImportedEvidenceProvenance.from_single_row(
+                source_engine="transition-table",
+                source_file=parse_report.source_path,
+                source_row_number=1,
+                original_identifiers={
+                    "transition_id": entry.transition_id,
+                    "precursor_id": entry.precursor_id,
+                    "sample_id": entry.sample_id,
+                },
+            ),
         )
         for entry in parse_report.accepted_entries
     )
@@ -250,6 +278,7 @@ def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -
             "fragment_label",
             "precursor_mz",
             "fragment_mz",
+            *ImportedEvidenceProvenance.tsv_header(),
         ]
     )
     for item in report.observations:
@@ -271,6 +300,7 @@ def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -
                 "" if item.fragment_label is None else item.fragment_label,
                 "" if item.precursor_mz is None else f"{item.precursor_mz:g}",
                 "" if item.fragment_mz is None else f"{item.fragment_mz:g}",
+                *item.provenance.to_tsv_row(),
             ]
         )
     return buffer.getvalue()

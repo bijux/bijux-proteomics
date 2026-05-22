@@ -45,6 +45,7 @@ def test_ptm_protein_site_renderers_preserve_mapping_and_site_ledgers() -> None:
     mapping_lines = render_ptm_protein_site_mapping_tsv(mappings).splitlines()
     site_lines = render_ptm_site_table_tsv(site_table).splitlines()
 
+    assert evidence.accepted_records[0].provenance.source_engine == "ptm-localization"
     assert mapping_lines[0].startswith(
         "spectrum_id\tsample_id\tprotein_ref\tlocalized_peptide"
     )
@@ -54,7 +55,10 @@ def test_ptm_protein_site_renderers_preserve_mapping_and_site_ledgers() -> None:
         for line in mapping_lines
     )
     assert site_lines[0].startswith("site_key\tprotein_ref\tresidue\tposition")
+    assert "source_engine" in site_lines[0]
     assert any(
-        line == "P11111:S5:Phospho\tP11111\tS\t5\tPhospho\t0.996\t0.003\t4\t1\tC1;C2;T1;T2\t5\tfalse\tfalse\ttarget"
+        line.startswith(
+            "P11111:S5:Phospho\tP11111\tS\t5\tPhospho\t0.996\t0.003\t4\t1\tC1;C2;T1;T2\t5\tfalse\tfalse\ttarget\tptm-localization\t"
+        )
         for line in site_lines
     )
