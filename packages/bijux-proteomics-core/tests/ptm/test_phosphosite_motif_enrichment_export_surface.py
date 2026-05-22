@@ -7,12 +7,17 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
+    PtmMotifComparisonPolicy,
     PtmMotifRegulationDirection,
     PtmPhosphositeSelectionPolicy,
     build_ptm_differential_analysis_report,
     build_ptm_phosphosite_motif_enrichment_report,
     build_ptm_site_quantification_report,
     build_ptm_site_table,
+    export_ptm_phosphosite_motif_enriched_term_tsv,
+    export_ptm_phosphosite_motif_frequency_tsv,
+    export_ptm_phosphosite_motif_logo_tsv,
+    export_ptm_phosphosite_motif_window_tsv,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
 )
@@ -38,7 +43,9 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windows() -> None:
+def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo() -> (
+    None
+):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -56,7 +63,6 @@ def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windo
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
     )
-
     report = build_ptm_phosphosite_motif_enrichment_report(
         differential,
         protein_sequences=_protein_sequences(),
@@ -66,25 +72,29 @@ def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windo
             min_absolute_log2_fold_change=0.5,
             direction=PtmMotifRegulationDirection.UPREGULATED,
         ),
+        comparison_policy=PtmMotifComparisonPolicy(
+            min_frequency_difference=0.1,
+            min_enrichment_ratio=1.0,
+            max_reported_term_count=10,
+        ),
     )
 
-    assert report.condition_a == "control"
-    assert report.condition_b == "treated"
-    assert report.regulated_site_count == 1
-    assert report.background_site_count >= 1
-    regulated = report.regulated_windows[0]
-    assert regulated.site_key == "P11111:S5:Phospho"
-    assert regulated.centered_window == "AAASPEP"
-    assert regulated.direction is PtmMotifRegulationDirection.UPREGULATED
-    assert any(
-        term.position_offset == 1
-        and term.residue == "P"
-        and term.exclusive_to_regulated
-        for term in report.enriched_terms
+    export_ptm_phosphosite_motif_window_tsv(report, Path("ptm.motif.windows.tsv"))
+    export_ptm_phosphosite_motif_frequency_tsv(report, Path("ptm.motif.frequency.tsv"))
+    export_ptm_phosphosite_motif_enriched_term_tsv(
+        report,
+        Path("ptm.motif.terms.tsv"),
     )
-    assert any(
-        datum.window_role == "regulated"
-        and datum.position_offset == 1
-        and datum.residue == "P"
-        for datum in report.logo_data
+    export_ptm_phosphosite_motif_logo_tsv(report, Path("ptm.motif.logo.tsv"))
+
+    assert Path("ptm.motif.windows.tsv").read_text().splitlines()[0] == (
+        "site_key\tprotein_ref\tresidue\tposition\tmodification_name\twindow_role\t"
+        "direction\tcentered_window\tflank_size\tplotted_log2_fold_change\t"
+        "adjusted_p_value\tambiguous\tprotein_correction_mode"
     )
+    assert Path("ptm.motif.frequency.tsv").read_text().splitlines()[0] == (
+        "position_offset\tresidue\tregulated_window_count\tbackground_window_count\t"
+        "regulated_frequency\tbackground_frequency"
+    )
+    assert "1\tP\t1\t0" in Path("ptm.motif.terms.tsv").read_text()
+    assert "regulated\t1\tP\t1\t1\t1" in Path("ptm.motif.logo.tsv").read_text()
