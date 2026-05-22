@@ -4229,6 +4229,57 @@ def test_ptm_parse_peptides_command_emits_review_ledgers() -> None:
         ).read_text()
 
 
+def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "map-sites",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "--mapping-tsv-out",
+                "ptm.mapping.tsv",
+                "--site-table-tsv-out",
+                "ptm.site_table.tsv",
+                "--ambiguity-tsv-out",
+                "ptm.ambiguity.tsv",
+                "--coverage-tsv-out",
+                "ptm.coverage.tsv",
+                "--validation-tsv-out",
+                "ptm.validation.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["mapping_count"] == 10
+        assert payload["site_count"] == 5
+        assert payload["ambiguity_count"] == 2
+        assert payload["coordinate_validation"]["valid"] is True
+        assert "shared_peptide" in Path("ptm.mapping.tsv").read_text()
+        assert "P11111:S5:Phospho" in Path("ptm.site_table.tsv").read_text()
+        assert (
+            "localized peptide is shared across multiple protein references"
+            in Path("ptm.ambiguity.tsv").read_text()
+        )
+        assert "scan=ptm-001" in Path("ptm.coverage.tsv").read_text()
+        assert (
+            Path("ptm.validation.tsv").read_text().splitlines()[0]
+            == "spectrum_id\tprotein_ref\tsite_key\tcode\tmessage"
+        )
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
