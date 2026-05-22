@@ -73,3 +73,12 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
     assert target.log2_fold_change > 0.0
     assert target.adjusted_p_value is not None
     assert target.localized_peptides == ("S[Phospho]PEPTIDEK",)
+    volcano_target = next(
+        point
+        for point in report.volcano_plot.points
+        if point.site_key == "P11111:S5:Phospho"
+    )
+    assert report.volcano_plot.condition_a == "control"
+    assert report.volcano_plot.condition_b == "treated"
+    assert volcano_target.log2_fold_change == target.log2_fold_change
+    assert volcano_target.negative_log10_adjusted_p_value >= 0.0

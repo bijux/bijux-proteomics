@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import math
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -80,6 +82,34 @@ class PtmSiteDifferentialReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class PtmDifferentialVolcanoPoint(JsonModel):
+    """One PTM site point for volcano-plot review."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    log2_fold_change: float
+    adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
+    negative_log10_adjusted_p_value: float = Field(..., ge=0.0)
+    highlighted: bool = False
+
+
+class PtmDifferentialVolcanoPlot(JsonModel):
+    """Plot-ready PTM site differential volcano payload for one contrast."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    significant_point_count: int = Field(..., ge=0)
+    points: tuple[PtmDifferentialVolcanoPoint, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class PtmDifferentialAnalysisReport(JsonModel):
     """PTM site differential analysis over one governed site-quant matrix."""
 
@@ -92,6 +122,7 @@ class PtmDifferentialAnalysisReport(JsonModel):
     design_matrix: QuantDesignMatrixReport
     design_model_fit: QuantDesignModelFitReport
     differential_report: PtmSiteDifferentialReport
+    volcano_plot: PtmDifferentialVolcanoPlot
     note: str = Field(..., min_length=1)
 
 
@@ -144,6 +175,7 @@ def build_ptm_differential_analysis_report(
         differential,
         site_quantification.rows,
     )
+    volcano_plot = build_ptm_differential_volcano_plot(differential_report)
     return PtmDifferentialAnalysisReport(
         site_quantification=site_quantification,
         site_quant_table=site_quant_table,
@@ -152,8 +184,57 @@ def build_ptm_differential_analysis_report(
         design_matrix=design_matrix,
         design_model_fit=design_model_fit,
         differential_report=differential_report,
+        volcano_plot=volcano_plot,
         note=(
             "ptm differential analysis preserves one site-level quantification matrix, explicit design encoding, and benjamini-hochberg-corrected site testing"
+        ),
+    )
+
+
+def build_ptm_differential_volcano_plot(
+    report: PtmSiteDifferentialReport,
+    *,
+    adjusted_p_value_threshold: float = 0.1,
+    absolute_log2_fold_change_threshold: float = 1.0,
+) -> PtmDifferentialVolcanoPlot:
+    """Build one volcano payload over one governed PTM site differential report."""
+
+    points: list[PtmDifferentialVolcanoPoint] = []
+    for entry in report.entries:
+        adjusted_p_value = entry.adjusted_p_value or entry.p_value
+        highlighted = (
+            adjusted_p_value <= adjusted_p_value_threshold
+            and abs(entry.log2_fold_change) >= absolute_log2_fold_change_threshold
+        )
+        points.append(
+            PtmDifferentialVolcanoPoint(
+                site_key=entry.site_key,
+                protein_ref=entry.protein_ref,
+                residue=entry.residue,
+                position=entry.position,
+                modification_name=entry.modification_name,
+                log2_fold_change=entry.log2_fold_change,
+                adjusted_p_value=adjusted_p_value,
+                negative_log10_adjusted_p_value=_negative_log10(adjusted_p_value),
+                highlighted=highlighted,
+            )
+        )
+    return PtmDifferentialVolcanoPlot(
+        condition_a=report.condition_a,
+        condition_b=report.condition_b,
+        significant_point_count=sum(1 for point in points if point.highlighted),
+        points=tuple(
+            sorted(
+                points,
+                key=lambda point: (
+                    -point.negative_log10_adjusted_p_value,
+                    -abs(point.log2_fold_change),
+                    point.site_key,
+                ),
+            )
+        ),
+        note=(
+            "ptm volcano plot preserves site fold change and adjusted significance for one explicit contrast"
         ),
     )
 
@@ -251,3 +332,8 @@ def _resolve_selected_contrast(
             "ptm differential analysis requires exactly two conditions or explicit condition names"
         )
     return conditions
+
+
+def _negative_log10(value: float) -> float:
+    bounded = max(value, 1e-300)
+    return -math.log10(bounded)
