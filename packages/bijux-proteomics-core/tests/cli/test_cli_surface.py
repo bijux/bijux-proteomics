@@ -1145,7 +1145,7 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
         assert "not valid on residue" in result.output
 
 
-def test_fragment_ions_command_reports_b_y_ions_with_charge_and_tsv() -> None:
+def test_fragment_ions_command_reports_a_b_y_ions_with_charge_spans_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         result = runner.invoke(
@@ -1159,6 +1159,8 @@ def test_fragment_ions_command_reports_b_y_ions_with_charge_and_tsv() -> None:
                 "1",
                 "--charge",
                 "2",
+                "--charge",
+                "3",
                 "--include-neutral-losses",
                 "--tsv-out",
                 "fragments.tsv",
@@ -1167,12 +1169,21 @@ def test_fragment_ions_command_reports_b_y_ions_with_charge_and_tsv() -> None:
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
+        assert payload["counts_by_series"]["a"] > 0
         assert payload["counts_by_series"]["b"] > 0
         assert payload["counts_by_series"]["y"] > 0
         assert payload["counts_by_charge"]["1"] > 0
         assert payload["counts_by_charge"]["2"] > 0
+        assert payload["counts_by_charge"]["3"] > 0
         assert payload["neutral_loss_count"] > 0
+        assert any(
+            ion["series"] == "a" and ion["span_start"] == 1 and ion["span_end"] == 3
+            for ion in payload["ions"]
+        )
         assert Path("fragments.tsv").exists()
+        assert "series\tordinal\tcharge\tspan_start\tspan_end\tsequence" in Path(
+            "fragments.tsv"
+        ).read_text()
 
 
 def test_peptide_properties_command_reports_filtering_metrics() -> None:
