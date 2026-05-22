@@ -6,11 +6,13 @@
 from __future__ import annotations
 
 import csv
+from enum import StrEnum
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.sequences import canonicalize_protein_reference
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -129,6 +131,77 @@ class ProteinAnnotationImportReport(JsonModel):
     rejected_rows: tuple[RejectedProteinAnnotationRow, ...] = Field(default_factory=tuple)
     column_mapping: ProteinAnnotationColumnMapping
     summary: ProteinAnnotationImportSummary
+    note: str = Field(..., min_length=1)
+
+
+class ProteinAnnotationSourceKind(StrEnum):
+    """Stable source kinds for protein annotation provenance."""
+
+    FASTA = "fasta"
+    CUSTOM = "custom"
+    MERGED = "merged"
+
+
+class ProteinAnnotationEntry(JsonModel):
+    """One mapped protein annotation row with explicit provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    source_row_id: str | None = None
+    input_protein_ref: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    accession_namespace: str | None = None
+    source_identifier: str | None = None
+    gene_symbol: str | None = None
+    description: str | None = None
+    organism: str | None = None
+    annotation_identifier: str = Field(..., min_length=1)
+    annotation_source: ProteinAnnotationSourceKind
+    input_metadata: dict[str, str] = Field(default_factory=dict)
+    annotation_metadata: dict[str, str] = Field(default_factory=dict)
+
+
+class UnmappedProteinAnnotationEntry(JsonModel):
+    """One input protein reference that could not be annotated."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    source_row_id: str | None = None
+    input_protein_ref: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    input_metadata: dict[str, str] = Field(default_factory=dict)
+    reason: str = Field(..., min_length=1)
+
+
+class ProteinAnnotationMappingSummary(JsonModel):
+    """Stable summary over protein annotation mapping results."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_entry_count: int = Field(..., ge=0)
+    mapped_entry_count: int = Field(..., ge=0)
+    unmapped_entry_count: int = Field(..., ge=0)
+    distinct_protein_ref_count: int = Field(..., ge=0)
+    fasta_annotation_count: int = Field(..., ge=0)
+    custom_annotation_count: int = Field(..., ge=0)
+    merged_annotation_count: int = Field(..., ge=0)
+    gene_annotated_count: int = Field(..., ge=0)
+    description_annotated_count: int = Field(..., ge=0)
+    organism_annotated_count: int = Field(..., ge=0)
+
+
+class ProteinAnnotationMappingReport(JsonModel):
+    """Owned mapping report from protein references into biological annotations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mapped_entries: tuple[ProteinAnnotationEntry, ...] = Field(default_factory=tuple)
+    unmapped_entries: tuple[UnmappedProteinAnnotationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: ProteinAnnotationMappingSummary
     note: str = Field(..., min_length=1)
 
 
@@ -367,8 +440,164 @@ def parse_protein_annotation_table(
     )
 
 
+def build_protein_annotation_mapping_report(
+    protein_entries: tuple[ProteinReferenceEntry, ...],
+    fasta_records: tuple[NormalizedProteinRecord, ...],
+    *,
+    custom_annotations: tuple[ProteinAnnotationRecord, ...] = (),
+) -> ProteinAnnotationMappingReport:
+    """Map protein-reference entries onto FASTA and custom biological annotations."""
+
+    fasta_annotations = {
+        record.canonical_accession: record for record in fasta_records if not record.decoy
+    }
+    custom_annotation_map = {
+        record.protein_ref: record for record in custom_annotations
+    }
+    mapped_entries: list[ProteinAnnotationEntry] = []
+    unmapped_entries: list[UnmappedProteinAnnotationEntry] = []
+    for entry in protein_entries:
+        fasta_record = fasta_annotations.get(entry.protein_ref)
+        custom_record = custom_annotation_map.get(entry.protein_ref)
+        if fasta_record is None and custom_record is None:
+            unmapped_entries.append(
+                UnmappedProteinAnnotationEntry(
+                    row_number=entry.row_number,
+                    source_row_id=entry.source_row_id,
+                    input_protein_ref=entry.input_protein_ref,
+                    protein_ref=entry.protein_ref,
+                    input_metadata=entry.metadata,
+                    reason=(
+                        "protein reference was not present in the FASTA annotations "
+                        "or the custom annotation table"
+                    ),
+                )
+            )
+            continue
+        annotation_source = _annotation_source_kind(fasta_record, custom_record)
+        mapped_entries.append(
+            ProteinAnnotationEntry(
+                row_number=entry.row_number,
+                source_row_id=entry.source_row_id,
+                input_protein_ref=entry.input_protein_ref,
+                protein_ref=entry.protein_ref,
+                accession_namespace=(
+                    None if fasta_record is None else fasta_record.accession_namespace
+                ),
+                source_identifier=(
+                    None if fasta_record is None else fasta_record.source_identifier
+                ),
+                gene_symbol=_merged_gene_symbol(fasta_record, custom_record),
+                description=_merged_description(fasta_record, custom_record),
+                organism=_merged_organism(fasta_record, custom_record),
+                annotation_identifier=_merged_annotation_identifier(
+                    entry.protein_ref,
+                    fasta_record,
+                    custom_record,
+                ),
+                annotation_source=annotation_source,
+                input_metadata=entry.metadata,
+                annotation_metadata=(
+                    {} if custom_record is None else custom_record.metadata
+                ),
+            )
+        )
+
+    summary = ProteinAnnotationMappingSummary(
+        input_entry_count=len(protein_entries),
+        mapped_entry_count=len(mapped_entries),
+        unmapped_entry_count=len(unmapped_entries),
+        distinct_protein_ref_count=len({entry.protein_ref for entry in protein_entries}),
+        fasta_annotation_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.annotation_source is ProteinAnnotationSourceKind.FASTA
+        ),
+        custom_annotation_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.annotation_source is ProteinAnnotationSourceKind.CUSTOM
+        ),
+        merged_annotation_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.annotation_source is ProteinAnnotationSourceKind.MERGED
+        ),
+        gene_annotated_count=sum(
+            1 for entry in mapped_entries if entry.gene_symbol is not None
+        ),
+        description_annotated_count=sum(
+            1 for entry in mapped_entries if entry.description is not None
+        ),
+        organism_annotated_count=sum(
+            1 for entry in mapped_entries if entry.organism is not None
+        ),
+    )
+    return ProteinAnnotationMappingReport(
+        mapped_entries=tuple(mapped_entries),
+        unmapped_entries=tuple(unmapped_entries),
+        summary=summary,
+        note=(
+            "custom annotations supplement or override FASTA-derived gene, description, "
+            "organism, and identifier fields while preserving explicit unmapped rows"
+        ),
+    )
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
+
+
+def _annotation_source_kind(
+    fasta_record: NormalizedProteinRecord | None,
+    custom_record: ProteinAnnotationRecord | None,
+) -> ProteinAnnotationSourceKind:
+    if fasta_record is not None and custom_record is not None:
+        return ProteinAnnotationSourceKind.MERGED
+    if custom_record is not None:
+        return ProteinAnnotationSourceKind.CUSTOM
+    return ProteinAnnotationSourceKind.FASTA
+
+
+def _merged_gene_symbol(
+    fasta_record: NormalizedProteinRecord | None,
+    custom_record: ProteinAnnotationRecord | None,
+) -> str | None:
+    if custom_record is not None and custom_record.gene_symbol is not None:
+        return custom_record.gene_symbol
+    return None if fasta_record is None else fasta_record.gene
+
+
+def _merged_description(
+    fasta_record: NormalizedProteinRecord | None,
+    custom_record: ProteinAnnotationRecord | None,
+) -> str | None:
+    if custom_record is not None and custom_record.description is not None:
+        return custom_record.description
+    if fasta_record is None or not fasta_record.description:
+        return None
+    return fasta_record.description
+
+
+def _merged_organism(
+    fasta_record: NormalizedProteinRecord | None,
+    custom_record: ProteinAnnotationRecord | None,
+) -> str | None:
+    if custom_record is not None and custom_record.organism is not None:
+        return custom_record.organism
+    return None if fasta_record is None else fasta_record.organism
+
+
+def _merged_annotation_identifier(
+    protein_ref: str,
+    fasta_record: NormalizedProteinRecord | None,
+    custom_record: ProteinAnnotationRecord | None,
+) -> str:
+    if custom_record is not None and custom_record.annotation_identifier is not None:
+        return custom_record.annotation_identifier
+    if fasta_record is not None:
+        return fasta_record.source_identifier
+    return protein_ref
 
 
 def _normalize_row(raw_row: dict[str | None, str | None]) -> dict[str, str]:
