@@ -3046,6 +3046,57 @@ def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
         )
 
 
+def test_transition_qc_command_emits_transition_and_weak_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(format_dir / "transition_quant.tsv", "transition_quant.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "transition-qc",
+                "transition_quant.tsv",
+                "--summary-tsv-out",
+                "transition.summary.tsv",
+                "--transition-tsv-out",
+                "transition.rows.tsv",
+                "--sample-tsv-out",
+                "transition.samples.tsv",
+                "--weak-tsv-out",
+                "transition.weak.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "transition table"
+        assert payload["sample_ids"] == ["s1", "s2", "s3"]
+        assert payload["summary"]["transition_count"] == 4
+        assert payload["summary"]["weak_transition_count"] == 1
+        assert payload["weak_transitions"][0]["transition_id"] == "tr_y6_b"
+        assert payload["outputs"]["summary_tsv"] == "transition.summary.tsv"
+        assert payload["outputs"]["transition_tsv"] == "transition.rows.tsv"
+        assert payload["outputs"]["sample_tsv"] == "transition.samples.tsv"
+        assert payload["outputs"]["weak_tsv"] == "transition.weak.tsv"
+        assert Path("transition.summary.tsv").exists()
+        assert Path("transition.rows.tsv").exists()
+        assert Path("transition.samples.tsv").exists()
+        assert Path("transition.weak.tsv").exists()
+        assert "source_name\tprecursor_count\ttransition_count" in Path(
+            "transition.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "tr_y7_a\tprec_a\tPEPTIDEK\tP001\ty7" in Path(
+            "transition.rows.tsv"
+        ).read_text(encoding="utf-8")
+        assert "tr_y7_a\tprec_a\ts1\trun_a\t120000\t0.002\t160000\t0.75\t1\ttrue" in (
+            Path("transition.samples.tsv").read_text(encoding="utf-8")
+        )
+        assert "tr_y6_b\tprec_b\t1\t3\t0.333333\t0.0789474" in Path(
+            "transition.weak.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):

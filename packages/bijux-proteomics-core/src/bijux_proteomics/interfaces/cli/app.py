@@ -152,6 +152,7 @@ from bijux_proteomics.dia import (
     DiaProteinMatrixTargetKind,
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
+    build_transition_qc_report_from_table,
     build_dia_protein_matrix_report,
     build_diann_library_coverage_report,
     build_diann_peptide_matrix_report,
@@ -173,6 +174,10 @@ from bijux_proteomics.dia import (
     render_dia_precursor_matrix_summary_tsv,
     render_dia_precursor_q_value_matrix_tsv,
     render_dia_precursor_quantity_matrix_tsv,
+    render_transition_qc_sample_tsv,
+    render_transition_qc_summary_tsv,
+    render_transition_qc_transition_tsv,
+    render_transition_qc_weak_tsv,
 )
 from bijux_proteomics.interfaces.runtime_plans import (
     WorkflowSchedulerKind,
@@ -1983,6 +1988,83 @@ def diann_library_coverage_command(
             ),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("transition-qc")
+@click.argument(
+    "transition_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--weak-detection-fraction-threshold",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--weak-relative-share-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--sample-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--weak-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def transition_qc_command(
+    transition_table: Path,
+    weak_detection_fraction_threshold: float,
+    weak_relative_share_threshold: float,
+    summary_tsv_out: Path | None,
+    transition_tsv_out: Path | None,
+    sample_tsv_out: Path | None,
+    weak_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review transition-level quantitative evidence from one canonical table."""
+    try:
+        report = build_transition_qc_report_from_table(
+            transition_table,
+            weak_detection_fraction_threshold=weak_detection_fraction_threshold,
+            weak_relative_share_threshold=weak_relative_share_threshold,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_transition_qc_summary_tsv(report))
+    if transition_tsv_out is not None:
+        _write_text_output(
+            transition_tsv_out,
+            render_transition_qc_transition_tsv(report),
+        )
+    if sample_tsv_out is not None:
+        _write_text_output(sample_tsv_out, render_transition_qc_sample_tsv(report))
+    if weak_tsv_out is not None:
+        _write_text_output(weak_tsv_out, render_transition_qc_weak_tsv(report))
+
+    payload = {
+        "source_name": report.source_name,
+        "sample_ids": list(report.sample_ids),
+        "summary": report.summary.to_dict(),
+        "entries": [entry.to_dict() for entry in report.entries],
+        "weak_transitions": [entry.to_dict() for entry in report.weak_transitions],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "transition_tsv": (
+                None if transition_tsv_out is None else str(transition_tsv_out)
+            ),
+            "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
+            "weak_tsv": None if weak_tsv_out is None else str(weak_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)

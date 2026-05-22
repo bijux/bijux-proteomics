@@ -287,11 +287,20 @@ def build_transition_qc_report(
     )
 
 
-def build_transition_qc_report_from_table(path: Path) -> DiaTransitionQcReport:
+def build_transition_qc_report_from_table(
+    path: Path,
+    *,
+    weak_detection_fraction_threshold: float = 0.5,
+    weak_relative_share_threshold: float = 0.1,
+) -> DiaTransitionQcReport:
     """Build one transition QC report directly from a canonical transition table."""
 
     report = parse_transition_table(path)
-    return build_transition_qc_report(report.accepted_entries)
+    return build_transition_qc_report(
+        report.accepted_entries,
+        weak_detection_fraction_threshold=weak_detection_fraction_threshold,
+        weak_relative_share_threshold=weak_relative_share_threshold,
+    )
 
 
 def _median(values: list[float]) -> float:
