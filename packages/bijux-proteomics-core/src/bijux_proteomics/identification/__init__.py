@@ -29,5 +29,6 @@ from bijux_proteomics.identification.diann_import import *  # noqa: F401,F403
 from bijux_proteomics.identification.spectronaut_import import *  # noqa: F401,F403
 from bijux_proteomics.identification.maxquant_import import *  # noqa: F401,F403
 from bijux_proteomics.identification.comet_import import *  # noqa: F401,F403
+from bijux_proteomics.identification.fragpipe_benchmarks import *  # noqa: F401,F403
 from bijux_proteomics.identification.fragpipe_import import *  # noqa: F401,F403
 from bijux_proteomics.identification.sage_import import *  # noqa: F401,F403
