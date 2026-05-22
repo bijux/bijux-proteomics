@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from bijux_proteomics.sequences import (
+    canonicalize_protein_reference,
     DecoyGenerationMode,
     FastaParseMode,
     ResiduePolicyState,
@@ -172,6 +173,13 @@ def test_parse_uniprot_accession_preserves_isoform_suffix() -> None:
 def test_parse_uniprot_accession_rejects_invalid_tokens() -> None:
     with pytest.raises(ValueError, match="valid UniProt accession"):
         parse_uniprot_accession("TP53_HUMAN")
+
+
+def test_canonicalize_protein_reference_normalizes_supported_accession_families() -> None:
+    assert canonicalize_protein_reference("sp|P04637|P53_HUMAN") == "P04637"
+    assert canonicalize_protein_reference("ref|NP_000537.3|CALM1_HUMAN") == "NP_000537.3"
+    assert canonicalize_protein_reference("ENSP00000354587.5") == "ENSP00000354587.5"
+    assert canonicalize_protein_reference("lab_bait_001") == "lab_bait_001"
 
 
 def test_sequence_checksum_normalizes_case_and_whitespace() -> None:

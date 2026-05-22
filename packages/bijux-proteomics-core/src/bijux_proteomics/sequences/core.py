@@ -1127,6 +1127,13 @@ def parse_uniprot_accession(value: str) -> UniProtAccession:
     )
 
 
+def canonicalize_protein_reference(value: str) -> str:
+    """Normalize one protein reference token onto the canonical accession surface."""
+
+    _namespace, canonical_accession, _isoform = _normalize_accession(value)
+    return canonical_accession
+
+
 def _parse_raw_fasta_records(payload: str) -> tuple[FastaSequenceRecord, ...]:
     records: list[FastaSequenceRecord] = []
     current_header: str | None = None
