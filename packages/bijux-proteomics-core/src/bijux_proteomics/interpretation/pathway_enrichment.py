@@ -7,10 +7,18 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+import math
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinAnnotationRecord,
+)
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
@@ -83,6 +91,66 @@ class PathwayMembershipImportReport(JsonModel):
     rejected_rows: tuple[RejectedPathwayMembershipRow, ...] = Field(default_factory=tuple)
     column_mapping: PathwayMembershipColumnMapping
     summary: PathwayMembershipImportSummary
+    note: str = Field(..., min_length=1)
+
+
+class PathwayEnrichmentEntry(JsonModel):
+    """One evaluated pathway enrichment row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    pathway_id: str = Field(..., min_length=1)
+    pathway_name: str | None = None
+    source_name: str | None = None
+    source_accession: str | None = None
+    member_kind: PathwayMemberKind
+    foreground_overlap_count: int = Field(..., ge=0)
+    background_member_count: int = Field(..., ge=0)
+    foreground_size: int = Field(..., ge=0)
+    background_size: int = Field(..., ge=0)
+    expected_overlap_count: float = Field(..., ge=0.0)
+    enrichment_ratio: float | None = Field(default=None, ge=0.0)
+    p_value: float = Field(..., ge=0.0, le=1.0)
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    foreground_member_ids: tuple[str, ...] = Field(default_factory=tuple)
+    background_member_ids: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class UnresolvedPathwayMemberEntry(JsonModel):
+    """One foreground or background protein missing gene support for gene-based pathways."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    set_role: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=1)
+
+
+class PathwayEnrichmentSummary(JsonModel):
+    """Stable summary over one pathway enrichment run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    foreground_size: int = Field(..., ge=0)
+    background_size: int = Field(..., ge=0)
+    evaluated_entry_count: int = Field(..., ge=0)
+    protein_entry_count: int = Field(..., ge=0)
+    gene_entry_count: int = Field(..., ge=0)
+    unresolved_foreground_count: int = Field(..., ge=0)
+    unresolved_background_count: int = Field(..., ge=0)
+    enriched_entry_count: int = Field(..., ge=0)
+
+
+class PathwayEnrichmentReport(JsonModel):
+    """Owned pathway enrichment report over protein foreground/background sets."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PathwayEnrichmentEntry, ...] = Field(default_factory=tuple)
+    unresolved_members: tuple[UnresolvedPathwayMemberEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: PathwayEnrichmentSummary
     note: str = Field(..., min_length=1)
 
 
@@ -247,6 +315,133 @@ def parse_pathway_membership_table(
     )
 
 
+def build_pathway_enrichment_report(
+    foreground_entries: tuple[ProteinReferenceEntry, ...],
+    background_entries: tuple[ProteinReferenceEntry, ...],
+    pathway_records: tuple[PathwayMembershipRecord, ...],
+    *,
+    fasta_records: tuple[NormalizedProteinRecord, ...] = (),
+    custom_annotations: tuple[ProteinAnnotationRecord, ...] = (),
+) -> PathwayEnrichmentReport:
+    """Run pathway enrichment over protein- or gene-based pathway memberships."""
+
+    foreground = {entry.protein_ref for entry in foreground_entries}
+    background = {entry.protein_ref for entry in background_entries}
+    if not foreground:
+        raise ValueError("foreground protein set must contain at least one protein")
+    if not background:
+        raise ValueError("background protein set must contain at least one protein")
+    if not foreground <= background:
+        missing = sorted(foreground - background)
+        raise ValueError(
+            "foreground proteins must be present in the background set: "
+            + ", ".join(missing)
+        )
+
+    gene_annotations = _protein_gene_annotations(
+        fasta_records=fasta_records,
+        custom_annotations=custom_annotations,
+    )
+    unresolved_entries = _build_unresolved_pathway_members(
+        foreground=foreground,
+        background=background,
+        pathway_records=pathway_records,
+        gene_annotations=gene_annotations,
+    )
+    background_genes = {
+        gene_symbol
+        for protein_ref in background
+        for gene_symbol in gene_annotations.get(protein_ref, ())
+    }
+    foreground_genes = {
+        gene_symbol
+        for protein_ref in foreground
+        for gene_symbol in gene_annotations.get(protein_ref, ())
+    }
+
+    grouped = _group_pathway_records(pathway_records)
+    entries: list[PathwayEnrichmentEntry] = []
+    for (pathway_id, member_kind), members in sorted(grouped.items()):
+        first = members[0]
+        if member_kind is PathwayMemberKind.PROTEIN:
+            background_members = {member.member_id for member in members} & background
+            foreground_members = {member.member_id for member in members} & foreground
+            background_size = len(background)
+            foreground_size = len(foreground)
+        else:
+            background_members = {member.member_id for member in members} & background_genes
+            foreground_members = {member.member_id for member in members} & foreground_genes
+            background_size = len(background_genes)
+            foreground_size = len(foreground_genes)
+        if not foreground_members or background_size == 0 or foreground_size == 0:
+            continue
+        expected_overlap_count = foreground_size * len(background_members) / background_size
+        enrichment_ratio = (
+            len(foreground_members) / expected_overlap_count
+            if expected_overlap_count > 0.0
+            else None
+        )
+        entries.append(
+            PathwayEnrichmentEntry(
+                pathway_id=pathway_id,
+                pathway_name=first.pathway_name,
+                source_name=first.source_name,
+                source_accession=first.source_accession,
+                member_kind=member_kind,
+                foreground_overlap_count=len(foreground_members),
+                background_member_count=len(background_members),
+                foreground_size=foreground_size,
+                background_size=background_size,
+                expected_overlap_count=round(expected_overlap_count, 6),
+                enrichment_ratio=None if enrichment_ratio is None else round(enrichment_ratio, 6),
+                p_value=_hypergeometric_upper_tail(
+                    overlap_count=len(foreground_members),
+                    term_background_count=len(background_members),
+                    foreground_size=foreground_size,
+                    background_size=background_size,
+                ),
+                foreground_member_ids=tuple(sorted(foreground_members)),
+                background_member_ids=tuple(sorted(background_members)),
+            )
+        )
+
+    entries = sorted(
+        entries,
+        key=lambda entry: (
+            entry.p_value,
+            -(entry.enrichment_ratio or 0.0),
+            entry.pathway_id,
+            entry.member_kind.value,
+        ),
+    )
+    return PathwayEnrichmentReport(
+        entries=tuple(entries),
+        unresolved_members=unresolved_entries,
+        summary=PathwayEnrichmentSummary(
+            foreground_size=len(foreground),
+            background_size=len(background),
+            evaluated_entry_count=len(entries),
+            protein_entry_count=sum(
+                1 for entry in entries if entry.member_kind is PathwayMemberKind.PROTEIN
+            ),
+            gene_entry_count=sum(
+                1 for entry in entries if entry.member_kind is PathwayMemberKind.GENE
+            ),
+            unresolved_foreground_count=sum(
+                1 for entry in unresolved_entries if entry.set_role == "foreground"
+            ),
+            unresolved_background_count=sum(
+                1 for entry in unresolved_entries if entry.set_role == "background"
+            ),
+            enriched_entry_count=0,
+        ),
+        note=(
+            "pathway enrichment evaluates protein-member and gene-member pathways separately "
+            "against the declared background set and preserves unresolved gene mapping explicitly"
+        ),
+    )
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
 
@@ -269,6 +464,86 @@ def _optional_value(row: dict[str, str], field_name: str | None) -> str | None:
 def _read_delimited_lines(path: Path) -> list[str]:
     payload = path.read_text(encoding="utf-8")
     return payload.splitlines()
+
+
+def _group_pathway_records(
+    pathway_records: tuple[PathwayMembershipRecord, ...],
+) -> dict[tuple[str, PathwayMemberKind], list[PathwayMembershipRecord]]:
+    grouped: dict[tuple[str, PathwayMemberKind], list[PathwayMembershipRecord]] = {}
+    for record in pathway_records:
+        grouped.setdefault((record.pathway_id, record.member_kind), []).append(record)
+    return grouped
+
+
+def _protein_gene_annotations(
+    *,
+    fasta_records: tuple[NormalizedProteinRecord, ...],
+    custom_annotations: tuple[ProteinAnnotationRecord, ...],
+) -> dict[str, tuple[str, ...]]:
+    annotations: dict[str, set[str]] = {}
+    for record in fasta_records:
+        if record.gene:
+            annotations.setdefault(record.canonical_accession, set()).add(record.gene)
+    for record in custom_annotations:
+        if record.gene_symbol:
+            annotations.setdefault(record.protein_ref, set()).add(record.gene_symbol)
+    return {
+        protein_ref: tuple(sorted(gene_symbols))
+        for protein_ref, gene_symbols in annotations.items()
+    }
+
+
+def _build_unresolved_pathway_members(
+    *,
+    foreground: set[str],
+    background: set[str],
+    pathway_records: tuple[PathwayMembershipRecord, ...],
+    gene_annotations: dict[str, tuple[str, ...]],
+) -> tuple[UnresolvedPathwayMemberEntry, ...]:
+    if not any(record.member_kind is PathwayMemberKind.GENE for record in pathway_records):
+        return ()
+    unresolved: list[UnresolvedPathwayMemberEntry] = []
+    for protein_ref in sorted(foreground):
+        if protein_ref not in gene_annotations:
+            unresolved.append(
+                UnresolvedPathwayMemberEntry(
+                    set_role="foreground",
+                    protein_ref=protein_ref,
+                    reason="protein lacks gene annotation required for gene-based pathway memberships",
+                )
+            )
+    for protein_ref in sorted(background - foreground):
+        if protein_ref not in gene_annotations:
+            unresolved.append(
+                UnresolvedPathwayMemberEntry(
+                    set_role="background",
+                    protein_ref=protein_ref,
+                    reason="protein lacks gene annotation required for gene-based pathway memberships",
+                )
+            )
+    return tuple(unresolved)
+
+
+def _hypergeometric_upper_tail(
+    *,
+    overlap_count: int,
+    term_background_count: int,
+    foreground_size: int,
+    background_size: int,
+) -> float:
+    maximum_overlap = min(term_background_count, foreground_size)
+    denominator = math.comb(background_size, foreground_size)
+    probability = 0.0
+    for overlap in range(overlap_count, maximum_overlap + 1):
+        probability += (
+            math.comb(term_background_count, overlap)
+            * math.comb(
+                background_size - term_background_count,
+                foreground_size - overlap,
+            )
+            / denominator
+        )
+    return round(min(probability, 1.0), 12)
 
 
 def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
