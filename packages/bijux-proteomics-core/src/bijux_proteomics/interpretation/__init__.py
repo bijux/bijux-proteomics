@@ -5,4 +5,5 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.interpretation.go_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_annotation_mapping import *  # noqa: F401,F403
