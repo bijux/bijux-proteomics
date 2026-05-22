@@ -14,8 +14,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import (
     MaxquantImportReport,
+    MaxquantLfqMatrixCandidateEntry,
     MaxquantPeptideReviewEntry,
     MaxquantProteinGroupReviewEntry,
+    build_maxquant_lfq_matrix_candidates,
     render_maxquant_evidence_tsv,
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
@@ -239,18 +241,26 @@ def build_label_free_quant_table_from_maxquant_protein_groups(
 ) -> LabelFreeQuantTable:
     """Bridge accepted MaxQuant protein-group LFQ rows onto the shared quant contract."""
 
+    candidates = build_maxquant_lfq_matrix_candidates(rows, peptide_rows=peptide_rows)
+    return build_label_free_quant_table_from_maxquant_lfq_candidates(candidates)
+
+
+def build_label_free_quant_table_from_maxquant_lfq_candidates(
+    rows: tuple[MaxquantLfqMatrixCandidateEntry, ...],
+) -> LabelFreeQuantTable:
+    """Bridge accepted MaxQuant LFQ candidates onto the shared quant contract."""
+
     if not rows:
         raise ValueError("MaxQuant protein-group bridge requires at least one row")
     sample_ids = tuple(entry.experiment_name for entry in rows[0].lfq_intensities)
     if not sample_ids:
         raise ValueError("MaxQuant protein-group bridge requires LFQ experiments")
-    entity_member_peptides = _build_member_peptides_by_entity(rows, peptide_rows)
     values: list[QuantValue] = []
     entity_protein_refs: dict[str, tuple[str, ...]] = {}
     for row in rows:
-        entity_id = _protein_group_entity_id(row)
+        entity_id = row.entity_id
         entity_protein_refs[entity_id] = row.protein_ids
-        source_feature_count = row.razor_unique_peptide_count or row.peptide_count or 0
+        source_feature_count = len(row.member_peptides)
         for intensity in row.lfq_intensities:
             abundance = intensity.intensity if intensity.intensity > 0.0 else None
             values.append(
@@ -272,10 +282,13 @@ def build_label_free_quant_table_from_maxquant_protein_groups(
         aggregation_method=QuantRollupMethod.SUM,
         normalization_method=NormalizationMethod.NONE,
         sample_ids=sample_ids,
-        entity_ids=tuple(_protein_group_entity_id(row) for row in rows),
+        entity_ids=tuple(row.entity_id for row in rows),
         values=tuple(values),
         entity_protein_refs=entity_protein_refs,
-        entity_member_peptides=entity_member_peptides,
+        entity_member_peptides={
+            row.entity_id: row.member_peptides
+            for row in rows
+        },
     )
 
 
@@ -550,28 +563,3 @@ def _protein_group_entity_id(row: MaxquantProteinGroupReviewEntry) -> str:
     if protein_ids:
         return ";".join(protein_ids)
     return "unassigned_protein_group"
-
-
-def _build_member_peptides_by_entity(
-    protein_group_rows: tuple[MaxquantProteinGroupReviewEntry, ...],
-    peptide_rows: tuple[MaxquantPeptideReviewEntry, ...],
-) -> dict[str, tuple[str, ...]]:
-    peptides_by_entity: dict[str, set[str]] = {
-        _protein_group_entity_id(row): set() for row in protein_group_rows
-    }
-    for peptide_row in peptide_rows:
-        peptide_protein_refs = set(peptide_row.protein_refs)
-        if peptide_row.leading_razor_protein is not None:
-            peptide_protein_refs.add(peptide_row.leading_razor_protein)
-        if not peptide_protein_refs:
-            continue
-        for protein_group_row in protein_group_rows:
-            if peptide_protein_refs.intersection(protein_group_row.protein_ids):
-                peptides_by_entity[_protein_group_entity_id(protein_group_row)].add(
-                    peptide_row.residue_sequence
-                )
-    return {
-        entity_id: tuple(sorted(peptides))
-        for entity_id, peptides in peptides_by_entity.items()
-    }
-
