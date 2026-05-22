@@ -1,0 +1,12 @@
+source_species	source_protein_ref	target_species	target_protein_ref	source_gene_symbol	target_gene_symbol	evidence	source_name
+human	P001	mouse	M001	H1	M1	ensembl	core
+human	P001	mouse	M001	H1	M1	ensembl	duplicate
+human	P002	mouse	M002	H2	M2	ensembl	core
+human	P002	mouse	M003	H2	M3	ensembl	core
+human	P003	mouse	M004	H3	M4	ensembl	core
+human	P004	mouse	M004	H4	M4	ensembl	core
+human	P005	mouse	M005	H5	M5	ensembl	core
+human	P005	mouse	M006	H5	M6	ensembl	core
+human	P006	mouse	M005	H6	M5	ensembl	core
+human	P006	mouse	M006	H6	M6	ensembl	core
+human	P999	mouse		HX		ensembl	missing_target

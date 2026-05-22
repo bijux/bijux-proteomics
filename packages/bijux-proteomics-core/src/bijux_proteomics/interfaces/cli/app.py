@@ -261,6 +261,7 @@ from bijux_proteomics.interpretation import (
     ComplexMembershipColumnMapping,
     GoAnnotationColumnMapping,
     GoEnrichmentCorrectionPolicy,
+    OrthologColumnMapping,
     PathwayEnrichmentCorrectionPolicy,
     PathwayMembershipColumnMapping,
     ProteinSetColumnMapping,
@@ -269,6 +270,7 @@ from bijux_proteomics.interpretation import (
     apply_pathway_enrichment_multiple_testing,
     build_complex_enrichment_report,
     build_go_enrichment_report,
+    build_ortholog_mapping_report,
     build_pathway_enrichment_report,
     build_protein_set_scoring_report,
     ProteinAnnotationColumnMapping,
@@ -276,6 +278,7 @@ from bijux_proteomics.interpretation import (
     build_protein_annotation_mapping_report,
     parse_complex_membership_table,
     parse_go_annotation_table,
+    parse_ortholog_table,
     parse_pathway_membership_table,
     parse_protein_annotation_table,
     parse_protein_reference_table,
@@ -286,7 +289,9 @@ from bijux_proteomics.interpretation import (
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
+    render_mapped_ortholog_tsv,
     render_mapped_protein_annotation_tsv,
+    render_ortholog_mapping_summary_tsv,
     render_pathway_enrichment_entry_tsv,
     render_pathway_enrichment_summary_tsv,
     render_pathway_unresolved_member_tsv,
@@ -300,9 +305,11 @@ from bijux_proteomics.interpretation import (
     render_rejected_complex_membership_tsv,
     render_rejected_pathway_membership_tsv,
     render_rejected_go_annotation_tsv,
+    render_rejected_ortholog_tsv,
     render_rejected_protein_annotation_tsv,
     render_rejected_protein_set_tsv,
     render_rejected_protein_reference_tsv,
+    render_unmapped_ortholog_tsv,
     render_unmapped_protein_annotation_tsv,
 )
 from bijux_proteomics.multiplex import (
@@ -8871,6 +8878,189 @@ def annotate_proteins_command(
                 None
                 if rejected_annotation_tsv_out is None or annotation_report is None
                 else str(rejected_annotation_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@interpretation_group.command("map-orthologs")
+@click.argument(
+    "protein_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "ortholog_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--source-species", required=True)
+@click.option("--target-species", required=True)
+@click.option("--protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--row-id-column", default="row_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--ortholog-source-species-column",
+    default="source_species",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-source-protein-ref-column",
+    default="source_protein_ref",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-target-species-column",
+    default="target_species",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-target-protein-ref-column",
+    default="target_protein_ref",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-source-gene-symbol-column",
+    default="source_gene_symbol",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-target-gene-symbol-column",
+    default="target_gene_symbol",
+    show_default=True,
+)
+@click.option(
+    "--ortholog-evidence-column",
+    default="evidence",
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--mapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unmapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-input-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-ortholog-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def map_orthologs_command(
+    protein_tsv: Path,
+    ortholog_tsv: Path,
+    source_species: str,
+    target_species: str,
+    protein_ref_column: str,
+    row_id_column: str,
+    protein_separator: str,
+    ortholog_source_species_column: str,
+    ortholog_source_protein_ref_column: str,
+    ortholog_target_species_column: str,
+    ortholog_target_protein_ref_column: str,
+    ortholog_source_gene_symbol_column: str,
+    ortholog_target_gene_symbol_column: str,
+    ortholog_evidence_column: str,
+    summary_tsv_out: Path | None,
+    mapped_tsv_out: Path | None,
+    unmapped_tsv_out: Path | None,
+    rejected_input_tsv_out: Path | None,
+    rejected_ortholog_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Map input proteins onto a selected ortholog species pair."""
+
+    try:
+        protein_table = parse_protein_reference_table(
+            protein_tsv,
+            mapping=ProteinReferenceColumnMapping(
+                protein_ref=protein_ref_column,
+                row_id=row_id_column,
+            ),
+            protein_separator=protein_separator,
+        )
+        ortholog_table = parse_ortholog_table(
+            ortholog_tsv,
+            mapping=OrthologColumnMapping(
+                source_species=ortholog_source_species_column,
+                source_protein_ref=ortholog_source_protein_ref_column,
+                target_species=ortholog_target_species_column,
+                target_protein_ref=ortholog_target_protein_ref_column,
+                source_gene_symbol=ortholog_source_gene_symbol_column,
+                target_gene_symbol=ortholog_target_gene_symbol_column,
+                evidence=ortholog_evidence_column,
+            ),
+        )
+        mapping_report = build_ortholog_mapping_report(
+            protein_table.accepted_entries,
+            ortholog_table.accepted_records,
+            source_species=source_species,
+            target_species=target_species,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_ortholog_mapping_summary_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if mapped_tsv_out is not None:
+        mapped_tsv_out.write_text(
+            render_mapped_ortholog_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if unmapped_tsv_out is not None:
+        unmapped_tsv_out.write_text(
+            render_unmapped_ortholog_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if rejected_input_tsv_out is not None:
+        rejected_input_tsv_out.write_text(
+            render_rejected_protein_reference_tsv(protein_table),
+            encoding="utf-8",
+        )
+    if rejected_ortholog_tsv_out is not None:
+        rejected_ortholog_tsv_out.write_text(
+            render_rejected_ortholog_tsv(ortholog_table),
+            encoding="utf-8",
+        )
+
+    payload = {
+        "protein_table": protein_table.to_dict(),
+        "ortholog_table": ortholog_table.to_dict(),
+        "mapping_report": mapping_report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
+            "unmapped_tsv": None if unmapped_tsv_out is None else str(unmapped_tsv_out),
+            "rejected_input_tsv": (
+                None
+                if rejected_input_tsv_out is None
+                else str(rejected_input_tsv_out)
+            ),
+            "rejected_ortholog_tsv": (
+                None
+                if rejected_ortholog_tsv_out is None
+                else str(rejected_ortholog_tsv_out)
             ),
         },
     }

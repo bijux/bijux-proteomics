@@ -126,6 +126,60 @@ def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() 
         )
 
 
+def test_map_orthologs_command_emits_mapped_unmapped_and_rejected_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(interpretation_fixture_dir / "ortholog_input.tsv", "ortholog_input.tsv")
+        shutil.copy(
+            interpretation_fixture_dir / "ortholog_cli.tsv",
+            "ortholog_cli.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "map-orthologs",
+                "ortholog_input.tsv",
+                "ortholog_cli.tsv",
+                "--source-species",
+                "human",
+                "--target-species",
+                "mouse",
+                "--summary-tsv-out",
+                "ortholog.summary.tsv",
+                "--mapped-tsv-out",
+                "ortholog.mapped.tsv",
+                "--unmapped-tsv-out",
+                "ortholog.unmapped.tsv",
+                "--rejected-input-tsv-out",
+                "ortholog.input_rejected.tsv",
+                "--rejected-ortholog-tsv-out",
+                "ortholog.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["mapping_report"]["summary"]["input_entry_count"] == 7
+        assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 9
+        assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 1
+        assert Path("ortholog.summary.tsv").read_text().splitlines()[0].startswith(
+            "source_species\ttarget_species\tinput_entry_count\tmapped_entry_count"
+        )
+        assert "P005\thuman\tmouse\tM005" in Path("ortholog.mapped.tsv").read_text()
+        assert "P999\thuman\tmouse" in Path("ortholog.unmapped.tsv").read_text()
+        assert (
+            Path("ortholog.input_rejected.tsv").read_text().splitlines()[0]
+            == "row_number\tvalues\treason"
+        )
+        assert (
+            "duplicate ortholog relationship for human:P001 -> mouse:M001"
+            in Path("ortholog.rejected.tsv").read_text()
+        )
+
+
 def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
