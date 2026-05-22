@@ -55,12 +55,19 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert report.parameter_report is not None
     assert report.parameter_report.enzyme == "trypsin"
     assert report.evidence_rows[0].residue_sequence == "PESTIDE"
+    assert report.evidence_rows[0].provenance.source_engine == "maxquant-evidence"
+    assert report.evidence_rows[0].provenance.source_row_numbers == (2,)
     assert report.evidence_rows[0].modification_count == 1
     assert report.evidence_rows[1].protein_refs == ("P22222", "P22223")
     assert report.evidence_rows[2].contaminant_flag is True
     assert report.evidence_rows[3].reverse_flag is True
     assert report.peptide_rows[1].canonical_modified_peptide is not None
+    assert report.peptide_rows[0].provenance.source_engine == "maxquant"
     assert report.protein_group_rows[0].lfq_intensities[0].experiment_name == "raw_A"
+    assert report.protein_group_rows[0].provenance.original_identifiers["protein_ids"]
+    assert report.protein_group_rows[0].lfq_intensities[0].provenance.source_engine == (
+        "maxquant"
+    )
     assert report.protein_group_rows[2].contaminant_flag is True
     assert report.protein_group_rows[3].reverse_flag is True
     assert report.lfq_matrix_candidates[2].contaminant_flag is True
@@ -68,8 +75,13 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert report.lfq_matrix_candidates[0].member_peptides == ("PESTIDE",)
     assert "experiment_names" in render_maxquant_summary_tsv(report.summary)
     assert "contaminant_flag" in render_maxquant_evidence_tsv(report.evidence_rows)
+    assert "source_engine" in render_maxquant_evidence_tsv(report.evidence_rows)
     assert "leading_razor_protein" in render_maxquant_peptide_tsv(report.peptide_rows)
+    assert "original_identifiers" in render_maxquant_peptide_tsv(report.peptide_rows)
     assert "lfq_intensities" in render_maxquant_protein_group_tsv(
+        report.protein_group_rows
+    )
+    assert "source_row_numbers" in render_maxquant_protein_group_tsv(
         report.protein_group_rows
     )
     assert "member_peptides" in render_maxquant_lfq_candidate_tsv(

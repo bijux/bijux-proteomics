@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
@@ -48,6 +49,7 @@ class MaxquantLfqIntensityEntry(JsonModel):
 
     experiment_name: str = Field(..., min_length=1)
     intensity: float = Field(..., ge=0.0)
+    provenance: ImportedEvidenceProvenance
 
 
 class MaxquantEvidenceReviewEntry(JsonModel):
@@ -68,6 +70,7 @@ class MaxquantEvidenceReviewEntry(JsonModel):
     target_decoy_label: TargetDecoyLabel
     reverse_flag: bool = False
     contaminant_flag: bool = False
+    provenance: ImportedEvidenceProvenance
 
 
 class MaxquantPeptideReviewEntry(JsonModel):
@@ -89,6 +92,7 @@ class MaxquantPeptideReviewEntry(JsonModel):
     target_decoy_label: TargetDecoyLabel
     reverse_flag: bool = False
     contaminant_flag: bool = False
+    provenance: ImportedEvidenceProvenance
 
 
 class MaxquantProteinGroupReviewEntry(JsonModel):
@@ -111,6 +115,7 @@ class MaxquantProteinGroupReviewEntry(JsonModel):
     lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(
         default_factory=tuple
     )
+    provenance: ImportedEvidenceProvenance
 
 
 class MaxquantLfqMatrixCandidateEntry(JsonModel):
@@ -132,6 +137,7 @@ class MaxquantLfqMatrixCandidateEntry(JsonModel):
     lfq_intensities: tuple[MaxquantLfqIntensityEntry, ...] = Field(
         default_factory=tuple
     )
+    provenance: ImportedEvidenceProvenance
 
 
 class MaxquantImportSummary(JsonModel):
@@ -191,7 +197,10 @@ def build_maxquant_import_report(
         adapter_kind=SearchAdapterKind.MAXQUANT_EVIDENCE,
         dialect_id="bundle-evidence",
     )
-    evidence_rows = _build_maxquant_evidence_rows(evidence_normalization)
+    evidence_rows = _build_maxquant_evidence_rows(
+        evidence_normalization,
+        source_path=evidence_txt_path,
+    )
     peptide_rows = _parse_maxquant_peptide_table(peptides_txt_path)
     protein_group_rows, lfq_experiment_names = _parse_maxquant_protein_groups_table(
         protein_groups_txt_path
@@ -325,6 +334,7 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
                 "target_decoy_label",
                 "reverse_flag",
                 "contaminant_flag",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -347,6 +357,7 @@ def render_maxquant_evidence_tsv(rows: tuple[MaxquantEvidenceReviewEntry, ...]) 
                     row.target_decoy_label.value,
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -377,6 +388,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
                 "target_decoy_label",
                 "reverse_flag",
                 "contaminant_flag",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -400,6 +412,7 @@ def render_maxquant_peptide_tsv(rows: tuple[MaxquantPeptideReviewEntry, ...]) ->
                     row.target_decoy_label.value,
                     str(row.reverse_flag).lower(),
                     str(row.contaminant_flag).lower(),
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -433,6 +446,7 @@ def render_maxquant_protein_group_tsv(
                 "contaminant_flag",
                 "only_identified_by_site",
                 "lfq_intensities",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -461,6 +475,7 @@ def render_maxquant_protein_group_tsv(
                     str(row.contaminant_flag).lower(),
                     str(row.only_identified_by_site).lower(),
                     lfq_payload,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -493,6 +508,7 @@ def render_maxquant_lfq_candidate_tsv(
                 "only_identified_by_site",
                 "observed_lfq_experiment_count",
                 "lfq_intensities",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -516,6 +532,7 @@ def render_maxquant_lfq_candidate_tsv(
                     str(row.only_identified_by_site).lower(),
                     str(row.observed_lfq_experiment_count),
                     lfq_payload,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -524,6 +541,8 @@ def render_maxquant_lfq_candidate_tsv(
 
 def _build_maxquant_evidence_rows(
     normalization: SearchAdapterNormalizationReport,
+    *,
+    source_path: Path,
 ) -> tuple[MaxquantEvidenceReviewEntry, ...]:
     rows: list[MaxquantEvidenceReviewEntry] = []
     for evidence_row in normalization.evidence_rows:
@@ -551,6 +570,13 @@ def _build_maxquant_evidence_rows(
                 target_decoy_label=record.target_decoy_label,
                 reverse_flag=_flagged(raw.get("Reverse")),
                 contaminant_flag=_flagged(raw.get("Potential contaminant")),
+                provenance=record.provenance
+                or ImportedEvidenceProvenance.from_single_row(
+                    source_engine="maxquant-evidence",
+                    source_file=str(source_path),
+                    source_row_number=evidence_row.row_number,
+                    original_identifiers={"spectrum_id": record.spectrum_id},
+                ),
             )
         )
     return tuple(
@@ -577,7 +603,7 @@ def _parse_maxquant_peptide_table(
     rows: list[MaxquantPeptideReviewEntry] = []
     with peptides_txt_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        for raw_row in reader:
+        for row_number, raw_row in enumerate(reader, start=2):
             sequence = _required_text(raw_row, "Sequence")
             modified_sequence = _optional_text(raw_row.get("Modified sequence"))
             if modified_sequence:
@@ -594,6 +620,27 @@ def _parse_maxquant_peptide_table(
                 modification_count = 0
             protein_refs = _split_semicolon_field(raw_row.get("Proteins"))
             reverse_flag = _flagged(raw_row.get("Reverse"))
+            provenance = ImportedEvidenceProvenance.from_single_row(
+                source_engine="maxquant",
+                source_file=str(peptides_txt_path),
+                source_row_number=row_number,
+                original_identifiers={
+                    "sequence": sequence,
+                    **(
+                        {"modified_sequence": modified_sequence}
+                        if modified_sequence is not None
+                        else {}
+                    ),
+                    **(
+                        {
+                            "leading_razor_protein": _optional_text(
+                                raw_row.get("Leading razor protein")
+                            )
+                            or ""
+                        }
+                    ),
+                },
+            )
             rows.append(
                 MaxquantPeptideReviewEntry(
                     sequence=sequence,
@@ -616,6 +663,7 @@ def _parse_maxquant_peptide_table(
                     ),
                     reverse_flag=reverse_flag,
                     contaminant_flag=_flagged(raw_row.get("Potential contaminant")),
+                    provenance=provenance,
                 )
             )
     return tuple(
@@ -645,13 +693,31 @@ def _parse_maxquant_protein_groups_table(
         lfq_columns = tuple(
             column for column in fieldnames if column.startswith("LFQ intensity ")
         )
-        for raw_row in reader:
+        for row_number, raw_row in enumerate(reader, start=2):
             protein_ids = _split_semicolon_field(raw_row.get("Protein IDs"))
             reverse_flag = _flagged(raw_row.get("Reverse"))
+            row_provenance = ImportedEvidenceProvenance.from_single_row(
+                source_engine="maxquant",
+                source_file=str(protein_groups_txt_path),
+                source_row_number=row_number,
+                original_identifiers={
+                    "protein_ids": ";".join(protein_ids),
+                    "majority_protein_ids": raw_row.get("Majority protein IDs", ""),
+                },
+            )
             lfq_intensities = tuple(
                 MaxquantLfqIntensityEntry(
                     experiment_name=column.removeprefix("LFQ intensity ").strip(),
                     intensity=_optional_float(raw_row.get(column)) or 0.0,
+                    provenance=ImportedEvidenceProvenance.combine(
+                        (row_provenance,),
+                        original_identifiers={
+                            "protein_ids": ";".join(protein_ids),
+                            "experiment_name": column.removeprefix(
+                                "LFQ intensity "
+                            ).strip(),
+                        },
+                    ),
                 )
                 for column in lfq_columns
             )
@@ -682,6 +748,7 @@ def _parse_maxquant_protein_groups_table(
                         raw_row.get("Only identified by site")
                     ),
                     lfq_intensities=lfq_intensities,
+                    provenance=row_provenance,
                 )
             )
     experiment_names = tuple(
@@ -729,6 +796,7 @@ def build_maxquant_lfq_matrix_candidates(
                 1 for entry in row.lfq_intensities if entry.intensity > 0.0
             ),
             lfq_intensities=row.lfq_intensities,
+            provenance=row.provenance,
         )
         for row in protein_group_rows
     ]
