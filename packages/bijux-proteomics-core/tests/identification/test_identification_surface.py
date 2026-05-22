@@ -167,6 +167,35 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert second.contaminant_flag is True
 
 
+def test_psm_parser_accepts_csv_tables_through_shared_engine(tmp_path: Path) -> None:
+    source = tmp_path / "comma_psm.csv"
+    source.write_text(
+        "\n".join(
+            (
+                "run_name,scan_ref,sequence_text,z,state_score,accessions",
+                "run_A,generic-1001,PESTIDE,2,55.0,P12345",
+                "run_B,generic-1002,DECOYPEP,3,12.0,DECOY_P54321",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        run_id="run_name",
+        spectrum_id="scan_ref",
+        peptide="sequence_text",
+        charge="z",
+        score="state_score",
+        protein_refs="accessions",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 2
+    assert report.accepted_records[0].run_id == "run_A"
+    assert report.accepted_records[1].target_decoy_label is TargetDecoyLabel.DECOY
+
+
 def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
     report = parse_psm_tsv(
         _psm_fixture("malformed_results.tsv"), mapping=_default_mapping()

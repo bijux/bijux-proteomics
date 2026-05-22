@@ -29,6 +29,12 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TargetDecoyState,
 )
+from bijux_proteomics.tabular import (
+    DelimitedTableIssue,
+    RejectedDelimitedRow,
+    parse_delimited_table,
+    render_tsv_rows,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -1673,35 +1679,32 @@ def parse_psm_tsv(
     active_policy = decoy_policy or TargetDecoyLabelPolicy()
     accepted_records: list[PsmRecord] = []
     rejected_rows: list[RejectedPsmRow] = []
-
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        if reader.fieldnames is None:
-            raise ValueError("PSM TSV must include a header row")
-        for required_column in (
+    table_report = parse_delimited_table(
+        path,
+        required_columns=(
             mapping.spectrum_id,
             mapping.peptide,
             mapping.charge,
             mapping.score,
-        ):
-            if required_column not in reader.fieldnames:
-                raise ValueError(f"missing required PSM column {required_column!r}")
+        ),
+    )
+    header_issues = _header_validation_issues(table_report.rejected_rows)
+    if header_issues:
+        raise ValueError(_header_error_message(header_issues[0], path))
 
-        for index, row in enumerate(reader, start=2):
-            normalized_row = {
-                str(key): str(value) for key, value in row.items() if key is not None
-            }
-            try:
-                accepted_records.append(
-                    _parse_psm_row(
-                        normalized_row,
-                        row_number=index,
-                        mapping=mapping,
-                        decoy_policy=active_policy,
-                    )
+    for row in table_report.accepted_rows:
+        normalized_row = row.raw_values
+        try:
+            accepted_records.append(
+                _parse_psm_row(
+                    normalized_row,
+                    row_number=row.row_number,
+                    mapping=mapping,
+                    decoy_policy=active_policy,
                 )
-            except ValueError as exc:
-                rejected_rows.append(RejectedPsmRow.model_validate_json(str(exc)))
+            )
+        except ValueError as exc:
+            rejected_rows.append(RejectedPsmRow.model_validate_json(str(exc)))
 
     return PsmParseReport(
         total_rows=len(accepted_records) + len(rejected_rows),
@@ -1742,43 +1745,68 @@ def export_psm_jsonl(records: tuple[PsmRecord, ...], path: Path) -> None:
 def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
     """Write normalized PSM records as a stable TSV table."""
     normalized = normalize_psm_records(records)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.writer(handle, delimiter="\t")
-        writer.writerow(
-            [
-                "run_id",
-                "spectrum_id",
-                "peptide_sequence",
-                "peptide",
-                "modified_peptide",
-                "canonical_peptide",
-                "charge",
-                "score",
-                "intensity",
-                "q_value",
-                "protein_refs",
-                "target_decoy_label",
-                "contaminant_flag",
-            ]
-        )
-        for record in normalized:
-            writer.writerow(
-                [
-                    record.run_id or "",
-                    record.spectrum_id,
-                    record.peptide_sequence or "",
-                    record.peptide,
-                    record.modified_peptide or "",
-                    record.canonical_peptide,
-                    record.charge,
-                    record.score,
-                    "" if record.intensity is None else record.intensity,
-                    "" if record.q_value is None else record.q_value,
-                    ";".join(record.protein_refs),
-                    record.target_decoy_label.value,
-                    "true" if record.contaminant_flag else "false",
-                ]
-            )
+    content = render_tsv_rows(
+        fieldnames=(
+            "run_id",
+            "spectrum_id",
+            "peptide_sequence",
+            "peptide",
+            "modified_peptide",
+            "canonical_peptide",
+            "charge",
+            "score",
+            "intensity",
+            "q_value",
+            "protein_refs",
+            "target_decoy_label",
+            "contaminant_flag",
+        ),
+        rows=tuple(
+            {
+                "run_id": record.run_id,
+                "spectrum_id": record.spectrum_id,
+                "peptide_sequence": record.peptide_sequence,
+                "peptide": record.peptide,
+                "modified_peptide": record.modified_peptide,
+                "canonical_peptide": record.canonical_peptide,
+                "charge": record.charge,
+                "score": record.score,
+                "intensity": record.intensity,
+                "q_value": record.q_value,
+                "protein_refs": ";".join(record.protein_refs),
+                "target_decoy_label": record.target_decoy_label.value,
+                "contaminant_flag": record.contaminant_flag,
+            }
+            for record in normalized
+        ),
+    )
+    path.write_text(content, encoding="utf-8")
+
+
+def _header_validation_issues(
+    rejected_rows: tuple[RejectedDelimitedRow, ...],
+) -> tuple[DelimitedTableIssue, ...]:
+    if not rejected_rows:
+        return ()
+    first_row = rejected_rows[0]
+    issues = getattr(first_row, "issues", ())
+    if getattr(first_row, "row_number", None) != 1 or not issues:
+        return ()
+    return tuple(issues)
+
+
+def _header_error_message(issue: DelimitedTableIssue, path: Path) -> str:
+    code = issue.code
+    column = issue.column
+    if code == "missing_header":
+        return "PSM TSV must include a header row"
+    if code == "empty_table":
+        return "PSM TSV must include a header row"
+    if code == "missing_required_column" and isinstance(column, str):
+        return f"missing required PSM column {column!r}"
+    if issue.message:
+        return issue.message
+    return f"unable to parse PSM table {path}"
 
 
 def sort_psm_records(
