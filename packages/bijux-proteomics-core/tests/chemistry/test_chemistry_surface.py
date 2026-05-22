@@ -619,7 +619,7 @@ def test_modified_peptide_export_record_stays_stable_across_jsonl_and_tsv(
 def test_isotope_envelope_approximation_is_normalized_and_advisory() -> None:
     envelope = approximate_peptide_isotope_envelope("PEPTIDE", charge=2, peak_count=4)
 
-    assert envelope.status.value == "advisory"
+    assert envelope.status.value == "predicted"
     assert len(envelope.peaks) == 4
     assert isclose(
         sum(peak.intensity for peak in envelope.peaks), 1.0, rel_tol=0.0, abs_tol=1e-9
