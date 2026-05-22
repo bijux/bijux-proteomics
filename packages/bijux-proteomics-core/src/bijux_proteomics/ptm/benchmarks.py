@@ -15,6 +15,7 @@ from bijux_proteomics.ptm import (
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
     PtmSiteEntry,
+    build_ptm_motif_enrichment_background_provenance_report,
     build_ptm_occupancy_counterpart_report,
 )
 from bijux_proteomics.ptm.proteoforms import (
@@ -25,7 +26,6 @@ from bijux_proteomics.ptm.proteoforms import (
 from bijux_proteomics.ptm.review import (
     build_acetyl_specific_review_fixture_report,
     build_phospho_specific_review_fixture_report,
-    build_ptm_motif_enrichment_background_provenance_report,
     build_ptm_site_localization_evidence_graph,
     build_ubiquitin_remnant_workflow_report,
     evaluate_glycopeptide_support_boundary,

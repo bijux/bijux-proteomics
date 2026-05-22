@@ -120,6 +120,33 @@ class PtmMotifLogoDatum(JsonModel):
     frequency: float = Field(..., ge=0.0, le=1.0)
 
 
+class PtmMotifEnrichmentTermEntry(JsonModel):
+    """One residue-level term in PTM motif background-provenance reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    residue: str = Field(..., min_length=1, max_length=1)
+    foreground_site_count: int = Field(..., ge=0)
+    background_site_count: int = Field(..., ge=0)
+    enrichment_ratio: float | None = Field(default=None, ge=0.0)
+
+
+class PtmMotifEnrichmentBackgroundProvenanceReport(JsonModel):
+    """Motif enrichment report with explicit background and test provenance."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    modification_name: str = Field(..., min_length=1)
+    background_universe: str = Field(..., min_length=1)
+    applied_filters: tuple[str, ...] = Field(default_factory=tuple)
+    statistical_test: str = Field(..., min_length=1)
+    multiple_testing_correction: str = Field(..., min_length=1)
+    foreground_site_count: int = Field(..., ge=0)
+    background_site_count: int = Field(..., ge=0)
+    terms: tuple[PtmMotifEnrichmentTermEntry, ...] = Field(default_factory=tuple)
+    caveats: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class PtmPhosphositeMotifEnrichmentReport(JsonModel):
     """Regulated phosphosite windows prepared for motif comparison and logo output."""
 
@@ -364,6 +391,64 @@ def build_ptm_phosphosite_motif_enrichment_report(
         note=(
             "phosphosite motif enrichment preserves centered sequence windows, position-specific residue frequencies, enriched motif terms, and logo-ready data for one explicit regulated-versus-background phosphosite comparison"
         ),
+    )
+
+
+def build_ptm_motif_enrichment_background_provenance_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    protein_sequences: dict[str, str],
+    modification_name: str,
+    background_universe: str,
+    applied_filters: tuple[str, ...],
+    statistical_test: str = "fisher_exact",
+    multiple_testing_correction: str = "benjamini_hochberg",
+) -> PtmMotifEnrichmentBackgroundProvenanceReport:
+    """Build a provenance-aware motif background report from one PTM site table."""
+
+    relevant = tuple(
+        entry for entry in site_entries if entry.modification_name == modification_name
+    )
+    residues = tuple(sorted({entry.residue for entry in relevant})) or ("S", "T", "Y")
+    residue_background_counts = {
+        residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+        for residue in residues
+    }
+    term_entries: list[PtmMotifEnrichmentTermEntry] = []
+    background_total = sum(residue_background_counts.values())
+    foreground_total = len(relevant)
+    for residue in residues:
+        foreground_count = sum(1 for entry in relevant if entry.residue == residue)
+        background_count = residue_background_counts[residue]
+        ratio = (
+            (foreground_count / foreground_total)
+            / (background_count / max(background_total, 1))
+            if foreground_total > 0 and background_count > 0
+            else None
+        )
+        term_entries.append(
+            PtmMotifEnrichmentTermEntry(
+                residue=residue,
+                foreground_site_count=foreground_count,
+                background_site_count=background_count,
+                enrichment_ratio=round(ratio, 6) if ratio is not None else None,
+            )
+        )
+    caveats: list[str] = []
+    if any(entry.ambiguous for entry in relevant):
+        caveats.append("foreground contains ambiguous site assignments")
+    if not relevant:
+        caveats.append("foreground is empty for requested PTM class")
+    return PtmMotifEnrichmentBackgroundProvenanceReport(
+        modification_name=modification_name,
+        background_universe=background_universe,
+        applied_filters=applied_filters,
+        statistical_test=statistical_test,
+        multiple_testing_correction=multiple_testing_correction,
+        foreground_site_count=foreground_total,
+        background_site_count=background_total,
+        terms=tuple(term_entries),
+        caveats=tuple(caveats),
     )
 
 
