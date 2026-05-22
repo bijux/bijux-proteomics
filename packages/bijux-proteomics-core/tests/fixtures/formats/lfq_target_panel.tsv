@@ -1,0 +1,5 @@
+target_id	target_kind	peptide_sequence	protein_ref	display_name
+lfq-apeptide	peptide	APEPTIDE	P001	APEPTIDE biomarker
+lfq-cpeptide	peptide	CPEPTIDE	P002	CPEPTIDE biomarker
+lfq-p003	protein		P003	Protein 3 biomarker
+lfq-missing-peptide	peptide	ZPEPTIDE		Missing peptide
