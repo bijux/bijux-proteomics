@@ -132,6 +132,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Format ingestion, spectrum parsing, search normalization, target-decoy handling, and protein-inference-ready evidence contracts.",
         required_modules=(
             "tabular.py",
+            "scientific_tables.py",
             "io/formats.py",
             "io/ingestion.py",
             "io/spectra.py",
@@ -253,7 +254,7 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         "protease_digest_comparison.py",
     }:
         return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
-    if module_path == "tabular.py" or module_path.startswith(("io/", "identification/")):
+    if module_path in {"tabular.py", "scientific_tables.py"} or module_path.startswith(("io/", "identification/")):
         return CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION
     if module_path.startswith(
         ("quantification/", "study/", "multiplex/", "isotope_labeling/", "targeted/")
