@@ -108,8 +108,11 @@ from bijux_proteomics.identification import (
     render_evidence_level_fdr_entries_tsv,
     render_evidence_level_fdr_summary_tsv,
     render_fragpipe_benchmark_summary_tsv,
+    render_fragpipe_canonical_psm_tsv,
     render_fragpipe_count_comparisons_tsv,
+    render_fragpipe_open_search_evidence_tsv,
     render_fragpipe_peptide_tsv,
+    render_fragpipe_protein_quantity_tsv,
     render_fragpipe_protein_group_comparison_tsv,
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
@@ -1802,7 +1805,15 @@ def psm_contaminants_command(
     required=True,
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
 )
+@click.option(
+    "--quant-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--canonical-psm-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
 @click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--peptide-review-tsv-out",
@@ -1810,6 +1821,14 @@ def psm_contaminants_command(
 )
 @click.option(
     "--protein-review-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--open-search-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-quantity-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option(
@@ -1822,10 +1841,14 @@ def fragpipe_import_command(
     psm_tsv: Path,
     peptide_tsv: Path,
     protein_tsv: Path,
+    quant_tsv: Path | None,
     summary_tsv_out: Path | None,
+    canonical_psm_tsv_out: Path | None,
     psm_tsv_out: Path | None,
     peptide_review_tsv_out: Path | None,
     protein_review_tsv_out: Path | None,
+    open_search_tsv_out: Path | None,
+    protein_quantity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one FragPipe result bundle with explicit PSM, peptide, and protein review."""
@@ -1834,12 +1857,18 @@ def fragpipe_import_command(
             psm_tsv,
             peptide_tsv_path=peptide_tsv,
             protein_tsv_path=protein_tsv,
+            quant_tsv_path=quant_tsv,
         )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_fragpipe_summary_tsv(report.summary))
+    if canonical_psm_tsv_out is not None:
+        _write_text_output(
+            canonical_psm_tsv_out,
+            render_fragpipe_canonical_psm_tsv(report.canonical_psms),
+        )
     if psm_tsv_out is not None:
         _write_text_output(psm_tsv_out, render_fragpipe_psm_tsv(report.psm_rows))
     if peptide_review_tsv_out is not None:
@@ -1852,6 +1881,16 @@ def fragpipe_import_command(
             protein_review_tsv_out,
             render_fragpipe_protein_tsv(report.protein_rows),
         )
+    if open_search_tsv_out is not None:
+        _write_text_output(
+            open_search_tsv_out,
+            render_fragpipe_open_search_evidence_tsv(report.open_search_evidence),
+        )
+    if protein_quantity_tsv_out is not None:
+        _write_text_output(
+            protein_quantity_tsv_out,
+            render_fragpipe_protein_quantity_tsv(report.protein_quantity_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -1862,11 +1901,17 @@ def fragpipe_import_command(
             ),
             "rejected_rows": len(report.psm_normalization.parse_report.rejected_rows),
         },
+        "canonical_psms": [row.to_dict() for row in report.canonical_psms],
         "psm_rows": [row.to_dict() for row in report.psm_rows],
         "peptide_rows": [row.to_dict() for row in report.peptide_rows],
         "protein_rows": [row.to_dict() for row in report.protein_rows],
+        "open_search_evidence": [row.to_dict() for row in report.open_search_evidence],
+        "protein_quantity_rows": [row.to_dict() for row in report.protein_quantity_rows],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "canonical_psm_tsv": None
+            if canonical_psm_tsv_out is None
+            else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
             "peptide_review_tsv": None
             if peptide_review_tsv_out is None
@@ -1874,6 +1919,12 @@ def fragpipe_import_command(
             "protein_review_tsv": None
             if protein_review_tsv_out is None
             else str(protein_review_tsv_out),
+            "open_search_tsv": None
+            if open_search_tsv_out is None
+            else str(open_search_tsv_out),
+            "protein_quantity_tsv": None
+            if protein_quantity_tsv_out is None
+            else str(protein_quantity_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
