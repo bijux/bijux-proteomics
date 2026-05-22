@@ -44,7 +44,9 @@ from bijux_proteomics.identification.sage_import import (
 )
 from bijux_proteomics.identification.spectronaut_import import (
     build_spectronaut_import_report,
+    render_spectronaut_precursor_quantity_tsv,
     render_spectronaut_precursor_tsv,
+    render_spectronaut_protein_group_quantity_tsv,
     render_spectronaut_protein_group_tsv,
 )
 
@@ -207,8 +209,18 @@ def test_spectronaut_export_renderers_ignore_input_row_order() -> None:
     assert render_spectronaut_precursor_tsv(
         report.precursor_rows
     ) == render_spectronaut_precursor_tsv(_reversed_rows(report.precursor_rows))
+    assert render_spectronaut_precursor_quantity_tsv(
+        report.precursor_quantity_rows
+    ) == render_spectronaut_precursor_quantity_tsv(
+        _reversed_rows(report.precursor_quantity_rows)
+    )
     assert render_spectronaut_protein_group_tsv(
         report.protein_group_rows
     ) == render_spectronaut_protein_group_tsv(
         _reversed_rows(report.protein_group_rows)
+    )
+    assert render_spectronaut_protein_group_quantity_tsv(
+        report.protein_group_quantity_rows
+    ) == render_spectronaut_protein_group_quantity_tsv(
+        _reversed_rows(report.protein_group_quantity_rows)
     )
