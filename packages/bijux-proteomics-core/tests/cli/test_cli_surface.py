@@ -3292,6 +3292,8 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
                 "maxquant.peptides.tsv",
                 "--protein-group-tsv-out",
                 "maxquant.proteins.tsv",
+                "--lfq-candidate-tsv-out",
+                "maxquant.lfq_candidates.tsv",
             ],
         )
 
@@ -3300,6 +3302,7 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
         assert payload["summary"]["accepted_evidence_count"] == 4
         assert payload["summary"]["peptide_row_count"] == 4
         assert payload["summary"]["protein_group_row_count"] == 4
+        assert payload["summary"]["lfq_candidate_count"] == 4
         assert payload["summary"]["experiment_names"] == ["raw_A", "raw_B"]
         assert payload["summary"]["lfq_experiment_names"] == ["raw_A", "raw_B"]
         assert payload["summary"]["contaminant_evidence_count"] == 1
@@ -3313,10 +3316,13 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
             payload["protein_group_rows"][0]["lfq_intensities"][0]["experiment_name"]
             == "raw_A"
         )
+        assert payload["lfq_matrix_candidates"][2]["contaminant_flag"] is True
+        assert payload["lfq_matrix_candidates"][0]["member_peptides"] == ["PESTIDE"]
         assert Path("maxquant.summary.tsv").exists()
         assert Path("maxquant.evidence.tsv").exists()
         assert Path("maxquant.peptides.tsv").exists()
         assert Path("maxquant.proteins.tsv").exists()
+        assert Path("maxquant.lfq_candidates.tsv").exists()
 
 
 def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
