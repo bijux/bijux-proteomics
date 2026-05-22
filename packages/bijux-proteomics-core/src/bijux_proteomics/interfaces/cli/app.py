@@ -406,7 +406,6 @@ from bijux_proteomics.ptm import (
     build_ptm_differential_analysis_report,
     build_ptm_enrichment_input,
     build_ptm_phosphosite_motif_enrichment_report,
-    build_ptm_report_bundle,
     build_ptm_ambiguity_review_report,
     build_ptm_differential_volcano_plot,
     build_ptm_site_group_quantification_report,
@@ -425,7 +424,6 @@ from bijux_proteomics.ptm import (
     parse_ptm_peptide_tsv,
     parse_ptm_localization_tsv,
     export_ptm_differential_volcano_tsv,
-    export_ptm_report_bundle,
     export_ptm_mapped_site_annotation_tsv,
     export_ptm_phosphosite_motif_enriched_term_tsv,
     export_ptm_phosphosite_motif_frequency_tsv,
@@ -603,6 +601,7 @@ from bijux_proteomics.workflow import (
     build_dda_biological_workflow_bundle,
     build_diann_biological_workflow_bundle,
     build_maxquant_biological_workflow_bundle,
+    build_ptm_site_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
@@ -618,6 +617,7 @@ from bijux_proteomics.workflow import (
     export_biological_result_report_bundle,
     export_dda_biological_workflow_bundle,
     export_maxquant_biological_workflow_bundle,
+    export_ptm_site_workflow_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
@@ -14693,21 +14693,11 @@ def ptm_report_command(
 ) -> None:
     """Build one governed PTM report directory over peptide, site, quant, and motif surfaces."""
     try:
-        fragment_ion_support_by_spectrum: dict[str, tuple[str, ...]] | None = None
-        if fragment_support_json is not None:
-            raw_fragment_support = json.loads(
-                fragment_support_json.read_text(encoding="utf-8")
-            )
-            if not isinstance(raw_fragment_support, dict):
-                raise ValueError(
-                    "fragment support JSON must be an object keyed by spectrum id"
-                )
-            fragment_ion_support_by_spectrum = {
-                str(spectrum_id): tuple(str(ion) for ion in ions)
-                for spectrum_id, ions in raw_fragment_support.items()
-            }
-        evidence = parse_ptm_localization_tsv(
+        workflow_report = build_ptm_site_workflow_bundle(
             evidence_tsv,
+            proteins_fasta,
+            feature_tsv_path=feature_tsv,
+            design_path=design_path,
             mapping=PtmLocalizationColumnMapping(
                 sample_id=sample_column,
                 spectrum_id=spectrum_id_column,
@@ -14723,32 +14713,7 @@ def ptm_report_command(
                 protein_separator=protein_separator,
                 site_separator=site_separator,
             ),
-        )
-        fasta_report = parse_fasta_document(
-            proteins_fasta.read_text(),
-            mode=FastaParseMode.STRICT,
-        )
-        if fasta_report.rejected_records:
-            rejected = ", ".join(
-                record.source_identifier for record in fasta_report.rejected_records
-            )
-            raise click.ClickException(
-                f"FASTA input contains rejected records under strict mode: {rejected}"
-            )
-        feature_report = parse_ms1_feature_table(feature_tsv)
-        design_report = parse_experimental_design_table(design_path)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        protein_sequences = {
-            record.canonical_accession: record.residues
-            for record in fasta_report.accepted_records
-        }
-        report = build_ptm_report_bundle(
-            evidence.accepted_records,
-            protein_sequences=protein_sequences,
-            fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
-            feature_records=feature_report.accepted_records,
-            design_entries=design_report.accepted_entries,
+            fragment_support_json_path=fragment_support_json,
             ambiguity_policy=PtmSiteQuantAmbiguityPolicy(ambiguity_policy.lower()),
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
@@ -14773,24 +14738,32 @@ def ptm_report_command(
                 max_reported_term_count=max_reported_term_count,
             ),
         )
-        manifest = export_ptm_report_bundle(report, output_dir)
+        workflow_manifest = export_ptm_site_workflow_bundle(workflow_report, output_dir)
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
-    manifest_path = output_dir / "ptm_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    workflow_manifest_path = output_dir / "ptm_site_workflow_manifest.json"
+    workflow_manifest_path.write_text(
+        workflow_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
 
     _emit_json(
         {
-            "accepted_rows": len(evidence.accepted_records),
-            "rejected_rows": len(evidence.rejected_rows),
-            "feature_rows": len(feature_report.accepted_records),
-            "design_rows": len(design_report.accepted_entries),
-            "report": report.to_dict(),
-            "export_manifest": manifest.to_dict(),
+            "accepted_rows": workflow_report.summary.accepted_evidence_count,
+            "rejected_rows": workflow_report.summary.rejected_evidence_count,
+            "feature_rows": workflow_report.summary.feature_row_count,
+            "design_rows": workflow_report.summary.design_row_count,
+            "workflow_report": workflow_report.to_dict(),
+            "report": workflow_report.report.to_dict(),
+            "workflow_export_manifest": workflow_manifest.to_dict(),
+            "export_manifest": workflow_manifest.ptm_report_manifest.to_dict(),
             "outputs": {
                 "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
+                "workflow_manifest_json": str(workflow_manifest_path),
+                "report_manifest_json": str(
+                    output_dir / workflow_manifest.artifacts.ptm_report_manifest_json
+                ),
             },
         },
         out_path=out_path,
