@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -68,6 +69,26 @@ class OpenMsFeatureReviewEntry(JsonModel):
     missing_reason: str | None = None
 
 
+class OpenMsFeatureValidationIssue(JsonModel):
+    """One stable issue carried from the OpenMS feature-table parser."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    message: str = Field(..., min_length=1)
+    row_number: int = Field(..., ge=2)
+
+
+class OpenMsRejectedFeatureRow(JsonModel):
+    """One rejected OpenMS feature-table row with stable issue details."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    raw_fields: dict[str, str] = Field(default_factory=dict)
+    issues: tuple[OpenMsFeatureValidationIssue, ...] = Field(default_factory=tuple)
+
+
 class OpenMsImportSummary(JsonModel):
     """Compact summary over one OpenMS import bundle."""
 
@@ -105,6 +126,9 @@ class OpenMsImportReport(JsonModel):
     psm_rows: tuple[OpenMsPsmReviewEntry, ...] = Field(default_factory=tuple)
     protein_rows: tuple[OpenMsProteinReviewEntry, ...] = Field(default_factory=tuple)
     feature_rows: tuple[OpenMsFeatureReviewEntry, ...] = Field(default_factory=tuple)
+    rejected_feature_rows: tuple[OpenMsRejectedFeatureRow, ...] = Field(
+        default_factory=tuple
+    )
     feature_parse_summary: OpenMsFeatureParseSummary
     summary: OpenMsImportSummary
 
@@ -121,6 +145,7 @@ def build_openms_import_report(
         _build_feature_review_entry(record)
         for record in feature_report.accepted_records
     )
+    rejected_feature_rows = _build_rejected_feature_rows(feature_report)
     feature_samples = tuple(sorted({row.sample_id for row in feature_rows}))
     summary = OpenMsImportSummary(
         accepted_psm_count=len(psm_rows),
@@ -152,6 +177,7 @@ def build_openms_import_report(
         psm_rows=psm_rows,
         protein_rows=protein_rows,
         feature_rows=feature_rows,
+        rejected_feature_rows=rejected_feature_rows,
         feature_parse_summary=OpenMsFeatureParseSummary(
             total_rows=feature_report.total_rows,
             accepted_rows=len(feature_report.accepted_records),
@@ -316,10 +342,40 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
     return "\n".join(lines) + "\n"
 
 
+def render_openms_rejected_feature_tsv(
+    rows: tuple[OpenMsRejectedFeatureRow, ...],
+) -> str:
+    """Render rejected OpenMS feature-table rows as TSV."""
+
+    ordered_rows = tuple(sorted(rows, key=lambda row: row.row_number))
+    lines = [
+        "\t".join(
+            (
+                "row_number",
+                "issue_codes",
+                "issue_messages",
+                "raw_fields_json",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    str(row.row_number),
+                    ";".join(issue.code for issue in row.issues),
+                    ";".join(issue.message for issue in row.issues),
+                    json.dumps(row.raw_fields, sort_keys=True, separators=(",", ":")),
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _parse_openms_idxml(
     idxml_path: Path,
 ) -> tuple[tuple[OpenMsPsmReviewEntry, ...], tuple[OpenMsProteinReviewEntry, ...]]:
-    root = ET.parse(idxml_path).getroot()
+    root = _parse_openms_idxml_root(idxml_path)
     if root is None:
         raise ValueError("invalid idXML: missing document root")
     if _local_name(root.tag) != "IdXML":
@@ -442,6 +498,27 @@ def _parse_openms_feature_table(feature_table_path: Path) -> Ms1FeatureParseRepo
     return parse_ms1_feature_table(feature_table_path, mapping=mapping)
 
 
+def _build_rejected_feature_rows(
+    feature_report: Ms1FeatureParseReport,
+) -> tuple[OpenMsRejectedFeatureRow, ...]:
+    rows = [
+        OpenMsRejectedFeatureRow(
+            row_number=row.row_number,
+            raw_fields=row.raw_fields,
+            issues=tuple(
+                OpenMsFeatureValidationIssue(
+                    code=issue.code,
+                    message=issue.message,
+                    row_number=issue.row_number,
+                )
+                for issue in row.issues
+            ),
+        )
+        for row in feature_report.rejected_rows
+    ]
+    return tuple(sorted(rows, key=lambda row: row.row_number))
+
+
 def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReviewEntry:
     return OpenMsFeatureReviewEntry(
         feature_id=record.feature_id,
@@ -455,6 +532,34 @@ def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReview
         retention_time_seconds=record.retention_time_seconds,
         missing_reason=record.missing_reason,
     )
+
+
+def _parse_openms_idxml_root(path: Path) -> ET.Element:
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError as exc:
+        line_number, column_number = _parse_error_location(exc)
+        if line_number is not None and column_number is not None:
+            raise ValueError(
+                "OpenMS idXML parse error in "
+                f"{path.name} at line {line_number}, column {column_number}: {exc}"
+            ) from exc
+        raise ValueError(f"OpenMS idXML parse error in {path.name}: {exc}") from exc
+    if root is None:
+        raise ValueError("invalid idXML: missing document root")
+    return root
+
+
+def _parse_error_location(exc: ET.ParseError) -> tuple[int | None, int | None]:
+    position = getattr(exc, "position", None)
+    if (
+        isinstance(position, tuple)
+        and len(position) == 2
+        and isinstance(position[0], int)
+        and isinstance(position[1], int)
+    ):
+        return position
+    return (None, None)
 
 
 def _protein_label(accession: str) -> TargetDecoyLabel:
