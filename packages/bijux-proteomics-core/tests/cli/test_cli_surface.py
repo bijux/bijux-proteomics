@@ -962,6 +962,42 @@ def test_digest_command_reports_invalid_output_path(
         assert "No such file or directory" in result.output
 
 
+def test_theoretical_digest_command_writes_governed_bundle() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("proteins.fasta").write_text(
+            ">sp|P12345|CHEM Protein chemistry\nACDMK\n"
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "theoretical-digest",
+                "proteins.fasta",
+                "--protease",
+                "trypsin",
+                "--static-mod",
+                "Carbamidomethyl",
+                "--variable-mod",
+                "Oxidation",
+                "--out-dir",
+                "digest_bundle",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "trypsin"
+        assert payload["static_modification_names"] == ["Carbamidomethyl"]
+        assert payload["variable_modification_names"] == ["Oxidation"]
+        assert payload["output_candidate_peptide_count"] == 2
+        assert Path("digest_bundle/digest_peptides.tsv").exists()
+        assert Path("digest_bundle/peptide_to_protein.tsv").exists()
+        assert Path("digest_bundle/digest_summary.tsv").exists()
+        assert "ACDM[Oxidation]K" in Path("digest_bundle/digest_peptides.tsv").read_text()
+        assert "Carbamidomethyl" in Path("digest_bundle/digest_summary.tsv").read_text()
+
+
 def test_peptide_index_command_reports_groups_il_equivalence_and_missed_cleavages() -> (
     None
 ):
