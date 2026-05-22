@@ -35,8 +35,9 @@ def test_tmt_ratio_report_builds_peptide_sample_control_ratios() -> None:
     assert report.summary.source_kind.value == "raw"
     assert report.summary.control_channel == "126"
     assert report.summary.multiplex_group_count == 2
-    assert report.summary.peptide_ratio_count == 8
-    assert report.summary.protein_ratio_count == 8
+    assert report.summary.peptide_ratio_count == 12
+    assert report.summary.protein_ratio_count == 12
+    assert report.summary.missing_ratio_count == 8
     first = next(
         entry
         for entry in report.peptide_ratios
@@ -47,6 +48,15 @@ def test_tmt_ratio_report_builds_peptide_sample_control_ratios() -> None:
     assert first.control_sample_id == "plex_a_126"
     assert round(first.ratio, 6) == round(1400.0 / 1200.0, 6)
     assert round(first.log2_ratio, 6) == round(math.log2(1400.0 / 1200.0), 6)
+    missing = next(
+        entry
+        for entry in report.peptide_ratios
+        if entry.multiplex_group == "plex-a"
+        and entry.peptide_id == "PEPTIDE"
+        and entry.numerator_channel == "129N"
+    )
+    assert missing.ratio is None
+    assert missing.missing_reason == "sample_channel_missing"
     protein = next(
         entry
         for entry in report.protein_ratios

@@ -49,10 +49,11 @@ class TmtPeptideRatioEntry(JsonModel):
     peptide_id: str = Field(..., min_length=1)
     peptide_sequence: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
-    numerator_abundance: float = Field(..., ge=0.0)
-    control_abundance: float = Field(..., gt=0.0)
-    ratio: float = Field(..., ge=0.0)
-    log2_ratio: float
+    numerator_abundance: float | None = Field(default=None, ge=0.0)
+    control_abundance: float | None = Field(default=None, ge=0.0)
+    ratio: float | None = Field(default=None, ge=0.0)
+    log2_ratio: float | None = None
+    missing_reason: str | None = None
     note: str = Field(..., min_length=1)
 
 
@@ -67,6 +68,7 @@ class TmtRatioSummary(JsonModel):
     multiplex_group_count: int = Field(..., ge=0)
     peptide_ratio_count: int = Field(..., ge=0)
     protein_ratio_count: int = Field(..., ge=0)
+    missing_ratio_count: int = Field(..., ge=0)
 
 
 class TmtProteinRatioEntry(JsonModel):
@@ -85,10 +87,11 @@ class TmtProteinRatioEntry(JsonModel):
     protein_id: str = Field(..., min_length=1)
     target_kind: ProteinMatrixTargetKind
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
-    numerator_abundance: float = Field(..., ge=0.0)
-    control_abundance: float = Field(..., gt=0.0)
-    ratio: float = Field(..., ge=0.0)
-    log2_ratio: float
+    numerator_abundance: float | None = Field(default=None, ge=0.0)
+    control_abundance: float | None = Field(default=None, ge=0.0)
+    ratio: float | None = Field(default=None, ge=0.0)
+    log2_ratio: float | None = None
+    missing_reason: str | None = None
     note: str = Field(..., min_length=1)
 
 
@@ -142,20 +145,41 @@ def build_tmt_ratio_report(
         ):
             if entry.multiplex_channel == control_channel:
                 continue
+            numerator_value = value_by_sample.get(entry.sample_id or "")
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
+                numerator_abundance = None if numerator_value is None else numerator_value.abundance
+                peptide_ratios.append(
+                    TmtPeptideRatioEntry(
+                        multiplex_group=entry.multiplex_group,
+                        numerator_channel=entry.multiplex_channel,
+                        numerator_sample_id=entry.sample_id or "",
+                        numerator_condition=entry.condition,
+                        numerator_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                        control_channel=control_channel,
+                        control_sample_id="",
+                        control_condition=None,
+                        peptide_id=row.entity_id,
+                        peptide_sequence=row.peptide_sequence,
+                        protein_refs=row.protein_refs,
+                        numerator_abundance=numerator_abundance,
+                        control_abundance=None,
+                        ratio=None,
+                        log2_ratio=None,
+                        missing_reason="control_channel_missing_from_design",
+                        note="control channel is absent from the multiplex design for this group",
+                    )
+                )
                 continue
-            numerator_value = value_by_sample.get(entry.sample_id or "")
             control_value = value_by_sample.get(control_entry.sample_id or "")
-            if (
-                numerator_value is None
-                or control_value is None
-                or numerator_value.abundance is None
-                or control_value.abundance is None
-                or control_value.abundance <= 0.0
-            ):
-                continue
-            ratio = float(numerator_value.abundance) / float(control_value.abundance)
+            ratio, log2_ratio, missing_reason = _ratio_from_values(
+                numerator_abundance=(
+                    None if numerator_value is None else numerator_value.abundance
+                ),
+                control_abundance=(
+                    None if control_value is None else control_value.abundance
+                ),
+            )
             peptide_ratios.append(
                 TmtPeptideRatioEntry(
                     multiplex_group=entry.multiplex_group,
@@ -169,11 +193,20 @@ def build_tmt_ratio_report(
                     peptide_id=row.entity_id,
                     peptide_sequence=row.peptide_sequence,
                     protein_refs=row.protein_refs,
-                    numerator_abundance=float(numerator_value.abundance),
-                    control_abundance=float(control_value.abundance),
+                    numerator_abundance=(
+                        None if numerator_value is None else numerator_value.abundance
+                    ),
+                    control_abundance=(
+                        None if control_value is None else control_value.abundance
+                    ),
                     ratio=ratio,
-                    log2_ratio=float(math.log2(ratio)) if ratio > 0.0 else float("-inf"),
-                    note="sample/control ratio is computed within one multiplex group against the governed control channel",
+                    log2_ratio=log2_ratio,
+                    missing_reason=missing_reason,
+                    note=(
+                        "sample/control ratio is computed within one multiplex group against the governed control channel"
+                        if missing_reason is None
+                        else "sample/control ratio is preserved even though one required channel value is missing"
+                    ),
                 )
             )
     for row in matrix_report.protein_matrix.rows:
@@ -187,20 +220,41 @@ def build_tmt_ratio_report(
         ):
             if entry.multiplex_channel == control_channel:
                 continue
+            numerator_value = value_by_sample.get(entry.sample_id or "")
             control_entry = control_by_group.get(entry.multiplex_group)
             if control_entry is None:
+                numerator_abundance = None if numerator_value is None else numerator_value.abundance
+                protein_ratios.append(
+                    TmtProteinRatioEntry(
+                        multiplex_group=entry.multiplex_group,
+                        numerator_channel=entry.multiplex_channel,
+                        numerator_sample_id=entry.sample_id or "",
+                        numerator_condition=entry.condition,
+                        numerator_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                        control_channel=control_channel,
+                        control_sample_id="",
+                        control_condition=None,
+                        protein_id=row.entity_id,
+                        target_kind=row.target_kind,
+                        protein_refs=row.protein_refs,
+                        numerator_abundance=numerator_abundance,
+                        control_abundance=None,
+                        ratio=None,
+                        log2_ratio=None,
+                        missing_reason="control_channel_missing_from_design",
+                        note="control channel is absent from the multiplex design for this group",
+                    )
+                )
                 continue
-            numerator_value = value_by_sample.get(entry.sample_id or "")
             control_value = value_by_sample.get(control_entry.sample_id or "")
-            if (
-                numerator_value is None
-                or control_value is None
-                or numerator_value.abundance is None
-                or control_value.abundance is None
-                or control_value.abundance <= 0.0
-            ):
-                continue
-            ratio = float(numerator_value.abundance) / float(control_value.abundance)
+            ratio, log2_ratio, missing_reason = _ratio_from_values(
+                numerator_abundance=(
+                    None if numerator_value is None else numerator_value.abundance
+                ),
+                control_abundance=(
+                    None if control_value is None else control_value.abundance
+                ),
+            )
             protein_ratios.append(
                 TmtProteinRatioEntry(
                     multiplex_group=entry.multiplex_group,
@@ -214,13 +268,25 @@ def build_tmt_ratio_report(
                     protein_id=row.entity_id,
                     target_kind=row.target_kind,
                     protein_refs=row.protein_refs,
-                    numerator_abundance=float(numerator_value.abundance),
-                    control_abundance=float(control_value.abundance),
+                    numerator_abundance=(
+                        None if numerator_value is None else numerator_value.abundance
+                    ),
+                    control_abundance=(
+                        None if control_value is None else control_value.abundance
+                    ),
                     ratio=ratio,
-                    log2_ratio=float(math.log2(ratio)) if ratio > 0.0 else float("-inf"),
-                    note="sample/control ratio is computed within one multiplex group against the governed control channel",
+                    log2_ratio=log2_ratio,
+                    missing_reason=missing_reason,
+                    note=(
+                        "sample/control ratio is computed within one multiplex group against the governed control channel"
+                        if missing_reason is None
+                        else "sample/control ratio is preserved even though one required channel value is missing"
+                    ),
                 )
             )
+    missing_ratio_count = sum(
+        1 for entry in (*peptide_ratios, *protein_ratios) if entry.missing_reason is not None
+    )
     return TmtRatioReport(
         source_kind=source_kind,
         summary=TmtRatioSummary(
@@ -230,6 +296,7 @@ def build_tmt_ratio_report(
             multiplex_group_count=len(control_by_group),
             peptide_ratio_count=len(peptide_ratios),
             protein_ratio_count=len(protein_ratios),
+            missing_ratio_count=missing_ratio_count,
         ),
         peptide_ratios=tuple(
             sorted(
@@ -277,3 +344,20 @@ def _matrix_report_for_ratios(
         TmtRatioSourceKind.NORMALIZED,
         normalization_policy.method.value,
     )
+
+
+def _ratio_from_values(
+    *,
+    numerator_abundance: float | None,
+    control_abundance: float | None,
+) -> tuple[float | None, float | None, str | None]:
+    if numerator_abundance is None:
+        return None, None, "sample_channel_missing"
+    if control_abundance is None:
+        return None, None, "control_channel_missing"
+    if control_abundance <= 0.0:
+        return None, None, "control_channel_zero"
+    ratio = float(numerator_abundance) / float(control_abundance)
+    if ratio <= 0.0:
+        return ratio, None, None
+    return ratio, float(math.log2(ratio)), None
