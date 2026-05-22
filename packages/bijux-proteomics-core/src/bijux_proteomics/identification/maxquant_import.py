@@ -26,6 +26,11 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.scientific_tables import (
+    build_maxquant_peptides_schema,
+    build_maxquant_protein_groups_schema,
+    require_valid_scientific_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 _MAXQUANT_DECOY_POLICY = TargetDecoyLabelPolicy(
@@ -459,6 +464,10 @@ def _build_maxquant_evidence_rows(
 def _parse_maxquant_peptide_table(
     peptides_txt_path: Path,
 ) -> tuple[MaxquantPeptideReviewEntry, ...]:
+    require_valid_scientific_table(
+        peptides_txt_path,
+        schema=build_maxquant_peptides_schema(),
+    )
     rows: list[MaxquantPeptideReviewEntry] = []
     with peptides_txt_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
@@ -519,6 +528,10 @@ def _parse_maxquant_peptide_table(
 def _parse_maxquant_protein_groups_table(
     protein_groups_txt_path: Path,
 ) -> tuple[tuple[MaxquantProteinGroupReviewEntry, ...], tuple[str, ...]]:
+    require_valid_scientific_table(
+        protein_groups_txt_path,
+        schema=build_maxquant_protein_groups_schema(),
+    )
     rows: list[MaxquantProteinGroupReviewEntry] = []
     with protein_groups_txt_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")

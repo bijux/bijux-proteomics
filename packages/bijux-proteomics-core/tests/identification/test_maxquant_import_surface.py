@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from bijux_proteomics.identification.maxquant_import import (
     build_maxquant_import_report,
     render_maxquant_evidence_tsv,
@@ -12,6 +14,7 @@ from bijux_proteomics.identification.maxquant_import import (
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
 )
+from bijux_proteomics.scientific_tables import ScientificTableValidationError
 
 
 def _bundle_root() -> Path:
@@ -64,3 +67,45 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert "lfq_intensities" in render_maxquant_protein_group_tsv(
         report.protein_group_rows
     )
+
+
+def test_maxquant_import_rejects_invalid_peptide_and_protein_group_tables(
+    tmp_path: Path,
+) -> None:
+    evidence_path = _bundle_root() / "evidence.txt"
+    peptides_path = tmp_path / "peptides.txt"
+    peptides_path.write_text(
+        "\n".join(
+            (
+                "Sequence\tModified sequence\tProteins\tLeading razor protein\tScore\tPEP\tIntensity\tMS/MS Count\tReverse\tPotential contaminant",
+                "PEPTIDE\t_PEPTIDE_\tP11111\tP11111\t120\t1.2\t1000\t5\t\t0",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    protein_groups_path = tmp_path / "proteinGroups.txt"
+    protein_groups_path.write_text(
+        "\n".join(
+            (
+                "Protein IDs\tMajority protein IDs\tGene names\tFasta headers\tPeptides\tRazor + unique peptides\tSequence coverage [%]\tMS/MS count\tReverse\tPotential contaminant\tOnly identified by site\tLFQ intensity raw_A",
+                "P11111\tP11111\tKIN1\tsp|P11111|KINASE_HUMAN Kinase 1\t3\t2\t45.2\t5\t\t0\t0\t-10",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ScientificTableValidationError) as excinfo:
+        build_maxquant_import_report(
+            evidence_path,
+            peptides_txt_path=peptides_path,
+            protein_groups_txt_path=protein_groups_path,
+        )
+
+    issue_codes = {
+        issue.code
+        for row in excinfo.value.report.rejected_rows
+        for issue in row.issues
+    }
+    assert "invalid_q_value" in issue_codes or "negative_intensity" in issue_codes
