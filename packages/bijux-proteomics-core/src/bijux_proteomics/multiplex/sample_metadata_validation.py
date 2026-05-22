@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from pathlib import Path
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import (
@@ -212,3 +216,165 @@ def _condition_missing(condition: str | None) -> bool:
     if condition is None:
         return True
     return condition.strip().lower() in {"", "na", "n/a", "unknown", "unassigned"}
+
+
+def render_multiplex_metadata_summary_tsv(
+    report: MultiplexMetadataValidationReport,
+) -> str:
+    """Render the compact multiplex metadata-validation summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group_count",
+            "multiplex_channel_count",
+            "assigned_channel_count",
+            "missing_channel_assignment_count",
+            "duplicate_assignment_count",
+            "missing_condition_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.multiplex_group_count,
+            report.summary.multiplex_channel_count,
+            report.summary.assigned_channel_count,
+            report.summary.missing_channel_assignment_count,
+            report.summary.duplicate_assignment_count,
+            report.summary.missing_condition_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_multiplex_channel_assignment_tsv(
+    report: MultiplexMetadataValidationReport,
+) -> str:
+    """Render the multiplex channel-assignment ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "sample_role",
+            "assigned",
+            "note",
+        ]
+    )
+    for entry in report.channel_assignments:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                entry.condition or "",
+                entry.sample_role or "",
+                entry.assigned,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_multiplex_duplicate_assignment_tsv(
+    report: MultiplexMetadataValidationReport,
+) -> str:
+    """Render the duplicate-assignment findings ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "issue_kind",
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "entry_count",
+            "note",
+        ]
+    )
+    for entry in report.duplicate_assignments:
+        writer.writerow(
+            [
+                entry.issue_kind,
+                entry.multiplex_group,
+                entry.multiplex_channel or "",
+                entry.sample_id or "",
+                entry.entry_count,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_multiplex_missing_condition_tsv(
+    report: MultiplexMetadataValidationReport,
+) -> str:
+    """Render the missing-condition findings ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "sample_role",
+            "note",
+        ]
+    )
+    for entry in report.missing_conditions:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.sample_role,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_multiplex_metadata_summary_tsv(
+    report: MultiplexMetadataValidationReport,
+    path: Path,
+) -> None:
+    """Write the compact multiplex metadata-validation summary ledger."""
+
+    path.write_text(render_multiplex_metadata_summary_tsv(report), encoding="utf-8")
+
+
+def export_multiplex_channel_assignment_tsv(
+    report: MultiplexMetadataValidationReport,
+    path: Path,
+) -> None:
+    """Write the multiplex channel-assignment ledger."""
+
+    path.write_text(render_multiplex_channel_assignment_tsv(report), encoding="utf-8")
+
+
+def export_multiplex_duplicate_assignment_tsv(
+    report: MultiplexMetadataValidationReport,
+    path: Path,
+) -> None:
+    """Write the duplicate-assignment findings ledger."""
+
+    path.write_text(
+        render_multiplex_duplicate_assignment_tsv(report),
+        encoding="utf-8",
+    )
+
+
+def export_multiplex_missing_condition_tsv(
+    report: MultiplexMetadataValidationReport,
+    path: Path,
+) -> None:
+    """Write the missing-condition findings ledger."""
+
+    path.write_text(render_multiplex_missing_condition_tsv(report), encoding="utf-8")
