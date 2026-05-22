@@ -85,3 +85,27 @@ def test_silac_triplet_ratio_report_collapses_charge_states_when_requested() -> 
         and entry.numerator_label is SilacLabel.HEAVY
     )
     assert round(heavy.ratio or 0.0, 6) == round(2400.0 / 1500.0, 6)
+
+
+def test_silac_import_rejects_invalid_labels_and_duplicate_feature_ids(
+    tmp_path: Path,
+) -> None:
+    feature_path = tmp_path / "silac_invalid.tsv"
+    feature_path.write_text(
+        "\n".join(
+            (
+                "feature_id\tsample_id\tpeptide\tprotein_refs\tcharge\tlabel\tintensity",
+                "f1\tsample_a\tPEPTIDE\tP11111\t2\tlight\t1000",
+                "f1\tsample_a\tPEPTIDE\tP11111\t2\tsuperheavy\t-5",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_silac_feature_table(feature_path)
+
+    assert len(report.accepted_rows) == 0
+    assert len(report.rejected_rows) == 2
+    assert "duplicates identifier" in report.rejected_rows[0].reason
+    assert "unsupported value" in report.rejected_rows[1].reason or "negative" in report.rejected_rows[1].reason

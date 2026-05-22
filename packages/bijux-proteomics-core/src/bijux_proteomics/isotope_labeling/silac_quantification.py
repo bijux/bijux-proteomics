@@ -14,6 +14,10 @@ from typing import Iterable
 
 from pydantic import ConfigDict, Field, model_validator
 
+from bijux_proteomics.scientific_tables import (
+    build_silac_feature_table_schema,
+    validate_scientific_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -181,11 +185,26 @@ def parse_silac_feature_table(
     """Parse one SILAC feature table into a governed import report."""
 
     active_mapping = mapping or SilacColumnMapping()
+    validation_report = validate_scientific_table(
+        path,
+        schema=build_silac_feature_table_schema(active_mapping),
+    )
     accepted_rows: list[SilacFeatureObservation] = []
-    rejected_rows: list[RejectedSilacFeatureRow] = []
+    rejected_rows: list[RejectedSilacFeatureRow] = [
+        RejectedSilacFeatureRow(
+            row_number=row.row_number,
+            reason=row.issues[0].message if row.issues else "silac feature row was rejected",
+        )
+        for row in validation_report.rejected_rows
+    ]
     with path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        for row_number, row in enumerate(reader, start=2):
+        rows_by_number = {
+            row_number: row for row_number, row in enumerate(reader, start=2)
+        }
+        for accepted_row in validation_report.accepted_rows:
+            row_number = accepted_row.row_number
+            row = rows_by_number.get(row_number, {})
             try:
                 accepted_rows.append(
                     SilacFeatureObservation(
