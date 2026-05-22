@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -35,6 +37,29 @@ class DiaLibraryCoverageSampleEntry(JsonModel):
     detected_protein_count: int = Field(..., ge=0)
     peptide_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
     protein_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
+
+
+class DiaLibraryCoveragePeptideEntry(JsonModel):
+    """One library peptide with explicit DIA detection burden."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    detected_overall: bool
+    detected_sample_count: int = Field(..., ge=0)
+    detected_condition_count: int = Field(..., ge=0)
+
+
+class DiaLibraryCoverageProteinEntry(JsonModel):
+    """One library protein with explicit DIA detection burden."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    detected_overall: bool
+    detected_sample_count: int = Field(..., ge=0)
+    detected_condition_count: int = Field(..., ge=0)
 
 
 class DiaLibraryCoverageConditionEntry(JsonModel):
@@ -72,6 +97,12 @@ class DiaLibraryCoverageReport(JsonModel):
 
     source_name: str = Field(default="DIA-NN", min_length=1)
     library_source_format: str = Field(..., min_length=1)
+    peptide_entries: tuple[DiaLibraryCoveragePeptideEntry, ...] = Field(
+        default_factory=tuple
+    )
+    protein_entries: tuple[DiaLibraryCoverageProteinEntry, ...] = Field(
+        default_factory=tuple
+    )
     sample_entries: tuple[DiaLibraryCoverageSampleEntry, ...] = Field(default_factory=tuple)
     condition_entries: tuple[DiaLibraryCoverageConditionEntry, ...] = Field(
         default_factory=tuple
@@ -94,6 +125,7 @@ def build_dia_library_coverage_report(
         for entry in library_report.entries
         if entry.target_decoy_label.value != "decoy"
     }
+    library_peptide_protein_refs = _build_library_peptide_protein_refs(library_report)
     library_proteins = {
         protein_ref
         for entry in library_report.entries
@@ -105,6 +137,16 @@ def build_dia_library_coverage_report(
         for row in peptide_matrix.rows
     }
     detected_proteins = {row.entity_id for row in protein_matrix.rows}
+    peptide_entries = _build_peptide_entries(
+        library_peptide_protein_refs=library_peptide_protein_refs,
+        peptide_matrix=peptide_matrix,
+        design_entries=design_entries,
+    )
+    protein_entries = _build_protein_entries(
+        library_proteins=library_proteins,
+        protein_matrix=protein_matrix,
+        design_entries=design_entries,
+    )
     sample_entries = _build_sample_entries(
         library_peptides=library_peptides,
         library_proteins=library_proteins,
@@ -120,6 +162,8 @@ def build_dia_library_coverage_report(
     )
     return DiaLibraryCoverageReport(
         library_source_format=library_report.source_format.value,
+        peptide_entries=peptide_entries,
+        protein_entries=protein_entries,
         sample_entries=sample_entries,
         condition_entries=condition_entries,
         summary=DiaLibraryCoverageSummary(
@@ -179,6 +223,187 @@ def build_diann_library_coverage_report(
     )
 
 
+def render_dia_library_coverage_summary_tsv(report: DiaLibraryCoverageReport) -> str:
+    """Render a compact summary for one DIA spectral-library coverage report."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "library_source_format",
+            "library_peptide_count",
+            "detected_peptide_count",
+            "library_protein_count",
+            "detected_protein_count",
+            "sample_count",
+            "condition_count",
+            "peptide_coverage_fraction",
+            "protein_coverage_fraction",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.library_source_format,
+            report.summary.library_peptide_count,
+            report.summary.detected_peptide_count,
+            report.summary.library_protein_count,
+            report.summary.detected_protein_count,
+            report.summary.sample_count,
+            report.summary.condition_count,
+            report.summary.peptide_coverage_fraction,
+            report.summary.protein_coverage_fraction,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_library_coverage_sample_tsv(report: DiaLibraryCoverageReport) -> str:
+    """Render sample-scoped library coverage entries."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "detected_peptide_count",
+            "detected_protein_count",
+            "peptide_coverage_fraction",
+            "protein_coverage_fraction",
+        ]
+    )
+    for entry in report.sample_entries:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.detected_peptide_count,
+                entry.detected_protein_count,
+                entry.peptide_coverage_fraction,
+                entry.protein_coverage_fraction,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_library_coverage_condition_tsv(report: DiaLibraryCoverageReport) -> str:
+    """Render condition-scoped library coverage entries."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "condition",
+            "sample_ids",
+            "detected_peptide_count",
+            "detected_protein_count",
+            "peptide_coverage_fraction",
+            "protein_coverage_fraction",
+        ]
+    )
+    for entry in report.condition_entries:
+        writer.writerow(
+            [
+                entry.condition,
+                ";".join(entry.sample_ids),
+                entry.detected_peptide_count,
+                entry.detected_protein_count,
+                entry.peptide_coverage_fraction,
+                entry.protein_coverage_fraction,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_library_coverage_peptide_tsv(report: DiaLibraryCoverageReport) -> str:
+    """Render library peptide coverage identities."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "canonical_peptide",
+            "protein_refs",
+            "detected_overall",
+            "detected_sample_count",
+            "detected_condition_count",
+        ]
+    )
+    for entry in report.peptide_entries:
+        writer.writerow(
+            [
+                entry.canonical_peptide,
+                ";".join(entry.protein_refs),
+                str(entry.detected_overall).lower(),
+                entry.detected_sample_count,
+                entry.detected_condition_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_library_coverage_protein_tsv(report: DiaLibraryCoverageReport) -> str:
+    """Render library protein coverage identities."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "protein_ref",
+            "detected_overall",
+            "detected_sample_count",
+            "detected_condition_count",
+        ]
+    )
+    for entry in report.protein_entries:
+        writer.writerow(
+            [
+                entry.protein_ref,
+                str(entry.detected_overall).lower(),
+                entry.detected_sample_count,
+                entry.detected_condition_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_dia_library_coverage_summary_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_library_coverage_summary_tsv(report), encoding="utf-8")
+
+
+def export_dia_library_coverage_sample_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_library_coverage_sample_tsv(report), encoding="utf-8")
+
+
+def export_dia_library_coverage_condition_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_library_coverage_condition_tsv(report), encoding="utf-8")
+
+
+def export_dia_library_coverage_peptide_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_library_coverage_peptide_tsv(report), encoding="utf-8")
+
+
+def export_dia_library_coverage_protein_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_library_coverage_protein_tsv(report), encoding="utf-8")
+
+
 def _build_sample_entries(
     *,
     library_peptides: set[str],
@@ -212,6 +437,87 @@ def _build_sample_entries(
                 protein_coverage_fraction=_fraction(
                     len(detected_proteins & library_proteins),
                     len(library_proteins),
+                ),
+            )
+        )
+    return tuple(entries)
+
+
+def _build_library_peptide_protein_refs(
+    library_report: SpectralLibraryImportReport,
+) -> dict[str, tuple[str, ...]]:
+    peptide_protein_refs: dict[str, set[str]] = {}
+    for entry in library_report.entries:
+        if entry.target_decoy_label.value == "decoy":
+            continue
+        peptide_protein_refs.setdefault(entry.canonical_peptide, set()).update(
+            entry.protein_refs
+        )
+    return {
+        canonical_peptide: tuple(sorted(protein_refs))
+        for canonical_peptide, protein_refs in sorted(peptide_protein_refs.items())
+    }
+
+
+def _build_peptide_entries(
+    *,
+    library_peptide_protein_refs: dict[str, tuple[str, ...]],
+    peptide_matrix: DiaPeptideMatrixReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[DiaLibraryCoveragePeptideEntry, ...]:
+    row_by_peptide = {
+        row.canonical_peptide: row for row in peptide_matrix.rows
+    }
+    entries: list[DiaLibraryCoveragePeptideEntry] = []
+    for canonical_peptide, protein_refs in sorted(library_peptide_protein_refs.items()):
+        matching_row = row_by_peptide.get(canonical_peptide)
+        detected_samples = (
+            {value.sample_id for value in matching_row.values if value.detected}
+            if matching_row is not None
+            else set()
+        )
+        entries.append(
+            DiaLibraryCoveragePeptideEntry(
+                canonical_peptide=canonical_peptide,
+                protein_refs=protein_refs,
+                detected_overall=matching_row is not None,
+                detected_sample_count=len(detected_samples),
+                detected_condition_count=len(
+                    _condition_ids_for_sample_ids(
+                        detected_samples,
+                        design_entries=design_entries,
+                    )
+                ),
+            )
+        )
+    return tuple(entries)
+
+
+def _build_protein_entries(
+    *,
+    library_proteins: set[str],
+    protein_matrix: DiaProteinMatrixReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[DiaLibraryCoverageProteinEntry, ...]:
+    row_by_protein = {row.entity_id: row for row in protein_matrix.rows}
+    entries: list[DiaLibraryCoverageProteinEntry] = []
+    for protein_ref in sorted(library_proteins):
+        matching_row = row_by_protein.get(protein_ref)
+        detected_samples = (
+            {value.sample_id for value in matching_row.values if value.detected}
+            if matching_row is not None
+            else set()
+        )
+        entries.append(
+            DiaLibraryCoverageProteinEntry(
+                protein_ref=protein_ref,
+                detected_overall=matching_row is not None,
+                detected_sample_count=len(detected_samples),
+                detected_condition_count=len(
+                    _condition_ids_for_sample_ids(
+                        detected_samples,
+                        design_entries=design_entries,
+                    )
                 ),
             )
         )
@@ -267,3 +573,15 @@ def _fraction(numerator: int, denominator: int) -> float:
     if denominator <= 0:
         return 0.0
     return min(1.0, max(0.0, numerator / denominator))
+
+
+def _condition_ids_for_sample_ids(
+    sample_ids: set[str],
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> set[str]:
+    return {
+        entry.condition
+        for entry in design_entries
+        if entry.sample_id in sample_ids
+    }

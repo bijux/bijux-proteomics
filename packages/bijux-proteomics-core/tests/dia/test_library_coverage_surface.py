@@ -41,6 +41,28 @@ def test_build_diann_library_coverage_report_summarizes_library_scope() -> None:
     assert report.summary.protein_coverage_fraction == 0.8
     assert "measurable library scope" in report.note
 
+    assert len(report.peptide_entries) == 5
+    assert report.peptide_entries[0].canonical_peptide == "LIVNLY"
+    assert report.peptide_entries[0].protein_refs == ("P44444",)
+    assert report.peptide_entries[0].detected_overall is False
+    assert report.peptide_entries[0].detected_sample_count == 0
+    assert report.peptide_entries[0].detected_condition_count == 0
+    assert report.peptide_entries[1].canonical_peptide == "PEPALFA"
+    assert report.peptide_entries[1].protein_refs == ("P11111",)
+    assert report.peptide_entries[1].detected_overall is True
+    assert report.peptide_entries[1].detected_sample_count == 3
+    assert report.peptide_entries[1].detected_condition_count == 2
+
+    assert len(report.protein_entries) == 5
+    assert report.protein_entries[0].protein_ref == "P11111"
+    assert report.protein_entries[0].detected_overall is True
+    assert report.protein_entries[0].detected_sample_count == 3
+    assert report.protein_entries[0].detected_condition_count == 2
+    assert report.protein_entries[-1].protein_ref == "P44444"
+    assert report.protein_entries[-1].detected_overall is False
+    assert report.protein_entries[-1].detected_sample_count == 0
+    assert report.protein_entries[-1].detected_condition_count == 0
+
     assert report.sample_entries[0].sample_id == "sample_A"
     assert report.sample_entries[0].detected_peptide_count == 4
     assert report.sample_entries[0].detected_protein_count == 4
