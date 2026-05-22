@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -209,3 +210,48 @@ def _optional_float(value: str | None) -> float | None:
     if not stripped:
         return None
     return float(stripped)
+
+
+def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -> str:
+    """Render imported targeted observations as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_kind",
+            "transition_id",
+            "precursor_id",
+            "peptide_sequence",
+            "sample_id",
+            "intensity",
+            "retention_time_minutes",
+            "quality_flag",
+            "protein_ref",
+            "fragment_label",
+            "precursor_mz",
+            "fragment_mz",
+        ]
+    )
+    for item in report.observations:
+        writer.writerow(
+            [
+                item.source_kind.value,
+                item.transition_id,
+                item.precursor_id,
+                item.peptide_sequence,
+                item.sample_id,
+                f"{item.intensity:g}",
+                (
+                    ""
+                    if item.retention_time_minutes is None
+                    else f"{item.retention_time_minutes:g}"
+                ),
+                "" if item.quality_flag is None else item.quality_flag,
+                "" if item.protein_ref is None else item.protein_ref,
+                "" if item.fragment_label is None else item.fragment_label,
+                "" if item.precursor_mz is None else f"{item.precursor_mz:g}",
+                "" if item.fragment_mz is None else f"{item.fragment_mz:g}",
+            ]
+        )
+    return buffer.getvalue()

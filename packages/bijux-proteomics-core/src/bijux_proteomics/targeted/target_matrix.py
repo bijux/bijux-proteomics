@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -205,3 +207,139 @@ def _median(values: list[float]) -> float | None:
     if len(ordered) % 2 == 1:
         return ordered[midpoint]
     return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
+
+
+def render_targeted_matrix_summary_tsv(report: TargetedMatrixReport) -> str:
+    """Render the compact summary for one targeted target matrix."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "target_count",
+            "sample_count",
+            "observed_cell_count",
+            "missing_cell_count",
+            "quality_flag_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.summary.target_count,
+            report.summary.sample_count,
+            report.summary.observed_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.quality_flag_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_targeted_matrix_target_tsv(report: TargetedMatrixReport) -> str:
+    """Render the target-level matrix ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "peptide_sequence",
+            "protein_ref",
+            "source_transition_ids",
+            "detected_sample_count",
+            "total_intensity",
+            "mean_intensity",
+            "median_retention_time_minutes",
+            "quality_flag_count",
+            "flagged_sample_count",
+        ]
+    )
+    for row in report.rows:
+        writer.writerow(
+            [
+                row.target_id,
+                row.peptide_sequence,
+                "" if row.protein_ref is None else row.protein_ref,
+                ";".join(row.source_transition_ids),
+                row.detected_sample_count,
+                f"{row.total_intensity:g}",
+                f"{row.mean_intensity:g}",
+                (
+                    ""
+                    if row.median_retention_time_minutes is None
+                    else f"{row.median_retention_time_minutes:g}"
+                ),
+                row.quality_flag_count,
+                row.flagged_sample_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_targeted_matrix_sample_tsv(report: TargetedMatrixReport) -> str:
+    """Render the sample-resolved targeted matrix ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "sample_id",
+            "source_transition_ids",
+            "intensity",
+            "retention_time_minutes",
+            "quality_flags",
+            "detected",
+        ]
+    )
+    for row in report.rows:
+        for value in row.values:
+            writer.writerow(
+                [
+                    row.target_id,
+                    value.sample_id,
+                    ";".join(value.source_transition_ids),
+                    "" if value.intensity is None else f"{value.intensity:g}",
+                    (
+                        ""
+                        if value.retention_time_minutes is None
+                        else f"{value.retention_time_minutes:g}"
+                    ),
+                    ";".join(value.quality_flags),
+                    str(value.detected).lower(),
+                ]
+            )
+    return buffer.getvalue()
+
+
+def render_targeted_matrix_flagged_tsv(report: TargetedMatrixReport) -> str:
+    """Render one flagged-target ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "peptide_sequence",
+            "protein_ref",
+            "quality_flag_count",
+            "flagged_sample_count",
+        ]
+    )
+    for row in report.rows:
+        if row.quality_flag_count <= 0:
+            continue
+        writer.writerow(
+            [
+                row.target_id,
+                row.peptide_sequence,
+                "" if row.protein_ref is None else row.protein_ref,
+                row.quality_flag_count,
+                row.flagged_sample_count,
+            ]
+        )
+    return buffer.getvalue()
