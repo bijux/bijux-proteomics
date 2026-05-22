@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.ptm import (
     parse_ptm_peptide_tsv,
     render_ptm_peptide_record_tsv,
+    render_ptm_peptide_rejected_tsv,
     render_ptm_peptide_site_tsv,
     render_ptm_peptide_summary_tsv,
 )
@@ -23,6 +24,7 @@ def test_ptm_peptide_renderers_keep_summary_record_and_site_views() -> None:
     summary_lines = render_ptm_peptide_summary_tsv(report).splitlines()
     record_lines = render_ptm_peptide_record_tsv(report).splitlines()
     site_lines = render_ptm_peptide_site_tsv(report).splitlines()
+    rejected_lines = render_ptm_peptide_rejected_tsv(report).splitlines()
 
     assert summary_lines[0].startswith(
         "accepted_record_count\trejected_row_count\tparsed_site_count"
@@ -42,4 +44,11 @@ def test_ptm_peptide_renderers_keep_summary_record_and_site_views() -> None:
         "AAS[Phospho]PEP\tAAS[Phospho]PEP\tP11111\tC1\tscan=ptm-peptide-001\tPhospho\tUNIMOD:21\tS\t3\t6\tanywhere"
         == line
         for line in site_lines
+    )
+    assert rejected_lines[0] == "row_number\tissues\traw_fields"
+    assert any(
+        line.startswith(
+            "5\tinvalid_peptide_start_position\tpeptide=M[Oxidation]PEP"
+        )
+        for line in rejected_lines
     )

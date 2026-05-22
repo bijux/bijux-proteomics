@@ -381,6 +381,25 @@ def render_ptm_peptide_site_tsv(report: PtmPeptideParseReport) -> str:
     return buffer.getvalue()
 
 
+def render_ptm_peptide_rejected_tsv(report: PtmPeptideParseReport) -> str:
+    """Render rejected PTM peptide rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["row_number", "issues", "raw_fields"])
+    for row in report.rejected_rows:
+        writer.writerow(
+            [
+                row.row_number,
+                ";".join(issue.code for issue in row.issues),
+                ";".join(
+                    f"{key}={value}" for key, value in sorted(row.raw_fields.items())
+                ),
+            ]
+        )
+    return buffer.getvalue()
+
+
 def _build_ptm_site_entry(
     *,
     modification,
