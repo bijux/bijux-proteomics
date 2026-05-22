@@ -117,6 +117,7 @@ from bijux_proteomics.identification import (
     render_fragpipe_summary_tsv,
     render_generic_psm_mapper_tsv,
     render_maxquant_evidence_tsv,
+    render_maxquant_lfq_candidate_tsv,
     render_maxquant_peptide_tsv,
     render_maxquant_protein_group_tsv,
     render_maxquant_summary_tsv,
@@ -2126,6 +2127,9 @@ def comet_import_command(
     "--protein-group-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
 )
 @click.option(
+    "--lfq-candidate-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -2140,6 +2144,7 @@ def maxquant_import_command(
     evidence_tsv_out: Path | None,
     peptide_tsv_out: Path | None,
     protein_group_tsv_out: Path | None,
+    lfq_candidate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one MaxQuant evidence, peptide, and protein-group bundle."""
@@ -2169,6 +2174,11 @@ def maxquant_import_command(
             protein_group_tsv_out,
             render_maxquant_protein_group_tsv(report.protein_group_rows),
         )
+    if lfq_candidate_tsv_out is not None:
+        _write_text_output(
+            lfq_candidate_tsv_out,
+            render_maxquant_lfq_candidate_tsv(report.lfq_matrix_candidates),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -2187,6 +2197,9 @@ def maxquant_import_command(
         "evidence_rows": [row.to_dict() for row in report.evidence_rows],
         "peptide_rows": [row.to_dict() for row in report.peptide_rows],
         "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
+        "lfq_matrix_candidates": [
+            row.to_dict() for row in report.lfq_matrix_candidates
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "evidence_tsv": None if evidence_tsv_out is None else str(evidence_tsv_out),
@@ -2194,6 +2207,9 @@ def maxquant_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+            "lfq_candidate_tsv": None
+            if lfq_candidate_tsv_out is None
+            else str(lfq_candidate_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
