@@ -1179,6 +1179,28 @@ def test_modified_peptide_parse_command_normalizes_engine_dialects() -> None:
         assert payload["at_protein_n_term"] is True
 
 
+def test_modified_peptide_parse_command_distinguishes_lysine_acetylation() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "modified-peptide-parse",
+                "_PEPK(Acetyl (K))IDE_",
+                "--dialect",
+                "maxquant",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["dialect"] == "maxquant"
+        assert payload["canonical_notation"] == "PEPK[AcetylLys]IDE"
+        assert payload["modified_peptide_record"]["modification_names"] == [
+            "AcetylLys"
+        ]
+
+
 def test_modified_peptide_parse_command_rejects_malformed_engine_notation() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
