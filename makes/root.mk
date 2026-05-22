@@ -45,10 +45,10 @@ DOCS_SERVE_PREPARE_TARGETS := bijux-docs-sync docs-render-serve-config
 .PHONY: \
 	help list list-all install lock lock-check lint quality security test test-all test-all-plus-run-time docs docs-check docs-serve api build sbom clean all \
 	ensure-venv nlenv manage_examples manage_models api-freeze openapi-drift architecture-check \
-	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist \
+	sync-badges sync-license-assets quality-docs-links quality-docs-consistency quality-artifact-governance release-preflight security-dependency-allowlist test-collection-gate \
 	clean-root-artifacts root-check-env check-shared-bijux-py
 
-check: lock-check lint test quality security docs api build sbom ## Run the full repository verification flow
+check: lock-check lint test-collection-gate test quality security docs api build sbom ## Run the full repository verification flow
 
 ensure-venv: install ## Ensure the shared root environment exists and is synced
 
@@ -74,6 +74,9 @@ quality-artifact-governance: root-check-env ## Enforce artifact roots and reposi
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_file_ownership --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.repository_drift_audit --check
 	@$(DEV_RUN) -m bijux_proteomics_dev.quality.artifacts.package_root_hygiene
+
+test-collection-gate: root-check-env ## Run workspace import checks and per-package pytest collection before feature tests
+	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.test_collection_gate
 
 release-preflight: root-check-env ## Run the hostile-review release preflight in exact stage order
 	@$(DEV_RUN) -m bijux_proteomics_dev.release.governance.final_preflight
