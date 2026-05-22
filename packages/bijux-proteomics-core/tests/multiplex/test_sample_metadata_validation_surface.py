@@ -21,6 +21,7 @@ def test_multiplex_metadata_validation_report_summarizes_valid_design_assignment
     assert report.summary.multiplex_group_count == 2
     assert report.summary.multiplex_channel_count == 8
     assert report.summary.assigned_channel_count == 8
+    assert report.summary.missing_channel_assignment_count == 0
     assert report.summary.duplicate_assignment_count == 0
     assert report.summary.missing_condition_count == 0
     first = report.channel_assignments[0]
@@ -28,3 +29,21 @@ def test_multiplex_metadata_validation_report_summarizes_valid_design_assignment
     assert first.multiplex_channel == "126"
     assert first.sample_id == "plex_a_126"
     assert first.assigned is True
+
+
+def test_multiplex_metadata_validation_report_preserves_missing_group_channel_assignments() -> None:
+    design_report = parse_experimental_design_table(_fixture("tmt_missing_channel.design.tsv"))
+
+    report = build_multiplex_metadata_validation_report(design_report)
+
+    assert report.summary.multiplex_group_count == 2
+    assert report.summary.multiplex_channel_count == 8
+    assert report.summary.assigned_channel_count == 7
+    assert report.summary.missing_channel_assignment_count == 1
+    missing = next(
+        entry
+        for entry in report.channel_assignments
+        if entry.multiplex_group == "plex-b" and entry.multiplex_channel == "129N"
+    )
+    assert missing.sample_id is None
+    assert missing.assigned is False

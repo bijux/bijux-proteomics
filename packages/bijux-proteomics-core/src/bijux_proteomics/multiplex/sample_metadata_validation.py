@@ -21,9 +21,9 @@ class MultiplexChannelAssignmentEntry(JsonModel):
 
     multiplex_group: str = Field(..., min_length=1)
     multiplex_channel: str = Field(..., min_length=1)
-    sample_id: str = Field(..., min_length=1)
+    sample_id: str | None = None
     condition: str | None = None
-    sample_role: str = Field(..., min_length=1)
+    sample_role: str | None = None
     assigned: bool
     note: str = Field(..., min_length=1)
 
@@ -36,6 +36,7 @@ class MultiplexMetadataSummary(JsonModel):
     multiplex_group_count: int = Field(..., ge=0)
     multiplex_channel_count: int = Field(..., ge=0)
     assigned_channel_count: int = Field(..., ge=0)
+    missing_channel_assignment_count: int = Field(..., ge=0)
     duplicate_assignment_count: int = Field(..., ge=0)
     missing_condition_count: int = Field(..., ge=0)
 
@@ -59,37 +60,60 @@ def build_multiplex_metadata_validation_report(
     """Validate design-backed multiplex channel, sample, and condition mappings."""
 
     multiplex_entries = _multiplex_entries(design_report.accepted_entries)
-    assignments = tuple(
-        MultiplexChannelAssignmentEntry(
-            multiplex_group=entry.multiplex_group or "",
-            multiplex_channel=entry.multiplex_channel or "",
-            sample_id=entry.sample_id,
-            condition=entry.condition,
-            sample_role=entry.sample_role.value,
-            assigned=True,
-            note="design row provides an explicit multiplex channel to sample mapping",
-        )
-        for entry in sorted(
-            multiplex_entries,
-            key=lambda item: (item.multiplex_group or "", item.multiplex_channel or ""),
-        )
+    channel_union = tuple(
+        sorted({entry.multiplex_channel or "" for entry in multiplex_entries})
     )
+    entries_by_group_and_channel = {
+        (entry.multiplex_group or "", entry.multiplex_channel or ""): entry
+        for entry in multiplex_entries
+    }
+    assignments: list[MultiplexChannelAssignmentEntry] = []
+    for multiplex_group in sorted({entry.multiplex_group or "" for entry in multiplex_entries}):
+        for multiplex_channel in channel_union:
+            entry = entries_by_group_and_channel.get((multiplex_group, multiplex_channel))
+            if entry is None:
+                assignments.append(
+                    MultiplexChannelAssignmentEntry(
+                        multiplex_group=multiplex_group,
+                        multiplex_channel=multiplex_channel,
+                        sample_id=None,
+                        condition=None,
+                        sample_role=None,
+                        assigned=False,
+                        note="expected multiplex channel is missing from this group in the design table",
+                    )
+                )
+                continue
+            assignments.append(
+                MultiplexChannelAssignmentEntry(
+                    multiplex_group=multiplex_group,
+                    multiplex_channel=multiplex_channel,
+                    sample_id=entry.sample_id,
+                    condition=entry.condition,
+                    sample_role=entry.sample_role.value,
+                    assigned=True,
+                    note="design row provides an explicit multiplex channel to sample mapping",
+                )
+            )
     return MultiplexMetadataValidationReport(
         design_report=design_report,
-        channel_assignments=assignments,
+        channel_assignments=tuple(assignments),
         summary=MultiplexMetadataSummary(
             multiplex_group_count=len(
                 {entry.multiplex_group for entry in multiplex_entries}
             ),
             multiplex_channel_count=len(assignments),
-            assigned_channel_count=len(assignments),
+            assigned_channel_count=sum(1 for entry in assignments if entry.assigned),
+            missing_channel_assignment_count=sum(
+                1 for entry in assignments if not entry.assigned
+            ),
             duplicate_assignment_count=0,
             missing_condition_count=sum(
                 1 for entry in multiplex_entries if not entry.condition
             ),
         ),
         note=(
-            "multiplex metadata validation preserves design-backed channel assignments before missing-channel and duplicate-assignment review is applied"
+            "multiplex metadata validation preserves expected channel assignment coverage before duplicate-assignment review is applied"
         ),
     )
 
