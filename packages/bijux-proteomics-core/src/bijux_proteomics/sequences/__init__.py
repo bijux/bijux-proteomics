@@ -10,3 +10,4 @@ from bijux_proteomics.sequences.core import *  # noqa: F401,F403
 from bijux_proteomics.sequences.digestion import *  # noqa: F401,F403
 from bijux_proteomics.sequences.fasta_profile import *  # noqa: F401,F403
 from bijux_proteomics.sequences.peptide_properties import *  # noqa: F401,F403
+from bijux_proteomics.sequences.theoretical_digest import *  # noqa: F401,F403
