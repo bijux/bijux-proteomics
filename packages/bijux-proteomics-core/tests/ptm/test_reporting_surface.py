@@ -6,12 +6,17 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmProteinCorrectionMode,
     build_ptm_report_bundle,
     parse_ptm_localization_tsv,
+    render_ptm_report_differential_tsv,
     render_ptm_report_localization_tsv,
     render_ptm_report_peptide_tsv,
+    render_ptm_report_site_quant_matrix_tsv,
     render_ptm_report_summary_tsv,
 )
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -31,6 +36,10 @@ def _protein_sequences() -> dict[str, str]:
         record.canonical_accession: record.residues
         for record in report.accepted_records
     }
+
+
+def _design_entries():
+    return parse_experimental_design_table(_ptm_fixture("ptm.design.tsv")).accepted_entries
 
 
 def test_ptm_report_bundle_builds_core_peptide_and_site_surfaces() -> None:
@@ -77,7 +86,8 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
 
     assert summary_lines[0] == (
         "accepted_evidence_count\tpeptide_entry_count\tsite_row_count\t"
-        "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count"
+        "ambiguous_site_count\tmodified_peptide_count\tlocalization_entry_count\t"
+        "quantified_site_row_count\tdifferential_site_count"
     )
     assert peptide_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide"
@@ -86,3 +96,26 @@ def test_ptm_report_bundle_renderers_keep_peptide_and_localization_sections_expl
     assert localization_lines[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide\tmodification_name"
     )
+
+
+def test_ptm_report_bundle_adds_quantified_and_differential_sections() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+
+    report = build_ptm_report_bundle(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+        feature_records=features.accepted_records,
+        design_entries=_design_entries(),
+        protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+    )
+
+    assert report.summary.quantified_site_row_count == 5
+    assert report.summary.differential_site_count == 5
+    assert report.site_quantification is not None
+    assert report.differential_analysis is not None
+    assert report.differential_analysis.protein_correction_mode.value == (
+        "subtract_unmodified_protein"
+    )
+    assert "P11111:S5:Phospho" in render_ptm_report_site_quant_matrix_tsv(report)
+    assert "P11111:S5:Phospho" in render_ptm_report_differential_tsv(report)
