@@ -7,6 +7,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum
+import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -606,3 +608,153 @@ def _matching_protein_rows(
         for row in row_specs
         if row.entity_id == target.protein_ref or target.protein_ref in row.protein_refs
     )
+
+
+def render_target_panel_summary_tsv(report: TargetPanelReport) -> str:
+    """Render a compact summary for one target-panel review."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_kind",
+            "source_name",
+            "total_target_count",
+            "matched_target_count",
+            "missing_target_count",
+            "matched_entity_count",
+            "sample_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_kind.value,
+            report.source_name,
+            report.summary.total_target_count,
+            report.summary.matched_target_count,
+            report.summary.missing_target_count,
+            report.summary.matched_entity_count,
+            report.summary.sample_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_target_panel_target_tsv(report: TargetPanelReport) -> str:
+    """Render one row per matched target."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "target_kind",
+            "matched_entity_ids",
+            "detected_sample_count",
+        ]
+    )
+    for entry in report.matched_targets:
+        writer.writerow(
+            [
+                entry.target_id,
+                entry.target_kind.value,
+                ";".join(entry.matched_entity_ids),
+                entry.detected_sample_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_target_panel_missing_tsv(report: TargetPanelReport) -> str:
+    """Render missing targets and stable reasons."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(["target_id", "target_kind", "reason"])
+    for entry in report.missing_targets:
+        writer.writerow([entry.target_id, entry.target_kind.value, entry.reason])
+    return buffer.getvalue()
+
+
+def render_target_panel_intensity_tsv(report: TargetPanelReport) -> str:
+    """Render long-form target intensities."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "target_kind",
+            "matched_entity_id",
+            "sample_id",
+            "abundance",
+            "detected",
+        ]
+    )
+    for entry in report.intensity_entries:
+        writer.writerow(
+            [
+                entry.target_id,
+                entry.target_kind.value,
+                entry.matched_entity_id,
+                entry.sample_id,
+                "" if entry.abundance is None else entry.abundance,
+                str(entry.detected).lower(),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_target_panel_matrix_tsv(report: TargetPanelReport) -> str:
+    """Render the filtered target panel as one wide matrix."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "target_kind",
+            "matched_entity_id",
+            "peptide_sequence",
+            "protein_refs",
+            *report.sample_ids,
+        ]
+    )
+    for row in report.filtered_rows:
+        values_by_sample = {value.sample_id: value.abundance for value in row.values}
+        writer.writerow(
+            [
+                row.target_id,
+                row.target_kind.value,
+                row.matched_entity_id,
+                row.peptide_sequence or "",
+                ";".join(row.protein_refs),
+                *[
+                    "" if values_by_sample.get(sample_id) is None else values_by_sample[sample_id]
+                    for sample_id in report.sample_ids
+                ],
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_target_panel_summary_tsv(report: TargetPanelReport, path: Path) -> None:
+    path.write_text(render_target_panel_summary_tsv(report), encoding="utf-8")
+
+
+def export_target_panel_target_tsv(report: TargetPanelReport, path: Path) -> None:
+    path.write_text(render_target_panel_target_tsv(report), encoding="utf-8")
+
+
+def export_target_panel_missing_tsv(report: TargetPanelReport, path: Path) -> None:
+    path.write_text(render_target_panel_missing_tsv(report), encoding="utf-8")
+
+
+def export_target_panel_intensity_tsv(report: TargetPanelReport, path: Path) -> None:
+    path.write_text(render_target_panel_intensity_tsv(report), encoding="utf-8")
+
+
+def export_target_panel_matrix_tsv(report: TargetPanelReport, path: Path) -> None:
+    path.write_text(render_target_panel_matrix_tsv(report), encoding="utf-8")
