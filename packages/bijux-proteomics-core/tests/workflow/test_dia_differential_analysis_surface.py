@@ -10,6 +10,7 @@ from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialSourceKind,
     build_diann_differential_analysis_report,
     build_diann_differential_input_report,
+    build_spectronaut_differential_analysis_report,
 )
 
 
@@ -25,6 +26,16 @@ def _diann_fixture(name: str) -> Path:
 
 def _format_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
+
+
+def _spectronaut_fixture(name: str) -> Path:
+    return (
+        Path(__file__).resolve().parent.parent
+        / "fixtures"
+        / "search_result_bundles"
+        / "spectronaut"
+        / name
+    )
 
 
 def test_build_diann_differential_input_report_preserves_sample_matrix() -> None:
@@ -81,3 +92,29 @@ def test_build_diann_differential_analysis_report_preserves_normalization_and_fd
     assert pg2.adjusted_p_value is not None
     assert pg3.adjusted_p_value == 1.0
     assert "benjamini-hochberg-corrected differential results" in report.note
+
+
+def test_build_spectronaut_differential_analysis_report_preserves_the_same_result_shape() -> None:
+    design_report = parse_experimental_design_table(
+        _format_fixture("spectronaut_differential.design.tsv")
+    )
+
+    report = build_spectronaut_differential_analysis_report(
+        _spectronaut_fixture("spectronaut_differential_report.tsv"),
+        design_report.accepted_entries,
+        config_path=_spectronaut_fixture("spectronaut_settings.txt"),
+    )
+
+    assert report.input_report.source_kind is DiaDifferentialSourceKind.SPECTRONAUT
+    assert report.input_report.source_name == "Spectronaut"
+    assert report.input_report.matrix_summary.entity_count == 3
+    assert report.normalized_table.sample_ids == ("C1", "C2", "T1", "T2")
+    assert report.design_model_fit.fitted_entity_count == 3
+    assert report.differential_abundance_report is not None
+    differential = report.differential_abundance_report
+    assert differential.entries[0].entity_id == "PG001"
+    assert differential.entries[0].log2_fold_change > 1.8
+    pg2 = next(entry for entry in differential.entries if entry.entity_id == "PG002")
+    pg3 = next(entry for entry in differential.entries if entry.entity_id == "PG003")
+    assert pg2.log2_fold_change < -1.4
+    assert pg3.adjusted_p_value == 1.0

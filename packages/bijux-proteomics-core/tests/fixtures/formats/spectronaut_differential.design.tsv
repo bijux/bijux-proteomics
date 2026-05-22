@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file	identifications_file	batch	instrument	search_engine
+C1	control	1	1	raw_C1.mzml	spectronaut_differential_report.tsv	batch_a	Orbitrap	Spectronaut
+C2	control	2	1	raw_C2.mzml	spectronaut_differential_report.tsv	batch_b	Orbitrap	Spectronaut
+T1	treatment	1	1	raw_T1.mzml	spectronaut_differential_report.tsv	batch_a	Orbitrap	Spectronaut
+T2	treatment	2	1	raw_T2.mzml	spectronaut_differential_report.tsv	batch_b	Orbitrap	Spectronaut
