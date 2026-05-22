@@ -264,11 +264,11 @@ def build_biological_result_report_bundle_from_quant_table(
         quant_table,
         method=normalization_method,
     )
-    if normalized_table.entity_level is not QuantEntityLevel.PROTEIN:
+    if normalized_table.entity_level != QuantEntityLevel.PROTEIN:
         raise ValueError(
             "biological result reporting requires a protein-level quantification table"
         )
-    if normalized_table.measure_kind is not QuantMeasureKind.INTENSITY:
+    if normalized_table.measure_kind != QuantMeasureKind.INTENSITY:
         raise ValueError(
             "biological result reporting requires intensity-based protein quantification"
         )

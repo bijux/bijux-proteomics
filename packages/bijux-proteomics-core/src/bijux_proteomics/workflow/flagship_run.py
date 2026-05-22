@@ -500,6 +500,9 @@ def _resolve_contrast(
     *,
     contrast: str | None,
 ) -> tuple[str, str]:
+    from bijux_proteomics.study.contrasts import resolve_pairwise_study_contrast
+
+    study_samples = tuple(entry.to_domain_record() for entry in metadata_entries)
     conditions = tuple(
         sorted({entry.condition for entry in metadata_entries if entry.condition})
     )
@@ -508,23 +511,12 @@ def _resolve_contrast(
             raise ValueError(
                 "flagship proteomics run requires --contrast unless metadata resolves exactly two conditions"
             )
-        return conditions[0], conditions[1]
-    for separator in (":", ",", "-"):
-        if separator in contrast:
-            left, right = contrast.split(separator, maxsplit=1)
-            condition_a = left.strip()
-            condition_b = right.strip()
-            if not condition_a or not condition_b:
-                break
-            if condition_a not in conditions or condition_b not in conditions:
-                raise ValueError(
-                    "contrast conditions must exist in metadata: "
-                    + f"{condition_a!r}, {condition_b!r}"
-                )
-            return condition_a, condition_b
-    raise ValueError(
-        "contrast must use ':' , ',' , or '-' to separate two metadata conditions"
+        contrast = f"{conditions[0]}-{conditions[1]}"
+    resolved = resolve_pairwise_study_contrast(
+        contrast,
+        sample_metadata=study_samples,
     )
+    return resolved.left_condition, resolved.right_condition
 
 
 def _build_summary(

@@ -4959,6 +4959,48 @@ def test_proteomics_run_command_emits_diann_result_package() -> None:
         )
 
 
+def test_proteomics_run_command_accepts_explicit_case_control_contrast() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "diann_biological_report.tsv",
+            "diann_biological_report.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "diann_biological.design.tsv",
+            "diann_biological.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "run",
+                "--engine",
+                "diann",
+                "--report",
+                "diann_biological_report.tsv",
+                "--metadata",
+                "diann_biological.design.tsv",
+                "--proteins-fasta",
+                "biological_report_reference.fasta",
+                "--contrast",
+                "case-control:treatment-control",
+                "--out",
+                "proteomics_run",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run"]["summary"]["condition_a"] == "treatment"
+        assert payload["run"]["summary"]["condition_b"] == "control"
+
+
 def test_proteomics_run_command_emits_maxquant_result_package() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

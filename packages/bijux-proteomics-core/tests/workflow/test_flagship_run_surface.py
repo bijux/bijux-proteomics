@@ -106,3 +106,22 @@ def test_build_proteomics_run_bundle_supports_fragpipe_mode() -> None:
     assert report.summary.qc_issue_count == 0
     assert report.summary.enrichment_entry_count >= 3
     assert report.fragpipe_workflow.summary.accepted_psm_count == 30
+
+
+def test_build_proteomics_run_bundle_accepts_explicit_case_control_semantics() -> None:
+    metadata_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("diann_biological.design.tsv")
+        ).accepted_entries
+    )
+
+    report = build_proteomics_run_bundle(
+        engine=ProteomicsRunEngine.DIANN,
+        metadata_entries=metadata_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        report_tsv_path=_fixture("diann_biological_report.tsv"),
+        contrast="case-control:treatment-control",
+    )
+
+    assert report.summary.condition_a == "treatment"
+    assert report.summary.condition_b == "control"
