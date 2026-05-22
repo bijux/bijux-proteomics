@@ -4806,6 +4806,86 @@ def test_heatmap_matrix_command_applies_filter_and_missing_value_policy() -> Non
         assert "P002" not in Path("heatmap.filtered.tsv").read_text(encoding="utf-8")
 
 
+def test_sample_exploration_command_emits_scores_distances_and_clusters() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "sample-exploration",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--summary-tsv-out",
+                "sample_exploration.summary.tsv",
+                "--scores-tsv-out",
+                "sample_exploration.scores.tsv",
+                "--explained-variance-tsv-out",
+                "sample_exploration.variance.tsv",
+                "--distances-tsv-out",
+                "sample_exploration.distances.tsv",
+                "--clusters-tsv-out",
+                "sample_exploration.clusters.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert (
+            payload["sample_exploration_report"]["summary"]["entity_level"]
+            == "protein"
+        )
+        assert (
+            payload["sample_exploration_report"]["summary"][
+                "pairwise_distance_count"
+            ]
+            == 6
+        )
+        assert payload["outputs"]["summary_tsv"] == "sample_exploration.summary.tsv"
+        assert payload["outputs"]["scores_tsv"] == "sample_exploration.scores.tsv"
+        assert (
+            payload["outputs"]["explained_variance_tsv"]
+            == "sample_exploration.variance.tsv"
+        )
+        assert (
+            payload["outputs"]["distances_tsv"]
+            == "sample_exploration.distances.tsv"
+        )
+        assert payload["outputs"]["clusters_tsv"] == "sample_exploration.clusters.tsv"
+        assert Path("sample_exploration.summary.tsv").exists()
+        assert Path("sample_exploration.scores.tsv").exists()
+        assert Path("sample_exploration.variance.tsv").exists()
+        assert Path("sample_exploration.distances.tsv").exists()
+        assert Path("sample_exploration.clusters.tsv").exists()
+        assert "entity_level\tmeasure_kind\taggregation_method" in Path(
+            "sample_exploration.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tpc1\tpc2" in Path(
+            "sample_exploration.scores.tsv"
+        ).read_text(encoding="utf-8")
+        assert "component_index\tcomponent_label\texplained_variance_ratio" in Path(
+            "sample_exploration.variance.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id_a\tsample_id_b\tcondition_a\tcondition_b" in Path(
+            "sample_exploration.distances.tsv"
+        ).read_text(encoding="utf-8")
+        assert "merge_order\tmember_sample_ids\tleft_sample_ids\tright_sample_ids" in Path(
+            "sample_exploration.clusters.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_quantify_command_emits_multi_condition_differential_collection() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

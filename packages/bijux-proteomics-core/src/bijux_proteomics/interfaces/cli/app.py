@@ -478,6 +478,7 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_features,
     build_protein_lfq_report_from_psms,
     build_replicate_and_batch_qc_report,
+    build_sample_exploration_report,
     build_spectral_count_table,
     export_limma_assay_matrix_tsv,
     export_limma_contrast_matrix_tsv,
@@ -489,6 +490,11 @@ from bijux_proteomics.quantification import (
     export_heatmap_row_metadata_tsv,
     export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
+    export_sample_cluster_tsv,
+    export_sample_distance_tsv,
+    export_sample_exploration_summary_tsv,
+    export_sample_pca_scores_tsv,
+    export_sample_pca_variance_tsv,
     export_quant_design_contrast_estimates_tsv,
     export_quant_design_matrix_tsv,
     export_quant_design_model_coefficients_tsv,
@@ -6580,6 +6586,178 @@ def heatmap_matrix_command(
                     None
                     if column_metadata_tsv_out is None
                     else str(column_metadata_tsv_out)
+                ),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("sample-exploration")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--entity-level",
+    type=_quant_entity_level_choice(),
+    default=QuantEntityLevel.PROTEIN.value,
+    show_default=True,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--scores-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--explained-variance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--distances-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--clusters-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def sample_exploration_command(
+    input_table: Path,
+    entity_level: str,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    retention_time_column: str | None,
+    mz_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    design_path: Path | None,
+    summary_tsv_out: Path | None,
+    scores_tsv_out: Path | None,
+    explained_variance_tsv_out: Path | None,
+    distances_tsv_out: Path | None,
+    clusters_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Prepare sample-level PCA, distance, and clustering review outputs."""
+
+    try:
+        mapping = Ms1FeatureColumnMapping(
+            sample_id=sample_column,
+            feature_id=feature_id_column,
+            peptide=peptide_column,
+            intensity=intensity_column,
+            protein_refs=protein_refs_column,
+            charge=charge_column,
+            mz=mz_column,
+            retention_time_seconds=retention_time_column,
+            missing_reason=missing_reason_column,
+            protein_separator=protein_separator,
+        )
+        parse_report = parse_ms1_feature_table(input_table, mapping=mapping)
+        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
+        raw_table = build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel(entity_level),
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+        )
+        report = build_sample_exploration_report(
+            normalize_label_free_table(
+                raw_table,
+                method=NormalizationMethod(normalization),
+            ),
+            design_entries,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_sample_exploration_summary_tsv(report, summary_tsv_out)
+    if scores_tsv_out is not None:
+        export_sample_pca_scores_tsv(report, scores_tsv_out)
+    if explained_variance_tsv_out is not None:
+        export_sample_pca_variance_tsv(report, explained_variance_tsv_out)
+    if distances_tsv_out is not None:
+        export_sample_distance_tsv(report, distances_tsv_out)
+    if clusters_tsv_out is not None:
+        export_sample_cluster_tsv(report, clusters_tsv_out)
+
+    _emit_json(
+        {
+            "accepted_features": len(parse_report.accepted_records),
+            "rejected_features": len(parse_report.rejected_rows),
+            "sample_exploration_report": report.to_dict(),
+            "outputs": {
+                "summary_tsv": (
+                    None if summary_tsv_out is None else str(summary_tsv_out)
+                ),
+                "scores_tsv": None if scores_tsv_out is None else str(scores_tsv_out),
+                "explained_variance_tsv": (
+                    None
+                    if explained_variance_tsv_out is None
+                    else str(explained_variance_tsv_out)
+                ),
+                "distances_tsv": (
+                    None if distances_tsv_out is None else str(distances_tsv_out)
+                ),
+                "clusters_tsv": (
+                    None if clusters_tsv_out is None else str(clusters_tsv_out)
                 ),
             },
         },
