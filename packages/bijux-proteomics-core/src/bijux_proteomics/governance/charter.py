@@ -140,6 +140,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "scientific_tables.py",
             "io/formats.py",
             "io/ingestion.py",
+            "io/spectrum_peak_matching.py",
             "io/spectra.py",
             "io/stable_outputs.py",
             "identification/contracts.py",
