@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import csv
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -61,6 +62,35 @@ class SpectronautProteinGroupReviewEntry(JsonModel):
     target_decoy_label: TargetDecoyLabel
 
 
+class SpectronautPrecursorQuantityEntry(JsonModel):
+    """One precursor-level quantity row preserved from a Spectronaut export."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    precursor_quantity: float = Field(..., ge=0.0)
+    target_decoy_label: TargetDecoyLabel
+
+
+class SpectronautProteinGroupQuantityEntry(JsonModel):
+    """One protein-group quantity row preserved from a Spectronaut export."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    q_value: float = Field(..., ge=0.0, le=1.0)
+    protein_group_quantity: float = Field(..., ge=0.0)
+    source_precursor_count: int = Field(..., ge=1)
+    target_decoy_label: TargetDecoyLabel
+
+
 class SpectronautImportSummary(JsonModel):
     """Compact summary over one imported Spectronaut report."""
 
@@ -69,6 +99,8 @@ class SpectronautImportSummary(JsonModel):
     accepted_precursor_count: int = Field(..., ge=0)
     rejected_precursor_count: int = Field(..., ge=0)
     protein_group_row_count: int = Field(..., ge=0)
+    precursor_quantity_row_count: int = Field(..., ge=0)
+    protein_group_quantity_row_count: int = Field(..., ge=0)
     modified_precursor_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
     run_count: int = Field(..., ge=0)
@@ -86,11 +118,20 @@ class SpectronautImportReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     normalization: SearchAdapterNormalizationReport
+    precursor_evidence_rows: tuple[SpectronautPrecursorReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
     precursor_rows: tuple[SpectronautPrecursorReviewEntry, ...] = Field(
         default_factory=tuple
     )
     protein_group_rows: tuple[SpectronautProteinGroupReviewEntry, ...] = Field(
         default_factory=tuple
+    )
+    precursor_quantity_rows: tuple[SpectronautPrecursorQuantityEntry, ...] = Field(
+        default_factory=tuple
+    )
+    protein_group_quantity_rows: tuple[SpectronautProteinGroupQuantityEntry, ...] = (
+        Field(default_factory=tuple)
     )
     summary: SpectronautImportSummary
     parameter_report: SearchParameterReport | None = None
@@ -102,6 +143,7 @@ def build_spectronaut_import_report(
     config_path: Path | None = None,
 ) -> SpectronautImportReport:
     """Import one Spectronaut report into owned precursor and protein-group review."""
+    _validate_spectronaut_export_schema(result_tsv_path)
     normalization = normalize_search_results_with_adapter(
         source_path=result_tsv_path,
         adapter_kind=SearchAdapterKind.SPECTRONAUT,
@@ -109,6 +151,12 @@ def build_spectronaut_import_report(
     )
     precursor_rows = _build_spectronaut_precursor_rows(normalization)
     protein_group_rows = _build_spectronaut_protein_group_rows(precursor_rows)
+    precursor_quantity_rows = _build_spectronaut_precursor_quantity_rows(
+        precursor_rows
+    )
+    protein_group_quantity_rows = _build_spectronaut_protein_group_quantity_rows(
+        protein_group_rows
+    )
     sample_names = tuple(sorted({row.sample_name for row in precursor_rows}))
     run_names = tuple(sorted({row.run_name for row in precursor_rows}))
     parameter_report = (
@@ -123,6 +171,8 @@ def build_spectronaut_import_report(
         accepted_precursor_count=len(precursor_rows),
         rejected_precursor_count=len(normalization.parse_report.rejected_rows),
         protein_group_row_count=len(protein_group_rows),
+        precursor_quantity_row_count=len(precursor_quantity_rows),
+        protein_group_quantity_row_count=len(protein_group_quantity_rows),
         modified_precursor_count=sum(
             1 for row in precursor_rows if row.modified_peptide != row.peptide_sequence
         ),
@@ -149,8 +199,11 @@ def build_spectronaut_import_report(
     )
     return SpectronautImportReport(
         normalization=normalization,
+        precursor_evidence_rows=precursor_rows,
         precursor_rows=precursor_rows,
         protein_group_rows=protein_group_rows,
+        precursor_quantity_rows=precursor_quantity_rows,
+        protein_group_quantity_rows=protein_group_quantity_rows,
         summary=summary,
         parameter_report=parameter_report,
     )
@@ -162,6 +215,8 @@ def render_spectronaut_summary_tsv(summary: SpectronautImportSummary) -> str:
         "accepted_precursor_count",
         "rejected_precursor_count",
         "protein_group_row_count",
+        "precursor_quantity_row_count",
+        "protein_group_quantity_row_count",
         "modified_precursor_count",
         "sample_count",
         "run_count",
@@ -176,6 +231,8 @@ def render_spectronaut_summary_tsv(summary: SpectronautImportSummary) -> str:
         str(summary.accepted_precursor_count),
         str(summary.rejected_precursor_count),
         str(summary.protein_group_row_count),
+        str(summary.precursor_quantity_row_count),
+        str(summary.protein_group_quantity_row_count),
         str(summary.modified_precursor_count),
         str(summary.sample_count),
         str(summary.run_count),
@@ -292,6 +349,91 @@ def render_spectronaut_protein_group_tsv(
     return "\n".join(lines) + "\n"
 
 
+def render_spectronaut_precursor_quantity_tsv(
+    rows: tuple[SpectronautPrecursorQuantityEntry, ...],
+) -> str:
+    """Render precursor quantity rows as TSV."""
+
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "protein_group_id",
+        "run_name",
+        "sample_name",
+        "precursor_id",
+    )
+    lines = [
+        "\t".join(
+            (
+                "precursor_id",
+                "protein_group_id",
+                "protein_refs",
+                "run_name",
+                "sample_name",
+                "precursor_quantity",
+                "target_decoy_label",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    row.precursor_id,
+                    row.protein_group_id,
+                    ";".join(sort_strings(row.protein_refs)),
+                    row.run_name,
+                    row.sample_name,
+                    f"{row.precursor_quantity:.6g}",
+                    row.target_decoy_label.value,
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_spectronaut_protein_group_quantity_tsv(
+    rows: tuple[SpectronautProteinGroupQuantityEntry, ...],
+) -> str:
+    """Render protein-group quantity rows as TSV."""
+
+    ordered_rows = sort_rows_by_fields(
+        rows,
+        "protein_group_id",
+        "run_name",
+        "sample_name",
+    )
+    lines = [
+        "\t".join(
+            (
+                "protein_group_id",
+                "protein_refs",
+                "run_name",
+                "sample_name",
+                "q_value",
+                "protein_group_quantity",
+                "source_precursor_count",
+                "target_decoy_label",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    row.protein_group_id,
+                    ";".join(sort_strings(row.protein_refs)),
+                    row.run_name,
+                    row.sample_name,
+                    f"{row.q_value:.6g}",
+                    f"{row.protein_group_quantity:.6g}",
+                    str(row.source_precursor_count),
+                    row.target_decoy_label.value,
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
 def _build_spectronaut_precursor_rows(
     normalization: SearchAdapterNormalizationReport,
 ) -> tuple[SpectronautPrecursorReviewEntry, ...]:
@@ -364,6 +506,64 @@ def _build_spectronaut_protein_group_rows(
     return tuple(rows)
 
 
+def _build_spectronaut_precursor_quantity_rows(
+    precursor_rows: tuple[SpectronautPrecursorReviewEntry, ...],
+) -> tuple[SpectronautPrecursorQuantityEntry, ...]:
+    rows = [
+        SpectronautPrecursorQuantityEntry(
+            precursor_id=row.precursor_id,
+            protein_group_id=row.protein_group_id,
+            protein_refs=row.protein_refs,
+            run_name=row.run_name,
+            sample_name=row.sample_name,
+            precursor_quantity=row.precursor_quantity,
+            target_decoy_label=row.target_decoy_label,
+        )
+        for row in precursor_rows
+        if row.precursor_quantity is not None
+    ]
+    return tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.protein_group_id,
+                row.run_name,
+                row.sample_name,
+                row.precursor_id,
+            ),
+        )
+    )
+
+
+def _build_spectronaut_protein_group_quantity_rows(
+    protein_group_rows: tuple[SpectronautProteinGroupReviewEntry, ...],
+) -> tuple[SpectronautProteinGroupQuantityEntry, ...]:
+    rows = [
+        SpectronautProteinGroupQuantityEntry(
+            protein_group_id=row.protein_group_id,
+            protein_refs=row.protein_refs,
+            run_name=row.run_name,
+            sample_name=row.sample_name,
+            q_value=row.q_value,
+            protein_group_quantity=row.protein_group_quantity,
+            source_precursor_count=row.source_precursor_count,
+            target_decoy_label=row.target_decoy_label,
+        )
+        for row in protein_group_rows
+        if row.protein_group_quantity is not None
+    ]
+    return tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.protein_group_id,
+                row.run_name,
+                row.sample_name,
+            ),
+        )
+    )
+
+
 def _combine_labels(
     entries: list[SpectronautPrecursorReviewEntry],
 ) -> TargetDecoyLabel:
@@ -375,6 +575,36 @@ def _combine_labels(
     if not labels:
         return TargetDecoyLabel.UNKNOWN
     return TargetDecoyLabel.MIXED
+
+
+def _validate_spectronaut_export_schema(path: Path) -> None:
+    required_columns = (
+        "EG.PrecursorId",
+        "PEP.StrippedSequence",
+        "FG.LabeledSequence",
+        "FG.Charge",
+        "EG.Cscore",
+        "EG.Qvalue",
+        "PG.ProteinGroups",
+        "PG.ProteinAccessions",
+        "R.FileName",
+        "R.Condition",
+        "FG.Quantity",
+        "PG.Quantity",
+        "EG.IsDecoy",
+    )
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.reader(handle, delimiter="\t")
+        header = next(reader, None)
+    if not header:
+        raise ValueError("Spectronaut schema error: export must include a header row")
+    columns = {column.strip() for column in header if column.strip()}
+    missing = tuple(column for column in required_columns if column not in columns)
+    if missing:
+        raise ValueError(
+            "Spectronaut schema error: missing required exported columns: "
+            + ", ".join(missing)
+        )
 
 
 def _required_value(row: dict[str, str], column: str) -> str:
