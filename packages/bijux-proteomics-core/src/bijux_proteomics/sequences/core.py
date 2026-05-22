@@ -63,6 +63,13 @@ class FastaParseMode(StrEnum):
     PERMISSIVE = "permissive"
 
 
+class DuplicateAccessionPolicy(StrEnum):
+    """Explicit policy for normalized duplicate protein accessions."""
+
+    REJECT = "reject"
+    ACCEPT_WITH_WARNING = "accept_with_warning"
+
+
 class ResiduePolicyState(StrEnum):
     """Support state for an uncommon residue token under one parser policy."""
 
@@ -193,6 +200,7 @@ class FastaParseReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     parse_mode: FastaParseMode
+    duplicate_accession_policy: DuplicateAccessionPolicy
     total_records: int = Field(..., ge=0)
     accepted_records: tuple[NormalizedProteinRecord, ...] = Field(default_factory=tuple)
     rejected_records: tuple[RejectedFastaRecord, ...] = Field(default_factory=tuple)
@@ -426,10 +434,17 @@ def sequence_checksum(residues: str) -> str:
 
 
 def parse_fasta_records(
-    payload: str, *, mode: FastaParseMode = FastaParseMode.STRICT
+    payload: str,
+    *,
+    mode: FastaParseMode = FastaParseMode.STRICT,
+    duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
 ) -> tuple[FastaSequenceRecord, ...]:
     """Parse FASTA records and raise if any record fails the active policy."""
-    report = parse_fasta_document(payload, mode=mode)
+    report = parse_fasta_document(
+        payload,
+        mode=mode,
+        duplicate_accession_policy=duplicate_accession_policy,
+    )
     if report.rejected_records:
         identifiers = ", ".join(
             rejected.source_identifier for rejected in report.rejected_records
@@ -447,7 +462,10 @@ def parse_fasta_records(
 
 
 def parse_fasta_document(
-    payload: str, *, mode: FastaParseMode = FastaParseMode.STRICT
+    payload: str,
+    *,
+    mode: FastaParseMode = FastaParseMode.STRICT,
+    duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
 ) -> FastaParseReport:
     """Parse FASTA payload into normalized records with explicit rejection details."""
     raw_records = _parse_raw_fasta_records(payload)
@@ -484,7 +502,8 @@ def parse_fasta_document(
                     code="duplicate_accession",
                     severity=(
                         SequenceIssueSeverity.ERROR
-                        if mode is FastaParseMode.STRICT
+                        if duplicate_accession_policy
+                        is DuplicateAccessionPolicy.REJECT
                         else SequenceIssueSeverity.WARNING
                     ),
                     message=f"duplicate normalized accession {accession_key!r}",
@@ -510,6 +529,7 @@ def parse_fasta_document(
 
     return FastaParseReport(
         parse_mode=mode,
+        duplicate_accession_policy=duplicate_accession_policy,
         total_records=len(raw_records),
         accepted_records=tuple(accepted),
         rejected_records=tuple(rejected),
@@ -1209,8 +1229,8 @@ def _normalize_accession(identifier: str) -> tuple[str, str, int | None]:
         return "uniprot", f"{decoy_prefix}{accession.accession}", accession.isoform
     if _REFSEQ_ACCESSION_RE.fullmatch(candidate):
         return "refseq", f"{decoy_prefix}{candidate}", None
-    if _ENSEMBL_ACCESSION_RE.fullmatch(candidate):
-        return "ensembl", f"{decoy_prefix}{candidate}", None
+    if match := _ENSEMBL_ACCESSION_RE.fullmatch(candidate):
+        return "ensembl", f"{decoy_prefix}{match.group('accession')}", None
     return "custom", token, None
 
 
