@@ -35,6 +35,10 @@ from bijux_proteomics.scientific_tables import (
     build_psm_table_schema,
     validate_scientific_table,
 )
+from bijux_proteomics.sequences.core import NormalizedProteinRecord
+from bijux_proteomics.sequences.peptide_uniqueness_index import (
+    build_peptide_uniqueness_index,
+)
 from bijux_proteomics.tabular import render_tsv_rows
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -859,6 +863,11 @@ class DatabasePeptideUniqueness(StrEnum):
 
     UNIQUE = "unique"
     SHARED = "shared"
+    ISOFORM_SHARED = "isoform_shared"
+    FAMILY_SHARED = "family_shared"
+    CONTAMINANT = "contaminant"
+    DECOY = "decoy"
+    MIXED = "mixed"
     MISSING = "missing"
 
 
@@ -869,6 +878,8 @@ class DatabasePeptideUniquenessEntry(JsonModel):
 
     canonical_peptide: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    protein_families: tuple[str, ...] = Field(default_factory=tuple)
+    gene_symbols: tuple[str, ...] = Field(default_factory=tuple)
     uniqueness: DatabasePeptideUniqueness
 
 
@@ -3870,16 +3881,59 @@ def build_protein_coverage_map(
 def build_peptide_uniqueness_across_database(
     peptides: tuple[str, ...],
     *,
-    protein_sequences: dict[str, str],
+    protein_sequences: dict[str, str] | None = None,
+    protein_records: tuple[NormalizedProteinRecord, ...] | None = None,
+    treat_isoleucine_as_leucine: bool = False,
 ) -> tuple[DatabasePeptideUniquenessEntry, ...]:
     """Classify peptide uniqueness by direct lookup across a provided database."""
+    if protein_records is not None:
+        index_report = build_peptide_uniqueness_index(
+            protein_records,
+            treat_isoleucine_as_leucine=treat_isoleucine_as_leucine,
+        )
+        index_by_sequence = {
+            entry.lookup_sequence: entry for entry in index_report.entries
+        }
+        entries: list[DatabasePeptideUniquenessEntry] = []
+        for peptide in sorted(dict.fromkeys(peptides)):
+            lookup_sequence = peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
+            index_entry = index_by_sequence.get(lookup_sequence)
+            if index_entry is None:
+                entries.append(
+                    DatabasePeptideUniquenessEntry(
+                        canonical_peptide=peptide,
+                        uniqueness=DatabasePeptideUniqueness.MISSING,
+                    )
+                )
+                continue
+            entries.append(
+                DatabasePeptideUniquenessEntry(
+                    canonical_peptide=peptide,
+                    protein_refs=index_entry.protein_accessions,
+                    protein_families=index_entry.protein_families,
+                    gene_symbols=index_entry.gene_symbols,
+                    uniqueness=DatabasePeptideUniqueness(
+                        index_entry.uniqueness_class.value
+                    ),
+                )
+            )
+        return tuple(entries)
+    if protein_sequences is None:
+        raise ValueError(
+            "provide either protein_sequences or protein_records for peptide uniqueness lookup"
+        )
     entries: list[DatabasePeptideUniquenessEntry] = []
     for peptide in sorted(dict.fromkeys(peptides)):
+        lookup_sequence = peptide.replace("I", "L") if treat_isoleucine_as_leucine else peptide
         matching_proteins = tuple(
             sorted(
                 protein_ref
                 for protein_ref, sequence in protein_sequences.items()
-                if peptide in sequence
+                if lookup_sequence in (
+                    sequence.replace("I", "L")
+                    if treat_isoleucine_as_leucine
+                    else sequence
+                )
             )
         )
         entries.append(

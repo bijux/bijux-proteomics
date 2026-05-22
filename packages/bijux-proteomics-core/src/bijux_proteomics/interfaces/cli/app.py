@@ -6483,7 +6483,7 @@ def infer_proteins_command(
                             record.canonical_peptide for record in accepted_records
                         )
                     ),
-                    protein_sequences=protein_sequences,
+                    protein_records=fasta_report.accepted_records,
                 )
             ]
     except Exception as exc:  # noqa: BLE001
