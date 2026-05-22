@@ -3161,6 +3161,83 @@ def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            format_dir / "skyline_targeted_qc_results.tsv",
+            "skyline_targeted_qc_results.tsv",
+        )
+        shutil.copy(
+            format_dir / "skyline_targeted_qc.design.tsv",
+            "skyline_targeted_qc.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-assay-qc",
+                "skyline_targeted_qc_results.tsv",
+                "skyline_targeted_qc.design.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--summary-tsv-out",
+                "assay.summary.tsv",
+                "--transition-tsv-out",
+                "assay.transitions.tsv",
+                "--fragment-ratio-tsv-out",
+                "assay.fragments.tsv",
+                "--retention-tsv-out",
+                "assay.retention.tsv",
+                "--replicate-cv-tsv-out",
+                "assay.replicate_cv.tsv",
+                "--unreliable-tsv-out",
+                "assay.unreliable.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "skyline_export"
+        assert payload["source_name"] == "Skyline"
+        assert payload["import_summary"]["observation_count"] == 14
+        assert payload["design_summary"]["accepted_entry_count"] == 4
+        assert payload["assay_qc_summary"]["target_count"] == 2
+        assert payload["assay_qc_summary"]["flagged_replicate_cv_entry_count"] == 1
+        assert payload["outputs"]["summary_tsv"] == "assay.summary.tsv"
+        assert payload["outputs"]["transition_tsv"] == "assay.transitions.tsv"
+        assert payload["outputs"]["fragment_ratio_tsv"] == "assay.fragments.tsv"
+        assert payload["outputs"]["retention_tsv"] == "assay.retention.tsv"
+        assert payload["outputs"]["replicate_cv_tsv"] == "assay.replicate_cv.tsv"
+        assert payload["outputs"]["unreliable_tsv"] == "assay.unreliable.tsv"
+        assert Path("assay.summary.tsv").exists()
+        assert Path("assay.transitions.tsv").exists()
+        assert Path("assay.fragments.tsv").exists()
+        assert Path("assay.retention.tsv").exists()
+        assert Path("assay.replicate_cv.tsv").exists()
+        assert Path("assay.unreliable.tsv").exists()
+        assert "Skyline\t2\t4\t8\t14\t8\t2\t4\t1\t6\t2" in Path(
+            "assay.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in Path(
+            "assay.transitions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\ttrue" in Path(
+            "assay.fragments.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ACDMPEP/3\ttreat_r2\t1\t20.2\t18.2\t2\ttrue" in Path(
+            "assay.retention.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ACDMPEP/3\ttreatment\t2\t2\t35000\t0.525279\ttrue" in Path(
+            "assay.replicate_cv.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfragment-ion ratios deviate from the target reference pattern; source quality flags require review"
+            in Path("assay.unreliable.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):

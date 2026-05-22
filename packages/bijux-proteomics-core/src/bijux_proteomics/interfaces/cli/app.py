@@ -258,9 +258,16 @@ from bijux_proteomics.panels import (
 )
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
+    build_targeted_assay_qc_report,
     build_skyline_result_import_report,
     build_targeted_matrix_report,
     build_transition_table_result_import_report,
+    render_targeted_assay_qc_fragment_ratio_tsv,
+    render_targeted_assay_qc_replicate_cv_tsv,
+    render_targeted_assay_qc_retention_tsv,
+    render_targeted_assay_qc_summary_tsv,
+    render_targeted_assay_qc_transition_tsv,
+    render_targeted_assay_qc_unreliable_tsv,
     render_targeted_matrix_flagged_tsv,
     render_targeted_matrix_sample_tsv,
     render_targeted_matrix_summary_tsv,
@@ -2152,6 +2159,131 @@ def targeted_target_matrix_command(
             "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
             "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
             "flagged_tsv": None if flagged_tsv_out is None else str(flagged_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-assay-qc")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--fragment-ratio-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option("--retention-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--replicate-cv-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--unreliable-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_assay_qc_command(
+    input_path: Path,
+    design_path: Path,
+    source_kind: str,
+    summary_tsv_out: Path | None,
+    transition_tsv_out: Path | None,
+    fragment_ratio_tsv_out: Path | None,
+    retention_tsv_out: Path | None,
+    replicate_cv_tsv_out: Path | None,
+    unreliable_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Import targeted assay results and build assay-QC review ledgers."""
+    try:
+        selected_source = TargetedResultSourceKind(source_kind)
+        if selected_source is TargetedResultSourceKind.SKYLINE_EXPORT:
+            import_report = build_skyline_result_import_report(input_path)
+        else:
+            import_report = build_transition_table_result_import_report(input_path)
+        design_report = parse_experimental_design_table(design_path)
+        assay_qc_report = build_targeted_assay_qc_report(
+            import_report,
+            design_report.accepted_entries,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report))
+    if transition_tsv_out is not None:
+        _write_text_output(
+            transition_tsv_out,
+            render_targeted_assay_qc_transition_tsv(assay_qc_report),
+        )
+    if fragment_ratio_tsv_out is not None:
+        _write_text_output(
+            fragment_ratio_tsv_out,
+            render_targeted_assay_qc_fragment_ratio_tsv(assay_qc_report),
+        )
+    if retention_tsv_out is not None:
+        _write_text_output(
+            retention_tsv_out,
+            render_targeted_assay_qc_retention_tsv(assay_qc_report),
+        )
+    if replicate_cv_tsv_out is not None:
+        _write_text_output(
+            replicate_cv_tsv_out,
+            render_targeted_assay_qc_replicate_cv_tsv(assay_qc_report),
+        )
+    if unreliable_tsv_out is not None:
+        _write_text_output(
+            unreliable_tsv_out,
+            render_targeted_assay_qc_unreliable_tsv(assay_qc_report),
+        )
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": assay_qc_report.source_name,
+        "import_summary": import_report.summary.to_dict(),
+        "design_summary": {
+            "accepted_entry_count": len(design_report.accepted_entries),
+            "rejected_row_count": len(design_report.rejected_rows),
+        },
+        "assay_qc_summary": assay_qc_report.summary.to_dict(),
+        "transition_consistency": [
+            entry.to_dict() for entry in assay_qc_report.transition_consistency
+        ],
+        "fragment_ratios": [entry.to_dict() for entry in assay_qc_report.fragment_ratios],
+        "retention_time_consistency": [
+            entry.to_dict() for entry in assay_qc_report.retention_time_consistency
+        ],
+        "replicate_cv": [entry.to_dict() for entry in assay_qc_report.replicate_cv],
+        "unreliable_targets": [
+            entry.to_dict() for entry in assay_qc_report.unreliable_targets
+        ],
+        "note": assay_qc_report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "transition_tsv": (
+                None if transition_tsv_out is None else str(transition_tsv_out)
+            ),
+            "fragment_ratio_tsv": (
+                None if fragment_ratio_tsv_out is None else str(fragment_ratio_tsv_out)
+            ),
+            "retention_tsv": None if retention_tsv_out is None else str(retention_tsv_out),
+            "replicate_cv_tsv": (
+                None
+                if replicate_cv_tsv_out is None
+                else str(replicate_cv_tsv_out)
+            ),
+            "unreliable_tsv": (
+                None if unreliable_tsv_out is None else str(unreliable_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
