@@ -1,3 +1,3 @@
-run_name	scan_ref	sequence_text	modified_sequence	z	state_score	qvalue	accessions	decoy_state	contaminant_state	instrument	analyst_note
-run_A	generic-1001	PESTIDE	PES[Phospho]TIDE	2	55.0	0.002	P12345	target	false	orbitrap	stable
-run_B	generic-1002	DECOYPEP	DECOYPEP	2	12.0	0.05	CON__P54321	decoy	contaminant	tof	review
+run_name	scan_ref	sequence_text	modified_sequence	z	state_score	precursor_intensity	qvalue	accessions	decoy_state	contaminant_state	instrument	analyst_note
+run_A	generic-1001	PESTIDE	PES[Phospho]TIDE	2	55.0	125000	0.002	P12345	target	false	orbitrap	stable
+run_B	generic-1002	DECOYPEP	DECOYPEP	2	12.0	4300	0.05	CON__P54321	decoy	contaminant	tof	review

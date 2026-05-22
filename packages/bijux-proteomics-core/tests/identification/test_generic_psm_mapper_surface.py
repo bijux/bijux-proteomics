@@ -32,6 +32,7 @@ def test_generic_psm_mapper_loads_yaml_and_json_column_maps() -> None:
     assert json_mapping == yaml_mapping
     assert json_mapping.run_id == "run_name"
     assert json_mapping.modified_peptide == "modified_sequence"
+    assert json_mapping.intensity == "precursor_intensity"
     assert json_mapping.q_value == "qvalue"
     assert json_mapping.contaminant_label == "contaminant_state"
 
@@ -55,9 +56,11 @@ def test_generic_psm_mapper_report_preserves_run_mapping_and_unmapped_columns() 
     assert report.mapped_rows[0].spectrum_id == "generic-1001"
     assert report.mapped_rows[0].peptide_sequence == "PESTIDE"
     assert report.mapped_rows[0].modified_peptide == "PES[Phospho]TIDE"
+    assert report.mapped_rows[0].intensity == 125000.0
     assert report.mapped_rows[1].target_decoy_label.value == "decoy"
     assert report.mapped_rows[1].contaminant_flag is True
     assert "run_id" in render_generic_psm_mapper_tsv(report.mapped_rows)
+    assert "intensity" in render_generic_psm_mapper_tsv(report.mapped_rows)
     assert "modified_peptide" in render_generic_psm_mapper_tsv(report.mapped_rows)
 
 

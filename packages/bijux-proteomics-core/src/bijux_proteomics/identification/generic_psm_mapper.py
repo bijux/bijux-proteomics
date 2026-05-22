@@ -35,6 +35,7 @@ class GenericPsmTableColumnMapping(JsonModel):
     modified_peptide: str | None = None
     charge: str = Field(..., min_length=1)
     score: str = Field(..., min_length=1)
+    intensity: str | None = None
     run_id: str | None = None
     protein_refs: str | None = None
     q_value: str | None = None
@@ -51,6 +52,7 @@ class GenericPsmTableColumnMapping(JsonModel):
             modified_peptide=self.modified_peptide,
             charge=self.charge,
             score=self.score,
+            intensity=self.intensity,
             protein_refs=self.protein_refs,
             q_value=self.q_value,
             decoy_label=self.decoy_label,
@@ -72,6 +74,7 @@ class GenericMappedPsmRow(JsonModel):
     canonical_peptide: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     score: float
+    intensity: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
@@ -177,6 +180,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                 "canonical_peptide",
                 "charge",
                 "score",
+                "intensity",
                 "q_value",
                 "protein_refs",
                 "target_decoy_label",
@@ -196,6 +200,7 @@ def render_generic_psm_mapper_tsv(rows: tuple[GenericMappedPsmRow, ...]) -> str:
                     row.canonical_peptide,
                     str(row.charge),
                     f"{row.score:.6g}",
+                    "" if row.intensity is None else f"{row.intensity:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
                     ";".join(row.protein_refs),
                     row.target_decoy_label.value,
@@ -230,6 +235,7 @@ def _build_mapped_rows(
                 canonical_peptide=record.canonical_peptide,
                 charge=record.charge,
                 score=record.score,
+                intensity=record.intensity,
                 q_value=record.q_value,
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
@@ -262,6 +268,7 @@ def _mapped_source_columns(
             mapping.modified_peptide,
             mapping.charge,
             mapping.score,
+            mapping.intensity,
             mapping.protein_refs,
             mapping.q_value,
             mapping.decoy_label,
