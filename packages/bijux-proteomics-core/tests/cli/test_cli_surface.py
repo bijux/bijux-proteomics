@@ -906,6 +906,39 @@ def test_digest_command_supports_builtin_aspn_and_custom_rules() -> None:
         assert "cannot be combined" in conflict_result.output
 
 
+def test_digest_command_supports_regex_custom_protease_rule() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("proteins.fasta").write_text(
+            ">sp|P10001|ALPHA_HUMAN Alpha OS=Homo sapiens GN=ALPHA\nPEPDADAA\n"
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "digest",
+                "proteins.fasta",
+                "--custom-protease",
+                "pattern=(?<!P)(?P<site>D);cut_before=site",
+                "--custom-protease-name",
+                "acidic_regex",
+                "--out",
+                "regex.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protease"] == "acidic_regex"
+        assert (
+            payload["custom_protease"]
+            == "pattern=(?<!P)(?P<site>D);cut_before=site"
+        )
+        regex_lines = Path("regex.tsv").read_text().splitlines()
+        assert any("\tPEPDA\t" in line for line in regex_lines[1:])
+        assert any("\tDAA\t" in line for line in regex_lines[1:])
+
+
 def test_digest_command_reports_invalid_output_path(
     fasta_fixture_dir: Path,
 ) -> None:

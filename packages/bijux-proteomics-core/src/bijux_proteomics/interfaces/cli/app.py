@@ -3852,7 +3852,11 @@ def target_decoy_validate_command(
 @click.option(
     "--custom-protease",
     default=None,
-    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+    help=(
+        "Custom rule such as 'after=KR;block_next=P', "
+        "'before=D;block_previous=P', or "
+        "'pattern=(?<!P)(?P<site>D);cut_before=site'."
+    ),
 )
 @click.option(
     "--custom-protease-name",
@@ -4001,7 +4005,11 @@ def digest_command(
 @click.option(
     "--custom-protease",
     default=None,
-    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+    help=(
+        "Custom rule such as 'after=KR;block_next=P', "
+        "'before=D;block_previous=P', or "
+        "'pattern=(?<!P)(?P<site>D);cut_before=site'."
+    ),
 )
 @click.option(
     "--custom-protease-name",
@@ -4277,7 +4285,11 @@ def fragment_ions_command(
 @click.option(
     "--custom-protease",
     default=None,
-    help="Custom rule such as 'after=KR;block_next=P' or 'before=D;block_previous=P'.",
+    help=(
+        "Custom rule such as 'after=KR;block_next=P', "
+        "'before=D;block_previous=P', or "
+        "'pattern=(?<!P)(?P<site>D);cut_before=site'."
+    ),
 )
 @click.option(
     "--custom-protease-name",
