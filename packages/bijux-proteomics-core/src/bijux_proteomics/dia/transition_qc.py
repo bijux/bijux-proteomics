@@ -1,0 +1,229 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Owned transition-level QC surfaces over canonical transition tables."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics.io import parse_transition_table
+from bijux_proteomics.io.transition_table import TransitionTableEntry
+from bijux_proteomics_foundation import JsonModel
+
+
+class DiaTransitionSampleValue(JsonModel):
+    """One sample-specific transition intensity cell."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    intensity: float | None = Field(default=None, ge=0.0)
+    q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    source_observation_count: int = Field(..., ge=0)
+    detected: bool
+
+
+class DiaTransitionQcEntry(JsonModel):
+    """One transition-level row linked to its precursor and sample intensities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: str = Field(..., min_length=1)
+    precursor_id: str = Field(..., min_length=1)
+    peptide_sequence: str | None = None
+    protein_ref: str | None = None
+    fragment_label: str | None = None
+    precursor_mz: float | None = Field(default=None, gt=0.0)
+    fragment_mz: float | None = Field(default=None, gt=0.0)
+    values: tuple[DiaTransitionSampleValue, ...] = Field(default_factory=tuple)
+    detected_sample_count: int = Field(..., ge=0)
+    missing_sample_count: int = Field(..., ge=0)
+    total_intensity: float = Field(..., ge=0.0)
+    mean_intensity: float = Field(..., ge=0.0)
+    median_intensity: float = Field(..., ge=0.0)
+    min_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class DiaTransitionQcSummary(JsonModel):
+    """Compact summary over one transition-level QC review packet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_count: int = Field(..., ge=0)
+    transition_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    observed_cell_count: int = Field(..., ge=0)
+    missing_cell_count: int = Field(..., ge=0)
+
+
+class DiaTransitionQcReport(JsonModel):
+    """Owned transition-level QC report over one canonical transition table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_name: str = Field(default="transition table", min_length=1)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    entries: tuple[DiaTransitionQcEntry, ...] = Field(default_factory=tuple)
+    summary: DiaTransitionQcSummary
+    note: str = Field(..., min_length=1)
+
+
+def build_transition_qc_report(
+    entries: tuple[TransitionTableEntry, ...],
+) -> DiaTransitionQcReport:
+    """Build transition-level sample summaries from canonical transition observations."""
+
+    sample_ids = tuple(sorted({entry.sample_id for entry in entries}))
+    grouped: dict[str, dict[str, object]] = {}
+    for entry in entries:
+        group = grouped.setdefault(
+            entry.transition_id,
+            {
+                "precursor_id": entry.precursor_id,
+                "peptide_sequence": entry.peptide_sequence,
+                "protein_ref": entry.protein_ref,
+                "fragment_label": entry.fragment_label,
+                "precursor_mz": entry.precursor_mz,
+                "fragment_mz": entry.fragment_mz,
+                "sample_entries": {},
+            },
+        )
+        sample_entries = group["sample_entries"]
+        assert isinstance(sample_entries, dict)
+        sample_entries.setdefault(entry.sample_id, []).append(entry)
+
+    report_entries: list[DiaTransitionQcEntry] = []
+    observed_cell_count = 0
+    missing_cell_count = 0
+    precursor_ids: set[str] = set()
+    for transition_id, group in sorted(
+        grouped.items(),
+        key=lambda item: (str(item[1]["precursor_id"]), item[0]),
+    ):
+        precursor_id = str(group["precursor_id"])
+        precursor_ids.add(precursor_id)
+        sample_entries = group["sample_entries"]
+        assert isinstance(sample_entries, dict)
+        values: list[DiaTransitionSampleValue] = []
+        detected_intensities: list[float] = []
+        min_q_value: float | None = None
+        for sample_id in sample_ids:
+            observations = sample_entries.get(sample_id, [])
+            if not observations:
+                missing_cell_count += 1
+                values.append(
+                    DiaTransitionSampleValue(
+                        sample_id=sample_id,
+                        source_observation_count=0,
+                        detected=False,
+                    )
+                )
+                continue
+            observed_cell_count += 1
+            intensity = sum(observation.intensity for observation in observations)
+            q_values = [
+                observation.q_value
+                for observation in observations
+                if observation.q_value is not None
+            ]
+            detected_intensities.append(intensity)
+            if q_values:
+                local_min_q = min(q_values)
+                min_q_value = (
+                    local_min_q
+                    if min_q_value is None
+                    else min(min_q_value, local_min_q)
+                )
+            values.append(
+                DiaTransitionSampleValue(
+                    sample_id=sample_id,
+                    run_ids=tuple(
+                        sorted(
+                            {
+                                observation.run_id
+                                for observation in observations
+                                if observation.run_id is not None
+                            }
+                        )
+                    ),
+                    intensity=intensity,
+                    q_value=min(q_values) if q_values else None,
+                    source_observation_count=len(observations),
+                    detected=True,
+                )
+            )
+        report_entries.append(
+            DiaTransitionQcEntry(
+                transition_id=transition_id,
+                precursor_id=precursor_id,
+                peptide_sequence=(
+                    None
+                    if group["peptide_sequence"] is None
+                    else str(group["peptide_sequence"])
+                ),
+                protein_ref=(
+                    None if group["protein_ref"] is None else str(group["protein_ref"])
+                ),
+                fragment_label=(
+                    None
+                    if group["fragment_label"] is None
+                    else str(group["fragment_label"])
+                ),
+                precursor_mz=(
+                    None
+                    if group["precursor_mz"] is None
+                    else float(group["precursor_mz"])
+                ),
+                fragment_mz=(
+                    None
+                    if group["fragment_mz"] is None
+                    else float(group["fragment_mz"])
+                ),
+                values=tuple(values),
+                detected_sample_count=len(detected_intensities),
+                missing_sample_count=len(sample_ids) - len(detected_intensities),
+                total_intensity=sum(detected_intensities),
+                mean_intensity=(
+                    sum(detected_intensities) / len(detected_intensities)
+                    if detected_intensities
+                    else 0.0
+                ),
+                median_intensity=_median(detected_intensities),
+                min_q_value=min_q_value,
+            )
+        )
+    return DiaTransitionQcReport(
+        sample_ids=sample_ids,
+        entries=tuple(report_entries),
+        summary=DiaTransitionQcSummary(
+            precursor_count=len(precursor_ids),
+            transition_count=len(report_entries),
+            sample_count=len(sample_ids),
+            observed_cell_count=observed_cell_count,
+            missing_cell_count=missing_cell_count,
+        ),
+        note=(
+            "transition qc keeps fragment-level evidence linked to canonical precursor ids and sample-resolved intensities so users can inspect quantitative support below precursor rollups"
+        ),
+    )
+
+
+def build_transition_qc_report_from_table(path: Path) -> DiaTransitionQcReport:
+    """Build one transition QC report directly from a canonical transition table."""
+
+    report = parse_transition_table(path)
+    return build_transition_qc_report(report.accepted_entries)
+
+
+def _median(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2 == 1:
+        return ordered[midpoint]
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
