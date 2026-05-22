@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import math
 from enum import StrEnum
+from io import StringIO
 from pathlib import Path
 from typing import Iterable
 
@@ -393,3 +394,131 @@ def _sum_present(values: Iterable[float | None]) -> float | None:
     if not present:
         return None
     return float(sum(present))
+
+
+def render_silac_ratio_summary_tsv(report: SilacRatioReport) -> str:
+    """Render a compact summary over one SILAC ratio-analysis run."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_count",
+            "expected_label_count",
+            "peptide_ratio_count",
+            "protein_ratio_count",
+            "missing_ratio_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.sample_count,
+            report.summary.expected_label_count,
+            report.summary.peptide_ratio_count,
+            report.summary.protein_ratio_count,
+            report.summary.missing_ratio_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_silac_peptide_ratio_tsv(report: SilacRatioReport) -> str:
+    """Render the SILAC peptide ratio ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "peptide_id",
+            "peptide_sequence",
+            "charge",
+            "protein_refs",
+            "numerator_label",
+            "reference_label",
+            "numerator_abundance",
+            "reference_abundance",
+            "ratio",
+            "log2_ratio",
+            "missing_reason",
+            "note",
+        ]
+    )
+    for entry in report.peptide_ratios:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.peptide_id,
+                entry.peptide_sequence,
+                "" if entry.charge is None else entry.charge,
+                ";".join(entry.protein_refs),
+                entry.numerator_label.value,
+                entry.reference_label.value,
+                "" if entry.numerator_abundance is None else entry.numerator_abundance,
+                "" if entry.reference_abundance is None else entry.reference_abundance,
+                "" if entry.ratio is None else entry.ratio,
+                "" if entry.log2_ratio is None else entry.log2_ratio,
+                entry.missing_reason or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_silac_protein_ratio_tsv(report: SilacRatioReport) -> str:
+    """Render the SILAC protein ratio ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "protein_id",
+            "protein_refs",
+            "contributing_peptide_ids",
+            "numerator_label",
+            "reference_label",
+            "numerator_abundance",
+            "reference_abundance",
+            "ratio",
+            "log2_ratio",
+            "missing_reason",
+            "note",
+        ]
+    )
+    for entry in report.protein_ratios:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.protein_id,
+                ";".join(entry.protein_refs),
+                ";".join(entry.contributing_peptide_ids),
+                entry.numerator_label.value,
+                entry.reference_label.value,
+                "" if entry.numerator_abundance is None else entry.numerator_abundance,
+                "" if entry.reference_abundance is None else entry.reference_abundance,
+                "" if entry.ratio is None else entry.ratio,
+                "" if entry.log2_ratio is None else entry.log2_ratio,
+                entry.missing_reason or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_silac_ratio_summary_tsv(report: SilacRatioReport, path: Path) -> None:
+    """Write the compact SILAC ratio summary ledger."""
+
+    path.write_text(render_silac_ratio_summary_tsv(report), encoding="utf-8")
+
+
+def export_silac_peptide_ratio_tsv(report: SilacRatioReport, path: Path) -> None:
+    """Write the SILAC peptide ratio ledger."""
+
+    path.write_text(render_silac_peptide_ratio_tsv(report), encoding="utf-8")
+
+
+def export_silac_protein_ratio_tsv(report: SilacRatioReport, path: Path) -> None:
+    """Write the SILAC protein ratio ledger."""
+
+    path.write_text(render_silac_protein_ratio_tsv(report), encoding="utf-8")
