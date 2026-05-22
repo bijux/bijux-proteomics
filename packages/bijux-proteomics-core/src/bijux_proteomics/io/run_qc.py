@@ -8,6 +8,8 @@ from __future__ import annotations
 import csv
 import io
 from math import floor
+from math import log
+from enum import StrEnum
 
 from pydantic import ConfigDict, Field
 
@@ -35,8 +37,42 @@ class SpectrumQcTimeBin(JsonModel):
     ms2_spectrum_count: int = Field(..., ge=0)
 
 
-class FlaggedSpectrumIssueKind(str):
-    pass
+class SpectrumQualityTier(StrEnum):
+    """Reviewer-facing quality tier for one parsed spectrum."""
+
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class FlaggedSpectrumIssueKind(StrEnum):
+    """Explicit run-QC issue kinds carried by flagged spectra."""
+
+    EMPTY = "empty"
+    NOISY = "noisy"
+    SINGLE_DOMINANT_PEAK = "single_dominant_peak"
+
+
+class SpectrumQcMetricRow(JsonModel):
+    """One per-spectrum QC metric row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    ms_level: int | None = Field(default=None, ge=1)
+    retention_time_seconds: float | None = Field(default=None, ge=0.0)
+    precursor_mz: float = Field(..., gt=0.0)
+    precursor_intensity: float | None = Field(default=None, ge=0.0)
+    precursor_charge: int | None = Field(default=None, ge=1)
+    peak_count: int = Field(..., ge=0)
+    total_ion_current: float = Field(..., ge=0.0)
+    base_peak_intensity: float = Field(..., ge=0.0)
+    top_peak_dominance: float = Field(..., ge=0.0, le=1.0)
+    spectral_entropy: float = Field(..., ge=0.0, le=1.0)
+    quality_tier: SpectrumQualityTier
+    is_empty: bool
+    is_noisy: bool
+    is_single_dominant_peak: bool
 
 
 class SpectrumQcFlaggedSpectrum(JsonModel):
@@ -45,7 +81,7 @@ class SpectrumQcFlaggedSpectrum(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     spectrum_id: str = Field(..., min_length=1)
-    issue_kind: str = Field(..., min_length=1)
+    issue_kind: FlaggedSpectrumIssueKind
     peak_count: int = Field(..., ge=0)
     total_ion_current: float = Field(..., ge=0.0)
     base_peak_intensity: float = Field(..., ge=0.0)
@@ -78,6 +114,10 @@ class SpectrumRunQcReport(JsonModel):
     precursor_intensity_observation_count: int = Field(..., ge=0)
     empty_spectrum_count: int = Field(..., ge=0)
     noisy_spectrum_count: int = Field(..., ge=0)
+    single_dominant_peak_count: int = Field(..., ge=0)
+    quality_distribution: tuple[SpectrumDistributionRow, ...] = Field(
+        default_factory=tuple
+    )
     ms2_count_over_time: tuple[SpectrumQcTimeBin, ...] = Field(default_factory=tuple)
     tic_trace: tuple[SpectrumQcTracePoint, ...] = Field(default_factory=tuple)
     bpc_trace: tuple[SpectrumQcTracePoint, ...] = Field(default_factory=tuple)
@@ -87,6 +127,7 @@ class SpectrumRunQcReport(JsonModel):
     charge_distribution: tuple[SpectrumDistributionRow, ...] = Field(
         default_factory=tuple
     )
+    spectrum_metrics: tuple[SpectrumQcMetricRow, ...] = Field(default_factory=tuple)
     flagged_spectra: tuple[SpectrumQcFlaggedSpectrum, ...] = Field(
         default_factory=tuple
     )
@@ -102,6 +143,13 @@ def build_spectrum_run_qc_report(
     time_bin_seconds: float = 60.0,
     noisy_peak_count_threshold: int = 3,
     noisy_total_ion_current_threshold: float = 100.0,
+    single_dominant_peak_threshold: float = 0.85,
+    medium_quality_peak_count_threshold: int = 4,
+    medium_quality_total_ion_current_threshold: float = 100.0,
+    medium_quality_entropy_threshold: float = 0.35,
+    high_quality_peak_count_threshold: int = 8,
+    high_quality_total_ion_current_threshold: float = 500.0,
+    high_quality_entropy_threshold: float = 0.65,
 ) -> SpectrumRunQcReport:
     """Build a raw-spectrum run-QC report from accepted spectra and optional chromatograms."""
     if time_bin_seconds <= 0:
@@ -110,8 +158,37 @@ def build_spectrum_run_qc_report(
         raise ValueError("noisy_peak_count_threshold must be greater than zero")
     if noisy_total_ion_current_threshold < 0:
         raise ValueError("noisy_total_ion_current_threshold must be zero or greater")
+    if not 0.0 <= single_dominant_peak_threshold <= 1.0:
+        raise ValueError("single_dominant_peak_threshold must be between zero and one")
+    if medium_quality_peak_count_threshold <= 0:
+        raise ValueError(
+            "medium_quality_peak_count_threshold must be greater than zero"
+        )
+    if medium_quality_total_ion_current_threshold < 0:
+        raise ValueError(
+            "medium_quality_total_ion_current_threshold must be zero or greater"
+        )
+    if not 0.0 <= medium_quality_entropy_threshold <= 1.0:
+        raise ValueError(
+            "medium_quality_entropy_threshold must be between zero and one"
+        )
+    if high_quality_peak_count_threshold <= 0:
+        raise ValueError(
+            "high_quality_peak_count_threshold must be greater than zero"
+        )
+    if high_quality_total_ion_current_threshold < 0:
+        raise ValueError(
+            "high_quality_total_ion_current_threshold must be zero or greater"
+        )
+    if not 0.0 <= high_quality_entropy_threshold <= 1.0:
+        raise ValueError("high_quality_entropy_threshold must be between zero and one")
 
     charge_counts: dict[str, int] = {}
+    quality_counts = {
+        SpectrumQualityTier.HIGH.value: 0,
+        SpectrumQualityTier.MEDIUM.value: 0,
+        SpectrumQualityTier.LOW.value: 0,
+    }
     precursor_intensity_counts = {
         "unknown": 0,
         "0-999": 0,
@@ -120,6 +197,7 @@ def build_spectrum_run_qc_report(
         "100000+": 0,
     }
     flagged: list[SpectrumQcFlaggedSpectrum] = []
+    spectrum_metrics: list[SpectrumQcMetricRow] = []
     ms2_spectra_with_rt: list[SpectrumModel] = []
     derived_tic_points: list[SpectrumQcTracePoint] = []
     derived_bpc_points: list[SpectrumQcTracePoint] = []
@@ -129,6 +207,7 @@ def build_spectrum_run_qc_report(
     precursor_intensity_observation_count = 0
     empty_spectrum_count = 0
     noisy_spectrum_count = 0
+    single_dominant_peak_count = 0
 
     for spectrum in spectra:
         ms_level = spectrum.ms_level
@@ -165,6 +244,58 @@ def build_spectrum_run_qc_report(
         base_peak_intensity = max(
             (peak.intensity for peak in spectrum.peaks), default=0.0
         )
+        top_peak_dominance = _calculate_top_peak_dominance(
+            peak_count=len(spectrum.peaks),
+            total_ion_current=total_ion_current,
+            base_peak_intensity=base_peak_intensity,
+        )
+        spectral_entropy = _calculate_normalized_spectral_entropy(spectrum)
+        is_empty = len(spectrum.peaks) == 0
+        is_noisy = len(spectrum.peaks) < noisy_peak_count_threshold or (
+            total_ion_current < noisy_total_ion_current_threshold
+        )
+        is_single_dominant_peak = (
+            len(spectrum.peaks) > 0
+            and top_peak_dominance >= single_dominant_peak_threshold
+        )
+        quality_tier = _classify_spectrum_quality(
+            peak_count=len(spectrum.peaks),
+            total_ion_current=total_ion_current,
+            spectral_entropy=spectral_entropy,
+            is_empty=is_empty,
+            is_noisy=is_noisy,
+            is_single_dominant_peak=is_single_dominant_peak,
+            medium_quality_peak_count_threshold=medium_quality_peak_count_threshold,
+            medium_quality_total_ion_current_threshold=(
+                medium_quality_total_ion_current_threshold
+            ),
+            medium_quality_entropy_threshold=medium_quality_entropy_threshold,
+            high_quality_peak_count_threshold=high_quality_peak_count_threshold,
+            high_quality_total_ion_current_threshold=(
+                high_quality_total_ion_current_threshold
+            ),
+            high_quality_entropy_threshold=high_quality_entropy_threshold,
+        )
+        quality_counts[quality_tier.value] += 1
+        spectrum_metrics.append(
+            SpectrumQcMetricRow(
+                spectrum_id=spectrum.spectrum_id,
+                ms_level=spectrum.ms_level,
+                retention_time_seconds=spectrum.retention_time_seconds,
+                precursor_mz=spectrum.precursor_mz,
+                precursor_intensity=spectrum.precursor_intensity,
+                precursor_charge=spectrum.precursor_charge,
+                peak_count=len(spectrum.peaks),
+                total_ion_current=total_ion_current,
+                base_peak_intensity=base_peak_intensity,
+                top_peak_dominance=top_peak_dominance,
+                spectral_entropy=spectral_entropy,
+                quality_tier=quality_tier,
+                is_empty=is_empty,
+                is_noisy=is_noisy,
+                is_single_dominant_peak=is_single_dominant_peak,
+            )
+        )
         if spectrum.retention_time_seconds is not None:
             derived_tic_points.append(
                 SpectrumQcTracePoint(
@@ -179,12 +310,12 @@ def build_spectrum_run_qc_report(
                 )
             )
 
-        if len(spectrum.peaks) == 0:
+        if is_empty:
             empty_spectrum_count += 1
             flagged.append(
                 SpectrumQcFlaggedSpectrum(
                     spectrum_id=spectrum.spectrum_id,
-                    issue_kind="empty",
+                    issue_kind=FlaggedSpectrumIssueKind.EMPTY,
                     peak_count=0,
                     total_ion_current=0.0,
                     base_peak_intensity=0.0,
@@ -192,14 +323,24 @@ def build_spectrum_run_qc_report(
                 )
             )
             continue
-        if len(spectrum.peaks) < noisy_peak_count_threshold or (
-            total_ion_current < noisy_total_ion_current_threshold
-        ):
+        if is_noisy:
             noisy_spectrum_count += 1
             flagged.append(
                 SpectrumQcFlaggedSpectrum(
                     spectrum_id=spectrum.spectrum_id,
-                    issue_kind="noisy",
+                    issue_kind=FlaggedSpectrumIssueKind.NOISY,
+                    peak_count=len(spectrum.peaks),
+                    total_ion_current=total_ion_current,
+                    base_peak_intensity=base_peak_intensity,
+                    retention_time_seconds=spectrum.retention_time_seconds,
+                )
+            )
+        if is_single_dominant_peak:
+            single_dominant_peak_count += 1
+            flagged.append(
+                SpectrumQcFlaggedSpectrum(
+                    spectrum_id=spectrum.spectrum_id,
+                    issue_kind=FlaggedSpectrumIssueKind.SINGLE_DOMINANT_PEAK,
                     peak_count=len(spectrum.peaks),
                     total_ion_current=total_ion_current,
                     base_peak_intensity=base_peak_intensity,
@@ -245,6 +386,11 @@ def build_spectrum_run_qc_report(
         precursor_intensity_observation_count=precursor_intensity_observation_count,
         empty_spectrum_count=empty_spectrum_count,
         noisy_spectrum_count=noisy_spectrum_count,
+        single_dominant_peak_count=single_dominant_peak_count,
+        quality_distribution=tuple(
+            SpectrumDistributionRow(bucket=bucket, count=count)
+            for bucket, count in quality_counts.items()
+        ),
         ms2_count_over_time=ms2_count_over_time,
         tic_trace=tic_trace,
         bpc_trace=bpc_trace,
@@ -257,11 +403,21 @@ def build_spectrum_run_qc_report(
             for bucket in ("unknown", "1", "2", "3", "4", "5+")
             if bucket != "5+" or charge_counts.get("5+", 0) > 0
         ),
+        spectrum_metrics=tuple(
+            sorted(
+                spectrum_metrics,
+                key=lambda row: (
+                    row.retention_time_seconds is None,
+                    row.retention_time_seconds or 0.0,
+                    row.spectrum_id,
+                ),
+            )
+        ),
         flagged_spectra=tuple(
             sorted(
                 flagged,
                 key=lambda item: (
-                    item.issue_kind,
+                    item.issue_kind.value,
                     item.retention_time_seconds is None,
                     item.retention_time_seconds or 0.0,
                     item.spectrum_id,
@@ -303,6 +459,7 @@ def render_spectrum_run_qc_summary_tsv(report: SpectrumRunQcReport) -> str:
             "precursor_intensity_observation_count",
             "empty_spectrum_count",
             "noisy_spectrum_count",
+            "single_dominant_peak_count",
         ),
         (
             (
@@ -314,7 +471,52 @@ def render_spectrum_run_qc_summary_tsv(report: SpectrumRunQcReport) -> str:
                 report.precursor_intensity_observation_count,
                 report.empty_spectrum_count,
                 report.noisy_spectrum_count,
+                report.single_dominant_peak_count,
             ),
+        ),
+    )
+
+
+def render_spectrum_run_qc_spectra_tsv(report: SpectrumRunQcReport) -> str:
+    """Render the per-spectrum QC metric table."""
+
+    return _render_tsv(
+        (
+            "spectrum_id",
+            "ms_level",
+            "retention_time_seconds",
+            "precursor_mz",
+            "precursor_intensity",
+            "precursor_charge",
+            "peak_count",
+            "total_ion_current",
+            "base_peak_intensity",
+            "top_peak_dominance",
+            "spectral_entropy",
+            "quality_tier",
+            "is_empty",
+            "is_noisy",
+            "is_single_dominant_peak",
+        ),
+        tuple(
+            (
+                row.spectrum_id,
+                row.ms_level,
+                row.retention_time_seconds,
+                row.precursor_mz,
+                row.precursor_intensity,
+                row.precursor_charge,
+                row.peak_count,
+                row.total_ion_current,
+                row.base_peak_intensity,
+                row.top_peak_dominance,
+                row.spectral_entropy,
+                row.quality_tier.value,
+                row.is_empty,
+                row.is_noisy,
+                row.is_single_dominant_peak,
+            )
+            for row in report.spectrum_metrics
         ),
     )
 
@@ -368,7 +570,7 @@ def render_spectrum_run_qc_flagged_spectra_tsv(report: SpectrumRunQcReport) -> s
         tuple(
             (
                 row.spectrum_id,
-                row.issue_kind,
+                row.issue_kind.value,
                 row.peak_count,
                 row.total_ion_current,
                 row.base_peak_intensity,
@@ -460,6 +662,68 @@ def _resolve_qc_traces(
         return ordered_tic, ordered_bpc, "spectrum_derived"
 
     return (), (), "unavailable"
+
+
+def _calculate_top_peak_dominance(
+    *,
+    peak_count: int,
+    total_ion_current: float,
+    base_peak_intensity: float,
+) -> float:
+    if peak_count == 0:
+        return 0.0
+    if total_ion_current <= 0.0:
+        return 1.0
+    return base_peak_intensity / total_ion_current
+
+
+def _calculate_normalized_spectral_entropy(spectrum: SpectrumModel) -> float:
+    if len(spectrum.peaks) <= 1:
+        return 0.0
+    total_ion_current = sum(peak.intensity for peak in spectrum.peaks)
+    if total_ion_current <= 0.0:
+        return 0.0
+    entropy = 0.0
+    for peak in spectrum.peaks:
+        proportion = peak.intensity / total_ion_current
+        if proportion > 0.0:
+            entropy -= proportion * log(proportion)
+    maximum_entropy = log(len(spectrum.peaks))
+    if maximum_entropy <= 0.0:
+        return 0.0
+    return entropy / maximum_entropy
+
+
+def _classify_spectrum_quality(
+    *,
+    peak_count: int,
+    total_ion_current: float,
+    spectral_entropy: float,
+    is_empty: bool,
+    is_noisy: bool,
+    is_single_dominant_peak: bool,
+    medium_quality_peak_count_threshold: int,
+    medium_quality_total_ion_current_threshold: float,
+    medium_quality_entropy_threshold: float,
+    high_quality_peak_count_threshold: int,
+    high_quality_total_ion_current_threshold: float,
+    high_quality_entropy_threshold: float,
+) -> SpectrumQualityTier:
+    if is_empty or is_noisy or is_single_dominant_peak:
+        return SpectrumQualityTier.LOW
+    if (
+        peak_count >= high_quality_peak_count_threshold
+        and total_ion_current >= high_quality_total_ion_current_threshold
+        and spectral_entropy >= high_quality_entropy_threshold
+    ):
+        return SpectrumQualityTier.HIGH
+    if (
+        peak_count >= medium_quality_peak_count_threshold
+        and total_ion_current >= medium_quality_total_ion_current_threshold
+        and spectral_entropy >= medium_quality_entropy_threshold
+    ):
+        return SpectrumQualityTier.MEDIUM
+    return SpectrumQualityTier.LOW
 
 
 def _float_range(start: float, stop: float, step: float) -> list[float]:
