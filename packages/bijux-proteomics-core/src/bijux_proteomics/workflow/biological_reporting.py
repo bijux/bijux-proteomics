@@ -61,8 +61,10 @@ from bijux_proteomics.quantification import (
     HeatmapPreparationPolicy,
     HeatmapPreparationReport,
     Ms1FeatureColumnMapping,
+    LabelFreeQuantTable,
     NormalizationMethod,
     QuantEntityLevel,
+    QuantMeasureKind,
     QuantRollupMethod,
     SampleExplorationReport,
     build_differential_abundance_report,
@@ -218,15 +220,58 @@ def build_biological_result_report_bundle(
     )
     active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
     parse_report = parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
+    quant_table = build_label_free_intensity_table(
+        parse_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+    )
+    return build_biological_result_report_bundle_from_quant_table(
+        quant_table,
+        design_entries,
+        proteins_fasta_path=proteins_fasta_path,
+        annotation_tsv_path=annotation_tsv_path,
+        go_annotation_tsv_path=go_annotation_tsv_path,
+        pathway_membership_tsv_path=pathway_membership_tsv_path,
+        complex_membership_tsv_path=complex_membership_tsv_path,
+        normalization_method=normalization_method,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        selection_policy=active_selection_policy,
+        volcano_policy=volcano_policy,
+    )
+
+
+def build_biological_result_report_bundle_from_quant_table(
+    quant_table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    proteins_fasta_path: Path,
+    annotation_tsv_path: Path | None = None,
+    go_annotation_tsv_path: Path | None = None,
+    pathway_membership_tsv_path: Path | None = None,
+    complex_membership_tsv_path: Path | None = None,
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    selection_policy: BiologicalResultSelectionPolicy | None = None,
+    volcano_policy: VolcanoReviewPolicy | None = None,
+) -> BiologicalResultReportBundle:
+    """Build a biological result bundle from one governed protein quant table."""
+
+    active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
     normalized_table = normalize_label_free_table(
-        build_label_free_intensity_table(
-            parse_report.accepted_records,
-            entity_level=QuantEntityLevel.PROTEIN,
-            aggregation_method=aggregation_method,
-            top_n=top_n,
-        ),
+        quant_table,
         method=normalization_method,
     )
+    if normalized_table.entity_level is not QuantEntityLevel.PROTEIN:
+        raise ValueError(
+            "biological result reporting requires a protein-level quantification table"
+        )
+    if normalized_table.measure_kind is not QuantMeasureKind.INTENSITY:
+        raise ValueError(
+            "biological result reporting requires intensity-based protein quantification"
+        )
     resolved_condition_a, resolved_condition_b = _resolve_contrast(
         design_entries,
         condition_a=condition_a,
