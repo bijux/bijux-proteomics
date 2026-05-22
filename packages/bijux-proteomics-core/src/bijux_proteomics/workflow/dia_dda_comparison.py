@@ -16,6 +16,7 @@ from bijux_proteomics.identification import (
     PsmRecord,
     SearchResultColumnMapping,
     TargetDecoyLabel,
+    is_biological_foreground_class,
     parse_psm_tsv,
 )
 from bijux_proteomics.identification.diann_import import (
@@ -396,8 +397,7 @@ def _dda_protein_abundance(
         for record in records
         if record.run_id is not None
         and record.intensity is not None
-        and record.target_decoy_label is TargetDecoyLabel.TARGET
-        and not record.contaminant_flag
+        and is_biological_foreground_class(record.target_decoy_contaminant_class)
         and record.q_value is not None
         and record.q_value <= max_q_value
     )
@@ -453,8 +453,7 @@ def _dda_peptide_abundance(
         for record in records
         if record.run_id is not None
         and record.intensity is not None
-        and record.target_decoy_label is TargetDecoyLabel.TARGET
-        and not record.contaminant_flag
+        and is_biological_foreground_class(record.target_decoy_contaminant_class)
         and record.q_value is not None
         and record.q_value <= max_q_value
     )
