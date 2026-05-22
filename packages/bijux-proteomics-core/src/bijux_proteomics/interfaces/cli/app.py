@@ -521,12 +521,15 @@ from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
+    build_silac_label_based_report_bundle,
     build_silac_differential_analysis_report,
+    build_tmt_label_based_report_bundle,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
+    export_label_based_report_bundle,
     export_dia_normalization_balance_plot_tsv,
     export_label_based_differential_matrix_tsv,
     export_label_based_differential_results_tsv,
@@ -8401,6 +8404,128 @@ def silac_differential_command(
     _emit_json(payload, out_path=out_path)
 
 
+@isotope_labeling_group.command("silac-report")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--sample-id-column", default="sample_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--protein-refs-column", default="protein_refs", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--label-column", default="label", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--labels", default="light,heavy", show_default=True)
+@click.option(
+    "--reference-label",
+    type=_silac_label_choice(),
+    default=SilacLabel.LIGHT.value,
+    show_default=True,
+)
+@click.option("--collapse-charge-states", is_flag=True)
+@click.option(
+    "--differential-normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option(
+    "--output-dir",
+    required=True,
+    type=click.Path(path_type=Path, file_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def silac_report_command(
+    input_tsv: Path,
+    design_path: Path,
+    sample_id_column: str,
+    peptide_column: str,
+    protein_refs_column: str,
+    charge_column: str,
+    label_column: str,
+    intensity_column: str,
+    feature_id_column: str,
+    protein_separator: str,
+    labels: str,
+    reference_label: str,
+    collapse_charge_states: bool,
+    differential_normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build a governed SILAC report directory with ratios, QC, and differential results."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_silac_label_based_report_bundle(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            mapping=SilacColumnMapping(
+                sample_id=sample_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                charge=charge_column,
+                label=label_column,
+                intensity=intensity_column,
+                feature_id=feature_id_column,
+                protein_separator=protein_separator,
+            ),
+            quantification_policy=SilacQuantificationPolicy(
+                expected_labels=_parse_silac_label_spec(labels),
+                reference_label=SilacLabel(reference_label),
+                separate_charge_states=not collapse_charge_states,
+            ),
+            differential_normalization_method=NormalizationMethod(
+                differential_normalization_method
+            ),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+        )
+        manifest = export_label_based_report_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "label_based_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=out_path,
+    )
+
+
 @isotope_labeling_group.command("silac-validate")
 @click.argument(
     "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -9464,6 +9589,136 @@ def tmt_differential_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
+
+@multiplex_group.command("tmt-report")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--control-channel",
+    required=True,
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--channel-normalization-method",
+    type=_tmt_normalization_method_choice(),
+    default=TmtNormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option(
+    "--differential-normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option(
+    "--output-dir",
+    required=True,
+    type=click.Path(path_type=Path, file_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_report_command(
+    input_tsv: Path,
+    design_path: Path,
+    control_channel: str,
+    source_kind: str,
+    channel_normalization_method: str,
+    differential_normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build a governed TMT report directory with channel quality, ratios, and protein changes."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_tmt_label_based_report_bundle(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            control_channel=control_channel,
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+            channel_normalization_method=TmtNormalizationMethod(
+                channel_normalization_method
+            ),
+            differential_normalization_method=NormalizationMethod(
+                differential_normalization_method
+            ),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+        )
+        manifest = export_label_based_report_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "label_based_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "source_kind": source_kind,
+            "control_channel": control_channel,
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=out_path,
+    )
 
 
 @qc_group.command("report")

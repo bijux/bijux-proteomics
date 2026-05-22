@@ -3026,6 +3026,56 @@ def test_tmt_interference_command_emits_filtered_and_channel_summary_outputs() -
         ).read_text(encoding="utf-8")
 
 
+def test_tmt_report_command_emits_report_directory_and_manifest() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-report",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--control-channel",
+                "126",
+                "--output-dir",
+                "tmt_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["control_channel"] == "126"
+        assert payload["report"]["summary"]["sample_qc_entry_count"] == 8
+        report_dir = Path("tmt_report")
+        assert (report_dir / "label_based_report_manifest.json").exists()
+        assert (report_dir / "label_based_report_summary.tsv").exists()
+        assert (report_dir / "label_based_sample_qc.tsv").exists()
+        assert (report_dir / "tmt_channel_totals.tsv").exists()
+        assert (report_dir / "tmt_protein_ratios.tsv").exists()
+        assert (report_dir / "label_based_differential_results.tsv").exists()
+        assert "quality_entry_count" in (
+            report_dir / "label_based_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "assay_axis" in (
+            report_dir / "label_based_sample_qc.tsv"
+        ).read_text(encoding="utf-8")
+        assert "total_intensity" in (
+            report_dir / "tmt_channel_totals.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ratio" in (
+            report_dir / "tmt_protein_ratios.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_tmt_ratio_command_emits_peptide_protein_and_missing_ratio_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -3172,6 +3222,52 @@ def test_silac_differential_command_emits_matrix_result_and_balance_outputs() ->
         )
         assert "negative_log10_adjusted_p_value" in Path(
             "silac.diff.volcano.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_silac_report_command_emits_report_directory_and_manifest() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "isotope_labeling"
+        shutil.copy(
+            fixture_dir / "silac_differential_features.tsv",
+            "silac_differential_features.tsv",
+        )
+        shutil.copy(
+            fixture_dir / "silac_differential.design.tsv",
+            "silac_differential.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-labeling",
+                "silac-report",
+                "silac_differential_features.tsv",
+                "silac_differential.design.tsv",
+                "--output-dir",
+                "silac_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["sample_qc_entry_count"] == 4
+        report_dir = Path("silac_report")
+        assert (report_dir / "label_based_report_manifest.json").exists()
+        assert (report_dir / "label_based_report_summary.tsv").exists()
+        assert (report_dir / "label_based_sample_qc.tsv").exists()
+        assert (report_dir / "silac_ratio_summary.tsv").exists()
+        assert (report_dir / "silac_protein_ratios.tsv").exists()
+        assert (report_dir / "label_based_differential_results.tsv").exists()
+        assert "protein_ratio_count" in (
+            report_dir / "label_based_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "assay_axis" in (
+            report_dir / "label_based_sample_qc.tsv"
+        ).read_text(encoding="utf-8")
+        assert "reference_label" in (
+            report_dir / "silac_protein_ratios.tsv"
         ).read_text(encoding="utf-8")
 
 
