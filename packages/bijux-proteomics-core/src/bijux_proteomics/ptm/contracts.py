@@ -22,6 +22,7 @@ from bijux_proteomics.identification import (
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
 )
+from bijux_proteomics.ptm.peptide_parser import parse_ptm_peptide
 from bijux_proteomics.quantification import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
 
@@ -440,7 +441,7 @@ def parse_ptm_localization_tsv(
                 )
 
             try:
-                parsed = parse_modified_peptide(peptide, registry=registry)
+                parsed = parse_ptm_peptide(peptide, registry=registry)
             except ValueError as exc:
                 issues.append(
                     _row_issue("invalid_modified_peptide", str(exc), row_number)
@@ -468,9 +469,9 @@ def parse_ptm_localization_tsv(
             if parsed is not None:
                 modification_names = tuple(
                     dict.fromkeys(
-                        modification.name
-                        for modification in parsed.modifications
-                        if modification.site is ModificationPosition.ANYWHERE
+                        site.modification_name
+                        for site in parsed.sites
+                        if site.site_kind is ModificationPosition.ANYWHERE
                     )
                 )
                 if not modification_names:
@@ -482,8 +483,13 @@ def parse_ptm_localization_tsv(
                         )
                     )
                 if not candidate_sites:
+                    parsed_peptide = parse_modified_peptide(
+                        parsed.canonical_peptide,
+                        registry=registry,
+                    )
                     advisory = build_modification_localization_advisory(
-                        parsed, registry=registry
+                        parsed_peptide,
+                        registry=registry,
                     )
                     for candidate in advisory.candidates:
                         if candidate.assigned_site_index is not None:
@@ -508,7 +514,7 @@ def parse_ptm_localization_tsv(
                     if active_mapping.sample_id
                     else None,
                     localized_peptide=peptide,
-                    canonical_peptide=parsed.canonical_notation,
+                    canonical_peptide=parsed.canonical_peptide,
                     sequence=parsed.sequence,
                     charge=charge,
                     score=score,
