@@ -1,0 +1,100 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+from __future__ import annotations
+
+from pathlib import Path
+
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.workflow import (
+    build_silac_label_based_report_bundle,
+    build_tmt_label_based_report_bundle,
+    export_label_based_report_bundle,
+)
+
+
+def _tmt_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "multiplex" / name
+
+
+def _silac_fixture(name: str) -> Path:
+    return (
+        Path(__file__).resolve().parent.parent / "fixtures" / "isotope_labeling" / name
+    )
+
+
+def test_tmt_label_based_report_export_writes_quality_ratio_and_differential_ledgers(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(_tmt_fixture("tmt.design.tsv")).accepted_entries
+    )
+    report = build_tmt_label_based_report_bundle(
+        _tmt_fixture("maxquant_tmt_evidence.tsv"),
+        design_entries,
+        control_channel="126",
+    )
+
+    manifest = export_label_based_report_bundle(report, tmp_path / "tmt_report")
+    output_dir = tmp_path / "tmt_report"
+
+    assert manifest.source_kind.value == "tmt"
+    assert (output_dir / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
+    assert (output_dir / manifest.artifacts.tmt_channel_totals_tsv).exists()
+    assert (output_dir / manifest.artifacts.tmt_normalization_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.tmt_protein_ratio_tsv).exists()
+    assert (output_dir / manifest.artifacts.tmt_validation_channel_tsv).exists()
+    assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
+    assert "quality_entry_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "assay_axis" in (
+        output_dir / manifest.artifacts.sample_qc_tsv
+    ).read_text(encoding="utf-8")
+    assert "total_intensity" in (
+        output_dir / manifest.artifacts.tmt_channel_totals_tsv
+    ).read_text(encoding="utf-8")
+    assert "ratio" in (
+        output_dir / manifest.artifacts.tmt_protein_ratio_tsv
+    ).read_text(encoding="utf-8")
+    assert "adjusted_p_value" in (
+        output_dir / manifest.artifacts.differential_results_tsv
+    ).read_text(encoding="utf-8")
+
+
+def test_silac_label_based_report_export_writes_quality_ratio_and_differential_ledgers(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _silac_fixture("silac_differential.design.tsv")
+        ).accepted_entries
+    )
+    report = build_silac_label_based_report_bundle(
+        _silac_fixture("silac_differential_features.tsv"),
+        design_entries,
+    )
+
+    manifest = export_label_based_report_bundle(report, tmp_path / "silac_report")
+    output_dir = tmp_path / "silac_report"
+
+    assert manifest.source_kind.value == "silac"
+    assert (output_dir / manifest.artifacts.summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.sample_qc_tsv).exists()
+    assert (output_dir / manifest.artifacts.silac_ratio_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.silac_protein_ratio_tsv).exists()
+    assert (output_dir / manifest.artifacts.silac_validation_label_tsv).exists()
+    assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
+    assert "protein_ratio_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "assay_axis" in (
+        output_dir / manifest.artifacts.sample_qc_tsv
+    ).read_text(encoding="utf-8")
+    assert "reference_label" in (
+        output_dir / manifest.artifacts.silac_protein_ratio_tsv
+    ).read_text(encoding="utf-8")
+    assert "missing_group_count" in (
+        output_dir / manifest.artifacts.silac_validation_label_tsv
+    ).read_text(encoding="utf-8")
