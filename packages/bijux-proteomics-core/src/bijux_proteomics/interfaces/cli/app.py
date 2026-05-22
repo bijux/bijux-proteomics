@@ -602,6 +602,7 @@ from bijux_proteomics.workflow import (
     build_biological_result_report_bundle,
     build_dda_biological_workflow_bundle,
     build_diann_biological_workflow_bundle,
+    build_maxquant_biological_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
@@ -612,9 +613,11 @@ from bijux_proteomics.workflow import (
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     DdaPsmAcceptancePolicy,
+    MaxquantProteinGroupAcceptancePolicy,
     export_diann_biological_workflow_bundle,
     export_biological_result_report_bundle,
     export_dda_biological_workflow_bundle,
+    export_maxquant_biological_workflow_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
@@ -7377,6 +7380,198 @@ def diann_biological_report_command(
         raise click.ClickException(str(exc)) from exc
 
     manifest_path = output_dir / "diann_biological_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "design_rows": len(design_report.accepted_entries),
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("maxquant-biological-report")
+@click.argument(
+    "evidence_txt", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "peptides_txt", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "protein_groups_txt",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.argument(
+    "design_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--go-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--complex-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-contaminants/--exclude-contaminants",
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "--include-reverse/--exclude-reverse",
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "--include-only-identified-by-site/--exclude-only-identified-by-site",
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "--allow-empty-lfq-signal/--require-lfq-signal",
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-max-entities",
+    type=int,
+    default=50,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("maxquant_biological_report"),
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def maxquant_biological_report_command(
+    evidence_txt: Path,
+    peptides_txt: Path,
+    protein_groups_txt: Path,
+    design_tsv: Path,
+    proteins_fasta: Path,
+    config_path: Path | None,
+    go_annotation_tsv: Path | None,
+    pathway_membership_tsv: Path | None,
+    complex_membership_tsv: Path | None,
+    include_contaminants: bool,
+    include_reverse: bool,
+    include_only_identified_by_site: bool,
+    allow_empty_lfq_signal: bool,
+    normalization: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    heatmap_max_entities: int,
+    heatmap_min_observed_fraction: float,
+    volcano_top_label_count: int,
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build one MaxQuant-to-biology report bundle."""
+
+    try:
+        design_report = parse_experimental_design_table(design_tsv)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_maxquant_biological_workflow_bundle(
+            evidence_txt,
+            tuple(design_report.accepted_entries),
+            peptides_txt_path=peptides_txt,
+            protein_groups_txt_path=protein_groups_txt,
+            proteins_fasta_path=proteins_fasta,
+            config_path=config_path,
+            acceptance_policy=MaxquantProteinGroupAcceptancePolicy(
+                exclude_contaminants=not include_contaminants,
+                exclude_reverse=not include_reverse,
+                exclude_only_identified_by_site=not include_only_identified_by_site,
+                require_lfq_signal=not allow_empty_lfq_signal,
+            ),
+            normalization_method=NormalizationMethod(normalization),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            selection_policy=BiologicalResultSelectionPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+                heatmap_max_entity_count=heatmap_max_entities,
+                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+            ),
+            volcano_policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=max_adjusted_p_value,
+                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+        manifest = export_maxquant_biological_workflow_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "maxquant_biological_report_manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
 
     _emit_json(
