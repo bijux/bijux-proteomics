@@ -11,6 +11,7 @@ from bijux_proteomics.chemistry.fragment_ion_review import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.isotope_adduct_annotation import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.modification_registry import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.modification_resolution import *  # noqa: F401,F403
+from bijux_proteomics.chemistry.modified_peptide_parser import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.modified_peptide_conflicts import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.open_search_unknown_mod import *  # noqa: F401,F403
 from bijux_proteomics.chemistry.search_engine_modified_peptides import *  # noqa: F401,F403
