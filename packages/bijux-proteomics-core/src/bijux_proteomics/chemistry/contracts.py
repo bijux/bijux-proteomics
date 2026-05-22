@@ -31,6 +31,14 @@ _AMMONIA_MONOISOTOPIC_MASS = 17.026549
 _AMMONIA_AVERAGE_MASS = 17.03052
 _PHOSPHORIC_ACID_MONOISOTOPIC_MASS = 97.976896
 _PHOSPHORIC_ACID_AVERAGE_MASS = 97.9952
+_CARBON_MONOISOTOPIC_MASS = 12.0
+_CARBON_AVERAGE_MASS = 12.0107
+_OXYGEN_MONOISOTOPIC_MASS = 15.99491461957
+_OXYGEN_AVERAGE_MASS = 15.9994
+_CARBON_MONOXIDE_MONOISOTOPIC_MASS = (
+    _CARBON_MONOISOTOPIC_MASS + _OXYGEN_MONOISOTOPIC_MASS
+)
+_CARBON_MONOXIDE_AVERAGE_MASS = _CARBON_AVERAGE_MASS + _OXYGEN_AVERAGE_MASS
 _C13_NEUTRON_SHIFT = 1.0033548378
 _RESIDUE_TOKEN_RE = re.compile(r"^[A-Z]+$")
 _DELTA_TOKEN_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$")
@@ -46,6 +54,7 @@ class MassType(StrEnum):
 class FragmentIonSeries(StrEnum):
     """Supported backbone fragment series."""
 
+    A = "a"
     B = "b"
     Y = "y"
 
@@ -260,6 +269,8 @@ class FragmentIon(JsonModel):
     series: FragmentIonSeries
     ordinal: int = Field(..., ge=1)
     charge: int = Field(..., ge=1)
+    span_start: int = Field(..., ge=1)
+    span_end: int = Field(..., ge=1)
     sequence: str = Field(..., min_length=1)
     neutral_loss: str | None = None
     neutral_mass_monoisotopic: float = Field(..., gt=0.0)
@@ -1831,7 +1842,7 @@ def _fragment_modifications(
             modification.site is ModificationPosition.PEPTIDE_N_TERM
             or modification.site is ModificationPosition.PROTEIN_N_TERM
         ):
-            if series is FragmentIonSeries.B:
+            if series in {FragmentIonSeries.A, FragmentIonSeries.B}:
                 selected.append(modification)
         elif (
             modification.site is ModificationPosition.PEPTIDE_C_TERM
@@ -1845,7 +1856,7 @@ def _fragment_modifications(
                 raise ValueError(
                     "residue modification is missing a required site index"
                 )
-            if series is FragmentIonSeries.B and site_index <= ordinal:
+            if series in {FragmentIonSeries.A, FragmentIonSeries.B} and site_index <= ordinal:
                 selected.append(modification)
             if series is FragmentIonSeries.Y and site_index > sequence_length - ordinal:
                 selected.append(modification)
@@ -1861,7 +1872,7 @@ def calculate_fragment_ions(
     include_neutral_losses: bool = False,
     registry: ModificationRegistryDocument | None = None,
 ) -> tuple[FragmentIon, ...]:
-    """Calculate theoretical b/y fragment ions for one peptide."""
+    """Calculate theoretical a/b/y fragment ions for one peptide."""
     parsed = _ensure_parsed_peptide(peptide, registry=registry)
     if len(parsed.sequence) < 2:
         return ()
@@ -1872,8 +1883,10 @@ def calculate_fragment_ions(
     ions: list[FragmentIon] = []
     for fragment_series in series:
         for ordinal in range(1, len(parsed.sequence)):
-            if fragment_series is FragmentIonSeries.B:
+            if fragment_series in {FragmentIonSeries.A, FragmentIonSeries.B}:
                 fragment_sequence = parsed.sequence[:ordinal]
+                span_start = 1
+                span_end = ordinal
                 mono_neutral = sum(
                     _MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
@@ -1898,20 +1911,24 @@ def calculate_fragment_ions(
                     include_n_term=True,
                     include_c_term=False,
                 )
+                if fragment_series is FragmentIonSeries.A:
+                    mono_neutral -= _CARBON_MONOXIDE_MONOISOTOPIC_MASS
+                    average_neutral -= _CARBON_MONOXIDE_AVERAGE_MASS
             else:
                 fragment_sequence = parsed.sequence[-ordinal:]
+                span_start = len(parsed.sequence) - ordinal + 1
+                span_end = len(parsed.sequence)
                 mono_neutral = _WATER_MONOISOTOPIC_MASS + sum(
                     _MONOISOTOPIC_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
                 average_neutral = _WATER_AVERAGE_MASS + sum(
                     _AVERAGE_RESIDUE_MASS[residue] for residue in fragment_sequence
                 )
-                start = len(parsed.sequence) - ordinal + 1
                 mono_neutral += _matching_static_mass_delta(
                     parsed.sequence,
                     static_modifications,
                     MassType.MONOISOTOPIC,
-                    start=start,
+                    start=span_start,
                     end=len(parsed.sequence),
                     include_n_term=False,
                     include_c_term=True,
@@ -1920,7 +1937,7 @@ def calculate_fragment_ions(
                     parsed.sequence,
                     static_modifications,
                     MassType.AVERAGE,
-                    start=start,
+                    start=span_start,
                     end=len(parsed.sequence),
                     include_n_term=False,
                     include_c_term=True,
@@ -1952,6 +1969,8 @@ def calculate_fragment_ions(
                 *,
                 series: FragmentIonSeries,
                 ion_ordinal: int,
+                ion_span_start: int,
+                ion_span_end: int,
                 ion_sequence: str,
                 neutral_mass_monoisotopic: float,
                 neutral_mass_average: float,
@@ -1963,6 +1982,8 @@ def calculate_fragment_ions(
                             series=series,
                             ordinal=ion_ordinal,
                             charge=charge,
+                            span_start=ion_span_start,
+                            span_end=ion_span_end,
                             sequence=ion_sequence,
                             neutral_loss=neutral_loss_name,
                             neutral_mass_monoisotopic=neutral_mass_monoisotopic,
@@ -1982,6 +2003,8 @@ def calculate_fragment_ions(
             append_ion(
                 series=fragment_series,
                 ion_ordinal=ordinal,
+                ion_span_start=span_start,
+                ion_span_end=span_end,
                 ion_sequence=fragment_sequence,
                 neutral_mass_monoisotopic=mono_neutral,
                 neutral_mass_average=average_neutral,
@@ -1990,6 +2013,8 @@ def calculate_fragment_ions(
                 append_ion(
                     series=fragment_series,
                     ion_ordinal=ordinal,
+                    ion_span_start=span_start,
+                    ion_span_end=span_end,
                     ion_sequence=fragment_sequence,
                     neutral_mass_monoisotopic=mono_neutral
                     - neutral_loss.monoisotopic_mass,
