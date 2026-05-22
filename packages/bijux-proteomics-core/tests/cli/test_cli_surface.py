@@ -519,6 +519,8 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "production.length.tsv",
                 "--organism-tsv-out",
                 "production.organism.tsv",
+                "--invalid-sequence-tsv-out",
+                "production.invalid.tsv",
             ],
         )
         assert profile_result.exit_code == 0
@@ -529,6 +531,10 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         assert profile_payload["summary"]["decoy_count"] == 1
         assert profile_payload["summary"]["contaminant_count"] == 1
         assert profile_payload["summary"]["organism_annotated_count"] == 5
+        assert [row["source_identifier"] for row in profile_payload["invalid_sequence_report"]] == [
+            "custom_empty",
+            "custom_invalid",
+        ]
         assert profile_payload["organism_distribution"] == [
             {
                 "organism": "Homo sapiens",
@@ -553,6 +559,14 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         )
         assert "1-99\t1\t99\t6\t116" in Path("production.length.tsv").read_text()
         assert "Homo sapiens\t4\t3\t1\t1" in Path("production.organism.tsv").read_text()
+        assert (
+            "custom_empty\tcustom_empty Example empty\tempty_sequence\tsequence must contain at least one amino-acid residue"
+            in Path("production.invalid.tsv").read_text()
+        )
+        assert (
+            "custom_invalid\tcustom_invalid Example invalid\tinvalid_character\tsequence contains invalid non-residue characters"
+            in Path("production.invalid.tsv").read_text()
+        )
 
         dedup_result = runner.invoke(
             cli,
