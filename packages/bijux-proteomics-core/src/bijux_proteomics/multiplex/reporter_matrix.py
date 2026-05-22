@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from pathlib import Path
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import (
@@ -23,10 +27,12 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.quantification.peptide_intensity_matrix import (
     PeptideIntensityMatrixReport,
     PeptideMatrixGroupingMode,
+    render_peptide_intensity_matrix_tsv,
 )
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
     ProteinMatrixTargetKind,
+    render_protein_intensity_matrix_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -336,6 +342,154 @@ def build_tmt_reporter_matrix_report(
             "tmt reporter review preserves design-aware channel totals alongside peptide and protein channel matrices"
         ),
     )
+
+
+def render_tmt_report_summary_tsv(report: TmtReporterMatrixReport) -> str:
+    """Render a compact summary over the TMT reporter review surface."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "accepted_source_row_count",
+            "rejected_source_row_count",
+            "multiplex_group_count",
+            "mapped_channel_count",
+            "missing_channel_count",
+            "unexpected_source_channel_count",
+            "feature_record_count",
+            "peptide_row_count",
+            "protein_row_count",
+            "channel_total_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_report.summary.accepted_row_count,
+            report.source_report.summary.rejected_row_count,
+            report.feature_bundle.summary.multiplex_group_count,
+            report.feature_bundle.summary.mapped_channel_count,
+            report.summary.missing_channel_count,
+            report.feature_bundle.summary.unexpected_source_channel_count,
+            report.summary.feature_record_count,
+            report.summary.peptide_row_count,
+            report.summary.protein_row_count,
+            report.summary.channel_total_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_channel_mapping_tsv(report: TmtReporterMatrixReport) -> str:
+    """Render the design-aware TMT channel mapping ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "sample_role",
+            "channel_role",
+            "source_column_present",
+            "mapped_to_design",
+            "note",
+        ]
+    )
+    for entry in report.feature_bundle.channel_mapping:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                entry.condition or "",
+                "" if entry.sample_role is None else entry.sample_role.value,
+                "" if entry.channel_role is None else entry.channel_role.value,
+                str(entry.source_column_present).lower(),
+                str(entry.mapped_to_design).lower(),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_channel_totals_tsv(report: TmtReporterMatrixReport) -> str:
+    """Render one per-channel total ledger over the TMT review surface."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "channel_role",
+            "total_intensity",
+            "observed_row_count",
+            "missing_row_count",
+            "note",
+        ]
+    )
+    for entry in report.channel_totals:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                entry.condition or "",
+                "" if entry.channel_role is None else entry.channel_role.value,
+                entry.total_intensity,
+                entry.observed_row_count,
+                entry.missing_row_count,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_peptide_matrix_tsv(report: TmtReporterMatrixReport) -> str:
+    """Render the TMT peptide-by-channel matrix as TSV."""
+
+    return render_peptide_intensity_matrix_tsv(report.peptide_matrix)
+
+
+def render_tmt_protein_matrix_tsv(report: TmtReporterMatrixReport) -> str:
+    """Render the TMT protein-by-channel matrix as TSV."""
+
+    return render_protein_intensity_matrix_tsv(report.protein_matrix)
+
+
+def export_tmt_report_summary_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
+    """Write the compact TMT report summary ledger."""
+
+    path.write_text(render_tmt_report_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_channel_mapping_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
+    """Write the TMT channel mapping ledger."""
+
+    path.write_text(render_tmt_channel_mapping_tsv(report), encoding="utf-8")
+
+
+def export_tmt_channel_totals_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
+    """Write the TMT channel totals ledger."""
+
+    path.write_text(render_tmt_channel_totals_tsv(report), encoding="utf-8")
+
+
+def export_tmt_peptide_matrix_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
+    """Write the TMT peptide matrix."""
+
+    path.write_text(render_tmt_peptide_matrix_tsv(report), encoding="utf-8")
+
+
+def export_tmt_protein_matrix_tsv(report: TmtReporterMatrixReport, path: Path) -> None:
+    """Write the TMT protein matrix."""
+
+    path.write_text(render_tmt_protein_matrix_tsv(report), encoding="utf-8")
 
 
 def _default_channel_role(
