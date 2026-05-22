@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -90,6 +91,70 @@ class PtmSiteAnnotationImportReport(JsonModel):
     rejected_rows: tuple[RejectedPtmSiteAnnotationRow, ...] = Field(default_factory=tuple)
     column_mapping: PtmSiteAnnotationColumnMapping
     summary: PtmSiteAnnotationImportSummary
+    note: str = Field(..., min_length=1)
+
+
+class PtmMappedSiteAnnotationEntry(JsonModel):
+    """One imported annotation row mapped onto one observed PTM site."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    annotation_species: str = Field(..., min_length=1)
+    observed_species: str | None = None
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    site_function: str | None = None
+    kinases: tuple[str, ...] = Field(default_factory=tuple)
+    pathways: tuple[str, ...] = Field(default_factory=tuple)
+    source_name: str | None = None
+    source_accession: str | None = None
+    ambiguous_site: bool = False
+    shared_peptide_site: bool = False
+
+
+class PtmUnmappedSiteAnnotationEntry(JsonModel):
+    """One imported annotation row that could not be mapped onto an observed PTM site."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    annotation_species: str = Field(..., min_length=1)
+    observed_species: str | None = None
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    source_name: str | None = None
+    source_accession: str | None = None
+    reason: str = Field(..., min_length=1)
+
+
+class PtmSiteAnnotationMappingSummary(JsonModel):
+    """Stable summary over PTM site-annotation mapping onto observed sites."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    matched_annotation_count: int = Field(..., ge=0)
+    matched_site_count: int = Field(..., ge=0)
+    unmapped_annotation_count: int = Field(..., ge=0)
+    species_mismatch_count: int = Field(..., ge=0)
+
+
+class PtmSiteAnnotationMappingReport(JsonModel):
+    """Governed PTM site-annotation mapping report."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_species: str | None = None
+    matched_annotations: tuple[PtmMappedSiteAnnotationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    unmapped_annotations: tuple[PtmUnmappedSiteAnnotationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: PtmSiteAnnotationMappingSummary
     note: str = Field(..., min_length=1)
 
 
@@ -243,6 +308,128 @@ def parse_ptm_site_annotation_tsv(
     )
 
 
+def build_ptm_site_annotation_mapping_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    annotation_records: tuple[PtmSiteAnnotationRecord, ...],
+    *,
+    target_species: str | None = None,
+) -> PtmSiteAnnotationMappingReport:
+    """Map imported PTM site annotations onto one observed PTM site table."""
+
+    site_by_identity = {
+        (
+            entry.protein_ref,
+            entry.residue,
+            entry.position,
+            entry.modification_name,
+        ): entry
+        for entry in site_entries
+    }
+    normalized_target_species = _normalized_species(target_species)
+    matched: list[PtmMappedSiteAnnotationEntry] = []
+    unmapped: list[PtmUnmappedSiteAnnotationEntry] = []
+    species_mismatch_count = 0
+
+    for record in annotation_records:
+        if (
+            normalized_target_species is not None
+            and _normalized_species(record.species) != normalized_target_species
+        ):
+            species_mismatch_count += 1
+            unmapped.append(
+                PtmUnmappedSiteAnnotationEntry(
+                    annotation_species=record.species,
+                    observed_species=target_species,
+                    protein_ref=record.protein_ref,
+                    residue=record.residue,
+                    position=record.position,
+                    modification_name=record.modification_name,
+                    source_name=record.source_name,
+                    source_accession=record.source_accession,
+                    reason="annotation species does not match the observed proteome species",
+                )
+            )
+            continue
+
+        site_entry = site_by_identity.get(
+            (
+                record.protein_ref,
+                record.residue,
+                record.position,
+                record.modification_name,
+            )
+        )
+        if site_entry is None:
+            unmapped.append(
+                PtmUnmappedSiteAnnotationEntry(
+                    annotation_species=record.species,
+                    observed_species=target_species,
+                    protein_ref=record.protein_ref,
+                    residue=record.residue,
+                    position=record.position,
+                    modification_name=record.modification_name,
+                    source_name=record.source_name,
+                    source_accession=record.source_accession,
+                    reason="no observed PTM site matched the imported annotation identity",
+                )
+            )
+            continue
+
+        matched.append(
+            PtmMappedSiteAnnotationEntry(
+                site_key=site_entry.site_key,
+                annotation_species=record.species,
+                observed_species=target_species,
+                protein_ref=record.protein_ref,
+                residue=record.residue,
+                position=record.position,
+                modification_name=record.modification_name,
+                site_function=record.site_function,
+                kinases=record.kinases,
+                pathways=record.pathways,
+                source_name=record.source_name,
+                source_accession=record.source_accession,
+                ambiguous_site=site_entry.ambiguous,
+                shared_peptide_site=site_entry.shared_peptide,
+            )
+        )
+
+    return PtmSiteAnnotationMappingReport(
+        target_species=target_species,
+        matched_annotations=tuple(
+            sorted(
+                matched,
+                key=lambda entry: (
+                    entry.protein_ref,
+                    entry.position,
+                    entry.modification_name,
+                    entry.source_accession or "",
+                ),
+            )
+        ),
+        unmapped_annotations=tuple(
+            sorted(
+                unmapped,
+                key=lambda entry: (
+                    entry.protein_ref,
+                    entry.position,
+                    entry.modification_name,
+                    entry.reason,
+                ),
+            )
+        ),
+        summary=PtmSiteAnnotationMappingSummary(
+            matched_annotation_count=len(matched),
+            matched_site_count=len({entry.site_key for entry in matched}),
+            unmapped_annotation_count=len(unmapped),
+            species_mismatch_count=species_mismatch_count,
+        ),
+        note=(
+            "ptm site annotation mapping preserves exact protein, residue, position, modification, and species matching against one observed PTM site table"
+        ),
+    )
+
+
 def _validate_required_columns(
     fieldnames: list[str],
     mapping: PtmSiteAnnotationColumnMapping,
@@ -286,3 +473,10 @@ def _split_multi_value(value: str | None, *, separator: str) -> tuple[str, ...]:
         for token in (part.strip() for part in value.split(separator))
         if token
     )
+
+
+def _normalized_species(value: str | None) -> str | None:
+    if value is None:
+        return None
+    normalized = value.strip().lower()
+    return normalized or None
