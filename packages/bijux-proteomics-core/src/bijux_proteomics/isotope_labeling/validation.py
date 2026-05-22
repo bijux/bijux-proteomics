@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from pathlib import Path
+
 from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics.isotope_labeling.silac_quantification import (
@@ -505,3 +509,318 @@ def _ratio_or_none(
     if denominator is None or denominator <= 0.0:
         return None
     return float(numerator) / float(denominator)
+
+
+def render_silac_validation_summary_tsv(report: SilacValidationReport) -> str:
+    """Render the compact SILAC validation summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_count",
+            "expected_label_count",
+            "label_entry_count",
+            "missing_label_count",
+            "missing_pair_member_count",
+            "abnormal_distribution_count",
+            "weak_label_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.sample_count,
+            report.summary.expected_label_count,
+            report.summary.label_entry_count,
+            report.summary.missing_label_count,
+            report.summary.missing_pair_member_count,
+            report.summary.abnormal_distribution_count,
+            report.summary.weak_label_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_silac_validation_label_tsv(report: SilacValidationReport) -> str:
+    """Render the SILAC expected-label coverage ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "label",
+            "expected_group_count",
+            "observed_group_count",
+            "missing_group_count",
+            "observed_feature_count",
+            "total_intensity",
+            "present",
+            "note",
+        ]
+    )
+    for entry in report.label_entries:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.label.value,
+                entry.expected_group_count,
+                entry.observed_group_count,
+                entry.missing_group_count,
+                entry.observed_feature_count,
+                entry.total_intensity,
+                entry.present,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_silac_validation_distribution_tsv(report: SilacValidationReport) -> str:
+    """Render the SILAC label-distribution ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "label",
+            "total_intensity",
+            "sample_median_total_intensity",
+            "ratio_to_sample_median",
+            "abnormal_distribution",
+            "note",
+        ]
+    )
+    for entry in report.distribution_entries:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.label.value,
+                entry.total_intensity,
+                (
+                    ""
+                    if entry.sample_median_total_intensity is None
+                    else entry.sample_median_total_intensity
+                ),
+                "" if entry.ratio_to_sample_median is None else entry.ratio_to_sample_median,
+                entry.abnormal_distribution,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_silac_validation_weak_tsv(report: SilacValidationReport) -> str:
+    """Render the SILAC weak-label-evidence ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "label",
+            "issue_kind",
+            "observed_group_fraction",
+            "total_intensity_ratio_to_sample_max",
+            "note",
+        ]
+    )
+    for entry in report.weak_evidence:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.label.value,
+                entry.issue_kind,
+                entry.observed_group_fraction,
+                entry.total_intensity_ratio_to_sample_max,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_silac_validation_summary_tsv(report: SilacValidationReport, path: Path) -> None:
+    """Write the compact SILAC validation summary ledger."""
+
+    path.write_text(render_silac_validation_summary_tsv(report), encoding="utf-8")
+
+
+def export_silac_validation_label_tsv(report: SilacValidationReport, path: Path) -> None:
+    """Write the SILAC expected-label coverage ledger."""
+
+    path.write_text(render_silac_validation_label_tsv(report), encoding="utf-8")
+
+
+def export_silac_validation_distribution_tsv(
+    report: SilacValidationReport,
+    path: Path,
+) -> None:
+    """Write the SILAC label-distribution ledger."""
+
+    path.write_text(render_silac_validation_distribution_tsv(report), encoding="utf-8")
+
+
+def export_silac_validation_weak_tsv(report: SilacValidationReport, path: Path) -> None:
+    """Write the SILAC weak-label-evidence ledger."""
+
+    path.write_text(render_silac_validation_weak_tsv(report), encoding="utf-8")
+
+
+def render_tmt_validation_summary_tsv(report: TmtValidationReport) -> str:
+    """Render the compact TMT validation summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group_count",
+            "expected_channel_count",
+            "missing_channel_count",
+            "abnormal_distribution_count",
+            "weak_channel_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.multiplex_group_count,
+            report.summary.expected_channel_count,
+            report.summary.missing_channel_count,
+            report.summary.abnormal_distribution_count,
+            report.summary.weak_channel_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_validation_channel_tsv(report: TmtValidationReport) -> str:
+    """Render the TMT expected-channel coverage ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "channel_role",
+            "source_column_present",
+            "observed_row_count",
+            "missing_row_count",
+            "total_intensity",
+            "present",
+            "note",
+        ]
+    )
+    for entry in report.channel_entries:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                entry.condition or "",
+                "" if entry.channel_role is None else entry.channel_role.value,
+                entry.source_column_present,
+                entry.observed_row_count,
+                entry.missing_row_count,
+                entry.total_intensity,
+                entry.present,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_validation_distribution_tsv(report: TmtValidationReport) -> str:
+    """Render the TMT channel-distribution ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "channel_role",
+            "total_intensity",
+            "channel_median_total_intensity",
+            "ratio_to_channel_median",
+            "abnormal_distribution",
+            "note",
+        ]
+    )
+    for entry in report.distribution_entries:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                "" if entry.channel_role is None else entry.channel_role.value,
+                entry.total_intensity,
+                (
+                    ""
+                    if entry.channel_median_total_intensity is None
+                    else entry.channel_median_total_intensity
+                ),
+                "" if entry.ratio_to_channel_median is None else entry.ratio_to_channel_median,
+                entry.abnormal_distribution,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_validation_weak_tsv(report: TmtValidationReport) -> str:
+    """Render the TMT weak-channel-evidence ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "channel_role",
+            "issue_kind",
+            "total_intensity_ratio_to_channel_max",
+            "note",
+        ]
+    )
+    for entry in report.weak_evidence:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id or "",
+                "" if entry.channel_role is None else entry.channel_role.value,
+                entry.issue_kind,
+                entry.total_intensity_ratio_to_channel_max,
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_tmt_validation_summary_tsv(report: TmtValidationReport, path: Path) -> None:
+    """Write the compact TMT validation summary ledger."""
+
+    path.write_text(render_tmt_validation_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_validation_channel_tsv(report: TmtValidationReport, path: Path) -> None:
+    """Write the TMT expected-channel coverage ledger."""
+
+    path.write_text(render_tmt_validation_channel_tsv(report), encoding="utf-8")
+
+
+def export_tmt_validation_distribution_tsv(report: TmtValidationReport, path: Path) -> None:
+    """Write the TMT channel-distribution ledger."""
+
+    path.write_text(render_tmt_validation_distribution_tsv(report), encoding="utf-8")
+
+
+def export_tmt_validation_weak_tsv(report: TmtValidationReport, path: Path) -> None:
+    """Write the TMT weak-channel-evidence ledger."""
+
+    path.write_text(render_tmt_validation_weak_tsv(report), encoding="utf-8")
