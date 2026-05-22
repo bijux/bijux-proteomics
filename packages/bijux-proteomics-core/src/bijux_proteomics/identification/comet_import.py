@@ -11,6 +11,7 @@ from pathlib import Path
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
@@ -51,6 +52,7 @@ class CometPsmReviewEntry(JsonModel):
     sp_score: float | None = None
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class CometCanonicalPsmEntry(JsonModel):
@@ -253,6 +255,7 @@ def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
                 "sp_score",
                 "protein_refs",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -272,6 +275,7 @@ def render_comet_psm_tsv(rows: tuple[CometPsmReviewEntry, ...]) -> str:
                     "" if row.sp_score is None else f"{row.sp_score:.6g}",
                     ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -371,6 +375,7 @@ def _build_tabular_rows(
                 sp_score=_optional_float(raw.get("sp_score")),
                 protein_refs=record.protein_refs,
                 target_decoy_label=record.target_decoy_label,
+                provenance=record.provenance,
             )
         )
     return tuple(
@@ -394,6 +399,7 @@ def _parse_comet_pepxml_canonical_psms(path: Path) -> tuple[CometCanonicalPsmEnt
     run_summary = root.find(".//{*}msms_run_summary")
     if run_summary is not None:
         raw_data_suffix = run_summary.attrib.get("raw_data", "")
+    pepxml_row_number = 1
     for query in root.findall(".//{*}spectrum_query"):
         spectrum_id = query.attrib.get("spectrum")
         assumed_charge = int(query.attrib["assumed_charge"])
@@ -433,6 +439,15 @@ def _parse_comet_pepxml_canonical_psms(path: Path) -> tuple[CometCanonicalPsmEnt
                         q_value=None,
                         protein_refs=tuple(dict.fromkeys(proteins)),
                         target_decoy_label=_label_from_proteins(tuple(proteins)),
+                        provenance=ImportedEvidenceProvenance.from_single_row(
+                            source_engine="comet-pepxml",
+                            source_file=str(path),
+                            source_row_number=pepxml_row_number,
+                            original_identifiers={
+                                "spectrum_id": spectrum_id or peptide,
+                                "peptide": modified_peptide,
+                            },
+                        ),
                     ),
                     expectation_value=expectation_value,
                     xcorr=_optional_float(score_map.get("xcorr")),
@@ -440,6 +455,7 @@ def _parse_comet_pepxml_canonical_psms(path: Path) -> tuple[CometCanonicalPsmEnt
                     sp_score=_optional_float(score_map.get("spscore")),
                 )
             )
+            pepxml_row_number += 1
     return tuple(
         sorted(
             rows,
@@ -471,6 +487,7 @@ def _build_review_rows_from_canonical_psms(
             sp_score=row.sp_score,
             protein_refs=row.record.protein_refs,
             target_decoy_label=row.record.target_decoy_label,
+            provenance=row.record.provenance,
         )
         for row in rows
     )

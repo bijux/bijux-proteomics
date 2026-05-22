@@ -19,6 +19,7 @@ import numpy as np
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from bijux_proteomics.chemistry import canonicalize_modified_peptide
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.domain.records import (
     MissingValueState as CanonicalMissingValueState,
     QuantEntityKind as CanonicalQuantEntityKind,
@@ -171,6 +172,7 @@ class Ms1FeatureRecord(JsonModel):
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind = MissingValueKind.OBSERVED
     missing_reason: str | None = None
+    provenance: ImportedEvidenceProvenance | None = None
 
     @field_validator(
         "feature_id",
@@ -2888,6 +2890,21 @@ def parse_ms1_feature_table(
                 retention_time_seconds=retention_time_seconds,
                 missing_value_kind=missing_value_kind,
                 missing_reason=missing_reason or None,
+                provenance=ImportedEvidenceProvenance.from_single_row(
+                    source_engine="ms1-feature-table",
+                    source_file=str(path),
+                    source_row_number=row_number,
+                    original_identifiers={
+                        "feature_id": (
+                            raw_fields.get(active_mapping.feature_id, "").strip()
+                            if active_mapping.feature_id
+                            else f"feature-{row_number}"
+                        )
+                        or f"feature-{row_number}",
+                        "sample_id": sample_id,
+                        "peptide": peptide,
+                    },
+                ),
             )
         )
 

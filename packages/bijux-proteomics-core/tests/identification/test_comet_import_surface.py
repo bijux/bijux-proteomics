@@ -57,13 +57,15 @@ def test_comet_tabular_import_preserves_scores_modifications_and_proteins() -> N
     assert report.canonical_psms[1].delta_cn == 0.11
     assert report.psm_rows[0].modification_count == 1
     assert report.psm_rows[0].xcorr == 3.21
+    assert report.psm_rows[0].provenance.source_engine == "comet"
+    assert report.psm_rows[0].provenance.source_row_numbers == (2,)
     assert report.psm_rows[1].protein_refs == (
         "sp|P23456|TRANSFER_HUMAN",
         "sp|P34567|TRANSFER_MOUSE",
     )
     assert "modified_peptide" in render_comet_canonical_psm_tsv(report.canonical_psms)
     assert "xcorr_psm_count" in render_comet_summary_tsv(report.summary)
-    assert "delta_cn" in render_comet_psm_tsv(report.psm_rows)
+    assert "source_engine" in render_comet_psm_tsv(report.psm_rows)
 
 
 def test_comet_pepxml_import_reads_scores_and_target_decoy_labels() -> None:
@@ -85,6 +87,7 @@ def test_comet_pepxml_import_reads_scores_and_target_decoy_labels() -> None:
     )
     assert report.psm_rows[0].peptide == "PEP[+79.966331]TIDE"
     assert report.psm_rows[0].expectation_value == 0.00031
+    assert report.psm_rows[0].provenance.source_engine == "comet-pepxml"
     assert report.psm_rows[1].protein_refs == (
         "sp|P23456|TRANSFER_HUMAN",
         "sp|P34567|TRANSFER_MOUSE",

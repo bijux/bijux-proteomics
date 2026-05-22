@@ -55,24 +55,27 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert report.psm_rows[0].peptide_sequence == "SHAREDPEP"
     assert report.psm_rows[0].protein_refs == ("P11111", "P22222")
     assert report.psm_rows[0].q_value == 0.01
+    assert report.psm_rows[0].provenance.source_engine == "openms-idxml"
     assert report.psm_rows[-1].target_decoy_label.value == "target"
 
     assert any(row.target_decoy_label.value == "decoy" for row in report.protein_rows)
     assert report.protein_rows[1].run_id == "openms-run-01"
     assert report.protein_rows[1].q_value == 0.002
+    assert report.protein_rows[1].provenance.source_engine == "openms-idxml"
 
     feature_rows_by_id = {row.feature_id: row for row in report.feature_rows}
     assert feature_rows_by_id["feature-001"].sample_id == "sample_A"
     assert feature_rows_by_id["feature-002"].protein_refs == ("P11111", "P22222")
     assert feature_rows_by_id["feature-004"].peptide_sequence == "M[Oxidation]PEPTIDE"
     assert feature_rows_by_id["feature-004"].canonical_peptide == "M[Oxidation]PEPTIDE"
+    assert feature_rows_by_id["feature-001"].provenance.source_engine == "ms1-feature-table"
     assert report.rejected_feature_rows[0].row_number == 6
     assert report.rejected_feature_rows[0].issues[0].code == "invalid_intensity"
 
     assert "accepted_psm_count" in render_openms_summary_tsv(report.summary)
-    assert "protein_refs" in render_openms_psm_tsv(report.psm_rows)
-    assert "target_decoy_label" in render_openms_protein_tsv(report.protein_rows)
-    assert "canonical_peptide" in render_openms_feature_tsv(report.feature_rows)
+    assert "source_engine" in render_openms_psm_tsv(report.psm_rows)
+    assert "source_file" in render_openms_protein_tsv(report.protein_rows)
+    assert "source_row_numbers" in render_openms_feature_tsv(report.feature_rows)
     assert "raw_fields_json" in render_openms_rejected_feature_tsv(
         report.rejected_feature_rows
     )

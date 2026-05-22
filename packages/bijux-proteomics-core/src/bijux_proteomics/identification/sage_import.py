@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
@@ -51,6 +52,7 @@ class SagePsmReviewEntry(JsonModel):
     matched_intensity_fraction: float | None = Field(default=None, ge=0.0)
     precursor_ppm: float | None = None
     fragment_ppm: float | None = None
+    provenance: ImportedEvidenceProvenance
 
 
 class SageCanonicalPsmEntry(JsonModel):
@@ -279,6 +281,7 @@ def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
                 "matched_intensity_fraction",
                 "precursor_ppm",
                 "fragment_ppm",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -308,6 +311,7 @@ def render_sage_psm_tsv(rows: tuple[SagePsmReviewEntry, ...]) -> str:
                     else f"{row.matched_intensity_fraction:.6g}",
                     "" if row.precursor_ppm is None else f"{row.precursor_ppm:.6g}",
                     "" if row.fragment_ppm is None else f"{row.fragment_ppm:.6g}",
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -363,6 +367,7 @@ def _build_sage_psm_rows(
                 matched_intensity_fraction=_fraction(raw.get("matched_intensity_pct")),
                 precursor_ppm=_optional_float(raw.get("precursor_ppm")),
                 fragment_ppm=_optional_float(raw.get("fragment_ppm")),
+                provenance=record.provenance,
             )
         )
     return tuple(

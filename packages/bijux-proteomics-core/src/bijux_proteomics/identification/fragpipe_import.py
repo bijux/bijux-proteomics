@@ -10,6 +10,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
@@ -48,6 +49,7 @@ class FragpipePsmReviewEntry(JsonModel):
     observed_modifications: tuple[str, ...] = Field(default_factory=tuple)
     mass_difference: float | None = None
     open_search_candidate: bool = False
+    provenance: ImportedEvidenceProvenance
 
 
 class FragpipeCanonicalPsmEntry(JsonModel):
@@ -81,6 +83,7 @@ class FragpipePeptideReviewEntry(JsonModel):
     spectral_count: int | None = Field(default=None, ge=0)
     mass_difference: float | None = None
     open_search_candidate: bool = False
+    provenance: ImportedEvidenceProvenance
 
 
 class FragpipeProteinReviewEntry(JsonModel):
@@ -98,6 +101,7 @@ class FragpipeProteinReviewEntry(JsonModel):
     spectral_count: int | None = Field(default=None, ge=0)
     probability: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class FragpipeOpenSearchEvidenceEntry(JsonModel):
@@ -124,6 +128,7 @@ class FragpipeProteinQuantityEntry(JsonModel):
     abundance: float = Field(..., ge=0.0)
     quantity_kind: str = Field(..., min_length=1)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class FragpipeImportSummary(JsonModel):
@@ -403,6 +408,7 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
                 "observed_modifications",
                 "mass_difference",
                 "open_search_candidate",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -424,6 +430,7 @@ def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
                     ";".join(sort_strings(row.observed_modifications)),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -455,6 +462,7 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
                 "spectral_count",
                 "mass_difference",
                 "open_search_candidate",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -476,6 +484,7 @@ def render_fragpipe_peptide_tsv(rows: tuple[FragpipePeptideReviewEntry, ...]) ->
                     "" if row.spectral_count is None else str(row.spectral_count),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -498,6 +507,7 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
                 "spectral_count",
                 "probability",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -517,6 +527,7 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
                     "" if row.spectral_count is None else str(row.spectral_count),
                     "" if row.probability is None else f"{row.probability:.6g}",
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -573,6 +584,7 @@ def render_fragpipe_protein_quantity_tsv(
                 "abundance",
                 "quantity_kind",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -585,6 +597,7 @@ def render_fragpipe_protein_quantity_tsv(
                     f"{row.abundance:.6g}",
                     row.quantity_kind,
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -678,6 +691,16 @@ def _build_fragpipe_psm_rows(
                     mass_difference,
                     tolerance=open_search_mass_tolerance,
                 ),
+                provenance=record.provenance
+                or ImportedEvidenceProvenance.from_single_row(
+                    source_engine="fragpipe-psm",
+                    source_file=str(normalization_report.source_path),
+                    source_row_number=row.row_number,
+                    original_identifiers={
+                        "spectrum_id": record.spectrum_id,
+                        "peptide": record.peptide,
+                    },
+                ),
             )
         )
     return tuple(
@@ -707,7 +730,7 @@ def _parse_fragpipe_peptide_table(
         for column in required:
             if column not in reader.fieldnames:
                 raise ValueError(f"missing required FragPipe peptide column {column!r}")
-        for row in reader:
+        for row_number, row in enumerate(reader, start=2):
             peptide = str(row.get("Peptide", "")).strip()
             modified_peptide = str(row.get("Modified Peptide", "")).strip() or None
             mass_difference = _optional_float(row.get("Mass Difference"))
@@ -738,6 +761,15 @@ def _parse_fragpipe_peptide_table(
                         mass_difference,
                         tolerance=open_search_mass_tolerance,
                     ),
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="fragpipe-peptide",
+                        source_file=str(path),
+                        source_row_number=row_number,
+                        original_identifiers={
+                            "peptide": peptide,
+                            "modified_peptide": modified_peptide or peptide,
+                        },
+                    ),
                 )
             )
     return tuple(
@@ -766,7 +798,7 @@ def _parse_fragpipe_protein_table(
         for column in required:
             if column not in reader.fieldnames:
                 raise ValueError(f"missing required FragPipe protein column {column!r}")
-        for row in reader:
+        for row_number, row in enumerate(reader, start=2):
             protein_ref = str(row.get("Protein", "")).strip()
             rows.append(
                 FragpipeProteinReviewEntry(
@@ -783,6 +815,12 @@ def _parse_fragpipe_protein_table(
                         protein_refs=(protein_ref,),
                         explicit_label=None,
                         policy=decoy_policy,
+                    ),
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="fragpipe-protein",
+                        source_file=str(path),
+                        source_row_number=row_number,
+                        original_identifiers={"protein_ref": protein_ref},
                     ),
                 )
             )
@@ -849,7 +887,7 @@ def _parse_fragpipe_quant_table(
                 "FragPipe quant table must include at least one supported abundance column"
             )
         rows: list[FragpipeProteinQuantityEntry] = []
-        for raw_row in reader:
+        for row_number, raw_row in enumerate(reader, start=2):
             protein_ref = str(raw_row.get("Protein", "")).strip()
             label = parse_target_decoy_label(
                 protein_refs=(protein_ref,),
@@ -867,6 +905,16 @@ def _parse_fragpipe_quant_table(
                         abundance=abundance,
                         quantity_kind=quantity_kind,
                         target_decoy_label=label,
+                        provenance=ImportedEvidenceProvenance.from_single_row(
+                            source_engine="fragpipe-quant",
+                            source_file=str(path),
+                            source_row_number=row_number,
+                            original_identifiers={
+                                "protein_ref": protein_ref,
+                                "sample_id": sample_id,
+                                "quantity_kind": quantity_kind,
+                            },
+                        ),
                     )
                 )
     return tuple(sorted(rows, key=lambda row: (row.protein_ref, row.sample_id)))

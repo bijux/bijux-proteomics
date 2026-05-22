@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
@@ -38,6 +39,7 @@ class OpenMsPsmReviewEntry(JsonModel):
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class OpenMsProteinReviewEntry(JsonModel):
@@ -50,6 +52,7 @@ class OpenMsProteinReviewEntry(JsonModel):
     score: float | None = None
     q_value: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+    provenance: ImportedEvidenceProvenance
 
 
 class OpenMsFeatureReviewEntry(JsonModel):
@@ -67,6 +70,7 @@ class OpenMsFeatureReviewEntry(JsonModel):
     mz: float | None = Field(default=None, gt=0.0)
     retention_time_seconds: float | None = Field(default=None, ge=0.0)
     missing_reason: str | None = None
+    provenance: ImportedEvidenceProvenance
 
 
 class OpenMsFeatureValidationIssue(JsonModel):
@@ -242,6 +246,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
                 "retention_time_seconds",
                 "protein_refs",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -261,6 +266,7 @@ def render_openms_psm_tsv(rows: tuple[OpenMsPsmReviewEntry, ...]) -> str:
                     else f"{row.retention_time_seconds:.6g}",
                     ";".join(sort_strings(row.protein_refs)),
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -278,6 +284,7 @@ def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str
                 "score",
                 "q_value",
                 "target_decoy_label",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -290,6 +297,7 @@ def render_openms_protein_tsv(rows: tuple[OpenMsProteinReviewEntry, ...]) -> str
                     "" if row.score is None else f"{row.score:.6g}",
                     "" if row.q_value is None else f"{row.q_value:.6g}",
                     row.target_decoy_label.value,
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -317,6 +325,7 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
                 "mz",
                 "retention_time_seconds",
                 "missing_reason",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -336,6 +345,7 @@ def render_openms_feature_tsv(rows: tuple[OpenMsFeatureReviewEntry, ...]) -> str
                     if row.retention_time_seconds is None
                     else f"{row.retention_time_seconds:.6g}",
                     row.missing_reason or "",
+                    *row.provenance.to_tsv_row(),
                 )
             )
         )
@@ -383,6 +393,7 @@ def _parse_openms_idxml(
 
     protein_rows: list[OpenMsProteinReviewEntry] = []
     protein_run_ids: list[str] = []
+    protein_row_number = 1
     for protein_identification in root.findall(".//{*}ProteinIdentification"):
         run_id = (
             protein_identification.attrib.get("id", "openms-run").strip()
@@ -409,13 +420,24 @@ def _parse_openms_idxml(
                         score_type=score_type,
                     ),
                     target_decoy_label=_protein_label(accession),
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="openms-idxml",
+                        source_file=str(idxml_path),
+                        source_row_number=protein_row_number,
+                        original_identifiers={
+                            "run_id": run_id,
+                            "protein_ref": accession,
+                        },
+                    ),
                 )
             )
+            protein_row_number += 1
 
     psm_rows: list[OpenMsPsmReviewEntry] = []
     default_run_id = (
         protein_run_ids[0] if len(set(protein_run_ids)) == 1 else "openms-run"
     )
+    psm_row_number = 1
     for peptide_identification in root.findall(".//{*}PeptideIdentification"):
         run_id = (
             peptide_identification.attrib.get("protein_identification_ref")
@@ -470,8 +492,19 @@ def _parse_openms_idxml(
                     retention_time_seconds=rt,
                     protein_refs=evidence_accessions,
                     target_decoy_label=target_decoy_label,
+                    provenance=ImportedEvidenceProvenance.from_single_row(
+                        source_engine="openms-idxml",
+                        source_file=str(idxml_path),
+                        source_row_number=psm_row_number,
+                        original_identifiers={
+                            "run_id": run_id,
+                            "spectrum_id": spectrum_id or f"{run_id}:{sequence}",
+                            "peptide_sequence": sequence,
+                        },
+                    ),
                 )
             )
+            psm_row_number += 1
     return (
         tuple(sorted(psm_rows, key=lambda row: (-row.score, row.spectrum_id))),
         tuple(sorted(protein_rows, key=lambda row: row.protein_ref)),
@@ -531,6 +564,7 @@ def _build_feature_review_entry(record: Ms1FeatureRecord) -> OpenMsFeatureReview
         mz=record.mz,
         retention_time_seconds=record.retention_time_seconds,
         missing_reason=record.missing_reason,
+        provenance=record.provenance,
     )
 
 

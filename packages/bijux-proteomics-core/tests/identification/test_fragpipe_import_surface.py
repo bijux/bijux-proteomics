@@ -62,16 +62,23 @@ def test_fragpipe_import_report_preserves_bundle_tables_and_open_search_state() 
     assert report.canonical_psms[1].mass_difference == 42.0106
     assert report.canonical_psms[1].open_search_candidate is True
     assert report.psm_rows[0].canonical_modified_peptide == "PEP[+15.994915]TIDE"
+    assert report.psm_rows[0].provenance.source_engine == "msfragger"
+    assert report.psm_rows[0].provenance.source_row_numbers == (2,)
     assert report.psm_rows[1].open_search_candidate is True
     assert report.psm_rows[1].mass_difference == 42.0106
     assert report.peptide_evidence[1].open_search_candidate is True
+    assert report.peptide_rows[0].provenance.source_engine == "fragpipe-peptide"
+    assert report.peptide_rows[0].provenance.source_row_numbers == (2,)
     assert report.peptide_rows[1].mapped_protein_refs == ("sp|P34567|TRANSFER_MOUSE",)
     assert {row.entity_kind for row in report.open_search_evidence} == {"psm", "peptide"}
     assert {row.mass_difference for row in report.open_search_evidence} == {42.0106}
     assert report.protein_quantity_rows[0].quantity_kind == "maxlfq_intensity"
+    assert report.protein_quantity_rows[0].provenance.source_engine == "fragpipe-quant"
+    assert report.protein_quantity_rows[0].provenance.source_row_numbers
     assert any(
         row.target_decoy_label.value == "decoy" for row in report.protein_quantity_rows
     )
+    assert report.protein_rows[0].provenance.source_engine == "fragpipe-protein"
     assert report.protein_rows[-1].target_decoy_label.value == "target"
     assert any(row.target_decoy_label.value == "decoy" for row in report.protein_rows)
 
@@ -79,13 +86,15 @@ def test_fragpipe_import_report_preserves_bundle_tables_and_open_search_state() 
     assert "open_search_candidate" in render_fragpipe_canonical_psm_tsv(
         report.canonical_psms
     )
-    assert "canonical_modified_peptide" in render_fragpipe_psm_tsv(report.psm_rows)
+    assert "source_engine" in render_fragpipe_psm_tsv(report.psm_rows)
     assert "mapped_protein_refs" in render_fragpipe_peptide_tsv(report.peptide_rows)
+    assert "source_row_numbers" in render_fragpipe_peptide_tsv(report.peptide_rows)
     assert "coverage_fraction" in render_fragpipe_protein_tsv(report.protein_rows)
+    assert "original_identifiers" in render_fragpipe_protein_tsv(report.protein_rows)
     assert "mass_difference" in render_fragpipe_open_search_evidence_tsv(
         report.open_search_evidence
     )
-    assert "quantity_kind" in render_fragpipe_protein_quantity_tsv(
+    assert "source_file" in render_fragpipe_protein_quantity_tsv(
         report.protein_quantity_rows
     )
 

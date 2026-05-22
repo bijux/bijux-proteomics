@@ -58,6 +58,8 @@ def test_sage_import_report_preserves_scores_modifications_and_q_values() -> Non
     assert report.psm_rows[0].residue_sequence == "PEPTIDE"
     assert report.psm_rows[0].modification_count == 1
     assert report.psm_rows[0].hyperscore == 41.2
+    assert report.psm_rows[0].provenance.source_engine == "sage"
+    assert report.psm_rows[0].provenance.source_row_numbers == (2,)
     assert report.psm_rows[1].protein_refs == (
         "sp|P23456|TRANSFER_HUMAN",
         "sp|P34567|TRANSFER_MOUSE",
@@ -67,4 +69,4 @@ def test_sage_import_report_preserves_scores_modifications_and_q_values() -> Non
 
     assert "hyperscore_psm_count" in render_sage_summary_tsv(report.summary)
     assert "protein_refs" in render_sage_canonical_psm_tsv(report.canonical_psms)
-    assert "peptide_q_value" in render_sage_psm_tsv(report.psm_rows)
+    assert "source_file" in render_sage_psm_tsv(report.psm_rows)
