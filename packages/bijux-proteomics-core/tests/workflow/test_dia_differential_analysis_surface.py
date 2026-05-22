@@ -5,8 +5,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialSourceKind,
+    build_diann_differential_analysis_report,
     build_diann_differential_input_report,
 )
 
@@ -19,6 +21,10 @@ def _diann_fixture(name: str) -> Path:
         / "diann"
         / name
     )
+
+
+def _format_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
 def test_build_diann_differential_input_report_preserves_sample_matrix() -> None:
@@ -44,3 +50,34 @@ def test_build_diann_differential_input_report_preserves_sample_matrix() -> None
     assert values[("PG001", "T2")].source_feature_count == 1
     assert values[("PG003", "C1")].abundance == 200000.0
     assert "DIA-NN rollup evidence" in report.note
+
+
+def test_build_diann_differential_analysis_report_preserves_normalization_and_fdr() -> None:
+    design_report = parse_experimental_design_table(
+        _format_fixture("diann_differential.design.tsv")
+    )
+
+    report = build_diann_differential_analysis_report(
+        _diann_fixture("diann_differential_report.tsv"),
+        design_report.accepted_entries,
+    )
+
+    assert report.normalized_table.normalization_method.value == "median"
+    assert report.design_matrix.sample_count == 4
+    assert report.design_matrix.column_count >= 3
+    assert report.design_model_fit.fitted_entity_count == 3
+    assert report.differential_abundance_report is not None
+    assert report.differential_abundance_multi_condition_report is None
+    differential = report.differential_abundance_report
+    assert differential.condition_a == "control"
+    assert differential.condition_b == "treatment"
+    assert differential.entries[0].entity_id == "PG001"
+    assert differential.entries[0].log2_fold_change > 1.8
+    assert differential.entries[0].adjusted_p_value is not None
+    assert differential.entries[0].adjusted_p_value < 0.1
+    pg2 = next(entry for entry in differential.entries if entry.entity_id == "PG002")
+    pg3 = next(entry for entry in differential.entries if entry.entity_id == "PG003")
+    assert pg2.log2_fold_change < -1.4
+    assert pg2.adjusted_p_value is not None
+    assert pg3.adjusted_p_value == 1.0
+    assert "benjamini-hochberg-corrected differential results" in report.note
