@@ -208,6 +208,38 @@ def get_modification(
     raise ValueError(report.rejection.message)
 
 
+def resolve_modification_definition(
+    *,
+    token: str | None = None,
+    controlled_id: str | None = None,
+    mass_delta_monoisotopic: float | None = None,
+    site: ModificationPosition | None = None,
+    residue: str | None = None,
+    at_protein_n_term: bool = False,
+    at_protein_c_term: bool = False,
+    registry: ModificationRegistryDocument | None = None,
+    tolerance: float = 1e-6,
+) -> StaticModification | VariableModification:
+    """Resolve one modification definition with full site context or raise."""
+    report = resolve_modification(
+        token=token,
+        controlled_id=controlled_id,
+        mass_delta_monoisotopic=mass_delta_monoisotopic,
+        site=site,
+        residue=residue,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
+        registry=registry,
+        tolerance=tolerance,
+    )
+    if report.matched and report.accepted:
+        return _definition_from_report(report)
+    if report.rejection is None:
+        query = token or controlled_id or f"{mass_delta_monoisotopic:+.6f}"
+        raise ValueError(f"unknown modification {query!r}")
+    raise ValueError(report.rejection.message)
+
+
 def resolve_modification(
     *,
     token: str | None = None,
@@ -250,7 +282,14 @@ def resolve_modification(
                 message=f"unknown modification controlled id {controlled_id!r}",
             )
     elif normalized_token not in (None, ""):
-        definition = _lookup_by_token(normalized_token, registry=registry)
+        definition = _lookup_by_token(
+            normalized_token,
+            site=site,
+            residue=normalized_residue,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+            registry=registry,
+        )
         match_mode = ModificationRegistryResolutionMode.NAME
         if definition is None:
             rejection = ModificationRegistryRejection(
@@ -349,17 +388,77 @@ def resolve_modification_site(
 def _lookup_by_token(
     token: str,
     *,
+    site: ModificationPosition | None,
+    residue: str | None,
+    at_protein_n_term: bool,
+    at_protein_c_term: bool,
     registry: ModificationRegistryDocument | None,
 ) -> StaticModification | VariableModification | None:
     normalized = token.strip().lower()
-    alias = _MODIFICATION_TOKEN_ALIASES.get(normalized)
     mapping = _registry_lookup(registry)
-    definition = mapping.get(normalized)
-    if definition is not None:
-        return definition
-    if alias is None:
+    exact = mapping.get(normalized)
+    if site is None:
+        return exact or _family_candidate(
+            token=normalized,
+            mapping=mapping,
+            site=site,
+            residue=residue,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+        )
+    if exact is not None and _site_compatibility_rejection(
+        definition=exact,
+        site=site,
+        residue=residue,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
+    ) is None:
+        return exact
+    return _family_candidate(
+        token=normalized,
+        mapping=mapping,
+        site=site,
+        residue=residue,
+        at_protein_n_term=at_protein_n_term,
+        at_protein_c_term=at_protein_c_term,
+    )
+
+
+def _family_candidate(
+    *,
+    token: str,
+    mapping: dict[str, StaticModification | VariableModification],
+    site: ModificationPosition | None,
+    residue: str | None,
+    at_protein_n_term: bool,
+    at_protein_c_term: bool,
+) -> StaticModification | VariableModification | None:
+    candidate_keys = _MODIFICATION_TOKEN_FAMILIES.get(token, ())
+    compatible: list[StaticModification | VariableModification] = []
+    for candidate_key in candidate_keys:
+        definition = mapping.get(candidate_key)
+        if definition is None:
+            continue
+        if site is None:
+            compatible.append(definition)
+            continue
+        if _site_compatibility_rejection(
+            definition=definition,
+            site=site,
+            residue=residue,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
+        ) is None:
+            compatible.append(definition)
+    if not compatible:
         return None
-    return mapping.get(alias)
+    if len(compatible) == 1:
+        return compatible[0]
+    if token in {definition.name.strip().lower() for definition in compatible}:
+        for definition in compatible:
+            if definition.name.strip().lower() == token:
+                return definition
+    return None
 
 
 def _lookup_by_controlled_id(
@@ -741,6 +840,14 @@ _MODIFICATION_TOKEN_ALIASES = {
     "oxidation": "oxidation",
     "phosphorylation": "phospho",
 }
+_MODIFICATION_TOKEN_FAMILIES = {
+    "acetyl": ("acetyl", "acetyllys"),
+    "acetylation": ("acetyl", "acetyllys"),
+    "acetylk": ("acetyllys",),
+    "acetyllys": ("acetyllys",),
+    "acetyllysine": ("acetyllys",),
+    "lysine acetylation": ("acetyllys",),
+}
 
 
 __all__ = [
@@ -753,6 +860,7 @@ __all__ = [
     "load_modification_registry",
     "modification_registry",
     "resolve_modification",
+    "resolve_modification_definition",
     "resolve_modification_site",
     "validate_modification_registry",
 ]

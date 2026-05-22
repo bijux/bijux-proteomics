@@ -468,23 +468,34 @@ def _build_applied_modification(
     stripped_token = token.strip()
     definition = None
     if not _DELTA_TOKEN_RE.fullmatch(stripped_token):
-        definition = _modification_registry_engine().get_modification(
-            stripped_token,
+        definition = _modification_registry_engine().resolve_modification_definition(
+            token=stripped_token,
+            site=site,
+            residue=sequence[site_index - 1]
+            if site is ModificationPosition.ANYWHERE and site_index is not None
+            else None,
+            at_protein_n_term=at_protein_n_term,
+            at_protein_c_term=at_protein_c_term,
             registry=registry,
         )
     _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
-    residue = _modification_registry_engine().resolve_modification_site(
-        definition=definition,
-        sequence=sequence,
-        site=site,
-        site_index=site_index,
-        at_protein_n_term=at_protein_n_term,
-        at_protein_c_term=at_protein_c_term,
+    residue = (
+        sequence[site_index - 1]
+        if site is ModificationPosition.ANYWHERE and site_index is not None
+        else None
     )
-    name, mono, average, losses, controlled_id, source = _resolve_token(
-        stripped_token,
-        registry=registry,
-    )
+    if definition is None:
+        name, mono, average, losses, controlled_id, source = _resolve_token(
+            stripped_token,
+            registry=registry,
+        )
+    else:
+        name = definition.name
+        mono = definition.mass_delta_monoisotopic
+        average = definition.mass_delta_average
+        losses = definition.neutral_losses
+        controlled_id = definition.controlled_id
+        source = "registry"
     return AppliedModification(
         name=name,
         token=definition.name if definition is not None else _format_mass_delta(mono),
