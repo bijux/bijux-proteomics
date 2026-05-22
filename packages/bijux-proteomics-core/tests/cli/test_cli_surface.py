@@ -4693,6 +4693,75 @@ def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() 
         assert "MAPK signaling" in Path("ptm.annotation.pathway.tsv").read_text()
 
 
+def test_ptm_report_command_emits_full_report_bundle() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(ptm_fixture_dir / "ptm.design.tsv", "ptm.design.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+        Path("fragment_support.json").write_text(
+            json.dumps(
+                {
+                    "scan=ptm-001": ["b5", "y7"],
+                    "scan=ptm-005": ["b2"],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "report",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "ptm.design.tsv",
+                "--fragment-support-json",
+                "fragment_support.json",
+                "--protein-correction-mode",
+                "subtract_unmodified_protein",
+                "--output-dir",
+                "ptm_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["feature_rows"] == 12
+        assert payload["design_rows"] == 4
+        assert payload["report"]["summary"]["quantified_site_row_count"] == 5
+        assert payload["report"]["summary"]["differential_site_count"] == 5
+        assert payload["export_manifest"]["motif_summary_included"] is True
+        report_dir = Path("ptm_report")
+        assert (report_dir / "ptm_report_manifest.json").exists()
+        assert (report_dir / "ptm_peptides.tsv").exists()
+        assert (report_dir / "ptm_sites.tsv").exists()
+        assert (report_dir / "ptm_localization.tsv").exists()
+        assert (report_dir / "ptm_site_quant_matrix.tsv").exists()
+        assert (report_dir / "ptm_differential.tsv").exists()
+        assert (report_dir / "ptm_motif_terms.tsv").exists()
+        assert "S[Phospho]PEPTIDEK" in (report_dir / "ptm_peptides.tsv").read_text()
+        assert "P11111:S5:Phospho" in (report_dir / "ptm_sites.tsv").read_text()
+        assert "probability_source" in (
+            report_dir / "ptm_localization.tsv"
+        ).read_text()
+        assert "corrected_log2_fold_change" in (
+            report_dir / "ptm_differential.tsv"
+        ).read_text()
+        assert "exclusive_to_regulated" in (
+            report_dir / "ptm_motif_terms.tsv"
+        ).read_text()
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
