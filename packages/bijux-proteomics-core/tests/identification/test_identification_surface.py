@@ -11,6 +11,7 @@ from bijux_proteomics.identification import (
     FdrPolicy,
     ParsimonyVariant,
     PsmRecord,
+    TargetDecoyContaminantClass,
     PsmSortField,
     PtmIdentificationObservation,
     SearchResultColumnMapping,
@@ -158,6 +159,10 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert first.canonical_peptide == "PES[Phospho]TIDE"
     assert first.intensity == 1200.5
     assert first.contaminant_flag is False
+    assert (
+        first.target_decoy_contaminant_class
+        is TargetDecoyContaminantClass.TARGET
+    )
     second = report.accepted_records[1]
     assert second.run_id == "run_B"
     assert second.peptide_sequence == "DECOYPEP"
@@ -165,6 +170,10 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     assert second.intensity is None
     assert second.target_decoy_label is TargetDecoyLabel.DECOY
     assert second.contaminant_flag is True
+    assert (
+        second.target_decoy_contaminant_class
+        is TargetDecoyContaminantClass.MIXED
+    )
 
 
 def test_psm_parser_accepts_csv_tables_through_shared_engine(tmp_path: Path) -> None:

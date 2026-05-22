@@ -52,6 +52,16 @@ class TargetDecoyLabel(StrEnum):
     UNKNOWN = "unknown"
 
 
+class TargetDecoyContaminantClass(StrEnum):
+    """Unified evidence class across target, decoy, and contaminant semantics."""
+
+    TARGET = "target"
+    DECOY = "decoy"
+    CONTAMINANT = "contaminant"
+    MIXED = "mixed"
+    UNKNOWN = "unknown"
+
+
 class PsmSortField(StrEnum):
     """Supported stable PSM sorting policies."""
 
@@ -104,6 +114,19 @@ class TargetDecoyLabelPolicy(JsonModel):
         return tuple(token.strip().lower() for token in values if token.strip())
 
 
+class TargetDecoyContaminantClassification(JsonModel):
+    """Unified classification plus compatibility fields for one evidence row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_decoy_contaminant_class: TargetDecoyContaminantClass
+    target_decoy_label: TargetDecoyLabel
+    contaminant_flag: bool
+    target_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    decoy_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    contaminant_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class PsmRecord(JsonModel):
     """Stable peptide-spectrum match record."""
 
@@ -122,6 +145,9 @@ class PsmRecord(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     contaminant_flag: bool = False
+    target_decoy_contaminant_class: TargetDecoyContaminantClass = (
+        TargetDecoyContaminantClass.UNKNOWN
+    )
 
     @field_validator(
         "run_id",
@@ -186,8 +212,16 @@ class PsmRecord(JsonModel):
         self.canonical_peptide = canonical_peptide
         self.peptide_sequence = peptide_sequence
         self.modified_peptide = modified_peptide
-        if any(protein_ref.startswith("CON__") for protein_ref in self.protein_refs):
-            self.contaminant_flag = True
+        classification = classify_target_decoy_contaminant(
+            protein_refs=self.protein_refs,
+            target_decoy_label=self.target_decoy_label,
+            explicit_contaminant_label=self.contaminant_flag,
+        )
+        self.target_decoy_label = classification.target_decoy_label
+        self.contaminant_flag = classification.contaminant_flag
+        self.target_decoy_contaminant_class = (
+            classification.target_decoy_contaminant_class
+        )
         return self
 
     def to_domain_record(self) -> CanonicalPsmRecord:
@@ -1239,6 +1273,14 @@ def _parse_contaminant_label(raw_value: str | None) -> bool | None:
     raise ValueError("invalid contaminant label")
 
 
+def _is_contaminant_protein_ref(
+    protein_ref: str,
+    *,
+    contaminant_prefixes: tuple[str, ...],
+) -> bool:
+    return any(protein_ref.startswith(prefix) for prefix in contaminant_prefixes)
+
+
 def _derive_canonical_psm_peptide_fields(
     peptide: str,
 ) -> tuple[str, str, str | None]:
@@ -1270,6 +1312,112 @@ def _combine_labels(labels: tuple[TargetDecoyLabel, ...]) -> TargetDecoyLabel:
     if any(label is TargetDecoyLabel.MIXED for label in active):
         return TargetDecoyLabel.MIXED
     return TargetDecoyLabel.MIXED
+
+
+def _normalize_target_decoy_label_token(
+    value: str | TargetDecoyLabel | None,
+    *,
+    protein_refs: tuple[str, ...],
+    policy: TargetDecoyLabelPolicy,
+) -> TargetDecoyLabel:
+    if isinstance(value, TargetDecoyLabel):
+        return value
+    return parse_target_decoy_label(
+        protein_refs=protein_refs,
+        explicit_label=value,
+        policy=policy,
+    )
+
+
+def classify_target_decoy_contaminant(
+    *,
+    protein_refs: tuple[str, ...] = (),
+    target_decoy_label: str | TargetDecoyLabel | None = None,
+    explicit_contaminant_label: str | bool | None = None,
+    policy: TargetDecoyLabelPolicy | None = None,
+    contaminant_prefixes: tuple[str, ...] = ("CON__",),
+) -> TargetDecoyContaminantClassification:
+    """Classify evidence using target-decoy, contaminant, and accession semantics."""
+
+    active_policy = policy or TargetDecoyLabelPolicy()
+    normalized_target_decoy_label = _normalize_target_decoy_label_token(
+        target_decoy_label,
+        protein_refs=protein_refs,
+        policy=active_policy,
+    )
+
+    if isinstance(explicit_contaminant_label, bool):
+        contaminant_from_label = explicit_contaminant_label
+    else:
+        contaminant_from_label = _parse_contaminant_label(explicit_contaminant_label)
+
+    target_protein_refs: list[str] = []
+    decoy_protein_refs: list[str] = []
+    contaminant_protein_refs: list[str] = []
+    for protein_ref in protein_refs:
+        if _is_contaminant_protein_ref(
+            protein_ref,
+            contaminant_prefixes=contaminant_prefixes,
+        ):
+            contaminant_protein_refs.append(protein_ref)
+            continue
+        per_ref_label = parse_target_decoy_label(
+            protein_refs=(protein_ref,),
+            policy=active_policy,
+        )
+        if per_ref_label is TargetDecoyLabel.DECOY:
+            decoy_protein_refs.append(protein_ref)
+        else:
+            target_protein_refs.append(protein_ref)
+
+    has_target = bool(target_protein_refs)
+    has_decoy = bool(decoy_protein_refs)
+    has_contaminant = bool(contaminant_protein_refs) or contaminant_from_label is True
+
+    if normalized_target_decoy_label is TargetDecoyLabel.MIXED:
+        has_target = True
+        has_decoy = True
+    elif normalized_target_decoy_label is TargetDecoyLabel.DECOY:
+        has_decoy = True
+    elif (
+        normalized_target_decoy_label is TargetDecoyLabel.TARGET
+        and not contaminant_protein_refs
+    ):
+        has_target = True
+
+    active_class_count = sum((has_target, has_decoy, has_contaminant))
+    if active_class_count == 0:
+        target_decoy_contaminant_class = TargetDecoyContaminantClass.UNKNOWN
+    elif active_class_count > 1:
+        target_decoy_contaminant_class = TargetDecoyContaminantClass.MIXED
+    elif has_contaminant:
+        target_decoy_contaminant_class = TargetDecoyContaminantClass.CONTAMINANT
+    elif has_decoy:
+        target_decoy_contaminant_class = TargetDecoyContaminantClass.DECOY
+    else:
+        target_decoy_contaminant_class = TargetDecoyContaminantClass.TARGET
+
+    return TargetDecoyContaminantClassification(
+        target_decoy_contaminant_class=target_decoy_contaminant_class,
+        target_decoy_label=normalized_target_decoy_label,
+        contaminant_flag=has_contaminant,
+        target_protein_refs=tuple(target_protein_refs),
+        decoy_protein_refs=tuple(decoy_protein_refs),
+        contaminant_protein_refs=tuple(contaminant_protein_refs),
+    )
+
+
+def is_biological_foreground_class(
+    value: TargetDecoyContaminantClass | TargetDecoyContaminantClassification,
+) -> bool:
+    """Return whether one unified evidence class belongs to biological foreground."""
+
+    evidence_class = (
+        value.target_decoy_contaminant_class
+        if isinstance(value, TargetDecoyContaminantClassification)
+        else value
+    )
+    return evidence_class is TargetDecoyContaminantClass.TARGET
 
 
 def validate_target_decoy_policy(
@@ -1615,12 +1763,10 @@ def _parse_psm_row(
         mapping.protein_separator,
     )
     explicit_label = row.get(mapping.decoy_label) if mapping.decoy_label else None
-    contaminant_flag = any(
-        protein_ref.startswith("CON__") for protein_ref in protein_refs
-    )
+    explicit_contaminant_label = None
     if mapping.contaminant_label:
         try:
-            explicit_contaminant = _parse_contaminant_label(
+            explicit_contaminant_label = _parse_contaminant_label(
                 row.get(mapping.contaminant_label)
             )
         except ValueError:
@@ -1631,9 +1777,6 @@ def _parse_psm_row(
                     row_number,
                 )
             )
-        else:
-            if explicit_contaminant:
-                contaminant_flag = True
 
     canonical_peptide = peptide
     peptide_sequence = None
@@ -1660,6 +1803,13 @@ def _parse_psm_row(
             ).to_stable_json()
         )
 
+    classification = classify_target_decoy_contaminant(
+        protein_refs=protein_refs,
+        target_decoy_label=explicit_label,
+        explicit_contaminant_label=explicit_contaminant_label,
+        policy=decoy_policy,
+    )
+
     return PsmRecord(
         run_id=run_id,
         spectrum_id=spectrum_id,
@@ -1672,12 +1822,11 @@ def _parse_psm_row(
         intensity=intensity,
         q_value=q_value,
         protein_refs=protein_refs,
-        target_decoy_label=parse_target_decoy_label(
-            protein_refs=protein_refs,
-            explicit_label=explicit_label,
-            policy=decoy_policy,
+        target_decoy_label=classification.target_decoy_label,
+        contaminant_flag=classification.contaminant_flag,
+        target_decoy_contaminant_class=(
+            classification.target_decoy_contaminant_class
         ),
-        contaminant_flag=contaminant_flag,
     )
 
 
@@ -1770,6 +1919,7 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
             "q_value",
             "protein_refs",
             "target_decoy_label",
+            "target_decoy_contaminant_class",
             "contaminant_flag",
         ),
         rows=tuple(
@@ -1786,6 +1936,9 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                 "q_value": record.q_value,
                 "protein_refs": ";".join(record.protein_refs),
                 "target_decoy_label": record.target_decoy_label.value,
+                "target_decoy_contaminant_class": (
+                    record.target_decoy_contaminant_class.value
+                ),
                 "contaminant_flag": record.contaminant_flag,
             }
             for record in normalized
