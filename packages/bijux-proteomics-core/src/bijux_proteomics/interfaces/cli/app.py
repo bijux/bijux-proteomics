@@ -8821,6 +8821,14 @@ def ptm_quantify_sites_command(
 @click.option("--threshold", type=float, default=0.05, show_default=True)
 @click.option("--flank-size", type=int, default=7, show_default=True)
 @click.option(
+    "--site-quant-ambiguity-policy",
+    type=click.Choice(
+        [policy.value for policy in PtmSiteQuantAmbiguityPolicy], case_sensitive=False
+    ),
+    default=PtmSiteQuantAmbiguityPolicy.PRESERVE.value,
+    show_default=True,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def ptm_summarize_command(
@@ -8842,6 +8850,7 @@ def ptm_summarize_command(
     site_separator: str,
     threshold: float,
     flank_size: int,
+    site_quant_ambiguity_policy: str,
     out_path: Path | None,
 ) -> None:
     """Summarize PTM site evidence from localized peptides and optional feature intensities."""
@@ -8891,11 +8900,19 @@ def ptm_summarize_command(
             site_table, protein_sequences=protein_sequences
         )
         occupancy = None
+        site_quantification = None
         if feature_path is not None:
             feature_report = parse_ms1_feature_table(feature_path)
             occupancy = estimate_ptm_site_occupancy(
                 site_table,
                 feature_records=feature_report.accepted_records,
+            )
+            site_quantification = build_ptm_site_quantification_report(
+                site_table,
+                feature_records=feature_report.accepted_records,
+                ambiguity_policy=PtmSiteQuantAmbiguityPolicy(
+                    site_quant_ambiguity_policy.lower()
+                ),
             )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -8911,6 +8928,9 @@ def ptm_summarize_command(
         "enrichment_input": enrichment.to_dict(),
         "occupancy": [entry.to_dict() for entry in occupancy]
         if occupancy is not None
+        else None,
+        "site_quantification": site_quantification.to_dict()
+        if site_quantification is not None
         else None,
     }
     _emit_json(payload, out_path=out_path)

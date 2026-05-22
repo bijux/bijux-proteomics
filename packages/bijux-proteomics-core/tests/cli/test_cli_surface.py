@@ -4157,6 +4157,11 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
             entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79
             for entry in payload["occupancy"]
         )
+        assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
+        assert any(
+            row["site_key"] == "P11111:S5:Phospho"
+            for row in payload["site_quantification"]["rows"]
+        )
 
 
 def test_ptm_parse_peptide_command_emits_explicit_site_records() -> None:
