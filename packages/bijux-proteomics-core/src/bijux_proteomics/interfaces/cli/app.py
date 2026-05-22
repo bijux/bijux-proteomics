@@ -153,9 +153,15 @@ from bijux_proteomics.dia import (
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
     build_dia_protein_matrix_report,
+    build_diann_library_coverage_report,
     build_diann_peptide_matrix_report,
     build_diann_precursor_matrix_report,
     build_diann_run_qc_report,
+    render_dia_library_coverage_condition_tsv,
+    render_dia_library_coverage_peptide_tsv,
+    render_dia_library_coverage_protein_tsv,
+    render_dia_library_coverage_sample_tsv,
+    render_dia_library_coverage_summary_tsv,
     render_dia_peptide_quantity_matrix_tsv,
     render_dia_run_qc_correlation_tsv,
     render_dia_run_qc_intensity_distribution_tsv,
@@ -1852,6 +1858,118 @@ def diann_run_qc_command(
             "outlier_tsv": (
                 None if outlier_tsv_out is None else str(outlier_tsv_out)
             ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("diann-library-coverage")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "library_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-decoys/--exclude-decoys",
+    default=False,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=None)
+@click.option(
+    "--shared-peptides",
+    type=click.Choice([policy.value for policy in DiaSharedPeptidePolicy]),
+    default=DiaSharedPeptidePolicy.INCLUDE.value,
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--sample-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--condition-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def diann_library_coverage_command(
+    result_tsv: Path,
+    library_path: Path,
+    design_path: Path | None,
+    include_decoys: bool,
+    max_q_value: float | None,
+    shared_peptides: str,
+    summary_tsv_out: Path | None,
+    sample_tsv_out: Path | None,
+    condition_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare DIA-NN observations against spectral-library peptide and protein scope."""
+    try:
+        report = build_diann_library_coverage_report(
+            result_tsv,
+            library_path,
+            design_path=design_path,
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+            shared_peptide_policy=DiaSharedPeptidePolicy(shared_peptides),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_dia_library_coverage_summary_tsv(report),
+        )
+    if sample_tsv_out is not None:
+        _write_text_output(
+            sample_tsv_out,
+            render_dia_library_coverage_sample_tsv(report),
+        )
+    if condition_tsv_out is not None:
+        _write_text_output(
+            condition_tsv_out,
+            render_dia_library_coverage_condition_tsv(report),
+        )
+    if peptide_tsv_out is not None:
+        _write_text_output(
+            peptide_tsv_out,
+            render_dia_library_coverage_peptide_tsv(report),
+        )
+    if protein_tsv_out is not None:
+        _write_text_output(
+            protein_tsv_out,
+            render_dia_library_coverage_protein_tsv(report),
+        )
+
+    payload = {
+        "source_name": report.source_name,
+        "library_source_format": report.library_source_format,
+        "summary": report.summary.to_dict(),
+        "sample_entries": [entry.to_dict() for entry in report.sample_entries],
+        "condition_entries": [entry.to_dict() for entry in report.condition_entries],
+        "peptide_entries": [entry.to_dict() for entry in report.peptide_entries],
+        "protein_entries": [entry.to_dict() for entry in report.protein_entries],
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
+            "condition_tsv": (
+                None if condition_tsv_out is None else str(condition_tsv_out)
+            ),
+            "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
+            "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)

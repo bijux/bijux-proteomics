@@ -2851,6 +2851,87 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         )
 
 
+def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            fixture_dir / "diann_library_coverage.tsv",
+            "diann_library_coverage.tsv",
+        )
+        shutil.copy(
+            format_dir / "diann_library_coverage.msp",
+            "diann_library_coverage.msp",
+        )
+        shutil.copy(
+            format_dir / "diann_library_coverage.design.tsv",
+            "diann_library_coverage.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-library-coverage",
+                "diann_library_coverage.tsv",
+                "diann_library_coverage.msp",
+                "--design",
+                "diann_library_coverage.design.tsv",
+                "--summary-tsv-out",
+                "diann.library.summary.tsv",
+                "--sample-tsv-out",
+                "diann.library.samples.tsv",
+                "--condition-tsv-out",
+                "diann.library.conditions.tsv",
+                "--peptide-tsv-out",
+                "diann.library.peptides.tsv",
+                "--protein-tsv-out",
+                "diann.library.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["library_source_format"] == "msp"
+        assert payload["summary"]["library_peptide_count"] == 5
+        assert payload["summary"]["detected_peptide_count"] == 4
+        assert payload["summary"]["library_protein_count"] == 5
+        assert payload["summary"]["detected_protein_count"] == 4
+        assert payload["condition_entries"][0]["condition"] == "control"
+        assert payload["condition_entries"][0]["detected_peptide_count"] == 4
+        assert payload["condition_entries"][1]["condition"] == "treatment"
+        assert payload["condition_entries"][1]["detected_peptide_count"] == 1
+        assert payload["peptide_entries"][0]["canonical_peptide"] == "LIVNLY"
+        assert payload["peptide_entries"][0]["detected_overall"] is False
+        assert payload["protein_entries"][-1]["protein_ref"] == "P44444"
+        assert payload["protein_entries"][-1]["detected_overall"] is False
+        assert payload["outputs"]["summary_tsv"] == "diann.library.summary.tsv"
+        assert payload["outputs"]["sample_tsv"] == "diann.library.samples.tsv"
+        assert (
+            payload["outputs"]["condition_tsv"] == "diann.library.conditions.tsv"
+        )
+        assert payload["outputs"]["peptide_tsv"] == "diann.library.peptides.tsv"
+        assert payload["outputs"]["protein_tsv"] == "diann.library.proteins.tsv"
+        assert Path("diann.library.summary.tsv").exists()
+        assert Path("diann.library.samples.tsv").exists()
+        assert Path("diann.library.conditions.tsv").exists()
+        assert Path("diann.library.peptides.tsv").exists()
+        assert Path("diann.library.proteins.tsv").exists()
+        assert "sample_id\tdetected_peptide_count\tdetected_protein_count" in Path(
+            "diann.library.samples.tsv"
+        ).read_text(encoding="utf-8")
+        assert "control\tsample_A;sample_B\t4\t4" in Path(
+            "diann.library.conditions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "LIVNLY\tP44444\tfalse\t0\t0" in Path(
+            "diann.library.peptides.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P44444\tfalse\t0\t0" in Path(
+            "diann.library.proteins.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
