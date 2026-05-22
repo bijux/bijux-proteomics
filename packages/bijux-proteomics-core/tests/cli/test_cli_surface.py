@@ -4157,6 +4157,7 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
             entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79
             for entry in payload["occupancy"]
         )
+        assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
         assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
         assert any(
             row["site_key"] == "P11111:S5:Phospho"
@@ -4416,6 +4417,46 @@ def test_ptm_quantify_sites_command_emits_site_matrix_outputs() -> None:
         assert payload["site_quantification"]["ambiguity_policy"] == "exclude"
         assert "P11111:S5:Phospho" in Path("ptm.site_quant.matrix.tsv").read_text()
         assert "P11111:S17:Phospho" in Path("ptm.site_quant.excluded.tsv").read_text()
+
+
+def test_ptm_estimate_occupancy_command_emits_occupancy_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "estimate-occupancy",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "--summary-tsv-out",
+                "ptm.occupancy.summary.tsv",
+                "--occupancy-tsv-out",
+                "ptm.occupancy.tsv",
+                "--counterpart-tsv-out",
+                "ptm.occupancy.counterpart.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["feature_rows"] == 12
+        assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
+        assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
+        assert "counterpart_status" in Path(
+            "ptm.occupancy.counterpart.tsv"
+        ).read_text()
 
 
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
