@@ -18,6 +18,7 @@ from bijux_proteomics.identification import (
     PsmRecord,
     RejectedPsmRow,
     SearchAdapterKind,
+    TargetDecoyContaminantClass,
     TargetDecoyLabel,
     build_parsimony_review_report,
     export_psm_tsv,
@@ -94,6 +95,7 @@ class DdaFilteredPsmEntry(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
     contaminant_flag: bool
+    target_decoy_contaminant_class: TargetDecoyContaminantClass
     reasons: tuple[DdaPsmAcceptanceReason, ...] = Field(default_factory=tuple)
 
 
@@ -343,6 +345,7 @@ def render_filtered_dda_psms_tsv(
             "q_value",
             "protein_refs",
             "target_decoy_label",
+            "target_decoy_contaminant_class",
             "contaminant_flag",
             "filter_reasons",
         )
@@ -359,6 +362,7 @@ def render_filtered_dda_psms_tsv(
                 "" if row.q_value is None else f"{row.q_value:g}",
                 ";".join(row.protein_refs),
                 row.target_decoy_label.value,
+                row.target_decoy_contaminant_class.value,
                 "true" if row.contaminant_flag else "false",
                 ";".join(reason.value for reason in row.reasons),
             )
@@ -521,7 +525,14 @@ def _filter_psms_for_biological_workflow(
             reasons.append(DdaPsmAcceptanceReason.Q_VALUE_ABOVE_THRESHOLD)
         if policy.exclude_decoys and row.target_decoy_label is TargetDecoyLabel.DECOY:
             reasons.append(DdaPsmAcceptanceReason.DECOY)
-        if policy.exclude_contaminants and row.contaminant_flag:
+        if (
+            policy.exclude_contaminants
+            and row.target_decoy_contaminant_class
+            in {
+                TargetDecoyContaminantClass.CONTAMINANT,
+                TargetDecoyContaminantClass.MIXED,
+            }
+        ):
             reasons.append(DdaPsmAcceptanceReason.CONTAMINANT)
         if policy.require_run_id and not row.run_id:
             reasons.append(DdaPsmAcceptanceReason.MISSING_RUN_ID)
@@ -542,6 +553,7 @@ def _filter_psms_for_biological_workflow(
                     protein_refs=row.protein_refs,
                     target_decoy_label=row.target_decoy_label,
                     contaminant_flag=row.contaminant_flag,
+                    target_decoy_contaminant_class=row.target_decoy_contaminant_class,
                     reasons=tuple(dict.fromkeys(reasons)),
                 )
             )
