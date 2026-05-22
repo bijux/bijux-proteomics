@@ -154,6 +154,15 @@ class ComplexEnrichmentReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class ComplexEnrichmentCorrectionPolicy(JsonModel):
+    """Multiple-testing policy for protein complex enrichment reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_adjusted_p_value: float = Field(default=0.1, ge=0.0, le=1.0)
+    min_enrichment_ratio: float = Field(default=1.0, ge=0.0)
+
+
 def parse_complex_membership_table(
     path: Path,
     *,
@@ -439,6 +448,60 @@ def build_complex_enrichment_report(
             "complex enrichment evaluates protein-member and gene-member complexes separately "
             "against the declared background set and preserves unresolved gene mapping explicitly"
         ),
+    )
+
+
+def apply_complex_enrichment_multiple_testing(
+    report: ComplexEnrichmentReport,
+    *,
+    policy: ComplexEnrichmentCorrectionPolicy | None = None,
+) -> ComplexEnrichmentReport:
+    """Apply Benjamini-Hochberg correction across evaluated complex entries."""
+
+    active_policy = policy or ComplexEnrichmentCorrectionPolicy()
+    if not report.entries:
+        return report.model_copy(
+            update={
+                "note": report.note
+                + " Benjamini-Hochberg correction found no evaluated complex entries."
+            }
+        )
+    total = len(report.entries)
+    ranked_indices = sorted(
+        range(total),
+        key=lambda index: (
+            report.entries[index].p_value,
+            report.entries[index].complex_id,
+            report.entries[index].member_kind.value,
+        ),
+    )
+    adjusted = [1.0] * total
+    running_minimum = 1.0
+    for reverse_rank, index in enumerate(reversed(ranked_indices), start=1):
+        rank = total - reverse_rank + 1
+        candidate = report.entries[index].p_value * total / rank
+        running_minimum = min(running_minimum, candidate)
+        adjusted[index] = min(1.0, running_minimum)
+    corrected_entries = tuple(
+        entry.model_copy(update={"adjusted_p_value": round(adjusted[index], 12)})
+        for index, entry in enumerate(report.entries)
+    )
+    enriched_entry_count = sum(
+        1
+        for entry in corrected_entries
+        if entry.adjusted_p_value is not None
+        and entry.adjusted_p_value <= active_policy.max_adjusted_p_value
+        and (entry.enrichment_ratio or 0.0) >= active_policy.min_enrichment_ratio
+    )
+    return report.model_copy(
+        update={
+            "entries": corrected_entries,
+            "summary": report.summary.model_copy(
+                update={"enriched_entry_count": enriched_entry_count}
+            ),
+            "note": report.note
+            + " Benjamini-Hochberg correction was applied across evaluated complex entries.",
+        }
     )
 
 
