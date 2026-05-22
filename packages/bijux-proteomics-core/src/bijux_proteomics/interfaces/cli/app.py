@@ -22,6 +22,7 @@ from bijux_proteomics.chemistry import (
     StaticModification,
     VariableModification,
     approximate_peptide_isotope_envelope,
+    build_peptide_elemental_composition,
     build_fragment_ion_review_report,
     build_modification_localization_advisory,
     build_modification_resolution_report,
@@ -32,6 +33,8 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     get_modification,
     load_modification_registry,
+    predict_peptide_isotope_envelopes,
+    render_isotope_envelopes_tsv,
     render_fragment_ion_report_tsv,
 )
 from bijux_proteomics.benchmarks import (
@@ -4454,7 +4457,7 @@ def peptide_index_command(
     show_default=True,
 )
 @click.option("--include-neutral-losses", is_flag=True, default=False)
-@click.option("--isotope-peaks", type=int, default=4, show_default=True)
+@click.option("--isotope-peaks", type=int, default=6, show_default=True)
 @click.option(
     "--registry",
     "registry_path",
@@ -4491,6 +4494,10 @@ def peptide_mass_command(
             assignments=tuple(modifications),
             registry=registry,
         )
+        composition = build_peptide_elemental_composition(
+            peptide,
+            registry=registry,
+        )
         charge_state = build_peptide_charge_state(
             peptide,
             charge=charge,
@@ -4518,11 +4525,102 @@ def peptide_mass_command(
 
     payload = {
         "canonical_notation": canonicalize_modified_peptide(peptide, registry=registry),
+        "elemental_composition": composition.to_dict(),
         "charge_state": charge_state.to_dict(),
         "isotope_envelope": envelope.to_dict(),
         "localization": localization.to_dict(),
         "fragment_ion_count": len(fragments),
         "fragments": [fragment.to_dict() for fragment in fragments],
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("isotope-envelope")
+@click.argument("sequence")
+@click.option(
+    "--mod",
+    "modifications",
+    multiple=True,
+    help="Modification assignment like Oxidation@3 or Acetyl@n-term.",
+)
+@click.option(
+    "--charge",
+    "charges",
+    multiple=True,
+    type=int,
+    default=(2,),
+    show_default=True,
+)
+@click.option(
+    "--max-isotope-index",
+    type=int,
+    default=5,
+    show_default=True,
+)
+@click.option(
+    "--registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional JSON modification registry path.",
+)
+@click.option(
+    "--tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional isotope envelope TSV output path.",
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def isotope_envelope_command(
+    sequence: str,
+    modifications: tuple[str, ...],
+    charges: tuple[int, ...],
+    max_isotope_index: int,
+    registry_path: Path | None,
+    tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Predict M+0 through M+n isotope envelopes for one peptide."""
+    try:
+        registry = (
+            load_modification_registry(registry_path)
+            if registry_path is not None
+            else None
+        )
+        peptide = build_modified_peptide(
+            sequence,
+            assignments=tuple(modifications),
+            registry=registry,
+        )
+        composition = build_peptide_elemental_composition(
+            peptide,
+            registry=registry,
+        )
+        envelopes = predict_peptide_isotope_envelopes(
+            peptide,
+            charges=charges,
+            max_isotope_index=max_isotope_index,
+            registry=registry,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if tsv_out is not None:
+        _write_text_output(tsv_out, render_isotope_envelopes_tsv(envelopes))
+
+    payload = {
+        "canonical_notation": peptide.canonical_notation,
+        "elemental_composition": composition.to_dict(),
+        "charges": list(charges),
+        "max_isotope_index": max_isotope_index,
+        "envelopes": [envelope.to_dict() for envelope in envelopes],
+        "tsv_out": str(tsv_out) if tsv_out else None,
     }
     _emit_json(payload, out_path=out_path)
 
