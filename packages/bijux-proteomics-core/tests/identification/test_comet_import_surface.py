@@ -63,7 +63,7 @@ def test_comet_tabular_import_preserves_scores_modifications_and_proteins() -> N
         "sp|P23456|TRANSFER_HUMAN",
         "sp|P34567|TRANSFER_MOUSE",
     )
-    assert "modified_peptide" in render_comet_canonical_psm_tsv(report.canonical_psms)
+    assert "source_file" in render_comet_canonical_psm_tsv(report.canonical_psms)
     assert "xcorr_psm_count" in render_comet_summary_tsv(report.summary)
     assert "source_engine" in render_comet_psm_tsv(report.psm_rows)
 
@@ -93,3 +93,4 @@ def test_comet_pepxml_import_reads_scores_and_target_decoy_labels() -> None:
         "sp|P34567|TRANSFER_MOUSE",
     )
     assert report.psm_rows[2].target_decoy_label.value == "decoy"
+    assert "source_row_numbers" in render_comet_canonical_psm_tsv(report.canonical_psms)

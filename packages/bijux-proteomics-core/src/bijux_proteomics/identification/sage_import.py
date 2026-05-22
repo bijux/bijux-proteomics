@@ -217,6 +217,7 @@ def render_sage_canonical_psm_tsv(rows: tuple[SageCanonicalPsmEntry, ...]) -> st
                 "matched_intensity_fraction",
                 "precursor_ppm",
                 "fragment_ppm",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -249,6 +250,11 @@ def render_sage_canonical_psm_tsv(rows: tuple[SageCanonicalPsmEntry, ...]) -> st
                     else f"{row.matched_intensity_fraction:.6g}",
                     "" if row.precursor_ppm is None else f"{row.precursor_ppm:.6g}",
                     "" if row.fragment_ppm is None else f"{row.fragment_ppm:.6g}",
+                    *(
+                        row.record.provenance.to_tsv_row()
+                        if row.record.provenance
+                        else ("", "", "", "")
+                    ),
                 )
             )
         )

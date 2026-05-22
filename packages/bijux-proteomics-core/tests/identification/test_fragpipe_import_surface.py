@@ -83,7 +83,7 @@ def test_fragpipe_import_report_preserves_bundle_tables_and_open_search_state() 
     assert any(row.target_decoy_label.value == "decoy" for row in report.protein_rows)
 
     assert "accepted_psm_count" in render_fragpipe_summary_tsv(report.summary)
-    assert "open_search_candidate" in render_fragpipe_canonical_psm_tsv(
+    assert "source_row_numbers" in render_fragpipe_canonical_psm_tsv(
         report.canonical_psms
     )
     assert "source_engine" in render_fragpipe_psm_tsv(report.psm_rows)

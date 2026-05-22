@@ -208,6 +208,7 @@ def render_comet_canonical_psm_tsv(rows: tuple[CometCanonicalPsmEntry, ...]) -> 
                 "xcorr",
                 "delta_cn",
                 "sp_score",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -231,6 +232,11 @@ def render_comet_canonical_psm_tsv(rows: tuple[CometCanonicalPsmEntry, ...]) -> 
                     "" if row.xcorr is None else f"{row.xcorr:.6g}",
                     "" if row.delta_cn is None else f"{row.delta_cn:.6g}",
                     "" if row.sp_score is None else f"{row.sp_score:.6g}",
+                    *(
+                        row.record.provenance.to_tsv_row()
+                        if row.record.provenance
+                        else ("", "", "", "")
+                    ),
                 )
             )
         )

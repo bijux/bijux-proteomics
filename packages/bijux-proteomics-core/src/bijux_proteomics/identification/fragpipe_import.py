@@ -354,6 +354,7 @@ def render_fragpipe_canonical_psm_tsv(
                 "observed_modifications",
                 "mass_difference",
                 "open_search_candidate",
+                *ImportedEvidenceProvenance.tsv_header(),
             )
         )
     ]
@@ -377,6 +378,11 @@ def render_fragpipe_canonical_psm_tsv(
                     ";".join(sort_strings(row.observed_modifications)),
                     "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
                     "1" if row.open_search_candidate else "0",
+                    *(
+                        row.record.provenance.to_tsv_row()
+                        if row.record.provenance
+                        else ("", "", "", "")
+                    ),
                 )
             )
         )

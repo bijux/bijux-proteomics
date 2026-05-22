@@ -68,5 +68,5 @@ def test_sage_import_report_preserves_scores_modifications_and_q_values() -> Non
     assert report.psm_rows[2].target_decoy_label.value == "decoy"
 
     assert "hyperscore_psm_count" in render_sage_summary_tsv(report.summary)
-    assert "protein_refs" in render_sage_canonical_psm_tsv(report.canonical_psms)
+    assert "source_engine" in render_sage_canonical_psm_tsv(report.canonical_psms)
     assert "source_file" in render_sage_psm_tsv(report.psm_rows)
