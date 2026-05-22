@@ -15,11 +15,12 @@ from bijux_proteomics.scientific_tables import (
     ScientificTableValidationError,
     build_contrast_table_schema,
     build_diann_report_schema,
+    build_experimental_design_schema,
     build_maxquant_peptides_schema,
     build_maxquant_protein_groups_schema,
     build_psm_table_schema,
     build_ptm_evidence_schema,
-    build_sample_metadata_schema,
+    build_samples_table_schema,
     build_silac_feature_table_schema,
     build_tmt_channel_map_schema,
     build_transition_table_schema,
@@ -225,9 +226,29 @@ def test_require_valid_scientific_table_raises_structured_error(tmp_path: Path) 
     )
 
     with pytest.raises(ScientificTableValidationError) as excinfo:
-        require_valid_scientific_table(path, schema=build_sample_metadata_schema())
+        require_valid_scientific_table(path, schema=build_experimental_design_schema())
 
-    assert excinfo.value.report.table_kind == "sample_metadata"
+    assert excinfo.value.report.table_kind == "experimental_design"
+
+
+def test_validate_scientific_table_accepts_minimal_samples_table(tmp_path: Path) -> None:
+    path = tmp_path / "samples.tsv"
+    path.write_text(
+        "\n".join(
+            (
+                "sample_id\trun_id\tcondition\tbatch\tpair_id\ttimepoint\tplex_id\tchannel",
+                "sample-1\trun-1\tcontrol\tbatch-a\tpair-1\tt0\tplex-a\t126",
+                "sample-2\trun-1\ttreated\tbatch-a\tpair-1\tt1\tplex-a\t127N",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = require_valid_scientific_table(path, schema=build_samples_table_schema())
+
+    assert report.table_kind == "sample_metadata"
+    assert len(report.accepted_rows) == 2
 
 
 def test_scientific_table_schemas_cover_real_scientific_table_families() -> None:

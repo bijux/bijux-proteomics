@@ -422,11 +422,11 @@ def build_maxquant_protein_groups_schema() -> ScientificTableSchema:
     )
 
 
-def build_sample_metadata_schema() -> ScientificTableSchema:
-    """Build the governed schema for one sample-metadata design table."""
+def build_experimental_design_schema() -> ScientificTableSchema:
+    """Build the governed schema for one full experimental-design table."""
 
     return ScientificTableSchema(
-        table_kind="sample_metadata",
+        table_kind="experimental_design",
         column_specs=(
             DelimitedColumnSpec(name="sample_id", required=True),
             DelimitedColumnSpec(name="cohort"),
@@ -463,12 +463,32 @@ def build_sample_metadata_schema() -> ScientificTableSchema:
     )
 
 
+def build_samples_table_schema() -> ScientificTableSchema:
+    """Build the governed schema for one minimal study samples table."""
+
+    return ScientificTableSchema(
+        table_kind="sample_metadata",
+        column_specs=(
+            DelimitedColumnSpec(name="sample_id", required=True),
+            DelimitedColumnSpec(name="run_id", required=True),
+            DelimitedColumnSpec(name="condition", required=True),
+            DelimitedColumnSpec(name="batch"),
+            DelimitedColumnSpec(name="pair_id"),
+            DelimitedColumnSpec(name="timepoint"),
+            DelimitedColumnSpec(name="plex_id"),
+            DelimitedColumnSpec(name="channel"),
+        ),
+        unique_key_columns=("sample_id",),
+        linked_required_columns=(("plex_id", "channel"),),
+    )
+
+
 def build_tmt_channel_map_schema() -> ScientificTableSchema:
     """Build the governed schema for one TMT channel-map table."""
 
     return ScientificTableSchema(
         table_kind="tmt_channel_map",
-        column_specs=build_sample_metadata_schema().column_specs,
+        column_specs=build_experimental_design_schema().column_specs,
         unique_key_columns=("multiplex_group", "multiplex_channel"),
         allowed_values_by_column={
             "sample_role": (

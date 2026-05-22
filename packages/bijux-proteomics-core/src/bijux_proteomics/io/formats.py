@@ -45,7 +45,7 @@ from bijux_proteomics.io.spectra import (
 )
 from bijux_proteomics.scientific_tables import (
     ScientificTableValidationIssue,
-    build_sample_metadata_schema,
+    build_experimental_design_schema,
     validate_scientific_table,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
@@ -1310,7 +1310,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
     """Parse one experimental-design TSV or CSV table."""
     validation_report = validate_scientific_table(
         path,
-        schema=build_sample_metadata_schema(),
+        schema=build_experimental_design_schema(),
     )
     accepted_entries: list[ExperimentalDesignEntry] = []
     owned_fields = {
