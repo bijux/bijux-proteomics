@@ -258,6 +258,48 @@ def render_heatmap_matrix_tsv(report: HeatmapPreparationReport) -> str:
     return handle.getvalue()
 
 
+def render_heatmap_summary_tsv(report: HeatmapPreparationReport) -> str:
+    """Render one compact heatmap preparation summary as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_level",
+            "measure_kind",
+            "aggregation_method",
+            "sample_count",
+            "input_entity_count",
+            "output_entity_count",
+            "filtered_entity_id_count",
+            "filtered_protein_ref_count",
+            "filtered_observed_fraction_count",
+            "filtered_missing_policy_count",
+            "truncated_entity_count",
+            "z_scored",
+            "missing_value_policy",
+        )
+    )
+    writer.writerow(
+        (
+            report.summary.entity_level.value,
+            report.summary.measure_kind.value,
+            report.summary.aggregation_method.value,
+            report.summary.sample_count,
+            report.summary.input_entity_count,
+            report.summary.output_entity_count,
+            report.summary.filtered_entity_id_count,
+            report.summary.filtered_protein_ref_count,
+            report.summary.filtered_observed_fraction_count,
+            report.summary.filtered_missing_policy_count,
+            report.summary.truncated_entity_count,
+            str(report.summary.z_scored).lower(),
+            report.summary.missing_value_policy.value,
+        )
+    )
+    return handle.getvalue()
+
+
 def render_heatmap_row_metadata_tsv(report: HeatmapPreparationReport) -> str:
     """Render row-level heatmap metadata as TSV."""
 
@@ -332,6 +374,12 @@ def export_heatmap_matrix_tsv(report: HeatmapPreparationReport, path: Path) -> N
     """Write one prepared heatmap matrix to a stable TSV artifact."""
 
     path.write_text(render_heatmap_matrix_tsv(report), encoding="utf-8")
+
+
+def export_heatmap_summary_tsv(report: HeatmapPreparationReport, path: Path) -> None:
+    """Write one compact heatmap summary to a stable TSV artifact."""
+
+    path.write_text(render_heatmap_summary_tsv(report), encoding="utf-8")
 
 
 def export_heatmap_row_metadata_tsv(
@@ -411,7 +459,9 @@ __all__ = [
     "export_heatmap_column_metadata_tsv",
     "export_heatmap_matrix_tsv",
     "export_heatmap_row_metadata_tsv",
+    "export_heatmap_summary_tsv",
     "render_heatmap_column_metadata_tsv",
     "render_heatmap_matrix_tsv",
     "render_heatmap_row_metadata_tsv",
+    "render_heatmap_summary_tsv",
 ]
