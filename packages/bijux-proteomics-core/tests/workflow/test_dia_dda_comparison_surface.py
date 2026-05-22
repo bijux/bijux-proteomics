@@ -96,3 +96,28 @@ def test_build_diann_vs_dda_psm_comparison_report_keeps_exclusive_evidence_visib
         and entry.entity_id == "DDAONLY"
     )
     assert dda_only_peptide.protein_refs == ("P33333",)
+
+
+def test_build_diann_vs_dda_psm_comparison_report_keeps_shared_intensity_correlation_visible() -> None:
+    report = build_diann_vs_dda_psm_comparison_report(
+        _workflow_fixture("dia_dda_comparison_diann.tsv"),
+        _workflow_fixture("dia_dda_comparison_dda_psms.tsv"),
+    )
+
+    assert report.summary.shared_intensity_correlation_entry_count == 4
+    assert report.summary.protein_correlation_entry_count == 2
+    assert report.summary.peptide_correlation_entry_count == 2
+    peptide_entry = next(
+        entry
+        for entry in report.shared_intensity_correlation
+        if entry.entity_level == "peptide" and entry.entity_id == "PESTIDE"
+    )
+    assert peptide_entry.shared_sample_count == 2
+    assert peptide_entry.pearson_correlation == 1.0
+    protein_entry = next(
+        entry
+        for entry in report.shared_intensity_correlation
+        if entry.entity_level == "protein" and entry.entity_id == "P22222"
+    )
+    assert protein_entry.shared_sample_count == 2
+    assert protein_entry.pearson_correlation == 1.0

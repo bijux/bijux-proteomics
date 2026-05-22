@@ -95,6 +95,19 @@ class DiaDdaExclusiveEvidenceEntry(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
 
 
+class DiaDdaSharedIntensityCorrelationEntry(JsonModel):
+    """One shared-entity correlation row across DIA and DDA sample intensities."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: ComparisonEntityLevel
+    entity_id: str = Field(..., min_length=1)
+    shared_sample_count: int = Field(..., ge=0)
+    dia_mean_intensity: float = Field(..., ge=0.0)
+    dda_mean_intensity: float = Field(..., ge=0.0)
+    pearson_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
+
+
 class DiaDdaComparisonSummary(JsonModel):
     """Compact summary over DIA-vs-DDA evidence overlap."""
 
@@ -111,6 +124,9 @@ class DiaDdaComparisonSummary(JsonModel):
     dia_only_peptide_count: int = Field(..., ge=0)
     dda_only_peptide_count: int = Field(..., ge=0)
     exclusive_evidence_entry_count: int = Field(..., ge=0)
+    shared_intensity_correlation_entry_count: int = Field(..., ge=0)
+    protein_correlation_entry_count: int = Field(..., ge=0)
+    peptide_correlation_entry_count: int = Field(..., ge=0)
 
 
 class DiaDdaComparisonReport(JsonModel):
@@ -123,6 +139,9 @@ class DiaDdaComparisonReport(JsonModel):
     protein_overlap: tuple[DiaDdaProteinOverlapEntry, ...] = Field(default_factory=tuple)
     peptide_overlap: tuple[DiaDdaPeptideOverlapEntry, ...] = Field(default_factory=tuple)
     exclusive_evidence: tuple[DiaDdaExclusiveEvidenceEntry, ...] = Field(default_factory=tuple)
+    shared_intensity_correlation: tuple[DiaDdaSharedIntensityCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaDdaComparisonSummary
     note: str = Field(..., min_length=1)
 
@@ -256,10 +275,36 @@ def build_dia_dda_comparison_report(
             ),
         )
     )
+    shared_intensity_correlation = tuple(
+        sorted(
+            (
+                *[
+                    _build_correlation_entry(
+                        entity_level=ComparisonEntityLevel.PROTEIN,
+                        entity_id=protein_ref,
+                        dia_values=dia_proteins[protein_ref],
+                        dda_values=dda_proteins[protein_ref],
+                    )
+                    for protein_ref in sorted(set(dia_proteins) & set(dda_proteins))
+                ],
+                *[
+                    _build_correlation_entry(
+                        entity_level=ComparisonEntityLevel.PEPTIDE,
+                        entity_id=peptide_sequence,
+                        dia_values=dia_peptides[peptide_sequence]["values"],
+                        dda_values=dda_peptides[peptide_sequence]["values"],
+                    )
+                    for peptide_sequence in sorted(set(dia_peptides) & set(dda_peptides))
+                ],
+            ),
+            key=lambda entry: (entry.entity_level.value, entry.entity_id),
+        )
+    )
     return DiaDdaComparisonReport(
         protein_overlap=tuple(protein_overlap),
         peptide_overlap=tuple(peptide_overlap),
         exclusive_evidence=exclusive_evidence,
+        shared_intensity_correlation=shared_intensity_correlation,
         summary=DiaDdaComparisonSummary(
             dia_protein_count=len(dia_proteins),
             dda_protein_count=len(dda_proteins),
@@ -272,9 +317,18 @@ def build_dia_dda_comparison_report(
             dia_only_peptide_count=dia_only_peptide_count,
             dda_only_peptide_count=dda_only_peptide_count,
             exclusive_evidence_entry_count=len(exclusive_evidence),
+            shared_intensity_correlation_entry_count=len(shared_intensity_correlation),
+            protein_correlation_entry_count=sum(
+                entry.entity_level is ComparisonEntityLevel.PROTEIN
+                for entry in shared_intensity_correlation
+            ),
+            peptide_correlation_entry_count=sum(
+                entry.entity_level is ComparisonEntityLevel.PEPTIDE
+                for entry in shared_intensity_correlation
+            ),
         ),
         note=(
-            "dia-vs-dda comparison keeps protein overlap, peptide overlap, and explicit workflow-exclusive evidence visible before intensity complementarity claims are made"
+            "dia-vs-dda comparison keeps protein overlap, peptide overlap, shared intensity correlation, and explicit workflow-exclusive evidence visible before workflow complementarity claims are made"
         ),
     )
 
@@ -432,3 +486,45 @@ def _protein_matrix_abundance(
         if sample_values:
             abundance_by_protein[row.entity_id] = sample_values
     return abundance_by_protein
+
+
+def _build_correlation_entry(
+    *,
+    entity_level: ComparisonEntityLevel,
+    entity_id: str,
+    dia_values: dict[str, float],
+    dda_values: dict[str, float],
+) -> DiaDdaSharedIntensityCorrelationEntry:
+    shared_sample_ids = tuple(sorted(set(dia_values) & set(dda_values)))
+    dia_series = [dia_values[sample_id] for sample_id in shared_sample_ids]
+    dda_series = [dda_values[sample_id] for sample_id in shared_sample_ids]
+    return DiaDdaSharedIntensityCorrelationEntry(
+        entity_level=entity_level,
+        entity_id=entity_id,
+        shared_sample_count=len(shared_sample_ids),
+        dia_mean_intensity=(sum(dia_series) / len(dia_series) if dia_series else 0.0),
+        dda_mean_intensity=(sum(dda_series) / len(dda_series) if dda_series else 0.0),
+        pearson_correlation=_pearson_correlation(dia_series, dda_series),
+    )
+
+
+def _pearson_correlation(
+    left: list[float],
+    right: list[float],
+) -> float | None:
+    if len(left) != len(right) or len(left) < 2:
+        return None
+    left_mean = sum(left) / len(left)
+    right_mean = sum(right) / len(right)
+    left_centered = [value - left_mean for value in left]
+    right_centered = [value - right_mean for value in right]
+    numerator = sum(
+        left_value * right_value
+        for left_value, right_value in zip(left_centered, right_centered, strict=True)
+    )
+    left_scale = sum(value * value for value in left_centered) ** 0.5
+    right_scale = sum(value * value for value in right_centered) ** 0.5
+    if left_scale == 0.0 or right_scale == 0.0:
+        return None
+    raw_correlation = numerator / (left_scale * right_scale)
+    return max(-1.0, min(1.0, raw_correlation))
