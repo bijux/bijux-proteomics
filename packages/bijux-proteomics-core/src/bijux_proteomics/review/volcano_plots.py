@@ -20,6 +20,7 @@ from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
     from bijux_proteomics.ptm.differential_analysis import PtmDifferentialVolcanoPlot
+    from bijux_proteomics.quantification.contracts import DifferentialAbundanceReport
     from bijux_proteomics.workflow.dia_differential_analysis import (
         DiaDifferentialVolcanoPlot,
     )
@@ -34,6 +35,7 @@ class VolcanoReviewSourceKind(StrEnum):
     DIA = "dia"
     LABEL_BASED = "label_based"
     PTM = "ptm"
+    QUANTIFICATION = "quantification"
 
 
 class VolcanoReviewPolicy(JsonModel):
@@ -379,6 +381,64 @@ def build_ptm_volcano_review(
         points=labeled_points,
         note=(
             "shared volcano review preserves raw and adjusted significance over one PTM site differential contrast"
+        ),
+    )
+
+
+def build_quantification_volcano_review(
+    report: DifferentialAbundanceReport,
+    *,
+    protein_refs_by_entity: dict[str, tuple[str, ...]] | None = None,
+    policy: VolcanoReviewPolicy | None = None,
+) -> VolcanoReviewReport:
+    """Build a shared volcano review payload from a quantification differential report."""
+
+    active_policy = policy or VolcanoReviewPolicy()
+    protein_ref_lookup = protein_refs_by_entity or {}
+    points = tuple(
+        VolcanoReviewPoint(
+            entity_id=entry.entity_id,
+            label=(
+                protein_ref_lookup[entry.entity_id][0]
+                if protein_ref_lookup.get(entry.entity_id)
+                else entry.entity_id
+            ),
+            secondary_label=(
+                entry.entity_id
+                if protein_ref_lookup.get(entry.entity_id)
+                and protein_ref_lookup[entry.entity_id][0] != entry.entity_id
+                else None
+            ),
+            log2_fold_change=entry.log2_fold_change,
+            raw_p_value=entry.p_value,
+            adjusted_p_value=(
+                1.0 if entry.adjusted_p_value is None else entry.adjusted_p_value
+            ),
+            negative_log10_adjusted_p_value=_negative_log10(
+                1.0 if entry.adjusted_p_value is None else entry.adjusted_p_value
+            ),
+            highlighted=(
+                entry.adjusted_p_value is not None
+                and entry.adjusted_p_value <= active_policy.adjusted_p_value_threshold
+                and abs(entry.log2_fold_change)
+                >= active_policy.absolute_log2_fold_change_threshold
+            ),
+        )
+        for entry in report.entries
+    )
+    labeled_points = apply_volcano_review_policy(points, policy=active_policy)
+    return VolcanoReviewReport(
+        source_kind=VolcanoReviewSourceKind.QUANTIFICATION,
+        condition_a=report.condition_a,
+        condition_b=report.condition_b,
+        x_axis_label="log2 fold change",
+        y_axis_label="-log10 adjusted p-value",
+        significant_point_count=sum(1 for point in labeled_points if point.highlighted),
+        labeled_point_count=sum(1 for point in labeled_points if point.top_labeled),
+        policy=active_policy,
+        points=labeled_points,
+        note=(
+            "shared volcano review preserves raw and adjusted significance over one quantification differential contrast"
         ),
     )
 
