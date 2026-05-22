@@ -145,6 +145,15 @@ class GoEnrichmentReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class GoEnrichmentCorrectionPolicy(JsonModel):
+    """Multiple-testing policy for GO enrichment reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_adjusted_p_value: float = Field(default=0.1, ge=0.0, le=1.0)
+    min_enrichment_ratio: float = Field(default=1.0, ge=0.0)
+
+
 def parse_go_annotation_table(
     path: Path,
     *,
@@ -395,12 +404,65 @@ def build_go_enrichment_report(
             unannotated_background_count=sum(
                 1 for entry in unannotated_entries if entry.set_role == "background"
             ),
-            enriched_term_count=len(term_entries),
+            enriched_term_count=0,
         ),
         note=(
             "GO term enrichment compares foreground overlap against the explicit background "
             "set with a one-sided hypergeometric test and preserves unannotated proteins explicitly"
         ),
+    )
+
+
+def apply_go_enrichment_multiple_testing(
+    report: GoEnrichmentReport,
+    *,
+    policy: GoEnrichmentCorrectionPolicy | None = None,
+) -> GoEnrichmentReport:
+    """Apply Benjamini-Hochberg correction across evaluated GO terms."""
+
+    active_policy = policy or GoEnrichmentCorrectionPolicy()
+    if not report.term_entries:
+        return report.model_copy(
+            update={
+                "note": report.note
+                + " Benjamini-Hochberg correction found no evaluated GO terms."
+            }
+        )
+    total = len(report.term_entries)
+    ranked_indices = sorted(
+        range(total),
+        key=lambda index: (
+            report.term_entries[index].p_value,
+            report.term_entries[index].go_term_id,
+        ),
+    )
+    adjusted = [1.0] * total
+    running_minimum = 1.0
+    for reverse_rank, index in enumerate(reversed(ranked_indices), start=1):
+        rank = total - reverse_rank + 1
+        candidate = report.term_entries[index].p_value * total / rank
+        running_minimum = min(running_minimum, candidate)
+        adjusted[index] = min(1.0, running_minimum)
+    corrected_entries = tuple(
+        entry.model_copy(update={"adjusted_p_value": round(adjusted[index], 12)})
+        for index, entry in enumerate(report.term_entries)
+    )
+    enriched_term_count = sum(
+        1
+        for entry in corrected_entries
+        if entry.adjusted_p_value is not None
+        and entry.adjusted_p_value <= active_policy.max_adjusted_p_value
+        and (entry.enrichment_ratio or 0.0) >= active_policy.min_enrichment_ratio
+    )
+    return report.model_copy(
+        update={
+            "term_entries": corrected_entries,
+            "summary": report.summary.model_copy(
+                update={"enriched_term_count": enriched_term_count}
+            ),
+            "note": report.note
+            + " Benjamini-Hochberg correction was applied across evaluated GO terms.",
+        }
     )
 
 
