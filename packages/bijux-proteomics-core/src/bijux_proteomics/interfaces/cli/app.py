@@ -284,6 +284,7 @@ from bijux_proteomics.ptm import (
     build_ptm_site_table,
     estimate_ptm_site_occupancy,
     map_ptm_evidence_to_protein_sites,
+    parse_ptm_peptide,
     parse_ptm_localization_tsv,
 )
 from bijux_proteomics.quantification import (
@@ -8195,6 +8196,38 @@ def qc_report_command(
 @cli.group("ptm")
 def ptm_group() -> None:
     """Summarize PTM evidence, mapped sites, and occupancy outputs."""
+
+
+@ptm_group.command("parse-peptide")
+@click.argument("modified_peptide")
+@click.option("--protein-ref", default=None)
+@click.option("--peptide-start-position", type=int, default=None)
+@click.option("--sample-id", default=None)
+@click.option("--spectrum-id", default=None)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def ptm_parse_peptide_command(
+    modified_peptide: str,
+    protein_ref: str | None,
+    peptide_start_position: int | None,
+    sample_id: str | None,
+    spectrum_id: str | None,
+    out_path: Path | None,
+) -> None:
+    """Parse one PTM peptide into explicit site-local records."""
+    try:
+        record = parse_ptm_peptide(
+            modified_peptide,
+            protein_ref=protein_ref,
+            peptide_start_position=peptide_start_position,
+            sample_id=sample_id,
+            spectrum_id=spectrum_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    _emit_json(record.to_dict(), out_path=out_path)
 
 
 @ptm_group.command("summarize")

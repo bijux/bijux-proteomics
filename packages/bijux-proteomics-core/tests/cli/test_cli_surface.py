@@ -4159,6 +4159,34 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
         )
 
 
+def test_ptm_parse_peptide_command_emits_explicit_site_records() -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "ptm",
+            "parse-peptide",
+            "[Acetyl]-M[Oxidation]STY[Phospho]K",
+            "--protein-ref",
+            "P22222",
+            "--peptide-start-position",
+            "15",
+            "--sample-id",
+            "T1",
+            "--spectrum-id",
+            "scan=ptm-peptide-002",
+        ],
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["canonical_peptide"] == "[Acetyl]-M[Oxidation]STY[Phospho]K"
+    assert payload["modification_names"] == ["Acetyl", "Oxidation", "Phospho"]
+    assert [site["residue"] for site in payload["sites"]] == ["M", "M", "Y"]
+    assert [site["peptide_position"] for site in payload["sites"]] == [1, 1, 4]
+    assert [site["protein_position"] for site in payload["sites"]] == [15, 15, 18]
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
