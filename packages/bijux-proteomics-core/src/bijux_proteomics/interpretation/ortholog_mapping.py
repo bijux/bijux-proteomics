@@ -7,12 +7,16 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 import csv
+from enum import StrEnum
 import json
 from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.interpretation.protein_annotation_mapping import (
+    ProteinReferenceEntry,
+)
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
 
@@ -80,6 +84,82 @@ class OrthologImportReport(JsonModel):
     rejected_rows: tuple[RejectedOrthologRow, ...] = Field(default_factory=tuple)
     column_mapping: OrthologColumnMapping
     summary: OrthologImportSummary
+    note: str = Field(..., min_length=1)
+
+
+class OrthologMappingCardinality(StrEnum):
+    """Stable cardinality classes for one ortholog relationship edge."""
+
+    ONE_TO_ONE = "one_to_one"
+    ONE_TO_MANY = "one_to_many"
+    MANY_TO_ONE = "many_to_one"
+    MANY_TO_MANY = "many_to_many"
+
+
+class OrthologMappingEntry(JsonModel):
+    """One mapped source-target ortholog edge for a selected species pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    source_row_id: str | None = None
+    input_protein_ref: str = Field(..., min_length=1)
+    source_protein_ref: str = Field(..., min_length=1)
+    source_species: str = Field(..., min_length=1)
+    target_species: str = Field(..., min_length=1)
+    target_protein_ref: str = Field(..., min_length=1)
+    source_gene_symbol: str | None = None
+    target_gene_symbol: str | None = None
+    evidence: str | None = None
+    mapping_cardinality: OrthologMappingCardinality
+    source_match_count: int = Field(..., ge=1)
+    target_match_count: int = Field(..., ge=1)
+    input_metadata: dict[str, str] = Field(default_factory=dict)
+    ortholog_metadata: dict[str, str] = Field(default_factory=dict)
+
+
+class UnmappedOrthologEntry(JsonModel):
+    """One source protein that did not map for the selected species pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    source_row_id: str | None = None
+    input_protein_ref: str = Field(..., min_length=1)
+    source_protein_ref: str = Field(..., min_length=1)
+    source_species: str = Field(..., min_length=1)
+    target_species: str = Field(..., min_length=1)
+    input_metadata: dict[str, str] = Field(default_factory=dict)
+    reason: str = Field(..., min_length=1)
+
+
+class OrthologMappingSummary(JsonModel):
+    """Stable summary over one ortholog mapping run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    input_entry_count: int = Field(..., ge=0)
+    mapped_entry_count: int = Field(..., ge=0)
+    unmapped_entry_count: int = Field(..., ge=0)
+    distinct_source_protein_ref_count: int = Field(..., ge=0)
+    distinct_target_protein_ref_count: int = Field(..., ge=0)
+    one_to_one_count: int = Field(..., ge=0)
+    one_to_many_count: int = Field(..., ge=0)
+    many_to_one_count: int = Field(..., ge=0)
+    many_to_many_count: int = Field(..., ge=0)
+    ambiguous_mapping_count: int = Field(..., ge=0)
+
+
+class OrthologMappingReport(JsonModel):
+    """Owned report over one source-target ortholog mapping request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_species: str = Field(..., min_length=1)
+    target_species: str = Field(..., min_length=1)
+    mapped_entries: tuple[OrthologMappingEntry, ...] = Field(default_factory=tuple)
+    unmapped_entries: tuple[UnmappedOrthologEntry, ...] = Field(default_factory=tuple)
+    summary: OrthologMappingSummary
     note: str = Field(..., min_length=1)
 
 
@@ -262,6 +342,138 @@ def parse_ortholog_table(
     )
 
 
+def build_ortholog_mapping_report(
+    source_entries: Iterable[ProteinReferenceEntry],
+    ortholog_records: Iterable[OrthologRecord],
+    *,
+    source_species: str,
+    target_species: str,
+) -> OrthologMappingReport:
+    """Map one protein-reference table onto a selected source-target species pair."""
+
+    source_entry_items = tuple(source_entries)
+    normalized_source_species = _normalize_species_identifier(source_species)
+    normalized_target_species = _normalize_species_identifier(target_species)
+    filtered_records = tuple(
+        record
+        for record in ortholog_records
+        if _normalize_species_identifier(record.source_species) == normalized_source_species
+        and _normalize_species_identifier(record.target_species) == normalized_target_species
+    )
+
+    source_to_targets: dict[str, tuple[OrthologRecord, ...]] = {}
+    target_to_sources: dict[str, set[str]] = {}
+    for record in filtered_records:
+        source_to_targets.setdefault(record.source_protein_ref, tuple())
+        source_to_targets[record.source_protein_ref] = source_to_targets[
+            record.source_protein_ref
+        ] + (record,)
+        target_to_sources.setdefault(record.target_protein_ref, set()).add(
+            record.source_protein_ref
+        )
+
+    mapped_entries: list[OrthologMappingEntry] = []
+    unmapped_entries: list[UnmappedOrthologEntry] = []
+    for entry in source_entry_items:
+        relationships = tuple(
+            sorted(
+                source_to_targets.get(entry.protein_ref, ()),
+                key=lambda record: record.target_protein_ref,
+            )
+        )
+        if not relationships:
+            unmapped_entries.append(
+                UnmappedOrthologEntry(
+                    row_number=entry.row_number,
+                    source_row_id=entry.source_row_id,
+                    input_protein_ref=entry.input_protein_ref,
+                    source_protein_ref=entry.protein_ref,
+                    source_species=source_species,
+                    target_species=target_species,
+                    input_metadata=entry.metadata,
+                    reason=(
+                        "no ortholog relationship for selected species pair "
+                        f"{source_species} -> {target_species}"
+                    ),
+                )
+            )
+            continue
+        source_match_count = len(relationships)
+        for relationship in relationships:
+            target_match_count = len(
+                target_to_sources.get(relationship.target_protein_ref, set())
+            )
+            mapped_entries.append(
+                OrthologMappingEntry(
+                    row_number=entry.row_number,
+                    source_row_id=entry.source_row_id,
+                    input_protein_ref=entry.input_protein_ref,
+                    source_protein_ref=entry.protein_ref,
+                    source_species=source_species,
+                    target_species=target_species,
+                    target_protein_ref=relationship.target_protein_ref,
+                    source_gene_symbol=relationship.source_gene_symbol,
+                    target_gene_symbol=relationship.target_gene_symbol,
+                    evidence=relationship.evidence,
+                    mapping_cardinality=_classify_mapping_cardinality(
+                        source_match_count=source_match_count,
+                        target_match_count=target_match_count,
+                    ),
+                    source_match_count=source_match_count,
+                    target_match_count=target_match_count,
+                    input_metadata=entry.metadata,
+                    ortholog_metadata=relationship.metadata,
+                )
+            )
+
+    summary = OrthologMappingSummary(
+        input_entry_count=len(source_entry_items),
+        mapped_entry_count=len(mapped_entries),
+        unmapped_entry_count=len(unmapped_entries),
+        distinct_source_protein_ref_count=len(
+            {entry.source_protein_ref for entry in mapped_entries}
+        ),
+        distinct_target_protein_ref_count=len(
+            {entry.target_protein_ref for entry in mapped_entries}
+        ),
+        one_to_one_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.mapping_cardinality == OrthologMappingCardinality.ONE_TO_ONE
+        ),
+        one_to_many_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.mapping_cardinality == OrthologMappingCardinality.ONE_TO_MANY
+        ),
+        many_to_one_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.mapping_cardinality == OrthologMappingCardinality.MANY_TO_ONE
+        ),
+        many_to_many_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.mapping_cardinality == OrthologMappingCardinality.MANY_TO_MANY
+        ),
+        ambiguous_mapping_count=sum(
+            1
+            for entry in mapped_entries
+            if entry.mapping_cardinality != OrthologMappingCardinality.ONE_TO_ONE
+        ),
+    )
+    return OrthologMappingReport(
+        source_species=source_species,
+        target_species=target_species,
+        mapped_entries=tuple(mapped_entries),
+        unmapped_entries=tuple(unmapped_entries),
+        summary=summary,
+        note=(
+            "ortholog mapping preserves every accepted edge for the selected source-target species pair and labels its ambiguity explicitly"
+        ),
+    )
+
+
 def render_rejected_ortholog_tsv(report: OrthologImportReport) -> str:
     """Render rejected ortholog rows as TSV."""
 
@@ -275,6 +487,20 @@ def render_rejected_ortholog_tsv(report: OrthologImportReport) -> str:
 
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
+
+
+def _classify_mapping_cardinality(
+    *,
+    source_match_count: int,
+    target_match_count: int,
+) -> OrthologMappingCardinality:
+    if source_match_count == 1 and target_match_count == 1:
+        return OrthologMappingCardinality.ONE_TO_ONE
+    if source_match_count > 1 and target_match_count > 1:
+        return OrthologMappingCardinality.MANY_TO_MANY
+    if source_match_count > 1:
+        return OrthologMappingCardinality.ONE_TO_MANY
+    return OrthologMappingCardinality.MANY_TO_ONE
 
 
 def _normalize_row(raw_row: dict[str | None, str | None]) -> dict[str, str]:
@@ -301,6 +527,10 @@ def _metadata_json(values: dict[str, str]) -> str:
     return json.dumps(values, sort_keys=True)
 
 
+def _normalize_species_identifier(value: str) -> str:
+    return value.strip().casefold()
+
+
 def _validate_required_columns(
     fieldnames: Iterable[str], required_columns: tuple[str, ...]
 ) -> None:
@@ -314,8 +544,14 @@ __all__ = [
     "OrthologColumnMapping",
     "OrthologImportReport",
     "OrthologImportSummary",
+    "OrthologMappingCardinality",
+    "OrthologMappingEntry",
+    "OrthologMappingReport",
+    "OrthologMappingSummary",
     "OrthologRecord",
     "RejectedOrthologRow",
+    "UnmappedOrthologEntry",
+    "build_ortholog_mapping_report",
     "parse_ortholog_table",
     "render_rejected_ortholog_tsv",
 ]
