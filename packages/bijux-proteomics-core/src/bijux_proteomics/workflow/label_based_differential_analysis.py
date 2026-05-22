@@ -498,6 +498,111 @@ def render_label_based_differential_results_tsv(
     )
 
 
+def render_label_based_normalization_balance_plot_tsv(
+    plot: LabelBasedNormalizationBalancePlot,
+) -> str:
+    """Render one normalization-balance plot payload as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id",
+            "stage",
+            "total_abundance",
+            "median_abundance",
+            "interquartile_range",
+        )
+    )
+    for point in plot.points:
+        writer.writerow(
+            (
+                point.sample_id,
+                point.stage,
+                f"{point.total_abundance:g}",
+                f"{point.median_abundance:g}",
+                f"{point.interquartile_range:g}",
+            )
+        )
+    return handle.getvalue()
+
+
+def render_label_based_differential_volcano_plot_tsv(
+    plot: LabelBasedDifferentialVolcanoPlot,
+) -> str:
+    """Render one labeled volcano plot payload as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "protein_refs",
+            "log2_fold_change",
+            "adjusted_p_value",
+            "negative_log10_adjusted_p_value",
+            "highlighted",
+        )
+    )
+    for point in plot.points:
+        writer.writerow(
+            (
+                point.entity_id,
+                ";".join(point.protein_refs),
+                f"{point.log2_fold_change:g}",
+                f"{point.adjusted_p_value:g}",
+                f"{point.negative_log10_adjusted_p_value:g}",
+                str(point.highlighted).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def export_label_based_differential_matrix_tsv(
+    report: LabelBasedDifferentialInputReport,
+    path: Path,
+) -> None:
+    """Write one labeled differential matrix to a stable TSV artifact."""
+
+    path.write_text(render_label_based_differential_matrix_tsv(report), encoding="utf-8")
+
+
+def export_label_based_differential_results_tsv(
+    report: LabelBasedDifferentialAnalysisReport,
+    path: Path,
+) -> None:
+    """Write one labeled differential result surface to a stable TSV artifact."""
+
+    path.write_text(
+        render_label_based_differential_results_tsv(report),
+        encoding="utf-8",
+    )
+
+
+def export_label_based_normalization_balance_plot_tsv(
+    plot: LabelBasedNormalizationBalancePlot,
+    path: Path,
+) -> None:
+    """Write one labeled normalization-balance plot payload as TSV."""
+
+    path.write_text(
+        render_label_based_normalization_balance_plot_tsv(plot),
+        encoding="utf-8",
+    )
+
+
+def export_label_based_differential_volcano_plot_tsv(
+    plot: LabelBasedDifferentialVolcanoPlot,
+    path: Path,
+) -> None:
+    """Write one labeled volcano plot payload as TSV."""
+
+    path.write_text(
+        render_label_based_differential_volcano_plot_tsv(plot),
+        encoding="utf-8",
+    )
+
+
 def _build_input_report_from_protein_matrix(
     protein_matrix: ProteinIntensityMatrixReport,
     *,
