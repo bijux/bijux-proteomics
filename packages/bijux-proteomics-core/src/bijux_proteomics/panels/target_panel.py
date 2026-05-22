@@ -13,7 +13,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia import (
     DiaPeptideMatrixReport,
+    DiaProteinMatrixReport,
+    DiaProteinMatrixTargetKind,
     build_diann_peptide_matrix_report,
+    build_diann_protein_matrix_report,
 )
 from bijux_proteomics.io import (
     TargetPanelEntry,
@@ -23,7 +26,12 @@ from bijux_proteomics.io import (
 )
 from bijux_proteomics.quantification import (
     PeptideIntensityMatrixReport,
+    ProteinIntensityMatrixReport,
+    ProteinLfqReport,
+    ProteinMatrixTargetKind,
     build_peptide_intensity_matrix_from_features,
+    build_protein_intensity_matrix_from_features,
+    build_protein_lfq_report_from_features,
     parse_ms1_feature_table,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -57,7 +65,7 @@ class TargetPanelFilteredRow(JsonModel):
     target_id: str = Field(..., min_length=1)
     target_kind: TargetPanelKind
     matched_entity_id: str = Field(..., min_length=1)
-    peptide_sequence: str = Field(..., min_length=1)
+    peptide_sequence: str | None = None
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     values: tuple[TargetPanelMatrixValue, ...] = Field(default_factory=tuple)
 
@@ -162,6 +170,63 @@ def build_lfq_peptide_target_panel_report(
     )
 
 
+def build_diann_protein_target_panel_report(
+    result_tsv_path: Path,
+    panel_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+) -> TargetPanelReport:
+    """Filter a DIA protein-by-sample matrix to one user-defined target panel."""
+
+    matrix_report = build_diann_protein_matrix_report(
+        result_tsv_path,
+        config_path=config_path,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        target_kind=DiaProteinMatrixTargetKind.PROTEIN,
+    )
+    return build_target_panel_report_from_dia_protein_matrix(
+        parse_target_panel_table(panel_path),
+        matrix_report,
+    )
+
+
+def build_lfq_protein_target_panel_report(
+    feature_table_path: Path,
+    panel_path: Path,
+) -> TargetPanelReport:
+    """Filter an LFQ protein-intensity matrix to one user-defined target panel."""
+
+    feature_report = parse_ms1_feature_table(feature_table_path)
+    matrix_report = build_protein_intensity_matrix_from_features(
+        feature_report.accepted_records,
+        target_kind=ProteinMatrixTargetKind.PROTEIN,
+    )
+    return build_target_panel_report_from_protein_intensity_matrix(
+        parse_target_panel_table(panel_path),
+        matrix_report,
+    )
+
+
+def build_lfq_protein_lfq_target_panel_report(
+    feature_table_path: Path,
+    panel_path: Path,
+) -> TargetPanelReport:
+    """Filter an LFQ MaxLFQ-like protein matrix to one user-defined target panel."""
+
+    feature_report = parse_ms1_feature_table(feature_table_path)
+    matrix_report = build_protein_lfq_report_from_features(
+        feature_report.accepted_records,
+        target_kind=ProteinMatrixTargetKind.PROTEIN,
+    )
+    return build_target_panel_report_from_protein_lfq_matrix(
+        parse_target_panel_table(panel_path),
+        matrix_report,
+    )
+
+
 def build_target_panel_report_from_dia_peptide_matrix(
     panel_report: TargetPanelParseReport,
     matrix_report: DiaPeptideMatrixReport,
@@ -222,6 +287,93 @@ def build_target_panel_report_from_peptide_intensity_matrix(
     )
 
 
+def build_target_panel_report_from_dia_protein_matrix(
+    panel_report: TargetPanelParseReport,
+    matrix_report: DiaProteinMatrixReport,
+) -> TargetPanelReport:
+    """Filter one DIA protein matrix to one user-defined target panel."""
+
+    return _build_protein_target_panel_report(
+        panel_report,
+        source_kind=TargetPanelSourceKind.DIA_PROTEIN,
+        source_name=matrix_report.source_name,
+        sample_ids=matrix_report.sample_ids,
+        row_specs=tuple(
+            _ProteinRowSpec(
+                entity_id=row.entity_id,
+                protein_refs=row.protein_refs,
+                values=tuple(
+                    _TargetValueSpec(
+                        sample_id=value.sample_id,
+                        abundance=value.abundance,
+                        detected=value.detected,
+                    )
+                    for value in row.values
+                ),
+            )
+            for row in matrix_report.rows
+        ),
+    )
+
+
+def build_target_panel_report_from_protein_intensity_matrix(
+    panel_report: TargetPanelParseReport,
+    matrix_report: ProteinIntensityMatrixReport,
+) -> TargetPanelReport:
+    """Filter one LFQ protein-intensity matrix to one user-defined target panel."""
+
+    return _build_protein_target_panel_report(
+        panel_report,
+        source_kind=TargetPanelSourceKind.LFQ_PROTEIN,
+        source_name=matrix_report.source_kind.value,
+        sample_ids=matrix_report.sample_ids,
+        row_specs=tuple(
+            _ProteinRowSpec(
+                entity_id=row.entity_id,
+                protein_refs=row.protein_refs,
+                values=tuple(
+                    _TargetValueSpec(
+                        sample_id=value.sample_id,
+                        abundance=value.abundance,
+                        detected=value.abundance is not None,
+                    )
+                    for value in row.values
+                ),
+            )
+            for row in matrix_report.rows
+        ),
+    )
+
+
+def build_target_panel_report_from_protein_lfq_matrix(
+    panel_report: TargetPanelParseReport,
+    matrix_report: ProteinLfqReport,
+) -> TargetPanelReport:
+    """Filter one LFQ MaxLFQ-like protein matrix to one user-defined target panel."""
+
+    return _build_protein_target_panel_report(
+        panel_report,
+        source_kind=TargetPanelSourceKind.LFQ_PROTEIN_LFQ,
+        source_name=matrix_report.source_kind.value,
+        sample_ids=matrix_report.sample_ids,
+        row_specs=tuple(
+            _ProteinRowSpec(
+                entity_id=row.entity_id,
+                protein_refs=row.protein_refs,
+                values=tuple(
+                    _TargetValueSpec(
+                        sample_id=value.sample_id,
+                        abundance=value.abundance,
+                        detected=value.abundance is not None,
+                    )
+                    for value in row.values
+                ),
+            )
+            for row in matrix_report.rows
+        ),
+    )
+
+
 @dataclass(frozen=True)
 class _TargetValueSpec:
     sample_id: str
@@ -233,6 +385,13 @@ class _TargetValueSpec:
 class _PeptideRowSpec:
     entity_id: str
     peptide_sequence: str
+    protein_refs: tuple[str, ...]
+    values: tuple[_TargetValueSpec, ...]
+
+
+@dataclass(frozen=True)
+class _ProteinRowSpec:
+    entity_id: str
     protein_refs: tuple[str, ...]
     values: tuple[_TargetValueSpec, ...]
 
@@ -326,6 +485,103 @@ def _build_peptide_target_panel_report(
     )
 
 
+def _build_protein_target_panel_report(
+    panel_report: TargetPanelParseReport,
+    *,
+    source_kind: TargetPanelSourceKind,
+    source_name: str,
+    sample_ids: tuple[str, ...],
+    row_specs: tuple[_ProteinRowSpec, ...],
+) -> TargetPanelReport:
+    filtered_rows: list[TargetPanelFilteredRow] = []
+    intensity_entries: list[TargetPanelIntensityEntry] = []
+    matched_targets: list[TargetPanelMatchedTarget] = []
+    missing_targets: list[TargetPanelMissingTarget] = []
+
+    for target in panel_report.accepted_entries:
+        if target.target_kind is TargetPanelKind.PEPTIDE:
+            missing_targets.append(
+                TargetPanelMissingTarget(
+                    target_id=target.target_id,
+                    target_kind=target.target_kind,
+                    reason="peptide targets require a peptide-level matrix",
+                )
+            )
+            continue
+        matching_rows = tuple(_matching_protein_rows(target, row_specs))
+        if not matching_rows:
+            missing_targets.append(
+                TargetPanelMissingTarget(
+                    target_id=target.target_id,
+                    target_kind=target.target_kind,
+                    reason="target is absent from the selected protein-level matrix",
+                )
+            )
+            continue
+        detected_samples = {
+            value.sample_id
+            for row in matching_rows
+            for value in row.values
+            if value.detected
+        }
+        matched_targets.append(
+            TargetPanelMatchedTarget(
+                target_id=target.target_id,
+                target_kind=target.target_kind,
+                matched_entity_ids=tuple(row.entity_id for row in matching_rows),
+                detected_sample_count=len(detected_samples),
+            )
+        )
+        for row in matching_rows:
+            filtered_rows.append(
+                TargetPanelFilteredRow(
+                    target_id=target.target_id,
+                    target_kind=target.target_kind,
+                    matched_entity_id=row.entity_id,
+                    protein_refs=row.protein_refs,
+                    values=tuple(
+                        TargetPanelMatrixValue(
+                            sample_id=value.sample_id,
+                            abundance=value.abundance,
+                            detected=value.detected,
+                        )
+                        for value in row.values
+                    ),
+                )
+            )
+            for value in row.values:
+                intensity_entries.append(
+                    TargetPanelIntensityEntry(
+                        target_id=target.target_id,
+                        target_kind=target.target_kind,
+                        matched_entity_id=row.entity_id,
+                        sample_id=value.sample_id,
+                        abundance=value.abundance,
+                        detected=value.detected,
+                    )
+                )
+
+    return TargetPanelReport(
+        source_kind=source_kind,
+        source_name=source_name,
+        sample_ids=sample_ids,
+        matched_targets=tuple(matched_targets),
+        missing_targets=tuple(missing_targets),
+        filtered_rows=tuple(filtered_rows),
+        intensity_entries=tuple(intensity_entries),
+        summary=TargetPanelSummary(
+            total_target_count=len(panel_report.accepted_entries),
+            matched_target_count=len(matched_targets),
+            missing_target_count=len(missing_targets),
+            matched_entity_count=len(filtered_rows),
+            sample_count=len(sample_ids),
+        ),
+        note=(
+            "target-panel review keeps protein-level rows, missing targets, and sample intensities explicit for user-defined biomarker-focused analysis"
+        ),
+    )
+
+
 def _matching_peptide_rows(
     target: TargetPanelEntry,
     row_specs: tuple[_PeptideRowSpec, ...],
@@ -338,4 +594,15 @@ def _matching_peptide_rows(
         )
     return tuple(
         row for row in row_specs if target.protein_ref in row.protein_refs
+    )
+
+
+def _matching_protein_rows(
+    target: TargetPanelEntry,
+    row_specs: tuple[_ProteinRowSpec, ...],
+) -> tuple[_ProteinRowSpec, ...]:
+    return tuple(
+        row
+        for row in row_specs
+        if row.entity_id == target.protein_ref or target.protein_ref in row.protein_refs
     )
