@@ -55,6 +55,7 @@ from bijux_proteomics.identification import (
     build_diann_import_report,
     build_evidence_level_fdr_review_report,
     build_fdr_audit_trail,
+    build_fragpipe_import_benchmark_report,
     build_fragpipe_import_report,
     build_generic_psm_mapper_report,
     build_maxquant_import_report,
@@ -92,9 +93,13 @@ from bijux_proteomics.identification import (
     render_diann_summary_tsv,
     render_evidence_level_fdr_entries_tsv,
     render_evidence_level_fdr_summary_tsv,
+    render_fragpipe_benchmark_summary_tsv,
+    render_fragpipe_count_comparisons_tsv,
     render_fragpipe_peptide_tsv,
+    render_fragpipe_protein_group_comparison_tsv,
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
+    render_fragpipe_q_value_comparison_tsv,
     render_fragpipe_summary_tsv,
     render_generic_psm_mapper_tsv,
     render_maxquant_evidence_tsv,
@@ -1651,6 +1656,113 @@ def fragpipe_import_command(
             "protein_review_tsv": None
             if protein_review_tsv_out is None
             else str(protein_review_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("fragpipe-benchmark")
+@click.argument("psm_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--peptide-tsv",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--protein-tsv",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--count-comparisons-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-groups-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--psm-qvalues-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--peptide-qvalues-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def fragpipe_benchmark_command(
+    psm_tsv: Path,
+    peptide_tsv: Path,
+    protein_tsv: Path,
+    summary_tsv_out: Path | None,
+    count_comparisons_tsv_out: Path | None,
+    protein_groups_tsv_out: Path | None,
+    psm_qvalues_tsv_out: Path | None,
+    peptide_qvalues_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Benchmark governed FragPipe import behavior against the source FragPipe bundle."""
+    try:
+        report = build_fragpipe_import_benchmark_report(
+            psm_tsv,
+            peptide_tsv_path=peptide_tsv,
+            protein_tsv_path=protein_tsv,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_fragpipe_benchmark_summary_tsv(report),
+        )
+    if count_comparisons_tsv_out is not None:
+        _write_text_output(
+            count_comparisons_tsv_out,
+            render_fragpipe_count_comparisons_tsv(report),
+        )
+    if protein_groups_tsv_out is not None:
+        _write_text_output(
+            protein_groups_tsv_out,
+            render_fragpipe_protein_group_comparison_tsv(report),
+        )
+    if psm_qvalues_tsv_out is not None:
+        _write_text_output(
+            psm_qvalues_tsv_out,
+            render_fragpipe_q_value_comparison_tsv(report.q_value_behavior.psm_entries),
+        )
+    if peptide_qvalues_tsv_out is not None:
+        _write_text_output(
+            peptide_qvalues_tsv_out,
+            render_fragpipe_q_value_comparison_tsv(
+                report.q_value_behavior.peptide_entries
+            ),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "protein_group_comparison": report.protein_group_comparison.to_dict(),
+        "q_value_behavior": report.q_value_behavior.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "count_comparisons_tsv": None
+            if count_comparisons_tsv_out is None
+            else str(count_comparisons_tsv_out),
+            "protein_groups_tsv": None
+            if protein_groups_tsv_out is None
+            else str(protein_groups_tsv_out),
+            "psm_qvalues_tsv": None
+            if psm_qvalues_tsv_out is None
+            else str(psm_qvalues_tsv_out),
+            "peptide_qvalues_tsv": None
+            if peptide_qvalues_tsv_out is None
+            else str(peptide_qvalues_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
