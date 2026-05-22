@@ -5,7 +5,82 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from bijux_proteomics.ptm.contracts import PtmSiteEntry, PtmSiteGroupEvidenceEntry
+from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
+from bijux_proteomics_foundation import JsonModel
+from pydantic import ConfigDict, Field
+
+
+class PtmAmbiguityConfidenceTier(StrEnum):
+    """Localization-confidence tier for ambiguity-aware PTM reporting."""
+
+    DECISIVE = "decisive"
+    SUPPORTED = "supported"
+    AMBIGUOUS = "ambiguous"
+
+
+class PtmLocalizedSiteReviewEntry(JsonModel):
+    """One localized PTM site kept as a site-level claim."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    localized_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    localization_score: float = Field(..., ge=0.0)
+    localization_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_tier: PtmAmbiguityConfidenceTier
+    note: str = Field(..., min_length=1)
+
+
+class PtmUnlocalizedSiteGroupReviewEntry(JsonModel):
+    """One unresolved PTM site group that should not be overclaimed as one exact site."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    group_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    modification_name: str = Field(..., min_length=1)
+    candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
+    possible_residues: tuple[str, ...] = Field(default_factory=tuple)
+    site_keys: tuple[str, ...] = Field(default_factory=tuple)
+    localized_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    localization_score: float = Field(..., ge=0.0)
+    localization_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    confidence_tier: PtmAmbiguityConfidenceTier
+    note: str = Field(..., min_length=1)
+
+
+class PtmAmbiguityReviewSummary(JsonModel):
+    """Compact summary over ambiguity-aware PTM reporting."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    localized_site_count: int = Field(..., ge=0)
+    unlocalized_group_count: int = Field(..., ge=0)
+    possible_residue_count: int = Field(..., ge=0)
+    decisive_localized_site_count: int = Field(..., ge=0)
+    ambiguous_group_count: int = Field(..., ge=0)
+
+
+class PtmAmbiguityReviewReport(JsonModel):
+    """Owned PTM ambiguity review over localized sites and unresolved site groups."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    localized_sites: tuple[PtmLocalizedSiteReviewEntry, ...] = Field(default_factory=tuple)
+    unlocalized_groups: tuple[PtmUnlocalizedSiteGroupReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: PtmAmbiguityReviewSummary
+    note: str = Field(..., min_length=1)
 
 
 def build_ptm_site_group_evidence(
@@ -59,3 +134,199 @@ def build_ptm_site_group_evidence(
             )
         )
     return tuple(group_entries)
+
+
+def build_ptm_ambiguity_review_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    localization_scoring_report: PtmLocalizationScoringReport | None = None,
+    protein_sequences: dict[str, str] | None = None,
+) -> PtmAmbiguityReviewReport:
+    """Separate localized PTM sites from unresolved site groups with confidence context."""
+
+    probability_lookup = _build_probability_lookup(localization_scoring_report)
+    site_by_key = {entry.site_key: entry for entry in site_entries}
+
+    localized_sites = tuple(
+        PtmLocalizedSiteReviewEntry(
+            site_key=entry.site_key,
+            protein_ref=entry.protein_ref,
+            residue=entry.residue,
+            position=entry.position,
+            modification_name=entry.modification_name,
+            localized_peptides=entry.localized_peptides,
+            sample_ids=entry.sample_ids,
+            localization_score=entry.localization_score,
+            localization_probability=_site_probability(entry, probability_lookup),
+            confidence_tier=_confidence_tier(
+                ambiguous=False,
+                localization_score=entry.localization_score,
+                localization_probability=_site_probability(entry, probability_lookup),
+            ),
+            note="site localization resolves to one protein position",
+        )
+        for entry in site_entries
+        if not entry.ambiguous
+    )
+
+    unlocalized_groups: list[PtmUnlocalizedSiteGroupReviewEntry] = []
+    for group in build_ptm_site_group_evidence(site_entries):
+        if not group.unresolved:
+            continue
+        bucket = [site_by_key[site_key] for site_key in group.site_keys]
+        localization_score = max(entry.localization_score for entry in bucket)
+        localization_probability = _group_probability(bucket, probability_lookup)
+        possible_residues = _possible_residues(
+            group,
+            bucket=bucket,
+            protein_sequences=protein_sequences,
+        )
+        localized_peptides = tuple(
+            sorted(
+                {
+                    peptide
+                    for entry in bucket
+                    for peptide in entry.localized_peptides
+                }
+            )
+        )
+        unlocalized_groups.append(
+            PtmUnlocalizedSiteGroupReviewEntry(
+                group_key=group.group_key,
+                protein_ref=group.protein_ref,
+                modification_name=group.modification_name,
+                candidate_positions=group.candidate_positions,
+                possible_residues=possible_residues,
+                site_keys=group.site_keys,
+                localized_peptides=localized_peptides,
+                sample_ids=group.sample_ids,
+                localization_score=localization_score,
+                localization_probability=localization_probability,
+                confidence_tier=_confidence_tier(
+                    ambiguous=True,
+                    localization_score=localization_score,
+                    localization_probability=localization_probability,
+                ),
+                note=(
+                    "site evidence remains unresolved and should travel as one ambiguity group rather than one exact site"
+                ),
+            )
+        )
+
+    localized_site_entries = tuple(
+        sorted(localized_sites, key=lambda entry: entry.site_key)
+    )
+    unlocalized_group_entries = tuple(
+        sorted(unlocalized_groups, key=lambda entry: entry.group_key)
+    )
+    return PtmAmbiguityReviewReport(
+        localized_sites=localized_site_entries,
+        unlocalized_groups=unlocalized_group_entries,
+        summary=PtmAmbiguityReviewSummary(
+            localized_site_count=len(localized_site_entries),
+            unlocalized_group_count=len(unlocalized_group_entries),
+            possible_residue_count=sum(
+                len(entry.possible_residues) for entry in unlocalized_group_entries
+            ),
+            decisive_localized_site_count=sum(
+                1
+                for entry in localized_site_entries
+                if entry.confidence_tier is PtmAmbiguityConfidenceTier.DECISIVE
+            ),
+            ambiguous_group_count=sum(
+                1
+                for entry in unlocalized_group_entries
+                if entry.confidence_tier is PtmAmbiguityConfidenceTier.AMBIGUOUS
+            ),
+        ),
+        note=(
+            "ptm ambiguity review separates localized site claims from unresolved site groups, preserves possible residues, and carries forward localization confidence"
+        ),
+    )
+
+
+def _build_probability_lookup(
+    report: PtmLocalizationScoringReport | None,
+) -> dict[tuple[str, str], float]:
+    if report is None:
+        return {}
+    grouped: dict[tuple[str, str], list[float]] = {}
+    for entry in report.entries:
+        grouped.setdefault(
+            (entry.localized_peptide, entry.modification_name),
+            [],
+        ).append(entry.localization_probability)
+    return {
+        key: round(sum(values) / len(values), 4)
+        for key, values in grouped.items()
+    }
+
+
+def _site_probability(
+    entry: PtmSiteEntry,
+    probability_lookup: dict[tuple[str, str], float],
+) -> float | None:
+    probabilities = [
+        probability_lookup[(peptide, entry.modification_name)]
+        for peptide in entry.localized_peptides
+        if (peptide, entry.modification_name) in probability_lookup
+    ]
+    if not probabilities:
+        return None
+    return round(sum(probabilities) / len(probabilities), 4)
+
+
+def _group_probability(
+    entries: list[PtmSiteEntry],
+    probability_lookup: dict[tuple[str, str], float],
+) -> float | None:
+    probabilities = [
+        probability
+        for entry in entries
+        for peptide in entry.localized_peptides
+        if (probability := probability_lookup.get((peptide, entry.modification_name)))
+        is not None
+    ]
+    if not probabilities:
+        return None
+    return round(sum(probabilities) / len(probabilities), 4)
+
+
+def _confidence_tier(
+    *,
+    ambiguous: bool,
+    localization_score: float,
+    localization_probability: float | None,
+) -> PtmAmbiguityConfidenceTier:
+    if not ambiguous and (
+        localization_probability is not None and localization_probability >= 0.95
+        or localization_score >= 0.95
+    ):
+        return PtmAmbiguityConfidenceTier.DECISIVE
+    if ambiguous:
+        return (
+            PtmAmbiguityConfidenceTier.SUPPORTED
+            if localization_probability is not None and localization_probability >= 0.75
+            else PtmAmbiguityConfidenceTier.AMBIGUOUS
+        )
+    return PtmAmbiguityConfidenceTier.SUPPORTED
+
+
+def _possible_residues(
+    group: PtmSiteGroupEvidenceEntry,
+    *,
+    bucket: list[PtmSiteEntry],
+    protein_sequences: dict[str, str] | None,
+) -> tuple[str, ...]:
+    if protein_sequences is None:
+        return tuple(sorted({entry.residue for entry in bucket}))
+    sequence = protein_sequences.get(group.protein_ref)
+    if sequence is None:
+        return tuple(sorted({entry.residue for entry in bucket}))
+    residues: list[str] = []
+    for position in group.candidate_positions:
+        if 1 <= position <= len(sequence):
+            residues.append(sequence[position - 1])
+    if not residues:
+        return tuple(sorted({entry.residue for entry in bucket}))
+    return tuple(sorted(set(residues)))
