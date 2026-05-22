@@ -2273,6 +2273,8 @@ def test_spectrum_qc_command_reports_mgf_run_qc_and_exports() -> None:
                 "precursor.tsv",
                 "--flagged-tsv-out",
                 "flagged.tsv",
+                "--spectrum-qc-tsv-out",
+                "spectrum_qc.tsv",
                 "--plot-out",
                 "plot.json",
             ],
@@ -2291,7 +2293,9 @@ def test_spectrum_qc_command_reports_mgf_run_qc_and_exports() -> None:
         assert Path("charge.tsv").exists()
         assert Path("precursor.tsv").exists()
         assert Path("flagged.tsv").exists()
+        assert Path("spectrum_qc.tsv").exists()
         assert Path("plot.json").exists()
+        assert "quality_tier" in Path("spectrum_qc.tsv").read_text()
 
 
 def test_spectrum_qc_command_prefers_reported_mzml_chromatograms() -> None:
