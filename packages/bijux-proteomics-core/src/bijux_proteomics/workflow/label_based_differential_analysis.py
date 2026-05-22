@@ -16,6 +16,13 @@ import numpy as np
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.isotope_labeling import (
+    SilacColumnMapping,
+    SilacQuantificationPolicy,
+    SilacRatioReport,
+    build_silac_ratio_report,
+    parse_silac_feature_table,
+)
 from bijux_proteomics.multiplex import (
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
@@ -230,6 +237,25 @@ def build_tmt_differential_input_report(
     )
 
 
+def build_silac_differential_input_report(
+    feature_tsv_path: Path,
+    *,
+    mapping: SilacColumnMapping | None = None,
+    quantification_policy: SilacQuantificationPolicy | None = None,
+) -> LabelBasedDifferentialInputReport:
+    """Build a protein-level labeled differential input packet from SILAC ratios."""
+
+    import_report = parse_silac_feature_table(
+        feature_tsv_path,
+        mapping=mapping,
+    )
+    ratio_report = build_silac_ratio_report(
+        import_report,
+        policy=quantification_policy,
+    )
+    return _build_input_report_from_silac_ratio_report(ratio_report)
+
+
 def build_label_based_differential_analysis_report(
     input_report: LabelBasedDifferentialInputReport,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -336,6 +362,40 @@ def build_tmt_differential_analysis_report(
         design_entries,
         source_kind=source_kind,
         mapping=mapping,
+    )
+    return build_label_based_differential_analysis_report(
+        input_report,
+        design_entries,
+        normalization_method=normalization_method,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field,
+        covariate_fields=covariate_fields,
+        pairing_field=pairing_field,
+        replicate_policy=replicate_policy,
+    )
+
+
+def build_silac_differential_analysis_report(
+    feature_tsv_path: Path,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    mapping: SilacColumnMapping | None = None,
+    quantification_policy: SilacQuantificationPolicy | None = None,
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    batch_field: str = "batch",
+    covariate_fields: tuple[str, ...] = (),
+    pairing_field: str | None = None,
+    replicate_policy: DifferentialReplicatePolicy | None = None,
+) -> LabelBasedDifferentialAnalysisReport:
+    """Build SILAC normalization, design, and differential results in one path."""
+
+    input_report = build_silac_differential_input_report(
+        feature_tsv_path,
+        mapping=mapping,
+        quantification_policy=quantification_policy,
     )
     return build_label_based_differential_analysis_report(
         input_report,
@@ -483,6 +543,85 @@ def _build_input_report_from_protein_matrix(
         sample_ids=protein_matrix.sample_ids,
         rows=rows,
         note=note,
+    )
+
+
+def _build_input_report_from_silac_ratio_report(
+    ratio_report: SilacRatioReport,
+) -> LabelBasedDifferentialInputReport:
+    grouped: dict[str, list] = {}
+    sample_ids: set[str] = set()
+    for entry in ratio_report.protein_ratios:
+        entity_id = (
+            entry.protein_id
+            if len(ratio_report.policy.expected_labels) == 2
+            else f"{entry.protein_id}:{entry.numerator_label.value}_vs_{entry.reference_label.value}"
+        )
+        grouped.setdefault(entity_id, []).append(entry)
+        sample_ids.add(entry.sample_id)
+    rows: list[LabelBasedDifferentialMatrixRow] = []
+    for entity_id in sorted(grouped):
+        entries = grouped[entity_id]
+        first_entry = entries[0]
+        rows.append(
+            LabelBasedDifferentialMatrixRow(
+                entity_id=entity_id,
+                protein_refs=first_entry.protein_refs,
+                member_peptides=first_entry.contributing_peptide_ids,
+                values=tuple(
+                    sorted(
+                        [
+                            LabelBasedDifferentialMatrixValue(
+                                sample_id=entry.sample_id,
+                                abundance=entry.ratio,
+                                source_feature_count=len(
+                                    entry.contributing_peptide_ids
+                                ),
+                            )
+                            for entry in entries
+                        ],
+                        key=lambda value: value.sample_id,
+                    )
+                ),
+            )
+        )
+    observed_cell_count = sum(
+        1 for row in rows for value in row.values if value.abundance is not None
+    )
+    missing_cell_count = sum(
+        1 for row in rows for value in row.values if value.abundance is None
+    )
+    ordered_sample_ids = tuple(sorted(sample_ids))
+    rows = [
+        row.model_copy(
+            update={
+                "values": tuple(
+                    _fill_missing_matrix_values(
+                        row.values,
+                        sample_ids=ordered_sample_ids,
+                    )
+                )
+            }
+        )
+        for row in rows
+    ]
+    return LabelBasedDifferentialInputReport(
+        source_kind=LabelBasedDifferentialSourceKind.SILAC,
+        source_name="silac",
+        measurement_kind=LabelBasedMeasurementKind.RATIO,
+        summary=LabelBasedDifferentialMatrixSummary(
+            source_kind=LabelBasedDifferentialSourceKind.SILAC,
+            measurement_kind=LabelBasedMeasurementKind.RATIO,
+            entity_count=len(rows),
+            sample_count=len(ordered_sample_ids),
+            observed_cell_count=observed_cell_count,
+            missing_cell_count=missing_cell_count,
+        ),
+        sample_ids=ordered_sample_ids,
+        rows=tuple(rows),
+        note=(
+            "labeled differential input preserves protein-level SILAC sample ratios against the governed reference label"
+        ),
     )
 
 
@@ -922,3 +1061,22 @@ def _transformed_value(
 def _negative_log10(value: float) -> float:
     clipped = max(value, 1e-300)
     return float(-math.log10(clipped))
+
+
+def _fill_missing_matrix_values(
+    values: tuple[LabelBasedDifferentialMatrixValue, ...],
+    *,
+    sample_ids: tuple[str, ...],
+) -> tuple[LabelBasedDifferentialMatrixValue, ...]:
+    value_lookup = {value.sample_id: value for value in values}
+    return tuple(
+        value_lookup.get(
+            sample_id,
+            LabelBasedDifferentialMatrixValue(
+                sample_id=sample_id,
+                abundance=None,
+                source_feature_count=0,
+            ),
+        )
+        for sample_id in sample_ids
+    )
