@@ -3268,6 +3268,8 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
                 "comet.params",
                 "--summary-tsv-out",
                 "comet.summary.tsv",
+                "--canonical-psm-tsv-out",
+                "comet.canonical_psm.tsv",
                 "--psm-tsv-out",
                 "comet.psm.tsv",
             ],
@@ -3278,14 +3280,21 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
         tabular_payload = json.loads(tabular_result.output)
         assert tabular_payload["import_kind"] == "tabular"
         assert tabular_payload["summary"]["accepted_psm_count"] == 3
+        assert tabular_payload["summary"]["canonical_psm_count"] == 3
         assert tabular_payload["summary"]["modified_psm_count"] == 2
         assert tabular_payload["summary"]["xcorr_psm_count"] == 3
         assert tabular_payload["parameter_report"]["enzyme"] == "trypsin"
+        assert (
+            tabular_payload["canonical_psms"][1]["record"]["protein_refs"]
+            == ["sp|P23456|TRANSFER_HUMAN", "sp|P34567|TRANSFER_MOUSE"]
+        )
         assert Path("comet.summary.tsv").exists()
+        assert Path("comet.canonical_psm.tsv").exists()
         assert Path("comet.psm.tsv").exists()
 
         assert pepxml_result.exit_code == 0
         pepxml_payload = json.loads(pepxml_result.output)
+        assert pepxml_payload["canonical_psms"][0]["record"]["run_id"] == "run01.mzML"
         assert pepxml_payload["import_kind"] == "pepxml"
         assert pepxml_payload["summary"]["accepted_psm_count"] == 3
         assert pepxml_payload["psm_rows"][0]["xcorr"] == 3.52
