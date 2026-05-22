@@ -10,7 +10,7 @@ import math
 from enum import StrEnum
 from pathlib import Path
 
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, model_validator
 
 from bijux_proteomics_foundation import JsonModel
 
@@ -95,6 +95,16 @@ class SilacQuantificationPolicy(JsonModel):
     )
     reference_label: SilacLabel = SilacLabel.LIGHT
     separate_charge_states: bool = True
+
+    @model_validator(mode="after")
+    def _validate_expected_labels(self) -> SilacQuantificationPolicy:
+        normalized = tuple(dict.fromkeys(self.expected_labels))
+        if len(normalized) < 2:
+            raise ValueError("silac quantification requires at least two expected labels")
+        if self.reference_label not in normalized:
+            raise ValueError("reference label must be included in expected labels")
+        self.expected_labels = normalized
+        return self
 
 
 class SilacPeptideRatioEntry(JsonModel):
