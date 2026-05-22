@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 import math
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -115,10 +118,13 @@ class PtmDifferentialVolcanoPoint(JsonModel):
     residue: str = Field(..., min_length=1, max_length=1)
     position: int = Field(..., ge=1)
     modification_name: str = Field(..., min_length=1)
-    log2_fold_change: float
+    raw_log2_fold_change: float
+    corrected_log2_fold_change: float | None = None
+    plotted_log2_fold_change: float
     adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
     negative_log10_adjusted_p_value: float = Field(..., ge=0.0)
     highlighted: bool = False
+    protein_correction_status: str = Field(..., min_length=1)
 
 
 class PtmDifferentialVolcanoPlot(JsonModel):
@@ -128,6 +134,7 @@ class PtmDifferentialVolcanoPlot(JsonModel):
 
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    protein_correction_mode: PtmProteinCorrectionMode
     significant_point_count: int = Field(..., ge=0)
     points: tuple[PtmDifferentialVolcanoPoint, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
@@ -239,9 +246,14 @@ def build_ptm_differential_volcano_plot(
     points: list[PtmDifferentialVolcanoPoint] = []
     for entry in report.entries:
         adjusted_p_value = entry.adjusted_p_value or entry.p_value
+        plotted_log2_fold_change = (
+            entry.corrected_log2_fold_change
+            if entry.corrected_log2_fold_change is not None
+            else entry.log2_fold_change
+        )
         highlighted = (
             adjusted_p_value <= adjusted_p_value_threshold
-            and abs(entry.log2_fold_change) >= absolute_log2_fold_change_threshold
+            and abs(plotted_log2_fold_change) >= absolute_log2_fold_change_threshold
         )
         points.append(
             PtmDifferentialVolcanoPoint(
@@ -250,22 +262,34 @@ def build_ptm_differential_volcano_plot(
                 residue=entry.residue,
                 position=entry.position,
                 modification_name=entry.modification_name,
-                log2_fold_change=entry.log2_fold_change,
+                raw_log2_fold_change=entry.log2_fold_change,
+                corrected_log2_fold_change=entry.corrected_log2_fold_change,
+                plotted_log2_fold_change=plotted_log2_fold_change,
                 adjusted_p_value=adjusted_p_value,
                 negative_log10_adjusted_p_value=_negative_log10(adjusted_p_value),
                 highlighted=highlighted,
+                protein_correction_status=entry.protein_correction_status,
             )
         )
     return PtmDifferentialVolcanoPlot(
         condition_a=report.condition_a,
         condition_b=report.condition_b,
+        protein_correction_mode=(
+            PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN
+            if any(
+                entry.protein_correction_status
+                == PtmProteinCorrectionStatus.CORRECTED.value
+                for entry in report.entries
+            )
+            else PtmProteinCorrectionMode.NONE
+        ),
         significant_point_count=sum(1 for point in points if point.highlighted),
         points=tuple(
             sorted(
                 points,
                 key=lambda point: (
                     -point.negative_log10_adjusted_p_value,
-                    -abs(point.log2_fold_change),
+                    -abs(point.plotted_log2_fold_change),
                     point.site_key,
                 ),
             )
@@ -406,6 +430,142 @@ def _resolve_selected_contrast(
 def _negative_log10(value: float) -> float:
     bounded = max(value, 1e-300)
     return -math.log10(bounded)
+
+
+def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
+    """Render one PTM site differential report as a stable TSV ledger."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "site_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "ambiguous",
+            "shared_peptide",
+            "localized_peptides",
+            "condition_a",
+            "condition_b",
+            "observations_a",
+            "observations_b",
+            "mean_log2_abundance_a",
+            "mean_log2_abundance_b",
+            "log2_fold_change",
+            "protein_log2_fold_change",
+            "corrected_log2_fold_change",
+            "p_value",
+            "adjusted_p_value",
+            "standard_error",
+            "confidence_interval_low",
+            "confidence_interval_high",
+            "effect_size_cohens_d",
+            "protein_correction_status",
+            "uncertainty_note",
+        )
+    )
+    for entry in report.entries:
+        writer.writerow(
+            (
+                entry.site_key,
+                entry.protein_ref,
+                entry.residue,
+                entry.position,
+                entry.modification_name,
+                str(entry.ambiguous).lower(),
+                str(entry.shared_peptide).lower(),
+                ";".join(entry.localized_peptides),
+                entry.condition_a,
+                entry.condition_b,
+                entry.observations_a,
+                entry.observations_b,
+                f"{entry.mean_log2_abundance_a:g}",
+                f"{entry.mean_log2_abundance_b:g}",
+                f"{entry.log2_fold_change:g}",
+                "" if entry.protein_log2_fold_change is None else f"{entry.protein_log2_fold_change:g}",
+                ""
+                if entry.corrected_log2_fold_change is None
+                else f"{entry.corrected_log2_fold_change:g}",
+                f"{entry.p_value:g}",
+                "" if entry.adjusted_p_value is None else f"{entry.adjusted_p_value:g}",
+                "" if entry.standard_error is None else f"{entry.standard_error:g}",
+                ""
+                if entry.confidence_interval_low is None
+                else f"{entry.confidence_interval_low:g}",
+                ""
+                if entry.confidence_interval_high is None
+                else f"{entry.confidence_interval_high:g}",
+                ""
+                if entry.effect_size_cohens_d is None
+                else f"{entry.effect_size_cohens_d:g}",
+                entry.protein_correction_status,
+                entry.uncertainty_note or "",
+            )
+        )
+    return handle.getvalue()
+
+
+def export_ptm_site_differential_tsv(
+    report: PtmSiteDifferentialReport,
+    path: Path,
+) -> None:
+    """Write one PTM site differential report to a stable TSV artifact."""
+
+    path.write_text(render_ptm_site_differential_tsv(report), encoding="utf-8")
+
+
+def render_ptm_differential_volcano_tsv(plot: PtmDifferentialVolcanoPlot) -> str:
+    """Render one PTM volcano payload as a stable TSV ledger."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "site_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "raw_log2_fold_change",
+            "corrected_log2_fold_change",
+            "plotted_log2_fold_change",
+            "adjusted_p_value",
+            "negative_log10_adjusted_p_value",
+            "highlighted",
+            "protein_correction_status",
+        )
+    )
+    for point in plot.points:
+        writer.writerow(
+            (
+                point.site_key,
+                point.protein_ref,
+                point.residue,
+                point.position,
+                point.modification_name,
+                f"{point.raw_log2_fold_change:g}",
+                ""
+                if point.corrected_log2_fold_change is None
+                else f"{point.corrected_log2_fold_change:g}",
+                f"{point.plotted_log2_fold_change:g}",
+                f"{point.adjusted_p_value:g}",
+                f"{point.negative_log10_adjusted_p_value:g}",
+                str(point.highlighted).lower(),
+                point.protein_correction_status,
+            )
+        )
+    return handle.getvalue()
+
+
+def export_ptm_differential_volcano_tsv(
+    plot: PtmDifferentialVolcanoPlot,
+    path: Path,
+) -> None:
+    """Write one PTM differential volcano payload to a stable TSV artifact."""
+
+    path.write_text(render_ptm_differential_volcano_tsv(plot), encoding="utf-8")
 
 
 def _build_protein_differential_lookup(
