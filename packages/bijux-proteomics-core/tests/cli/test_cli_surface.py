@@ -1145,6 +1145,38 @@ def test_peptide_mass_command_rejects_invalid_modification_assignment() -> None:
         assert "not valid on residue" in result.output
 
 
+def test_isotope_envelope_command_reports_formula_charge_and_tsv() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-envelope",
+                "PEPTIDE",
+                "--charge",
+                "2",
+                "--charge",
+                "3",
+                "--tsv-out",
+                "isotopes.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["canonical_notation"] == "PEPTIDE"
+        assert payload["elemental_composition"]["formula"] == "C34H53N7O15"
+        assert payload["charges"] == [2, 3]
+        assert payload["max_isotope_index"] == 5
+        assert len(payload["envelopes"]) == 2
+        assert len(payload["envelopes"][0]["peaks"]) == 6
+        assert Path("isotopes.tsv").exists()
+        assert (
+            "canonical_notation\tcharge\tformula\tisotope_index\tmz\tprobability"
+            in Path("isotopes.tsv").read_text()
+        )
+
+
 def test_fragment_ions_command_reports_a_b_y_ions_with_charge_spans_and_tsv() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
