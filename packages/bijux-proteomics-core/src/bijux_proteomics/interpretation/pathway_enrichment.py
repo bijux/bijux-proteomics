@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+from io import StringIO
+import json
 import math
 from pathlib import Path
 
@@ -505,6 +507,109 @@ def apply_pathway_enrichment_multiple_testing(
     )
 
 
+def render_pathway_enrichment_summary_tsv(report: PathwayEnrichmentReport) -> str:
+    """Render the compact pathway enrichment summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "foreground_size",
+            "background_size",
+            "evaluated_entry_count",
+            "protein_entry_count",
+            "gene_entry_count",
+            "unresolved_foreground_count",
+            "unresolved_background_count",
+            "enriched_entry_count",
+        )
+    )
+    writer.writerow(
+        (
+            report.summary.foreground_size,
+            report.summary.background_size,
+            report.summary.evaluated_entry_count,
+            report.summary.protein_entry_count,
+            report.summary.gene_entry_count,
+            report.summary.unresolved_foreground_count,
+            report.summary.unresolved_background_count,
+            report.summary.enriched_entry_count,
+        )
+    )
+    return buffer.getvalue()
+
+
+def render_pathway_enrichment_entry_tsv(report: PathwayEnrichmentReport) -> str:
+    """Render evaluated pathway enrichment rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "pathway_id",
+            "pathway_name",
+            "source_name",
+            "source_accession",
+            "member_kind",
+            "foreground_overlap_count",
+            "background_member_count",
+            "foreground_size",
+            "background_size",
+            "expected_overlap_count",
+            "enrichment_ratio",
+            "p_value",
+            "adjusted_p_value",
+            "foreground_member_ids",
+            "background_member_ids",
+        )
+    )
+    for entry in report.entries:
+        writer.writerow(
+            (
+                entry.pathway_id,
+                entry.pathway_name or "",
+                entry.source_name or "",
+                entry.source_accession or "",
+                entry.member_kind.value,
+                entry.foreground_overlap_count,
+                entry.background_member_count,
+                entry.foreground_size,
+                entry.background_size,
+                f"{entry.expected_overlap_count:g}",
+                "" if entry.enrichment_ratio is None else f"{entry.enrichment_ratio:g}",
+                f"{entry.p_value:g}",
+                "" if entry.adjusted_p_value is None else f"{entry.adjusted_p_value:g}",
+                ";".join(entry.foreground_member_ids),
+                ";".join(entry.background_member_ids),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_pathway_unresolved_member_tsv(report: PathwayEnrichmentReport) -> str:
+    """Render foreground or background proteins unresolved for gene pathways as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("set_role", "protein_ref", "reason"))
+    for entry in report.unresolved_members:
+        writer.writerow((entry.set_role, entry.protein_ref, entry.reason))
+    return buffer.getvalue()
+
+
+def render_rejected_pathway_membership_tsv(
+    report: PathwayMembershipImportReport,
+) -> str:
+    """Render rejected pathway membership rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("row_number", "values", "reason"))
+    for row in report.rejected_rows:
+        writer.writerow((row.row_number, _metadata_json(row.values), row.reason))
+    return buffer.getvalue()
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
 
@@ -527,6 +632,10 @@ def _optional_value(row: dict[str, str], field_name: str | None) -> str | None:
 def _read_delimited_lines(path: Path) -> list[str]:
     payload = path.read_text(encoding="utf-8")
     return payload.splitlines()
+
+
+def _metadata_json(values: dict[str, str]) -> str:
+    return json.dumps(values, sort_keys=True)
 
 
 def _group_pathway_records(
