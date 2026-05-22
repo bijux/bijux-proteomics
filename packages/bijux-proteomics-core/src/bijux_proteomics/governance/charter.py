@@ -143,6 +143,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/ingestion.py",
             "io/mgf_streaming.py",
             "io/mzml_reader.py",
+            "io/run_qc.py",
             "io/spectrum_peak_matching.py",
             "io/spectra.py",
             "io/stable_outputs.py",
