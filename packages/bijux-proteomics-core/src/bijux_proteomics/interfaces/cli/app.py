@@ -263,12 +263,14 @@ from bijux_proteomics.interpretation import (
     GoEnrichmentCorrectionPolicy,
     PathwayEnrichmentCorrectionPolicy,
     PathwayMembershipColumnMapping,
+    ProteinSetColumnMapping,
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
     build_complex_enrichment_report,
     build_go_enrichment_report,
     build_pathway_enrichment_report,
+    build_protein_set_scoring_report,
     ProteinAnnotationColumnMapping,
     ProteinReferenceColumnMapping,
     build_protein_annotation_mapping_report,
@@ -277,6 +279,7 @@ from bijux_proteomics.interpretation import (
     parse_pathway_membership_table,
     parse_protein_annotation_table,
     parse_protein_reference_table,
+    parse_protein_set_table,
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
@@ -288,10 +291,17 @@ from bijux_proteomics.interpretation import (
     render_pathway_enrichment_summary_tsv,
     render_pathway_unresolved_member_tsv,
     render_protein_annotation_summary_tsv,
+    render_protein_set_condition_comparison_tsv,
+    render_protein_set_condition_score_tsv,
+    render_protein_set_sample_score_tsv,
+    render_protein_set_score_matrix_tsv,
+    render_protein_set_scoring_summary_tsv,
+    render_protein_set_unresolved_member_tsv,
     render_rejected_complex_membership_tsv,
     render_rejected_pathway_membership_tsv,
     render_rejected_go_annotation_tsv,
     render_rejected_protein_annotation_tsv,
+    render_rejected_protein_set_tsv,
     render_rejected_protein_reference_tsv,
     render_unmapped_protein_annotation_tsv,
 )
@@ -8861,6 +8871,239 @@ def annotate_proteins_command(
                 None
                 if rejected_annotation_tsv_out is None or annotation_report is None
                 else str(rejected_annotation_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@interpretation_group.command("protein-set-score")
+@click.argument(
+    "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "protein_set_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--design",
+    "design_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--mz-column", default="mz", show_default=True)
+@click.option(
+    "--retention-time-column", default="retention_time_seconds", show_default=True
+)
+@click.option("--missing-reason-column", default="missing_reason", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--set-id-column", default="set_id", show_default=True)
+@click.option("--set-name-column", default="set_name", show_default=True)
+@click.option("--source-name-column", default="source_name", show_default=True)
+@click.option("--set-protein-ref-column", default="protein_ref", show_default=True)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--sample-score-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--condition-score-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--condition-comparison-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unresolved-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-set-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def protein_set_score_command(
+    input_table: Path,
+    protein_set_tsv: Path,
+    design_path: Path | None,
+    aggregation: str,
+    top_n: int,
+    normalization: str,
+    sample_column: str,
+    feature_id_column: str,
+    peptide_column: str,
+    intensity_column: str,
+    protein_refs_column: str | None,
+    charge_column: str | None,
+    mz_column: str | None,
+    retention_time_column: str | None,
+    missing_reason_column: str | None,
+    protein_separator: str,
+    set_id_column: str,
+    set_name_column: str,
+    source_name_column: str,
+    set_protein_ref_column: str,
+    summary_tsv_out: Path | None,
+    matrix_tsv_out: Path | None,
+    sample_score_tsv_out: Path | None,
+    condition_score_tsv_out: Path | None,
+    condition_comparison_tsv_out: Path | None,
+    unresolved_tsv_out: Path | None,
+    rejected_set_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score user-defined protein sets across normalized study samples."""
+
+    try:
+        mapping = Ms1FeatureColumnMapping(
+            sample_id=sample_column,
+            feature_id=feature_id_column,
+            peptide=peptide_column,
+            intensity=intensity_column,
+            protein_refs=protein_refs_column,
+            charge=charge_column,
+            mz=mz_column,
+            retention_time_seconds=retention_time_column,
+            missing_reason=missing_reason_column,
+            protein_separator=protein_separator,
+        )
+        parse_report = parse_ms1_feature_table(input_table, mapping=mapping)
+        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
+        raw_table = build_label_free_intensity_table(
+            parse_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+        )
+        protein_sets = parse_protein_set_table(
+            protein_set_tsv,
+            mapping=ProteinSetColumnMapping(
+                set_id=set_id_column,
+                protein_ref=set_protein_ref_column,
+                set_name=set_name_column,
+                source_name=source_name_column,
+            ),
+        )
+        report = build_protein_set_scoring_report(
+            normalize_label_free_table(
+                raw_table,
+                method=NormalizationMethod(normalization),
+            ),
+            protein_sets.accepted_records,
+            design_entries=design_entries,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_protein_set_scoring_summary_tsv(report),
+            encoding="utf-8",
+        )
+    if matrix_tsv_out is not None:
+        matrix_tsv_out.write_text(
+            render_protein_set_score_matrix_tsv(report),
+            encoding="utf-8",
+        )
+    if sample_score_tsv_out is not None:
+        sample_score_tsv_out.write_text(
+            render_protein_set_sample_score_tsv(report),
+            encoding="utf-8",
+        )
+    if condition_score_tsv_out is not None:
+        condition_score_tsv_out.write_text(
+            render_protein_set_condition_score_tsv(report),
+            encoding="utf-8",
+        )
+    if condition_comparison_tsv_out is not None:
+        condition_comparison_tsv_out.write_text(
+            render_protein_set_condition_comparison_tsv(report),
+            encoding="utf-8",
+        )
+    if unresolved_tsv_out is not None:
+        unresolved_tsv_out.write_text(
+            render_protein_set_unresolved_member_tsv(report),
+            encoding="utf-8",
+        )
+    if rejected_set_tsv_out is not None:
+        rejected_set_tsv_out.write_text(
+            render_rejected_protein_set_tsv(protein_sets),
+            encoding="utf-8",
+        )
+
+    payload = {
+        "accepted_features": len(parse_report.accepted_records),
+        "rejected_features": len(parse_report.rejected_rows),
+        "protein_sets": protein_sets.to_dict(),
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
+            "sample_score_tsv": (
+                None if sample_score_tsv_out is None else str(sample_score_tsv_out)
+            ),
+            "condition_score_tsv": (
+                None
+                if condition_score_tsv_out is None
+                else str(condition_score_tsv_out)
+            ),
+            "condition_comparison_tsv": (
+                None
+                if condition_comparison_tsv_out is None
+                else str(condition_comparison_tsv_out)
+            ),
+            "unresolved_tsv": (
+                None if unresolved_tsv_out is None else str(unresolved_tsv_out)
+            ),
+            "rejected_set_tsv": (
+                None
+                if rejected_set_tsv_out is None
+                else str(rejected_set_tsv_out)
             ),
         },
     }

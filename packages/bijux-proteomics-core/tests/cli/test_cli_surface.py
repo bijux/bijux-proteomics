@@ -126,6 +126,76 @@ def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() 
         )
 
 
+def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        quant_fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(quant_fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(quant_fixture_dir / "quant.design.tsv", "quant.design.tsv")
+        shutil.copy(interpretation_fixture_dir / "protein_sets.tsv", "protein_sets.tsv")
+        shutil.copy(
+            interpretation_fixture_dir / "protein_sets_invalid.tsv",
+            "protein_sets_invalid.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "protein-set-score",
+                "ms1_features.tsv",
+                "protein_sets.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--summary-tsv-out",
+                "protein_set_score.summary.tsv",
+                "--matrix-tsv-out",
+                "protein_set_score.matrix.tsv",
+                "--sample-score-tsv-out",
+                "protein_set_score.samples.tsv",
+                "--condition-score-tsv-out",
+                "protein_set_score.conditions.tsv",
+                "--condition-comparison-tsv-out",
+                "protein_set_score.comparisons.tsv",
+                "--unresolved-tsv-out",
+                "protein_set_score.unresolved.tsv",
+                "--rejected-set-tsv-out",
+                "protein_set_score.rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_features"] == 32
+        assert payload["rejected_features"] == 0
+        assert payload["report"]["summary"]["set_count"] == 3
+        assert payload["report"]["summary"]["condition_comparison_count"] == 3
+        assert payload["outputs"]["matrix_tsv"] == "protein_set_score.matrix.tsv"
+        assert "set_id\tset_name\tsource_name\tC1\tC2\tT1\tT2" in Path(
+            "protein_set_score.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "sample_id\tcondition\tbatch\tactivity_score" in Path(
+            "protein_set_score.samples.tsv"
+        ).read_text(encoding="utf-8")
+        assert "condition\tsample_count\tscored_sample_count" in Path(
+            "protein_set_score.conditions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "condition_a\tcondition_b\tmean_activity_score_a" in Path(
+            "protein_set_score.comparisons.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P999" in Path("protein_set_score.unresolved.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert Path("protein_set_score.rejected.tsv").read_text(encoding="utf-8").splitlines()[
+            0
+        ] == "row_number\tvalues\treason"
+
+
 def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
