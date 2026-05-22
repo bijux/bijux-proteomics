@@ -1,0 +1,7 @@
+complex_id	complex_name	source_name	source_accession	protein_ref	gene_symbol
+CORUM:0176	Apoptosome	CORUM	CORUM:0176	P04637	
+CORUM:0333	ERK signaling module	CORUM	CORUM:0333		MAPK1
+custom:stressosome	Stressosome	custom	CX-01	Q99999	
+custom:stressosome	Stressosome	custom	CX-01		TP53
+custom:stressosome	Stressosome	custom	CX-01		TP53
+broken:complex	Broken complex	custom	BROKEN		
