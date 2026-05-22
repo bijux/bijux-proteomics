@@ -34,3 +34,22 @@ def test_sequences_package_exports_theoretical_digest_owner_surface() -> None:
     assert hasattr(sequences, "build_theoretical_digest_bundle")
     assert hasattr(sequences, "export_theoretical_digest_bundle")
     assert bundle.summary.output_candidate_peptide_count == 1
+
+
+def test_sequences_package_exports_peptide_uniqueness_index_owner_surface() -> None:
+    report = sequences.parse_fasta_document(
+        (
+            ">sp|P11111|TP53_HUMAN Canonical GN=TP53\nAKAK\n"
+            ">sp|P11111-2|TP53_HUMAN Isoform GN=TP53\nAKAK\n"
+        ),
+        mode=sequences.FastaParseMode.STRICT,
+    )
+    index = sequences.build_peptide_uniqueness_index(
+        report.accepted_records,
+        protease="trypsin",
+        digestion_mode=PeptideDigestionMode.FULL,
+    )
+
+    assert hasattr(sequences, "build_peptide_uniqueness_index")
+    assert hasattr(sequences, "export_peptide_uniqueness_index_tsv")
+    assert index.summary.isoform_shared_count == 1
