@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.identification.comet_import import (
     build_comet_import_report,
+    render_comet_canonical_psm_tsv,
     render_comet_psm_tsv,
 )
 from bijux_proteomics.identification.diann_import import (
@@ -106,6 +107,9 @@ def test_comet_and_sage_psm_exports_ignore_input_row_order() -> None:
         config_path=sage_root / "sage_search.json",
     )
 
+    assert render_comet_canonical_psm_tsv(
+        comet_report.canonical_psms
+    ) == render_comet_canonical_psm_tsv(_reversed_rows(comet_report.canonical_psms))
     assert render_comet_psm_tsv(report_rows := comet_report.psm_rows) == render_comet_psm_tsv(
         _reversed_rows(report_rows)
     )
