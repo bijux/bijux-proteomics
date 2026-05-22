@@ -3456,6 +3456,14 @@ def test_silac_differential_command_emits_matrix_result_and_balance_outputs() ->
                 "silac.diff.balance.tsv",
                 "--volcano-tsv-out",
                 "silac.diff.volcano.tsv",
+                "--volcano-json-out",
+                "silac.diff.volcano.json",
+                "--volcano-svg-out",
+                "silac.diff.volcano.svg",
+                "--volcano-html-out",
+                "silac.diff.volcano.html",
+                "--volcano-top-label-count",
+                "1",
             ],
         )
 
@@ -3463,20 +3471,31 @@ def test_silac_differential_command_emits_matrix_result_and_balance_outputs() ->
         payload = json.loads(result.output)
         assert payload["report"]["design_matrix"]["sample_count"] == 4
         assert payload["report"]["differential_abundance_report"] is not None
+        assert payload["volcano_review"]["labeled_point_count"] == 1
         assert Path("silac.diff.raw.tsv").exists()
         assert Path("silac.diff.normalized.tsv").exists()
         assert Path("silac.diff.results.tsv").exists()
         assert Path("silac.diff.balance.tsv").exists()
         assert Path("silac.diff.volcano.tsv").exists()
+        assert Path("silac.diff.volcano.json").exists()
+        assert Path("silac.diff.volcano.svg").exists()
+        assert Path("silac.diff.volcano.html").exists()
         assert "member_peptides" in Path("silac.diff.raw.tsv").read_text(
             encoding="utf-8"
         )
         assert "adjusted_p_value" in Path("silac.diff.results.tsv").read_text(
             encoding="utf-8"
         )
-        assert "negative_log10_adjusted_p_value" in Path(
+        assert "raw_p_value" in Path(
             "silac.diff.volcano.tsv"
         ).read_text(encoding="utf-8")
+        assert '"source_kind": "label_based"' in Path(
+            "silac.diff.volcano.json"
+        ).read_text(encoding="utf-8")
+        assert "<svg" in Path("silac.diff.volcano.svg").read_text(encoding="utf-8")
+        assert "Volcano plot:" in Path("silac.diff.volcano.html").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_silac_report_command_emits_report_directory_and_manifest() -> None:
@@ -3738,6 +3757,14 @@ def test_tmt_differential_command_emits_matrix_result_and_balance_outputs() -> N
                 "tmt.diff.balance.tsv",
                 "--volcano-tsv-out",
                 "tmt.diff.volcano.tsv",
+                "--volcano-json-out",
+                "tmt.diff.volcano.json",
+                "--volcano-svg-out",
+                "tmt.diff.volcano.svg",
+                "--volcano-html-out",
+                "tmt.diff.volcano.html",
+                "--volcano-top-label-count",
+                "1",
             ],
         )
 
@@ -3746,15 +3773,29 @@ def test_tmt_differential_command_emits_matrix_result_and_balance_outputs() -> N
         assert payload["source_kind"] == "maxquant"
         assert payload["report"]["design_matrix"]["sample_count"] == 4
         assert payload["report"]["differential_abundance_report"] is not None
+        assert payload["volcano_review"]["labeled_point_count"] == 1
         assert Path("tmt.diff.raw.tsv").exists()
         assert Path("tmt.diff.normalized.tsv").exists()
         assert Path("tmt.diff.results.tsv").exists()
         assert Path("tmt.diff.balance.tsv").exists()
         assert Path("tmt.diff.volcano.tsv").exists()
+        assert Path("tmt.diff.volcano.json").exists()
+        assert Path("tmt.diff.volcano.svg").exists()
+        assert Path("tmt.diff.volcano.html").exists()
         assert "member_peptides" in Path("tmt.diff.raw.tsv").read_text(
             encoding="utf-8"
         )
         assert "adjusted_p_value" in Path("tmt.diff.results.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "raw_p_value" in Path("tmt.diff.volcano.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert '"source_kind": "label_based"' in Path(
+            "tmt.diff.volcano.json"
+        ).read_text(encoding="utf-8")
+        assert "<svg" in Path("tmt.diff.volcano.svg").read_text(encoding="utf-8")
+        assert "Volcano plot:" in Path("tmt.diff.volcano.html").read_text(
             encoding="utf-8"
         )
         assert "interquartile_range" in Path("tmt.diff.balance.tsv").read_text(
@@ -5504,6 +5545,14 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
                 "ptm.differential.tsv",
                 "--volcano-tsv-out",
                 "ptm.volcano.tsv",
+                "--volcano-json-out",
+                "ptm.volcano.json",
+                "--volcano-svg-out",
+                "ptm.volcano.svg",
+                "--volcano-html-out",
+                "ptm.volcano.html",
+                "--volcano-top-label-count",
+                "1",
             ],
         )
 
@@ -5512,8 +5561,19 @@ def test_ptm_differential_command_emits_site_results_and_volcano() -> None:
         assert payload["accepted_rows"] == 8
         assert payload["feature_rows"] == 12
         assert payload["protein_correction_mode"] == "subtract_unmodified_protein"
+        assert payload["volcano_review"]["labeled_point_count"] == 1
         assert "P11111:S5:Phospho" in Path("ptm.differential.tsv").read_text()
         assert "plotted_log2_fold_change" in Path("ptm.volcano.tsv").read_text()
+        assert Path("ptm.volcano.json").exists()
+        assert Path("ptm.volcano.svg").exists()
+        assert Path("ptm.volcano.html").exists()
+        assert '"source_kind": "ptm"' in Path("ptm.volcano.json").read_text(
+            encoding="utf-8"
+        )
+        assert "<svg" in Path("ptm.volcano.svg").read_text(encoding="utf-8")
+        assert "Volcano plot:" in Path("ptm.volcano.html").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_ptm_motif_enrichment_command_emits_windows_terms_and_logo() -> None:

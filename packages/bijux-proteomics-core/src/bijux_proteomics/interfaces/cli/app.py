@@ -391,6 +391,7 @@ from bijux_proteomics.ptm import (
     build_ptm_phosphosite_motif_enrichment_report,
     build_ptm_report_bundle,
     build_ptm_ambiguity_review_report,
+    build_ptm_differential_volcano_plot,
     build_ptm_site_group_quantification_report,
     build_ptm_site_annotation_biology_summary,
     build_ptm_site_annotation_mapping_report,
@@ -506,6 +507,8 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.review import (
     VolcanoReviewPolicy,
     build_dia_volcano_review,
+    build_label_based_volcano_review,
+    build_ptm_volcano_review,
     export_volcano_review_html,
     export_volcano_review_json,
     export_volcano_review_svg,
@@ -568,6 +571,7 @@ from bijux_proteomics.workflow import (
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
+    build_label_based_differential_volcano_plot,
     build_silac_label_based_report_bundle,
     build_silac_differential_analysis_report,
     build_tmt_label_based_report_bundle,
@@ -2705,7 +2709,7 @@ def dia_differential_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
-    volcano_plot = None
+    volcano_plot = report.volcano_plot
     volcano_review = None
     if (
         volcano_tsv_out is not None
@@ -9288,6 +9292,27 @@ def silac_quantify_command(
     "--volcano-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
 )
+@click.option("--volcano-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-svg-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--volcano-adjusted-p-value-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--volcano-absolute-log2-fold-change-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
 @click.option(
     "--out",
     "out_path",
@@ -9319,6 +9344,12 @@ def silac_differential_command(
     results_tsv_out: Path | None,
     balance_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
     """Run differential analysis over governed SILAC protein ratios."""
@@ -9356,6 +9387,39 @@ def silac_differential_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    volcano_plot = report.volcano_plot
+    volcano_review = None
+    if (
+        volcano_tsv_out is not None
+        or volcano_json_out is not None
+        or volcano_svg_out is not None
+        or volcano_html_out is not None
+    ):
+        if report.differential_abundance_report is None:
+            raise click.ClickException(
+                "volcano export requires a resolvable contrast or exactly two conditions"
+            )
+        volcano_plot = build_label_based_differential_volcano_plot(
+            report.differential_abundance_report,
+            protein_refs_by_entity={
+                row.entity_id: row.protein_refs for row in report.normalized_matrix.rows
+            },
+            adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+            absolute_log2_fold_change_threshold=(
+                volcano_absolute_log2_fold_change_threshold
+            ),
+        )
+        volcano_review = build_label_based_volcano_review(
+            volcano_plot,
+            policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change_threshold
+                ),
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+
     if raw_matrix_tsv_out is not None:
         export_label_based_differential_matrix_tsv(
             report.input_report,
@@ -9373,14 +9437,22 @@ def silac_differential_command(
             report.normalization_balance_plot,
             balance_tsv_out,
         )
-    if volcano_tsv_out is not None and report.volcano_plot is not None:
+    if volcano_tsv_out is not None and volcano_plot is not None:
         export_label_based_differential_volcano_plot_tsv(
-            report.volcano_plot,
+            volcano_plot,
             volcano_tsv_out,
+        )
+    if volcano_review is not None:
+        _export_volcano_review_assets(
+            review_report=volcano_review,
+            json_out=volcano_json_out,
+            svg_out=volcano_svg_out,
+            html_out=volcano_html_out,
         )
 
     payload = {
         "report": report.to_dict(),
+        "volcano_review": None if volcano_review is None else volcano_review.to_dict(),
         "outputs": {
             "raw_matrix_tsv": (
                 None if raw_matrix_tsv_out is None else str(raw_matrix_tsv_out)
@@ -9398,8 +9470,15 @@ def silac_differential_command(
             ),
             "volcano_tsv": (
                 None
-                if volcano_tsv_out is None or report.volcano_plot is None
+                if volcano_tsv_out is None or volcano_plot is None
                 else str(volcano_tsv_out)
+            ),
+            "volcano_json": (
+                None if volcano_json_out is None else str(volcano_json_out)
+            ),
+            "volcano_svg": None if volcano_svg_out is None else str(volcano_svg_out),
+            "volcano_html": (
+                None if volcano_html_out is None else str(volcano_html_out)
             ),
         },
     }
@@ -10481,6 +10560,27 @@ def tmt_integrate_plexes_command(
     "--volcano-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
 )
+@click.option("--volcano-json-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-svg-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--volcano-html-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--volcano-adjusted-p-value-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--volcano-absolute-log2-fold-change-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
 @click.option(
     "--out",
     "out_path",
@@ -10509,6 +10609,12 @@ def tmt_differential_command(
     results_tsv_out: Path | None,
     balance_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
     """Run differential analysis over governed TMT protein matrices."""
@@ -10542,6 +10648,39 @@ def tmt_differential_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    volcano_plot = report.volcano_plot
+    volcano_review = None
+    if (
+        volcano_tsv_out is not None
+        or volcano_json_out is not None
+        or volcano_svg_out is not None
+        or volcano_html_out is not None
+    ):
+        if report.differential_abundance_report is None:
+            raise click.ClickException(
+                "volcano export requires a resolvable contrast or exactly two conditions"
+            )
+        volcano_plot = build_label_based_differential_volcano_plot(
+            report.differential_abundance_report,
+            protein_refs_by_entity={
+                row.entity_id: row.protein_refs for row in report.normalized_matrix.rows
+            },
+            adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+            absolute_log2_fold_change_threshold=(
+                volcano_absolute_log2_fold_change_threshold
+            ),
+        )
+        volcano_review = build_label_based_volcano_review(
+            volcano_plot,
+            policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change_threshold
+                ),
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+
     if raw_matrix_tsv_out is not None:
         export_label_based_differential_matrix_tsv(
             report.input_report,
@@ -10559,15 +10698,23 @@ def tmt_differential_command(
             report.normalization_balance_plot,
             balance_tsv_out,
         )
-    if volcano_tsv_out is not None and report.volcano_plot is not None:
+    if volcano_tsv_out is not None and volcano_plot is not None:
         export_label_based_differential_volcano_plot_tsv(
-            report.volcano_plot,
+            volcano_plot,
             volcano_tsv_out,
+        )
+    if volcano_review is not None:
+        _export_volcano_review_assets(
+            review_report=volcano_review,
+            json_out=volcano_json_out,
+            svg_out=volcano_svg_out,
+            html_out=volcano_html_out,
         )
 
     payload = {
         "source_kind": source_kind,
         "report": report.to_dict(),
+        "volcano_review": None if volcano_review is None else volcano_review.to_dict(),
         "outputs": {
             "raw_matrix_tsv": (
                 None if raw_matrix_tsv_out is None else str(raw_matrix_tsv_out)
@@ -10585,8 +10732,15 @@ def tmt_differential_command(
             ),
             "volcano_tsv": (
                 None
-                if volcano_tsv_out is None or report.volcano_plot is None
+                if volcano_tsv_out is None or volcano_plot is None
                 else str(volcano_tsv_out)
+            ),
+            "volcano_json": (
+                None if volcano_json_out is None else str(volcano_json_out)
+            ),
+            "volcano_svg": None if volcano_svg_out is None else str(volcano_svg_out),
+            "volcano_html": (
+                None if volcano_html_out is None else str(volcano_html_out)
             ),
         },
     }
@@ -12010,6 +12164,39 @@ def ptm_estimate_occupancy_command(
     default=None,
 )
 @click.option(
+    "--volcano-json-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--volcano-svg-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--volcano-html-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--volcano-adjusted-p-value-threshold",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--volcano-absolute-log2-fold-change-threshold",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def ptm_differential_command(
@@ -12040,6 +12227,12 @@ def ptm_differential_command(
     protein_correction_mode: str,
     results_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
+    volcano_json_out: Path | None,
+    volcano_svg_out: Path | None,
+    volcano_html_out: Path | None,
+    volcano_adjusted_p_value_threshold: float,
+    volcano_absolute_log2_fold_change_threshold: float,
+    volcano_top_label_count: int,
     out_path: Path | None,
 ) -> None:
     """Test PTM site changes across conditions from localized evidence and feature intensities."""
@@ -12108,10 +12301,44 @@ def ptm_differential_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    volcano_plot = report.volcano_plot
+    volcano_review = None
+    if (
+        volcano_tsv_out is not None
+        or volcano_json_out is not None
+        or volcano_svg_out is not None
+        or volcano_html_out is not None
+    ):
+        volcano_plot = build_ptm_differential_volcano_plot(
+            report.differential_report,
+            adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+            absolute_log2_fold_change_threshold=(
+                volcano_absolute_log2_fold_change_threshold
+            ),
+        )
+        volcano_review = build_ptm_volcano_review(
+            volcano_plot,
+            policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=volcano_adjusted_p_value_threshold,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change_threshold
+                ),
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+
     if results_tsv_out is not None:
         export_ptm_site_differential_tsv(report.differential_report, results_tsv_out)
     if volcano_tsv_out is not None:
-        export_ptm_differential_volcano_tsv(report.volcano_plot, volcano_tsv_out)
+        assert volcano_plot is not None
+        export_ptm_differential_volcano_tsv(volcano_plot, volcano_tsv_out)
+    if volcano_review is not None:
+        _export_volcano_review_assets(
+            review_report=volcano_review,
+            json_out=volcano_json_out,
+            svg_out=volcano_svg_out,
+            html_out=volcano_html_out,
+        )
 
     _emit_json(
         {
@@ -12122,10 +12349,22 @@ def ptm_differential_command(
             "design_model_fit": report.design_model_fit.to_dict(),
             "protein_correction_mode": report.protein_correction_mode.value,
             "differential_report": report.differential_report.to_dict(),
-            "volcano_plot": report.volcano_plot.to_dict(),
+            "volcano_plot": None if volcano_plot is None else volcano_plot.to_dict(),
+            "volcano_review": (
+                None if volcano_review is None else volcano_review.to_dict()
+            ),
             "outputs": {
                 "results_tsv": None if results_tsv_out is None else str(results_tsv_out),
                 "volcano_tsv": None if volcano_tsv_out is None else str(volcano_tsv_out),
+                "volcano_json": (
+                    None if volcano_json_out is None else str(volcano_json_out)
+                ),
+                "volcano_svg": (
+                    None if volcano_svg_out is None else str(volcano_svg_out)
+                ),
+                "volcano_html": (
+                    None if volcano_html_out is None else str(volcano_html_out)
+                ),
             },
         },
         out_path=out_path,
