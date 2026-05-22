@@ -158,6 +158,33 @@ class PtmSiteAnnotationMappingReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class PtmSiteAnnotationBiologyEntry(JsonModel):
+    """One known-biology term summarized over mapped PTM site annotations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    term: str = Field(..., min_length=1)
+    site_count: int = Field(..., ge=0)
+    site_keys: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class PtmSiteAnnotationBiologySummary(JsonModel):
+    """Known-biology summaries preserved over mapped PTM site annotations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    function_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
+        default_factory=tuple
+    )
+    kinase_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
+        default_factory=tuple
+    )
+    pathway_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
+        default_factory=tuple
+    )
+    note: str = Field(..., min_length=1)
+
+
 def parse_ptm_site_annotation_tsv(
     path: Path,
     *,
@@ -430,6 +457,30 @@ def build_ptm_site_annotation_mapping_report(
     )
 
 
+def build_ptm_site_annotation_biology_summary(
+    mapping_report: PtmSiteAnnotationMappingReport,
+) -> PtmSiteAnnotationBiologySummary:
+    """Summarize known functions, kinases, and pathways over mapped PTM sites."""
+
+    return PtmSiteAnnotationBiologySummary(
+        function_entries=_summarize_annotation_terms(
+            mapping_report.matched_annotations,
+            field_name="site_function",
+        ),
+        kinase_entries=_summarize_annotation_terms(
+            mapping_report.matched_annotations,
+            field_name="kinases",
+        ),
+        pathway_entries=_summarize_annotation_terms(
+            mapping_report.matched_annotations,
+            field_name="pathways",
+        ),
+        note=(
+            "ptm site annotation biology summary preserves known function, kinase, and pathway labels over the mapped observed-site set"
+        ),
+    )
+
+
 def _validate_required_columns(
     fieldnames: list[str],
     mapping: PtmSiteAnnotationColumnMapping,
@@ -480,3 +531,32 @@ def _normalized_species(value: str | None) -> str | None:
         return None
     normalized = value.strip().lower()
     return normalized or None
+
+
+def _summarize_annotation_terms(
+    matched_annotations: tuple[PtmMappedSiteAnnotationEntry, ...],
+    *,
+    field_name: str,
+) -> tuple[PtmSiteAnnotationBiologyEntry, ...]:
+    grouped: dict[str, set[str]] = {}
+    for entry in matched_annotations:
+        value = getattr(entry, field_name)
+        if value is None:
+            continue
+        if isinstance(value, tuple):
+            terms = value
+        else:
+            terms = (value,)
+        for term in terms:
+            grouped.setdefault(term, set()).add(entry.site_key)
+    return tuple(
+        PtmSiteAnnotationBiologyEntry(
+            term=term,
+            site_count=len(site_keys),
+            site_keys=tuple(sorted(site_keys)),
+        )
+        for term, site_keys in sorted(
+            grouped.items(),
+            key=lambda item: (-len(item[1]), item[0]),
+        )
+    )
