@@ -6,6 +6,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import csv
+from io import StringIO
 
 from pydantic import ConfigDict, Field
 
@@ -13,7 +15,9 @@ from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.workflow import build_biological_result_report_bundle
 from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
+    BiologicalResultReportExportManifest,
     BiologicalResultSelectionPolicy,
+    export_biological_result_report_bundle,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -90,6 +94,27 @@ class PublicBiologicalCaseStudyReport(JsonModel):
     biological_report: BiologicalResultReportBundle
     selection_policy: BiologicalResultSelectionPolicy
     summary: PublicBiologicalCaseStudyReportSummary
+    note: str = Field(..., min_length=1)
+
+
+class PublicBiologicalCaseStudyArtifactPaths(JsonModel):
+    """Relative artifact paths written for one exported public case study."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary_tsv: str = Field(..., min_length=1)
+    biological_report_dir: str = Field(..., min_length=1)
+    biological_report_manifest_json: str = Field(..., min_length=1)
+
+
+class PublicBiologicalCaseStudyExportManifest(JsonModel):
+    """Stable manifest over one exported public case-study directory."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    summary: PublicBiologicalCaseStudyReportSummary
+    artifacts: PublicBiologicalCaseStudyArtifactPaths
+    biological_report_manifest: BiologicalResultReportExportManifest
     note: str = Field(..., min_length=1)
 
 
@@ -220,6 +245,81 @@ def build_lfq_cohort_biological_case_study_report() -> PublicBiologicalCaseStudy
     )
 
 
+def render_public_biological_case_study_summary_tsv(
+    report: PublicBiologicalCaseStudyReport,
+) -> str:
+    """Render one public biological case-study summary as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(("field", "value"))
+    writer.writerow(("case_study_id", report.summary.case_study_id))
+    writer.writerow(("workflow_family", report.summary.workflow_family))
+    writer.writerow(("source_package_id", report.case_study.source_package_id))
+    writer.writerow(("condition_a", report.summary.condition_a))
+    writer.writerow(("condition_b", report.summary.condition_b))
+    writer.writerow(("protein_count", report.summary.protein_count))
+    writer.writerow(
+        ("significant_protein_count", report.summary.significant_protein_count)
+    )
+    writer.writerow(("sample_count", report.summary.sample_count))
+    writer.writerow(("go_enriched_term_count", report.summary.go_enriched_term_count))
+    writer.writerow(
+        (
+            "pathway_enriched_entry_count",
+            report.summary.pathway_enriched_entry_count,
+        )
+    )
+    writer.writerow(
+        (
+            "complex_enriched_entry_count",
+            report.summary.complex_enriched_entry_count,
+        )
+    )
+    writer.writerow(("note", report.note))
+    return handle.getvalue()
+
+
+def export_public_biological_case_study_report(
+    report: PublicBiologicalCaseStudyReport,
+    output_dir: Path,
+) -> PublicBiologicalCaseStudyExportManifest:
+    """Write one public biological case study into a stable output directory."""
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    summary_name = "public_case_study_summary.tsv"
+    biological_dir_name = "biological-report"
+    biological_manifest_name = "biological_report_manifest.json"
+    (output_dir / summary_name).write_text(
+        render_public_biological_case_study_summary_tsv(report),
+        encoding="utf-8",
+    )
+    biological_dir = output_dir / biological_dir_name
+    biological_manifest = export_biological_result_report_bundle(
+        report.biological_report,
+        biological_dir,
+    )
+    (biological_dir / biological_manifest_name).write_text(
+        biological_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
+    return PublicBiologicalCaseStudyExportManifest(
+        summary=report.summary,
+        artifacts=PublicBiologicalCaseStudyArtifactPaths(
+            summary_tsv=summary_name,
+            biological_report_dir=biological_dir_name,
+            biological_report_manifest_json=(
+                f"{biological_dir_name}/{biological_manifest_name}"
+            ),
+        ),
+        biological_report_manifest=biological_manifest,
+        note=(
+            "public biological case study export preserves a compact case-study "
+            "summary alongside the full downstream biological report directory"
+        ),
+    )
+
+
 def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) -> None:
     required_paths = (
         case_study.readme_path,
@@ -243,10 +343,14 @@ def _validate_case_study_paths(case_study: PublicBiologicalCaseStudyDefinition) 
 __all__ = [
     "PublicBiologicalCaseStudyCatalog",
     "PublicBiologicalCaseStudyDefinition",
+    "PublicBiologicalCaseStudyExportManifest",
     "PublicBiologicalCaseStudyReport",
+    "PublicBiologicalCaseStudyArtifactPaths",
     "PublicBiologicalCaseStudyReportSummary",
     "PublicCaseStudyInputPaths",
     "build_lfq_cohort_biological_case_study",
     "build_lfq_cohort_biological_case_study_report",
     "build_public_biological_case_study_catalog",
+    "export_public_biological_case_study_report",
+    "render_public_biological_case_study_summary_tsv",
 ]
