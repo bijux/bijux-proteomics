@@ -20,6 +20,15 @@ from bijux_proteomics.chemistry import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
+from bijux_proteomics.domain.records import (
+    ModifiedPeptide as CanonicalModifiedPeptide,
+    PSMRecord as CanonicalPsmRecord,
+    PeptideRecord as CanonicalPeptideRecord,
+    ProteinGroup as CanonicalProteinGroup,
+    ProteinRecord as CanonicalProteinRecord,
+    RejectedEvidence as CanonicalRejectedEvidence,
+    TargetDecoyState,
+)
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 
@@ -170,6 +179,43 @@ class PsmRecord(JsonModel):
             self.contaminant_flag = True
         return self
 
+    def to_domain_record(self) -> CanonicalPsmRecord:
+        """Convert one identification-local PSM into the canonical domain record."""
+
+        return CanonicalPsmRecord(
+            run_id=self.run_id,
+            spectrum_id=self.spectrum_id,
+            peptide_sequence=self.peptide_sequence or self.peptide,
+            canonical_peptide=self.canonical_peptide,
+            charge_state=self.charge,
+            score=self.score,
+            modified_peptide=self.modified_peptide,
+            intensity=self.intensity,
+            q_value=self.q_value,
+            protein_refs=self.protein_refs,
+            target_decoy_state=TargetDecoyState(self.target_decoy_label.value),
+            contaminant_flag=self.contaminant_flag,
+            metadata={"source_contract": "identification.psm_record"},
+        )
+
+    def to_modified_peptide_record(self) -> CanonicalModifiedPeptide:
+        """Expose the modified-peptide view carried by one canonical PSM."""
+
+        modified_peptide = self.modified_peptide or self.canonical_peptide
+        parsed = parse_modified_peptide(modified_peptide)
+        return CanonicalModifiedPeptide(
+            record_id=self.spectrum_id,
+            peptide_sequence=self.peptide_sequence or self.peptide,
+            canonical_peptide=self.canonical_peptide,
+            modified_peptide=modified_peptide,
+            modification_names=tuple(
+                dict.fromkeys(modification.name for modification in parsed.modifications)
+            ),
+            charge_state=self.charge,
+            protein_refs=self.protein_refs,
+            metadata={"source_contract": "identification.psm_record"},
+        )
+
 
 class SearchResultValidationIssue(JsonModel):
     """One validation issue while parsing or normalizing search results."""
@@ -189,6 +235,21 @@ class RejectedPsmRow(JsonModel):
     row_number: int = Field(..., ge=1)
     raw_fields: dict[str, str] = Field(default_factory=dict)
     issues: tuple[SearchResultValidationIssue, ...] = Field(default_factory=tuple)
+
+    def to_domain_record(self) -> CanonicalRejectedEvidence:
+        """Expose one rejected PSM row as canonical rejected evidence."""
+
+        issue_message = "; ".join(issue.message for issue in self.issues) or "rejected psm row"
+        return CanonicalRejectedEvidence(
+            record_kind="psm",
+            rejection_reason=issue_message,
+            row_number=self.row_number,
+            raw_fields=self.raw_fields,
+            metadata={
+                "source_contract": "identification.rejected_psm_row",
+                "issue_codes": ";".join(issue.code for issue in self.issues),
+            },
+        )
 
 
 class PsmParseReport(JsonModel):
@@ -237,6 +298,25 @@ class PeptideEvidenceEntry(JsonModel):
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
 
+    def to_domain_record(self) -> CanonicalPeptideRecord:
+        """Convert one peptide evidence rollup into the canonical peptide record."""
+
+        return CanonicalPeptideRecord(
+            record_id=self.canonical_peptide,
+            peptide_sequence=self.peptide,
+            canonical_peptide=self.canonical_peptide,
+            protein_refs=self.protein_refs,
+            charge_states=self.charge_states,
+            score=self.best_score,
+            q_value=self.best_q_value,
+            target_decoy_state=TargetDecoyState(self.target_decoy_label.value),
+            metadata={
+                "source_contract": "identification.peptide_evidence",
+                "psm_count": str(self.psm_count),
+                "spectrum_count": str(self.spectrum_count),
+            },
+        )
+
 
 class ProteinEvidenceEntry(JsonModel):
     """Rolled-up protein-level evidence across peptides and PSMs."""
@@ -252,6 +332,26 @@ class ProteinEvidenceEntry(JsonModel):
     peptides: tuple[str, ...] = Field(default_factory=tuple)
     spectrum_count: int = Field(..., ge=1)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
+
+    def to_domain_record(self) -> CanonicalProteinRecord:
+        """Convert one protein evidence rollup into the canonical protein record."""
+
+        return CanonicalProteinRecord(
+            record_id=self.protein_ref,
+            primary_protein_ref=self.protein_ref,
+            protein_refs=(self.protein_ref,),
+            peptide_sequences=self.peptides,
+            score=self.best_score,
+            q_value=self.best_q_value,
+            target_decoy_state=TargetDecoyState(self.target_decoy_label.value),
+            metadata={
+                "source_contract": "identification.protein_evidence",
+                "peptide_count": str(self.peptide_count),
+                "unique_peptide_count": str(self.unique_peptide_count),
+                "shared_peptide_count": str(self.shared_peptide_count),
+                "spectrum_count": str(self.spectrum_count),
+            },
+        )
 
 
 class FdrPolicy(JsonModel):
@@ -517,6 +617,22 @@ class ProteinGroupEntry(JsonModel):
     best_score: float
     best_q_value: float | None = Field(default=None, ge=0.0)
     target_decoy_label: TargetDecoyLabel
+
+    def to_domain_record(self) -> CanonicalProteinGroup:
+        """Convert one identification-local protein group into the canonical record."""
+
+        return CanonicalProteinGroup(
+            group_id=self.group_id,
+            representative_protein=self.representative_protein,
+            protein_refs=self.protein_refs,
+            peptides=self.peptides,
+            unique_peptide_count=self.unique_peptide_count,
+            shared_peptide_count=self.shared_peptide_count,
+            score=self.best_score,
+            q_value=self.best_q_value,
+            target_decoy_state=TargetDecoyState(self.target_decoy_label.value),
+            metadata={"source_contract": "identification.protein_group"},
+        )
 
 
 class SharedPeptideAmbiguityEntry(JsonModel):
