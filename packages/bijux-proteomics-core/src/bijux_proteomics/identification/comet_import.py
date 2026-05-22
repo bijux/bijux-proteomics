@@ -11,7 +11,7 @@ from pathlib import Path
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.chemistry.search_engine_modified_peptides import (
+from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
