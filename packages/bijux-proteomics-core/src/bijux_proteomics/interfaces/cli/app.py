@@ -445,6 +445,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import (
+    HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
     ImputationMethod,
     Ms1FeatureColumnMapping,
@@ -908,6 +909,13 @@ def _normalization_choice() -> click.Choice[str]:
 def _imputation_choice() -> click.Choice[str]:
     return click.Choice(
         [method.value for method in ImputationMethod], case_sensitive=False
+    )
+
+
+def _heatmap_missing_value_choice() -> click.Choice[str]:
+    return click.Choice(
+        [policy.value for policy in HeatmapMissingValuePolicy],
+        case_sensitive=False,
     )
 
 
@@ -6422,6 +6430,22 @@ def quantify_command(
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
 )
+@click.option("--entity-id", "entity_ids", multiple=True)
+@click.option("--protein-ref", "protein_refs", multiple=True)
+@click.option(
+    "--min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option("--max-entities", type=int, default=None)
+@click.option("--z-score/--no-z-score", default=True, show_default=True)
+@click.option(
+    "--missing-value-policy",
+    type=_heatmap_missing_value_choice(),
+    default=HeatmapMissingValuePolicy.FILL_ROW_MEDIAN.value,
+    show_default=True,
+)
 @click.option(
     "--matrix-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -6450,6 +6474,12 @@ def heatmap_matrix_command(
     missing_reason_column: str | None,
     protein_separator: str,
     design_path: Path | None,
+    entity_ids: tuple[str, ...],
+    protein_refs: tuple[str, ...],
+    min_observed_fraction: float,
+    max_entities: int | None,
+    z_score: bool,
+    missing_value_policy: str,
     matrix_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -6487,7 +6517,16 @@ def heatmap_matrix_command(
                 method=NormalizationMethod(normalization),
             ),
             design_entries=design_entries,
-            policy=HeatmapPreparationPolicy(),
+            policy=HeatmapPreparationPolicy(
+                entity_ids=tuple(dict.fromkeys(entity_ids)),
+                protein_refs=tuple(dict.fromkeys(protein_refs)),
+                min_observed_fraction=min_observed_fraction,
+                max_entity_count=max_entities,
+                z_score_rows=z_score,
+                missing_value_policy=HeatmapMissingValuePolicy(
+                    missing_value_policy.lower()
+                ),
+            ),
         )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc

@@ -4741,6 +4741,50 @@ def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
         )
 
 
+def test_heatmap_matrix_command_applies_filter_and_missing_value_policy() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "heatmap-matrix",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "top_n",
+                "--top-n",
+                "2",
+                "--protein-ref",
+                "P001",
+                "--min-observed-fraction",
+                "1.0",
+                "--no-z-score",
+                "--missing-value-policy",
+                "drop_rows",
+                "--matrix-tsv-out",
+                "heatmap.filtered.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["heatmap_report"]["summary"]["output_entity_count"] == 1
+        assert payload["heatmap_report"]["summary"]["filtered_protein_ref_count"] >= 1
+        assert payload["heatmap_report"]["summary"]["z_scored"] is False
+        assert (
+            payload["heatmap_report"]["summary"]["missing_value_policy"] == "drop_rows"
+        )
+        assert "P001" in Path("heatmap.filtered.tsv").read_text(encoding="utf-8")
+        assert "P002" not in Path("heatmap.filtered.tsv").read_text(encoding="utf-8")
+
+
 def test_quantify_command_emits_multi_condition_differential_collection() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
