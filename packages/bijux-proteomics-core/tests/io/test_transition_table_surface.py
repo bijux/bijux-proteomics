@@ -32,3 +32,27 @@ def test_parse_transition_table_rejects_rows_without_precursor_id() -> None:
     assert report.accepted_entries == ()
     assert len(report.rejected_rows) == 1
     assert report.rejected_rows[0].reason == "transition row requires precursor_id"
+
+
+def test_parse_transition_table_rejects_negative_intensity_and_invalid_q_value(
+    tmp_path: Path,
+) -> None:
+    table_path = tmp_path / "transition_quant.invalid_values.tsv"
+    table_path.write_text(
+        "\n".join(
+            (
+                "transition\tprecursor\tsample\tarea\tqvalue",
+                "tr_a\tprec_a\ts1\t-5\t0.01",
+                "tr_b\tprec_b\ts2\t10\t1.5",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_transition_table(table_path)
+
+    assert report.accepted_entries == ()
+    assert len(report.rejected_rows) == 2
+    assert "negative numeric value" in report.rejected_rows[0].reason
+    assert "invalid q-value" in report.rejected_rows[1].reason

@@ -14,11 +14,10 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TransitionRecord as CanonicalTransitionRecord,
 )
-from bijux_proteomics.tabular import (
-    DelimitedColumnSpec,
-    DelimitedColumnValueType,
-    DelimitedTableIssue,
-    parse_delimited_table,
+from bijux_proteomics.scientific_tables import (
+    ScientificTableValidationIssue,
+    build_transition_table_schema,
+    validate_scientific_table,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -117,67 +116,20 @@ class TransitionTableParseReport(JsonModel):
 
 def parse_transition_table(path: Path) -> TransitionTableParseReport:
     """Parse one transition-level table from TSV or CSV."""
-    table_report = parse_delimited_table(
+    validation_report = validate_scientific_table(
         path,
-        column_specs=(
-            DelimitedColumnSpec(
-                name="transition_id",
-                source_columns=("transition", "fragment_id"),
-                required=True,
-            ),
-            DelimitedColumnSpec(
-                name="precursor_id",
-                source_columns=("precursor",),
-                required=True,
-            ),
-            DelimitedColumnSpec(
-                name="sample_id",
-                source_columns=("sample",),
-                required=True,
-            ),
-            DelimitedColumnSpec(
-                name="intensity",
-                source_columns=("area", "peak_area"),
-                required=True,
-                value_type=DelimitedColumnValueType.FLOAT,
-            ),
-            DelimitedColumnSpec(name="run_id", source_columns=("run",)),
-            DelimitedColumnSpec(
-                name="peptide_sequence",
-                source_columns=("peptide",),
-            ),
-            DelimitedColumnSpec(name="protein_ref", source_columns=("protein",)),
-            DelimitedColumnSpec(
-                name="fragment_label",
-                source_columns=("fragment", "product_ion"),
-            ),
-            DelimitedColumnSpec(
-                name="precursor_mz",
-                source_columns=("q1",),
-                value_type=DelimitedColumnValueType.FLOAT,
-            ),
-            DelimitedColumnSpec(
-                name="fragment_mz",
-                source_columns=("product_mz", "q3"),
-                value_type=DelimitedColumnValueType.FLOAT,
-            ),
-            DelimitedColumnSpec(
-                name="q_value",
-                source_columns=("qvalue",),
-                value_type=DelimitedColumnValueType.FLOAT,
-            ),
-        ),
+        schema=build_transition_table_schema(),
     )
     accepted_entries: list[TransitionTableEntry] = []
     rejected_rows = [
         TransitionTableRejectedRow(
             row_number=row.row_number,
             values=row.raw_values,
-            reason=_stable_reason_from_issues(row.issues),
+            reason=_stable_reason_from_scientific_issues(row.issues),
         )
-        for row in table_report.rejected_rows
+        for row in validation_report.rejected_rows
     ]
-    for accepted_row in table_report.accepted_rows:
+    for accepted_row in validation_report.accepted_rows:
         normalized_row = _render_table_row_values(accepted_row.values, accepted_row.extra_values)
         try:
             accepted_entries.append(_parse_transition_row(normalized_row))
@@ -272,15 +224,17 @@ def _stable_reason(error: ValueError | ValidationError) -> str:
     return str(error)
 
 
-def _stable_reason_from_issues(issues: tuple[DelimitedTableIssue, ...]) -> str:
+def _stable_reason_from_scientific_issues(
+    issues: tuple[ScientificTableValidationIssue, ...],
+) -> str:
     if not issues:
         return "transition table row was rejected"
     issue = issues[0]
     if issue.code == "empty_table":
         return "transition table is empty"
-    if issue.code in {"missing_required_column", "missing_required_value"} and issue.column:
+    if issue.code in {"missing_column", "missing_value"} and issue.column:
         return f"transition row requires {issue.column}"
-    if issue.code == "invalid_float_value" and issue.column:
+    if issue.code == "wrong_type" and issue.column:
         return f"transition row has invalid numeric value for {issue.column}"
     return issue.message
 

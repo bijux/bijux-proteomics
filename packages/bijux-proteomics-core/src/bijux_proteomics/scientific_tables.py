@@ -8,13 +8,11 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ConfigDict, Field, field_validator
 
 from bijux_proteomics.domain.records import ContrastKind
-from bijux_proteomics.identification.contracts import SearchResultColumnMapping
-from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
-from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
 from bijux_proteomics.tabular import (
     AcceptedDelimitedRow,
     DelimitedColumnSpec,
@@ -23,6 +21,11 @@ from bijux_proteomics.tabular import (
     parse_delimited_table,
 )
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.identification.contracts import SearchResultColumnMapping
+    from bijux_proteomics.isotope_labeling.silac_quantification import SilacColumnMapping
+    from bijux_proteomics.ptm.contracts import PtmLocalizationColumnMapping
 
 
 class ScientificTableValidationIssue(JsonModel):
@@ -200,75 +203,80 @@ def require_valid_scientific_table(
 
 
 def build_psm_table_schema(
-    mapping: SearchResultColumnMapping,
+    mapping: SearchResultColumnMapping | Any,
 ) -> ScientificTableSchema:
     """Build the governed schema for one generic PSM table."""
 
     column_specs = [
-        DelimitedColumnSpec(
-            name="spectrum_id",
-            source_columns=(mapping.spectrum_id,),
-            required=True,
-        ),
-        DelimitedColumnSpec(
-            name="peptide",
-            source_columns=(mapping.peptide,),
-            required=True,
-        ),
-        DelimitedColumnSpec(
-            name="charge",
-            source_columns=(mapping.charge,),
-            required=True,
-            value_type=DelimitedColumnValueType.INTEGER,
-        ),
-        DelimitedColumnSpec(
-            name="score",
-            source_columns=(mapping.score,),
-            required=True,
-            value_type=DelimitedColumnValueType.FLOAT,
-        ),
+            DelimitedColumnSpec(
+                name="spectrum_id",
+                source_columns=(_mapping_value(mapping, "spectrum_id"),),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="peptide",
+                source_columns=(_mapping_value(mapping, "peptide"),),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="charge",
+                source_columns=(_mapping_value(mapping, "charge"),),
+                required=True,
+                value_type=DelimitedColumnValueType.INTEGER,
+            ),
+            DelimitedColumnSpec(
+                name="score",
+                source_columns=(_mapping_value(mapping, "score"),),
+                required=True,
+                value_type=DelimitedColumnValueType.FLOAT,
+            ),
     ]
     q_value_columns: list[str] = []
     nonnegative_numeric_columns: list[str] = []
-    if mapping.q_value:
+    if _mapping_value(mapping, "q_value"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="q_value",
-                source_columns=(mapping.q_value,),
+                source_columns=(_mapping_value(mapping, "q_value"),),
                 value_type=DelimitedColumnValueType.FLOAT,
             )
         )
         q_value_columns.append("q_value")
-    if mapping.intensity:
+    if _mapping_value(mapping, "intensity"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="intensity",
-                source_columns=(mapping.intensity,),
+                source_columns=(_mapping_value(mapping, "intensity"),),
                 value_type=DelimitedColumnValueType.FLOAT,
             )
         )
         nonnegative_numeric_columns.append("intensity")
-    if mapping.run_id:
-        column_specs.append(DelimitedColumnSpec(name="run_id", source_columns=(mapping.run_id,)))
-    if mapping.modified_peptide:
+    if _mapping_value(mapping, "run_id"):
+        column_specs.append(
+            DelimitedColumnSpec(
+                name="run_id",
+                source_columns=(_mapping_value(mapping, "run_id"),),
+            )
+        )
+    if _mapping_value(mapping, "modified_peptide"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="modified_peptide",
-                source_columns=(mapping.modified_peptide,),
+                source_columns=(_mapping_value(mapping, "modified_peptide"),),
             )
         )
-    if mapping.protein_refs:
+    if _mapping_value(mapping, "protein_refs"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="protein_refs",
-                source_columns=(mapping.protein_refs,),
+                source_columns=(_mapping_value(mapping, "protein_refs"),),
             )
         )
-    if mapping.decoy_label:
+    if _mapping_value(mapping, "decoy_label"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="decoy_label",
-                source_columns=(mapping.decoy_label,),
+                source_columns=(_mapping_value(mapping, "decoy_label"),),
             )
         )
     return ScientificTableSchema(
@@ -496,67 +504,76 @@ def build_contrast_table_schema() -> ScientificTableSchema:
 
 
 def build_ptm_evidence_schema(
-    mapping: PtmLocalizationColumnMapping,
+    mapping: PtmLocalizationColumnMapping | Any,
 ) -> ScientificTableSchema:
     """Build the governed schema for one PTM evidence table."""
 
     column_specs = [
-        DelimitedColumnSpec(name="spectrum_id", source_columns=(mapping.spectrum_id,), required=True),
-        DelimitedColumnSpec(name="peptide", source_columns=(mapping.peptide,), required=True),
+        DelimitedColumnSpec(name="spectrum_id", source_columns=(_mapping_value(mapping, "spectrum_id"),), required=True),
+        DelimitedColumnSpec(name="peptide", source_columns=(_mapping_value(mapping, "peptide"),), required=True),
         DelimitedColumnSpec(
             name="charge",
-            source_columns=(mapping.charge,),
+            source_columns=(_mapping_value(mapping, "charge"),),
             required=True,
             value_type=DelimitedColumnValueType.INTEGER,
         ),
         DelimitedColumnSpec(
             name="score",
-            source_columns=(mapping.score,),
+            source_columns=(_mapping_value(mapping, "score"),),
             required=True,
             value_type=DelimitedColumnValueType.FLOAT,
         ),
         DelimitedColumnSpec(
             name="protein_refs",
-            source_columns=(mapping.protein_refs,),
+            source_columns=(_mapping_value(mapping, "protein_refs"),),
             required=True,
         ),
         DelimitedColumnSpec(
             name="localization_score",
-            source_columns=(mapping.localization_score,),
+            source_columns=(_mapping_value(mapping, "localization_score"),),
             required=True,
             value_type=DelimitedColumnValueType.FLOAT,
         ),
     ]
     q_value_columns: list[str] = []
-    if mapping.q_value:
+    if _mapping_value(mapping, "q_value"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="q_value",
-                source_columns=(mapping.q_value,),
+                source_columns=(_mapping_value(mapping, "q_value"),),
                 value_type=DelimitedColumnValueType.FLOAT,
             )
         )
         q_value_columns.append("q_value")
-    if mapping.localization_probability:
+    if _mapping_value(mapping, "localization_probability"):
         column_specs.append(
             DelimitedColumnSpec(
                 name="localization_probability",
-                source_columns=(mapping.localization_probability,),
+                source_columns=(_mapping_value(mapping, "localization_probability"),),
                 value_type=DelimitedColumnValueType.FLOAT,
             )
         )
         q_value_columns.append("localization_probability")
-    if mapping.sample_id:
+    if _mapping_value(mapping, "sample_id"):
         column_specs.append(
-            DelimitedColumnSpec(name="sample_id", source_columns=(mapping.sample_id,))
+            DelimitedColumnSpec(
+                name="sample_id",
+                source_columns=(_mapping_value(mapping, "sample_id"),),
+            )
         )
-    if mapping.candidate_sites:
+    if _mapping_value(mapping, "candidate_sites"):
         column_specs.append(
-            DelimitedColumnSpec(name="candidate_sites", source_columns=(mapping.candidate_sites,))
+            DelimitedColumnSpec(
+                name="candidate_sites",
+                source_columns=(_mapping_value(mapping, "candidate_sites"),),
+            )
         )
-    if mapping.decoy_label:
+    if _mapping_value(mapping, "decoy_label"):
         column_specs.append(
-            DelimitedColumnSpec(name="decoy_label", source_columns=(mapping.decoy_label,))
+            DelimitedColumnSpec(
+                name="decoy_label",
+                source_columns=(_mapping_value(mapping, "decoy_label"),),
+            )
         )
     return ScientificTableSchema(
         table_kind="ptm_evidence",
@@ -567,27 +584,27 @@ def build_ptm_evidence_schema(
 
 
 def build_silac_feature_table_schema(
-    mapping: SilacColumnMapping,
+    mapping: SilacColumnMapping | Any,
 ) -> ScientificTableSchema:
     """Build the governed schema for one SILAC feature table."""
 
     return ScientificTableSchema(
         table_kind="silac_feature_table",
         column_specs=(
-            DelimitedColumnSpec(name="feature_id", source_columns=(mapping.feature_id,), required=True),
-            DelimitedColumnSpec(name="sample_id", source_columns=(mapping.sample_id,), required=True),
-            DelimitedColumnSpec(name="peptide", source_columns=(mapping.peptide,), required=True),
-            DelimitedColumnSpec(name="protein_refs", source_columns=(mapping.protein_refs,), required=True),
+            DelimitedColumnSpec(name="feature_id", source_columns=(_mapping_value(mapping, "feature_id"),), required=True),
+            DelimitedColumnSpec(name="sample_id", source_columns=(_mapping_value(mapping, "sample_id"),), required=True),
+            DelimitedColumnSpec(name="peptide", source_columns=(_mapping_value(mapping, "peptide"),), required=True),
+            DelimitedColumnSpec(name="protein_refs", source_columns=(_mapping_value(mapping, "protein_refs"),), required=True),
             DelimitedColumnSpec(
                 name="charge",
-                source_columns=(mapping.charge,),
+                source_columns=(_mapping_value(mapping, "charge"),),
                 required=True,
                 value_type=DelimitedColumnValueType.INTEGER,
             ),
-            DelimitedColumnSpec(name="label", source_columns=(mapping.label,), required=True),
+            DelimitedColumnSpec(name="label", source_columns=(_mapping_value(mapping, "label"),), required=True),
             DelimitedColumnSpec(
                 name="intensity",
-                source_columns=(mapping.intensity,),
+                source_columns=(_mapping_value(mapping, "intensity"),),
                 required=True,
                 value_type=DelimitedColumnValueType.FLOAT,
             ),
@@ -864,3 +881,11 @@ def _present_value(value: object) -> bool:
     if value is None:
         return False
     return bool(str(value).strip())
+
+
+def _mapping_value(mapping: object, field_name: str) -> str | None:
+    value = getattr(mapping, field_name, None)
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None

@@ -43,13 +43,13 @@ from bijux_proteomics.io.spectra import (
     parse_mgf,
     render_mgf,
 )
-from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
-from bijux_proteomics.tabular import (
-    DelimitedColumnSpec,
-    DelimitedColumnValueType,
-    DelimitedTableIssue,
-    parse_delimited_table,
+from bijux_proteomics.scientific_tables import (
+    ScientificTableValidationIssue,
+    build_sample_metadata_schema,
+    validate_scientific_table,
 )
+from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.tabular import DelimitedTableIssue
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
 _NS_MZML = "http://psi.hupo.org/ms/mzml"
@@ -463,6 +463,52 @@ def _design_issues_from_table_issues(
                 _issue(
                     "missing_design_value",
                     f"design table row is missing required value for {issue.column!r}",
+                    field=issue.column,
+                    line_number=issue.row_number,
+                )
+            )
+            continue
+        translated.append(
+            _issue(
+                "invalid_design_row",
+                issue.message,
+                field=issue.column,
+                line_number=issue.row_number,
+            )
+        )
+    return tuple(translated)
+
+
+def _design_issues_from_scientific_issues(
+    issues: tuple[ScientificTableValidationIssue, ...],
+) -> tuple[FormatValidationIssue, ...]:
+    translated: list[FormatValidationIssue] = []
+    for issue in issues:
+        if issue.code == "missing_column":
+            translated.append(
+                _issue(
+                    "missing_design_column",
+                    f"design table is missing required column {issue.column!r}",
+                    field=issue.column,
+                    line_number=issue.row_number,
+                )
+            )
+            continue
+        if issue.code == "missing_value":
+            translated.append(
+                _issue(
+                    "missing_design_value",
+                    f"design table row is missing required value for {issue.column!r}",
+                    field=issue.column,
+                    line_number=issue.row_number,
+                )
+            )
+            continue
+        if issue.code == "duplicate_identifier":
+            translated.append(
+                _issue(
+                    "duplicate_design_identifier",
+                    issue.message,
                     field=issue.column,
                     line_number=issue.row_number,
                 )
@@ -1262,34 +1308,9 @@ def diagnose_proteomics_format(path: Path) -> FormatDetectionDiagnostic:
 
 def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
     """Parse one experimental-design TSV or CSV table."""
-    if not path.read_text(encoding="utf-8").splitlines():
-        return ExperimentalDesignReport()
-    table_report = parse_delimited_table(
+    validation_report = validate_scientific_table(
         path,
-        column_specs=(
-            DelimitedColumnSpec(name="sample_id", required=True),
-            DelimitedColumnSpec(name="cohort"),
-            DelimitedColumnSpec(name="condition", required=True),
-            DelimitedColumnSpec(
-                name="replicate",
-                required=True,
-                value_type=DelimitedColumnValueType.INTEGER,
-            ),
-            DelimitedColumnSpec(
-                name="fraction",
-                required=True,
-                value_type=DelimitedColumnValueType.INTEGER,
-            ),
-            DelimitedColumnSpec(name="spectra_file", required=True),
-            DelimitedColumnSpec(name="identifications_file"),
-            DelimitedColumnSpec(name="batch"),
-            DelimitedColumnSpec(name="instrument"),
-            DelimitedColumnSpec(name="search_engine"),
-            DelimitedColumnSpec(name="pair_id"),
-            DelimitedColumnSpec(name="multiplex_group"),
-            DelimitedColumnSpec(name="multiplex_channel"),
-            DelimitedColumnSpec(name="sample_role"),
-        ),
+        schema=build_sample_metadata_schema(),
     )
     accepted_entries: list[ExperimentalDesignEntry] = []
     owned_fields = {
@@ -1312,12 +1333,12 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         ExperimentalDesignRejectedRow(
             row_number=row.row_number,
             values=row.raw_values,
-            issues=_design_issues_from_table_issues(row.issues),
+            issues=_design_issues_from_scientific_issues(row.issues),
         )
-        for row in table_report.rejected_rows
+        for row in validation_report.rejected_rows
     ]
 
-    for row in table_report.accepted_rows:
+    for row in validation_report.accepted_rows:
         values = _render_design_row_values(row.values, row.extra_values)
         try:
             sample_role_value = (
