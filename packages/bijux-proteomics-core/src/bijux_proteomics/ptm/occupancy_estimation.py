@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.chemistry import parse_modified_peptide
@@ -15,6 +17,45 @@ from bijux_proteomics.ptm.contracts import (
 )
 from bijux_proteomics.quantification.contracts import Ms1FeatureRecord
 from bijux_proteomics_foundation import JsonModel
+
+
+class PtmOccupancyCounterpartStatus(StrEnum):
+    """Counterpart-evidence status for one occupancy estimate."""
+
+    COMPLETE = "complete"
+    MISSING_COUNTERPART = "missing_counterpart"
+    AMBIGUOUS_SITE = "ambiguous_site"
+
+
+class PtmOccupancyCounterpartEvidenceEntry(JsonModel):
+    """One occupancy row with counterpart evidence and caveat semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    modified_intensity: float = Field(..., ge=0.0)
+    unmodified_intensity: float = Field(..., ge=0.0)
+    occupancy_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    uncertainty: PtmOccupancyUncertainty
+    counterpart_status: PtmOccupancyCounterpartStatus
+    modified_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    unmodified_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    modified_feature_count: int = Field(default=0, ge=0)
+    unmodified_feature_count: int = Field(default=0, ge=0)
+    caveat: str = Field(..., min_length=1)
+
+
+class PtmOccupancyCounterpartEvidenceReport(JsonModel):
+    """PTM occupancy report preserving counterpart evidence and caveats."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entries: tuple[PtmOccupancyCounterpartEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    missing_counterpart_count: int = Field(..., ge=0)
+    ambiguous_site_count: int = Field(..., ge=0)
 
 
 class PtmSiteOccupancySummary(JsonModel):
@@ -138,5 +179,61 @@ def build_ptm_site_occupancy_report(
         note=(
             "ptm occupancy estimation links localized modified peptide signal to "
             "its unmodified counterpart evidence with explicit coverage and uncertainty"
+        ),
+    )
+
+
+def build_ptm_occupancy_counterpart_report(
+    site_entries: tuple[PtmSiteEntry, ...],
+    *,
+    feature_records: tuple[Ms1FeatureRecord, ...],
+) -> PtmOccupancyCounterpartEvidenceReport:
+    """Build occupancy report with counterpart completeness and explicit caveats."""
+
+    occupancy_report = build_ptm_site_occupancy_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+    entries: list[PtmOccupancyCounterpartEvidenceEntry] = []
+    for occupancy in occupancy_report.entries:
+        if occupancy.uncertainty is PtmOccupancyUncertainty.AMBIGUOUS_SITE:
+            status = PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
+            caveat = "site mapping ambiguity limits interpretation of occupancy estimates"
+        elif occupancy.uncertainty is PtmOccupancyUncertainty.MISSING_COUNTERPART:
+            status = PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
+            caveat = (
+                "modified/unmodified counterpart evidence is incomplete, so occupancy "
+                "should be interpreted cautiously"
+            )
+        else:
+            status = PtmOccupancyCounterpartStatus.COMPLETE
+            caveat = "modified and unmodified counterpart evidence is both present"
+        entries.append(
+            PtmOccupancyCounterpartEvidenceEntry(
+                site_key=occupancy.site_key,
+                sample_id=occupancy.sample_id,
+                modified_intensity=occupancy.modified_intensity,
+                unmodified_intensity=occupancy.unmodified_intensity,
+                occupancy_fraction=occupancy.occupancy_fraction,
+                uncertainty=occupancy.uncertainty,
+                counterpart_status=status,
+                modified_peptides=occupancy.modified_peptides,
+                unmodified_peptides=occupancy.unmodified_peptides,
+                modified_feature_count=occupancy.modified_feature_count,
+                unmodified_feature_count=occupancy.unmodified_feature_count,
+                caveat=caveat,
+            )
+        )
+    return PtmOccupancyCounterpartEvidenceReport(
+        entries=tuple(entries),
+        missing_counterpart_count=sum(
+            1
+            for entry in entries
+            if entry.counterpart_status is PtmOccupancyCounterpartStatus.MISSING_COUNTERPART
+        ),
+        ambiguous_site_count=sum(
+            1
+            for entry in entries
+            if entry.counterpart_status is PtmOccupancyCounterpartStatus.AMBIGUOUS_SITE
         ),
     )

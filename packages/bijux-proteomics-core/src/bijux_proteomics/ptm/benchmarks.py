@@ -11,9 +11,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
     PtmEvidenceRecord,
+    PtmOccupancyCounterpartEvidenceEntry,
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
     PtmSiteEntry,
+    build_ptm_occupancy_counterpart_report,
 )
 from bijux_proteomics.ptm.proteoforms import (
     ProteoformEvidenceLevel,
@@ -21,11 +23,9 @@ from bijux_proteomics.ptm.proteoforms import (
     build_proteoform_identity,
 )
 from bijux_proteomics.ptm.review import (
-    PtmOccupancyCounterpartEvidenceEntry,
     build_acetyl_specific_review_fixture_report,
     build_phospho_specific_review_fixture_report,
     build_ptm_motif_enrichment_background_provenance_report,
-    build_ptm_occupancy_counterpart_report,
     build_ptm_site_localization_evidence_graph,
     build_ubiquitin_remnant_workflow_report,
     evaluate_glycopeptide_support_boundary,
