@@ -150,6 +150,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/spectra.py",
             "io/stable_outputs.py",
             "identification/contracts.py",
+            "identification/diann_import.py",
             "identification/search_adapters.py",
         ),
         release_blocker="Core cannot ship if external-engine normalization loses explicit support, loss, and refusal boundaries.",
