@@ -13,17 +13,14 @@ from pathlib import Path
 from defusedxml import ElementTree as ET
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import (
-    MzmlChromatogramReport,
-    MzmlRunMetadata,
-    build_mzml_collection_summary,
-    extract_mzml_chromatograms,
-    parse_mzml,
-    stream_mzml_spectra,
-)
 from bijux_proteomics.io.mgf_streaming import (
     count_mgf_blocks,
     iter_mgf_spectra,
+)
+from bijux_proteomics.io.mzml_reader import (
+    build_mzml_practical_review_report as _build_mzml_practical_review_report,
+    inspect_mzml_decoding_support as _inspect_mzml_decoding_support,
+    stream_mzml_spectra,
 )
 from bijux_proteomics.io.spectra import SpectrumModel
 from bijux_proteomics.quantification import (
@@ -69,20 +66,6 @@ class XmlIdentificationBoundaryReport(JsonModel):
     required_conversion: str | None = None
     diagnostics: tuple[str, ...] = Field(default_factory=tuple)
     record_count: int = Field(default=0, ge=0)
-
-
-class MzmlDecodingSupportReport(JsonModel):
-    """Decoding capability report over one mzML binary-array surface."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    supported: bool
-    spectrum_count: int = Field(..., ge=0)
-    accepted_spectrum_count: int = Field(..., ge=0)
-    rejected_spectrum_count: int = Field(..., ge=0)
-    compression_accessions: tuple[str, ...] = Field(default_factory=tuple)
-    precision_accessions: tuple[str, ...] = Field(default_factory=tuple)
-    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class ChromatogramQcPoint(JsonModel):
@@ -223,18 +206,6 @@ class RawSpectraDialectRealityReport(JsonModel):
     partial_count: int = Field(..., ge=0)
     refused_count: int = Field(..., ge=0)
     note: str = Field(..., min_length=1)
-
-
-class MzmlPracticalReviewReport(JsonModel):
-    """Practical mzML review contract over spectra, decoding, and chromatograms."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    metadata: MzmlRunMetadata
-    summary: dict[str, object] = Field(default_factory=dict)
-    decoding_support: MzmlDecodingSupportReport
-    chromatograms: MzmlChromatogramReport
-    diagnostics: tuple[str, ...] = Field(default_factory=tuple)
 
 
 def parse_mzidentml_or_refuse(path: Path) -> MzIdentMlIngestionReport:
@@ -395,87 +366,16 @@ def evaluate_pepxml_idxml_boundary(path: Path) -> XmlIdentificationBoundaryRepor
     )
 
 
-def inspect_mzml_decoding_support(path: Path) -> MzmlDecodingSupportReport:
+def inspect_mzml_decoding_support(path: Path):
     """Inspect mzML binary arrays and summarize decoding support boundaries."""
-    root = ET.parse(path).getroot()
-    if root is None:
-        raise ValueError("invalid XML: missing document root")
-    compression: set[str] = set()
-    precision: set[str] = set()
-    for param in root.findall(".//{*}cvParam"):
-        accession = param.attrib.get("accession", "").strip()
-        if not accession:
-            continue
-        if accession in {
-            "MS:1000574",  # zlib compression
-            "MS:1000576",  # no compression
-            "MS:1002312",  # numpress linear
-            "MS:1002313",  # numpress pic
-            "MS:1002314",  # numpress slof
-        }:
-            compression.add(accession)
-        if accession in {
-            "MS:1000521",  # 32-bit float
-            "MS:1000523",  # 64-bit float
-            "MS:1000519",  # 32-bit integer
-            "MS:1000522",  # 64-bit integer
-        }:
-            precision.add(accession)
 
-    parse_report = parse_mzml(path)
-    issue_codes = {
-        issue.code
-        for rejected in parse_report.rejected_spectra
-        for issue in rejected.issues
-    }
-    supported = not issue_codes.intersection(
-        {"unsupported_binary_compression", "unsupported_binary_precision"}
-    )
-    diagnostics: tuple[str, ...] = (
-        "mzML decoding supports zlib/no-compression float arrays",
-        "unsupported compression or precision is reported with explicit issue codes",
-    )
-    if not supported:
-        diagnostics = (
-            *diagnostics,
-            "this file includes unsupported binary decoding settings for current ingestion boundaries",
-        )
-    return MzmlDecodingSupportReport(
-        supported=supported,
-        spectrum_count=parse_report.total_spectra,
-        accepted_spectrum_count=len(parse_report.accepted_spectra),
-        rejected_spectrum_count=len(parse_report.rejected_spectra),
-        compression_accessions=tuple(sorted(compression)),
-        precision_accessions=tuple(sorted(precision)),
-        diagnostics=diagnostics,
-    )
+    return _inspect_mzml_decoding_support(path)
 
 
-def build_mzml_practical_review_report(path: Path) -> MzmlPracticalReviewReport:
+def build_mzml_practical_review_report(path: Path):
     """Build a practical mzML review surface without overclaiming vendor parity."""
-    parse_report = parse_mzml(path)
-    decoding_support = inspect_mzml_decoding_support(path)
-    chromatograms = extract_mzml_chromatograms(path)
-    summary = build_mzml_collection_summary(parse_report).to_dict()
-    diagnostics = [
-        "mzML review preserves accepted spectra, rejected spectra, and run metadata",
-        "binary-array decoding support is reported explicitly rather than assumed from file suffix alone",
-    ]
-    if chromatograms.total_chromatograms:
-        diagnostics.append(
-            "chromatogram traces preserve TIC/BPC arrays when present in the mzML run"
-        )
-    else:
-        diagnostics.append(
-            "no chromatogram traces were present in the mzML run; TIC/BPC support remains absent rather than guessed"
-        )
-    return MzmlPracticalReviewReport(
-        metadata=parse_report.metadata,
-        summary=summary,
-        decoding_support=decoding_support,
-        chromatograms=chromatograms,
-        diagnostics=tuple(diagnostics),
-    )
+
+    return _build_mzml_practical_review_report(path)
 
 
 def parse_chromatogram_qc_table(path: Path) -> ChromatogramQcIngestionReport:
