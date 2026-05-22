@@ -3068,6 +3068,59 @@ def test_silac_quantify_command_emits_peptide_and_protein_ratio_outputs() -> Non
         ).read_text(encoding="utf-8")
 
 
+def test_silac_differential_command_emits_matrix_result_and_balance_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "isotope_labeling"
+        shutil.copy(
+            fixture_dir / "silac_differential_features.tsv",
+            "silac_differential_features.tsv",
+        )
+        shutil.copy(
+            fixture_dir / "silac_differential.design.tsv",
+            "silac_differential.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "isotope-labeling",
+                "silac-differential",
+                "silac_differential_features.tsv",
+                "silac_differential.design.tsv",
+                "--raw-matrix-tsv-out",
+                "silac.diff.raw.tsv",
+                "--normalized-matrix-tsv-out",
+                "silac.diff.normalized.tsv",
+                "--results-tsv-out",
+                "silac.diff.results.tsv",
+                "--balance-tsv-out",
+                "silac.diff.balance.tsv",
+                "--volcano-tsv-out",
+                "silac.diff.volcano.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["design_matrix"]["sample_count"] == 4
+        assert payload["report"]["differential_abundance_report"] is not None
+        assert Path("silac.diff.raw.tsv").exists()
+        assert Path("silac.diff.normalized.tsv").exists()
+        assert Path("silac.diff.results.tsv").exists()
+        assert Path("silac.diff.balance.tsv").exists()
+        assert Path("silac.diff.volcano.tsv").exists()
+        assert "member_peptides" in Path("silac.diff.raw.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "adjusted_p_value" in Path("silac.diff.results.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "negative_log10_adjusted_p_value" in Path(
+            "silac.diff.volcano.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_silac_validate_command_emits_label_distribution_and_weak_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

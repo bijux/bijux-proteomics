@@ -515,6 +515,7 @@ from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
+    build_silac_differential_analysis_report,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     export_dia_differential_matrix_tsv,
@@ -8217,6 +8218,178 @@ def silac_quantify_command(
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@isotope_labeling_group.command("silac-differential")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--sample-id-column", default="sample_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--protein-refs-column", default="protein_refs", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--label-column", default="label", show_default=True)
+@click.option("--intensity-column", default="intensity", show_default=True)
+@click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--labels", default="light,heavy", show_default=True)
+@click.option(
+    "--reference-label",
+    type=_silac_label_choice(),
+    default=SilacLabel.LIGHT.value,
+    show_default=True,
+)
+@click.option("--collapse-charge-states", is_flag=True)
+@click.option(
+    "--normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option(
+    "--raw-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--normalized-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--results-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--balance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--volcano-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def silac_differential_command(
+    input_tsv: Path,
+    design_path: Path,
+    sample_id_column: str,
+    peptide_column: str,
+    protein_refs_column: str,
+    charge_column: str,
+    label_column: str,
+    intensity_column: str,
+    feature_id_column: str,
+    protein_separator: str,
+    labels: str,
+    reference_label: str,
+    collapse_charge_states: bool,
+    normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    raw_matrix_tsv_out: Path | None,
+    normalized_matrix_tsv_out: Path | None,
+    results_tsv_out: Path | None,
+    balance_tsv_out: Path | None,
+    volcano_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run differential analysis over governed SILAC protein ratios."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_silac_differential_analysis_report(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            mapping=SilacColumnMapping(
+                sample_id=sample_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                charge=charge_column,
+                label=label_column,
+                intensity=intensity_column,
+                feature_id=feature_id_column,
+                protein_separator=protein_separator,
+            ),
+            quantification_policy=SilacQuantificationPolicy(
+                expected_labels=_parse_silac_label_spec(labels),
+                reference_label=SilacLabel(reference_label),
+                separate_charge_states=not collapse_charge_states,
+            ),
+            normalization_method=NormalizationMethod(normalization_method),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if raw_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.input_report,
+            raw_matrix_tsv_out,
+        )
+    if normalized_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.normalized_matrix,
+            normalized_matrix_tsv_out,
+        )
+    if results_tsv_out is not None:
+        export_label_based_differential_results_tsv(report, results_tsv_out)
+    if balance_tsv_out is not None:
+        export_label_based_normalization_balance_plot_tsv(
+            report.normalization_balance_plot,
+            balance_tsv_out,
+        )
+    if volcano_tsv_out is not None and report.volcano_plot is not None:
+        export_label_based_differential_volcano_plot_tsv(
+            report.volcano_plot,
+            volcano_tsv_out,
+        )
+
+    payload = {
+        "report": report.to_dict(),
+        "outputs": {
+            "raw_matrix_tsv": (
+                None if raw_matrix_tsv_out is None else str(raw_matrix_tsv_out)
+            ),
+            "normalized_matrix_tsv": (
+                None
+                if normalized_matrix_tsv_out is None
+                else str(normalized_matrix_tsv_out)
+            ),
+            "results_tsv": (
+                None if results_tsv_out is None else str(results_tsv_out)
+            ),
+            "balance_tsv": (
+                None if balance_tsv_out is None else str(balance_tsv_out)
+            ),
+            "volcano_tsv": (
+                None
+                if volcano_tsv_out is None or report.volcano_plot is None
+                else str(volcano_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
