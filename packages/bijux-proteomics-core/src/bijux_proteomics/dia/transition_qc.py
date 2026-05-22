@@ -23,6 +23,8 @@ class DiaTransitionSampleValue(JsonModel):
     run_ids: tuple[str, ...] = Field(default_factory=tuple)
     intensity: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    precursor_total_intensity: float | None = Field(default=None, ge=0.0)
+    relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
     source_observation_count: int = Field(..., ge=0)
     detected: bool
 
@@ -45,7 +47,24 @@ class DiaTransitionQcEntry(JsonModel):
     total_intensity: float = Field(..., ge=0.0)
     mean_intensity: float = Field(..., ge=0.0)
     median_intensity: float = Field(..., ge=0.0)
+    median_relative_share: float = Field(..., ge=0.0, le=1.0)
     min_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    weak: bool = False
+    weak_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DiaWeakTransitionEntry(JsonModel):
+    """One explicitly flagged weak transition with stable detection reasons."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    transition_id: str = Field(..., min_length=1)
+    precursor_id: str = Field(..., min_length=1)
+    detected_sample_count: int = Field(..., ge=0)
+    sample_count: int = Field(..., ge=0)
+    detection_fraction: float = Field(..., ge=0.0, le=1.0)
+    median_relative_share: float = Field(..., ge=0.0, le=1.0)
+    weak_reasons: tuple[str, ...] = Field(default_factory=tuple)
 
 
 class DiaTransitionQcSummary(JsonModel):
@@ -58,6 +77,7 @@ class DiaTransitionQcSummary(JsonModel):
     sample_count: int = Field(..., ge=0)
     observed_cell_count: int = Field(..., ge=0)
     missing_cell_count: int = Field(..., ge=0)
+    weak_transition_count: int = Field(..., ge=0)
 
 
 class DiaTransitionQcReport(JsonModel):
@@ -68,18 +88,32 @@ class DiaTransitionQcReport(JsonModel):
     source_name: str = Field(default="transition table", min_length=1)
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     entries: tuple[DiaTransitionQcEntry, ...] = Field(default_factory=tuple)
+    weak_transitions: tuple[DiaWeakTransitionEntry, ...] = Field(default_factory=tuple)
     summary: DiaTransitionQcSummary
     note: str = Field(..., min_length=1)
 
 
 def build_transition_qc_report(
     entries: tuple[TransitionTableEntry, ...],
+    *,
+    weak_detection_fraction_threshold: float = 0.5,
+    weak_relative_share_threshold: float = 0.1,
 ) -> DiaTransitionQcReport:
     """Build transition-level sample summaries from canonical transition observations."""
 
+    if not 0.0 <= weak_detection_fraction_threshold <= 1.0:
+        raise ValueError("weak_detection_fraction_threshold must be between 0.0 and 1.0")
+    if not 0.0 <= weak_relative_share_threshold <= 1.0:
+        raise ValueError("weak_relative_share_threshold must be between 0.0 and 1.0")
+
     sample_ids = tuple(sorted({entry.sample_id for entry in entries}))
+    precursor_sample_totals: dict[tuple[str, str], float] = {}
     grouped: dict[str, dict[str, object]] = {}
     for entry in entries:
+        precursor_sample_totals[(entry.precursor_id, entry.sample_id)] = (
+            precursor_sample_totals.get((entry.precursor_id, entry.sample_id), 0.0)
+            + entry.intensity
+        )
         group = grouped.setdefault(
             entry.transition_id,
             {
@@ -97,6 +131,7 @@ def build_transition_qc_report(
         sample_entries.setdefault(entry.sample_id, []).append(entry)
 
     report_entries: list[DiaTransitionQcEntry] = []
+    weak_transitions: list[DiaWeakTransitionEntry] = []
     observed_cell_count = 0
     missing_cell_count = 0
     precursor_ids: set[str] = set()
@@ -110,6 +145,7 @@ def build_transition_qc_report(
         assert isinstance(sample_entries, dict)
         values: list[DiaTransitionSampleValue] = []
         detected_intensities: list[float] = []
+        detected_shares: list[float] = []
         min_q_value: float | None = None
         for sample_id in sample_ids:
             observations = sample_entries.get(sample_id, [])
@@ -125,12 +161,20 @@ def build_transition_qc_report(
                 continue
             observed_cell_count += 1
             intensity = sum(observation.intensity for observation in observations)
+            precursor_total_intensity = precursor_sample_totals[(precursor_id, sample_id)]
+            relative_share = (
+                intensity / precursor_total_intensity
+                if precursor_total_intensity > 0.0
+                else None
+            )
             q_values = [
                 observation.q_value
                 for observation in observations
                 if observation.q_value is not None
             ]
             detected_intensities.append(intensity)
+            if relative_share is not None:
+                detected_shares.append(relative_share)
             if q_values:
                 local_min_q = min(q_values)
                 min_q_value = (
@@ -152,10 +196,22 @@ def build_transition_qc_report(
                     ),
                     intensity=intensity,
                     q_value=min(q_values) if q_values else None,
+                    precursor_total_intensity=precursor_total_intensity,
+                    relative_share=relative_share,
                     source_observation_count=len(observations),
                     detected=True,
                 )
             )
+        detection_fraction = (
+            len(detected_intensities) / len(sample_ids) if sample_ids else 0.0
+        )
+        median_relative_share = _median(detected_shares)
+        weak_reasons: list[str] = []
+        if detection_fraction < weak_detection_fraction_threshold:
+            weak_reasons.append("low sample detection fraction")
+        if median_relative_share < weak_relative_share_threshold:
+            weak_reasons.append("low median precursor-relative share")
+        weak = bool(weak_reasons)
         report_entries.append(
             DiaTransitionQcEntry(
                 transition_id=transition_id,
@@ -193,21 +249,38 @@ def build_transition_qc_report(
                     else 0.0
                 ),
                 median_intensity=_median(detected_intensities),
+                median_relative_share=median_relative_share,
                 min_q_value=min_q_value,
+                weak=weak,
+                weak_reasons=tuple(weak_reasons),
             )
         )
+        if weak:
+            weak_transitions.append(
+                DiaWeakTransitionEntry(
+                    transition_id=transition_id,
+                    precursor_id=precursor_id,
+                    detected_sample_count=len(detected_intensities),
+                    sample_count=len(sample_ids),
+                    detection_fraction=detection_fraction,
+                    median_relative_share=median_relative_share,
+                    weak_reasons=tuple(weak_reasons),
+                )
+            )
     return DiaTransitionQcReport(
         sample_ids=sample_ids,
         entries=tuple(report_entries),
+        weak_transitions=tuple(weak_transitions),
         summary=DiaTransitionQcSummary(
             precursor_count=len(precursor_ids),
             transition_count=len(report_entries),
             sample_count=len(sample_ids),
             observed_cell_count=observed_cell_count,
             missing_cell_count=missing_cell_count,
+            weak_transition_count=len(weak_transitions),
         ),
         note=(
-            "transition qc keeps fragment-level evidence linked to canonical precursor ids and sample-resolved intensities so users can inspect quantitative support below precursor rollups"
+            "transition qc keeps fragment-level evidence linked to canonical precursor ids, sample-resolved intensities, and explicit weak-transition calls so users can inspect quantitative support below precursor rollups"
         ),
     )
 

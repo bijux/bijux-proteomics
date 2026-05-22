@@ -20,6 +20,7 @@ def test_build_transition_qc_report_links_transitions_to_precursors() -> None:
     assert report.summary.sample_count == 3
     assert report.summary.observed_cell_count == 7
     assert report.summary.missing_cell_count == 5
+    assert report.summary.weak_transition_count == 1
     assert report.entries[0].precursor_id == "prec_a"
     assert report.entries[0].transition_id == "tr_y7_a"
     assert report.entries[0].fragment_label == "y7"
@@ -35,7 +36,27 @@ def test_build_transition_qc_report_summarizes_transition_intensities() -> None:
     assert first_entry.total_intensity == 230000.0
     assert first_entry.mean_intensity == 115000.0
     assert first_entry.median_intensity == 115000.0
+    assert round(first_entry.median_relative_share, 6) == 0.837185
     assert first_entry.min_q_value == 0.002
     assert first_entry.values[0].sample_id == "s1"
     assert first_entry.values[0].intensity == 120000.0
+    assert first_entry.values[0].precursor_total_intensity == 160000.0
+    assert first_entry.values[0].relative_share == 0.75
     assert first_entry.values[2].detected is False
+
+
+def test_build_transition_qc_report_flags_weak_transitions() -> None:
+    report = build_transition_qc_report_from_table(_format_fixture("transition_quant.tsv"))
+
+    assert len(report.weak_transitions) == 1
+    assert report.weak_transitions[0].transition_id == "tr_y6_b"
+    assert round(report.weak_transitions[0].detection_fraction, 6) == 0.333333
+    assert round(report.weak_transitions[0].median_relative_share, 6) == 0.078947
+    assert report.weak_transitions[0].weak_reasons == (
+        "low sample detection fraction",
+        "low median precursor-relative share",
+    )
+    weak_entry = next(
+        entry for entry in report.entries if entry.transition_id == "tr_y6_b"
+    )
+    assert weak_entry.weak is True
