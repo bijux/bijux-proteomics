@@ -13,6 +13,7 @@ from bijux_proteomics.identification.diann_import import (
     build_diann_import_report,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
+    render_diann_rejected_row_tsv,
 )
 from bijux_proteomics.identification.fragpipe_import import (
     build_fragpipe_import_report,
@@ -120,6 +121,27 @@ def test_diann_export_renderers_ignore_input_row_order() -> None:
     assert render_diann_protein_group_tsv(
         report.protein_group_rows
     ) == render_diann_protein_group_tsv(_reversed_rows(report.protein_group_rows))
+
+
+def test_diann_rejected_row_renderer_ignores_input_row_order(tmp_path: Path) -> None:
+    report_path = tmp_path / "diann_invalid.tsv"
+    report_path.write_text(
+        "\n".join(
+            (
+                "Precursor.Id\tStripped.Sequence\tModified.Sequence\tPrecursor.Charge\tQ.Value\tProtein.Group\tProtein.Ids\tRun\tSample\tPrecursor.Quantity\tPG.Quantity\tDecoy",
+                "raw_A_PEPTIDE_2\tPEPTIDE\tPEPTIDE\t2\t0.01\tPG001\tP11111\traw_A\tsample_A\t50\t1000\t0",
+                "raw_B_BADQ_2\tBADQ\tBADQ\t2\t1.2\tPG002\tP22222\traw_B\tsample_B\t120\t2000\t0",
+                "raw_C_NEGQTY_2\tNEGQTY\tNEGQTY\t2\t0.02\tPG003\tP33333\traw_C\tsample_C\t-5\t1000\t0",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    report = build_diann_import_report(report_path)
+
+    assert render_diann_rejected_row_tsv(
+        report.rejected_rows
+    ) == render_diann_rejected_row_tsv(_reversed_rows(report.rejected_rows))
 
 
 def test_spectronaut_export_renderers_ignore_input_row_order() -> None:
