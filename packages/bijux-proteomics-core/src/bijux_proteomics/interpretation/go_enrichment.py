@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+from io import StringIO
+import json
 import math
 from pathlib import Path
 
@@ -466,6 +468,103 @@ def apply_go_enrichment_multiple_testing(
     )
 
 
+def render_go_enrichment_summary_tsv(report: GoEnrichmentReport) -> str:
+    """Render the compact GO enrichment summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "foreground_size",
+            "background_size",
+            "evaluated_term_count",
+            "foreground_annotated_count",
+            "background_annotated_count",
+            "unannotated_foreground_count",
+            "unannotated_background_count",
+            "enriched_term_count",
+        )
+    )
+    writer.writerow(
+        (
+            report.summary.foreground_size,
+            report.summary.background_size,
+            report.summary.evaluated_term_count,
+            report.summary.foreground_annotated_count,
+            report.summary.background_annotated_count,
+            report.summary.unannotated_foreground_count,
+            report.summary.unannotated_background_count,
+            report.summary.enriched_term_count,
+        )
+    )
+    return buffer.getvalue()
+
+
+def render_go_enrichment_term_tsv(report: GoEnrichmentReport) -> str:
+    """Render evaluated GO term enrichment rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "go_term_id",
+            "go_term_name",
+            "go_aspect",
+            "foreground_overlap_count",
+            "background_term_count",
+            "foreground_size",
+            "background_size",
+            "expected_overlap_count",
+            "enrichment_ratio",
+            "p_value",
+            "adjusted_p_value",
+            "foreground_protein_refs",
+            "background_protein_refs",
+        )
+    )
+    for entry in report.term_entries:
+        writer.writerow(
+            (
+                entry.go_term_id,
+                entry.go_term_name or "",
+                "" if entry.go_aspect is None else entry.go_aspect.value,
+                entry.foreground_overlap_count,
+                entry.background_term_count,
+                entry.foreground_size,
+                entry.background_size,
+                f"{entry.expected_overlap_count:g}",
+                "" if entry.enrichment_ratio is None else f"{entry.enrichment_ratio:g}",
+                f"{entry.p_value:g}",
+                "" if entry.adjusted_p_value is None else f"{entry.adjusted_p_value:g}",
+                ";".join(entry.foreground_protein_refs),
+                ";".join(entry.background_protein_refs),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_go_enrichment_unannotated_tsv(report: GoEnrichmentReport) -> str:
+    """Render unannotated foreground or background proteins as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("set_role", "protein_ref"))
+    for entry in report.unannotated_proteins:
+        writer.writerow((entry.set_role, entry.protein_ref))
+    return buffer.getvalue()
+
+
+def render_rejected_go_annotation_tsv(report: GoAnnotationImportReport) -> str:
+    """Render rejected GO annotation rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("row_number", "values", "reason"))
+    for row in report.rejected_rows:
+        writer.writerow((row.row_number, _metadata_json(row.values), row.reason))
+    return buffer.getvalue()
+
+
 def _parse_go_aspect(
     value: str | None,
     *,
@@ -574,6 +673,10 @@ def _optional_value(row: dict[str, str], field_name: str | None) -> str | None:
 def _read_delimited_lines(path: Path) -> list[str]:
     payload = path.read_text(encoding="utf-8")
     return payload.splitlines()
+
+
+def _metadata_json(values: dict[str, str]) -> str:
+    return json.dumps(values, sort_keys=True)
 
 
 def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
