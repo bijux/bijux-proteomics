@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from pathlib import Path
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.multiplex.normalization import (
@@ -23,6 +27,7 @@ from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
     ProteinIntensityMatrixRow,
     ProteinIntensityMatrixSummary,
+    render_protein_intensity_matrix_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -386,3 +391,139 @@ def _filter_protein_matrix_samples(
             ),
         }
     )
+
+
+def render_tmt_plex_integration_summary_tsv(report: TmtPlexIntegrationReport) -> str:
+    """Render a compact summary over one TMT plex-integration run."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group_count",
+            "bridge_group_count",
+            "integrated_sample_count",
+            "protein_row_count",
+            "missing_bridge_value_count",
+            "flagged_plex_effect_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.multiplex_group_count,
+            report.summary.bridge_group_count,
+            report.summary.integrated_sample_count,
+            report.summary.protein_row_count,
+            report.summary.missing_bridge_value_count,
+            report.summary.flagged_plex_effect_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_plex_alignment_tsv(report: TmtPlexIntegrationReport) -> str:
+    """Render the sample-alignment ledger over one TMT plex integration."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "multiplex_group",
+            "multiplex_channel",
+            "condition",
+            "replicate",
+            "batch",
+            "sample_role",
+            "channel_role",
+            "analysis_included",
+            "bridge_sample_id",
+            "bridge_channel",
+            "note",
+        ]
+    )
+    for entry in report.sample_alignment:
+        writer.writerow(
+            [
+                entry.sample_id,
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.condition,
+                entry.replicate,
+                entry.batch or "",
+                entry.sample_role,
+                entry.channel_role.value,
+                str(entry.analysis_included).lower(),
+                entry.bridge_sample_id or "",
+                entry.bridge_channel or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_plex_effect_tsv(report: TmtPlexIntegrationReport) -> str:
+    """Render the plex-effect review ledger over the governed bridge channel."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "bridge_sample_id",
+            "bridge_channel",
+            "bridge_total_intensity",
+            "ratio_to_global_bridge_median",
+            "effect_ratio",
+            "flagged",
+            "note",
+        ]
+    )
+    for entry in report.plex_effects:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.bridge_sample_id,
+                entry.bridge_channel,
+                entry.bridge_total_intensity,
+                entry.ratio_to_global_bridge_median,
+                entry.effect_ratio,
+                str(entry.flagged).lower(),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_integrated_protein_matrix_tsv(report: TmtPlexIntegrationReport) -> str:
+    """Render the combined bridge-normalized protein matrix as TSV."""
+
+    return render_protein_intensity_matrix_tsv(report.integrated_protein_matrix)
+
+
+def export_tmt_plex_integration_summary_tsv(
+    report: TmtPlexIntegrationReport, path: Path
+) -> None:
+    """Write the compact TMT plex-integration summary."""
+
+    path.write_text(render_tmt_plex_integration_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_plex_alignment_tsv(report: TmtPlexIntegrationReport, path: Path) -> None:
+    """Write the sample-alignment ledger for TMT plex integration."""
+
+    path.write_text(render_tmt_plex_alignment_tsv(report), encoding="utf-8")
+
+
+def export_tmt_plex_effect_tsv(report: TmtPlexIntegrationReport, path: Path) -> None:
+    """Write the plex-effect review ledger for TMT plex integration."""
+
+    path.write_text(render_tmt_plex_effect_tsv(report), encoding="utf-8")
+
+
+def export_tmt_integrated_protein_matrix_tsv(
+    report: TmtPlexIntegrationReport, path: Path
+) -> None:
+    """Write the combined bridge-normalized protein matrix."""
+
+    path.write_text(render_tmt_integrated_protein_matrix_tsv(report), encoding="utf-8")
