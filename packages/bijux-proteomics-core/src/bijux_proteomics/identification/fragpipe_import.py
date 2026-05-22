@@ -15,6 +15,7 @@ from bijux_proteomics.chemistry.modified_peptide_parser import (
     build_search_engine_modified_peptide_report,
 )
 from bijux_proteomics.identification.contracts import (
+    PsmRecord,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
@@ -43,6 +44,18 @@ class FragpipePsmReviewEntry(JsonModel):
     q_value: float | None = Field(default=None, ge=0.0)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel
+    assigned_modifications: tuple[str, ...] = Field(default_factory=tuple)
+    observed_modifications: tuple[str, ...] = Field(default_factory=tuple)
+    mass_difference: float | None = None
+    open_search_candidate: bool = False
+
+
+class FragpipeCanonicalPsmEntry(JsonModel):
+    """Canonical PSM contract plus FragPipe-specific mass-delta evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    record: PsmRecord
     assigned_modifications: tuple[str, ...] = Field(default_factory=tuple)
     observed_modifications: tuple[str, ...] = Field(default_factory=tuple)
     mass_difference: float | None = None
@@ -87,6 +100,32 @@ class FragpipeProteinReviewEntry(JsonModel):
     target_decoy_label: TargetDecoyLabel
 
 
+class FragpipeOpenSearchEvidenceEntry(JsonModel):
+    """One preserved open-search mass-delta row from the FragPipe bundle."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_kind: str = Field(..., min_length=1)
+    entity_id: str = Field(..., min_length=1)
+    peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
+    canonical_modified_peptide: str | None = None
+    mass_difference: float
+
+
+class FragpipeProteinQuantityEntry(JsonModel):
+    """One optional FragPipe quant-table protein abundance row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    abundance: float = Field(..., ge=0.0)
+    quantity_kind: str = Field(..., min_length=1)
+    target_decoy_label: TargetDecoyLabel
+
+
 class FragpipeImportSummary(JsonModel):
     """Compact summary over one imported FragPipe result bundle."""
 
@@ -96,6 +135,11 @@ class FragpipeImportSummary(JsonModel):
     rejected_psm_count: int = Field(..., ge=0)
     peptide_row_count: int = Field(..., ge=0)
     protein_row_count: int = Field(..., ge=0)
+    canonical_psm_count: int = Field(..., ge=0)
+    peptide_evidence_count: int = Field(..., ge=0)
+    protein_reference_count: int = Field(..., ge=0)
+    open_search_evidence_count: int = Field(..., ge=0)
+    protein_quantity_count: int = Field(..., ge=0)
     modified_psm_count: int = Field(..., ge=0)
     modified_peptide_row_count: int = Field(..., ge=0)
     open_search_psm_count: int = Field(..., ge=0)
@@ -113,9 +157,20 @@ class FragpipeImportReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     psm_normalization: SearchAdapterNormalizationReport
+    canonical_psms: tuple[FragpipeCanonicalPsmEntry, ...] = Field(default_factory=tuple)
     psm_rows: tuple[FragpipePsmReviewEntry, ...] = Field(default_factory=tuple)
+    peptide_evidence: tuple[FragpipePeptideReviewEntry, ...] = Field(default_factory=tuple)
     peptide_rows: tuple[FragpipePeptideReviewEntry, ...] = Field(default_factory=tuple)
+    protein_references: tuple[FragpipeProteinReviewEntry, ...] = Field(
+        default_factory=tuple
+    )
     protein_rows: tuple[FragpipeProteinReviewEntry, ...] = Field(default_factory=tuple)
+    open_search_evidence: tuple[FragpipeOpenSearchEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
+    protein_quantity_rows: tuple[FragpipeProteinQuantityEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: FragpipeImportSummary
 
 
@@ -124,6 +179,7 @@ def build_fragpipe_import_report(
     *,
     peptide_tsv_path: Path,
     protein_tsv_path: Path,
+    quant_tsv_path: Path | None = None,
     decoy_policy: TargetDecoyLabelPolicy | None = None,
     open_search_mass_tolerance: float = 0.01,
 ) -> FragpipeImportReport:
@@ -138,6 +194,10 @@ def build_fragpipe_import_report(
         adapter_kind=SearchAdapterKind.MSFRAGGER,
         dialect_id="fragpipe-psm",
     )
+    canonical_psms = _build_fragpipe_canonical_psm_rows(
+        normalization_report=psm_normalization,
+        open_search_mass_tolerance=open_search_mass_tolerance,
+    )
     psm_rows = _build_fragpipe_psm_rows(
         normalization_report=psm_normalization,
         open_search_mass_tolerance=open_search_mass_tolerance,
@@ -151,6 +211,14 @@ def build_fragpipe_import_report(
         protein_tsv_path,
         decoy_policy=active_decoy_policy,
     )
+    open_search_evidence = _build_fragpipe_open_search_evidence(
+        canonical_psms=canonical_psms,
+        peptide_rows=peptide_rows,
+    )
+    protein_quantity_rows = _parse_fragpipe_quant_table(
+        quant_tsv_path,
+        decoy_policy=active_decoy_policy,
+    )
     protein_refs = {
         protein_ref
         for row in peptide_rows
@@ -161,6 +229,11 @@ def build_fragpipe_import_report(
         rejected_psm_count=len(psm_normalization.parse_report.rejected_rows),
         peptide_row_count=len(peptide_rows),
         protein_row_count=len(protein_rows),
+        canonical_psm_count=len(canonical_psms),
+        peptide_evidence_count=len(peptide_rows),
+        protein_reference_count=len(protein_rows),
+        open_search_evidence_count=len(open_search_evidence),
+        protein_quantity_count=len(protein_quantity_rows),
         modified_psm_count=sum(1 for row in psm_rows if _has_modified_content(row)),
         modified_peptide_row_count=sum(
             1 for row in peptide_rows if _has_modified_content(row)
@@ -185,9 +258,14 @@ def build_fragpipe_import_report(
     )
     return FragpipeImportReport(
         psm_normalization=psm_normalization,
+        canonical_psms=canonical_psms,
         psm_rows=psm_rows,
+        peptide_evidence=peptide_rows,
         peptide_rows=peptide_rows,
+        protein_references=protein_rows,
         protein_rows=protein_rows,
+        open_search_evidence=open_search_evidence,
+        protein_quantity_rows=protein_quantity_rows,
         summary=summary,
     )
 
@@ -199,6 +277,11 @@ def render_fragpipe_summary_tsv(summary: FragpipeImportSummary) -> str:
         "rejected_psm_count",
         "peptide_row_count",
         "protein_row_count",
+        "canonical_psm_count",
+        "peptide_evidence_count",
+        "protein_reference_count",
+        "open_search_evidence_count",
+        "protein_quantity_count",
         "modified_psm_count",
         "modified_peptide_row_count",
         "open_search_psm_count",
@@ -214,6 +297,11 @@ def render_fragpipe_summary_tsv(summary: FragpipeImportSummary) -> str:
         str(summary.rejected_psm_count),
         str(summary.peptide_row_count),
         str(summary.protein_row_count),
+        str(summary.canonical_psm_count),
+        str(summary.peptide_evidence_count),
+        str(summary.protein_reference_count),
+        str(summary.open_search_evidence_count),
+        str(summary.protein_quantity_count),
         str(summary.modified_psm_count),
         str(summary.modified_peptide_row_count),
         str(summary.open_search_psm_count),
@@ -225,6 +313,69 @@ def render_fragpipe_summary_tsv(summary: FragpipeImportSummary) -> str:
         str(summary.decoy_protein_count),
     )
     return "\t".join(header) + "\n" + "\t".join(row) + "\n"
+
+
+def render_fragpipe_canonical_psm_tsv(
+    rows: tuple[FragpipeCanonicalPsmEntry, ...],
+) -> str:
+    """Render canonical FragPipe PSM rows as TSV."""
+
+    ordered_rows = tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.record.spectrum_id,
+                row.record.charge,
+                row.record.canonical_peptide,
+            ),
+        )
+    )
+    lines = [
+        "\t".join(
+            (
+                "run_id",
+                "spectrum_id",
+                "peptide",
+                "peptide_sequence",
+                "modified_peptide",
+                "canonical_peptide",
+                "charge",
+                "score",
+                "q_value",
+                "protein_refs",
+                "target_decoy_label",
+                "contaminant_flag",
+                "assigned_modifications",
+                "observed_modifications",
+                "mass_difference",
+                "open_search_candidate",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    row.record.run_id or "",
+                    row.record.spectrum_id,
+                    row.record.peptide,
+                    row.record.peptide_sequence or "",
+                    row.record.modified_peptide or "",
+                    row.record.canonical_peptide,
+                    str(row.record.charge),
+                    f"{row.record.score:.6g}",
+                    "" if row.record.q_value is None else f"{row.record.q_value:.6g}",
+                    ";".join(sort_strings(row.record.protein_refs)),
+                    row.record.target_decoy_label.value,
+                    "1" if row.record.contaminant_flag else "0",
+                    ";".join(sort_strings(row.assigned_modifications)),
+                    ";".join(sort_strings(row.observed_modifications)),
+                    "" if row.mass_difference is None else f"{row.mass_difference:.6g}",
+                    "1" if row.open_search_candidate else "0",
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
 
 
 def render_fragpipe_psm_tsv(rows: tuple[FragpipePsmReviewEntry, ...]) -> str:
@@ -370,6 +521,119 @@ def render_fragpipe_protein_tsv(rows: tuple[FragpipeProteinReviewEntry, ...]) ->
             )
         )
     return "\n".join(lines) + "\n"
+
+
+def render_fragpipe_open_search_evidence_tsv(
+    rows: tuple[FragpipeOpenSearchEvidenceEntry, ...],
+) -> str:
+    """Render preserved FragPipe open-search evidence rows as TSV."""
+
+    ordered_rows = sort_rows_by_fields(rows, "entity_kind", "entity_id")
+    lines = [
+        "\t".join(
+            (
+                "entity_kind",
+                "entity_id",
+                "peptide",
+                "canonical_peptide",
+                "modified_peptide",
+                "canonical_modified_peptide",
+                "mass_difference",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    row.entity_kind,
+                    row.entity_id,
+                    row.peptide,
+                    row.canonical_peptide,
+                    row.modified_peptide or "",
+                    row.canonical_modified_peptide or "",
+                    f"{row.mass_difference:.6g}",
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def render_fragpipe_protein_quantity_tsv(
+    rows: tuple[FragpipeProteinQuantityEntry, ...],
+) -> str:
+    """Render optional FragPipe protein-quantity rows as TSV."""
+
+    ordered_rows = sort_rows_by_fields(rows, "protein_ref", "sample_id")
+    lines = [
+        "\t".join(
+            (
+                "protein_ref",
+                "sample_id",
+                "abundance",
+                "quantity_kind",
+                "target_decoy_label",
+            )
+        )
+    ]
+    for row in ordered_rows:
+        lines.append(
+            "\t".join(
+                (
+                    row.protein_ref,
+                    row.sample_id,
+                    f"{row.abundance:.6g}",
+                    row.quantity_kind,
+                    row.target_decoy_label.value,
+                )
+            )
+        )
+    return "\n".join(lines) + "\n"
+
+
+def _build_fragpipe_canonical_psm_rows(
+    *,
+    normalization_report: SearchAdapterNormalizationReport,
+    open_search_mass_tolerance: float,
+) -> tuple[FragpipeCanonicalPsmEntry, ...]:
+    accepted_rows = tuple(
+        row
+        for row in normalization_report.evidence_rows
+        if row.accepted and row.normalized_record
+    )
+    rows: list[FragpipeCanonicalPsmEntry] = []
+    for row in accepted_rows:
+        record = row.normalized_record
+        if record is None:
+            continue
+        raw = row.raw_fields
+        mass_difference = _optional_float(raw.get("Mass Difference"))
+        rows.append(
+            FragpipeCanonicalPsmEntry(
+                record=record,
+                assigned_modifications=_split_multi_value(
+                    raw.get("Assigned Modifications")
+                ),
+                observed_modifications=_split_multi_value(
+                    raw.get("Observed Modifications")
+                ),
+                mass_difference=mass_difference,
+                open_search_candidate=_is_open_search_candidate(
+                    mass_difference,
+                    tolerance=open_search_mass_tolerance,
+                ),
+            )
+        )
+    return tuple(
+        sorted(
+            rows,
+            key=lambda row: (
+                row.record.spectrum_id,
+                row.record.q_value if row.record.q_value is not None else float("inf"),
+                -row.record.score,
+            ),
+        )
+    )
 
 
 def _build_fragpipe_psm_rows(
@@ -525,6 +789,108 @@ def _parse_fragpipe_protein_table(
     return tuple(sorted(rows, key=lambda row: row.protein_ref))
 
 
+def _build_fragpipe_open_search_evidence(
+    *,
+    canonical_psms: tuple[FragpipeCanonicalPsmEntry, ...],
+    peptide_rows: tuple[FragpipePeptideReviewEntry, ...],
+) -> tuple[FragpipeOpenSearchEvidenceEntry, ...]:
+    rows: list[FragpipeOpenSearchEvidenceEntry] = []
+    for row in canonical_psms:
+        if not row.open_search_candidate or row.mass_difference is None:
+            continue
+        rows.append(
+            FragpipeOpenSearchEvidenceEntry(
+                entity_kind="psm",
+                entity_id=row.record.spectrum_id,
+                peptide=row.record.peptide,
+                canonical_peptide=row.record.canonical_peptide,
+                modified_peptide=row.record.modified_peptide,
+                canonical_modified_peptide=row.record.modified_peptide,
+                mass_difference=row.mass_difference,
+            )
+        )
+    for row in peptide_rows:
+        if not row.open_search_candidate or row.mass_difference is None:
+            continue
+        rows.append(
+            FragpipeOpenSearchEvidenceEntry(
+                entity_kind="peptide",
+                entity_id=_fragpipe_peptide_entity_id(
+                    peptide=row.peptide,
+                    modified_peptide=row.modified_peptide,
+                    charge=row.charge,
+                ),
+                peptide=row.peptide,
+                canonical_peptide=row.peptide,
+                modified_peptide=row.modified_peptide,
+                canonical_modified_peptide=row.canonical_modified_peptide,
+                mass_difference=row.mass_difference,
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: (row.entity_kind, row.entity_id)))
+
+
+def _parse_fragpipe_quant_table(
+    path: Path | None,
+    *,
+    decoy_policy: TargetDecoyLabelPolicy,
+) -> tuple[FragpipeProteinQuantityEntry, ...]:
+    if path is None:
+        return ()
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("FragPipe quant table must include a header row")
+        if "Protein" not in reader.fieldnames:
+            raise ValueError("missing required FragPipe quant column 'Protein'")
+        quant_columns = _fragpipe_quant_columns(reader.fieldnames)
+        if not quant_columns:
+            raise ValueError(
+                "FragPipe quant table must include at least one supported abundance column"
+            )
+        rows: list[FragpipeProteinQuantityEntry] = []
+        for raw_row in reader:
+            protein_ref = str(raw_row.get("Protein", "")).strip()
+            label = parse_target_decoy_label(
+                protein_refs=(protein_ref,),
+                explicit_label=None,
+                policy=decoy_policy,
+            )
+            for column_name, quantity_kind, sample_id in quant_columns:
+                abundance = _optional_float(raw_row.get(column_name))
+                if abundance is None:
+                    continue
+                rows.append(
+                    FragpipeProteinQuantityEntry(
+                        protein_ref=protein_ref,
+                        sample_id=sample_id,
+                        abundance=abundance,
+                        quantity_kind=quantity_kind,
+                        target_decoy_label=label,
+                    )
+                )
+    return tuple(sorted(rows, key=lambda row: (row.protein_ref, row.sample_id)))
+
+
+def _fragpipe_quant_columns(
+    fieldnames: list[str],
+) -> tuple[tuple[str, str, str], ...]:
+    prefix_map = (
+        ("MaxLFQ Intensity ", "maxlfq_intensity"),
+        ("Intensity ", "intensity"),
+        ("Abundance ", "abundance"),
+    )
+    columns: list[tuple[str, str, str]] = []
+    for field_name in fieldnames:
+        for prefix, quantity_kind in prefix_map:
+            if field_name.startswith(prefix):
+                sample_id = field_name.removeprefix(prefix).strip()
+                if sample_id:
+                    columns.append((field_name, quantity_kind, sample_id))
+                break
+    return tuple(columns)
+
+
 def _canonical_modified_peptide(notation: str | None) -> str | None:
     if notation is None:
         return None
@@ -593,3 +959,12 @@ def _has_modified_content(
     if row.canonical_modified_peptide is None:
         return False
     return row.canonical_modified_peptide != row.peptide
+
+
+def _fragpipe_peptide_entity_id(
+    *, peptide: str, modified_peptide: str | None, charge: int | None
+) -> str:
+    modified_key = modified_peptide or peptide
+    if charge is None:
+        return f"{modified_key}|unassigned"
+    return f"{modified_key}|z{charge}"
