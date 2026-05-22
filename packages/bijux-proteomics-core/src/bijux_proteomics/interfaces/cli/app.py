@@ -238,6 +238,19 @@ from bijux_proteomics.io.spectral_library import (
     render_spectral_library_summary_tsv,
     search_spectral_library,
 )
+from bijux_proteomics.panels import (
+    TargetPanelSourceKind,
+    build_diann_peptide_target_panel_report,
+    build_diann_protein_target_panel_report,
+    build_lfq_peptide_target_panel_report,
+    build_lfq_protein_lfq_target_panel_report,
+    build_lfq_protein_target_panel_report,
+    render_target_panel_intensity_tsv,
+    render_target_panel_matrix_tsv,
+    render_target_panel_missing_tsv,
+    render_target_panel_summary_tsv,
+    render_target_panel_target_tsv,
+)
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
     build_ptm_enrichment_input,
@@ -1970,6 +1983,120 @@ def diann_library_coverage_command(
             ),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("target-panel-review")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "panel_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetPanelSourceKind]),
+    required=True,
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--include-decoys/--exclude-decoys",
+    default=False,
+    show_default=True,
+)
+@click.option("--max-q-value", type=float, default=None)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--target-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--missing-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--intensity-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def target_panel_review_command(
+    input_path: Path,
+    panel_path: Path,
+    source_kind: str,
+    config_path: Path | None,
+    include_decoys: bool,
+    max_q_value: float | None,
+    summary_tsv_out: Path | None,
+    target_tsv_out: Path | None,
+    missing_tsv_out: Path | None,
+    intensity_tsv_out: Path | None,
+    matrix_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review a user-defined peptide or protein panel against DIA or LFQ matrices."""
+    try:
+        selected_source = TargetPanelSourceKind(source_kind)
+        if selected_source is TargetPanelSourceKind.DIA_PEPTIDE:
+            report = build_diann_peptide_target_panel_report(
+                input_path,
+                panel_path,
+                config_path=config_path,
+                include_decoys=include_decoys,
+                max_q_value=max_q_value,
+            )
+        elif selected_source is TargetPanelSourceKind.DIA_PROTEIN:
+            report = build_diann_protein_target_panel_report(
+                input_path,
+                panel_path,
+                config_path=config_path,
+                include_decoys=include_decoys,
+                max_q_value=max_q_value,
+            )
+        elif selected_source is TargetPanelSourceKind.LFQ_PEPTIDE:
+            report = build_lfq_peptide_target_panel_report(input_path, panel_path)
+        elif selected_source is TargetPanelSourceKind.LFQ_PROTEIN:
+            report = build_lfq_protein_target_panel_report(input_path, panel_path)
+        else:
+            report = build_lfq_protein_lfq_target_panel_report(input_path, panel_path)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_target_panel_summary_tsv(report))
+    if target_tsv_out is not None:
+        _write_text_output(target_tsv_out, render_target_panel_target_tsv(report))
+    if missing_tsv_out is not None:
+        _write_text_output(missing_tsv_out, render_target_panel_missing_tsv(report))
+    if intensity_tsv_out is not None:
+        _write_text_output(
+            intensity_tsv_out,
+            render_target_panel_intensity_tsv(report),
+        )
+    if matrix_tsv_out is not None:
+        _write_text_output(matrix_tsv_out, render_target_panel_matrix_tsv(report))
+
+    payload = {
+        "source_kind": report.source_kind.value,
+        "source_name": report.source_name,
+        "sample_ids": list(report.sample_ids),
+        "summary": report.summary.to_dict(),
+        "matched_targets": [entry.to_dict() for entry in report.matched_targets],
+        "missing_targets": [entry.to_dict() for entry in report.missing_targets],
+        "filtered_rows": [row.to_dict() for row in report.filtered_rows],
+        "intensity_entries": [entry.to_dict() for entry in report.intensity_entries],
+        "note": report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
+            "missing_tsv": None if missing_tsv_out is None else str(missing_tsv_out),
+            "intensity_tsv": (
+                None if intensity_tsv_out is None else str(intensity_tsv_out)
+            ),
+            "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)

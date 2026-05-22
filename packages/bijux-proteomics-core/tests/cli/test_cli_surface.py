@@ -2932,6 +2932,120 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         ).read_text(encoding="utf-8")
 
 
+def test_target_panel_review_command_emits_dia_panel_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "diann"
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            fixture_dir / "diann_library_coverage.tsv",
+            "diann_library_coverage.tsv",
+        )
+        shutil.copy(format_dir / "dia_target_panel.tsv", "dia_target_panel.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "target-panel-review",
+                "diann_library_coverage.tsv",
+                "dia_target_panel.tsv",
+                "--source-kind",
+                "dia_peptide",
+                "--summary-tsv-out",
+                "target.summary.tsv",
+                "--target-tsv-out",
+                "target.targets.tsv",
+                "--missing-tsv-out",
+                "target.missing.tsv",
+                "--intensity-tsv-out",
+                "target.intensity.tsv",
+                "--matrix-tsv-out",
+                "target.matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "dia_peptide"
+        assert payload["source_name"] == "DIA-NN"
+        assert payload["summary"]["total_target_count"] == 4
+        assert payload["summary"]["matched_target_count"] == 3
+        assert payload["summary"]["missing_target_count"] == 1
+        assert payload["matched_targets"][1]["target_id"] == "dia-p22222"
+        assert payload["missing_targets"][0]["target_id"] == "dia-missing-protein"
+        assert payload["outputs"]["summary_tsv"] == "target.summary.tsv"
+        assert payload["outputs"]["matrix_tsv"] == "target.matrix.tsv"
+        assert Path("target.summary.tsv").exists()
+        assert Path("target.targets.tsv").exists()
+        assert Path("target.missing.tsv").exists()
+        assert Path("target.intensity.tsv").exists()
+        assert Path("target.matrix.tsv").exists()
+        assert "dia-missing-protein\tprotein\t" in Path(
+            "target.missing.tsv"
+        ).read_text(encoding="utf-8")
+        assert "dia-pepalfa\tpeptide\tPEPALFA|PG001" in Path(
+            "target.matrix.tsv"
+        ).read_text(encoding="utf-8")
+
+
+def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        quant_dir = FIXTURE_ROOT / "quant"
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            quant_dir / "target_panel_ms1_features.tsv",
+            "target_panel_ms1_features.tsv",
+        )
+        shutil.copy(format_dir / "lfq_target_panel.tsv", "lfq_target_panel.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "target-panel-review",
+                "target_panel_ms1_features.tsv",
+                "lfq_target_panel.tsv",
+                "--source-kind",
+                "lfq_protein_lfq",
+                "--summary-tsv-out",
+                "lfq.target.summary.tsv",
+                "--target-tsv-out",
+                "lfq.target.targets.tsv",
+                "--missing-tsv-out",
+                "lfq.target.missing.tsv",
+                "--intensity-tsv-out",
+                "lfq.target.intensity.tsv",
+                "--matrix-tsv-out",
+                "lfq.target.matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "lfq_protein_lfq"
+        assert payload["source_name"] == "feature"
+        assert payload["summary"]["total_target_count"] == 4
+        assert payload["summary"]["matched_target_count"] == 1
+        assert payload["summary"]["missing_target_count"] == 3
+        assert payload["matched_targets"][0]["target_id"] == "lfq-p003"
+        assert payload["missing_targets"][0]["reason"] == (
+            "peptide targets require a peptide-level matrix"
+        )
+        assert payload["outputs"]["target_tsv"] == "lfq.target.targets.tsv"
+        assert payload["outputs"]["intensity_tsv"] == "lfq.target.intensity.tsv"
+        assert Path("lfq.target.summary.tsv").exists()
+        assert Path("lfq.target.targets.tsv").exists()
+        assert Path("lfq.target.missing.tsv").exists()
+        assert Path("lfq.target.intensity.tsv").exists()
+        assert Path("lfq.target.matrix.tsv").exists()
+        assert "lfq-p003\tprotein\tP003\t4" in Path(
+            "lfq.target.targets.tsv"
+        ).read_text(encoding="utf-8")
+        assert "lfq-apeptide\tpeptide\tpeptide targets require a peptide-level matrix" in (
+            Path("lfq.target.missing.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
