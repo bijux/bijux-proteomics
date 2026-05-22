@@ -24,6 +24,7 @@ from bijux_proteomics.isotope_labeling import (
     parse_silac_feature_table,
 )
 from bijux_proteomics.multiplex import (
+    TmtReporterChannelColumn,
     TmtReporterColumnMapping,
     TmtSearchResultSourceKind,
     build_tmt_plex_integration_report,
@@ -199,6 +200,7 @@ def build_tmt_differential_input_report(
     *,
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT,
     mapping: TmtReporterColumnMapping | None = None,
+    channel_columns: tuple[TmtReporterChannelColumn, ...] = (),
 ) -> LabelBasedDifferentialInputReport:
     """Build a protein-level labeled differential input packet from TMT evidence."""
 
@@ -206,6 +208,7 @@ def build_tmt_differential_input_report(
         result_tsv_path,
         source_kind=source_kind,
         mapping=mapping,
+        channel_columns=channel_columns,
     )
     feature_bundle = build_tmt_reporter_feature_bundle(
         import_report,
@@ -347,6 +350,7 @@ def build_tmt_differential_analysis_report(
     *,
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT,
     mapping: TmtReporterColumnMapping | None = None,
+    channel_columns: tuple[TmtReporterChannelColumn, ...] = (),
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
@@ -362,6 +366,7 @@ def build_tmt_differential_analysis_report(
         design_entries,
         source_kind=source_kind,
         mapping=mapping,
+        channel_columns=channel_columns,
     )
     return build_label_based_differential_analysis_report(
         input_report,

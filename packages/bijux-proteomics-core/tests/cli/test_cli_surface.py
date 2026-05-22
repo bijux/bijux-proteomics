@@ -3252,6 +3252,59 @@ def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs(
         )
 
 
+def test_tmt_differential_command_emits_matrix_result_and_balance_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "maxquant_tmt_evidence.tsv",
+            "maxquant_tmt_evidence.tsv",
+        )
+        shutil.copy(fixture_dir / "tmt.design.tsv", "tmt.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "tmt-differential",
+                "maxquant_tmt_evidence.tsv",
+                "tmt.design.tsv",
+                "--source-kind",
+                "maxquant",
+                "--raw-matrix-tsv-out",
+                "tmt.diff.raw.tsv",
+                "--normalized-matrix-tsv-out",
+                "tmt.diff.normalized.tsv",
+                "--results-tsv-out",
+                "tmt.diff.results.tsv",
+                "--balance-tsv-out",
+                "tmt.diff.balance.tsv",
+                "--volcano-tsv-out",
+                "tmt.diff.volcano.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "maxquant"
+        assert payload["report"]["design_matrix"]["sample_count"] == 4
+        assert payload["report"]["differential_abundance_report"] is not None
+        assert Path("tmt.diff.raw.tsv").exists()
+        assert Path("tmt.diff.normalized.tsv").exists()
+        assert Path("tmt.diff.results.tsv").exists()
+        assert Path("tmt.diff.balance.tsv").exists()
+        assert Path("tmt.diff.volcano.tsv").exists()
+        assert "member_peptides" in Path("tmt.diff.raw.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "adjusted_p_value" in Path("tmt.diff.results.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "interquartile_range" in Path("tmt.diff.balance.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

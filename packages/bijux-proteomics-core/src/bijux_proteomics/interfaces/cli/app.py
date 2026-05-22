@@ -515,11 +515,16 @@ from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
+    build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
     export_dia_normalization_balance_plot_tsv,
+    export_label_based_differential_matrix_tsv,
+    export_label_based_differential_results_tsv,
+    export_label_based_differential_volcano_plot_tsv,
+    export_label_based_normalization_balance_plot_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
@@ -845,6 +850,13 @@ def _tmt_normalization_method_choice() -> click.Choice[str]:
 def _tmt_ratio_normalization_choice() -> click.Choice[str]:
     return click.Choice(
         ("none", *[method.value for method in TmtNormalizationMethod]),
+        case_sensitive=False,
+    )
+
+
+def _label_based_differential_normalization_choice() -> click.Choice[str]:
+    return click.Choice(
+        (NormalizationMethod.NONE.value, NormalizationMethod.MEDIAN.value),
         case_sensitive=False,
     )
 
@@ -8979,6 +8991,169 @@ def tmt_integrate_plexes_command(
                 None
                 if protein_matrix_tsv_out is None
                 else str(protein_matrix_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@multiplex_group.command("tmt-differential")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=_tmt_source_kind_choice(),
+    default=TmtSearchResultSourceKind.MAXQUANT.value,
+    show_default=True,
+)
+@click.option(
+    "--normalization-method",
+    type=_label_based_differential_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option("--batch-field", default="batch", show_default=True)
+@click.option("--covariate-field", "covariate_fields", multiple=True)
+@click.option("--pairing-field", default=None)
+@click.option("--row-id-column", default=None)
+@click.option("--peptide-column", default=None)
+@click.option("--protein-refs-column", default=None)
+@click.option("--multiplex-group-column", default=None)
+@click.option("--default-multiplex-group", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--channel-column", "channel_columns", multiple=True)
+@click.option(
+    "--raw-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--normalized-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--results-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--balance-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--volcano-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def tmt_differential_command(
+    input_tsv: Path,
+    design_path: Path,
+    source_kind: str,
+    normalization_method: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    batch_field: str,
+    covariate_fields: tuple[str, ...],
+    pairing_field: str | None,
+    row_id_column: str | None,
+    peptide_column: str | None,
+    protein_refs_column: str | None,
+    multiplex_group_column: str | None,
+    default_multiplex_group: str | None,
+    protein_separator: str,
+    channel_columns: tuple[str, ...],
+    raw_matrix_tsv_out: Path | None,
+    normalized_matrix_tsv_out: Path | None,
+    results_tsv_out: Path | None,
+    balance_tsv_out: Path | None,
+    volcano_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run differential analysis over governed TMT protein matrices."""
+    try:
+        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_tmt_differential_analysis_report(
+            input_tsv,
+            tuple(design_report.accepted_entries),
+            source_kind=TmtSearchResultSourceKind(source_kind),
+            mapping=TmtReporterColumnMapping(
+                source_row_id=row_id_column,
+                peptide=peptide_column,
+                protein_refs=protein_refs_column,
+                multiplex_group=multiplex_group_column,
+                default_multiplex_group=default_multiplex_group,
+                protein_separator=protein_separator,
+            ),
+            channel_columns=explicit_channels,
+            normalization_method=NormalizationMethod(normalization_method),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            batch_field=batch_field,
+            covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+            pairing_field=pairing_field,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if raw_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.input_report,
+            raw_matrix_tsv_out,
+        )
+    if normalized_matrix_tsv_out is not None:
+        export_label_based_differential_matrix_tsv(
+            report.normalized_matrix,
+            normalized_matrix_tsv_out,
+        )
+    if results_tsv_out is not None:
+        export_label_based_differential_results_tsv(report, results_tsv_out)
+    if balance_tsv_out is not None:
+        export_label_based_normalization_balance_plot_tsv(
+            report.normalization_balance_plot,
+            balance_tsv_out,
+        )
+    if volcano_tsv_out is not None and report.volcano_plot is not None:
+        export_label_based_differential_volcano_plot_tsv(
+            report.volcano_plot,
+            volcano_tsv_out,
+        )
+
+    payload = {
+        "source_kind": source_kind,
+        "report": report.to_dict(),
+        "outputs": {
+            "raw_matrix_tsv": (
+                None if raw_matrix_tsv_out is None else str(raw_matrix_tsv_out)
+            ),
+            "normalized_matrix_tsv": (
+                None
+                if normalized_matrix_tsv_out is None
+                else str(normalized_matrix_tsv_out)
+            ),
+            "results_tsv": (
+                None if results_tsv_out is None else str(results_tsv_out)
+            ),
+            "balance_tsv": (
+                None if balance_tsv_out is None else str(balance_tsv_out)
+            ),
+            "volcano_tsv": (
+                None
+                if volcano_tsv_out is None or report.volcano_plot is None
+                else str(volcano_tsv_out)
             ),
         },
     }
