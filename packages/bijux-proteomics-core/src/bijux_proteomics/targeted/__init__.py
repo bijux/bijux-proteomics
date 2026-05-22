@@ -6,3 +6,4 @@
 from __future__ import annotations
 
 from bijux_proteomics.targeted.result_import import *  # noqa: F401,F403
+from bijux_proteomics.targeted.target_matrix import *  # noqa: F401,F403
