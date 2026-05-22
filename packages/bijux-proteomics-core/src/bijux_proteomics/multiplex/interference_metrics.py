@@ -1,0 +1,176 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright © 2026 Bijan Mousavi
+
+"""Owned TMT interference review over governed reporter-ion search outputs."""
+
+from __future__ import annotations
+
+from pydantic import ConfigDict, Field
+
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.multiplex.reporter_ion_import import TmtReporterImportReport
+from bijux_proteomics.multiplex.reporter_matrix import (
+    TmtReporterFeatureBundle,
+    build_tmt_reporter_feature_bundle,
+)
+from bijux_proteomics.quantification import LabelBasedChannelRole
+from bijux_proteomics_foundation import JsonModel
+
+
+class TmtInterferencePolicy(JsonModel):
+    """Policy for interference review over TMT search-result rows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    interference_fraction_threshold: float = Field(default=0.3, ge=0.0, le=1.0)
+
+
+class TmtInterferenceObservationEntry(JsonModel):
+    """One source-row/channel observation with explicit interference context."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_row_id: str = Field(..., min_length=1)
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    sample_role: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    modified_peptide: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    reporter_intensity: float = Field(..., ge=0.0)
+    isolation_interference_fraction: float | None = Field(
+        default=None, ge=0.0, le=1.0
+    )
+    threshold_exceeded: bool
+    note: str = Field(..., min_length=1)
+
+
+class TmtInterferenceSummary(JsonModel):
+    """Compact summary over one TMT interference review run."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group_count: int = Field(..., ge=0)
+    observed_channel_row_count: int = Field(..., ge=0)
+    missing_interference_count: int = Field(..., ge=0)
+    threshold_exceeded_count: int = Field(..., ge=0)
+
+
+class TmtInterferenceReport(JsonModel):
+    """Owned TMT interference review over governed search-result observations."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_report: TmtReporterImportReport
+    feature_bundle: TmtReporterFeatureBundle
+    policy: TmtInterferencePolicy
+    observations: tuple[TmtInterferenceObservationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    summary: TmtInterferenceSummary
+    note: str = Field(..., min_length=1)
+
+
+def build_tmt_interference_report(
+    import_report: TmtReporterImportReport,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: TmtInterferencePolicy | None = None,
+) -> TmtInterferenceReport:
+    """Build one interference review over TMT reporter observations."""
+
+    active_policy = policy or TmtInterferencePolicy()
+    feature_bundle = build_tmt_reporter_feature_bundle(
+        import_report,
+        design_entries=design_entries,
+    )
+    design_by_group_channel = {
+        (entry.multiplex_group or "", entry.multiplex_channel or ""): entry
+        for entry in feature_bundle.design_entries
+        if entry.multiplex_group and entry.multiplex_channel
+    }
+    observations: list[TmtInterferenceObservationEntry] = []
+    for row in import_report.accepted_rows:
+        for channel in row.channel_intensities:
+            if channel.intensity is None:
+                continue
+            design_entry = design_by_group_channel.get(
+                (row.multiplex_group, channel.multiplex_channel)
+            )
+            if design_entry is None:
+                continue
+            fraction = row.isolation_interference_fraction
+            threshold_exceeded = (
+                fraction is not None
+                and fraction >= active_policy.interference_fraction_threshold
+            )
+            observations.append(
+                TmtInterferenceObservationEntry(
+                    source_row_id=row.source_row_id,
+                    multiplex_group=row.multiplex_group,
+                    multiplex_channel=channel.multiplex_channel,
+                    sample_id=design_entry.sample_id,
+                    condition=design_entry.condition,
+                    sample_role=design_entry.sample_role.value,
+                    channel_role=_channel_role_for_sample(
+                        feature_bundle,
+                        sample_id=design_entry.sample_id,
+                    ),
+                    modified_peptide=row.modified_peptide,
+                    protein_refs=row.protein_refs,
+                    reporter_intensity=float(channel.intensity),
+                    isolation_interference_fraction=fraction,
+                    threshold_exceeded=threshold_exceeded,
+                    note=(
+                        "isolation interference crosses the configured threshold and should be considered unreliable for downstream interpretation"
+                        if threshold_exceeded
+                        else (
+                            "isolation interference is preserved for review but remains below the configured threshold"
+                            if fraction is not None
+                            else "source row does not provide an isolation-interference value"
+                        )
+                    ),
+                )
+            )
+    observations = sorted(
+        observations,
+        key=lambda entry: (
+            entry.multiplex_group,
+            entry.multiplex_channel,
+            entry.source_row_id,
+        ),
+    )
+    return TmtInterferenceReport(
+        source_report=import_report,
+        feature_bundle=feature_bundle,
+        policy=active_policy,
+        observations=tuple(observations),
+        summary=TmtInterferenceSummary(
+            multiplex_group_count=feature_bundle.summary.multiplex_group_count,
+            observed_channel_row_count=len(observations),
+            missing_interference_count=sum(
+                1
+                for entry in observations
+                if entry.isolation_interference_fraction is None
+            ),
+            threshold_exceeded_count=sum(
+                1 for entry in observations if entry.threshold_exceeded
+            ),
+        ),
+        note=(
+            "tmt interference review preserves source-row isolation interference at the mapped sample-channel level for downstream filtering and audit"
+        ),
+    )
+
+
+def _channel_role_for_sample(
+    feature_bundle: TmtReporterFeatureBundle,
+    *,
+    sample_id: str,
+) -> LabelBasedChannelRole:
+    for entry in feature_bundle.channel_mapping:
+        if entry.sample_id == sample_id and entry.channel_role is not None:
+            return entry.channel_role
+    return LabelBasedChannelRole.SAMPLE
