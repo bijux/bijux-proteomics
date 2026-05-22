@@ -558,6 +558,7 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.sequences import (
     DecoyGenerationMode,
+    DuplicateAccessionPolicy,
     FastaDatabaseProfile,
     FastaParseMode,
     FastaParseReport,
@@ -903,9 +904,14 @@ def _load_fasta_report(
     input_path: Path,
     *,
     mode: FastaParseMode,
+    duplicate_accession_policy: DuplicateAccessionPolicy = DuplicateAccessionPolicy.REJECT,
     allow_rejected: bool,
 ) -> FastaParseReport:
-    report = parse_fasta_document(input_path.read_text(), mode=mode)
+    report = parse_fasta_document(
+        input_path.read_text(),
+        mode=mode,
+        duplicate_accession_policy=duplicate_accession_policy,
+    )
     if report.rejected_records and not allow_rejected:
         rejected = ", ".join(
             rejected.source_identifier for rejected in report.rejected_records
@@ -970,6 +976,13 @@ def _load_precursor_mass_error_queries(
 
 def _mode_choice() -> click.Choice[str]:
     return click.Choice([mode.value for mode in FastaParseMode], case_sensitive=False)
+
+
+def _duplicate_accession_policy_choice() -> click.Choice[str]:
+    return click.Choice(
+        [policy.value for policy in DuplicateAccessionPolicy],
+        case_sensitive=False,
+    )
 
 
 def _decoy_mode_choice() -> click.Choice[str]:
@@ -1370,15 +1383,32 @@ def sequence_checksum_command(sequence: str) -> None:
     show_default=True,
 )
 @click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
+    show_default=True,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
     help="Optional JSON report output path.",
 )
-def fasta_parse_command(input_fasta: Path, mode: str, out_path: Path | None) -> None:
+def fasta_parse_command(
+    input_fasta: Path,
+    mode: str,
+    duplicate_accession_policy: str,
+    out_path: Path | None,
+) -> None:
     """Parse FASTA input and emit normalized acceptance and rejection details."""
-    report = parse_fasta_document(input_fasta.read_text(), mode=FastaParseMode(mode))
+    report = parse_fasta_document(
+        input_fasta.read_text(),
+        mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
+    )
     _emit_json(report, out_path=out_path)
 
 
@@ -1390,6 +1420,12 @@ def fasta_parse_command(input_fasta: Path, mode: str, out_path: Path | None) -> 
     "--mode",
     type=_mode_choice(),
     default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
     show_default=True,
 )
 @click.option(
@@ -1407,6 +1443,7 @@ def fasta_parse_command(input_fasta: Path, mode: str, out_path: Path | None) -> 
 def fasta_dedup_command(
     input_fasta: Path,
     mode: str,
+    duplicate_accession_policy: str,
     out_fasta: Path,
     report_out: Path | None,
 ) -> None:
@@ -1414,6 +1451,9 @@ def fasta_dedup_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
         allow_rejected=False,
     )
     deduplicated, dedup_report = deduplicate_fasta_records(report.accepted_records)
@@ -1429,6 +1469,12 @@ def fasta_dedup_command(
     "--mode",
     type=_mode_choice(),
     default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
     show_default=True,
 )
 @click.option(
@@ -1459,6 +1505,7 @@ def fasta_dedup_command(
 def fasta_contaminants_command(
     input_fasta: Path,
     mode: str,
+    duplicate_accession_policy: str,
     include_builtin: bool,
     contaminant_fastas: tuple[Path, ...],
     out_fasta: Path,
@@ -1469,6 +1516,9 @@ def fasta_contaminants_command(
         input_fasta,
         mode=FastaParseMode(mode),
         allow_rejected=False,
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
     )
     external_records: list[NormalizedProteinRecord] = []
     for contaminant_fasta in contaminant_fastas:
@@ -1476,6 +1526,9 @@ def fasta_contaminants_command(
             contaminant_fasta,
             mode=FastaParseMode(mode),
             allow_rejected=False,
+            duplicate_accession_policy=DuplicateAccessionPolicy(
+                duplicate_accession_policy
+            ),
         )
         external_records.extend(contaminant_report.accepted_records)
     combined, build_report = append_contaminant_database(
@@ -1495,6 +1548,12 @@ def fasta_contaminants_command(
     "--mode",
     type=_mode_choice(),
     default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
     show_default=True,
 )
 @click.option("--min-length", type=int, default=None)
@@ -1523,6 +1582,7 @@ def fasta_contaminants_command(
 def fasta_filter_command(
     input_fasta: Path,
     mode: str,
+    duplicate_accession_policy: str,
     min_length: int | None,
     max_length: int | None,
     accession_pattern: str | None,
@@ -1535,6 +1595,9 @@ def fasta_filter_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
         allow_rejected=False,
     )
     filtered, filter_report = filter_fasta_records(
@@ -1560,17 +1623,31 @@ def fasta_filter_command(
     show_default=True,
 )
 @click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
+    show_default=True,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
     help="Optional JSON report output path.",
 )
-def fasta_stats_command(input_fasta: Path, mode: str, out_path: Path | None) -> None:
+def fasta_stats_command(
+    input_fasta: Path,
+    mode: str,
+    duplicate_accession_policy: str,
+    out_path: Path | None,
+) -> None:
     """Report FASTA record, composition, residue, duplication, and contaminant metrics."""
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
         allow_rejected=True,
     )
     stats = build_fasta_stats(
@@ -1588,6 +1665,12 @@ def fasta_stats_command(input_fasta: Path, mode: str, out_path: Path | None) -> 
     "--mode",
     type=_mode_choice(),
     default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
     show_default=True,
 )
 @click.option(
@@ -1618,6 +1701,7 @@ def fasta_stats_command(input_fasta: Path, mode: str, out_path: Path | None) -> 
 def fasta_profile_command(
     input_fasta: Path,
     mode: str,
+    duplicate_accession_policy: str,
     out_path: Path | None,
     summary_tsv_out: Path | None,
     length_tsv_out: Path | None,
@@ -1627,6 +1711,9 @@ def fasta_profile_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
         allow_rejected=True,
     )
     profile = build_fasta_database_profile(
@@ -3726,6 +3813,12 @@ def openms_import_command(
     default=FastaParseMode.STRICT.value,
     show_default=True,
 )
+@click.option(
+    "--duplicate-accession-policy",
+    type=_duplicate_accession_policy_choice(),
+    default=DuplicateAccessionPolicy.REJECT.value,
+    show_default=True,
+)
 @click.option("--operation", default="fasta-parse", show_default=True)
 @click.option(
     "--out",
@@ -3737,6 +3830,7 @@ def openms_import_command(
 def fasta_provenance_command(
     input_fasta: Path,
     mode: str,
+    duplicate_accession_policy: str,
     operation: str,
     out_path: Path,
 ) -> None:
@@ -3744,6 +3838,9 @@ def fasta_provenance_command(
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
+        duplicate_accession_policy=DuplicateAccessionPolicy(
+            duplicate_accession_policy
+        ),
         allow_rejected=True,
     )
     manifest = build_fasta_provenance_manifest(
@@ -3754,7 +3851,10 @@ def fasta_provenance_command(
         accepted_record_count=len(report.accepted_records),
         rejected_record_count=len(report.rejected_records),
         output_record_count=len(report.accepted_records),
-        parameters={"operation": operation},
+        parameters={
+            "operation": operation,
+            "duplicate_accession_policy": duplicate_accession_policy,
+        },
     )
     _emit_json(manifest, out_path=out_path)
 
