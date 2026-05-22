@@ -485,6 +485,126 @@ def render_rejected_ortholog_tsv(report: OrthologImportReport) -> str:
     return buffer.getvalue()
 
 
+def render_ortholog_mapping_summary_tsv(report: OrthologMappingReport) -> str:
+    """Render the stable ortholog mapping summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "source_species",
+            "target_species",
+            "input_entry_count",
+            "mapped_entry_count",
+            "unmapped_entry_count",
+            "distinct_source_protein_ref_count",
+            "distinct_target_protein_ref_count",
+            "one_to_one_count",
+            "one_to_many_count",
+            "many_to_one_count",
+            "many_to_many_count",
+            "ambiguous_mapping_count",
+        )
+    )
+    writer.writerow(
+        (
+            report.source_species,
+            report.target_species,
+            report.summary.input_entry_count,
+            report.summary.mapped_entry_count,
+            report.summary.unmapped_entry_count,
+            report.summary.distinct_source_protein_ref_count,
+            report.summary.distinct_target_protein_ref_count,
+            report.summary.one_to_one_count,
+            report.summary.one_to_many_count,
+            report.summary.many_to_one_count,
+            report.summary.many_to_many_count,
+            report.summary.ambiguous_mapping_count,
+        )
+    )
+    return buffer.getvalue()
+
+
+def render_mapped_ortholog_tsv(report: OrthologMappingReport) -> str:
+    """Render mapped ortholog edges as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "row_number",
+            "source_row_id",
+            "input_protein_ref",
+            "source_protein_ref",
+            "source_species",
+            "target_species",
+            "target_protein_ref",
+            "source_gene_symbol",
+            "target_gene_symbol",
+            "evidence",
+            "mapping_cardinality",
+            "source_match_count",
+            "target_match_count",
+            "input_metadata",
+            "ortholog_metadata",
+        )
+    )
+    for entry in report.mapped_entries:
+        writer.writerow(
+            (
+                entry.row_number,
+                entry.source_row_id or "",
+                entry.input_protein_ref,
+                entry.source_protein_ref,
+                entry.source_species,
+                entry.target_species,
+                entry.target_protein_ref,
+                entry.source_gene_symbol or "",
+                entry.target_gene_symbol or "",
+                entry.evidence or "",
+                entry.mapping_cardinality.value,
+                entry.source_match_count,
+                entry.target_match_count,
+                _metadata_json(entry.input_metadata),
+                _metadata_json(entry.ortholog_metadata),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_unmapped_ortholog_tsv(report: OrthologMappingReport) -> str:
+    """Render unmapped ortholog requests as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "row_number",
+            "source_row_id",
+            "input_protein_ref",
+            "source_protein_ref",
+            "source_species",
+            "target_species",
+            "input_metadata",
+            "reason",
+        )
+    )
+    for entry in report.unmapped_entries:
+        writer.writerow(
+            (
+                entry.row_number,
+                entry.source_row_id or "",
+                entry.input_protein_ref,
+                entry.source_protein_ref,
+                entry.source_species,
+                entry.target_species,
+                _metadata_json(entry.input_metadata),
+                entry.reason,
+            )
+        )
+    return buffer.getvalue()
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
 
@@ -553,5 +673,8 @@ __all__ = [
     "UnmappedOrthologEntry",
     "build_ortholog_mapping_report",
     "parse_ortholog_table",
+    "render_mapped_ortholog_tsv",
+    "render_ortholog_mapping_summary_tsv",
     "render_rejected_ortholog_tsv",
+    "render_unmapped_ortholog_tsv",
 ]
