@@ -604,6 +604,7 @@ from bijux_proteomics.workflow import (
     DiaDifferentialSourceKind,
     build_biological_result_report_bundle,
     build_dda_biological_workflow_bundle,
+    build_diann_benchmark_report,
     build_diann_biological_workflow_bundle,
     build_maxquant_benchmark_report,
     build_maxquant_biological_workflow_bundle,
@@ -634,6 +635,9 @@ from bijux_proteomics.workflow import (
     export_label_based_differential_results_tsv,
     export_label_based_differential_volcano_plot_tsv,
     export_label_based_normalization_balance_plot_tsv,
+    render_diann_benchmark_count_comparisons_tsv,
+    render_diann_benchmark_protein_quantities_tsv,
+    render_diann_benchmark_summary_tsv,
     render_maxquant_benchmark_summary_tsv,
     render_maxquant_differential_comparison_tsv,
     render_maxquant_filtering_comparison_tsv,
@@ -2192,6 +2196,79 @@ def diann_import_command(
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("diann-benchmark")
+@click.argument(
+    "result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--config",
+    "config_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--count-comparisons-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--protein-quantities-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def diann_benchmark_command(
+    result_tsv: Path,
+    config_path: Path | None,
+    summary_tsv_out: Path | None,
+    count_comparisons_tsv_out: Path | None,
+    protein_quantities_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Benchmark governed DIA-NN import and protein matrix behavior against source rows."""
+
+    try:
+        report = build_diann_benchmark_report(
+            result_tsv,
+            config_path=config_path,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_diann_benchmark_summary_tsv(report))
+    if count_comparisons_tsv_out is not None:
+        _write_text_output(
+            count_comparisons_tsv_out,
+            render_diann_benchmark_count_comparisons_tsv(report),
+        )
+    if protein_quantities_tsv_out is not None:
+        _write_text_output(
+            protein_quantities_tsv_out,
+            render_diann_benchmark_protein_quantities_tsv(report),
+        )
+
+    payload = {
+        "summary": report.summary.to_dict(),
+        "count_comparison_count": len(report.count_comparisons),
+        "protein_quantity_comparison_count": len(report.protein_quantity_comparisons),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "count_comparisons_tsv": None
+            if count_comparisons_tsv_out is None
+            else str(count_comparisons_tsv_out),
+            "protein_quantities_tsv": None
+            if protein_quantities_tsv_out is None
+            else str(protein_quantities_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
