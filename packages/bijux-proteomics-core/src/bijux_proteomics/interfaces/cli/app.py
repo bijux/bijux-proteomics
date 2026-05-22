@@ -484,7 +484,10 @@ from bijux_proteomics.quantification import (
     export_limma_design_matrix_tsv,
     export_limma_sample_annotations_tsv,
     export_msstats_compatible_input_tsv,
+    export_heatmap_column_metadata_tsv,
     export_differential_abundance_tsv,
+    export_heatmap_row_metadata_tsv,
+    export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
     export_quant_design_contrast_estimates_tsv,
     export_quant_design_matrix_tsv,
@@ -6447,7 +6450,22 @@ def quantify_command(
     show_default=True,
 )
 @click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--row-metadata-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--column-metadata-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
 )
@@ -6480,7 +6498,10 @@ def heatmap_matrix_command(
     max_entities: int | None,
     z_score: bool,
     missing_value_policy: str,
+    summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
+    row_metadata_tsv_out: Path | None,
+    column_metadata_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Prepare one normalized matrix for heatmaps and clustering."""
@@ -6531,8 +6552,14 @@ def heatmap_matrix_command(
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
+    if summary_tsv_out is not None:
+        export_heatmap_summary_tsv(report, summary_tsv_out)
     if matrix_tsv_out is not None:
         export_heatmap_matrix_tsv(report, matrix_tsv_out)
+    if row_metadata_tsv_out is not None:
+        export_heatmap_row_metadata_tsv(report, row_metadata_tsv_out)
+    if column_metadata_tsv_out is not None:
+        export_heatmap_column_metadata_tsv(report, column_metadata_tsv_out)
 
     _emit_json(
         {
@@ -6540,7 +6567,20 @@ def heatmap_matrix_command(
             "rejected_features": len(parse_report.rejected_rows),
             "heatmap_report": report.to_dict(),
             "outputs": {
+                "summary_tsv": (
+                    None if summary_tsv_out is None else str(summary_tsv_out)
+                ),
                 "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
+                "row_metadata_tsv": (
+                    None
+                    if row_metadata_tsv_out is None
+                    else str(row_metadata_tsv_out)
+                ),
+                "column_metadata_tsv": (
+                    None
+                    if column_metadata_tsv_out is None
+                    else str(column_metadata_tsv_out)
+                ),
             },
         },
         out_path=out_path,

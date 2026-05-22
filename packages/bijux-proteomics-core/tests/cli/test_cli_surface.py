@@ -4723,8 +4723,14 @@ def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
                 "top_n",
                 "--top-n",
                 "2",
+                "--summary-tsv-out",
+                "heatmap.summary.tsv",
                 "--matrix-tsv-out",
                 "heatmap.matrix.tsv",
+                "--row-metadata-tsv-out",
+                "heatmap.rows.tsv",
+                "--column-metadata-tsv-out",
+                "heatmap.columns.tsv",
             ],
         )
 
@@ -4734,11 +4740,26 @@ def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
         assert payload["rejected_features"] == 0
         assert payload["heatmap_report"]["summary"]["entity_level"] == "protein"
         assert payload["heatmap_report"]["summary"]["z_scored"] is True
+        assert payload["outputs"]["summary_tsv"] == "heatmap.summary.tsv"
         assert payload["outputs"]["matrix_tsv"] == "heatmap.matrix.tsv"
+        assert payload["outputs"]["row_metadata_tsv"] == "heatmap.rows.tsv"
+        assert payload["outputs"]["column_metadata_tsv"] == "heatmap.columns.tsv"
+        assert Path("heatmap.summary.tsv").exists()
         assert Path("heatmap.matrix.tsv").exists()
+        assert Path("heatmap.rows.tsv").exists()
+        assert Path("heatmap.columns.tsv").exists()
+        assert "entity_level\tmeasure_kind\taggregation_method" in Path(
+            "heatmap.summary.tsv"
+        ).read_text(encoding="utf-8")
         assert "entity_id\tC1\tC2\tT1\tT2" in Path("heatmap.matrix.tsv").read_text(
             encoding="utf-8"
         )
+        assert "protein_refs\tmember_peptides" in Path("heatmap.rows.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "column_index\tsample_id\tcondition" in Path(
+            "heatmap.columns.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_heatmap_matrix_command_applies_filter_and_missing_value_policy() -> None:
