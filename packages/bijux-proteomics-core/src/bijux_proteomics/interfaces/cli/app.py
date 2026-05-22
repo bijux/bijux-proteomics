@@ -574,6 +574,7 @@ from bijux_proteomics.sequences import (
     generate_decoy_records,
     parse_fasta_document,
     render_fasta_profile_length_distribution_tsv,
+    render_fasta_profile_invalid_sequence_tsv,
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
     render_fasta_records,
@@ -882,6 +883,7 @@ def _emit_fasta_profile(
     summary_tsv_out: Path | None,
     length_tsv_out: Path | None,
     organism_tsv_out: Path | None,
+    invalid_sequence_tsv_out: Path | None,
 ) -> None:
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_fasta_profile_summary_tsv(profile))
@@ -892,6 +894,11 @@ def _emit_fasta_profile(
     if organism_tsv_out is not None:
         _write_text_output(
             organism_tsv_out, render_fasta_profile_organism_distribution_tsv(profile)
+        )
+    if invalid_sequence_tsv_out is not None:
+        _write_text_output(
+            invalid_sequence_tsv_out,
+            render_fasta_profile_invalid_sequence_tsv(profile),
         )
     _emit_json(profile, out_path=out_path)
 
@@ -1698,6 +1705,12 @@ def fasta_stats_command(
     default=None,
     help="Optional organism-distribution TSV output path.",
 )
+@click.option(
+    "--invalid-sequence-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional invalid-sequence TSV output path.",
+)
 def fasta_profile_command(
     input_fasta: Path,
     mode: str,
@@ -1706,8 +1719,9 @@ def fasta_profile_command(
     summary_tsv_out: Path | None,
     length_tsv_out: Path | None,
     organism_tsv_out: Path | None,
+    invalid_sequence_tsv_out: Path | None,
 ) -> None:
-    """Profile one FASTA database with composition, length, and organism ledgers."""
+    """Profile one FASTA database with composition, organism, and rejection ledgers."""
     report = _load_fasta_report(
         input_fasta,
         mode=FastaParseMode(mode),
@@ -1726,6 +1740,7 @@ def fasta_profile_command(
         summary_tsv_out=summary_tsv_out,
         length_tsv_out=length_tsv_out,
         organism_tsv_out=organism_tsv_out,
+        invalid_sequence_tsv_out=invalid_sequence_tsv_out,
     )
 
 
