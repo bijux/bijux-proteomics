@@ -5,8 +5,11 @@
 
 from __future__ import annotations
 
+import csv
 import math
 from enum import StrEnum
+from io import StringIO
+from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
@@ -361,3 +364,153 @@ def _ratio_from_values(
     if ratio <= 0.0:
         return ratio, None, None
     return ratio, float(math.log2(ratio)), None
+
+
+def render_tmt_ratio_summary_tsv(report: TmtRatioReport) -> str:
+    """Render a compact summary over one TMT ratio-analysis run."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_kind",
+            "normalization_method",
+            "control_channel",
+            "multiplex_group_count",
+            "peptide_ratio_count",
+            "protein_ratio_count",
+            "missing_ratio_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.source_kind.value,
+            report.summary.normalization_method,
+            report.summary.control_channel,
+            report.summary.multiplex_group_count,
+            report.summary.peptide_ratio_count,
+            report.summary.protein_ratio_count,
+            report.summary.missing_ratio_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_peptide_ratio_tsv(report: TmtRatioReport) -> str:
+    """Render the peptide sample/control ratio ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "numerator_channel",
+            "numerator_sample_id",
+            "numerator_condition",
+            "numerator_role",
+            "control_channel",
+            "control_sample_id",
+            "control_condition",
+            "peptide_id",
+            "peptide_sequence",
+            "protein_refs",
+            "numerator_abundance",
+            "control_abundance",
+            "ratio",
+            "log2_ratio",
+            "missing_reason",
+            "note",
+        ]
+    )
+    for entry in report.peptide_ratios:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.numerator_channel,
+                entry.numerator_sample_id,
+                entry.numerator_condition or "",
+                entry.numerator_role.value,
+                entry.control_channel,
+                entry.control_sample_id,
+                entry.control_condition or "",
+                entry.peptide_id,
+                entry.peptide_sequence,
+                ";".join(entry.protein_refs),
+                "" if entry.numerator_abundance is None else entry.numerator_abundance,
+                "" if entry.control_abundance is None else entry.control_abundance,
+                "" if entry.ratio is None else entry.ratio,
+                "" if entry.log2_ratio is None else entry.log2_ratio,
+                entry.missing_reason or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_protein_ratio_tsv(report: TmtRatioReport) -> str:
+    """Render the protein sample/control ratio ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "numerator_channel",
+            "numerator_sample_id",
+            "numerator_condition",
+            "numerator_role",
+            "control_channel",
+            "control_sample_id",
+            "control_condition",
+            "protein_id",
+            "target_kind",
+            "protein_refs",
+            "numerator_abundance",
+            "control_abundance",
+            "ratio",
+            "log2_ratio",
+            "missing_reason",
+            "note",
+        ]
+    )
+    for entry in report.protein_ratios:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.numerator_channel,
+                entry.numerator_sample_id,
+                entry.numerator_condition or "",
+                entry.numerator_role.value,
+                entry.control_channel,
+                entry.control_sample_id,
+                entry.control_condition or "",
+                entry.protein_id,
+                entry.target_kind.value,
+                ";".join(entry.protein_refs),
+                "" if entry.numerator_abundance is None else entry.numerator_abundance,
+                "" if entry.control_abundance is None else entry.control_abundance,
+                "" if entry.ratio is None else entry.ratio,
+                "" if entry.log2_ratio is None else entry.log2_ratio,
+                entry.missing_reason or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_tmt_ratio_summary_tsv(report: TmtRatioReport, path: Path) -> None:
+    """Write the compact TMT ratio summary ledger."""
+
+    path.write_text(render_tmt_ratio_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_peptide_ratio_tsv(report: TmtRatioReport, path: Path) -> None:
+    """Write the peptide sample/control ratio ledger."""
+
+    path.write_text(render_tmt_peptide_ratio_tsv(report), encoding="utf-8")
+
+
+def export_tmt_protein_ratio_tsv(report: TmtRatioReport, path: Path) -> None:
+    """Write the protein sample/control ratio ledger."""
+
+    path.write_text(render_tmt_protein_ratio_tsv(report), encoding="utf-8")
