@@ -9,14 +9,12 @@ import hashlib
 import importlib.metadata
 import json
 from pathlib import Path
-from typing import Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import click
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, model_validator
 import uvicorn
 
-from bijux_proteomics_intelligence.candidates import CandidateStore
-from bijux_proteomics_intelligence.candidates.schema import Candidate
 from bijux_proteomics_runtime.api.catalog import (
     build_artifact_lookup_response,
     build_evidence_lookup_response,
@@ -36,7 +34,6 @@ from bijux_proteomics_runtime.api.v1.schema import (
     RunResponse,
 )
 from bijux_proteomics_runtime.runs.correlation import build_correlation_meta
-from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.operations import (
     build_runtime_run_config,
     compare_run_operation,
@@ -48,11 +45,13 @@ from bijux_proteomics_runtime.runs.operations import (
     resume_candidate_operation,
     run_sequence_operation,
 )
-from bijux_proteomics_runtime.runs.output import RunOutput
 from bijux_proteomics_runtime.runs.request import RunRequest
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.identity import runtime_banner
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
+
+if TYPE_CHECKING:
+    from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 __all__ = [
     "CliResult",
@@ -72,6 +71,27 @@ __all__ = [
 ]
 
 _CLI_ERROR_TYPE = cast(AnyUrl, "https://bijux.dev/errors/cli")
+
+
+def _candidate_store_type() -> type[Any]:
+    """Load the candidate store only for commands that resume stored candidates."""
+    from bijux_proteomics_intelligence.candidates import CandidateStore
+
+    return CandidateStore
+
+
+def _run_manager_type() -> type[Any]:
+    """Load the runtime manager only for commands that execute candidate replay."""
+    from bijux_proteomics_runtime.runs.manager import RunManager
+
+    return RunManager
+
+
+def _run_output_model() -> type[Any]:
+    """Load the runtime output schema only for run-bearing command responses."""
+    from bijux_proteomics_runtime.runs.output import RunOutput
+
+    return RunOutput
 
 
 def _package_version() -> str:
@@ -392,7 +412,7 @@ def run(
             execution_mode,
         )
         result = _run_sequence(Path.cwd(), seq, config)
-        run_output = RunOutput.model_validate(result)
+        run_output = _run_output_model().model_validate(result)
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
@@ -470,7 +490,7 @@ def resume(
             artifacts_dir,
             execution_mode,
         )
-        run_output = RunOutput.model_validate(result)
+        run_output = _run_output_model().model_validate(result)
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
@@ -543,7 +563,7 @@ def import_result(
             engine_version=engine_version,
             artifacts_dir=artifacts_dir,
         )
-        run_output = RunOutput.model_validate(result)
+        run_output = _run_output_model().model_validate(result)
         summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
@@ -906,7 +926,7 @@ def reproduce(run_id: str, pretty: bool, json_output: bool) -> None:
             raise FileNotFoundError(f"Run not found at {original_workspace.run_dir}")
         summary = json.loads(original_workspace.run_summary_path.read_text())
         candidate_id = summary.get("candidate_id") or f"{run_id}-c0"
-        store = CandidateStore(original_workspace.candidate_store_dir)
+        store = _candidate_store_type()(original_workspace.candidate_store_dir)
         candidate = store.get_candidate(candidate_id)
         config = _load_run_config(original_workspace.run_dir)
         reproduce_root = base_dir / "artifacts" / "reproduce"
@@ -920,7 +940,7 @@ def reproduce(run_id: str, pretty: bool, json_output: bool) -> None:
         reproduce_config = config.model_copy(
             update={"artifacts_dir": str(reproduce_root)}
         )
-        manager = RunManager(base_dir, reproduce_config)
+        manager = _run_manager_type()(base_dir, reproduce_config)
         manager.run_candidate(candidate, run_id=run_id)
         original_hashes = _artifact_hashes(original_workspace.run_dir)
         reproduced_hashes = _artifact_hashes(reproduce_workspace.run_dir)
