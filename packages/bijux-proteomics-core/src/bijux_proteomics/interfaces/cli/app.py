@@ -608,7 +608,7 @@ from bijux_proteomics.workflow import (
     build_label_based_differential_volcano_plot,
     build_silac_label_based_report_bundle,
     build_silac_differential_analysis_report,
-    build_tmt_label_based_report_bundle,
+    build_tmt_experiment_workflow_bundle,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
     DdaPsmAcceptancePolicy,
@@ -618,6 +618,7 @@ from bijux_proteomics.workflow import (
     export_dda_biological_workflow_bundle,
     export_maxquant_biological_workflow_bundle,
     export_ptm_site_workflow_bundle,
+    export_tmt_experiment_workflow_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
@@ -12450,12 +12451,9 @@ def tmt_report_command(
     """Build a governed TMT report directory with channel quality, ratios, and protein changes."""
     try:
         explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
-        design_report = parse_experimental_design_table(design_path)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_tmt_label_based_report_bundle(
+        workflow_report = build_tmt_experiment_workflow_bundle(
             input_tsv,
-            tuple(design_report.accepted_entries),
+            design_path,
             control_channel=control_channel,
             source_kind=TmtSearchResultSourceKind(source_kind),
             mapping=TmtReporterColumnMapping(
@@ -12479,24 +12477,38 @@ def tmt_report_command(
             covariate_fields=tuple(dict.fromkeys(covariate_fields)),
             pairing_field=pairing_field,
         )
-        manifest = export_label_based_report_bundle(report, output_dir)
+        workflow_manifest = export_tmt_experiment_workflow_bundle(
+            workflow_report,
+            output_dir,
+        )
     except click.ClickException:
         raise
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
 
-    manifest_path = output_dir / "label_based_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    workflow_manifest_path = output_dir / "tmt_workflow_manifest.json"
+    workflow_manifest_path.write_text(
+        workflow_manifest.to_stable_json() + "\n",
+        encoding="utf-8",
+    )
 
     _emit_json(
         {
             "source_kind": source_kind,
             "control_channel": control_channel,
-            "report": report.to_dict(),
-            "export_manifest": manifest.to_dict(),
+            "workflow_report": workflow_report.to_dict(),
+            "report": workflow_report.report.to_dict(),
+            "workflow_export_manifest": workflow_manifest.to_dict(),
+            "export_manifest": workflow_manifest.label_based_report_manifest.to_dict(),
             "outputs": {
                 "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
+                "manifest_json": str(
+                    output_dir / workflow_manifest.artifacts.label_based_report_manifest_json
+                ),
+                "workflow_manifest_json": str(workflow_manifest_path),
+                "report_manifest_json": str(
+                    output_dir / workflow_manifest.artifacts.label_based_report_manifest_json
+                ),
             },
         },
         out_path=out_path,
