@@ -399,6 +399,14 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
+from bijux_proteomics.workflow import (
+    build_diann_vs_dda_psm_comparison_report,
+    render_dia_dda_comparison_summary_tsv,
+    render_dia_dda_exclusive_evidence_tsv,
+    render_dia_dda_peptide_overlap_tsv,
+    render_dia_dda_protein_overlap_tsv,
+    render_dia_dda_shared_intensity_correlation_tsv,
+)
 
 
 def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
@@ -2283,6 +2291,108 @@ def targeted_assay_qc_command(
             ),
             "unreliable_tsv": (
                 None if unreliable_tsv_out is None else str(unreliable_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("dia-dda-compare")
+@click.argument(
+    "diann_report_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "dda_psm_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--max-q-value", type=float, default=0.05, show_default=True)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--protein-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--peptide-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--exclusive-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def dia_dda_compare_command(
+    diann_report_path: Path,
+    dda_psm_path: Path,
+    max_q_value: float,
+    summary_tsv_out: Path | None,
+    protein_overlap_tsv_out: Path | None,
+    peptide_overlap_tsv_out: Path | None,
+    correlation_tsv_out: Path | None,
+    exclusive_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Compare DIA-NN and DDA evidence overlap, exclusivity, and shared intensity."""
+    try:
+        comparison_report = build_diann_vs_dda_psm_comparison_report(
+            diann_report_path,
+            dda_psm_path,
+            max_q_value=max_q_value,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_dia_dda_comparison_summary_tsv(comparison_report),
+        )
+    if protein_overlap_tsv_out is not None:
+        _write_text_output(
+            protein_overlap_tsv_out,
+            render_dia_dda_protein_overlap_tsv(comparison_report),
+        )
+    if peptide_overlap_tsv_out is not None:
+        _write_text_output(
+            peptide_overlap_tsv_out,
+            render_dia_dda_peptide_overlap_tsv(comparison_report),
+        )
+    if correlation_tsv_out is not None:
+        _write_text_output(
+            correlation_tsv_out,
+            render_dia_dda_shared_intensity_correlation_tsv(comparison_report),
+        )
+    if exclusive_tsv_out is not None:
+        _write_text_output(
+            exclusive_tsv_out,
+            render_dia_dda_exclusive_evidence_tsv(comparison_report),
+        )
+
+    payload = {
+        "dia_source_name": comparison_report.dia_source_name,
+        "dda_source_name": comparison_report.dda_source_name,
+        "summary": comparison_report.summary.to_dict(),
+        "protein_overlap": [entry.to_dict() for entry in comparison_report.protein_overlap],
+        "peptide_overlap": [entry.to_dict() for entry in comparison_report.peptide_overlap],
+        "shared_intensity_correlation": [
+            entry.to_dict() for entry in comparison_report.shared_intensity_correlation
+        ],
+        "exclusive_evidence": [
+            entry.to_dict() for entry in comparison_report.exclusive_evidence
+        ],
+        "note": comparison_report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "protein_overlap_tsv": (
+                None
+                if protein_overlap_tsv_out is None
+                else str(protein_overlap_tsv_out)
+            ),
+            "peptide_overlap_tsv": (
+                None
+                if peptide_overlap_tsv_out is None
+                else str(peptide_overlap_tsv_out)
+            ),
+            "correlation_tsv": (
+                None if correlation_tsv_out is None else str(correlation_tsv_out)
+            ),
+            "exclusive_tsv": (
+                None if exclusive_tsv_out is None else str(exclusive_tsv_out)
             ),
         },
     }

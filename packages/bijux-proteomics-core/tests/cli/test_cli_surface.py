@@ -3238,6 +3238,73 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         )
 
 
+def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "dia_dda_comparison_diann.tsv",
+            "dia_dda_comparison_diann.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "dia_dda_comparison_dda_psms.tsv",
+            "dia_dda_comparison_dda_psms.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "dia-dda-compare",
+                "dia_dda_comparison_diann.tsv",
+                "dia_dda_comparison_dda_psms.tsv",
+                "--summary-tsv-out",
+                "dia_dda.summary.tsv",
+                "--protein-overlap-tsv-out",
+                "dia_dda.protein.tsv",
+                "--peptide-overlap-tsv-out",
+                "dia_dda.peptide.tsv",
+                "--correlation-tsv-out",
+                "dia_dda.correlation.tsv",
+                "--exclusive-tsv-out",
+                "dia_dda.exclusive.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["dia_source_name"] == "DIA-NN"
+        assert payload["dda_source_name"] == "DDA PSM"
+        assert payload["summary"]["shared_protein_count"] == 2
+        assert payload["summary"]["shared_peptide_count"] == 2
+        assert payload["summary"]["shared_intensity_correlation_entry_count"] == 4
+        assert payload["summary"]["exclusive_evidence_entry_count"] == 4
+        assert payload["outputs"]["summary_tsv"] == "dia_dda.summary.tsv"
+        assert payload["outputs"]["protein_overlap_tsv"] == "dia_dda.protein.tsv"
+        assert payload["outputs"]["peptide_overlap_tsv"] == "dia_dda.peptide.tsv"
+        assert payload["outputs"]["correlation_tsv"] == "dia_dda.correlation.tsv"
+        assert payload["outputs"]["exclusive_tsv"] == "dia_dda.exclusive.tsv"
+        assert Path("dia_dda.summary.tsv").exists()
+        assert Path("dia_dda.protein.tsv").exists()
+        assert Path("dia_dda.peptide.tsv").exists()
+        assert Path("dia_dda.correlation.tsv").exists()
+        assert Path("dia_dda.exclusive.tsv").exists()
+        assert "DIA-NN\tDDA PSM\t3\t3\t2\t1\t1\t3\t3\t2\t1\t1\t4\t4\t2\t2" in Path(
+            "dia_dda.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P55555\tdia_only\t2\t0\t2e+06\t0" in Path(
+            "dia_dda.protein.tsv"
+        ).read_text(encoding="utf-8")
+        assert "DDAONLY\tdda_only\t0\t2\t0\t1.34e+06\t\tP33333" in Path(
+            "dia_dda.peptide.tsv"
+        ).read_text(encoding="utf-8")
+        assert "protein\tP22222\t2\t1.23e+06\t826000\t1" in Path(
+            "dia_dda.correlation.tsv"
+        ).read_text(encoding="utf-8")
+        assert "dia\tpeptide\tDIAONLY\t2\t1.46e+06\tP55555" in Path(
+            "dia_dda.exclusive.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectronaut_import_command_reports_samples_quantities_and_modifications() -> (
     None
 ):
