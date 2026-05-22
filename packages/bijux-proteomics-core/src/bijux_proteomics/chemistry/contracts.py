@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from enum import StrEnum
+import importlib
 import json
 from math import exp, factorial
 from pathlib import Path
@@ -444,6 +445,10 @@ class ModifiedPeptideExportRecord(JsonModel):
     modifications: tuple[AppliedModification, ...] = Field(default_factory=tuple)
 
 
+def _modification_registry_engine():
+    return importlib.import_module("bijux_proteomics.chemistry.modification_registry")
+
+
 def _format_mass_delta(delta: float) -> str:
     rendered = f"{delta:+.6f}".rstrip("0").rstrip(".")
     return rendered if "." in rendered else f"{rendered}.0"
@@ -463,9 +468,12 @@ def _build_applied_modification(
     stripped_token = token.strip()
     definition = None
     if not _DELTA_TOKEN_RE.fullmatch(stripped_token):
-        definition = get_modification(stripped_token, registry=registry)
+        definition = _modification_registry_engine().get_modification(
+            stripped_token,
+            registry=registry,
+        )
     _validate_isotopic_label_policy(definition, labeling_policy=labeling_policy)
-    residue = _validate_definition_site(
+    residue = _modification_registry_engine().resolve_modification_site(
         definition=definition,
         sequence=sequence,
         site=site,
@@ -575,62 +583,8 @@ def _validate_isotopic_label_policy(
 def validate_modification_registry(
     registry: ModificationRegistryDocument,
 ) -> ModificationRegistryValidationReport:
-    """Validate duplicate and conflicting registry definitions."""
-    issues: list[ModificationRegistryValidationIssue] = []
-    by_name: dict[str, _BaseModification] = {}
-    by_controlled_id: dict[str, _BaseModification] = {}
-    for modification in (
-        *registry.static_modifications,
-        *registry.variable_modifications,
-    ):
-        normalized_name = modification.name.strip().lower()
-        previous = by_name.get(normalized_name)
-        if previous is not None:
-            conflict_code = (
-                "duplicate_modification_name"
-                if _registry_validation_signature(previous)
-                == _registry_validation_signature(modification)
-                else "conflicting_modification_name"
-            )
-            issues.append(
-                ModificationRegistryValidationIssue(
-                    code=conflict_code,
-                    message=(
-                        f"modification {modification.name!r} is defined more than once"
-                        if conflict_code == "duplicate_modification_name"
-                        else f"modification {modification.name!r} has conflicting definitions"
-                    ),
-                    modification_name=modification.name,
-                    controlled_id=modification.controlled_id,
-                )
-            )
-        else:
-            by_name[normalized_name] = modification
-
-        if modification.controlled_id is None:
-            continue
-        previous_controlled = by_controlled_id.get(modification.controlled_id)
-        if previous_controlled is not None and (
-            _registry_validation_signature(previous_controlled)
-            != _registry_validation_signature(modification)
-        ):
-            issues.append(
-                ModificationRegistryValidationIssue(
-                    code="conflicting_controlled_id",
-                    message=(
-                        f"controlled modification id {modification.controlled_id!r} maps "
-                        "to conflicting registry definitions"
-                    ),
-                    modification_name=modification.name,
-                    controlled_id=modification.controlled_id,
-                )
-            )
-        else:
-            by_controlled_id[modification.controlled_id] = modification
-
-    return ModificationRegistryValidationReport(
-        valid=not issues,
-        issues=tuple(issues),
+    return _modification_registry_engine().validate_modification_registry(
+        registry,
     )
 
 
@@ -664,7 +618,7 @@ def _registry_validation_signature(
 def _raise_on_invalid_modification_registry(
     registry: ModificationRegistryDocument,
 ) -> None:
-    report = validate_modification_registry(registry)
+    report = _modification_registry_engine().validate_modification_registry(registry)
     if report.valid:
         return
     messages = "; ".join(issue.message for issue in report.issues)
@@ -672,88 +626,10 @@ def _raise_on_invalid_modification_registry(
 
 
 def _build_builtin_registry() -> ModificationRegistryDocument:
-    schema = DocumentSchema(
-        created_by="bijux-proteomics-core",
-        document_kind="peptide_modification_registry",
-        package_name="bijux-proteomics-core",
-        status="generated",
-    )
-    registry = ModificationRegistryDocument(
-        document_schema=schema,
-        static_modifications=(
-            StaticModification(
-                name="Carbamidomethyl",
-                residues=("C",),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=57.021464,
-                mass_delta_average=57.05132,
-                controlled_id="UNIMOD:4",
-            ),
-        ),
-        variable_modifications=(
-            VariableModification(
-                name="Oxidation",
-                residues=("M",),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=15.994915,
-                mass_delta_average=15.9994,
-                controlled_id="UNIMOD:35",
-            ),
-            VariableModification(
-                name="Phospho",
-                residues=("S", "T", "Y"),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=79.966331,
-                mass_delta_average=79.9799,
-                neutral_losses=(
-                    NeutralLoss(
-                        name="phosphoric_acid",
-                        monoisotopic_mass=_PHOSPHORIC_ACID_MONOISOTOPIC_MASS,
-                        average_mass=_PHOSPHORIC_ACID_AVERAGE_MASS,
-                    ),
-                ),
-                controlled_id="UNIMOD:21",
-            ),
-            VariableModification(
-                name="Acetyl",
-                position=ModificationPosition.PEPTIDE_N_TERM,
-                mass_delta_monoisotopic=42.010565,
-                mass_delta_average=42.0367,
-                controlled_id="UNIMOD:1",
-            ),
-            VariableModification(
-                name="Deamidated",
-                residues=("N", "Q"),
-                position=ModificationPosition.ANYWHERE,
-                mass_delta_monoisotopic=0.984016,
-                mass_delta_average=0.9848,
-                controlled_id="UNIMOD:7",
-            ),
-            VariableModification(
-                name="Amidated",
-                position=ModificationPosition.PEPTIDE_C_TERM,
-                mass_delta_monoisotopic=-0.984016,
-                mass_delta_average=-0.9848,
-                controlled_id="UNIMOD:2",
-            ),
-        ),
-    )
-    _raise_on_invalid_modification_registry(registry)
-    payload = registry.to_dict()
-    return registry.model_copy(
-        update={"document_schema": registry.document_schema.with_content_hash(payload)}
-    )
+    return _modification_registry_engine().modification_registry()
 
 
 _BUILTIN_REGISTRY = _build_builtin_registry()
-_MODIFICATION_TOKEN_ALIASES = {
-    "acetylation": "acetyl",
-    "carbamidomethylation": "carbamidomethyl",
-    "deamidation": "deamidated",
-    "deamidated": "deamidated",
-    "oxidation": "oxidation",
-    "phosphorylation": "phospho",
-}
 
 
 def build_modification_registry(
@@ -761,65 +637,24 @@ def build_modification_registry(
     static_modifications: tuple[StaticModification, ...] = (),
     variable_modifications: tuple[VariableModification, ...] = (),
 ) -> ModificationRegistryDocument:
-    """Build a stable user-supplied modification registry document."""
-    schema = DocumentSchema(
-        created_by="bijux-proteomics-core",
-        document_kind="peptide_modification_registry",
-        package_name="bijux-proteomics-core",
-        status="generated",
-    )
-    registry = ModificationRegistryDocument(
-        document_schema=schema,
+    return _modification_registry_engine().build_modification_registry(
         static_modifications=static_modifications,
         variable_modifications=variable_modifications,
-    )
-    _raise_on_invalid_modification_registry(registry)
-    payload = registry.to_dict()
-    return registry.model_copy(
-        update={"document_schema": registry.document_schema.with_content_hash(payload)}
     )
 
 
 def modification_registry() -> ModificationRegistryDocument:
-    """Return the built-in peptide modification registry."""
-    return _BUILTIN_REGISTRY.model_copy(deep=True)
+    return _modification_registry_engine().modification_registry()
 
 
 def load_modification_registry(path: Path) -> ModificationRegistryDocument:
-    """Load and validate a modification registry document from JSON."""
-    registry = ModificationRegistryDocument.model_validate_json(path.read_text())
-    _raise_on_invalid_modification_registry(registry)
-    return registry
+    return _modification_registry_engine().load_modification_registry(path)
 
 
 def _registry_lookup(
     registry: ModificationRegistryDocument | None,
 ) -> dict[str, StaticModification | VariableModification]:
-    mapping: dict[str, StaticModification | VariableModification] = {}
-    builtin_registry = modification_registry()
-    for modification in builtin_registry.static_modifications:
-        mapping[modification.name.strip().lower()] = modification
-        if modification.controlled_id is not None:
-            mapping[modification.controlled_id.strip().lower()] = modification
-    for variable_modification in builtin_registry.variable_modifications:
-        mapping[variable_modification.name.strip().lower()] = variable_modification
-        if variable_modification.controlled_id is not None:
-            mapping[variable_modification.controlled_id.strip().lower()] = (
-                variable_modification
-            )
-    if registry is None:
-        return mapping
-    for modification in registry.static_modifications:
-        mapping[modification.name.strip().lower()] = modification
-        if modification.controlled_id is not None:
-            mapping[modification.controlled_id.strip().lower()] = modification
-    for variable_modification in registry.variable_modifications:
-        mapping[variable_modification.name.strip().lower()] = variable_modification
-        if variable_modification.controlled_id is not None:
-            mapping[variable_modification.controlled_id.strip().lower()] = (
-                variable_modification
-            )
-    return mapping
+    return _modification_registry_engine()._registry_lookup(registry)
 
 
 def get_modification(
@@ -827,19 +662,7 @@ def get_modification(
     *,
     registry: ModificationRegistryDocument | None = None,
 ) -> StaticModification | VariableModification:
-    """Return one modification definition from the active registry."""
-    normalized = name.strip().lower()
-    alias = _MODIFICATION_TOKEN_ALIASES.get(normalized)
-    mapping = _registry_lookup(registry)
-    try:
-        return mapping[normalized]
-    except KeyError as exc:
-        if alias is not None:
-            try:
-                return mapping[alias]
-            except KeyError:
-                pass
-        raise ValueError(f"unknown modification {name!r}") from exc
+    return _modification_registry_engine().get_modification(name, registry=registry)
 
 
 def _coerce_sequence(peptide: str | ParsedModifiedPeptide) -> str:
