@@ -5,6 +5,8 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -300,3 +302,184 @@ def _median(values: list[float]) -> float:
     if len(ordered) % 2 == 1:
         return ordered[midpoint]
     return (ordered[midpoint - 1] + ordered[midpoint]) / 2.0
+
+
+def render_transition_qc_summary_tsv(report: DiaTransitionQcReport) -> str:
+    """Render the compact summary for one transition QC report."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_name",
+            "precursor_count",
+            "transition_count",
+            "sample_count",
+            "observed_cell_count",
+            "missing_cell_count",
+            "weak_transition_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.source_name,
+            report.summary.precursor_count,
+            report.summary.transition_count,
+            report.summary.sample_count,
+            report.summary.observed_cell_count,
+            report.summary.missing_cell_count,
+            report.summary.weak_transition_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_transition_qc_transition_tsv(report: DiaTransitionQcReport) -> str:
+    """Render the transition-level QC ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "transition_id",
+            "precursor_id",
+            "peptide_sequence",
+            "protein_ref",
+            "fragment_label",
+            "precursor_mz",
+            "fragment_mz",
+            "detected_sample_count",
+            "missing_sample_count",
+            "total_intensity",
+            "mean_intensity",
+            "median_intensity",
+            "median_relative_share",
+            "min_q_value",
+            "weak",
+            "weak_reasons",
+        ]
+    )
+    for entry in report.entries:
+        writer.writerow(
+            [
+                entry.transition_id,
+                entry.precursor_id,
+                "" if entry.peptide_sequence is None else entry.peptide_sequence,
+                "" if entry.protein_ref is None else entry.protein_ref,
+                "" if entry.fragment_label is None else entry.fragment_label,
+                "" if entry.precursor_mz is None else f"{entry.precursor_mz:g}",
+                "" if entry.fragment_mz is None else f"{entry.fragment_mz:g}",
+                entry.detected_sample_count,
+                entry.missing_sample_count,
+                f"{entry.total_intensity:g}",
+                f"{entry.mean_intensity:g}",
+                f"{entry.median_intensity:g}",
+                f"{entry.median_relative_share:.6g}",
+                "" if entry.min_q_value is None else f"{entry.min_q_value:.6g}",
+                str(entry.weak).lower(),
+                ";".join(entry.weak_reasons),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_transition_qc_sample_tsv(report: DiaTransitionQcReport) -> str:
+    """Render the sample-resolved transition QC ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "transition_id",
+            "precursor_id",
+            "sample_id",
+            "run_ids",
+            "intensity",
+            "q_value",
+            "precursor_total_intensity",
+            "relative_share",
+            "source_observation_count",
+            "detected",
+        ]
+    )
+    for entry in report.entries:
+        for value in entry.values:
+            writer.writerow(
+                [
+                    entry.transition_id,
+                    entry.precursor_id,
+                    value.sample_id,
+                    ";".join(value.run_ids),
+                    "" if value.intensity is None else f"{value.intensity:g}",
+                    "" if value.q_value is None else f"{value.q_value:.6g}",
+                    (
+                        ""
+                        if value.precursor_total_intensity is None
+                        else f"{value.precursor_total_intensity:g}"
+                    ),
+                    "" if value.relative_share is None else f"{value.relative_share:.6g}",
+                    value.source_observation_count,
+                    str(value.detected).lower(),
+                ]
+            )
+    return buffer.getvalue()
+
+
+def render_transition_qc_weak_tsv(report: DiaTransitionQcReport) -> str:
+    """Render the weak-transition QC ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "transition_id",
+            "precursor_id",
+            "detected_sample_count",
+            "sample_count",
+            "detection_fraction",
+            "median_relative_share",
+            "weak_reasons",
+        ]
+    )
+    for entry in report.weak_transitions:
+        writer.writerow(
+            [
+                entry.transition_id,
+                entry.precursor_id,
+                entry.detected_sample_count,
+                entry.sample_count,
+                f"{entry.detection_fraction:.6g}",
+                f"{entry.median_relative_share:.6g}",
+                ";".join(entry.weak_reasons),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_transition_qc_summary_tsv(report: DiaTransitionQcReport, path: Path) -> None:
+    """Export the transition QC summary TSV."""
+
+    path.write_text(render_transition_qc_summary_tsv(report), encoding="utf-8")
+
+
+def export_transition_qc_transition_tsv(
+    report: DiaTransitionQcReport,
+    path: Path,
+) -> None:
+    """Export the transition-level QC TSV."""
+
+    path.write_text(render_transition_qc_transition_tsv(report), encoding="utf-8")
+
+
+def export_transition_qc_sample_tsv(report: DiaTransitionQcReport, path: Path) -> None:
+    """Export the sample-resolved transition QC TSV."""
+
+    path.write_text(render_transition_qc_sample_tsv(report), encoding="utf-8")
+
+
+def export_transition_qc_weak_tsv(report: DiaTransitionQcReport, path: Path) -> None:
+    """Export the weak-transition QC TSV."""
+
+    path.write_text(render_transition_qc_weak_tsv(report), encoding="utf-8")
