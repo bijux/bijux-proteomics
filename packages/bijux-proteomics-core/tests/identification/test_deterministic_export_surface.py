@@ -23,7 +23,10 @@ from bijux_proteomics.identification.maxquant_import import (
 )
 from bijux_proteomics.identification.fragpipe_import import (
     build_fragpipe_import_report,
+    render_fragpipe_canonical_psm_tsv,
+    render_fragpipe_open_search_evidence_tsv,
     render_fragpipe_peptide_tsv,
+    render_fragpipe_protein_quantity_tsv,
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
 )
@@ -63,8 +66,12 @@ def test_fragpipe_export_renderers_ignore_input_row_order() -> None:
         root / "psm.tsv",
         peptide_tsv_path=root / "combined_peptide.tsv",
         protein_tsv_path=root / "combined_protein.tsv",
+        quant_tsv_path=root / "combined_quant.tsv",
     )
 
+    assert render_fragpipe_canonical_psm_tsv(
+        report.canonical_psms
+    ) == render_fragpipe_canonical_psm_tsv(_reversed_rows(report.canonical_psms))
     assert render_fragpipe_psm_tsv(report.psm_rows) == render_fragpipe_psm_tsv(
         _reversed_rows(report.psm_rows)
     )
@@ -74,6 +81,16 @@ def test_fragpipe_export_renderers_ignore_input_row_order() -> None:
     assert render_fragpipe_protein_tsv(
         report.protein_rows
     ) == render_fragpipe_protein_tsv(_reversed_rows(report.protein_rows))
+    assert render_fragpipe_open_search_evidence_tsv(
+        report.open_search_evidence
+    ) == render_fragpipe_open_search_evidence_tsv(
+        _reversed_rows(report.open_search_evidence)
+    )
+    assert render_fragpipe_protein_quantity_tsv(
+        report.protein_quantity_rows
+    ) == render_fragpipe_protein_quantity_tsv(
+        _reversed_rows(report.protein_quantity_rows)
+    )
 
 
 def test_comet_and_sage_psm_exports_ignore_input_row_order() -> None:
