@@ -21,6 +21,7 @@ from bijux_proteomics.isotope_labeling import (
     parse_silac_feature_table,
 )
 from bijux_proteomics.multiplex import (
+    TmtDistributionStage,
     TmtNormalizationMethod,
     TmtNormalizationPolicy,
     TmtNormalizationReport,
@@ -50,7 +51,19 @@ class LabelBasedReportSampleQcEntry(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    source_kind: LabelBasedDifferentialSourceKind
     sample_id: str = Field(..., min_length=1)
+    condition: str | None = None
+    sample_role: str | None = None
+    multiplex_group: str | None = None
+    assay_axis: str = Field(..., min_length=1)
+    total_signal: float = Field(..., ge=0.0)
+    before_balance_ratio: float | None = Field(default=None, ge=0.0)
+    after_balance_ratio: float | None = Field(default=None, ge=0.0)
+    missing_measurement_count: int = Field(..., ge=0)
+    weak_measurement_count: int = Field(..., ge=0)
+    abnormal_distribution_count: int = Field(..., ge=0)
+    flagged: bool
     note: str = Field(..., min_length=1)
 
 
@@ -141,6 +154,10 @@ def build_tmt_label_based_report_bundle(
         covariate_fields=tuple(dict.fromkeys(covariate_fields)),
         pairing_field=pairing_field,
     )
+    sample_qc_entries = _build_tmt_sample_qc_entries(
+        validation_report,
+        normalization_report=normalization_report,
+    )
     return LabelBasedReportBundle(
         source_kind=LabelBasedDifferentialSourceKind.TMT,
         source_name=source_kind.value,
@@ -149,16 +166,17 @@ def build_tmt_label_based_report_bundle(
         tmt_ratio_report=ratio_report,
         tmt_validation_report=validation_report,
         differential_analysis_report=differential_report,
+        sample_qc_entries=sample_qc_entries,
         summary=LabelBasedReportSummary(
             source_kind=LabelBasedDifferentialSourceKind.TMT,
             sample_count=matrix_report.protein_matrix.summary.sample_count,
             quality_entry_count=len(validation_report.channel_entries),
             protein_ratio_count=len(ratio_report.protein_ratios),
             differential_result_count=_differential_result_count(differential_report),
-            sample_qc_entry_count=0,
+            sample_qc_entry_count=len(sample_qc_entries),
         ),
         note=(
-            "labeled reporting assembles governed tmt channel totals, normalization review, protein ratios, and differential results into one owned bundle"
+            "labeled reporting assembles governed tmt channel totals, normalization review, protein ratios, differential results, and sample qc into one owned bundle"
         ),
     )
 
@@ -203,24 +221,184 @@ def build_silac_label_based_report_bundle(
         covariate_fields=tuple(dict.fromkeys(covariate_fields)),
         pairing_field=pairing_field,
     )
+    sample_qc_entries = _build_silac_sample_qc_entries(
+        validation_report,
+        differential_report=differential_report,
+        design_entries=design_entries,
+    )
     return LabelBasedReportBundle(
         source_kind=LabelBasedDifferentialSourceKind.SILAC,
         source_name="silac",
         silac_ratio_report=ratio_report,
         silac_validation_report=validation_report,
         differential_analysis_report=differential_report,
+        sample_qc_entries=sample_qc_entries,
         summary=LabelBasedReportSummary(
             source_kind=LabelBasedDifferentialSourceKind.SILAC,
             sample_count=ratio_report.summary.sample_count,
             quality_entry_count=len(validation_report.label_entries),
             protein_ratio_count=len(ratio_report.protein_ratios),
             differential_result_count=_differential_result_count(differential_report),
-            sample_qc_entry_count=0,
+            sample_qc_entry_count=len(sample_qc_entries),
         ),
         note=(
-            "labeled reporting assembles governed silac protein ratios, label validation, and differential results into one owned bundle"
+            "labeled reporting assembles governed silac protein ratios, label validation, differential results, and sample qc into one owned bundle"
         ),
     )
+
+
+def _build_tmt_sample_qc_entries(
+    validation_report: TmtValidationReport,
+    *,
+    normalization_report: TmtNormalizationReport,
+) -> tuple[LabelBasedReportSampleQcEntry, ...]:
+    after_distribution_by_key = {
+        (entry.multiplex_group, entry.multiplex_channel, entry.sample_id): entry
+        for entry in normalization_report.channel_distributions
+        if entry.stage is TmtDistributionStage.AFTER
+    }
+    before_distribution_by_key = {
+        (entry.multiplex_group, entry.multiplex_channel, entry.sample_id): entry
+        for entry in validation_report.distribution_entries
+    }
+    weak_counts_by_key: dict[tuple[str, str, str | None], int] = {}
+    for entry in validation_report.weak_evidence:
+        key = (entry.multiplex_group, entry.multiplex_channel, entry.sample_id)
+        weak_counts_by_key[key] = weak_counts_by_key.get(key, 0) + 1
+    rows: list[LabelBasedReportSampleQcEntry] = []
+    for entry in validation_report.channel_entries:
+        if entry.sample_id is None:
+            continue
+        key = (entry.multiplex_group, entry.multiplex_channel, entry.sample_id)
+        before_distribution = before_distribution_by_key.get(key)
+        after_distribution = after_distribution_by_key.get(key)
+        weak_measurement_count = weak_counts_by_key.get(key, 0)
+        abnormal_distribution_count = int(
+            before_distribution is not None and before_distribution.abnormal_distribution
+        ) + int(after_distribution is not None and after_distribution.flagged)
+        notes: list[str] = []
+        if not entry.present:
+            notes.append("expected multiplex channel is missing or empty")
+        if before_distribution is not None and before_distribution.abnormal_distribution:
+            notes.append("channel total intensity falls outside the study-wide same-channel envelope")
+        if after_distribution is not None and after_distribution.flagged:
+            notes.append("normalized channel remains imbalanced within the multiplex group")
+        if weak_measurement_count > 0:
+            notes.append("weak channel evidence is present")
+        rows.append(
+            LabelBasedReportSampleQcEntry(
+                source_kind=LabelBasedDifferentialSourceKind.TMT,
+                sample_id=entry.sample_id,
+                condition=entry.condition,
+                sample_role=(
+                    None if entry.channel_role is None else entry.channel_role.value
+                ),
+                multiplex_group=entry.multiplex_group,
+                assay_axis=entry.multiplex_channel,
+                total_signal=entry.total_intensity,
+                before_balance_ratio=(
+                    None
+                    if before_distribution is None
+                    else before_distribution.ratio_to_channel_median
+                ),
+                after_balance_ratio=(
+                    None
+                    if after_distribution is None
+                    else after_distribution.ratio_to_group_median
+                ),
+                missing_measurement_count=entry.missing_row_count,
+                weak_measurement_count=weak_measurement_count,
+                abnormal_distribution_count=abnormal_distribution_count,
+                flagged=bool(notes),
+                note=(
+                    "; ".join(notes)
+                    if notes
+                    else "channel quality, normalization balance, and weak-evidence review are all within the governed tmt envelope"
+                ),
+            )
+        )
+    return tuple(rows)
+
+
+def _build_silac_sample_qc_entries(
+    validation_report: SilacValidationReport,
+    *,
+    differential_report: LabelBasedDifferentialAnalysisReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[LabelBasedReportSampleQcEntry, ...]:
+    design_by_sample = {entry.sample_id: entry for entry in design_entries}
+    label_entries_by_sample: dict[str, list] = {}
+    for entry in validation_report.label_entries:
+        label_entries_by_sample.setdefault(entry.sample_id, []).append(entry)
+    abnormal_distribution_count_by_sample: dict[str, int] = {}
+    for entry in validation_report.distribution_entries:
+        if entry.abnormal_distribution:
+            abnormal_distribution_count_by_sample[entry.sample_id] = (
+                abnormal_distribution_count_by_sample.get(entry.sample_id, 0) + 1
+            )
+    weak_count_by_sample: dict[str, int] = {}
+    for entry in validation_report.weak_evidence:
+        weak_count_by_sample[entry.sample_id] = (
+            weak_count_by_sample.get(entry.sample_id, 0) + 1
+        )
+    balance_by_sample_stage = {
+        (entry.sample_id, entry.stage.lower()): _ratio_or_none(
+            entry.total_abundance,
+            entry.median_abundance,
+        )
+        for entry in differential_report.normalization_balance_plot.points
+    }
+    rows: list[LabelBasedReportSampleQcEntry] = []
+    for sample_id in sorted(label_entries_by_sample):
+        label_entries = label_entries_by_sample[sample_id]
+        design_entry = design_by_sample.get(sample_id)
+        missing_measurement_count = sum(
+            entry.missing_group_count for entry in label_entries
+        )
+        weak_measurement_count = weak_count_by_sample.get(sample_id, 0)
+        abnormal_distribution_count = abnormal_distribution_count_by_sample.get(
+            sample_id,
+            0,
+        )
+        notes: list[str] = []
+        if missing_measurement_count > 0:
+            notes.append("one or more expected silac label groups are missing")
+        if abnormal_distribution_count > 0:
+            notes.append("label-intensity distribution falls outside the governed sample envelope")
+        if weak_measurement_count > 0:
+            notes.append("weak label evidence is present")
+        rows.append(
+            LabelBasedReportSampleQcEntry(
+                source_kind=LabelBasedDifferentialSourceKind.SILAC,
+                sample_id=sample_id,
+                condition=None if design_entry is None else design_entry.condition,
+                sample_role=(
+                    None
+                    if design_entry is None or design_entry.sample_role is None
+                    else design_entry.sample_role.value
+                ),
+                assay_axis="silac",
+                total_signal=sum(entry.total_intensity for entry in label_entries),
+                before_balance_ratio=balance_by_sample_stage.get((sample_id, "before")),
+                after_balance_ratio=balance_by_sample_stage.get((sample_id, "after")),
+                missing_measurement_count=missing_measurement_count,
+                weak_measurement_count=weak_measurement_count,
+                abnormal_distribution_count=abnormal_distribution_count,
+                flagged=bool(notes),
+                note=(
+                    "; ".join(notes)
+                    if notes
+                    else "label presence, intensity distribution, and ratio balance are all within the governed silac envelope"
+                ),
+            )
+        )
+    return tuple(rows)
+
+
+def _ratio_or_none(numerator: float, denominator: float) -> float | None:
+    if denominator <= 0.0:
+        return None
+    return float(numerator) / float(denominator)
 
 
 def _differential_result_count(report: LabelBasedDifferentialAnalysisReport) -> int:
