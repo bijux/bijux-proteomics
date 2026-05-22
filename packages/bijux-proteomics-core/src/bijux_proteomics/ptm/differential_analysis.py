@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+from enum import StrEnum
 import math
 
 from pydantic import ConfigDict, Field
@@ -14,9 +15,11 @@ from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
     PtmSiteQuantificationReport,
 )
+from bijux_proteomics.ptm.peptide_parser import parse_modified_peptide
 from bijux_proteomics.quantification.contracts import (
     DifferentialAbundanceReport,
     LabelFreeQuantTable,
+    Ms1FeatureRecord,
     NormalizationComparisonReport,
     NormalizationMethod,
     QuantDesignMatrixReport,
@@ -25,6 +28,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantMeasureKind,
     QuantRollupMethod,
     QuantValue,
+    build_label_free_intensity_table,
 )
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
@@ -67,6 +71,10 @@ class PtmSiteDifferentialEntry(JsonModel):
     confidence_interval_low: float | None = None
     confidence_interval_high: float | None = None
     effect_size_cohens_d: float | None = None
+    protein_log2_fold_change: float | None = None
+    protein_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    corrected_log2_fold_change: float | None = None
+    protein_correction_status: str = Field(..., min_length=1)
     uncertainty_note: str | None = None
 
 
@@ -80,6 +88,21 @@ class PtmSiteDifferentialReport(JsonModel):
     condition_b: str = Field(..., min_length=1)
     entries: tuple[PtmSiteDifferentialEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
+
+
+class PtmProteinCorrectionMode(StrEnum):
+    """Protein-level correction policies for PTM differential review."""
+
+    NONE = "none"
+    SUBTRACT_UNMODIFIED_PROTEIN = "subtract_unmodified_protein"
+
+
+class PtmProteinCorrectionStatus(StrEnum):
+    """Correction availability status for one PTM site differential row."""
+
+    NOT_REQUESTED = "not_requested"
+    CORRECTED = "corrected"
+    MISSING_PROTEIN_BASELINE = "missing_protein_baseline"
 
 
 class PtmDifferentialVolcanoPoint(JsonModel):
@@ -121,6 +144,7 @@ class PtmDifferentialAnalysisReport(JsonModel):
     normalization_comparison: NormalizationComparisonReport
     design_matrix: QuantDesignMatrixReport
     design_model_fit: QuantDesignModelFitReport
+    protein_correction_mode: PtmProteinCorrectionMode
     differential_report: PtmSiteDifferentialReport
     volcano_plot: PtmDifferentialVolcanoPlot
     note: str = Field(..., min_length=1)
@@ -133,6 +157,8 @@ def build_ptm_differential_analysis_report(
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
+    feature_records: tuple[Ms1FeatureRecord, ...] | None = None,
+    protein_correction_mode: PtmProteinCorrectionMode = PtmProteinCorrectionMode.NONE,
     batch_field: str = "batch",
     covariate_fields: tuple[str, ...] = (),
     pairing_field: str | None = None,
@@ -171,9 +197,19 @@ def build_ptm_differential_analysis_report(
             condition_b=resolved_condition_b,
         )
     )
+    protein_differential_lookup = _build_protein_differential_lookup(
+        design_entries,
+        normalization_method=normalization_method,
+        condition_a=resolved_condition_a,
+        condition_b=resolved_condition_b,
+        feature_records=feature_records,
+        protein_correction_mode=protein_correction_mode,
+    )
     differential_report = _build_ptm_site_differential_report(
         differential,
         site_quantification.rows,
+        protein_differential_lookup=protein_differential_lookup,
+        protein_correction_mode=protein_correction_mode,
     )
     volcano_plot = build_ptm_differential_volcano_plot(differential_report)
     return PtmDifferentialAnalysisReport(
@@ -183,6 +219,7 @@ def build_ptm_differential_analysis_report(
         normalization_comparison=normalization_comparison,
         design_matrix=design_matrix,
         design_model_fit=design_model_fit,
+        protein_correction_mode=protein_correction_mode,
         differential_report=differential_report,
         volcano_plot=volcano_plot,
         note=(
@@ -276,11 +313,29 @@ def _build_label_free_table_from_site_quantification(
 def _build_ptm_site_differential_report(
     differential: DifferentialAbundanceReport,
     site_rows: tuple[PtmSiteQuantRow, ...],
+    *,
+    protein_differential_lookup: dict[str, PtmProteinDifferentialReference],
+    protein_correction_mode: PtmProteinCorrectionMode,
 ) -> PtmSiteDifferentialReport:
     row_by_site = {row.site_key: row for row in site_rows}
     entries: list[PtmSiteDifferentialEntry] = []
     for entry in differential.entries:
         row = row_by_site[entry.entity_id]
+        correction_reference = protein_differential_lookup.get(row.protein_ref)
+        protein_log2_fold_change = None
+        protein_adjusted_p_value = None
+        corrected_log2_fold_change = None
+        correction_status = PtmProteinCorrectionStatus.NOT_REQUESTED
+        if protein_correction_mode is PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN:
+            if correction_reference is None:
+                correction_status = PtmProteinCorrectionStatus.MISSING_PROTEIN_BASELINE
+            else:
+                protein_log2_fold_change = correction_reference.log2_fold_change
+                protein_adjusted_p_value = correction_reference.adjusted_p_value
+                corrected_log2_fold_change = (
+                    entry.log2_fold_change - correction_reference.log2_fold_change
+                )
+                correction_status = PtmProteinCorrectionStatus.CORRECTED
         entries.append(
             PtmSiteDifferentialEntry(
                 site_key=row.site_key,
@@ -304,6 +359,10 @@ def _build_ptm_site_differential_report(
                 confidence_interval_low=entry.confidence_interval_low,
                 confidence_interval_high=entry.confidence_interval_high,
                 effect_size_cohens_d=entry.effect_size_cohens_d,
+                protein_log2_fold_change=protein_log2_fold_change,
+                protein_adjusted_p_value=protein_adjusted_p_value,
+                corrected_log2_fold_change=corrected_log2_fold_change,
+                protein_correction_status=correction_status.value,
                 uncertainty_note=entry.uncertainty_note,
             )
         )
@@ -316,6 +375,16 @@ def _build_ptm_site_differential_report(
             "ptm site differential report preserves protein-mapped site identity alongside one benjamini-hochberg-corrected contrast"
         ),
     )
+
+
+class PtmProteinDifferentialReference(JsonModel):
+    """Protein-level differential reference used for optional PTM site correction."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    log2_fold_change: float
+    adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 def _resolve_selected_contrast(
@@ -337,3 +406,57 @@ def _resolve_selected_contrast(
 def _negative_log10(value: float) -> float:
     bounded = max(value, 1e-300)
     return -math.log10(bounded)
+
+
+def _build_protein_differential_lookup(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    normalization_method: NormalizationMethod,
+    condition_a: str,
+    condition_b: str,
+    feature_records: tuple[Ms1FeatureRecord, ...] | None,
+    protein_correction_mode: PtmProteinCorrectionMode,
+) -> dict[str, PtmProteinDifferentialReference]:
+    if protein_correction_mode is PtmProteinCorrectionMode.NONE:
+        return {}
+    if feature_records is None:
+        raise ValueError(
+            "protein-level correction requires feature records so unmodified protein evidence can be modeled"
+        )
+    unmodified_records = tuple(
+        record
+        for record in feature_records
+        if record.peptide == parse_modified_peptide(record.peptide).sequence
+        and len(record.protein_refs) == 1
+    )
+    if not unmodified_records:
+        return {}
+    protein_table = build_label_free_intensity_table(
+        unmodified_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    normalized_protein_table = (
+        protein_table
+        if len(protein_table.entity_ids) <= 1
+        else normalize_label_free_table(
+            protein_table,
+            method=normalization_method,
+        )
+    )
+    protein_differential = apply_benjamini_hochberg(
+        build_differential_abundance_report(
+            normalized_protein_table,
+            design_entries,
+            condition_a=condition_a,
+            condition_b=condition_b,
+        )
+    )
+    return {
+        entry.entity_id: PtmProteinDifferentialReference(
+            protein_ref=entry.entity_id,
+            log2_fold_change=entry.log2_fold_change,
+            adjusted_p_value=entry.adjusted_p_value,
+        )
+        for entry in protein_differential.entries
+    }
