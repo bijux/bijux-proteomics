@@ -5,9 +5,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.identification.maxquant_import import build_maxquant_import_report
+from bijux_proteomics.identification.maxquant_import import (
+    build_maxquant_import_report,
+    build_maxquant_lfq_matrix_candidates,
+)
 from bijux_proteomics.quantification import MissingValueKind
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
+    build_label_free_quant_table_from_maxquant_lfq_candidates,
     build_label_free_quant_table_from_maxquant_protein_groups,
 )
 
@@ -61,3 +65,31 @@ def test_build_label_free_quant_table_from_maxquant_protein_groups_preserves_mem
     assert c1_value.missing_value_kind is MissingValueKind.OBSERVED
     assert t1_value.abundance == 200.0
     assert t1_value.missing_value_kind is MissingValueKind.OBSERVED
+
+
+def test_build_label_free_quant_table_from_maxquant_lfq_candidates_preserves_flags_and_members() -> (
+    None
+):
+    import_report = build_maxquant_import_report(
+        _bundle_fixture("evidence.txt"),
+        peptides_txt_path=_bundle_fixture("peptides.txt"),
+        protein_groups_txt_path=_bundle_fixture("proteinGroups.txt"),
+        config_path=_bundle_fixture("maxquant_settings.txt"),
+    )
+
+    candidates = build_maxquant_lfq_matrix_candidates(
+        tuple(
+            row
+            for row in import_report.protein_group_rows
+            if row.protein_ids in {
+                ("P04637",),
+                ("CON__KRT1",),
+            }
+        ),
+        peptide_rows=import_report.peptide_rows,
+    )
+    table = build_label_free_quant_table_from_maxquant_lfq_candidates(candidates)
+
+    assert candidates[0].member_peptides == ("PEPAAA",)
+    assert candidates[1].contaminant_flag is True
+    assert table.entity_member_peptides[candidates[0].entity_id] == ("PEPAAA",)
