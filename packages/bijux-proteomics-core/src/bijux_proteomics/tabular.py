@@ -156,7 +156,9 @@ def parse_delimited_table(
 
     raw_text = path.read_text(encoding="utf-8")
     lines = raw_text.splitlines()
-    active_delimiter = delimiter or infer_delimited_table_delimiter(lines[0]) if lines else "\t"
+    active_delimiter = (
+        delimiter or infer_delimited_table_delimiter(lines[0]) if lines else "\t"
+    )
     if not lines:
         return DelimitedTableParseReport(
             source_path=str(path),

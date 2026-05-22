@@ -14,10 +14,10 @@ from bijux_proteomics.domain.records import (
     RejectedEvidence as CanonicalRejectedEvidence,
     TransitionRecord as CanonicalTransitionRecord,
 )
-from bijux_proteomics.io.table_engine import (
+from bijux_proteomics.tabular import (
     DelimitedColumnSpec,
-    DelimitedTableIssue,
     DelimitedColumnValueType,
+    DelimitedTableIssue,
     parse_delimited_table,
 )
 from bijux_proteomics_foundation import JsonModel
