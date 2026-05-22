@@ -38,6 +38,7 @@ from bijux_proteomics.identification.openms_import import (
 )
 from bijux_proteomics.identification.sage_import import (
     build_sage_import_report,
+    render_sage_canonical_psm_tsv,
     render_sage_psm_tsv,
 )
 from bijux_proteomics.identification.spectronaut_import import (
@@ -108,6 +109,9 @@ def test_comet_and_sage_psm_exports_ignore_input_row_order() -> None:
     assert render_comet_psm_tsv(report_rows := comet_report.psm_rows) == render_comet_psm_tsv(
         _reversed_rows(report_rows)
     )
+    assert render_sage_canonical_psm_tsv(
+        sage_report.canonical_psms
+    ) == render_sage_canonical_psm_tsv(_reversed_rows(sage_report.canonical_psms))
     assert render_sage_psm_tsv(report_rows := sage_report.psm_rows) == render_sage_psm_tsv(
         _reversed_rows(report_rows)
     )
