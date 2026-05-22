@@ -16,7 +16,11 @@ import click
 
 from bijux_proteomics.chemistry import (
     FragmentIonSeries,
+    IsotopicLabelingPolicy,
+    ModificationRegistryDocument,
     SearchEngineModifiedPeptideDialect,
+    StaticModification,
+    VariableModification,
     approximate_peptide_isotope_envelope,
     build_fragment_ion_review_report,
     build_modification_localization_advisory,
@@ -26,6 +30,7 @@ from bijux_proteomics.chemistry import (
     build_search_engine_modified_peptide_report,
     calculate_fragment_ions,
     canonicalize_modified_peptide,
+    get_modification,
     load_modification_registry,
     render_fragment_ion_report_tsv,
 )
@@ -571,6 +576,8 @@ from bijux_proteomics.sequences import (
     render_fasta_profile_organism_distribution_tsv,
     render_fasta_profile_summary_tsv,
     render_fasta_records,
+    build_theoretical_digest_bundle,
+    export_theoretical_digest_bundle,
     sequence_checksum,
     validate_target_decoy_database,
 )
@@ -822,6 +829,49 @@ def _resolve_cli_protease_rule(
         custom_name=custom_protease_name,
     )
     return rule, specification
+
+
+def _resolve_cli_theoretical_digest_modifications(
+    *,
+    static_modifications: tuple[str, ...],
+    variable_modifications: tuple[str, ...],
+    registry_path: Path | None,
+    allow_isotopic_labels: bool,
+    allowed_label_families: tuple[str, ...],
+) -> tuple[
+    ModificationRegistryDocument | None,
+    tuple[StaticModification, ...],
+    tuple[VariableModification, ...],
+    IsotopicLabelingPolicy | None,
+]:
+    registry = (
+        load_modification_registry(registry_path)
+        if registry_path is not None
+        else None
+    )
+    resolved_static: list[StaticModification] = []
+    for token in static_modifications:
+        definition = get_modification(token, registry=registry)
+        if not isinstance(definition, StaticModification):
+            raise ValueError(f"static modification {token!r} is not a static definition")
+        resolved_static.append(definition)
+    resolved_variable: list[VariableModification] = []
+    for token in variable_modifications:
+        definition = get_modification(token, registry=registry)
+        if not isinstance(definition, VariableModification):
+            raise ValueError(
+                f"variable modification {token!r} is not a variable definition"
+            )
+        resolved_variable.append(definition)
+    labeling_policy = (
+        IsotopicLabelingPolicy(
+            allow_isotopic_labels=allow_isotopic_labels,
+            allowed_label_families=allowed_label_families,
+        )
+        if allow_isotopic_labels or allowed_label_families
+        else None
+    )
+    return registry, tuple(resolved_static), tuple(resolved_variable), labeling_policy
 
 
 def _emit_fasta_profile(
@@ -3982,6 +4032,176 @@ def digest_command(
             peptide_protein_table_out.read_bytes()
         ).hexdigest()
     _emit_json(payload)
+
+
+@cli.command("theoretical-digest")
+@click.argument(
+    "input_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--mode",
+    type=_mode_choice(),
+    default=FastaParseMode.STRICT.value,
+    show_default=True,
+)
+@click.option("--protease", default="trypsin", show_default=True)
+@click.option(
+    "--custom-protease",
+    default=None,
+    help=(
+        "Custom rule such as 'after=KR;block_next=P', "
+        "'before=D;block_previous=P', or "
+        "'pattern=(?<!P)(?P<site>D);cut_before=site'."
+    ),
+)
+@click.option(
+    "--custom-protease-name",
+    default="custom",
+    show_default=True,
+    help="Stable name recorded for a custom protease rule.",
+)
+@click.option("--missed-cleavages", type=int, default=0, show_default=True)
+@click.option(
+    "--digestion-mode",
+    type=_digestion_mode_choice(),
+    default=PeptideDigestionMode.FULL.value,
+    show_default=True,
+)
+@click.option("--min-length", type=int, default=1, show_default=True)
+@click.option("--max-length", type=int, default=None)
+@click.option("--min-mass", type=float, default=None)
+@click.option("--max-mass", type=float, default=None)
+@click.option(
+    "--static-mod",
+    "static_modifications",
+    multiple=True,
+    help="Repeat for each static modification name or controlled id.",
+)
+@click.option(
+    "--variable-mod",
+    "variable_modifications",
+    multiple=True,
+    help="Repeat for each variable modification name or controlled id.",
+)
+@click.option(
+    "--modification-registry",
+    "registry_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--allow-isotopic-labels/--disallow-isotopic-labels",
+    default=False,
+    show_default=True,
+)
+@click.option(
+    "--allowed-label-family",
+    "allowed_label_families",
+    multiple=True,
+    help="Repeat for each allowed isotopic label family.",
+)
+@click.option(
+    "--max-variants-per-peptide",
+    type=int,
+    default=128,
+    show_default=True,
+)
+@click.option(
+    "--out-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    required=True,
+)
+def theoretical_digest_command(
+    input_fasta: Path,
+    mode: str,
+    protease: str,
+    custom_protease: str | None,
+    custom_protease_name: str,
+    missed_cleavages: int,
+    digestion_mode: str,
+    min_length: int,
+    max_length: int | None,
+    min_mass: float | None,
+    max_mass: float | None,
+    static_modifications: tuple[str, ...],
+    variable_modifications: tuple[str, ...],
+    registry_path: Path | None,
+    allow_isotopic_labels: bool,
+    allowed_label_families: tuple[str, ...],
+    max_variants_per_peptide: int,
+    out_dir: Path,
+) -> None:
+    """Build the governed theoretical digest TSV bundle."""
+    try:
+        protease_rule, custom_specification = _resolve_cli_protease_rule(
+            protease=protease,
+            custom_protease=custom_protease,
+            custom_protease_name=custom_protease_name,
+        )
+        (
+            registry,
+            resolved_static,
+            resolved_variable,
+            labeling_policy,
+        ) = _resolve_cli_theoretical_digest_modifications(
+            static_modifications=static_modifications,
+            variable_modifications=variable_modifications,
+            registry_path=registry_path,
+            allow_isotopic_labels=allow_isotopic_labels,
+            allowed_label_families=allowed_label_families,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    report = _load_fasta_report(
+        input_fasta,
+        mode=FastaParseMode(mode),
+        allow_rejected=False,
+    )
+    bundle = build_theoretical_digest_bundle(
+        report.accepted_records,
+        protease=protease_rule,
+        missed_cleavages=missed_cleavages,
+        digestion_mode=PeptideDigestionMode(digestion_mode),
+        min_length=min_length,
+        max_length=max_length,
+        min_mass=min_mass,
+        max_mass=max_mass,
+        static_modifications=resolved_static,
+        variable_modifications=resolved_variable,
+        registry=registry,
+        labeling_policy=labeling_policy,
+        max_variable_variants_per_peptide=max_variants_per_peptide,
+    )
+
+    try:
+        peptides_path, mappings_path, summary_path = export_theoretical_digest_bundle(
+            bundle,
+            out_dir,
+        )
+    except OSError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    _emit_json(
+        {
+            "input_record_count": report.total_records,
+            "protease": protease_rule.name,
+            "custom_protease": custom_specification,
+            "digestion_mode": digestion_mode,
+            "static_modification_names": [
+                definition.name for definition in resolved_static
+            ],
+            "variable_modification_names": [
+                definition.name for definition in resolved_variable
+            ],
+            "search_space_hash": bundle.search_space_hash,
+            "output_candidate_peptide_count": bundle.summary.output_candidate_peptide_count,
+            "output_mapping_count": bundle.summary.output_mapping_count,
+            "digest_peptides_path": str(peptides_path),
+            "peptide_to_protein_path": str(mappings_path),
+            "digest_summary_path": str(summary_path),
+        }
+    )
 
 
 @cli.command("peptide-index")
