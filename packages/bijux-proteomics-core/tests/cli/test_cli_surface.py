@@ -4720,6 +4720,50 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         ).read_text(encoding="utf-8")
 
 
+def test_diann_benchmark_command_reports_count_and_quantity_fidelity() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "diann_biological_report.tsv",
+            "diann_biological_report.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-benchmark",
+                "diann_biological_report.tsv",
+                "--summary-tsv-out",
+                "diann.benchmark.summary.tsv",
+                "--count-comparisons-tsv-out",
+                "diann.benchmark.counts.tsv",
+                "--protein-quantities-tsv-out",
+                "diann.benchmark.proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["precursor_count_matched"] is True
+        assert payload["summary"]["q_value_filtering_matched"] is True
+        assert payload["summary"]["protein_quantities_matched"] is True
+        assert payload["count_comparison_count"] == 5
+        assert payload["protein_quantity_comparison_count"] == 30
+        assert Path("diann.benchmark.summary.tsv").exists()
+        assert Path("diann.benchmark.counts.tsv").exists()
+        assert Path("diann.benchmark.proteins.tsv").exists()
+        assert "protein_quantities_matched\ttrue" in Path(
+            "diann.benchmark.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "excluded_q_value_rows\t1\t1\ttrue" in Path(
+            "diann.benchmark.counts.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PG001\tT1\t1600\t1600\t0\ttrue" in Path(
+            "diann.benchmark.proteins.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets() -> (
     None
 ):
