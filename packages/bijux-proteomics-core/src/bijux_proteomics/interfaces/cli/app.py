@@ -154,7 +154,9 @@ from bijux_proteomics.identification import (
     render_sage_canonical_psm_tsv,
     render_sage_psm_tsv,
     render_sage_summary_tsv,
+    render_spectronaut_precursor_quantity_tsv,
     render_spectronaut_precursor_tsv,
+    render_spectronaut_protein_group_quantity_tsv,
     render_spectronaut_protein_group_tsv,
     render_spectronaut_summary_tsv,
     render_target_decoy_reference_entries_tsv,
@@ -3808,7 +3810,14 @@ def target_panel_review_command(
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--precursor-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--precursor-quantity-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
     "--protein-group-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--protein-group-quantity-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option(
     "--out",
@@ -3821,7 +3830,9 @@ def spectronaut_import_command(
     config_path: Path | None,
     summary_tsv_out: Path | None,
     precursor_tsv_out: Path | None,
+    precursor_quantity_tsv_out: Path | None,
     protein_group_tsv_out: Path | None,
+    protein_group_quantity_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one Spectronaut report with explicit precursor and protein-group review."""
@@ -3840,10 +3851,22 @@ def spectronaut_import_command(
             precursor_tsv_out,
             render_spectronaut_precursor_tsv(report.precursor_rows),
         )
+    if precursor_quantity_tsv_out is not None:
+        _write_text_output(
+            precursor_quantity_tsv_out,
+            render_spectronaut_precursor_quantity_tsv(report.precursor_quantity_rows),
+        )
     if protein_group_tsv_out is not None:
         _write_text_output(
             protein_group_tsv_out,
             render_spectronaut_protein_group_tsv(report.protein_group_rows),
+        )
+    if protein_group_quantity_tsv_out is not None:
+        _write_text_output(
+            protein_group_quantity_tsv_out,
+            render_spectronaut_protein_group_quantity_tsv(
+                report.protein_group_quantity_rows
+            ),
         )
 
     payload = {
@@ -3856,16 +3879,31 @@ def spectronaut_import_command(
         "parameter_report": None
         if report.parameter_report is None
         else report.parameter_report.to_dict(),
+        "precursor_evidence_rows": [
+            row.to_dict() for row in report.precursor_evidence_rows
+        ],
         "precursor_rows": [row.to_dict() for row in report.precursor_rows],
+        "precursor_quantity_rows": [
+            row.to_dict() for row in report.precursor_quantity_rows
+        ],
         "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
+        "protein_group_quantity_rows": [
+            row.to_dict() for row in report.protein_group_quantity_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "precursor_tsv": None
             if precursor_tsv_out is None
             else str(precursor_tsv_out),
+            "precursor_quantity_tsv": None
+            if precursor_quantity_tsv_out is None
+            else str(precursor_quantity_tsv_out),
             "protein_group_tsv": None
             if protein_group_tsv_out is None
             else str(protein_group_tsv_out),
+            "protein_group_quantity_tsv": None
+            if protein_group_quantity_tsv_out is None
+            else str(protein_group_quantity_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
