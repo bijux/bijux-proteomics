@@ -7,14 +7,13 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from bijux_proteomics_intelligence.candidates import CandidateStore
-from bijux_proteomics_intelligence.candidates.schema import Candidate
-from bijux_proteomics_runtime.runs.artifacts import compare_runs
-from bijux_proteomics_runtime.runs.manager import RunManager
 from bijux_proteomics_runtime.runs.run_config import RunConfig
 from bijux_proteomics_runtime.support.workspace import RunWorkspace
+
+if TYPE_CHECKING:
+    from bijux_proteomics_intelligence.candidates.schema import Candidate
 
 _PROVIDER_MAP: dict[str | None, list[str]] = {
     None: ["heuristic_proxy"],
@@ -24,6 +23,27 @@ _PROVIDER_MAP: dict[str | None, list[str]] = {
     "local_rosettafold": ["local_rosettafold"],
     "openprotein": ["api_openprotein_esmfold"],
 }
+
+
+def _candidate_store_type() -> type[Any]:
+    """Load the runtime candidate store only when a candidate workflow needs it."""
+    from bijux_proteomics_intelligence.candidates import CandidateStore
+
+    return CandidateStore
+
+
+def _compare_runs_operation() -> Any:
+    """Load the runtime comparison helper only for explicit compare requests."""
+    from bijux_proteomics_runtime.runs.artifacts import compare_runs
+
+    return compare_runs
+
+
+def _run_manager_type() -> type[Any]:
+    """Load the runtime manager only when a run-bearing operation is invoked."""
+    from bijux_proteomics_runtime.runs.manager import RunManager
+
+    return RunManager
 
 
 def build_runtime_run_config(
@@ -62,7 +82,7 @@ def run_sequence_operation(
     base_dir: Path, sequence: str, config: RunConfig
 ) -> dict[str, Any]:
     """Run one sequence through the canonical runtime manager."""
-    return RunManager(base_dir, config).run(sequence)
+    return _run_manager_type()(base_dir, config).run(sequence)
 
 
 def resume_candidate_operation(
@@ -75,7 +95,7 @@ def resume_candidate_operation(
     execution_mode: str,
 ) -> dict[str, Any]:
     """Resume one runtime candidate through the canonical runtime manager."""
-    store = CandidateStore(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
+    store = _candidate_store_type()(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
     candidate = store.get_candidate(candidate_id)
     config = build_runtime_run_config(
         rounds=rounds,
@@ -85,7 +105,7 @@ def resume_candidate_operation(
         artifacts_dir=artifacts_dir,
         execution_mode=execution_mode,
     )
-    return RunManager(base_dir, config).run_candidate(candidate)
+    return _run_manager_type()(base_dir, config).run_candidate(candidate)
 
 
 def import_external_result_operation(
@@ -101,7 +121,7 @@ def import_external_result_operation(
     payload = json.loads(source_path.read_text(encoding="utf-8"))
     imported_payload = payload if isinstance(payload, dict) else {"items": payload}
     config = RunConfig(artifacts_dir=str(artifacts_dir) if artifacts_dir else None)
-    return RunManager(base_dir, config).import_result(
+    return _run_manager_type()(base_dir, config).import_result(
         sequence=sequence,
         source_path=source_path,
         imported_payload=imported_payload,
@@ -112,12 +132,12 @@ def import_external_result_operation(
 
 def compare_run_operation(run_a: Path, run_b: Path) -> dict[str, Any]:
     """Compare two runtime runs through the canonical runtime control surface."""
-    return compare_runs(run_a, run_b)
+    return _compare_runs_operation()(run_a, run_b)
 
 
 def inspect_candidate_operation(base_dir: Path, candidate_id: str) -> Candidate:
     """Load one candidate through the canonical runtime candidate store."""
-    store = CandidateStore(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
+    store = _candidate_store_type()(RunWorkspace.for_run(base_dir, "noop").candidate_store_dir)
     return store.get_candidate(candidate_id)
 
 
