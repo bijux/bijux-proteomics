@@ -1270,6 +1270,36 @@ def test_peptide_properties_command_supports_modifications_and_custom_protease()
         assert payload["custom_protease"] == "before=D;block_previous=P"
 
 
+def test_peptide_detectability_command_reports_score_tier_and_tsv() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "peptide-detectability",
+                "AKTIDEK",
+                "--charge",
+                "2",
+                "--protease",
+                "trypsin",
+                "--uniqueness-class",
+                "unique",
+                "--observed-psm-count",
+                "5",
+                "--tsv-out",
+                "detectability.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["detectability_tier"] == "high"
+        assert payload["top_tier_length_mass_eligible"] is True
+        assert payload["custom_protease"] is None
+        assert Path("detectability.tsv").exists()
+        assert "detectability_score" in Path("detectability.tsv").read_text()
+
+
 def test_precursor_mass_error_command_reports_summary_and_exports() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
