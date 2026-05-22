@@ -221,6 +221,7 @@ from bijux_proteomics.io.run_qc import (
     build_spectrum_run_qc_report,
     render_spectrum_run_qc_distribution_tsv,
     render_spectrum_run_qc_flagged_spectra_tsv,
+    render_spectrum_run_qc_spectra_tsv,
     render_spectrum_run_qc_summary_tsv,
     render_spectrum_run_qc_time_bins_tsv,
     render_spectrum_run_qc_trace_tsv,
@@ -9245,6 +9246,11 @@ def spectrum_summary_command(
     default=None,
 )
 @click.option(
+    "--spectrum-qc-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--plot-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -9267,6 +9273,7 @@ def spectrum_qc_command(
     charge_tsv_out: Path | None,
     precursor_intensity_tsv_out: Path | None,
     flagged_tsv_out: Path | None,
+    spectrum_qc_tsv_out: Path | None,
     plot_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -9338,6 +9345,11 @@ def spectrum_qc_command(
             flagged_tsv_out,
             render_spectrum_run_qc_flagged_spectra_tsv(report),
         )
+    if spectrum_qc_tsv_out is not None:
+        _write_text_output(
+            spectrum_qc_tsv_out,
+            render_spectrum_run_qc_spectra_tsv(report),
+        )
     plot_payload = build_spectrum_run_qc_plot_payload(report)
     if plot_out is not None:
         plot_out.write_text(plot_payload.to_stable_json() + "\n", encoding="utf-8")
@@ -9352,6 +9364,9 @@ def spectrum_qc_command(
         str(precursor_intensity_tsv_out) if precursor_intensity_tsv_out else None
     )
     payload["flagged_tsv_out"] = str(flagged_tsv_out) if flagged_tsv_out else None
+    payload["spectrum_qc_tsv_out"] = (
+        str(spectrum_qc_tsv_out) if spectrum_qc_tsv_out else None
+    )
     payload["plot_out"] = str(plot_out) if plot_out else None
     _emit_json(payload, out_path=out_path)
 
