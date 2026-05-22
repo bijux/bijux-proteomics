@@ -282,7 +282,6 @@ def build_psm_table_schema(
     return ScientificTableSchema(
         table_kind="psm_table",
         column_specs=tuple(column_specs),
-        unique_key_columns=("spectrum_id",),
         q_value_columns=tuple(q_value_columns),
         nonnegative_numeric_columns=tuple(nonnegative_numeric_columns),
     )

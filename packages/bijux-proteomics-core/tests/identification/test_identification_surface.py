@@ -214,6 +214,31 @@ def test_search_result_validation_rejects_missing_and_bad_fields() -> None:
     } <= codes
 
 
+def test_psm_parser_rejects_out_of_range_q_values(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "duplicate_psm.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "spectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins",
+                "scan=1\tPEPTIDE\t2\t50\t0.01\tP1",
+                "scan=2\tPEPTIDE\t2\t30\t1.2\tP2",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_psm_tsv(source, mapping=_default_mapping())
+
+    assert len(report.accepted_records) == 1
+    codes = {
+        issue.code for rejected in report.rejected_rows for issue in rejected.issues
+    }
+    assert "invalid_q_value" in codes
+
+
 def test_normalization_exports_stable_jsonl() -> None:
     report = parse_psm_tsv(
         _psm_fixture("representative_results.tsv"), mapping=_default_mapping()

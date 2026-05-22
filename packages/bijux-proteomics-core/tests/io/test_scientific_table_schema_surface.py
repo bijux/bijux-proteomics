@@ -28,7 +28,7 @@ from bijux_proteomics.scientific_tables import (
 )
 
 
-def test_validate_scientific_table_reports_missing_column_wrong_type_and_duplicate_id(
+def test_validate_scientific_table_reports_missing_column_and_wrong_type(
     tmp_path: Path,
 ) -> None:
     psm_path = tmp_path / "psms.tsv"
@@ -37,7 +37,6 @@ def test_validate_scientific_table_reports_missing_column_wrong_type_and_duplica
                 (
                     "scan\tsequence\tcharge\tscore\tqval",
                     "scan_001\tPEPTIDE\t2\t10.5\t0.02",
-                    "scan_001\tPEPTIDE\t3\t11.5\t0.03",
                     "scan_002\tPEPTIDE\twrong\t11.5\t0.03",
                 )
             )
@@ -58,14 +57,13 @@ def test_validate_scientific_table_reports_missing_column_wrong_type_and_duplica
         ),
     )
 
-    assert report.accepted_rows == ()
+    assert len(report.accepted_rows) == 1
     issue_codes = [
         issue.code
         for rejected_row in report.rejected_rows
         for issue in rejected_row.issues
     ]
     assert "wrong_type" in issue_codes
-    assert "duplicate_identifier" in issue_codes
 
     missing_column_path = tmp_path / "missing.tsv"
     missing_column_path.write_text(

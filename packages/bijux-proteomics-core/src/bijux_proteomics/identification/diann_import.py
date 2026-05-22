@@ -18,6 +18,10 @@ from bijux_proteomics.identification.search_adapters import (
     normalize_search_results_with_adapter,
     parse_search_parameter_file,
 )
+from bijux_proteomics.scientific_tables import (
+    build_diann_report_schema,
+    require_valid_scientific_table,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -95,6 +99,10 @@ def build_diann_import_report(
     config_path: Path | None = None,
 ) -> DiaNnBundleImportReport:
     """Import one DIA-NN precursor report into owned review surfaces."""
+    require_valid_scientific_table(
+        result_tsv_path,
+        schema=build_diann_report_schema(),
+    )
     normalization = normalize_search_results_with_adapter(
         source_path=result_tsv_path,
         adapter_kind=SearchAdapterKind.DIANN,
