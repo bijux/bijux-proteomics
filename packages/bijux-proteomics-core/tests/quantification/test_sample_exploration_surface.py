@@ -193,3 +193,18 @@ def test_sample_cluster_report_preserves_average_linkage_merge_order() -> None:
         "ctrl-2",
     )
     assert report.entries[-1].member_conditions == ("case", "ctrl")
+
+
+def test_sample_exploration_reports_accept_canonical_quant_matrix_input() -> None:
+    records, design = _sample_exploration_inputs()
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    ).to_quant_matrix()
+
+    pca_report = build_sample_pca_variance_report(table, design)
+    distance_report = build_sample_distance_report(table, design)
+
+    assert pca_report.entries[0].component_label == "PC1"
+    assert distance_report.sample_count == 4

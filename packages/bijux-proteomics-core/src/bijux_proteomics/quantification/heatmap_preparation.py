@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
@@ -22,6 +23,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantRollupMethod,
     QuantSampleMetadataEntry,
     _matrix_value_index,
+    coerce_label_free_quant_table,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -118,13 +120,14 @@ class HeatmapPreparationReport(JsonModel):
 
 
 def build_heatmap_preparation_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
     policy: HeatmapPreparationPolicy | None = None,
 ) -> HeatmapPreparationReport:
     """Prepare one normalized sample-by-entity matrix for heatmaps and clustering."""
 
+    table = coerce_label_free_quant_table(table)
     active_policy = policy or HeatmapPreparationPolicy()
     sample_ids = table.sample_ids
     value_lookup = _matrix_value_index(table)

@@ -15,6 +15,7 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     ConditionClusteringReport,
@@ -26,6 +27,7 @@ from bijux_proteomics.quantification.contracts import (
     SamplePcaReport,
     _condition_lookup,
     _matrix_value_index,
+    coerce_label_free_quant_table,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -154,11 +156,12 @@ class SampleExplorationReport(JsonModel):
 
 
 def build_sample_pca_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> SamplePcaReport:
     """Project samples into a compact principal-component exploratory space."""
 
+    table = coerce_label_free_quant_table(table)
     decomposition = _build_sample_space_decomposition(table, design_entries)
     if decomposition.centered_matrix.shape[0] < 2 or decomposition.feature_count == 0:
         return SamplePcaReport(
@@ -267,11 +270,12 @@ def build_sample_pca_report(
 
 
 def build_sample_pca_variance_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> SamplePcaVarianceReport:
     """Summarize explained variance across the PCA decomposition."""
 
+    table = coerce_label_free_quant_table(table)
     decomposition = _build_sample_space_decomposition(table, design_entries)
     if decomposition.total_variance <= 0.0 or decomposition.eigenvalues.size == 0:
         return SamplePcaVarianceReport(
@@ -304,11 +308,12 @@ def build_sample_pca_variance_report(
 
 
 def build_condition_clustering_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> ConditionClusteringReport:
     """Summarize whether nearby samples cluster by biological condition."""
 
+    table = coerce_label_free_quant_table(table)
     pca_report = build_sample_pca_report(table, design_entries)
     if len(pca_report.entries) < 2:
         return ConditionClusteringReport(
@@ -373,11 +378,12 @@ def build_condition_clustering_report(
 
 
 def build_sample_distance_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> SampleDistanceReport:
     """Compute pairwise sample distances in centered feature space."""
 
+    table = coerce_label_free_quant_table(table)
     decomposition = _build_sample_space_decomposition(table, design_entries)
     entries: list[SampleDistanceEntry] = []
     for left_index in range(len(decomposition.sample_ids)):
@@ -430,11 +436,12 @@ def build_sample_distance_report(
 
 
 def build_sample_cluster_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> SampleClusterReport:
     """Build a deterministic average-linkage sample cluster table."""
 
+    table = coerce_label_free_quant_table(table)
     decomposition = _build_sample_space_decomposition(table, design_entries)
     if len(decomposition.sample_ids) < 2:
         return SampleClusterReport(
@@ -557,11 +564,12 @@ def build_sample_cluster_report(
 
 
 def build_sample_exploration_report(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> SampleExplorationReport:
     """Assemble one owned report for PCA, distances, and sample clustering."""
 
+    table = coerce_label_free_quant_table(table)
     decomposition = _build_sample_space_decomposition(table, design_entries)
     pca_report = build_sample_pca_report(table, design_entries)
     variance_report = build_sample_pca_variance_report(table, design_entries)
@@ -825,9 +833,10 @@ def distance_outlier_threshold(distances: np.ndarray) -> float:
 
 
 def _build_sample_space_decomposition(
-    table: LabelFreeQuantTable,
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> _SampleSpaceDecomposition:
+    table = coerce_label_free_quant_table(table)
     matrix = build_sample_feature_matrix(table)
     centered = matrix - np.mean(matrix, axis=0, keepdims=True)
     feature_count = int(centered.shape[1])

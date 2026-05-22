@@ -1408,6 +1408,59 @@ def _iter_label_free_quant_cells(
     return tuple(rows)
 
 
+def _quant_matrix_setting(
+    matrix: CanonicalQuantMatrix,
+    key: str,
+    default: str,
+) -> str:
+    if key in matrix.metadata:
+        return matrix.metadata[key]
+    prefix = f"{key}:"
+    for entry in matrix.transformation_history:
+        if entry.startswith(prefix):
+            return entry.removeprefix(prefix)
+    return default
+
+
+def coerce_label_free_quant_table(
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
+) -> LabelFreeQuantTable:
+    """Accept one canonical matrix wherever label-free table semantics are needed."""
+
+    if isinstance(table, LabelFreeQuantTable):
+        return table
+    if table.entity_kind is CanonicalQuantEntityKind.PEPTIDE:
+        entity_level = QuantEntityLevel.PEPTIDE
+    elif table.entity_kind is CanonicalQuantEntityKind.PROTEIN:
+        entity_level = QuantEntityLevel.PROTEIN
+    else:
+        raise ValueError(
+            "label-free quantification requires peptide or protein entity matrices"
+        )
+    return LabelFreeQuantTable.from_quant_matrix(
+        table,
+        entity_level=entity_level,
+        aggregation_method=QuantRollupMethod(
+            _quant_matrix_setting(table, "aggregation_method", QuantRollupMethod.SUM.value)
+        ),
+        normalization_method=NormalizationMethod(
+            _quant_matrix_setting(
+                table,
+                "normalization_method",
+                NormalizationMethod.NONE.value,
+            )
+        ),
+        imputation_method=ImputationMethod(
+            _quant_matrix_setting(
+                table,
+                "imputation_method",
+                ImputationMethod.NONE.value,
+            )
+        ),
+        normalization_factors=dict.fromkeys(table.sample_ids, 1.0),
+    )
+
+
 def _matrix_value_index(
     table: LabelFreeQuantTable,
 ) -> dict[tuple[str, str], QuantValue]:

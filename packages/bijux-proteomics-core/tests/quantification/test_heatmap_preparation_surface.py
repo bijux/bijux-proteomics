@@ -183,3 +183,13 @@ def test_heatmap_preparation_report_applies_missing_value_policy() -> None:
     assert any(row.entity_id == "P3" for row in median_report.rows)
     assert all(row.entity_id != "P3" for row in drop_report.rows)
     assert drop_report.summary.filtered_missing_policy_count == 1
+
+
+def test_heatmap_preparation_report_accepts_canonical_quant_matrix_input() -> None:
+    report = build_heatmap_preparation_report(
+        _table().to_quant_matrix(),
+        design_entries=_design(),
+    )
+
+    assert report.summary.output_entity_count == 3
+    assert report.column_metadata[0].sample_metadata.sample_id == "case-1"
