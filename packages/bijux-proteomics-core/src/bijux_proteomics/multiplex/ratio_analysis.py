@@ -19,6 +19,9 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterMatrixReport,
     build_tmt_reporter_matrix_report,
 )
+from bijux_proteomics.quantification.protein_intensity_matrix import (
+    ProteinMatrixTargetKind,
+)
 from bijux_proteomics.quantification import LabelBasedChannelRole
 from bijux_proteomics_foundation import JsonModel
 
@@ -66,6 +69,29 @@ class TmtRatioSummary(JsonModel):
     protein_ratio_count: int = Field(..., ge=0)
 
 
+class TmtProteinRatioEntry(JsonModel):
+    """One protein/sample ratio against a governed control channel."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    numerator_channel: str = Field(..., min_length=1)
+    numerator_sample_id: str = Field(..., min_length=1)
+    numerator_condition: str | None = None
+    numerator_role: LabelBasedChannelRole
+    control_channel: str = Field(..., min_length=1)
+    control_sample_id: str = Field(..., min_length=1)
+    control_condition: str | None = None
+    protein_id: str = Field(..., min_length=1)
+    target_kind: ProteinMatrixTargetKind
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    numerator_abundance: float = Field(..., ge=0.0)
+    control_abundance: float = Field(..., gt=0.0)
+    ratio: float = Field(..., ge=0.0)
+    log2_ratio: float
+    note: str = Field(..., min_length=1)
+
+
 class TmtRatioReport(JsonModel):
     """Owned TMT ratio analysis with peptide and protein ledgers."""
 
@@ -74,6 +100,7 @@ class TmtRatioReport(JsonModel):
     source_kind: TmtRatioSourceKind
     summary: TmtRatioSummary
     peptide_ratios: tuple[TmtPeptideRatioEntry, ...] = Field(default_factory=tuple)
+    protein_ratios: tuple[TmtProteinRatioEntry, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
 
@@ -103,6 +130,7 @@ def build_tmt_ratio_report(
         raise ValueError("control channel is not present in the multiplex design")
 
     peptide_ratios: list[TmtPeptideRatioEntry] = []
+    protein_ratios: list[TmtProteinRatioEntry] = []
     for row in matrix_report.peptide_matrix.rows:
         value_by_sample = {
             value.sample_id: value
@@ -148,6 +176,51 @@ def build_tmt_ratio_report(
                     note="sample/control ratio is computed within one multiplex group against the governed control channel",
                 )
             )
+    for row in matrix_report.protein_matrix.rows:
+        value_by_sample = {
+            value.sample_id: value
+            for value in row.values
+        }
+        for entry in sorted(
+            mapped_entries,
+            key=lambda item: (item.multiplex_group, item.multiplex_channel),
+        ):
+            if entry.multiplex_channel == control_channel:
+                continue
+            control_entry = control_by_group.get(entry.multiplex_group)
+            if control_entry is None:
+                continue
+            numerator_value = value_by_sample.get(entry.sample_id or "")
+            control_value = value_by_sample.get(control_entry.sample_id or "")
+            if (
+                numerator_value is None
+                or control_value is None
+                or numerator_value.abundance is None
+                or control_value.abundance is None
+                or control_value.abundance <= 0.0
+            ):
+                continue
+            ratio = float(numerator_value.abundance) / float(control_value.abundance)
+            protein_ratios.append(
+                TmtProteinRatioEntry(
+                    multiplex_group=entry.multiplex_group,
+                    numerator_channel=entry.multiplex_channel,
+                    numerator_sample_id=entry.sample_id or "",
+                    numerator_condition=entry.condition,
+                    numerator_role=entry.channel_role or LabelBasedChannelRole.SAMPLE,
+                    control_channel=control_channel,
+                    control_sample_id=control_entry.sample_id or "",
+                    control_condition=control_entry.condition,
+                    protein_id=row.entity_id,
+                    target_kind=row.target_kind,
+                    protein_refs=row.protein_refs,
+                    numerator_abundance=float(numerator_value.abundance),
+                    control_abundance=float(control_value.abundance),
+                    ratio=ratio,
+                    log2_ratio=float(math.log2(ratio)) if ratio > 0.0 else float("-inf"),
+                    note="sample/control ratio is computed within one multiplex group against the governed control channel",
+                )
+            )
     return TmtRatioReport(
         source_kind=source_kind,
         summary=TmtRatioSummary(
@@ -156,7 +229,7 @@ def build_tmt_ratio_report(
             control_channel=control_channel,
             multiplex_group_count=len(control_by_group),
             peptide_ratio_count=len(peptide_ratios),
-            protein_ratio_count=0,
+            protein_ratio_count=len(protein_ratios),
         ),
         peptide_ratios=tuple(
             sorted(
@@ -168,8 +241,18 @@ def build_tmt_ratio_report(
                 ),
             )
         ),
+        protein_ratios=tuple(
+            sorted(
+                protein_ratios,
+                key=lambda entry: (
+                    entry.multiplex_group,
+                    entry.protein_id,
+                    entry.numerator_channel,
+                ),
+            )
+        ),
         note=(
-            "tmt ratio analysis preserves explicit sample-to-control peptide ratios within each multiplex group"
+            "tmt ratio analysis preserves explicit sample-to-control peptide and protein ratios within each multiplex group"
         ),
     )
 
