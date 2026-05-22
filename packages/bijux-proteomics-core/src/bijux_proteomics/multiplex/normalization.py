@@ -5,7 +5,10 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
+from pathlib import Path
 
 import numpy as np
 from pydantic import ConfigDict, Field
@@ -15,6 +18,8 @@ from bijux_proteomics.multiplex.reporter_matrix import (
     TmtReporterFeatureBundle,
     TmtReporterMatrixReport,
     build_tmt_reporter_matrix_report,
+    render_tmt_peptide_matrix_tsv,
+    render_tmt_protein_matrix_tsv,
 )
 from bijux_proteomics.quantification import LabelBasedChannelRole, MissingValueKind
 from bijux_proteomics_foundation import JsonModel
@@ -569,3 +574,168 @@ def _reference_ratio_value(
     if normalized == 0.0:
         return 0.0, MissingValueKind.ZERO, None
     return normalized, MissingValueKind.OBSERVED, None
+
+
+def render_tmt_normalization_summary_tsv(report: TmtNormalizationReport) -> str:
+    """Render a compact summary over one TMT normalization review."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "method",
+            "multiplex_group_count",
+            "channel_count",
+            "transform_count",
+            "before_flagged_channel_count",
+            "after_flagged_channel_count",
+            "reference_group_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.method.value,
+            report.summary.multiplex_group_count,
+            report.summary.channel_count,
+            report.summary.transform_count,
+            report.summary.before_flagged_channel_count,
+            report.summary.after_flagged_channel_count,
+            report.summary.reference_group_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_normalization_transform_tsv(report: TmtNormalizationReport) -> str:
+    """Render one row per applied TMT normalization transform."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "channel_role",
+            "method",
+            "scale_factor",
+            "reference_sample_id",
+            "reference_channel",
+            "note",
+        ]
+    )
+    for entry in report.transforms:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.condition or "",
+                entry.channel_role.value,
+                entry.method.value,
+                "" if entry.scale_factor is None else entry.scale_factor,
+                entry.reference_sample_id or "",
+                entry.reference_channel or "",
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_channel_distribution_tsv(report: TmtNormalizationReport) -> str:
+    """Render before/after TMT channel distributions as one TSV ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "stage",
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "channel_role",
+            "total_abundance",
+            "median_abundance",
+            "interquartile_range",
+            "ratio_to_group_median",
+            "flagged",
+            "note",
+        ]
+    )
+    for entry in report.channel_distributions:
+        writer.writerow(
+            [
+                entry.stage.value,
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.condition or "",
+                entry.channel_role.value,
+                entry.total_abundance,
+                entry.median_abundance,
+                entry.interquartile_range,
+                entry.ratio_to_group_median,
+                str(entry.flagged).lower(),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_normalized_peptide_matrix_tsv(report: TmtNormalizationReport) -> str:
+    """Render the normalized peptide-by-channel matrix as TSV."""
+
+    return render_tmt_peptide_matrix_tsv(report.after_report)
+
+
+def render_tmt_normalized_protein_matrix_tsv(report: TmtNormalizationReport) -> str:
+    """Render the normalized protein-by-channel matrix as TSV."""
+
+    return render_tmt_protein_matrix_tsv(report.after_report)
+
+
+def export_tmt_normalization_summary_tsv(
+    report: TmtNormalizationReport,
+    path: Path,
+) -> None:
+    """Write the compact TMT normalization summary ledger."""
+
+    path.write_text(render_tmt_normalization_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_normalization_transform_tsv(
+    report: TmtNormalizationReport,
+    path: Path,
+) -> None:
+    """Write the TMT normalization transform ledger."""
+
+    path.write_text(render_tmt_normalization_transform_tsv(report), encoding="utf-8")
+
+
+def export_tmt_channel_distribution_tsv(
+    report: TmtNormalizationReport,
+    path: Path,
+) -> None:
+    """Write the before/after TMT channel distribution ledger."""
+
+    path.write_text(render_tmt_channel_distribution_tsv(report), encoding="utf-8")
+
+
+def export_tmt_normalized_peptide_matrix_tsv(
+    report: TmtNormalizationReport,
+    path: Path,
+) -> None:
+    """Write the normalized TMT peptide matrix."""
+
+    path.write_text(render_tmt_normalized_peptide_matrix_tsv(report), encoding="utf-8")
+
+
+def export_tmt_normalized_protein_matrix_tsv(
+    report: TmtNormalizationReport,
+    path: Path,
+) -> None:
+    """Write the normalized TMT protein matrix."""
+
+    path.write_text(render_tmt_normalized_protein_matrix_tsv(report), encoding="utf-8")
