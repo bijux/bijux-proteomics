@@ -4157,7 +4157,8 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
         assert any(
             entry["site_key"] == "P11111:S5:Phospho" for entry in payload["site_table"]
         )
-        assert len(payload["ambiguity_report"]) == 2
+        assert payload["ambiguity_review"]["summary"]["localized_site_count"] == 3
+        assert payload["ambiguity_review"]["summary"]["unlocalized_group_count"] == 2
         assert payload["fdr_report"]["entries"][-1]["accepted"] is False
         assert any(
             entry["sample_id"] == "T2" and entry["occupancy_fraction"] == 0.79
@@ -4166,9 +4167,14 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
         assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
         assert payload["occupancy_counterpart_report"]["entries"]
         assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
+        assert payload["site_group_quantification"]["summary"]["group_row_count"] == 2
         assert any(
             row["site_key"] == "P11111:S5:Phospho"
             for row in payload["site_quantification"]["rows"]
+        )
+        assert any(
+            row["group_key"] == "P11111:Phospho:17|18|19"
+            for row in payload["site_group_quantification"]["rows"]
         )
         assert "entry_count" in Path("ptm.occupancy.summary.tsv").read_text()
         assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
@@ -4284,13 +4290,15 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         assert payload["mapping_count"] == 10
         assert payload["site_count"] == 5
         assert payload["ambiguity_count"] == 2
+        assert payload["ambiguity_review"]["summary"]["possible_residue_count"] == 6
         assert payload["coordinate_validation"]["valid"] is True
         assert "shared_peptide" in Path("ptm.mapping.tsv").read_text()
         assert "P11111:S5:Phospho" in Path("ptm.site_table.tsv").read_text()
         assert (
-            "localized peptide is shared across multiple protein references"
+            "P11111:Phospho:17|18|19"
             in Path("ptm.ambiguity.tsv").read_text()
         )
+        assert "S;T;Y" in Path("ptm.ambiguity.tsv").read_text()
         assert "scan=ptm-001" in Path("ptm.coverage.tsv").read_text()
         assert (
             Path("ptm.validation.tsv").read_text().splitlines()[0]

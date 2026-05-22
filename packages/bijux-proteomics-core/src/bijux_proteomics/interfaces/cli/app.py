@@ -286,6 +286,8 @@ from bijux_proteomics.ptm import (
     build_ptm_differential_analysis_report,
     build_ptm_enrichment_input,
     build_ptm_phosphosite_motif_enrichment_report,
+    build_ptm_ambiguity_review_report,
+    build_ptm_site_group_quantification_report,
     build_ptm_site_annotation_biology_summary,
     build_ptm_site_annotation_mapping_report,
     build_ptm_localization_scoring_report,
@@ -293,7 +295,6 @@ from bijux_proteomics.ptm import (
     build_ptm_site_occupancy_report,
     build_ptm_site_quantification_report,
     build_ptm_motif_windows,
-    build_ptm_site_ambiguity_report,
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
     build_ptm_site_table,
@@ -326,9 +327,9 @@ from bijux_proteomics.ptm import (
     render_ptm_site_quant_summary_tsv,
     render_ptm_peptide_summary_tsv,
     render_ptm_protein_site_mapping_tsv,
-    render_ptm_site_ambiguity_tsv,
     render_ptm_site_coverage_tsv,
     render_ptm_site_table_tsv,
+    render_ptm_unlocalized_group_review_tsv,
     validate_ptm_site_coordinates,
     parse_ptm_site_annotation_tsv,
 )
@@ -8478,7 +8479,14 @@ def ptm_map_sites_command(
             protein_sequences=protein_sequences,
         )
         site_table = build_ptm_site_table(mappings)
-        ambiguity = build_ptm_site_ambiguity_report(site_table)
+        localization = build_ptm_localization_scoring_report(
+            evidence.accepted_records
+        )
+        ambiguity_review = build_ptm_ambiguity_review_report(
+            site_table,
+            localization_scoring_report=localization,
+            protein_sequences=protein_sequences,
+        )
         coverage = build_ptm_site_coverage_report(mappings)
         validation = validate_ptm_site_coordinates(
             mappings,
@@ -8499,7 +8507,7 @@ def ptm_map_sites_command(
         )
     if ambiguity_tsv_out is not None:
         ambiguity_tsv_out.write_text(
-            render_ptm_site_ambiguity_tsv(ambiguity),
+            render_ptm_unlocalized_group_review_tsv(ambiguity_review),
             encoding="utf-8",
         )
     if coverage_tsv_out is not None:
@@ -8518,7 +8526,8 @@ def ptm_map_sites_command(
             "accepted_rows": len(evidence.accepted_records),
             "mapping_count": len(mappings),
             "site_count": len(site_table),
-            "ambiguity_count": len(ambiguity),
+            "ambiguity_count": len(ambiguity_review.unlocalized_groups),
+            "ambiguity_review": ambiguity_review.to_dict(),
             "coverage_count": len(coverage),
             "coordinate_validation": validation.to_dict(),
         },
@@ -9821,7 +9830,14 @@ def ptm_summarize_command(
             protein_sequences=protein_sequences,
         )
         site_table = build_ptm_site_table(mappings)
-        ambiguity = build_ptm_site_ambiguity_report(site_table)
+        localization = build_ptm_localization_scoring_report(
+            evidence.accepted_records
+        )
+        ambiguity_review = build_ptm_ambiguity_review_report(
+            site_table,
+            localization_scoring_report=localization,
+            protein_sequences=protein_sequences,
+        )
         coverage = build_ptm_site_coverage_report(mappings)
         fdr = build_ptm_site_fdr(site_table, threshold=threshold)
         motifs = build_ptm_motif_windows(
@@ -9833,6 +9849,7 @@ def ptm_summarize_command(
         occupancy_report = None
         occupancy_counterpart_report = None
         site_quantification = None
+        site_group_quantification = None
         if feature_path is not None:
             feature_report = parse_ms1_feature_table(feature_path)
             occupancy_report = build_ptm_site_occupancy_report(
@@ -9849,6 +9866,12 @@ def ptm_summarize_command(
                 ambiguity_policy=PtmSiteQuantAmbiguityPolicy(
                     site_quant_ambiguity_policy.lower()
                 ),
+            )
+            site_group_quantification = build_ptm_site_group_quantification_report(
+                site_table,
+                feature_records=feature_report.accepted_records,
+                localization_scoring_report=localization,
+                protein_sequences=protein_sequences,
             )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -9876,7 +9899,7 @@ def ptm_summarize_command(
         "accepted_rows": len(evidence.accepted_records),
         "rejected_rows": len(evidence.rejected_rows),
         "site_table": [entry.to_dict() for entry in site_table],
-        "ambiguity_report": [entry.to_dict() for entry in ambiguity],
+        "ambiguity_review": ambiguity_review.to_dict(),
         "coverage_report": [entry.to_dict() for entry in coverage],
         "fdr_report": fdr.to_dict(),
         "motif_windows": [entry.to_dict() for entry in motifs],
@@ -9892,6 +9915,9 @@ def ptm_summarize_command(
         else None,
         "site_quantification": site_quantification.to_dict()
         if site_quantification is not None
+        else None,
+        "site_group_quantification": site_group_quantification.to_dict()
+        if site_group_quantification is not None
         else None,
     }
     _emit_json(payload, out_path=out_path)
