@@ -19,6 +19,7 @@ from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -454,6 +455,8 @@ def render_protein_lfq_summary_tsv(report: ProteinLfqReport) -> str:
 
 def render_protein_lfq_matrix_tsv(report: ProteinLfqReport) -> str:
     """Render the protein LFQ matrix as one wide TSV."""
+    ordered_sample_ids = sort_strings(report.sample_ids)
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
     header = [
         "entity_id",
         "target_kind",
@@ -465,12 +468,12 @@ def render_protein_lfq_matrix_tsv(report: ProteinLfqReport) -> str:
         "connected_component_count",
         "contributing_peptides",
     ]
-    header.extend(report.sample_ids)
+    header.extend(ordered_sample_ids)
     rows = ["\t".join(header)]
-    for row in report.rows:
+    for row in ordered_rows:
         value_lookup = {value.sample_id: value for value in row.values}
         matrix_values = []
-        for sample_id in report.sample_ids:
+        for sample_id in ordered_sample_ids:
             value = value_lookup[sample_id]
             matrix_values.append(
                 "" if value.abundance is None else f"{value.abundance:g}"
@@ -480,13 +483,13 @@ def render_protein_lfq_matrix_tsv(report: ProteinLfqReport) -> str:
                 (
                     row.entity_id,
                     row.target_kind.value,
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     str(row.peptide_count),
                     str(row.unique_peptide_count),
                     str(row.shared_peptide_count),
                     str(row.pairwise_ratio_count),
                     str(row.connected_component_count),
-                    ";".join(row.contributing_peptides),
+                    ";".join(sort_strings(row.contributing_peptides)),
                     *matrix_values,
                 )
             )
@@ -496,6 +499,7 @@ def render_protein_lfq_matrix_tsv(report: ProteinLfqReport) -> str:
 
 def render_protein_lfq_pairwise_ratios_tsv(report: ProteinLfqReport) -> str:
     """Render one pairwise-ratio ledger for all protein LFQ rows."""
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
     header = (
         "entity_id",
         "target_kind",
@@ -507,8 +511,8 @@ def render_protein_lfq_pairwise_ratios_tsv(report: ProteinLfqReport) -> str:
         "contributing_peptides",
     )
     rows = ["\t".join(header)]
-    for row in report.rows:
-        for ratio in row.pairwise_ratios:
+    for row in ordered_rows:
+        for ratio in sort_rows_by_fields(row.pairwise_ratios, "sample_a", "sample_b"):
             rows.append(
                 "\t".join(
                     (
@@ -519,7 +523,7 @@ def render_protein_lfq_pairwise_ratios_tsv(report: ProteinLfqReport) -> str:
                         str(ratio.shared_peptide_count),
                         f"{ratio.median_log2_ratio:g}",
                         f"{ratio.median_ratio:g}",
-                        ";".join(ratio.contributing_peptides),
+                        ";".join(sort_strings(ratio.contributing_peptides)),
                     )
                 )
             )
@@ -536,7 +540,7 @@ def render_protein_lfq_missingness_tsv(report: ProteinLfqReport) -> str:
         "filtered_count",
     )
     rows = ["\t".join(header)]
-    for entry in report.missing_summary.entries:
+    for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
         rows.append(
             "\t".join(
                 (

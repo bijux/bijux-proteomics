@@ -16,6 +16,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QuantEntityLevel,
@@ -252,12 +253,17 @@ def build_heatmap_preparation_report(
 
 def render_heatmap_matrix_tsv(report: HeatmapPreparationReport) -> str:
     """Render one prepared heatmap matrix as a wide TSV."""
-
+    ordered_sample_ids = sort_strings(report.sample_ids)
     handle = StringIO()
     writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
-    writer.writerow(("entity_id", *report.sample_ids))
-    for row in report.rows:
-        writer.writerow((row.entity_id, *[f"{value:g}" for value in row.values]))
+    writer.writerow(("entity_id", *ordered_sample_ids))
+    for row in sort_rows_by_fields(report.rows, "entity_id"):
+        value_lookup = {
+            sample_id: value for sample_id, value in zip(report.sample_ids, row.values, strict=True)
+        }
+        writer.writerow(
+            (row.entity_id, *[f"{value_lookup[sample_id]:g}" for sample_id in ordered_sample_ids])
+        )
     return handle.getvalue()
 
 
@@ -320,12 +326,12 @@ def render_heatmap_row_metadata_tsv(report: HeatmapPreparationReport) -> str:
             "variance_log2_abundance",
         )
     )
-    for row in report.row_metadata:
+    for row in sort_rows_by_fields(report.row_metadata, "entity_id"):
         writer.writerow(
             (
                 row.entity_id,
-                ";".join(row.protein_refs),
-                ";".join(row.member_peptides),
+                ";".join(sort_strings(row.protein_refs)),
+                ";".join(sort_strings(row.member_peptides)),
                 row.observed_sample_count,
                 row.missing_sample_count,
                 f"{row.observed_fraction:g}",
@@ -356,7 +362,10 @@ def render_heatmap_column_metadata_tsv(report: HeatmapPreparationReport) -> str:
             "normalization_factor",
         )
     )
-    for column in report.column_metadata:
+    for column in sorted(
+        report.column_metadata,
+        key=lambda entry: (entry.sample_metadata.sample_id, entry.column_index),
+    ):
         writer.writerow(
             (
                 column.column_index,

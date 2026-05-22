@@ -19,6 +19,7 @@ from bijux_proteomics.domain.records import (
     SampleMetadata as CanonicalSampleMetadata,
 )
 from bijux_proteomics.identification import PsmRecord
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -441,6 +442,8 @@ def render_peptide_intensity_matrix_summary_tsv(
 
 def render_peptide_intensity_matrix_tsv(report: PeptideIntensityMatrixReport) -> str:
     """Render the peptide-by-sample intensity matrix as one wide TSV."""
+    ordered_sample_ids = sort_strings(report.sample_ids)
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
     header = [
         "entity_id",
         "peptide_sequence",
@@ -448,12 +451,12 @@ def render_peptide_intensity_matrix_tsv(report: PeptideIntensityMatrixReport) ->
         "charge_states",
         "protein_refs",
     ]
-    header.extend(report.sample_ids)
+    header.extend(ordered_sample_ids)
     rows = ["\t".join(header)]
-    for row in report.rows:
+    for row in ordered_rows:
         value_lookup = {value.sample_id: value for value in row.values}
         matrix_values = []
-        for sample_id in report.sample_ids:
+        for sample_id in ordered_sample_ids:
             value = value_lookup[sample_id]
             if value.abundance is None:
                 matrix_values.append("")
@@ -464,9 +467,9 @@ def render_peptide_intensity_matrix_tsv(report: PeptideIntensityMatrixReport) ->
                 (
                     row.entity_id,
                     row.peptide_sequence,
-                    ";".join(row.modified_peptides),
+                    ";".join(sort_strings(row.modified_peptides)),
                     ";".join(str(charge) for charge in row.charge_states),
-                    ";".join(row.protein_refs),
+                    ";".join(sort_strings(row.protein_refs)),
                     *matrix_values,
                 )
             )
@@ -486,7 +489,7 @@ def render_peptide_intensity_missingness_tsv(
         "filtered_count",
     )
     rows = ["\t".join(header)]
-    for entry in report.missing_summary.entries:
+    for entry in sort_rows_by_fields(report.missing_summary.entries, "sample_id"):
         rows.append(
             "\t".join(
                 (

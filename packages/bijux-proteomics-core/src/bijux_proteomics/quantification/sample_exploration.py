@@ -17,6 +17,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import QuantMatrix as CanonicalQuantMatrix
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.quantification.contracts import (
     ConditionClusteringReport,
     LabelFreeQuantTable,
@@ -656,7 +657,7 @@ def render_sample_pca_scores_tsv(report: SampleExplorationReport) -> str:
             "outlier",
         )
     )
-    for entry in report.sample_pca_report.entries:
+    for entry in sort_rows_by_fields(report.sample_pca_report.entries, "sample_id"):
         writer.writerow(
             (
                 entry.sample_id,
@@ -685,7 +686,10 @@ def render_sample_pca_variance_tsv(report: SampleExplorationReport) -> str:
             "cumulative_explained_variance_ratio",
         )
     )
-    for entry in report.explained_variance_report.entries:
+    for entry in sort_rows_by_fields(
+        report.explained_variance_report.entries,
+        "component_index",
+    ):
         writer.writerow(
             (
                 entry.component_index,
@@ -715,7 +719,11 @@ def render_sample_distance_tsv(report: SampleExplorationReport) -> str:
             "same_batch",
         )
     )
-    for entry in report.sample_distance_report.entries:
+    for entry in sort_rows_by_fields(
+        report.sample_distance_report.entries,
+        "sample_id_a",
+        "sample_id_b",
+    ):
         writer.writerow(
             (
                 entry.sample_id_a,
@@ -749,15 +757,15 @@ def render_sample_cluster_tsv(report: SampleExplorationReport) -> str:
             "average_linkage_distance",
         )
     )
-    for entry in report.sample_cluster_report.entries:
+    for entry in sort_rows_by_fields(report.sample_cluster_report.entries, "merge_order"):
         writer.writerow(
             (
                 entry.merge_order,
-                ";".join(entry.member_sample_ids),
-                ";".join(entry.left_sample_ids),
-                ";".join(entry.right_sample_ids),
-                ";".join(entry.member_conditions),
-                ";".join(entry.member_batches),
+                ";".join(sort_strings(entry.member_sample_ids)),
+                ";".join(sort_strings(entry.left_sample_ids)),
+                ";".join(sort_strings(entry.right_sample_ids)),
+                ";".join(sort_strings(entry.member_conditions)),
+                ";".join(sort_strings(entry.member_batches)),
                 entry.member_count,
                 f"{entry.average_linkage_distance:g}",
             )
