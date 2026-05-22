@@ -1,0 +1,7 @@
+row_id	protein_ref	condition
+row-1	sp|P04637|P53_HUMAN	treated
+row-2	ref|NP_000537.3|CALM1_HUMAN	control
+row-3	ENSP00000354587	treated
+row-4	Q99999	control
+row-5		control
+row-6	P04637;lab_bait_001	reference

@@ -1,0 +1,5 @@
+protein_ref	gene_symbol	description	organism	annotation_identifier	source
+Q99999	CUST1	Custom signaling protein	Homo sapiens	CUSTOM:Q99999	curated
+P04637	TRP53	Tumor suppressor p53 override	Homo sapiens	UNIPROT:P04637	curated
+	PBAD	Missing protein reference	Homo sapiens	CUSTOM:PBAD	curated
+P04637	TP53	Duplicate TP53 row	Homo sapiens	UNIPROT:P04637_DUP	curated
