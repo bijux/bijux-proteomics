@@ -8,7 +8,18 @@ from __future__ import annotations
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
-from bijux_proteomics.isotope_labeling import TmtValidationReport, build_tmt_validation_report
+from bijux_proteomics.isotope_labeling import (
+    SilacColumnMapping,
+    SilacQuantificationPolicy,
+    SilacRatioReport,
+    SilacValidationPolicy,
+    SilacValidationReport,
+    TmtValidationReport,
+    build_silac_ratio_report,
+    build_silac_validation_report,
+    build_tmt_validation_report,
+    parse_silac_feature_table,
+)
 from bijux_proteomics.multiplex import (
     TmtNormalizationMethod,
     TmtNormalizationPolicy,
@@ -28,6 +39,7 @@ from bijux_proteomics.quantification import NormalizationMethod
 from bijux_proteomics.workflow.label_based_differential_analysis import (
     LabelBasedDifferentialAnalysisReport,
     LabelBasedDifferentialSourceKind,
+    build_silac_differential_analysis_report,
     build_tmt_differential_analysis_report,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -66,6 +78,8 @@ class LabelBasedReportBundle(JsonModel):
     tmt_normalization_report: TmtNormalizationReport | None = None
     tmt_ratio_report: TmtRatioReport | None = None
     tmt_validation_report: TmtValidationReport | None = None
+    silac_ratio_report: SilacRatioReport | None = None
+    silac_validation_report: SilacValidationReport | None = None
     differential_analysis_report: LabelBasedDifferentialAnalysisReport
     sample_qc_entries: tuple[LabelBasedReportSampleQcEntry, ...] = Field(
         default_factory=tuple
@@ -145,6 +159,66 @@ def build_tmt_label_based_report_bundle(
         ),
         note=(
             "labeled reporting assembles governed tmt channel totals, normalization review, protein ratios, and differential results into one owned bundle"
+        ),
+    )
+
+
+def build_silac_label_based_report_bundle(
+    feature_tsv_path,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    mapping: SilacColumnMapping | None = None,
+    quantification_policy: SilacQuantificationPolicy | None = None,
+    validation_policy: SilacValidationPolicy | None = None,
+    differential_normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    batch_field: str = "batch",
+    covariate_fields: tuple[str, ...] = (),
+    pairing_field: str | None = None,
+) -> LabelBasedReportBundle:
+    """Build one owned labeled report bundle over governed SILAC workflows."""
+
+    import_report = parse_silac_feature_table(
+        feature_tsv_path,
+        mapping=mapping,
+    )
+    ratio_report = build_silac_ratio_report(
+        import_report,
+        policy=quantification_policy,
+    )
+    validation_report = build_silac_validation_report(
+        import_report,
+        policy=validation_policy,
+    )
+    differential_report = build_silac_differential_analysis_report(
+        feature_tsv_path,
+        design_entries,
+        mapping=mapping,
+        quantification_policy=quantification_policy,
+        normalization_method=differential_normalization_method,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field,
+        covariate_fields=tuple(dict.fromkeys(covariate_fields)),
+        pairing_field=pairing_field,
+    )
+    return LabelBasedReportBundle(
+        source_kind=LabelBasedDifferentialSourceKind.SILAC,
+        source_name="silac",
+        silac_ratio_report=ratio_report,
+        silac_validation_report=validation_report,
+        differential_analysis_report=differential_report,
+        summary=LabelBasedReportSummary(
+            source_kind=LabelBasedDifferentialSourceKind.SILAC,
+            sample_count=ratio_report.summary.sample_count,
+            quality_entry_count=len(validation_report.label_entries),
+            protein_ratio_count=len(ratio_report.protein_ratios),
+            differential_result_count=_differential_result_count(differential_report),
+            sample_qc_entry_count=0,
+        ),
+        note=(
+            "labeled reporting assembles governed silac protein ratios, label validation, and differential results into one owned bundle"
         ),
     )
 
