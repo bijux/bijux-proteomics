@@ -53,3 +53,30 @@ def test_sequences_package_exports_peptide_uniqueness_index_owner_surface() -> N
     assert hasattr(sequences, "build_peptide_uniqueness_index")
     assert hasattr(sequences, "export_peptide_uniqueness_index_tsv")
     assert index.summary.isoform_shared_count == 1
+
+
+def test_sequences_package_exports_fasta_duplicate_accession_policy() -> None:
+    strict_report = sequences.parse_fasta_document(
+        (
+            ">sp|P12345|DEMO_HUMAN Canonical\nMPEPTIDEK\n"
+            ">sp|P12345|DEMO_HUMAN_DUP Duplicate\nMPEPTIDER\n"
+        ),
+        mode=sequences.FastaParseMode.PERMISSIVE,
+    )
+    permissive_report = sequences.parse_fasta_document(
+        (
+            ">sp|P12345|DEMO_HUMAN Canonical GN=DEMO OS=Homo sapiens\nMPEPTIDEK\n"
+            ">sp|P12345|DEMO_HUMAN_DUP Duplicate GN=DEMO OS=Homo sapiens\nMPEPTIDER\n"
+        ),
+        mode=sequences.FastaParseMode.PERMISSIVE,
+        duplicate_accession_policy=(
+            sequences.DuplicateAccessionPolicy.ACCEPT_WITH_WARNING
+        ),
+    )
+
+    assert hasattr(sequences, "DuplicateAccessionPolicy")
+    assert strict_report.duplicate_accession_policy is (
+        sequences.DuplicateAccessionPolicy.REJECT
+    )
+    assert len(strict_report.accepted_records) == 1
+    assert len(permissive_report.accepted_records) == 2
