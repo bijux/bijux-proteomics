@@ -6,6 +6,7 @@ from pathlib import Path
 from bijux_proteomics.sequences.digestion import (
     PeptideDigestionMode,
     build_digest_duplicate_accounting,
+    count_missed_cleavages,
     digest_sequence,
     filter_digested_peptides,
     parse_custom_protease_rule,
@@ -139,6 +140,36 @@ def test_digest_sequence_supports_curated_custom_n_terminal_rule() -> None:
     )
 
     assert [peptide.sequence for peptide in peptides] == ["MAEA", "DAK"]
+
+
+def test_digest_sequence_supports_regex_backed_custom_rule() -> None:
+    peptides = digest_sequence(
+        "MPEPDADAA",
+        protease=parse_custom_protease_rule(
+            "pattern=(?<!P)(?P<site>D);cut_before=site",
+            name="acidic_regex",
+        ),
+    )
+
+    assert [peptide.sequence for peptide in peptides] == ["MPEPDA", "DAA"]
+
+
+def test_parse_custom_protease_rule_rejects_mixed_residue_and_regex_keys() -> None:
+    try:
+        parse_custom_protease_rule("after=KR;pattern=(?P<site>D);cut_before=site")
+    except ValueError as exc:
+        assert "either residue keys or regex keys" in str(exc)
+    else:
+        raise AssertionError("expected mixed custom protease rule to be rejected")
+
+
+def test_count_missed_cleavages_supports_regex_backed_custom_rule() -> None:
+    rule = parse_custom_protease_rule(
+        "pattern=(?<!P)(?P<site>D);cut_before=site",
+        name="acidic_regex",
+    )
+
+    assert count_missed_cleavages("DAD", rule) == 1
 
 
 def test_filter_digested_peptides_supports_length_bounds() -> None:

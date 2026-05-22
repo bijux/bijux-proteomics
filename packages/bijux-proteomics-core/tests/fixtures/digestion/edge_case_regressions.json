@@ -24,5 +24,12 @@
     "custom_protease": "before=DE;block_previous=P",
     "custom_name": "acidic",
     "expected_peptides": ["PEPDPE"]
+  },
+  {
+    "name": "acidic_regex_previous_residue_block",
+    "sequence": "PEPDADAA",
+    "custom_protease": "pattern=(?<!P)(?P<site>D);cut_before=site",
+    "custom_name": "acidic_regex",
+    "expected_peptides": ["PEPDA", "DAA"]
   }
 ]
