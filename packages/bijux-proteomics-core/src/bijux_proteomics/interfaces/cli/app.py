@@ -29,6 +29,11 @@ from bijux_proteomics.chemistry import (
     load_modification_registry,
     render_fragment_ion_report_tsv,
 )
+from bijux_proteomics.benchmarks import (
+    build_lfq_cohort_biological_case_study_report,
+    export_public_biological_case_study_report,
+    render_public_biological_case_study_summary_tsv,
+)
 from bijux_proteomics.domain.errors import (
     ProteomicsOperatorError,
     ProteomicsOperatorErrorCode,
@@ -606,7 +611,6 @@ from bijux_proteomics.workflow import (
     build_dda_biological_workflow_bundle,
     build_diann_benchmark_report,
     build_diann_biological_workflow_bundle,
-    build_lfq_cohort_biological_case_study_report,
     build_maxquant_benchmark_report,
     build_maxquant_biological_workflow_bundle,
     build_ptm_site_workflow_bundle,
@@ -624,7 +628,6 @@ from bijux_proteomics.workflow import (
     export_diann_biological_workflow_bundle,
     export_biological_result_report_bundle,
     export_dda_biological_workflow_bundle,
-    export_public_biological_case_study_report,
     export_maxquant_biological_workflow_bundle,
     export_ptm_site_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
@@ -645,7 +648,6 @@ from bijux_proteomics.workflow import (
     render_maxquant_filtering_comparison_tsv,
     render_maxquant_lfq_comparison_tsv,
     render_maxquant_protein_identity_comparison_tsv,
-    render_public_biological_case_study_summary_tsv,
     render_dia_dda_comparison_summary_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,

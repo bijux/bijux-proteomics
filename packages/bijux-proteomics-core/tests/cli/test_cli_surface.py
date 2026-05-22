@@ -4764,6 +4764,51 @@ def test_diann_benchmark_command_reports_count_and_quantity_fidelity() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_public_case_study_command_emits_summary_and_biological_report_assets() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        result = runner.invoke(
+            cli,
+            [
+                "public-case-study",
+                "--summary-tsv-out",
+                "public_case_study.summary.tsv",
+                "--report-dir",
+                "public_case_study_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert (
+            payload["case_study_id"]
+            == "public_case_study:lfq_cohort_biological_case_study"
+        )
+        assert payload["summary"]["protein_count"] == 3
+        assert payload["summary"]["significant_protein_count"] == 1
+        assert payload["summary"]["go_enriched_term_count"] == 1
+        report_dir = Path("public_case_study_report")
+        assert Path("public_case_study.summary.tsv").exists()
+        assert (report_dir / "public_case_study_manifest.json").exists()
+        assert (report_dir / "public_case_study_summary.tsv").exists()
+        assert (report_dir / "biological-report").is_dir()
+        assert (
+            report_dir / "biological-report" / "biological_report_manifest.json"
+        ).exists()
+        assert (report_dir / "biological-report" / "biological_report.html").exists()
+        assert "public_case_study:lfq_cohort_biological_case_study" in Path(
+            "public_case_study.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "biological_report_summary.tsv" in (
+            report_dir / "public_case_study_manifest.json"
+        ).read_text(encoding="utf-8")
+        assert "Biological result report" in (
+            report_dir / "biological-report" / "biological_report.html"
+        ).read_text(encoding="utf-8")
+
+
 def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets() -> (
     None
 ):
