@@ -36,7 +36,6 @@ REMOVED_COMPATIBILITY_PATHS = {
     "operating_model.py",
     "peptide_uniqueness_audit.py",
     "program_spec.py",
-    "programs.py",
     "protease_digest_comparison.py",
     "repositories.py",
     "reviews.py",

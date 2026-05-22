@@ -188,6 +188,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Package-level CLI, example surfaces, and adoption contracts that explain and expose core ownership without becoming a shadow runtime.",
         required_modules=(
             "__init__.py",
+            "programs.py",
             "interfaces/examples.py",
             "interfaces/cli/app.py",
             "governance/charter.py",
@@ -237,6 +238,8 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         ("workflow/", "interfaces/execution/")
     ) or module_path in {"interfaces/runtime_plans.py"}:
         return CoreScientificDomainFamily.WORKFLOW_CONTRACTS
+    if module_path == "programs.py":
+        return CoreScientificDomainFamily.PACKAGE_SURFACE
     if module_path == "__init__.py" or module_path.startswith(
         ("governance/", "interfaces/", "benchmarks/")
     ):
@@ -250,7 +253,9 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         return CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY
     if module_path.startswith(("io/", "identification/")):
         return CoreScientificDomainFamily.INGESTION_AND_IDENTIFICATION
-    if module_path.startswith(("quantification/", "study/")):
+    if module_path.startswith(
+        ("quantification/", "study/", "multiplex/", "isotope_labeling/", "targeted/")
+    ):
         return CoreScientificDomainFamily.QUANTIFICATION_AND_STUDY
     if module_path.startswith(("ptm/", "dia/")):
         return CoreScientificDomainFamily.PTM_AND_DIA
@@ -258,6 +263,8 @@ def _module_family(module_path: str) -> CoreScientificDomainFamily:
         (
             "review/",
             "biology/",
+            "interpretation/",
+            "panels/",
         )
     ):
         return CoreScientificDomainFamily.REVIEW_AND_HANDOFF
