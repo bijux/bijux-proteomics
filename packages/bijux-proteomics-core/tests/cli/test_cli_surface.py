@@ -468,7 +468,15 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         assert parse_payload["duplicate_accessions"] == []
 
         stats_result = runner.invoke(
-            cli, ["fasta-stats", "dedup.fasta", "--mode", "permissive"]
+            cli,
+            [
+                "fasta-stats",
+                "dedup.fasta",
+                "--mode",
+                "permissive",
+                "--duplicate-accession-policy",
+                "accept_with_warning",
+            ],
         )
         assert stats_result.exit_code == 0
         stats_payload = json.loads(stats_result.output)
@@ -553,6 +561,8 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "dedup.fasta",
                 "--mode",
                 "permissive",
+                "--duplicate-accession-policy",
+                "accept_with_warning",
                 "--out-fasta",
                 "deduped.fasta",
             ],
@@ -569,6 +579,8 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "dedup.fasta",
                 "--mode",
                 "permissive",
+                "--duplicate-accession-policy",
+                "accept_with_warning",
                 "--organism",
                 "Homo sapiens",
                 "--exclude-contaminants",
@@ -604,6 +616,7 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
         )
         assert production_result.exit_code == 0
         production_payload = json.loads(production_result.output)
+        assert production_payload["duplicate_accession_policy"] == "reject"
         assert production_payload["duplicate_accessions"] == ["uniprot:P04637"]
         assert production_payload["database_composition"] == {
             "accepted_record_count": 6,
@@ -617,6 +630,24 @@ def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
                 "uniprot": 2,
             },
         }
+
+        permissive_duplicate_parse = runner.invoke(
+            cli,
+            [
+                "fasta-parse",
+                "dedup.fasta",
+                "--mode",
+                "permissive",
+                "--duplicate-accession-policy",
+                "accept_with_warning",
+            ],
+        )
+        assert permissive_duplicate_parse.exit_code == 0
+        permissive_duplicate_payload = json.loads(permissive_duplicate_parse.output)
+        assert permissive_duplicate_payload["duplicate_accession_policy"] == (
+            "accept_with_warning"
+        )
+        assert len(permissive_duplicate_payload["accepted_records"]) == 4
 
         decoy_result = runner.invoke(
             cli,
