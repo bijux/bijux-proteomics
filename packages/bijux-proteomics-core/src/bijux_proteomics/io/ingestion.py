@@ -21,7 +21,11 @@ from bijux_proteomics.io.formats import (
     parse_mzml,
     stream_mzml_spectra,
 )
-from bijux_proteomics.io.spectra import SpectrumModel, iter_mgf_spectra
+from bijux_proteomics.io.mgf_streaming import (
+    count_mgf_blocks,
+    iter_mgf_spectra,
+)
+from bijux_proteomics.io.spectra import SpectrumModel
 from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     parse_ms1_feature_table,
@@ -560,13 +564,11 @@ def evaluate_spectrum_library_boundary(path: Path) -> SpectrumLibraryBoundaryRep
             ),
         )
     if suffix == ".mgf":
-        text = path.read_text(encoding="utf-8")
-        entry_count = text.count("BEGIN IONS")
         return SpectrumLibraryBoundaryReport(
             format_name="MGF",
             supported=True,
             support_mode="importable",
-            entry_count=entry_count,
+            entry_count=count_mgf_blocks(path),
             mapped_fields=("TITLE", "PEPMASS", "CHARGE", "fragment peaks"),
             diagnostics=(
                 "MGF library detected with importable support mode",
