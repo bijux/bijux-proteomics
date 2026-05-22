@@ -280,11 +280,14 @@ from bijux_proteomics.ptm import (
     PtmMotifRegulationDirection,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
+    PtmSiteAnnotationColumnMapping,
     PtmSiteQuantAmbiguityPolicy,
     PtmPeptideColumnMapping,
     build_ptm_differential_analysis_report,
     build_ptm_enrichment_input,
     build_ptm_phosphosite_motif_enrichment_report,
+    build_ptm_site_annotation_biology_summary,
+    build_ptm_site_annotation_mapping_report,
     build_ptm_localization_scoring_report,
     build_ptm_occupancy_counterpart_report,
     build_ptm_site_occupancy_report,
@@ -299,11 +302,15 @@ from bijux_proteomics.ptm import (
     parse_ptm_peptide_tsv,
     parse_ptm_localization_tsv,
     export_ptm_differential_volcano_tsv,
+    export_ptm_mapped_site_annotation_tsv,
     export_ptm_phosphosite_motif_enriched_term_tsv,
     export_ptm_phosphosite_motif_frequency_tsv,
     export_ptm_phosphosite_motif_logo_tsv,
     export_ptm_phosphosite_motif_window_tsv,
+    export_ptm_site_annotation_biology_tsv,
+    export_ptm_site_annotation_mapping_summary_tsv,
     export_ptm_site_differential_tsv,
+    export_ptm_unmapped_site_annotation_tsv,
     render_ptm_coordinate_validation_tsv,
     render_ptm_localization_scoring_entry_tsv,
     render_ptm_localization_scoring_summary_tsv,
@@ -323,6 +330,7 @@ from bijux_proteomics.ptm import (
     render_ptm_site_coverage_tsv,
     render_ptm_site_table_tsv,
     validate_ptm_site_coordinates,
+    parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import (
     ImputationMethod,
@@ -9417,6 +9425,263 @@ def ptm_motif_enrichment_command(
                 if enriched_term_tsv_out is None
                 else str(enriched_term_tsv_out),
                 "logo_tsv": None if logo_tsv_out is None else str(logo_tsv_out),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@ptm_group.command("annotate-sites")
+@click.argument(
+    "evidence_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "annotation_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--sample-column", default="sample_id", show_default=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option(
+    "--localization-score-column", default="localization_score", show_default=True
+)
+@click.option(
+    "--localization-probability-column",
+    default="localization_probability",
+    show_default=True,
+)
+@click.option("--candidate-sites-column", default="candidate_sites", show_default=True)
+@click.option("--decoy-label-column", default="decoy_label", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--site-separator", default=";", show_default=True)
+@click.option("--annotation-species-column", default="species", show_default=True)
+@click.option(
+    "--annotation-protein-ref-column",
+    default="protein_ref",
+    show_default=True,
+)
+@click.option("--annotation-residue-column", default="residue", show_default=True)
+@click.option("--annotation-position-column", default="position", show_default=True)
+@click.option(
+    "--annotation-modification-column",
+    default="modification_name",
+    show_default=True,
+)
+@click.option(
+    "--annotation-function-column",
+    default="site_function",
+    show_default=True,
+)
+@click.option("--annotation-kinase-column", default="kinases", show_default=True)
+@click.option("--annotation-pathway-column", default="pathways", show_default=True)
+@click.option("--annotation-source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--annotation-source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--kinase-separator", default=";", show_default=True)
+@click.option("--pathway-separator", default=";", show_default=True)
+@click.option("--species", "target_species", default=None)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--mapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unmapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--function-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--kinase-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--pathway-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def ptm_annotate_sites_command(
+    evidence_tsv: Path,
+    proteins_fasta: Path,
+    annotation_tsv: Path,
+    sample_column: str,
+    spectrum_id_column: str,
+    peptide_column: str,
+    charge_column: str,
+    score_column: str,
+    protein_refs_column: str,
+    q_value_column: str | None,
+    localization_score_column: str,
+    localization_probability_column: str | None,
+    candidate_sites_column: str | None,
+    decoy_label_column: str | None,
+    protein_separator: str,
+    site_separator: str,
+    annotation_species_column: str,
+    annotation_protein_ref_column: str,
+    annotation_residue_column: str,
+    annotation_position_column: str,
+    annotation_modification_column: str,
+    annotation_function_column: str,
+    annotation_kinase_column: str,
+    annotation_pathway_column: str,
+    annotation_source_name_column: str,
+    annotation_source_accession_column: str,
+    kinase_separator: str,
+    pathway_separator: str,
+    target_species: str | None,
+    summary_tsv_out: Path | None,
+    mapped_tsv_out: Path | None,
+    unmapped_tsv_out: Path | None,
+    function_tsv_out: Path | None,
+    kinase_tsv_out: Path | None,
+    pathway_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Map imported PTM site annotations onto observed PTM sites."""
+    try:
+        evidence = parse_ptm_localization_tsv(
+            evidence_tsv,
+            mapping=PtmLocalizationColumnMapping(
+                sample_id=sample_column,
+                spectrum_id=spectrum_id_column,
+                peptide=peptide_column,
+                charge=charge_column,
+                score=score_column,
+                protein_refs=protein_refs_column,
+                q_value=q_value_column,
+                localization_score=localization_score_column,
+                localization_probability=localization_probability_column,
+                candidate_sites=candidate_sites_column,
+                decoy_label=decoy_label_column,
+                protein_separator=protein_separator,
+                site_separator=site_separator,
+            ),
+        )
+        fasta_report = parse_fasta_document(
+            proteins_fasta.read_text(),
+            mode=FastaParseMode.STRICT,
+        )
+        if fasta_report.rejected_records:
+            rejected = ", ".join(
+                record.source_identifier for record in fasta_report.rejected_records
+            )
+            raise click.ClickException(
+                f"FASTA input contains rejected records under strict mode: {rejected}"
+            )
+        protein_sequences = {
+            record.canonical_accession: record.residues
+            for record in fasta_report.accepted_records
+        }
+        resolved_target_species = target_species
+        if resolved_target_species is None:
+            observed_species = {
+                record.organism for record in fasta_report.accepted_records if record.organism
+            }
+            if len(observed_species) == 1:
+                resolved_target_species = next(iter(observed_species))
+        mappings = map_ptm_evidence_to_protein_sites(
+            evidence.accepted_records,
+            protein_sequences=protein_sequences,
+        )
+        site_table = build_ptm_site_table(mappings)
+        annotation_report = parse_ptm_site_annotation_tsv(
+            annotation_tsv,
+            mapping=PtmSiteAnnotationColumnMapping(
+                species=annotation_species_column,
+                protein_ref=annotation_protein_ref_column,
+                residue=annotation_residue_column,
+                position=annotation_position_column,
+                modification_name=annotation_modification_column,
+                site_function=annotation_function_column,
+                kinases=annotation_kinase_column,
+                pathways=annotation_pathway_column,
+                source_name=annotation_source_name_column,
+                source_accession=annotation_source_accession_column,
+            ),
+            kinase_separator=kinase_separator,
+            pathway_separator=pathway_separator,
+        )
+        mapping_report = build_ptm_site_annotation_mapping_report(
+            site_table,
+            annotation_report.accepted_records,
+            target_species=resolved_target_species,
+        )
+        biology_summary = build_ptm_site_annotation_biology_summary(mapping_report)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_ptm_site_annotation_mapping_summary_tsv(
+            mapping_report,
+            summary_tsv_out,
+        )
+    if mapped_tsv_out is not None:
+        export_ptm_mapped_site_annotation_tsv(mapping_report, mapped_tsv_out)
+    if unmapped_tsv_out is not None:
+        export_ptm_unmapped_site_annotation_tsv(mapping_report, unmapped_tsv_out)
+    if function_tsv_out is not None:
+        export_ptm_site_annotation_biology_tsv(
+            biology_summary,
+            category="function",
+            path=function_tsv_out,
+        )
+    if kinase_tsv_out is not None:
+        export_ptm_site_annotation_biology_tsv(
+            biology_summary,
+            category="kinase",
+            path=kinase_tsv_out,
+        )
+    if pathway_tsv_out is not None:
+        export_ptm_site_annotation_biology_tsv(
+            biology_summary,
+            category="pathway",
+            path=pathway_tsv_out,
+        )
+
+    _emit_json(
+        {
+            "accepted_rows": len(evidence.accepted_records),
+            "annotation_rows": annotation_report.summary.accepted_record_count,
+            "rejected_annotation_rows": annotation_report.summary.rejected_row_count,
+            "target_species": resolved_target_species,
+            "mapping_report": mapping_report.to_dict(),
+            "biology_summary": biology_summary.to_dict(),
+            "outputs": {
+                "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+                "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
+                "unmapped_tsv": None
+                if unmapped_tsv_out is None
+                else str(unmapped_tsv_out),
+                "function_tsv": None
+                if function_tsv_out is None
+                else str(function_tsv_out),
+                "kinase_tsv": None if kinase_tsv_out is None else str(kinase_tsv_out),
+                "pathway_tsv": None
+                if pathway_tsv_out is None
+                else str(pathway_tsv_out),
             },
         },
         out_path=out_path,

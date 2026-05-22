@@ -4567,6 +4567,61 @@ def test_ptm_motif_enrichment_command_emits_windows_terms_and_logo() -> None:
         assert "window_role" in Path("ptm.motif.logo.tsv").read_text()
 
 
+def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(
+            ptm_fixture_dir / "ptm_site_annotations.tsv",
+            "ptm_site_annotations.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "annotate-sites",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_site_annotations.tsv",
+                "--summary-tsv-out",
+                "ptm.annotation.summary.tsv",
+                "--mapped-tsv-out",
+                "ptm.annotation.mapped.tsv",
+                "--unmapped-tsv-out",
+                "ptm.annotation.unmapped.tsv",
+                "--function-tsv-out",
+                "ptm.annotation.function.tsv",
+                "--kinase-tsv-out",
+                "ptm.annotation.kinase.tsv",
+                "--pathway-tsv-out",
+                "ptm.annotation.pathway.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["annotation_rows"] == 5
+        assert payload["rejected_annotation_rows"] == 1
+        assert payload["target_species"] == "Homo sapiens"
+        assert payload["mapping_report"]["summary"]["matched_annotation_count"] == 3
+        assert "species_mismatch_count" in Path("ptm.annotation.summary.tsv").read_text()
+        assert "P11111:S5:Phospho" in Path("ptm.annotation.mapped.tsv").read_text()
+        assert "Mus musculus" in Path("ptm.annotation.unmapped.tsv").read_text()
+        assert "activation-linked phosphosite" in Path(
+            "ptm.annotation.function.tsv"
+        ).read_text()
+        assert "AKT1" in Path("ptm.annotation.kinase.tsv").read_text()
+        assert "MAPK signaling" in Path("ptm.annotation.pathway.tsv").read_text()
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
