@@ -4142,6 +4142,12 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
                 "0.1",
                 "--flank-size",
                 "3",
+                "--occupancy-summary-tsv-out",
+                "ptm.occupancy.summary.tsv",
+                "--occupancy-tsv-out",
+                "ptm.occupancy.tsv",
+                "--occupancy-counterpart-tsv-out",
+                "ptm.occupancy.counterpart.tsv",
             ],
         )
 
@@ -4158,11 +4164,17 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
             for entry in payload["occupancy"]
         )
         assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
+        assert payload["occupancy_counterpart_report"]["entries"]
         assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
         assert any(
             row["site_key"] == "P11111:S5:Phospho"
             for row in payload["site_quantification"]["rows"]
         )
+        assert "entry_count" in Path("ptm.occupancy.summary.tsv").read_text()
+        assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
+        assert "counterpart_status" in Path(
+            "ptm.occupancy.counterpart.tsv"
+        ).read_text()
 
 
 def test_ptm_parse_peptide_command_emits_explicit_site_records() -> None:

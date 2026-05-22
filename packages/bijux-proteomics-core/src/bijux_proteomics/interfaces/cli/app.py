@@ -8981,6 +8981,21 @@ def ptm_estimate_occupancy_command(
     show_default=True,
 )
 @click.option(
+    "--occupancy-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--occupancy-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--occupancy-counterpart-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def ptm_summarize_command(
@@ -9003,10 +9018,24 @@ def ptm_summarize_command(
     threshold: float,
     flank_size: int,
     site_quant_ambiguity_policy: str,
+    occupancy_summary_tsv_out: Path | None,
+    occupancy_tsv_out: Path | None,
+    occupancy_counterpart_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Summarize PTM site evidence from localized peptides and optional feature intensities."""
     try:
+        if feature_path is None and any(
+            output is not None
+            for output in (
+                occupancy_summary_tsv_out,
+                occupancy_tsv_out,
+                occupancy_counterpart_tsv_out,
+            )
+        ):
+            raise click.ClickException(
+                "occupancy TSV outputs require --features because occupancy depends on feature intensities"
+            )
         mapping = PtmLocalizationColumnMapping(
             sample_id=sample_column,
             spectrum_id=spectrum_id_column,
@@ -9052,10 +9081,15 @@ def ptm_summarize_command(
             site_table, protein_sequences=protein_sequences
         )
         occupancy_report = None
+        occupancy_counterpart_report = None
         site_quantification = None
         if feature_path is not None:
             feature_report = parse_ms1_feature_table(feature_path)
             occupancy_report = build_ptm_site_occupancy_report(
+                site_table,
+                feature_records=feature_report.accepted_records,
+            )
+            occupancy_counterpart_report = build_ptm_occupancy_counterpart_report(
                 site_table,
                 feature_records=feature_report.accepted_records,
             )
@@ -9068,6 +9102,25 @@ def ptm_summarize_command(
             )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
+
+    if occupancy_summary_tsv_out is not None and occupancy_report is not None:
+        occupancy_summary_tsv_out.write_text(
+            render_ptm_site_occupancy_summary_tsv(occupancy_report),
+            encoding="utf-8",
+        )
+    if occupancy_tsv_out is not None and occupancy_report is not None:
+        occupancy_tsv_out.write_text(
+            render_ptm_site_occupancy_entry_tsv(occupancy_report),
+            encoding="utf-8",
+        )
+    if (
+        occupancy_counterpart_tsv_out is not None
+        and occupancy_counterpart_report is not None
+    ):
+        occupancy_counterpart_tsv_out.write_text(
+            render_ptm_occupancy_counterpart_tsv(occupancy_counterpart_report),
+            encoding="utf-8",
+        )
 
     payload = {
         "accepted_rows": len(evidence.accepted_records),
@@ -9083,6 +9136,9 @@ def ptm_summarize_command(
         else None,
         "occupancy_report": occupancy_report.to_dict()
         if occupancy_report is not None
+        else None,
+        "occupancy_counterpart_report": occupancy_counterpart_report.to_dict()
+        if occupancy_counterpart_report is not None
         else None,
         "site_quantification": site_quantification.to_dict()
         if site_quantification is not None
