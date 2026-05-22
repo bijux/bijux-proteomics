@@ -239,7 +239,6 @@ from bijux_proteomics.io.spectra import (
     build_spectrum_provenance_manifest,
     build_spectrum_similarity_comparison_report,
     build_spectrum_summary_table_report,
-    export_spectrum_annotation_tsv,
     parse_mgf,
     render_precursor_mass_error_distribution_tsv,
     render_precursor_mass_error_observations_tsv,
@@ -247,6 +246,11 @@ from bijux_proteomics.io.spectra import (
     render_spectrum_distribution_tsv,
     render_spectrum_similarity_tsv,
     render_spectrum_summary_tsv,
+)
+from bijux_proteomics.io.spectrum_peak_matching import (
+    build_spectrum_peak_match_report,
+    export_spectrum_peak_match_tsv,
+    export_spectrum_unmatched_peak_tsv,
 )
 from bijux_proteomics.io.spectral_library import (
     build_spectral_library_index,
@@ -9420,6 +9424,11 @@ def mzml_inspect_command(
     "--plot-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
+    "--unmatched-peak-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -9434,6 +9443,7 @@ def spectrum_annotate_command(
     tolerance_ppm: float | None,
     tsv_out: Path | None,
     plot_out: Path | None,
+    unmatched_peak_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Annotate one spectrum against a peptide sequence."""
@@ -9457,6 +9467,12 @@ def spectrum_annotate_command(
         except StopIteration as exc:
             raise click.ClickException(f"unknown spectrum id {spectrum_id!r}") from exc
     try:
+        peak_matching_report = build_spectrum_peak_match_report(
+            spectrum,
+            peptide=peptide,
+            tolerance_da=effective_tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+        )
         annotation = annotate_spectrum_fragments(
             spectrum,
             peptide=peptide,
@@ -9467,11 +9483,17 @@ def spectrum_annotate_command(
         raise click.ClickException(str(exc)) from exc
     plot_payload = build_spectrum_plot_payload(spectrum, annotation=annotation)
     if tsv_out is not None:
-        export_spectrum_annotation_tsv(annotation, tsv_out)
+        export_spectrum_peak_match_tsv(peak_matching_report, tsv_out)
     if plot_out is not None:
         plot_out.write_text(plot_payload.to_stable_json() + "\n")
+    if unmatched_peak_tsv_out is not None:
+        export_spectrum_unmatched_peak_tsv(
+            peak_matching_report,
+            unmatched_peak_tsv_out,
+        )
     payload = {
         "annotation": annotation.to_dict(),
+        "peak_matching_report": peak_matching_report.to_dict(),
         "plot_payload": plot_payload.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
