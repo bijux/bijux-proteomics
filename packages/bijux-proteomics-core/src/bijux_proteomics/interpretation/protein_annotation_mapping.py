@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+import json
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -544,6 +546,142 @@ def build_protein_annotation_mapping_report(
     )
 
 
+def render_protein_annotation_summary_tsv(
+    report: ProteinAnnotationMappingReport,
+) -> str:
+    """Render the compact protein-annotation mapping summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "input_entry_count",
+            "mapped_entry_count",
+            "unmapped_entry_count",
+            "distinct_protein_ref_count",
+            "fasta_annotation_count",
+            "custom_annotation_count",
+            "merged_annotation_count",
+            "gene_annotated_count",
+            "description_annotated_count",
+            "organism_annotated_count",
+        )
+    )
+    writer.writerow(
+        (
+            report.summary.input_entry_count,
+            report.summary.mapped_entry_count,
+            report.summary.unmapped_entry_count,
+            report.summary.distinct_protein_ref_count,
+            report.summary.fasta_annotation_count,
+            report.summary.custom_annotation_count,
+            report.summary.merged_annotation_count,
+            report.summary.gene_annotated_count,
+            report.summary.description_annotated_count,
+            report.summary.organism_annotated_count,
+        )
+    )
+    return buffer.getvalue()
+
+
+def render_mapped_protein_annotation_tsv(report: ProteinAnnotationMappingReport) -> str:
+    """Render mapped protein-annotation entries as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "row_number",
+            "source_row_id",
+            "input_protein_ref",
+            "protein_ref",
+            "accession_namespace",
+            "source_identifier",
+            "gene_symbol",
+            "description",
+            "organism",
+            "annotation_identifier",
+            "annotation_source",
+            "input_metadata",
+            "annotation_metadata",
+        )
+    )
+    for entry in report.mapped_entries:
+        writer.writerow(
+            (
+                entry.row_number,
+                entry.source_row_id or "",
+                entry.input_protein_ref,
+                entry.protein_ref,
+                entry.accession_namespace or "",
+                entry.source_identifier or "",
+                entry.gene_symbol or "",
+                entry.description or "",
+                entry.organism or "",
+                entry.annotation_identifier,
+                entry.annotation_source.value,
+                _metadata_json(entry.input_metadata),
+                _metadata_json(entry.annotation_metadata),
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_unmapped_protein_annotation_tsv(
+    report: ProteinAnnotationMappingReport,
+) -> str:
+    """Render unmapped protein references as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "row_number",
+            "source_row_id",
+            "input_protein_ref",
+            "protein_ref",
+            "input_metadata",
+            "reason",
+        )
+    )
+    for entry in report.unmapped_entries:
+        writer.writerow(
+            (
+                entry.row_number,
+                entry.source_row_id or "",
+                entry.input_protein_ref,
+                entry.protein_ref,
+                _metadata_json(entry.input_metadata),
+                entry.reason,
+            )
+        )
+    return buffer.getvalue()
+
+
+def render_rejected_protein_reference_tsv(report: ProteinReferenceTableReport) -> str:
+    """Render rejected protein-reference rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("row_number", "values", "reason"))
+    for row in report.rejected_rows:
+        writer.writerow((row.row_number, _metadata_json(row.values), row.reason))
+    return buffer.getvalue()
+
+
+def render_rejected_protein_annotation_tsv(
+    report: ProteinAnnotationImportReport,
+) -> str:
+    """Render rejected custom protein-annotation rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(("row_number", "values", "reason"))
+    for row in report.rejected_rows:
+        writer.writerow((row.row_number, _metadata_json(row.values), row.reason))
+    return buffer.getvalue()
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
 
@@ -618,6 +756,10 @@ def _optional_value(row: dict[str, str], field_name: str | None) -> str | None:
 def _read_delimited_lines(path: Path) -> list[str]:
     payload = path.read_text(encoding="utf-8")
     return payload.splitlines()
+
+
+def _metadata_json(values: dict[str, str]) -> str:
+    return json.dumps(values, sort_keys=True)
 
 
 def _validate_required_columns(fieldnames: list[str], required_columns: tuple[str, ...]) -> None:
