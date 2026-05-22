@@ -126,6 +126,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "chemistry/amino_acid_mass.py",
             "chemistry/contracts.py",
             "chemistry/modification_registry.py",
+            "chemistry/modified_peptide_parser.py",
         ),
         release_blocker="Core cannot ship if sequence and peptide semantics collapse into format glue or tool-specific heuristics.",
     ),
