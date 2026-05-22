@@ -4566,6 +4566,93 @@ def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets
         ).read_text(encoding="utf-8")
 
 
+def test_diann_biological_report_command_emits_matrix_qc_differential_and_report_assets() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        workflow_dir = FIXTURE_ROOT / "workflow"
+        shutil.copy(
+            workflow_dir / "diann_biological_report.tsv",
+            "diann_biological_report.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "diann_biological.design.tsv",
+            "diann_biological.design.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_reference.fasta",
+            "biological_report_reference.fasta",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_go.tsv",
+            "biological_report_go.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_pathways.tsv",
+            "biological_report_pathways.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_complexes.tsv",
+            "biological_report_complexes.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "diann-biological-report",
+                "diann_biological_report.tsv",
+                "diann_biological.design.tsv",
+                "biological_report_reference.fasta",
+                "--go-annotation-tsv",
+                "biological_report_go.tsv",
+                "--pathway-membership-tsv",
+                "biological_report_pathways.tsv",
+                "--complex-membership-tsv",
+                "biological_report_complexes.tsv",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--output-dir",
+                "diann_biological_report",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["design_rows"] == 6
+        assert payload["report"]["summary"]["filtered_q_value_row_count"] == 1
+        assert payload["report"]["summary"]["precursor_matrix_row_count"] == 5
+        assert payload["report"]["summary"]["protein_matrix_row_count"] == 5
+        assert payload["report"]["summary"]["go_enriched_term_count"] == 1
+        assert payload["report"]["summary"]["flagged_run_count"] == 0
+        report_dir = Path("diann_biological_report")
+        assert (report_dir / "diann_biological_report_manifest.json").exists()
+        assert (report_dir / "diann_import_summary.tsv").exists()
+        assert (report_dir / "diann_precursor_quantity_matrix.tsv").exists()
+        assert (report_dir / "diann_protein_quantity_matrix.tsv").exists()
+        assert (report_dir / "diann_run_qc_runs.tsv").exists()
+        assert (report_dir / "diann_differential_results.tsv").exists()
+        assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_report.html").exists()
+        assert "accepted_precursor_count" in (
+            report_dir / "diann_import_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "precursor_key" in (
+            report_dir / "diann_precursor_quantity_matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "run_name\tsample_name\tprecursor_id_count" in (
+            report_dir / "diann_run_qc_runs.tsv"
+        ).read_text(encoding="utf-8")
+        assert "entity_id\tcondition_a\tcondition_b" in (
+            report_dir / "diann_differential_results.tsv"
+        ).read_text(encoding="utf-8")
+        assert "Biological result report" in (
+            report_dir / "biological_report.html"
+        ).read_text(encoding="utf-8")
+
+
 def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
