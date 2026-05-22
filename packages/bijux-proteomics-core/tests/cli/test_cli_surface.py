@@ -3157,6 +3157,49 @@ def test_tmt_validate_command_emits_channel_distribution_and_weak_outputs() -> N
         )
 
 
+def test_multiplex_validate_metadata_command_emits_assignment_issue_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "multiplex"
+        shutil.copy(
+            fixture_dir / "tmt_metadata_issues.design.tsv",
+            "tmt_metadata_issues.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "multiplex",
+                "validate-metadata",
+                "tmt_metadata_issues.design.tsv",
+                "--summary-tsv-out",
+                "multiplex.metadata.summary.tsv",
+                "--channel-tsv-out",
+                "multiplex.metadata.channels.tsv",
+                "--duplicate-tsv-out",
+                "multiplex.metadata.duplicates.tsv",
+                "--missing-condition-tsv-out",
+                "multiplex.metadata.conditions.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["multiplex_group_count"] == 2
+        assert payload["report"]["summary"]["missing_channel_assignment_count"] == 1
+        assert payload["report"]["summary"]["duplicate_assignment_count"] == 2
+        assert payload["report"]["summary"]["missing_condition_count"] == 1
+        assert "plex-b\t129N\t\t\t\tFalse" in Path(
+            "multiplex.metadata.channels.tsv"
+        ).read_text(encoding="utf-8")
+        assert "duplicate_channel_assignment\tplex-b\t127N" in Path(
+            "multiplex.metadata.duplicates.tsv"
+        ).read_text(encoding="utf-8")
+        assert "plex-b\t128N\tplex_b_128N\tpooled_reference" in Path(
+            "multiplex.metadata.conditions.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_tmt_integrate_plexes_command_emits_alignment_effect_and_matrix_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

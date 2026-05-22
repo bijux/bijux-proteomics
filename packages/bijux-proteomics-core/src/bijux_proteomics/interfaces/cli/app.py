@@ -268,6 +268,11 @@ from bijux_proteomics.multiplex import (
     build_tmt_ratio_report,
     build_tmt_reporter_feature_bundle,
     build_tmt_reporter_matrix_report,
+    build_multiplex_metadata_validation_report,
+    export_multiplex_channel_assignment_tsv,
+    export_multiplex_duplicate_assignment_tsv,
+    export_multiplex_metadata_summary_tsv,
+    export_multiplex_missing_condition_tsv,
     export_tmt_channel_distribution_tsv,
     export_tmt_channel_mapping_tsv,
     export_tmt_channel_totals_tsv,
@@ -8400,6 +8405,71 @@ def tmt_validate_command(
                 None if distribution_tsv_out is None else str(distribution_tsv_out)
             ),
             "weak_tsv": None if weak_tsv_out is None else str(weak_tsv_out),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@multiplex_group.command("validate-metadata")
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--channel-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--duplicate-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--missing-condition-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def multiplex_validate_metadata_command(
+    design_path: Path,
+    summary_tsv_out: Path | None,
+    channel_tsv_out: Path | None,
+    duplicate_tsv_out: Path | None,
+    missing_condition_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Validate multiplex sample metadata mappings from the design table."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_multiplex_metadata_validation_report(design_report)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        export_multiplex_metadata_summary_tsv(report, summary_tsv_out)
+    if channel_tsv_out is not None:
+        export_multiplex_channel_assignment_tsv(report, channel_tsv_out)
+    if duplicate_tsv_out is not None:
+        export_multiplex_duplicate_assignment_tsv(report, duplicate_tsv_out)
+    if missing_condition_tsv_out is not None:
+        export_multiplex_missing_condition_tsv(report, missing_condition_tsv_out)
+
+    payload = {
+        "report": report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "channel_tsv": None if channel_tsv_out is None else str(channel_tsv_out),
+            "duplicate_tsv": (
+                None if duplicate_tsv_out is None else str(duplicate_tsv_out)
+            ),
+            "missing_condition_tsv": (
+                None
+                if missing_condition_tsv_out is None
+                else str(missing_condition_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
