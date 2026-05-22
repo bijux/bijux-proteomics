@@ -38,6 +38,11 @@ def test_numeric_quant_matrix_builds_dense_rows_missingness_and_metadata() -> No
             ("P2", "S1"): MissingValueState.ZERO,
             ("P2", "S2"): MissingValueState.OBSERVED,
         },
+        support_count_lookup={
+            ("P1", "S1"): 2,
+            ("P2", "S1"): 1,
+            ("P2", "S2"): 3,
+        },
         row_metadata_lookup={
             "P1": {"protein_refs": "P1"},
             "P2": {"protein_refs": "P2"},
@@ -54,6 +59,7 @@ def test_numeric_quant_matrix_builds_dense_rows_missingness_and_metadata() -> No
     assert matrix.sample_ids == ("S1", "S2")
     assert matrix.values[0] == (10.0, None)
     assert matrix.missing_value_states[1][0] is MissingValueState.ZERO
+    assert matrix.support_counts == ((2, 0), (1, 3))
     assert matrix.row_metadata[0]["protein_refs"] == "P1"
     assert matrix.sample_metadata[1].condition == "treated"
     assert matrix.transformation_history == ("aggregation:sum",)

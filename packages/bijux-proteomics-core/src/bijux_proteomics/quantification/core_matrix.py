@@ -28,6 +28,7 @@ def build_numeric_quant_matrix(
     sample_ids: tuple[str, ...],
     value_lookup: Mapping[tuple[str, str], float | None],
     missing_state_lookup: Mapping[tuple[str, str], MissingValueState],
+    support_count_lookup: Mapping[tuple[str, str], int] | None = None,
     row_metadata_lookup: Mapping[str, Mapping[str, str]] | None = None,
     sample_metadata: tuple[SampleMetadata, ...] = (),
     transformation_history: tuple[str, ...] = (),
@@ -37,18 +38,24 @@ def build_numeric_quant_matrix(
 
     ordered_values: list[tuple[float | None, ...]] = []
     ordered_missing_states: list[tuple[MissingValueState, ...]] = []
+    ordered_support_counts: list[tuple[int, ...]] = []
     ordered_row_metadata: list[dict[str, str]] = []
     for entity_id in entity_ids:
         row_values: list[float | None] = []
         row_states: list[MissingValueState] = []
+        row_support_counts: list[int] = []
         for sample_id in sample_ids:
             key = (entity_id, sample_id)
             row_values.append(value_lookup.get(key))
             row_states.append(
                 missing_state_lookup.get(key, MissingValueState.NOT_OBSERVED)
             )
+            row_support_counts.append(
+                0 if support_count_lookup is None else int(support_count_lookup.get(key, 0))
+            )
         ordered_values.append(tuple(row_values))
         ordered_missing_states.append(tuple(row_states))
+        ordered_support_counts.append(tuple(row_support_counts))
         if row_metadata_lookup is not None:
             ordered_row_metadata.append(dict(row_metadata_lookup.get(entity_id, {})))
     return QuantMatrix(
@@ -59,6 +66,7 @@ def build_numeric_quant_matrix(
         sample_ids=sample_ids,
         values=tuple(ordered_values),
         missing_value_states=tuple(ordered_missing_states),
+        support_counts=tuple(ordered_support_counts),
         row_metadata=tuple(ordered_row_metadata),
         sample_metadata=sample_metadata,
         transformation_history=transformation_history,

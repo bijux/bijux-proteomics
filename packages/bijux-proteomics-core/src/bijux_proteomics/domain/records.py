@@ -264,6 +264,7 @@ class QuantMatrix(_CanonicalRecord):
     missing_value_states: tuple[tuple[MissingValueState, ...], ...] = Field(
         default_factory=tuple
     )
+    support_counts: tuple[tuple[int, ...], ...] = Field(default_factory=tuple)
     row_metadata: tuple[dict[str, str], ...] = Field(default_factory=tuple)
     sample_metadata: tuple[SampleMetadata, ...] = Field(default_factory=tuple)
     transformation_history: tuple[str, ...] = Field(default_factory=tuple)
@@ -291,6 +292,8 @@ class QuantMatrix(_CanonicalRecord):
             raise ValueError("values must contain one row per entity_id")
         if len(self.missing_value_states) != row_count:
             raise ValueError("missing_value_states must contain one row per entity_id")
+        if self.support_counts and len(self.support_counts) != row_count:
+            raise ValueError("support_counts must align with entity_ids")
         if self.row_metadata and len(self.row_metadata) != row_count:
             raise ValueError("row_metadata must align with entity_ids")
         for row in self.values:
@@ -301,6 +304,9 @@ class QuantMatrix(_CanonicalRecord):
                 raise ValueError(
                     "each missing_value_states row must align with sample_ids"
                 )
+        for row in self.support_counts:
+            if len(row) != column_count:
+                raise ValueError("each support_counts row must align with sample_ids")
         if self.sample_metadata and len(self.sample_metadata) != column_count:
             raise ValueError("sample_metadata must align with sample_ids")
         if self.sample_metadata:

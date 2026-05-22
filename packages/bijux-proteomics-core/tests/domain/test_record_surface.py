@@ -52,6 +52,7 @@ def test_quant_matrix_requires_aligned_sample_metadata_and_shapes() -> None:
         sample_ids=("sample-a", "sample-b"),
         values=((10.0, None),),
         missing_value_states=((MissingValueState.OBSERVED, MissingValueState.NOT_OBSERVED),),
+        support_counts=((2, 0),),
         row_metadata=({"protein_refs": "P001"},),
         sample_metadata=(
             SampleMetadata(
@@ -69,6 +70,7 @@ def test_quant_matrix_requires_aligned_sample_metadata_and_shapes() -> None:
 
     assert matrix.sample_metadata[0].sample_id == "sample-a"
     assert matrix.values[0][1] is None
+    assert matrix.support_counts == ((2, 0),)
 
     with pytest.raises(ValueError, match="sample_metadata sample_id order must match"):
         QuantMatrix(
@@ -93,6 +95,20 @@ def test_quant_matrix_requires_aligned_sample_metadata_and_shapes() -> None:
                     condition="control",
                 ),
             ),
+        )
+
+    with pytest.raises(ValueError, match="support_counts"):
+        QuantMatrix(
+            matrix_id="bad_support_counts",
+            entity_kind=QuantEntityKind.PROTEIN,
+            measure_kind=QuantMeasureKind.INTENSITY,
+            entity_ids=("P001",),
+            sample_ids=("sample-a", "sample-b"),
+            values=((10.0, None),),
+            missing_value_states=(
+                (MissingValueState.OBSERVED, MissingValueState.NOT_OBSERVED),
+            ),
+            support_counts=((1,),),
         )
 
 
