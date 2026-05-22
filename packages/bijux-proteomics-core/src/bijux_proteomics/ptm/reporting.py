@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
@@ -13,6 +16,11 @@ from bijux_proteomics.ptm.contracts import (
     PtmSiteEntry,
     build_ptm_site_table,
     map_ptm_evidence_to_protein_sites,
+)
+from bijux_proteomics.ptm.localization_scoring import (
+    PtmLocalizationScoringReport,
+    build_ptm_localization_scoring_report,
+    render_ptm_localization_scoring_entry_tsv,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -47,6 +55,7 @@ class PtmReportSummary(JsonModel):
     site_row_count: int = Field(..., ge=0)
     ambiguous_site_count: int = Field(..., ge=0)
     modified_peptide_count: int = Field(..., ge=0)
+    localization_entry_count: int = Field(..., ge=0)
 
 
 class PtmReportBundle(JsonModel):
@@ -56,6 +65,7 @@ class PtmReportBundle(JsonModel):
 
     peptide_entries: tuple[PtmReportPeptideEntry, ...] = Field(default_factory=tuple)
     site_table: tuple[PtmSiteEntry, ...] = Field(default_factory=tuple)
+    localization_scoring: PtmLocalizationScoringReport
     summary: PtmReportSummary
     note: str = Field(..., min_length=1)
 
@@ -64,6 +74,7 @@ def build_ptm_report_bundle(
     records: tuple[PtmEvidenceRecord, ...],
     *,
     protein_sequences: dict[str, str],
+    fragment_ion_support_by_spectrum: dict[str, tuple[str, ...]] | None = None,
 ) -> PtmReportBundle:
     """Build the core PTM report bundle from evidence rows and protein context."""
 
@@ -100,9 +111,14 @@ def build_ptm_report_bundle(
         protein_sequences=protein_sequences,
     )
     site_table = build_ptm_site_table(mappings)
+    localization_scoring = build_ptm_localization_scoring_report(
+        records,
+        fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
+    )
     return PtmReportBundle(
         peptide_entries=peptide_entries,
         site_table=site_table,
+        localization_scoring=localization_scoring,
         summary=PtmReportSummary(
             accepted_evidence_count=len(records),
             peptide_entry_count=len(peptide_entries),
@@ -114,8 +130,88 @@ def build_ptm_report_bundle(
                     for entry in peptide_entries
                 }
             ),
+            localization_entry_count=len(localization_scoring.entries),
         ),
         note=(
-            "ptm reporting starts from governed peptide observations and protein-mapped site rows before higher-level localization, quantification, and differential sections are added"
+            "ptm reporting starts from governed peptide observations, protein-mapped site rows, and localization review before quantification and differential sections are added"
         ),
     )
+
+
+def render_ptm_report_summary_tsv(report: PtmReportBundle) -> str:
+    """Render compact PTM report summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "accepted_evidence_count",
+            "peptide_entry_count",
+            "site_row_count",
+            "ambiguous_site_count",
+            "modified_peptide_count",
+            "localization_entry_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.accepted_evidence_count,
+            report.summary.peptide_entry_count,
+            report.summary.site_row_count,
+            report.summary.ambiguous_site_count,
+            report.summary.modified_peptide_count,
+            report.summary.localization_entry_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_report_peptide_tsv(report: PtmReportBundle) -> str:
+    """Render the PTM peptide-observation table as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "spectrum_id",
+            "sample_id",
+            "localized_peptide",
+            "canonical_peptide",
+            "sequence",
+            "charge",
+            "score",
+            "q_value",
+            "localization_score",
+            "localization_probability",
+            "protein_refs",
+            "modification_names",
+            "target_decoy_label",
+        ]
+    )
+    for entry in report.peptide_entries:
+        writer.writerow(
+            [
+                entry.spectrum_id,
+                entry.sample_id or "",
+                entry.localized_peptide,
+                entry.canonical_peptide,
+                entry.sequence,
+                entry.charge,
+                entry.score,
+                "" if entry.q_value is None else entry.q_value,
+                entry.localization_score,
+                ""
+                if entry.localization_probability is None
+                else entry.localization_probability,
+                ";".join(entry.protein_refs),
+                ";".join(entry.modification_names),
+                entry.target_decoy_label.value,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_report_localization_tsv(report: PtmReportBundle) -> str:
+    """Render the PTM localization review table as TSV."""
+
+    return render_ptm_localization_scoring_entry_tsv(report.localization_scoring)
