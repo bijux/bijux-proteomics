@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 
 from pydantic import ConfigDict, Field
 
@@ -202,6 +204,83 @@ def normalize_ptm_localization_probability(
     if ambiguous and supported_site_determining_ion_count == 0 and site_determining_ion_count > 0:
         probability = min(probability, 0.75)
     return round(probability, 4), source
+
+
+def render_ptm_localization_scoring_summary_tsv(
+    report: PtmLocalizationScoringReport,
+) -> str:
+    """Render compact PTM localization-scoring summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entry_count",
+            "ambiguous_entry_count",
+            "confident_entry_count",
+            "multi_phosphorylated_entry_count",
+            "fragment_supported_entry_count",
+        ]
+    )
+    writer.writerow(
+        [
+            len(report.entries),
+            report.ambiguous_entry_count,
+            report.confident_entry_count,
+            report.multi_phosphorylated_entry_count,
+            report.fragment_supported_entry_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_ptm_localization_scoring_entry_tsv(
+    report: PtmLocalizationScoringReport,
+) -> str:
+    """Render PTM localization-scoring entries as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "spectrum_id",
+            "sample_id",
+            "localized_peptide",
+            "canonical_peptide",
+            "modification_name",
+            "peptide_site_index",
+            "candidate_site_indices",
+            "localization_score",
+            "localization_probability",
+            "probability_source",
+            "ambiguous",
+            "multi_phosphorylated",
+            "site_determining_ions",
+            "supported_site_determining_ions",
+            "note",
+        ]
+    )
+    for entry in report.entries:
+        writer.writerow(
+            [
+                entry.spectrum_id,
+                entry.sample_id or "",
+                entry.localized_peptide,
+                entry.canonical_peptide,
+                entry.modification_name,
+                entry.peptide_site_index,
+                ";".join(str(site) for site in entry.candidate_site_indices),
+                entry.localization_score,
+                entry.localization_probability,
+                entry.probability_source.value,
+                str(entry.ambiguous).lower(),
+                str(entry.multi_phosphorylated).lower(),
+                ";".join(entry.site_determining_ions),
+                ";".join(entry.supported_site_determining_ions),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
 
 
 def _candidate_site_indices(
