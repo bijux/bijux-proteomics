@@ -9,7 +9,6 @@ import csv
 from enum import StrEnum
 from html import escape
 from io import StringIO
-import json
 import math
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -113,7 +112,10 @@ def apply_volcano_review_policy(
 def render_volcano_review_json(report: VolcanoReviewReport) -> str:
     """Render one volcano review payload as deterministic JSON."""
 
-    return json.dumps(report.to_dict(), sort_keys=True, indent=2) + "\n"
+    stable_report = report.model_copy(
+        update={"points": tuple(sorted(report.points, key=lambda point: point.entity_id))}
+    )
+    return stable_report.to_stable_json() + "\n"
 
 
 def render_volcano_review_svg(report: VolcanoReviewReport) -> str:
@@ -128,10 +130,11 @@ def render_volcano_review_svg(report: VolcanoReviewReport) -> str:
     usable_width = width - left_margin - right_margin
     usable_height = height - top_margin - bottom_margin
 
-    if report.points:
-        min_x = min(point.log2_fold_change for point in report.points)
-        max_x = max(point.log2_fold_change for point in report.points)
-        max_y = max(point.negative_log10_adjusted_p_value for point in report.points)
+    stable_points = tuple(sorted(report.points, key=lambda point: point.entity_id))
+    if stable_points:
+        min_x = min(point.log2_fold_change for point in stable_points)
+        max_x = max(point.log2_fold_change for point in stable_points)
+        max_y = max(point.negative_log10_adjusted_p_value for point in stable_points)
     else:
         min_x = -1.0
         max_x = 1.0
@@ -171,7 +174,7 @@ def render_volcano_review_svg(report: VolcanoReviewReport) -> str:
     rows.append(
         f"<line x1='{left_margin:.2f}' y1='{project_y(threshold_y):.2f}' x2='{left_margin + usable_width:.2f}' y2='{project_y(threshold_y):.2f}' stroke='#c7c7c7' stroke-dasharray='4 4' />"
     )
-    for point in report.points:
+    for point in stable_points:
         cx = project_x(point.log2_fold_change)
         cy = project_y(point.negative_log10_adjusted_p_value)
         fill = "#cc3311" if point.highlighted else "#6b7280"
@@ -246,7 +249,7 @@ def render_volcano_review_tsv(report: VolcanoReviewReport) -> str:
             "top_labeled",
         )
     )
-    for point in report.points:
+    for point in sorted(report.points, key=lambda point: point.entity_id):
         writer.writerow(
             (
                 point.entity_id,

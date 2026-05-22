@@ -13,6 +13,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
     PtmSiteEntry,
@@ -319,7 +320,12 @@ def render_ptm_report_peptide_tsv(report: PtmReportBundle) -> str:
             "target_decoy_label",
         ]
     )
-    for entry in report.peptide_entries:
+    for entry in sort_rows_by_fields(
+        report.peptide_entries,
+        "spectrum_id",
+        "sample_id",
+        "canonical_peptide",
+    ):
         writer.writerow(
             [
                 entry.spectrum_id,
@@ -334,8 +340,8 @@ def render_ptm_report_peptide_tsv(report: PtmReportBundle) -> str:
                 ""
                 if entry.localization_probability is None
                 else entry.localization_probability,
-                ";".join(entry.protein_refs),
-                ";".join(entry.modification_names),
+                ";".join(sort_strings(entry.protein_refs)),
+                ";".join(sort_strings(entry.modification_names)),
                 entry.target_decoy_label.value,
             ]
         )

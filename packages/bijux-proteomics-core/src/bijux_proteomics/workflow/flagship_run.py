@@ -360,9 +360,12 @@ def render_proteomics_run_enrichment_tsv(report: ProteomicsRunBundle) -> str:
             "adjusted_p_value",
         )
     )
+    enrichment_rows: list[
+        tuple[str, str, str, str, str, int, int, int, int, str, str, str, str]
+    ] = []
     if biological_report.go_enrichment_report is not None:
         for entry in biological_report.go_enrichment_report.term_entries:
-            writer.writerow(
+            enrichment_rows.append(
                 (
                     "go",
                     "gene_ontology",
@@ -383,7 +386,7 @@ def render_proteomics_run_enrichment_tsv(report: ProteomicsRunBundle) -> str:
             )
     if biological_report.pathway_enrichment_report is not None:
         for entry in biological_report.pathway_enrichment_report.entries:
-            writer.writerow(
+            enrichment_rows.append(
                 (
                     "pathway",
                     entry.source_name,
@@ -404,7 +407,7 @@ def render_proteomics_run_enrichment_tsv(report: ProteomicsRunBundle) -> str:
             )
     if biological_report.complex_enrichment_report is not None:
         for entry in biological_report.complex_enrichment_report.entries:
-            writer.writerow(
+            enrichment_rows.append(
                 (
                     "complex",
                     entry.source_name,
@@ -423,6 +426,8 @@ def render_proteomics_run_enrichment_tsv(report: ProteomicsRunBundle) -> str:
                     else f"{entry.adjusted_p_value:g}",
                 )
             )
+    for row in sorted(enrichment_rows, key=lambda value: value[:5]):
+        writer.writerow(row)
     return handle.getvalue()
 
 

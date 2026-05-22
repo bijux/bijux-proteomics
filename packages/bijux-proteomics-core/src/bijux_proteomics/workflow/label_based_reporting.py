@@ -12,6 +12,7 @@ from pathlib import Path
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.io.stable_outputs import sort_rows_by_fields
 from bijux_proteomics.isotope_labeling import (
     SilacColumnMapping,
     SilacQuantificationPolicy,
@@ -523,7 +524,12 @@ def render_label_based_sample_qc_tsv(report: LabelBasedReportBundle) -> str:
             "note",
         ]
     )
-    for entry in report.sample_qc_entries:
+    for entry in sort_rows_by_fields(
+        report.sample_qc_entries,
+        "source_kind",
+        "sample_id",
+        "assay_axis",
+    ):
         writer.writerow(
             [
                 entry.source_kind.value,
