@@ -251,6 +251,10 @@ class PtmOccupancyEntry(JsonModel):
     unmodified_intensity: float = Field(..., ge=0.0)
     occupancy_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
     uncertainty: PtmOccupancyUncertainty = PtmOccupancyUncertainty.NONE
+    modified_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    unmodified_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    modified_feature_count: int = Field(default=0, ge=0)
+    unmodified_feature_count: int = Field(default=0, ge=0)
     note: str = Field(..., min_length=1)
 
 
@@ -714,57 +718,14 @@ def estimate_ptm_site_occupancy(
     feature_records: tuple[Ms1FeatureRecord, ...],
 ) -> tuple[PtmOccupancyEntry, ...]:
     """Estimate sample-level occupancy from modified and unmodified peptide intensities."""
-    feature_by_sample: dict[str, list[Ms1FeatureRecord]] = {}
-    for record in feature_records:
-        feature_by_sample.setdefault(record.sample_id, []).append(record)
-
-    occupancy_entries: list[PtmOccupancyEntry] = []
-    for entry in site_entries:
-        if not entry.sample_ids:
-            continue
-        for sample_id in entry.sample_ids:
-            numerator = 0.0
-            denominator_unmodified = 0.0
-            sample_records = feature_by_sample.get(sample_id, [])
-            localized_peptides = set(entry.localized_peptides)
-            stripped_sequences = {
-                parse_modified_peptide(peptide).sequence
-                for peptide in entry.localized_peptides
-            }
-            for record in sample_records:
-                if (
-                    entry.protein_ref not in record.protein_refs
-                    or record.intensity is None
-                ):
-                    continue
-                if record.canonical_peptide in localized_peptides:
-                    numerator += record.intensity
-                elif record.canonical_peptide in stripped_sequences:
-                    denominator_unmodified += record.intensity
-            total = numerator + denominator_unmodified
-            if entry.ambiguous:
-                uncertainty = PtmOccupancyUncertainty.AMBIGUOUS_SITE
-                note = "occupancy remains ambiguous because the PTM site mapping is not unique"
-            elif numerator == 0.0 or denominator_unmodified == 0.0:
-                uncertainty = PtmOccupancyUncertainty.MISSING_COUNTERPART
-                note = "occupancy is missing one counterpart intensity and should be treated cautiously"
-            else:
-                uncertainty = PtmOccupancyUncertainty.NONE
-                note = "modified and unmodified counterparts are both observed for this site"
-            occupancy_entries.append(
-                PtmOccupancyEntry(
-                    site_key=entry.site_key,
-                    sample_id=sample_id,
-                    modified_intensity=numerator,
-                    unmodified_intensity=denominator_unmodified,
-                    occupancy_fraction=(numerator / total) if total > 0 else None,
-                    uncertainty=uncertainty,
-                    note=note,
-                )
-            )
-    return tuple(
-        sorted(occupancy_entries, key=lambda entry: (entry.site_key, entry.sample_id))
+    from bijux_proteomics.ptm.occupancy_estimation import (
+        build_ptm_site_occupancy_report as _build_ptm_site_occupancy_report,
     )
+
+    return _build_ptm_site_occupancy_report(
+        site_entries,
+        feature_records=feature_records,
+    ).entries
 
 
 def build_ptm_enrichment_input(
