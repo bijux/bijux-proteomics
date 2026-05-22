@@ -4801,6 +4801,73 @@ def test_maxquant_biological_report_command_emits_import_lfq_and_report_assets()
         ).read_text(encoding="utf-8")
 
 
+def test_maxquant_benchmark_command_reports_import_lfq_and_differential_fidelity() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        bundle_dir = FIXTURE_ROOT / "workflow" / "maxquant_biological"
+        shutil.copy(bundle_dir / "evidence.txt", "evidence.txt")
+        shutil.copy(bundle_dir / "peptides.txt", "peptides.txt")
+        shutil.copy(bundle_dir / "proteinGroups.txt", "proteinGroups.txt")
+        shutil.copy(bundle_dir / "design.tsv", "design.tsv")
+        shutil.copy(bundle_dir / "maxquant_settings.txt", "maxquant_settings.txt")
+
+        result = runner.invoke(
+            cli,
+            [
+                "maxquant-benchmark",
+                "evidence.txt",
+                "--peptides-txt",
+                "peptides.txt",
+                "--protein-groups-txt",
+                "proteinGroups.txt",
+                "--config",
+                "maxquant_settings.txt",
+                "--design-tsv",
+                "design.tsv",
+                "--condition-a",
+                "control",
+                "--condition-b",
+                "treatment",
+                "--summary-tsv-out",
+                "maxquant.benchmark.summary.tsv",
+                "--protein-identity-tsv-out",
+                "maxquant.benchmark.proteins.tsv",
+                "--filtering-tsv-out",
+                "maxquant.benchmark.filtering.tsv",
+                "--lfq-tsv-out",
+                "maxquant.benchmark.lfq.tsv",
+                "--differential-tsv-out",
+                "maxquant.benchmark.differential.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["protein_identity_matched"] is True
+        assert payload["summary"]["lfq_values_matched"] is True
+        assert payload["summary"]["differential_comparison_applied"] is True
+        assert payload["summary"]["differential_matched"] is True
+        assert payload["filtering_comparison_count"] == 8
+        assert payload["lfq_comparison_count"] == 30
+        assert payload["differential_comparison_count"] == 5
+        assert Path("maxquant.benchmark.summary.tsv").exists()
+        assert Path("maxquant.benchmark.proteins.tsv").exists()
+        assert Path("maxquant.benchmark.filtering.tsv").exists()
+        assert Path("maxquant.benchmark.lfq.tsv").exists()
+        assert Path("maxquant.benchmark.differential.tsv").exists()
+        assert "lfq_values_matched\ttrue" in Path(
+            "maxquant.benchmark.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "CON__KRT1\tfiltered\tfiltered" in Path(
+            "maxquant.benchmark.filtering.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P04637\tT1\t1600\t1600\t0\ttrue" in Path(
+            "maxquant.benchmark.lfq.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
