@@ -4306,6 +4306,69 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         )
 
 
+def test_ptm_ambiguity_review_command_emits_localized_and_group_quant_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+        Path("fragment_support.json").write_text(
+            json.dumps(
+                {
+                    "scan=ptm-001": ["b5", "y7"],
+                    "scan=ptm-005": ["b2"],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "ambiguity-review",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "--features",
+                "ptm_features.tsv",
+                "--fragment-support-json",
+                "fragment_support.json",
+                "--summary-tsv-out",
+                "ptm.ambiguity.summary.tsv",
+                "--localized-tsv-out",
+                "ptm.localized.tsv",
+                "--unlocalized-tsv-out",
+                "ptm.unlocalized.tsv",
+                "--group-quant-summary-tsv-out",
+                "ptm.group_quant.summary.tsv",
+                "--group-quant-matrix-tsv-out",
+                "ptm.group_quant.matrix.tsv",
+                "--group-quant-missingness-tsv-out",
+                "ptm.group_quant.missingness.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["ambiguity_review"]["summary"]["localized_site_count"] == 3
+        assert payload["ambiguity_review"]["summary"]["unlocalized_group_count"] == 2
+        assert payload["site_group_quantification"]["summary"]["group_row_count"] == 2
+        assert Path("ptm.ambiguity.summary.tsv").read_text().splitlines()[0].startswith(
+            "localized_site_count\tunlocalized_group_count"
+        )
+        assert "P11111:S5:Phospho" in Path("ptm.localized.tsv").read_text()
+        assert "P11111:Phospho:17|18|19" in Path("ptm.unlocalized.tsv").read_text()
+        assert "group_key\tprotein_ref" in Path("ptm.group_quant.matrix.tsv").read_text()
+        assert "sample_id\tobserved_count" in Path(
+            "ptm.group_quant.missingness.tsv"
+        ).read_text()
+
+
 def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
