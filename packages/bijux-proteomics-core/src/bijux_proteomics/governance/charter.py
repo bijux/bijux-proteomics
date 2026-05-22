@@ -119,10 +119,11 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
     ),
     CoreDomainFamilyEntry(
         family=CoreScientificDomainFamily.SEQUENCE_AND_CHEMISTRY,
-        owned_surface="Sequence parsing, digestion, peptide chemistry, isotope labeling, and modification semantics for proteomics evidence preparation.",
+        owned_surface="Sequence parsing, digestion, amino-acid mass calculation, peptide chemistry, isotope labeling, and modification semantics for proteomics evidence preparation.",
         required_modules=(
             "sequences/core.py",
             "sequences/digestion.py",
+            "chemistry/amino_acid_mass.py",
             "chemistry/contracts.py",
         ),
         release_blocker="Core cannot ship if sequence and peptide semantics collapse into format glue or tool-specific heuristics.",
