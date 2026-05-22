@@ -18,7 +18,22 @@ from bijux_proteomics.identification.maxquant_import import (
     MaxquantProteinGroupReviewEntry,
     build_maxquant_import_report,
 )
-from bijux_proteomics.quantification import LabelFreeQuantTable
+from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification import (
+    DifferentialAbundanceReport,
+    LabelFreeQuantTable,
+    MissingValueKind,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+    QuantValue,
+    build_differential_abundance_report,
+    normalize_label_free_table,
+)
+from bijux_proteomics.quantification.differential_abundance import (
+    apply_benjamini_hochberg,
+)
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
     MaxquantProteinGroupAcceptanceReason,
@@ -92,6 +107,24 @@ class MaxquantBenchmarkLfqComparisonEntry(JsonModel):
     exact_match: bool
 
 
+class MaxquantBenchmarkDifferentialComparisonEntry(JsonModel):
+    """One differential preservation row between source LFQ and Bijux analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    source_log2_fold_change: float
+    imported_log2_fold_change: float
+    source_p_value: float = Field(..., ge=0.0, le=1.0)
+    imported_p_value: float = Field(..., ge=0.0, le=1.0)
+    source_adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
+    imported_adjusted_p_value: float = Field(..., ge=0.0, le=1.0)
+    absolute_log2_fold_change_difference: float = Field(..., ge=0.0)
+    absolute_p_value_difference: float = Field(..., ge=0.0)
+    absolute_adjusted_p_value_difference: float = Field(..., ge=0.0)
+    exact_match: bool
+
+
 class MaxquantBenchmarkSummary(JsonModel):
     """Compact summary over one MaxQuant fidelity benchmark."""
 
@@ -109,9 +142,17 @@ class MaxquantBenchmarkSummary(JsonModel):
     imported_lfq_value_count: int = Field(..., ge=0)
     exact_lfq_value_match_count: int = Field(..., ge=0)
     max_lfq_absolute_difference: float = Field(..., ge=0.0)
+    source_differential_entry_count: int = Field(..., ge=0)
+    imported_differential_entry_count: int = Field(..., ge=0)
+    exact_differential_match_count: int = Field(..., ge=0)
+    max_differential_log2_fold_change_difference: float = Field(..., ge=0.0)
+    max_differential_p_value_difference: float = Field(..., ge=0.0)
+    max_differential_adjusted_p_value_difference: float = Field(..., ge=0.0)
     protein_identity_matched: bool
     filtering_matched: bool
     lfq_values_matched: bool
+    differential_comparison_applied: bool
+    differential_matched: bool | None = None
 
 
 class MaxquantBenchmarkReport(JsonModel):
@@ -122,12 +163,16 @@ class MaxquantBenchmarkReport(JsonModel):
     import_report: MaxquantImportReport
     acceptance_policy: MaxquantProteinGroupAcceptancePolicy
     lfq_table: LabelFreeQuantTable
+    differential_report: DifferentialAbundanceReport | None = None
     protein_identity_comparison: MaxquantBenchmarkProteinIdentityComparison
     filtering_comparisons: tuple[MaxquantBenchmarkFilteringComparisonEntry, ...] = (
         Field(default_factory=tuple)
     )
     lfq_comparisons: tuple[MaxquantBenchmarkLfqComparisonEntry, ...] = Field(
         default_factory=tuple
+    )
+    differential_comparisons: tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...] = (
+        Field(default_factory=tuple)
     )
     summary: MaxquantBenchmarkSummary
     note: str = Field(..., min_length=1)
@@ -139,6 +184,10 @@ def build_maxquant_benchmark_report(
     peptides_txt_path: Path,
     protein_groups_txt_path: Path,
     config_path: Path | None = None,
+    design_entries: tuple[ExperimentalDesignEntry, ...] | None = None,
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
     acceptance_policy: MaxquantProteinGroupAcceptancePolicy | None = None,
 ) -> MaxquantBenchmarkReport:
     """Compare governed Bijux MaxQuant import behavior against source protein groups."""
@@ -176,13 +225,81 @@ def build_maxquant_benchmark_report(
         source_rows=source_accepted,
         lfq_table=lfq_table,
     )
+    differential_report: DifferentialAbundanceReport | None = None
+    differential_comparisons: tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...] = ()
+    source_differential_entry_count = 0
+    imported_differential_entry_count = 0
+    exact_differential_match_count = 0
+    max_differential_log2_fold_change_difference = 0.0
+    max_differential_p_value_difference = 0.0
+    max_differential_adjusted_p_value_difference = 0.0
+    differential_comparison_applied = design_entries is not None
+    differential_matched: bool | None = None
+    if design_entries is not None:
+        source_lfq_table = _build_source_lfq_table(source_accepted)
+        normalized_source_table = normalize_label_free_table(
+            source_lfq_table,
+            method=normalization_method,
+        )
+        normalized_imported_table = normalize_label_free_table(
+            lfq_table,
+            method=normalization_method,
+        )
+        source_differential_report = apply_benjamini_hochberg(
+            build_differential_abundance_report(
+                normalized_source_table,
+                design_entries,
+                condition_a=condition_a,
+                condition_b=condition_b,
+            )
+        )
+        differential_report = apply_benjamini_hochberg(
+            build_differential_abundance_report(
+                normalized_imported_table,
+                design_entries,
+                condition_a=condition_a,
+                condition_b=condition_b,
+            )
+        )
+        differential_comparisons = _build_differential_comparisons(
+            source_report=source_differential_report,
+            imported_report=differential_report,
+        )
+        source_differential_entry_count = len(source_differential_report.entries)
+        imported_differential_entry_count = len(differential_report.entries)
+        exact_differential_match_count = sum(
+            1 for entry in differential_comparisons if entry.exact_match
+        )
+        max_differential_log2_fold_change_difference = max(
+            (
+                entry.absolute_log2_fold_change_difference
+                for entry in differential_comparisons
+            ),
+            default=0.0,
+        )
+        max_differential_p_value_difference = max(
+            (entry.absolute_p_value_difference for entry in differential_comparisons),
+            default=0.0,
+        )
+        max_differential_adjusted_p_value_difference = max(
+            (
+                entry.absolute_adjusted_p_value_difference
+                for entry in differential_comparisons
+            ),
+            default=0.0,
+        )
+        differential_matched = all(
+            entry.exact_match for entry in differential_comparisons
+        )
     return MaxquantBenchmarkReport(
         import_report=import_report,
         acceptance_policy=active_policy,
         lfq_table=lfq_table,
+        differential_report=differential_report,
         protein_identity_comparison=protein_identity_comparison,
         filtering_comparisons=filtering_comparisons,
         lfq_comparisons=lfq_comparisons,
+        differential_comparisons=differential_comparisons,
         summary=MaxquantBenchmarkSummary(
             source_protein_group_count=len(source_rows),
             imported_protein_group_count=import_report.summary.protein_group_row_count,
@@ -201,14 +318,26 @@ def build_maxquant_benchmark_report(
                 (entry.absolute_difference for entry in lfq_comparisons),
                 default=0.0,
             ),
+            source_differential_entry_count=source_differential_entry_count,
+            imported_differential_entry_count=imported_differential_entry_count,
+            exact_differential_match_count=exact_differential_match_count,
+            max_differential_log2_fold_change_difference=(
+                max_differential_log2_fold_change_difference
+            ),
+            max_differential_p_value_difference=max_differential_p_value_difference,
+            max_differential_adjusted_p_value_difference=(
+                max_differential_adjusted_p_value_difference
+            ),
             protein_identity_matched=protein_identity_comparison.matched,
             filtering_matched=all(
                 entry.matched for entry in filtering_comparisons
             ),
             lfq_values_matched=all(entry.exact_match for entry in lfq_comparisons),
+            differential_comparison_applied=differential_comparison_applied,
+            differential_matched=differential_matched,
         ),
         note=(
-            "MaxQuant benchmark compares source protein-group acceptance, LFQ intensity preservation, and filtering behavior against the governed Bijux import and quantification bridge"
+            "MaxQuant benchmark compares source protein-group acceptance, LFQ intensity preservation, filtering behavior, and differential output against the governed Bijux import and quantification bridge"
         ),
     )
 
@@ -251,11 +380,45 @@ def render_maxquant_benchmark_summary_tsv(report: MaxquantBenchmarkReport) -> st
             f"{report.summary.max_lfq_absolute_difference:g}",
         ),
         (
+            "source_differential_entry_count",
+            report.summary.source_differential_entry_count,
+        ),
+        (
+            "imported_differential_entry_count",
+            report.summary.imported_differential_entry_count,
+        ),
+        (
+            "exact_differential_match_count",
+            report.summary.exact_differential_match_count,
+        ),
+        (
+            "max_differential_log2_fold_change_difference",
+            f"{report.summary.max_differential_log2_fold_change_difference:g}",
+        ),
+        (
+            "max_differential_p_value_difference",
+            f"{report.summary.max_differential_p_value_difference:g}",
+        ),
+        (
+            "max_differential_adjusted_p_value_difference",
+            f"{report.summary.max_differential_adjusted_p_value_difference:g}",
+        ),
+        (
             "protein_identity_matched",
             str(report.summary.protein_identity_matched).lower(),
         ),
         ("filtering_matched", str(report.summary.filtering_matched).lower()),
         ("lfq_values_matched", str(report.summary.lfq_values_matched).lower()),
+        (
+            "differential_comparison_applied",
+            str(report.summary.differential_comparison_applied).lower(),
+        ),
+        (
+            "differential_matched",
+            ""
+            if report.summary.differential_matched is None
+            else str(report.summary.differential_matched).lower(),
+        ),
         ("note", report.note),
     ):
         writer.writerow((field_name, value))
@@ -349,6 +512,47 @@ def render_maxquant_lfq_comparison_tsv(report: MaxquantBenchmarkReport) -> str:
                     else f"{entry.imported_intensity:g}"
                 ),
                 f"{entry.absolute_difference:g}",
+                str(entry.exact_match).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_maxquant_differential_comparison_tsv(
+    report: MaxquantBenchmarkReport,
+) -> str:
+    """Render one MaxQuant differential comparison ledger as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "entity_id",
+            "source_log2_fold_change",
+            "imported_log2_fold_change",
+            "source_p_value",
+            "imported_p_value",
+            "source_adjusted_p_value",
+            "imported_adjusted_p_value",
+            "absolute_log2_fold_change_difference",
+            "absolute_p_value_difference",
+            "absolute_adjusted_p_value_difference",
+            "exact_match",
+        )
+    )
+    for entry in report.differential_comparisons:
+        writer.writerow(
+            (
+                entry.entity_id,
+                f"{entry.source_log2_fold_change:g}",
+                f"{entry.imported_log2_fold_change:g}",
+                f"{entry.source_p_value:g}",
+                f"{entry.imported_p_value:g}",
+                f"{entry.source_adjusted_p_value:g}",
+                f"{entry.imported_adjusted_p_value:g}",
+                f"{entry.absolute_log2_fold_change_difference:g}",
+                f"{entry.absolute_p_value_difference:g}",
+                f"{entry.absolute_adjusted_p_value_difference:g}",
                 str(entry.exact_match).lower(),
             )
         )
@@ -535,6 +739,91 @@ def _build_lfq_comparisons(
                 imported_intensity=imported_intensity,
                 absolute_difference=absolute_difference,
                 exact_match=source_intensity == imported_intensity,
+            )
+        )
+    return tuple(comparisons)
+
+
+def _build_source_lfq_table(
+    rows: tuple[MaxquantBenchmarkSourceProteinGroup, ...],
+) -> LabelFreeQuantTable:
+    if not rows:
+        raise ValueError(
+            "maxquant benchmark source differential comparison requires accepted protein groups"
+        )
+    sample_ids = tuple(entry.experiment_name for entry in rows[0].lfq_intensities)
+    values: list[QuantValue] = []
+    entity_protein_refs: dict[str, tuple[str, ...]] = {}
+    entity_member_peptides: dict[str, tuple[str, ...]] = {}
+    for row in rows:
+        entity_protein_refs[row.entity_id] = row.protein_ids
+        entity_member_peptides[row.entity_id] = ()
+        for intensity in row.lfq_intensities:
+            abundance = intensity.intensity if intensity.intensity > 0.0 else None
+            values.append(
+                QuantValue(
+                    sample_id=intensity.experiment_name,
+                    entity_id=row.entity_id,
+                    abundance=abundance,
+                    missing_value_kind=(
+                        MissingValueKind.OBSERVED
+                        if abundance is not None
+                        else MissingValueKind.NOT_DETECTED
+                    ),
+                    source_feature_count=row.observed_lfq_experiment_count,
+                )
+            )
+    return LabelFreeQuantTable(
+        entity_level=QuantEntityLevel.PROTEIN,
+        measure_kind=QuantMeasureKind.INTENSITY,
+        aggregation_method=QuantRollupMethod.SUM,
+        sample_ids=sample_ids,
+        entity_ids=tuple(row.entity_id for row in rows),
+        values=tuple(values),
+        entity_protein_refs=entity_protein_refs,
+        entity_member_peptides=entity_member_peptides,
+    )
+
+
+def _build_differential_comparisons(
+    *,
+    source_report: DifferentialAbundanceReport,
+    imported_report: DifferentialAbundanceReport,
+) -> tuple[MaxquantBenchmarkDifferentialComparisonEntry, ...]:
+    source_by_entity = {
+        entry.entity_id: entry for entry in source_report.entries
+    }
+    imported_by_entity = {
+        entry.entity_id: entry for entry in imported_report.entries
+    }
+    comparisons: list[MaxquantBenchmarkDifferentialComparisonEntry] = []
+    for entity_id in sorted(source_by_entity):
+        source_entry = source_by_entity[entity_id]
+        imported_entry = imported_by_entity[entity_id]
+        log2_difference = abs(
+            source_entry.log2_fold_change - imported_entry.log2_fold_change
+        )
+        p_value_difference = abs(source_entry.p_value - imported_entry.p_value)
+        adjusted_difference = abs(
+            source_entry.adjusted_p_value - imported_entry.adjusted_p_value
+        )
+        comparisons.append(
+            MaxquantBenchmarkDifferentialComparisonEntry(
+                entity_id=entity_id,
+                source_log2_fold_change=source_entry.log2_fold_change,
+                imported_log2_fold_change=imported_entry.log2_fold_change,
+                source_p_value=source_entry.p_value,
+                imported_p_value=imported_entry.p_value,
+                source_adjusted_p_value=source_entry.adjusted_p_value,
+                imported_adjusted_p_value=imported_entry.adjusted_p_value,
+                absolute_log2_fold_change_difference=log2_difference,
+                absolute_p_value_difference=p_value_difference,
+                absolute_adjusted_p_value_difference=adjusted_difference,
+                exact_match=(
+                    log2_difference == 0.0
+                    and p_value_difference == 0.0
+                    and adjusted_difference == 0.0
+                ),
             )
         )
     return tuple(comparisons)
