@@ -1,0 +1,37 @@
+[
+  {
+    "case_id": "peptide_z2",
+    "sequence": "PEPTIDE",
+    "assignments": [],
+    "charge": 2,
+    "expected_formula": "C34H53N7O15",
+    "expected_monoisotopic_mz": 400.687258483187,
+    "expected_probabilities": [
+      0.6478448828103157,
+      0.26263598809587524,
+      0.07188579590866546,
+      0.014756258815525789,
+      0.002510178493547181,
+      0.00036689587607057937
+    ]
+  },
+  {
+    "case_id": "phospho_acetyl_z3",
+    "sequence": "PESTIDE",
+    "assignments": [
+      "Phospho@3",
+      "Acetyl@n-term"
+    ],
+    "charge": 3,
+    "expected_formula": "C34H54N7O20P1",
+    "expected_monoisotopic_mz": 304.7793178538953,
+    "expected_probabilities": [
+      0.6399599317272325,
+      0.260731922530816,
+      0.07811148181170059,
+      0.017397017335741536,
+      0.003270220587991479,
+      0.0005294260065177444
+    ]
+  }
+]
