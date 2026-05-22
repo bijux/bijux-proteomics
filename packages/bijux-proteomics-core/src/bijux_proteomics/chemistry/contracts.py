@@ -9,7 +9,6 @@ from collections.abc import Iterable
 from enum import StrEnum
 import importlib
 import json
-from math import exp, factorial
 from pathlib import Path
 import re
 
@@ -42,6 +41,7 @@ _CARBON_MONOXIDE_AVERAGE_MASS = _CARBON_AVERAGE_MASS + _OXYGEN_AVERAGE_MASS
 _C13_NEUTRON_SHIFT = 1.0033548378
 _RESIDUE_TOKEN_RE = re.compile(r"^[A-Z]+$")
 _DELTA_TOKEN_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$")
+_SUPPORTED_ELEMENT_SYMBOLS = ("C", "H", "N", "O", "S", "P")
 
 
 class MassType(StrEnum):
@@ -87,6 +87,7 @@ class _BaseModification(JsonModel):
     position: ModificationPosition = ModificationPosition.ANYWHERE
     mass_delta_monoisotopic: float
     mass_delta_average: float
+    elemental_composition_delta: dict[str, int] = Field(default_factory=dict)
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     controlled_id: str | None = None
     isotopic_label_family: str | None = None
@@ -118,6 +119,35 @@ class _BaseModification(JsonModel):
             return None
         normalized = value.strip().lower()
         return normalized or None
+
+    @field_validator("elemental_composition_delta", mode="before")
+    @classmethod
+    def _normalize_elemental_composition_delta(
+        cls,
+        value: object,
+    ) -> dict[str, int]:
+        if value in (None, ""):
+            return {}
+        if not isinstance(value, dict):
+            raise ValueError("elemental composition delta must be a mapping")
+        normalized: dict[str, int] = {}
+        for symbol, count in value.items():
+            token = str(symbol).strip()
+            if token not in _SUPPORTED_ELEMENT_SYMBOLS:
+                allowed = ", ".join(_SUPPORTED_ELEMENT_SYMBOLS)
+                raise ValueError(
+                    f"invalid elemental composition symbol {symbol!r}; expected one of {allowed}"
+                )
+            if isinstance(count, bool):
+                raise ValueError("elemental composition counts must be integers")
+            normalized_count = int(count)
+            if normalized_count:
+                normalized[token] = normalized_count
+        return {
+            symbol: normalized[symbol]
+            for symbol in _SUPPORTED_ELEMENT_SYMBOLS
+            if symbol in normalized
+        }
 
     @model_validator(mode="after")
     def _validate_site_specificity(self) -> _BaseModification:
@@ -347,6 +377,7 @@ class PeptideChargeState(JsonModel):
 class IsotopeEnvelopeStatus(StrEnum):
     """Support level for isotope-envelope output."""
 
+    PREDICTED = "predicted"
     ADVISORY = "advisory"
 
 
@@ -365,7 +396,7 @@ class PeptideIsotopeEnvelope(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    status: IsotopeEnvelopeStatus = IsotopeEnvelopeStatus.ADVISORY
+    status: IsotopeEnvelopeStatus = IsotopeEnvelopeStatus.PREDICTED
     canonical_notation: str = Field(..., min_length=1)
     charge: int = Field(..., ge=1)
     estimated_carbon_count: float = Field(..., ge=0.0)
@@ -950,38 +981,36 @@ def approximate_peptide_isotope_envelope(
     peptide: str | ParsedModifiedPeptide,
     *,
     charge: int,
-    peak_count: int = 4,
+    peak_count: int = 6,
     registry: ModificationRegistryDocument | None = None,
 ) -> PeptideIsotopeEnvelope:
-    """Approximate a precursor isotope envelope using an averagine-style advisory model."""
+    """Compatibility wrapper over the elemental-composition isotope owner."""
     if peak_count < 1:
         raise ValueError("peak_count must be at least 1")
-    charge_state = build_peptide_charge_state(
+    from bijux_proteomics.chemistry.isotope_envelope import (
+        predict_peptide_isotope_envelope,
+    )
+
+    prediction = predict_peptide_isotope_envelope(
         peptide,
         charge=charge,
-        mass_type=MassType.MONOISOTOPIC,
+        max_isotope_index=peak_count - 1,
         registry=registry,
     )
-    estimated_carbon_count = max((charge_state.neutral_mass / 111.1254) * 4.9384, 0.0)
-    lambda_13c = estimated_carbon_count * 0.0107
-    raw_intensities = tuple(
-        exp(-lambda_13c) * (lambda_13c**index) / factorial(index)
-        for index in range(peak_count)
-    )
-    total_intensity = sum(raw_intensities) or 1.0
     peaks = tuple(
         IsotopePeak(
-            isotope_index=index,
-            intensity=intensity / total_intensity,
-            mz=charge_state.mz + ((_C13_NEUTRON_SHIFT * index) / charge),
+            isotope_index=peak.isotope_index,
+            intensity=peak.probability,
+            mz=peak.mz,
         )
-        for index, intensity in enumerate(raw_intensities)
+        for peak in prediction.peaks
     )
     return PeptideIsotopeEnvelope(
-        canonical_notation=charge_state.canonical_notation,
+        status=IsotopeEnvelopeStatus.PREDICTED,
+        canonical_notation=prediction.canonical_notation,
         charge=charge,
-        estimated_carbon_count=estimated_carbon_count,
-        monoisotopic_mz=charge_state.mz,
+        estimated_carbon_count=float(prediction.composition.carbon),
+        monoisotopic_mz=prediction.monoisotopic_mz,
         peaks=peaks,
     )
 

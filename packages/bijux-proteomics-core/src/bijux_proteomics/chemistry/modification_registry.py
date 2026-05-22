@@ -77,6 +77,7 @@ class ModificationRegistryResolutionReport(JsonModel):
     residues: tuple[str, ...] = Field(default_factory=tuple)
     mass_delta_monoisotopic: float | None = None
     mass_delta_average: float | None = None
+    elemental_composition_delta: dict[str, int] = Field(default_factory=dict)
     neutral_losses: tuple[NeutralLoss, ...] = Field(default_factory=tuple)
     isotopic_label_family: str | None = None
     residue_allowed: bool | None = None
@@ -351,6 +352,7 @@ def resolve_modification(
         residues=definition.residues,
         mass_delta_monoisotopic=definition.mass_delta_monoisotopic,
         mass_delta_average=definition.mass_delta_average,
+        elemental_composition_delta=definition.elemental_composition_delta,
         neutral_losses=definition.neutral_losses,
         isotopic_label_family=definition.isotopic_label_family,
         residue_allowed=_residue_allowed(definition, normalized_residue),
@@ -739,6 +741,7 @@ def _definition_from_report(
         "position": report.position,
         "mass_delta_monoisotopic": report.mass_delta_monoisotopic,
         "mass_delta_average": report.mass_delta_average,
+        "elemental_composition_delta": report.elemental_composition_delta,
         "neutral_losses": report.neutral_losses,
         "controlled_id": report.controlled_id,
         "isotopic_label_family": report.isotopic_label_family,
@@ -764,6 +767,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.ANYWHERE,
                 mass_delta_monoisotopic=57.021464,
                 mass_delta_average=57.05132,
+                elemental_composition_delta={"C": 2, "H": 3, "N": 1, "O": 1},
                 controlled_id="UNIMOD:4",
             ),
         ),
@@ -774,6 +778,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.ANYWHERE,
                 mass_delta_monoisotopic=15.994915,
                 mass_delta_average=15.9994,
+                elemental_composition_delta={"O": 1},
                 controlled_id="UNIMOD:35",
             ),
             VariableModification(
@@ -782,6 +787,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.ANYWHERE,
                 mass_delta_monoisotopic=79.966331,
                 mass_delta_average=79.9799,
+                elemental_composition_delta={"H": 1, "O": 3, "P": 1},
                 neutral_losses=(
                     NeutralLoss(
                         name="phosphoric_acid",
@@ -796,6 +802,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.PEPTIDE_N_TERM,
                 mass_delta_monoisotopic=42.010565,
                 mass_delta_average=42.0367,
+                elemental_composition_delta={"C": 2, "H": 2, "O": 1},
                 controlled_id="UNIMOD:1",
             ),
             VariableModification(
@@ -804,6 +811,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.ANYWHERE,
                 mass_delta_monoisotopic=42.010565,
                 mass_delta_average=42.0367,
+                elemental_composition_delta={"C": 2, "H": 2, "O": 1},
                 controlled_id="BIJUX:ACETYL_LYS",
             ),
             VariableModification(
@@ -812,6 +820,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.ANYWHERE,
                 mass_delta_monoisotopic=0.984016,
                 mass_delta_average=0.9848,
+                elemental_composition_delta={"H": -1, "N": -1, "O": 1},
                 controlled_id="UNIMOD:7",
             ),
             VariableModification(
@@ -819,6 +828,7 @@ def _build_builtin_registry() -> ModificationRegistryDocument:
                 position=ModificationPosition.PEPTIDE_C_TERM,
                 mass_delta_monoisotopic=-0.984016,
                 mass_delta_average=-0.9848,
+                elemental_composition_delta={"H": 1, "N": 1, "O": -1},
                 controlled_id="UNIMOD:2",
             ),
             VariableModification(
