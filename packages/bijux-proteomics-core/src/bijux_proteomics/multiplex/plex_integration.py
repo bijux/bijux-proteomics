@@ -75,6 +75,21 @@ class TmtPlexSampleAlignmentEntry(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class TmtPlexEffectEntry(JsonModel):
+    """One plex-effect review row over the governed bridge/reference channel."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    bridge_sample_id: str = Field(..., min_length=1)
+    bridge_channel: str = Field(..., min_length=1)
+    bridge_total_intensity: float = Field(..., ge=0.0)
+    ratio_to_global_bridge_median: float = Field(..., ge=0.0)
+    effect_ratio: float = Field(..., ge=1.0)
+    flagged: bool
+    note: str = Field(..., min_length=1)
+
+
 class TmtPlexIntegrationReport(JsonModel):
     """Owned TMT plex-integration report over bridge-normalized protein values."""
 
@@ -83,6 +98,7 @@ class TmtPlexIntegrationReport(JsonModel):
     policy: TmtPlexIntegrationPolicy
     normalization_report: TmtNormalizationReport
     sample_alignment: tuple[TmtPlexSampleAlignmentEntry, ...] = Field(default_factory=tuple)
+    plex_effects: tuple[TmtPlexEffectEntry, ...] = Field(default_factory=tuple)
     integrated_protein_matrix: ProteinIntensityMatrixReport
     summary: TmtPlexIntegrationSummary
     note: str = Field(..., min_length=1)
@@ -126,6 +142,10 @@ def build_tmt_plex_integration_report(
         included_sample_ids=included_sample_ids,
         normalization_report=normalization_report,
     )
+    plex_effects = _build_plex_effect_entries(
+        normalization_report=normalization_report,
+        threshold=active_policy.plex_effect_ratio_threshold,
+    )
     missing_bridge_value_count = sum(
         1
         for row in integrated_protein_matrix.rows
@@ -143,6 +163,7 @@ def build_tmt_plex_integration_report(
         policy=active_policy,
         normalization_report=normalization_report,
         sample_alignment=sample_alignment,
+        plex_effects=plex_effects,
         integrated_protein_matrix=integrated_protein_matrix,
         summary=TmtPlexIntegrationSummary(
             multiplex_group_count=len(
@@ -156,7 +177,7 @@ def build_tmt_plex_integration_report(
             integrated_sample_count=len(integrated_protein_matrix.sample_ids),
             protein_row_count=integrated_protein_matrix.summary.protein_row_count,
             missing_bridge_value_count=missing_bridge_value_count,
-            flagged_plex_effect_count=0,
+            flagged_plex_effect_count=sum(1 for entry in plex_effects if entry.flagged),
         ),
         note=(
             "tmt plex integration expresses protein abundances as bridge-normalized sample values across multiplex groups"
@@ -215,6 +236,74 @@ def _build_sample_alignment_entries(
             )
         )
     return tuple(rows)
+
+
+def _build_plex_effect_entries(
+    *,
+    normalization_report: TmtNormalizationReport,
+    threshold: float,
+) -> tuple[TmtPlexEffectEntry, ...]:
+    bridge_totals_by_group: dict[str, tuple[str, str, float]] = {}
+    before_totals = {
+        (entry.multiplex_group, entry.sample_id): entry
+        for entry in normalization_report.before_report.channel_totals
+        if entry.sample_id is not None
+    }
+    for transform in normalization_report.transforms:
+        if transform.reference_sample_id is None or transform.reference_channel is None:
+            continue
+        if transform.multiplex_group in bridge_totals_by_group:
+            continue
+        total_entry = before_totals.get(
+            (transform.multiplex_group, transform.reference_sample_id)
+        )
+        if total_entry is None:
+            continue
+        bridge_totals_by_group[transform.multiplex_group] = (
+            transform.reference_sample_id,
+            transform.reference_channel,
+            total_entry.total_intensity,
+        )
+    if not bridge_totals_by_group:
+        return ()
+    ordered_totals = tuple(
+        (multiplex_group, *bridge_totals_by_group[multiplex_group])
+        for multiplex_group in sorted(bridge_totals_by_group)
+    )
+    sorted_values = sorted(total for _, _, _, total in ordered_totals)
+    midpoint = len(sorted_values) // 2
+    if len(sorted_values) % 2 == 1:
+        global_median = sorted_values[midpoint]
+    else:
+        global_median = (sorted_values[midpoint - 1] + sorted_values[midpoint]) / 2.0
+    entries: list[TmtPlexEffectEntry] = []
+    for multiplex_group, bridge_sample_id, bridge_channel, bridge_total in ordered_totals:
+        ratio_to_global_median = (
+            bridge_total / global_median if global_median > 0.0 else 0.0
+        )
+        effect_ratio = (
+            max(ratio_to_global_median, global_median / bridge_total)
+            if bridge_total > 0.0 and global_median > 0.0
+            else 1.0
+        )
+        flagged = effect_ratio > threshold
+        entries.append(
+            TmtPlexEffectEntry(
+                multiplex_group=multiplex_group,
+                bridge_sample_id=bridge_sample_id,
+                bridge_channel=bridge_channel,
+                bridge_total_intensity=bridge_total,
+                ratio_to_global_bridge_median=ratio_to_global_median,
+                effect_ratio=effect_ratio,
+                flagged=flagged,
+                note=(
+                    "bridge/reference channel intensity is materially shifted relative to the cross-plex median"
+                    if flagged
+                    else "bridge/reference channel intensity stays close to the cross-plex median"
+                ),
+            )
+        )
+    return tuple(entries)
 
 
 def _filter_protein_matrix_samples(
