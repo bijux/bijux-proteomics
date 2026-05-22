@@ -150,6 +150,7 @@ from bijux_proteomics.identification import (
     render_protein_inference_benchmark_summary_tsv,
     render_psm_evidence_inspection_summary_tsv,
     render_psm_inspection_distribution_tsv,
+    render_sage_canonical_psm_tsv,
     render_sage_psm_tsv,
     render_sage_summary_tsv,
     render_spectronaut_precursor_tsv,
@@ -2048,6 +2049,10 @@ def fragpipe_benchmark_command(
     default=None,
 )
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--canonical-psm-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
 @click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
@@ -2059,6 +2064,7 @@ def sage_import_command(
     result_tsv: Path,
     config_path: Path | None,
     summary_tsv_out: Path | None,
+    canonical_psm_tsv_out: Path | None,
     psm_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
@@ -2070,6 +2076,11 @@ def sage_import_command(
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_sage_summary_tsv(report.summary))
+    if canonical_psm_tsv_out is not None:
+        _write_text_output(
+            canonical_psm_tsv_out,
+            render_sage_canonical_psm_tsv(report.canonical_psms),
+        )
     if psm_tsv_out is not None:
         _write_text_output(psm_tsv_out, render_sage_psm_tsv(report.psm_rows))
 
@@ -2084,9 +2095,13 @@ def sage_import_command(
         "parameter_report": None
         if report.parameter_report is None
         else report.parameter_report.to_dict(),
+        "canonical_psms": [row.to_dict() for row in report.canonical_psms],
         "psm_rows": [row.to_dict() for row in report.psm_rows],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "canonical_psm_tsv": None
+            if canonical_psm_tsv_out is None
+            else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
         },
     }
