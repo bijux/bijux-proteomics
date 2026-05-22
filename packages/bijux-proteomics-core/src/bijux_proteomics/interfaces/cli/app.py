@@ -600,6 +600,7 @@ from bijux_proteomics.workflow import (
     BiologicalResultSelectionPolicy,
     DiaDifferentialSourceKind,
     build_biological_result_report_bundle,
+    build_dda_biological_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
@@ -609,7 +610,9 @@ from bijux_proteomics.workflow import (
     build_tmt_label_based_report_bundle,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
+    DdaPsmAcceptancePolicy,
     export_biological_result_report_bundle,
+    export_dda_biological_workflow_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
@@ -6967,6 +6970,220 @@ def biological_report_command(
         raise click.ClickException(str(exc)) from exc
 
     manifest_path = output_dir / "biological_report_manifest.json"
+    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+
+    _emit_json(
+        {
+            "design_rows": len(design_report.accepted_entries),
+            "report": report.to_dict(),
+            "export_manifest": manifest.to_dict(),
+            "outputs": {
+                "output_dir": str(output_dir),
+                "manifest_json": str(manifest_path),
+            },
+        },
+        out_path=out_path,
+    )
+
+
+@cli.command("dda-biological-report")
+@click.argument(
+    "search_result_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "proteins_fasta", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--adapter-kind",
+    type=click.Choice(
+        (
+            SearchAdapterKind.COMET.value,
+            SearchAdapterKind.MSFRAGGER.value,
+            SearchAdapterKind.SAGE.value,
+            SearchAdapterKind.MAXQUANT_EVIDENCE.value,
+            SearchAdapterKind.GENERIC.value,
+        )
+    ),
+    default=SearchAdapterKind.GENERIC.value,
+    show_default=True,
+)
+@click.option("--dialect-id", default="default", show_default=True)
+@click.option(
+    "--mapping-path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--go-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--pathway-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--complex-membership-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--psm-q-value-threshold",
+    type=float,
+    default=0.01,
+    show_default=True,
+)
+@click.option(
+    "--parsimony-variant",
+    type=click.Choice([variant.value for variant in ParsimonyVariant]),
+    default=ParsimonyVariant.GREEDY_COVERAGE.value,
+    show_default=True,
+)
+@click.option(
+    "--aggregation",
+    type=_quant_rollup_choice(),
+    default=QuantRollupMethod.SUM.value,
+    show_default=True,
+)
+@click.option("--top-n", type=int, default=3, show_default=True)
+@click.option(
+    "--minimum-shared-peptides",
+    type=int,
+    default=1,
+    show_default=True,
+)
+@click.option(
+    "--normalization",
+    type=_normalization_choice(),
+    default=NormalizationMethod.MEDIAN.value,
+    show_default=True,
+)
+@click.option("--condition-a", default=None)
+@click.option("--condition-b", default=None)
+@click.option(
+    "--max-adjusted-p-value",
+    type=float,
+    default=0.1,
+    show_default=True,
+)
+@click.option(
+    "--min-absolute-log2-fold-change",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-max-entities",
+    type=int,
+    default=50,
+    show_default=True,
+)
+@click.option(
+    "--heatmap-min-observed-fraction",
+    type=float,
+    default=0.5,
+    show_default=True,
+)
+@click.option(
+    "--volcano-top-label-count",
+    type=int,
+    default=10,
+    show_default=True,
+)
+@click.option(
+    "--output-dir",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("dda_biological_report"),
+    show_default=True,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def dda_biological_report_command(
+    search_result_tsv: Path,
+    design_tsv: Path,
+    proteins_fasta: Path,
+    adapter_kind: str,
+    dialect_id: str,
+    mapping_path: Path | None,
+    annotation_tsv: Path | None,
+    go_annotation_tsv: Path | None,
+    pathway_membership_tsv: Path | None,
+    complex_membership_tsv: Path | None,
+    psm_q_value_threshold: float,
+    parsimony_variant: str,
+    aggregation: str,
+    top_n: int,
+    minimum_shared_peptides: int,
+    normalization: str,
+    condition_a: str | None,
+    condition_b: str | None,
+    max_adjusted_p_value: float,
+    min_absolute_log2_fold_change: float,
+    heatmap_max_entities: int,
+    heatmap_min_observed_fraction: float,
+    volcano_top_label_count: int,
+    output_dir: Path,
+    out_path: Path | None,
+) -> None:
+    """Build one DDA search-result-to-biology report bundle."""
+
+    try:
+        design_report = parse_experimental_design_table(design_tsv)
+        if design_report.rejected_rows:
+            raise click.ClickException("design table contains rejected rows")
+        report = build_dda_biological_workflow_bundle(
+            search_result_tsv,
+            tuple(design_report.accepted_entries),
+            proteins_fasta_path=proteins_fasta,
+            adapter_kind=SearchAdapterKind(adapter_kind),
+            generic_mapping_path=mapping_path,
+            dialect_id=dialect_id,
+            acceptance_policy=DdaPsmAcceptancePolicy(
+                max_q_value=psm_q_value_threshold
+            ),
+            parsimony_variant=ParsimonyVariant(parsimony_variant),
+            aggregation_method=QuantRollupMethod(aggregation),
+            top_n=top_n,
+            minimum_shared_peptides=minimum_shared_peptides,
+            normalization_method=NormalizationMethod(normalization),
+            condition_a=condition_a,
+            condition_b=condition_b,
+            annotation_tsv_path=annotation_tsv,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            selection_policy=BiologicalResultSelectionPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+                heatmap_max_entity_count=heatmap_max_entities,
+                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+            ),
+            volcano_policy=_build_volcano_review_policy(
+                adjusted_p_value_threshold=max_adjusted_p_value,
+                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                top_label_count=volcano_top_label_count,
+            ),
+        )
+        manifest = export_dda_biological_workflow_bundle(report, output_dir)
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    manifest_path = output_dir / "dda_biological_report_manifest.json"
     manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
 
     _emit_json(
