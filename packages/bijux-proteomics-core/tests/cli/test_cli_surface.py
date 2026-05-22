@@ -180,6 +180,75 @@ def test_go_enrichment_command_emits_term_and_unannotated_ledgers() -> None:
         )
 
 
+def test_pathway_enrichment_command_emits_pathway_and_unresolved_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "pathway_foreground.tsv",
+            "pathway_foreground.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "pathway_background.tsv",
+            "pathway_background.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "pathway_memberships.tsv",
+            "pathway_memberships.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_reference.fasta",
+            "protein_annotation_reference.fasta",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "pathway-enrichment",
+                "pathway_foreground.tsv",
+                "pathway_background.tsv",
+                "pathway_memberships.tsv",
+                "--fasta",
+                "protein_annotation_reference.fasta",
+                "--annotation-tsv",
+                "protein_annotation_custom.tsv",
+                "--summary-tsv-out",
+                "pathway_enrichment.summary.tsv",
+                "--pathway-tsv-out",
+                "pathway_enrichment.pathway.tsv",
+                "--unresolved-tsv-out",
+                "pathway_enrichment.unresolved.tsv",
+                "--rejected-pathway-tsv-out",
+                "pathway_enrichment.rejected.tsv",
+                "--max-adjusted-p-value",
+                "1.0",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["foreground_size"] == 3
+        assert payload["report"]["summary"]["background_size"] == 6
+        assert payload["report"]["summary"]["evaluated_entry_count"] == 5
+        assert Path("pathway_enrichment.summary.tsv").read_text().splitlines()[
+            0
+        ].startswith("foreground_size\tbackground_size")
+        assert "hsa04115" in Path("pathway_enrichment.pathway.tsv").read_text()
+        assert (
+            "background\tQ88888\t"
+            in Path("pathway_enrichment.unresolved.tsv").read_text()
+        )
+        assert (
+            "duplicate pathway membership for custom:stress and gene member TP53"
+            in Path("pathway_enrichment.rejected.tsv").read_text()
+        )
+
+
 def test_fasta_commands_cover_parse_stats_dedup_filter_provenance_and_decoy(
     fasta_fixture_dir: Path,
 ) -> None:
