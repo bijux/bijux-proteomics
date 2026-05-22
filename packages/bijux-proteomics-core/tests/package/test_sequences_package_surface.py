@@ -101,3 +101,19 @@ def test_sequences_package_exports_fasta_invalid_sequence_profile_surface() -> N
         "custom_empty",
         "custom_invalid",
     ]
+
+
+def test_sequences_package_exports_peptide_detectability_owner_surface() -> None:
+    report = sequences.build_peptide_detectability_report(
+        "AKTIDEK",
+        charge=2,
+        protease="trypsin",
+        uniqueness_class=sequences.PeptideUniquenessClass.UNIQUE,
+        observed_psm_count=5,
+    )
+    rendered = sequences.render_peptide_detectability_tsv(report)
+
+    assert hasattr(sequences, "build_peptide_detectability_report")
+    assert hasattr(sequences, "render_peptide_detectability_tsv")
+    assert report.detectability_tier is sequences.PeptideDetectabilityTier.HIGH
+    assert "detectability_score" in rendered
