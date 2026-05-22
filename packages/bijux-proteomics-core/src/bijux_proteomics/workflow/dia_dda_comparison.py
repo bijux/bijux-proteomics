@@ -5,7 +5,9 @@
 
 from __future__ import annotations
 
+import csv
 from enum import StrEnum
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -528,3 +530,179 @@ def _pearson_correlation(
         return None
     raw_correlation = numerator / (left_scale * right_scale)
     return max(-1.0, min(1.0, raw_correlation))
+
+
+def render_dia_dda_comparison_summary_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render the compact DIA-vs-DDA comparison summary as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "dia_source_name",
+            "dda_source_name",
+            "dia_protein_count",
+            "dda_protein_count",
+            "shared_protein_count",
+            "dia_only_protein_count",
+            "dda_only_protein_count",
+            "dia_peptide_count",
+            "dda_peptide_count",
+            "shared_peptide_count",
+            "dia_only_peptide_count",
+            "dda_only_peptide_count",
+            "exclusive_evidence_entry_count",
+            "shared_intensity_correlation_entry_count",
+            "protein_correlation_entry_count",
+            "peptide_correlation_entry_count",
+            "note",
+        ]
+    )
+    writer.writerow(
+        [
+            report.dia_source_name,
+            report.dda_source_name,
+            report.summary.dia_protein_count,
+            report.summary.dda_protein_count,
+            report.summary.shared_protein_count,
+            report.summary.dia_only_protein_count,
+            report.summary.dda_only_protein_count,
+            report.summary.dia_peptide_count,
+            report.summary.dda_peptide_count,
+            report.summary.shared_peptide_count,
+            report.summary.dia_only_peptide_count,
+            report.summary.dda_only_peptide_count,
+            report.summary.exclusive_evidence_entry_count,
+            report.summary.shared_intensity_correlation_entry_count,
+            report.summary.protein_correlation_entry_count,
+            report.summary.peptide_correlation_entry_count,
+            report.note,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_dia_dda_protein_overlap_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render protein-level overlap across DIA and DDA workflows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "protein_ref",
+            "overlap_class",
+            "dia_sample_count",
+            "dda_sample_count",
+            "dia_total_intensity",
+            "dda_total_intensity",
+        ]
+    )
+    for entry in report.protein_overlap:
+        writer.writerow(
+            [
+                entry.protein_ref,
+                entry.overlap_class.value,
+                entry.dia_sample_count,
+                entry.dda_sample_count,
+                f"{entry.dia_total_intensity:g}",
+                f"{entry.dda_total_intensity:g}",
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_dda_peptide_overlap_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render peptide-level overlap across DIA and DDA workflows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "peptide_sequence",
+            "overlap_class",
+            "dia_sample_count",
+            "dda_sample_count",
+            "dia_total_intensity",
+            "dda_total_intensity",
+            "dia_protein_refs",
+            "dda_protein_refs",
+        ]
+    )
+    for entry in report.peptide_overlap:
+        writer.writerow(
+            [
+                entry.peptide_sequence,
+                entry.overlap_class.value,
+                entry.dia_sample_count,
+                entry.dda_sample_count,
+                f"{entry.dia_total_intensity:g}",
+                f"{entry.dda_total_intensity:g}",
+                ";".join(entry.dia_protein_refs),
+                ";".join(entry.dda_protein_refs),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_dda_shared_intensity_correlation_tsv(
+    report: DiaDdaComparisonReport,
+) -> str:
+    """Render shared-entity DIA-vs-DDA intensity correlation as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_level",
+            "entity_id",
+            "shared_sample_count",
+            "dia_mean_intensity",
+            "dda_mean_intensity",
+            "pearson_correlation",
+        ]
+    )
+    for entry in report.shared_intensity_correlation:
+        writer.writerow(
+            [
+                entry.entity_level.value,
+                entry.entity_id,
+                entry.shared_sample_count,
+                f"{entry.dia_mean_intensity:g}",
+                f"{entry.dda_mean_intensity:g}",
+                (
+                    ""
+                    if entry.pearson_correlation is None
+                    else f"{entry.pearson_correlation:g}"
+                ),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_dda_exclusive_evidence_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render workflow-exclusive DIA and DDA evidence as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_kind",
+            "entity_level",
+            "entity_id",
+            "sample_count",
+            "total_intensity",
+            "protein_refs",
+        ]
+    )
+    for entry in report.exclusive_evidence:
+        writer.writerow(
+            [
+                entry.source_kind.value,
+                entry.entity_level.value,
+                entry.entity_id,
+                entry.sample_count,
+                f"{entry.total_intensity:g}",
+                ";".join(entry.protein_refs),
+            ]
+        )
+    return buffer.getvalue()
