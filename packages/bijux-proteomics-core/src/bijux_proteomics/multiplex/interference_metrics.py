@@ -56,6 +56,28 @@ class TmtInterferenceSummary(JsonModel):
     observed_channel_row_count: int = Field(..., ge=0)
     missing_interference_count: int = Field(..., ge=0)
     threshold_exceeded_count: int = Field(..., ge=0)
+    filtered_channel_row_count: int = Field(..., ge=0)
+    channel_summary_count: int = Field(..., ge=0)
+
+
+class TmtInterferenceChannelSummaryEntry(JsonModel):
+    """One sample/channel summary over observed interference-bearing rows."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    multiplex_group: str = Field(..., min_length=1)
+    multiplex_channel: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    sample_role: str = Field(..., min_length=1)
+    channel_role: LabelBasedChannelRole
+    observed_row_count: int = Field(..., ge=0)
+    missing_interference_count: int = Field(..., ge=0)
+    threshold_exceeded_count: int = Field(..., ge=0)
+    mean_interference_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    max_interference_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
+    flagged: bool
+    note: str = Field(..., min_length=1)
 
 
 class TmtInterferenceReport(JsonModel):
@@ -67,6 +89,12 @@ class TmtInterferenceReport(JsonModel):
     feature_bundle: TmtReporterFeatureBundle
     policy: TmtInterferencePolicy
     observations: tuple[TmtInterferenceObservationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    filtered_observations: tuple[TmtInterferenceObservationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    channel_summaries: tuple[TmtInterferenceChannelSummaryEntry, ...] = Field(
         default_factory=tuple
     )
     summary: TmtInterferenceSummary
@@ -142,11 +170,17 @@ def build_tmt_interference_report(
             entry.source_row_id,
         ),
     )
+    filtered_observations = tuple(
+        entry for entry in observations if entry.threshold_exceeded
+    )
+    channel_summaries = _build_channel_summaries(observations)
     return TmtInterferenceReport(
         source_report=import_report,
         feature_bundle=feature_bundle,
         policy=active_policy,
         observations=tuple(observations),
+        filtered_observations=filtered_observations,
+        channel_summaries=channel_summaries,
         summary=TmtInterferenceSummary(
             multiplex_group_count=feature_bundle.summary.multiplex_group_count,
             observed_channel_row_count=len(observations),
@@ -158,6 +192,8 @@ def build_tmt_interference_report(
             threshold_exceeded_count=sum(
                 1 for entry in observations if entry.threshold_exceeded
             ),
+            filtered_channel_row_count=len(filtered_observations),
+            channel_summary_count=len(channel_summaries),
         ),
         note=(
             "tmt interference review preserves source-row isolation interference at the mapped sample-channel level for downstream filtering and audit"
@@ -174,3 +210,58 @@ def _channel_role_for_sample(
         if entry.sample_id == sample_id and entry.channel_role is not None:
             return entry.channel_role
     return LabelBasedChannelRole.SAMPLE
+
+
+def _build_channel_summaries(
+    observations: list[TmtInterferenceObservationEntry],
+) -> tuple[TmtInterferenceChannelSummaryEntry, ...]:
+    grouped: dict[tuple[str, str, str], list[TmtInterferenceObservationEntry]] = {}
+    for observation in observations:
+        grouped.setdefault(
+            (
+                observation.multiplex_group,
+                observation.multiplex_channel,
+                observation.sample_id,
+            ),
+            [],
+        ).append(observation)
+    summaries: list[TmtInterferenceChannelSummaryEntry] = []
+    for multiplex_group, multiplex_channel, sample_id in sorted(grouped):
+        entries = grouped[(multiplex_group, multiplex_channel, sample_id)]
+        first_entry = entries[0]
+        measured = [
+            entry.isolation_interference_fraction
+            for entry in entries
+            if entry.isolation_interference_fraction is not None
+        ]
+        threshold_exceeded_count = sum(1 for entry in entries if entry.threshold_exceeded)
+        missing_interference_count = sum(
+            1 for entry in entries if entry.isolation_interference_fraction is None
+        )
+        mean_interference = (
+            sum(measured) / len(measured) if measured else None
+        )
+        max_interference = max(measured) if measured else None
+        flagged = threshold_exceeded_count > 0
+        summaries.append(
+            TmtInterferenceChannelSummaryEntry(
+                multiplex_group=multiplex_group,
+                multiplex_channel=multiplex_channel,
+                sample_id=sample_id,
+                condition=first_entry.condition,
+                sample_role=first_entry.sample_role,
+                channel_role=first_entry.channel_role,
+                observed_row_count=len(entries),
+                missing_interference_count=missing_interference_count,
+                threshold_exceeded_count=threshold_exceeded_count,
+                mean_interference_fraction=mean_interference,
+                max_interference_fraction=max_interference,
+                flagged=flagged,
+                note=(
+                    "one or more reporter rows for this sample channel exceed the configured interference threshold"
+                    if flagged
+                    else "sample channel stays below the configured interference threshold across observed reporter rows"
+                ),
+            )
+        )
+    return tuple(summaries)
