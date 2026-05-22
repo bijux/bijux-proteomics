@@ -87,11 +87,12 @@ def _run_manager_type() -> type[Any]:
     return RunManager
 
 
-def _run_output_model() -> type[Any]:
-    """Load the runtime output schema only for run-bearing command responses."""
-    from bijux_proteomics_runtime.runs.output import RunOutput
-
-    return RunOutput
+def _result_run_id(result: dict[str, Any]) -> str:
+    """Read one run identifier from an operation result payload."""
+    run_id = result.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        raise ValueError("run output missing run_id")
+    return run_id
 
 
 def _package_version() -> str:
@@ -412,8 +413,8 @@ def run(
             execution_mode,
         )
         result = _run_sequence(Path.cwd(), seq, config)
-        run_output = _run_output_model().model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
             _emit_api_envelope(
@@ -439,7 +440,7 @@ def run(
             RunResponse.model_validate(summary),
             pretty=pretty,
             surface="run",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
@@ -490,8 +491,8 @@ def resume(
             artifacts_dir,
             execution_mode,
         )
-        run_output = _run_output_model().model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
             _emit_api_envelope(
@@ -517,7 +518,7 @@ def resume(
             RunResponse.model_validate(summary),
             pretty=pretty,
             surface="resume",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
@@ -563,8 +564,8 @@ def import_result(
             engine_version=engine_version,
             artifacts_dir=artifacts_dir,
         )
-        run_output = _run_output_model().model_validate(result)
-        summary = _load_run_summary(Path.cwd(), run_output.run_id, artifacts_dir)
+        run_id = _result_run_id(result)
+        summary = _load_run_summary(Path.cwd(), run_id, artifacts_dir)
     except Exception as exc:  # noqa: BLE001
         if json_output:
             _emit_api_envelope(
@@ -590,7 +591,7 @@ def import_result(
             RunResponse.model_validate(summary),
             pretty=pretty,
             surface="import",
-            correlation_key=run_output.run_id,
+            correlation_key=run_id,
         )
         return
     _emit_run_summary_human(summary)
