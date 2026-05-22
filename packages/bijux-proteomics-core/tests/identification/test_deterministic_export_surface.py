@@ -31,6 +31,11 @@ from bijux_proteomics.identification.fragpipe_import import (
     render_fragpipe_protein_tsv,
     render_fragpipe_psm_tsv,
 )
+from bijux_proteomics.identification.generic_psm_mapper import (
+    build_generic_psm_mapper_report,
+    render_generic_psm_mapper_tsv,
+    render_generic_psm_rejected_row_tsv,
+)
 from bijux_proteomics.identification.openms_import import (
     build_openms_import_report,
     render_openms_feature_tsv,
@@ -143,6 +148,33 @@ def test_openms_export_renderers_ignore_input_row_order() -> None:
     assert render_openms_rejected_feature_tsv(
         report.rejected_feature_rows
     ) == render_openms_rejected_feature_tsv(_reversed_rows(report.rejected_feature_rows))
+
+
+def test_generic_mapper_export_renderers_ignore_input_row_order(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parent.parent / "fixtures" / "search_adapters"
+    invalid_input = tmp_path / "generic_mapper_invalid.tsv"
+    invalid_input.write_text(
+        "\n".join(
+            (
+                "run_name\tscan_ref\tsequence_text\tmodified_sequence\tz\tstate_score\tprecursor_intensity\tqvalue\taccessions\tdecoy_state\tcontaminant_state\tinstrument\tanalyst_note",
+                "run_A\tgeneric-1001\tPESTIDE\tPES[Phospho]TIDE\t2\t55.0\t125000\t0.002\tP12345\ttarget\tfalse\torbitrap\tstable",
+                "run_B\tgeneric-1002\tBROKEN\tBROKEN\tbad\t12.0\t4300\t0.05\tCON__P54321\tdecoy\tcontaminant\ttof\treview",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    report = build_generic_psm_mapper_report(
+        invalid_input,
+        mapping_path=root / "generic_mapper_mapping.yaml",
+    )
+
+    assert render_generic_psm_mapper_tsv(
+        report.mapped_rows
+    ) == render_generic_psm_mapper_tsv(_reversed_rows(report.mapped_rows))
+    assert render_generic_psm_rejected_row_tsv(
+        report.rejected_rows
+    ) == render_generic_psm_rejected_row_tsv(_reversed_rows(report.rejected_rows))
 
 
 def test_diann_export_renderers_ignore_input_row_order() -> None:
