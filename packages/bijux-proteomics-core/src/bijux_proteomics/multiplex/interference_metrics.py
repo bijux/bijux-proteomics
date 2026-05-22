@@ -5,6 +5,10 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from pathlib import Path
+
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
@@ -198,6 +202,216 @@ def build_tmt_interference_report(
         note=(
             "tmt interference review preserves source-row isolation interference at the mapped sample-channel level for downstream filtering and audit"
         ),
+    )
+
+
+def render_tmt_interference_summary_tsv(report: TmtInterferenceReport) -> str:
+    """Render the compact TMT interference-review summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group_count",
+            "observed_channel_row_count",
+            "missing_interference_count",
+            "threshold_exceeded_count",
+            "filtered_channel_row_count",
+            "channel_summary_count",
+        ]
+    )
+    writer.writerow(
+        [
+            report.summary.multiplex_group_count,
+            report.summary.observed_channel_row_count,
+            report.summary.missing_interference_count,
+            report.summary.threshold_exceeded_count,
+            report.summary.filtered_channel_row_count,
+            report.summary.channel_summary_count,
+        ]
+    )
+    return buffer.getvalue()
+
+
+def render_tmt_interference_observation_tsv(report: TmtInterferenceReport) -> str:
+    """Render the full TMT interference observation ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_row_id",
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "sample_role",
+            "channel_role",
+            "modified_peptide",
+            "protein_refs",
+            "reporter_intensity",
+            "isolation_interference_fraction",
+            "threshold_exceeded",
+            "note",
+        ]
+    )
+    for entry in report.observations:
+        writer.writerow(
+            [
+                entry.source_row_id,
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.condition,
+                entry.sample_role,
+                entry.channel_role.value,
+                entry.modified_peptide,
+                ";".join(entry.protein_refs),
+                entry.reporter_intensity,
+                (
+                    ""
+                    if entry.isolation_interference_fraction is None
+                    else entry.isolation_interference_fraction
+                ),
+                str(entry.threshold_exceeded).lower(),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_filtered_interference_tsv(report: TmtInterferenceReport) -> str:
+    """Render the threshold-exceeded TMT interference ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "source_row_id",
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "sample_role",
+            "channel_role",
+            "modified_peptide",
+            "protein_refs",
+            "reporter_intensity",
+            "isolation_interference_fraction",
+            "note",
+        ]
+    )
+    for entry in report.filtered_observations:
+        writer.writerow(
+            [
+                entry.source_row_id,
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.condition,
+                entry.sample_role,
+                entry.channel_role.value,
+                entry.modified_peptide,
+                ";".join(entry.protein_refs),
+                entry.reporter_intensity,
+                (
+                    ""
+                    if entry.isolation_interference_fraction is None
+                    else entry.isolation_interference_fraction
+                ),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_tmt_interference_channel_summary_tsv(report: TmtInterferenceReport) -> str:
+    """Render the per-sample-channel TMT interference summary ledger."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "multiplex_group",
+            "multiplex_channel",
+            "sample_id",
+            "condition",
+            "sample_role",
+            "channel_role",
+            "observed_row_count",
+            "missing_interference_count",
+            "threshold_exceeded_count",
+            "mean_interference_fraction",
+            "max_interference_fraction",
+            "flagged",
+            "note",
+        ]
+    )
+    for entry in report.channel_summaries:
+        writer.writerow(
+            [
+                entry.multiplex_group,
+                entry.multiplex_channel,
+                entry.sample_id,
+                entry.condition,
+                entry.sample_role,
+                entry.channel_role.value,
+                entry.observed_row_count,
+                entry.missing_interference_count,
+                entry.threshold_exceeded_count,
+                (
+                    ""
+                    if entry.mean_interference_fraction is None
+                    else entry.mean_interference_fraction
+                ),
+                (
+                    ""
+                    if entry.max_interference_fraction is None
+                    else entry.max_interference_fraction
+                ),
+                str(entry.flagged).lower(),
+                entry.note,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_tmt_interference_summary_tsv(
+    report: TmtInterferenceReport,
+    path: Path,
+) -> None:
+    """Write the compact TMT interference-review summary ledger."""
+
+    path.write_text(render_tmt_interference_summary_tsv(report), encoding="utf-8")
+
+
+def export_tmt_interference_observation_tsv(
+    report: TmtInterferenceReport,
+    path: Path,
+) -> None:
+    """Write the full TMT interference observation ledger."""
+
+    path.write_text(render_tmt_interference_observation_tsv(report), encoding="utf-8")
+
+
+def export_tmt_filtered_interference_tsv(
+    report: TmtInterferenceReport,
+    path: Path,
+) -> None:
+    """Write the threshold-exceeded TMT interference ledger."""
+
+    path.write_text(render_tmt_filtered_interference_tsv(report), encoding="utf-8")
+
+
+def export_tmt_interference_channel_summary_tsv(
+    report: TmtInterferenceReport,
+    path: Path,
+) -> None:
+    """Write the per-sample-channel TMT interference summary ledger."""
+
+    path.write_text(
+        render_tmt_interference_channel_summary_tsv(report),
+        encoding="utf-8",
     )
 
 
