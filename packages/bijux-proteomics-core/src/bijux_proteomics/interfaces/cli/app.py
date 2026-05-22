@@ -8350,6 +8350,11 @@ def ptm_parse_peptides_command(
 @click.option(
     "--localization-score-column", default="localization_score", show_default=True
 )
+@click.option(
+    "--localization-probability-column",
+    default="localization_probability",
+    show_default=True,
+)
 @click.option("--candidate-sites-column", default="candidate_sites", show_default=True)
 @click.option("--decoy-label-column", default="decoy_label", show_default=True)
 @click.option("--protein-separator", default=";", show_default=True)
@@ -8393,6 +8398,7 @@ def ptm_map_sites_command(
     protein_refs_column: str,
     q_value_column: str | None,
     localization_score_column: str,
+    localization_probability_column: str | None,
     candidate_sites_column: str | None,
     decoy_label_column: str | None,
     protein_separator: str,
@@ -8415,6 +8421,7 @@ def ptm_map_sites_command(
             protein_refs=protein_refs_column,
             q_value=q_value_column,
             localization_score=localization_score_column,
+            localization_probability=localization_probability_column,
             candidate_sites=candidate_sites_column,
             decoy_label=decoy_label_column,
             protein_separator=protein_separator,
@@ -8632,6 +8639,11 @@ def ptm_score_localization_command(
 @click.option(
     "--localization-score-column", default="localization_score", show_default=True
 )
+@click.option(
+    "--localization-probability-column",
+    default="localization_probability",
+    show_default=True,
+)
 @click.option("--candidate-sites-column", default="candidate_sites", show_default=True)
 @click.option("--decoy-label-column", default="decoy_label", show_default=True)
 @click.option("--protein-separator", default=";", show_default=True)
@@ -8653,6 +8665,7 @@ def ptm_summarize_command(
     protein_refs_column: str,
     q_value_column: str | None,
     localization_score_column: str,
+    localization_probability_column: str | None,
     candidate_sites_column: str | None,
     decoy_label_column: str | None,
     protein_separator: str,
@@ -8669,12 +8682,13 @@ def ptm_summarize_command(
             peptide=peptide_column,
             charge=charge_column,
             score=score_column,
-            protein_refs=protein_refs_column,
-            q_value=q_value_column,
-            localization_score=localization_score_column,
-            candidate_sites=candidate_sites_column,
-            decoy_label=decoy_label_column,
-            protein_separator=protein_separator,
+                protein_refs=protein_refs_column,
+                q_value=q_value_column,
+                localization_score=localization_score_column,
+                localization_probability=localization_probability_column,
+                candidate_sites=candidate_sites_column,
+                decoy_label=decoy_label_column,
+                protein_separator=protein_separator,
             site_separator=site_separator,
         )
         evidence = parse_ptm_localization_tsv(evidence_tsv, mapping=mapping)

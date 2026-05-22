@@ -4329,6 +4329,48 @@ def test_ptm_score_localization_command_emits_probability_ledgers() -> None:
         )
 
 
+def test_ptm_summary_and_mapping_commands_accept_localization_probability_column() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_probability_results.tsv",
+            "localization_probability_results.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        summarize_result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "summarize",
+                "localization_probability_results.tsv",
+                "ptm_sites.fasta",
+                "--localization-probability-column",
+                "localization_probability",
+            ],
+        )
+        map_sites_result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "map-sites",
+                "localization_probability_results.tsv",
+                "ptm_sites.fasta",
+                "--localization-probability-column",
+                "localization_probability",
+            ],
+        )
+
+        assert summarize_result.exit_code == 0
+        assert map_sites_result.exit_code == 0
+        assert json.loads(summarize_result.output)["accepted_rows"] == 2
+        assert json.loads(map_sites_result.output)["accepted_rows"] == 2
+
+
 def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
