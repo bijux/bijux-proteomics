@@ -3808,6 +3808,8 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
                 "diann.matrix.tsv",
                 "--qvalue-tsv-out",
                 "diann.qvalues.tsv",
+                "--metadata-tsv-out",
+                "diann.metadata.tsv",
             ],
         )
 
@@ -3815,6 +3817,7 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
         payload = json.loads(result.output)
         assert payload["source_name"] == "DIA-NN"
         assert payload["sample_ids"] == ["sample_A", "sample_B"]
+        assert payload["policy"]["q_value_filter_timing"] == "before_matrix_construction"
         assert payload["summary"]["precursor_row_count"] == 2
         assert payload["summary"]["observed_cell_count"] == 3
         assert payload["summary"]["excluded_decoy_count"] == 1
@@ -3822,9 +3825,11 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
         assert payload["outputs"]["summary_tsv"] == "diann.matrix.summary.tsv"
         assert payload["outputs"]["matrix_tsv"] == "diann.matrix.tsv"
         assert payload["outputs"]["qvalue_tsv"] == "diann.qvalues.tsv"
+        assert payload["outputs"]["metadata_tsv"] == "diann.metadata.tsv"
         assert Path("diann.matrix.summary.tsv").exists()
         assert Path("diann.matrix.tsv").exists()
         assert Path("diann.qvalues.tsv").exists()
+        assert Path("diann.metadata.tsv").exists()
         assert "precursor_key\tpeptide_sequence\tmodified_peptide" in Path(
             "diann.matrix.tsv"
         ).read_text(encoding="utf-8")
@@ -3834,6 +3839,56 @@ def test_diann_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
         assert "\t0.0021\t0.0024\n" in Path("diann.qvalues.tsv").read_text(
             encoding="utf-8"
         )
+        assert "retained_observation_count" in Path("diann.metadata.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
+def test_spectronaut_precursor_matrix_command_emits_sample_matrix_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "search_result_bundles" / "spectronaut"
+        shutil.copy(fixture_dir / "spectronaut_report.tsv", "spectronaut_report.tsv")
+        shutil.copy(
+            fixture_dir / "spectronaut_settings.txt",
+            "spectronaut_settings.txt",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectronaut-precursor-matrix",
+                "spectronaut_report.tsv",
+                "--config",
+                "spectronaut_settings.txt",
+                "--summary-tsv-out",
+                "spectronaut.matrix.summary.tsv",
+                "--matrix-tsv-out",
+                "spectronaut.matrix.tsv",
+                "--qvalue-tsv-out",
+                "spectronaut.qvalues.tsv",
+                "--metadata-tsv-out",
+                "spectronaut.metadata.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_name"] == "Spectronaut"
+        assert payload["sample_ids"] == ["sample_A", "sample_B"]
+        assert payload["summary"]["precursor_row_count"] == 2
+        assert payload["summary"]["excluded_decoy_count"] == 1
+        assert payload["outputs"]["metadata_tsv"] == "spectronaut.metadata.tsv"
+        assert Path("spectronaut.matrix.summary.tsv").exists()
+        assert Path("spectronaut.matrix.tsv").exists()
+        assert Path("spectronaut.qvalues.tsv").exists()
+        assert Path("spectronaut.metadata.tsv").exists()
+        assert "precursor_key\tpeptide_sequence\tmodified_peptide" in Path(
+            "spectronaut.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "excluded_q_value_observation_count" in Path(
+            "spectronaut.metadata.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_diann_protein_matrix_command_emits_peptide_and_protein_outputs() -> None:
@@ -5360,6 +5415,7 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         assert (report_dir / "diann_biological_report_manifest.json").exists()
         assert (report_dir / "diann_import_summary.tsv").exists()
         assert (report_dir / "diann_precursor_quantity_matrix.tsv").exists()
+        assert (report_dir / "diann_precursor_metadata.tsv").exists()
         assert (report_dir / "diann_protein_quantity_matrix.tsv").exists()
         assert (report_dir / "diann_run_qc_runs.tsv").exists()
         assert (report_dir / "diann_differential_results.tsv").exists()
@@ -5370,6 +5426,9 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         ).read_text(encoding="utf-8")
         assert "precursor_key" in (
             report_dir / "diann_precursor_quantity_matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "excluded_q_value_observation_count" in (
+            report_dir / "diann_precursor_metadata.tsv"
         ).read_text(encoding="utf-8")
         assert "run_name\tsample_name\tprecursor_id_count" in (
             report_dir / "diann_run_qc_runs.tsv"
