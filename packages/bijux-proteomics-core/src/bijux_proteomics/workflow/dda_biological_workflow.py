@@ -114,7 +114,32 @@ class DdaBiologicalWorkflowSummary(JsonModel):
     inferred_protein_count: int = Field(..., ge=0)
     quantified_protein_count: int = Field(..., ge=0)
     significant_protein_count: int = Field(..., ge=0)
+    source_protein_group_count: int = Field(..., ge=0)
+    protein_group_discrepancy_count: int = Field(..., ge=0)
+    source_only_protein_group_count: int = Field(..., ge=0)
+    workflow_only_protein_group_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
+
+
+class DdaProteinGroupDiscrepancyStatus(StrEnum):
+    """Stable relationship between a source protein table and the workflow output."""
+
+    SHARED = "shared"
+    SOURCE_ONLY = "source_only"
+    WORKFLOW_ONLY = "workflow_only"
+
+
+class DdaProteinGroupDiscrepancyEntry(JsonModel):
+    """One protein-group discrepancy row against an optional source protein table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    status: DdaProteinGroupDiscrepancyStatus
+    source_table_present: bool
+    inferred_by_workflow: bool
+    quantified_by_workflow: bool
+    significant_in_workflow: bool
 
 
 class DdaBiologicalWorkflowBundle(JsonModel):
@@ -127,6 +152,9 @@ class DdaBiologicalWorkflowBundle(JsonModel):
     parse_rejected_rows: tuple[RejectedPsmRow, ...] = Field(default_factory=tuple)
     accepted_psms: tuple[PsmRecord, ...] = Field(default_factory=tuple)
     filtered_psms: tuple[DdaFilteredPsmEntry, ...] = Field(default_factory=tuple)
+    protein_group_discrepancies: tuple[DdaProteinGroupDiscrepancyEntry, ...] = Field(
+        default_factory=tuple
+    )
     parsimony_review: ParsimonyReviewReport
     protein_lfq_report: ProteinLfqReport
     biological_report: BiologicalResultReportBundle
@@ -150,6 +178,7 @@ class DdaBiologicalWorkflowArtifactPaths(JsonModel):
     protein_lfq_matrix_tsv: str = Field(..., min_length=1)
     protein_lfq_pairwise_tsv: str = Field(..., min_length=1)
     protein_lfq_missingness_tsv: str = Field(..., min_length=1)
+    protein_group_discrepancy_tsv: str | None = None
     biological_manifest_json: str = Field(..., min_length=1)
     report_html: str = Field(..., min_length=1)
 
@@ -181,6 +210,7 @@ def build_dda_biological_workflow_bundle(
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
+    source_protein_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
@@ -237,12 +267,19 @@ def build_dda_biological_workflow_bundle(
         selection_policy=selection_policy,
         volcano_policy=volcano_policy,
     )
+    protein_group_discrepancies = _build_protein_group_discrepancies(
+        source_protein_tsv_path=source_protein_tsv_path,
+        parsimony_review=parsimony_review,
+        protein_lfq_report=protein_lfq_report,
+        biological_report=biological_report,
+    )
     return DdaBiologicalWorkflowBundle(
         source_columns=normalization.source_columns,
         acceptance_policy=active_policy,
         parse_rejected_rows=normalization.parse_report.rejected_rows,
         accepted_psms=accepted_psms,
         filtered_psms=filtered_psms,
+        protein_group_discrepancies=protein_group_discrepancies,
         parsimony_review=parsimony_review,
         protein_lfq_report=protein_lfq_report,
         biological_report=biological_report,
@@ -259,10 +296,28 @@ def build_dda_biological_workflow_bundle(
             significant_protein_count=(
                 biological_report.summary.significant_protein_count
             ),
+            source_protein_group_count=sum(
+                1 for entry in protein_group_discrepancies if entry.source_table_present
+            ),
+            protein_group_discrepancy_count=sum(
+                1
+                for entry in protein_group_discrepancies
+                if entry.status is not DdaProteinGroupDiscrepancyStatus.SHARED
+            ),
+            source_only_protein_group_count=sum(
+                1
+                for entry in protein_group_discrepancies
+                if entry.status is DdaProteinGroupDiscrepancyStatus.SOURCE_ONLY
+            ),
+            workflow_only_protein_group_count=sum(
+                1
+                for entry in protein_group_discrepancies
+                if entry.status is DdaProteinGroupDiscrepancyStatus.WORKFLOW_ONLY
+            ),
             sample_count=len(protein_lfq_report.sample_ids),
         ),
         note=(
-            "DDA biology workflow normalizes search results, applies explicit PSM acceptance policy, runs protein parsimony review, builds protein LFQ, and hands the governed protein matrix to the shared biological reporting workflow"
+            "DDA biology workflow normalizes search results, applies explicit PSM acceptance policy, runs protein parsimony review, builds protein LFQ, compares optional source protein tables against the workflow protein set, and hands the governed protein matrix to the shared biological reporting workflow"
         ),
     )
 
@@ -320,6 +375,19 @@ def render_dda_biological_workflow_summary_tsv(
         ("inferred_protein_count", report.summary.inferred_protein_count),
         ("quantified_protein_count", report.summary.quantified_protein_count),
         ("significant_protein_count", report.summary.significant_protein_count),
+        ("source_protein_group_count", report.summary.source_protein_group_count),
+        (
+            "protein_group_discrepancy_count",
+            report.summary.protein_group_discrepancy_count,
+        ),
+        (
+            "source_only_protein_group_count",
+            report.summary.source_only_protein_group_count,
+        ),
+        (
+            "workflow_only_protein_group_count",
+            report.summary.workflow_only_protein_group_count,
+        ),
         ("sample_count", report.summary.sample_count),
         ("note", report.note),
     ):
@@ -388,6 +456,37 @@ def render_rejected_psm_rows_tsv(rows: tuple[RejectedPsmRow, ...]) -> str:
     return handle.getvalue()
 
 
+def render_protein_group_discrepancies_tsv(
+    rows: tuple[DdaProteinGroupDiscrepancyEntry, ...],
+) -> str:
+    """Render one optional source-protein discrepancy table as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "protein_ref",
+            "status",
+            "source_table_present",
+            "inferred_by_workflow",
+            "quantified_by_workflow",
+            "significant_in_workflow",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                row.protein_ref,
+                row.status.value,
+                str(row.source_table_present).lower(),
+                str(row.inferred_by_workflow).lower(),
+                str(row.quantified_by_workflow).lower(),
+                str(row.significant_in_workflow).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
 def export_dda_biological_workflow_bundle(
     report: DdaBiologicalWorkflowBundle,
     output_dir: Path,
@@ -406,6 +505,7 @@ def export_dda_biological_workflow_bundle(
     protein_lfq_matrix_name = "dda_protein_lfq_matrix.tsv"
     protein_lfq_pairwise_name = "dda_protein_lfq_pairwise.tsv"
     protein_lfq_missingness_name = "dda_protein_lfq_missingness.tsv"
+    protein_discrepancy_name = "dda_source_protein_discrepancies.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
     (output_dir / summary_name).write_text(
@@ -449,6 +549,11 @@ def export_dda_biological_workflow_bundle(
         render_protein_lfq_missingness_tsv(report.protein_lfq_report),
         encoding="utf-8",
     )
+    if report.protein_group_discrepancies:
+        (output_dir / protein_discrepancy_name).write_text(
+            render_protein_group_discrepancies_tsv(report.protein_group_discrepancies),
+            encoding="utf-8",
+        )
     biological_manifest = export_biological_result_report_bundle(
         report.biological_report,
         output_dir,
@@ -471,12 +576,17 @@ def export_dda_biological_workflow_bundle(
             protein_lfq_matrix_tsv=protein_lfq_matrix_name,
             protein_lfq_pairwise_tsv=protein_lfq_pairwise_name,
             protein_lfq_missingness_tsv=protein_lfq_missingness_name,
+            protein_group_discrepancy_tsv=(
+                protein_discrepancy_name
+                if report.protein_group_discrepancies
+                else None
+            ),
             biological_manifest_json=biological_manifest_name,
             report_html=biological_manifest.artifacts.report_html,
         ),
         biological_report_manifest=biological_manifest,
         note=(
-            "DDA biology export preserves accepted and filtered search evidence, parsimony review, protein LFQ, and the downstream biological report bundle in one directory"
+            "DDA biology export preserves accepted and filtered search evidence, optional source-protein discrepancy review, parsimony review, protein LFQ, and the downstream biological report bundle in one directory"
         ),
     )
 
@@ -508,6 +618,66 @@ def _normalize_search_results(
         dialect_id=dialect_id,
         mapping=mapping,
     )
+
+
+def _build_protein_group_discrepancies(
+    *,
+    source_protein_tsv_path: Path | None,
+    parsimony_review: ParsimonyReviewReport,
+    protein_lfq_report: ProteinLfqReport,
+    biological_report: BiologicalResultReportBundle,
+) -> tuple[DdaProteinGroupDiscrepancyEntry, ...]:
+    if source_protein_tsv_path is None:
+        return ()
+    source_refs = set(_parse_source_protein_refs(source_protein_tsv_path))
+    inferred_refs = {
+        entry.protein_ref for entry in parsimony_review.selected_proteins
+    }
+    quantified_refs = {
+        row.entity_id for row in protein_lfq_report.rows
+    }
+    significant_refs = {
+        card.protein_group_id
+        for card in biological_report.protein_cards.cards
+        if card.significant
+    }
+    all_refs = sorted(source_refs | inferred_refs | quantified_refs | significant_refs)
+    discrepancies: list[DdaProteinGroupDiscrepancyEntry] = []
+    for protein_ref in all_refs:
+        source_present = protein_ref in source_refs
+        workflow_present = protein_ref in inferred_refs or protein_ref in quantified_refs
+        if source_present and workflow_present:
+            status = DdaProteinGroupDiscrepancyStatus.SHARED
+        elif source_present:
+            status = DdaProteinGroupDiscrepancyStatus.SOURCE_ONLY
+        else:
+            status = DdaProteinGroupDiscrepancyStatus.WORKFLOW_ONLY
+        discrepancies.append(
+            DdaProteinGroupDiscrepancyEntry(
+                protein_ref=protein_ref,
+                status=status,
+                source_table_present=source_present,
+                inferred_by_workflow=protein_ref in inferred_refs,
+                quantified_by_workflow=protein_ref in quantified_refs,
+                significant_in_workflow=protein_ref in significant_refs,
+            )
+        )
+    return tuple(discrepancies)
+
+
+def _parse_source_protein_refs(path: Path) -> tuple[str, ...]:
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError("source protein table must include a header row")
+        if "Protein" not in reader.fieldnames:
+            raise ValueError("source protein table must include a 'Protein' column")
+        refs = {
+            str(row.get("Protein", "")).strip()
+            for row in reader
+            if str(row.get("Protein", "")).strip()
+        }
+    return tuple(sorted(refs))
 
 
 def _filter_psms_for_biological_workflow(
