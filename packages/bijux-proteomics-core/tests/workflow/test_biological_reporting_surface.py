@@ -44,6 +44,8 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.significant_protein_count >= 3
     assert report.summary.sample_count == 6
     assert report.summary.annotation_entry_count == 5
+    assert report.summary.protein_card_count == 5
+    assert report.summary.warning_card_count >= 1
     assert report.summary.context_entry_count == 3
     assert report.summary.context_unmapped_count == 2
     assert report.summary.context_term_count == 3
@@ -52,6 +54,8 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.volcano_review.significant_point_count >= 3
     assert report.sample_exploration_report.summary.sample_count == 6
     assert report.heatmap_report.summary.output_entity_count >= 3
+    assert report.protein_cards.summary.protein_result_count == 5
+    assert any(card.card_id.startswith("protein-card-") for card in report.protein_cards.cards)
     assert report.context_import_report is not None
     assert report.context_mapping_report is not None
     assert any(

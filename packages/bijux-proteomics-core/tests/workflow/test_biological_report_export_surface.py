@@ -48,6 +48,8 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert manifest.complex_summary_included is True
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
     assert (output_dir / manifest.artifacts.annotation_tsv).exists()
     assert (output_dir / manifest.artifacts.context_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
@@ -66,6 +68,12 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.report_html).exists()
     assert "annotation_entry_count" in (
         output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "protein_card_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_id" in (
+        output_dir / manifest.artifacts.protein_card_tsv
     ).read_text(encoding="utf-8")
     assert "annotation_status" in (
         output_dir / manifest.artifacts.annotation_tsv
@@ -93,6 +101,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "raw_p_value" in (
         output_dir / manifest.artifacts.volcano_tsv
+    ).read_text(encoding="utf-8")
+    assert "Final protein cards" in (
+        output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html
