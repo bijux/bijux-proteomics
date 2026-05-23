@@ -184,6 +184,7 @@ class SpectralLibrarySearchReport(JsonModel):
     top_match_canonical_peptide: str | None = None
     top_match_similarity_score: float | None = Field(default=None, ge=0.0)
     top_match_q_value: float | None = Field(default=None, ge=0.0)
+    advisory_warning: str | None = None
     matches: tuple[SpectralLibrarySearchMatch, ...] = Field(default_factory=tuple)
 
 
@@ -437,6 +438,7 @@ def search_spectral_library(
     )
     top_match = matches[0] if matches else None
     search_strategy = _resolve_search_strategy(index.entries)
+    advisory_warning = _resolve_spectral_library_search_advisory(search_strategy)
     report = SpectralLibrarySearchReport(
         document_schema=DocumentSchema(
             created_by="bijux-proteomics-core",
@@ -465,6 +467,7 @@ def search_spectral_library(
             top_match.similarity_score if top_match is not None else None
         ),
         top_match_q_value=top_match.q_value if top_match is not None else None,
+        advisory_warning=advisory_warning,
         matches=matches,
     )
     payload = report.to_dict()
@@ -530,6 +533,8 @@ def render_spectral_library_search_tsv(report: SpectralLibrarySearchReport) -> s
     """Render one ranked spectral-library search table."""
     return _render_tsv(
         (
+            "search_strategy",
+            "advisory_warning",
             "rank",
             "library_entry_id",
             "spectrum_id",
@@ -546,6 +551,8 @@ def render_spectral_library_search_tsv(report: SpectralLibrarySearchReport) -> s
         ),
         tuple(
             (
+                report.search_strategy.value,
+                report.advisory_warning,
                 row.rank,
                 row.library_entry_id,
                 row.spectrum_id,
@@ -563,6 +570,16 @@ def render_spectral_library_search_tsv(report: SpectralLibrarySearchReport) -> s
             for row in report.matches
         ),
     )
+
+
+def _resolve_spectral_library_search_advisory(
+    strategy: SpectralLibrarySearchStrategy,
+) -> str | None:
+    if strategy is SpectralLibrarySearchStrategy.NO_DECOY_ADVISORY:
+        return (
+            "library search ran without decoy entries; q-values are withheld and this report is advisory only"
+        )
+    return None
 
 
 def _resolve_spectral_library_format(
