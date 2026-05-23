@@ -153,6 +153,51 @@ def test_study_package_exports_design_classification_surface() -> None:
     )
 
 
+def test_study_package_exports_experiment_feasibility_surface() -> None:
+    design = study.build_experiment_design(
+        (
+            ExperimentalDesignEntry(
+                sample_id="control_1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control_1.raw",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="control_2",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="control_2.raw",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated_1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treated_1.raw",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated_2",
+                condition="treatment",
+                replicate=2,
+                fraction=1,
+                spectra_file="treated_2.raw",
+            ),
+        )
+    )
+
+    report = study.build_experiment_feasibility_report(design)
+
+    assert hasattr(study, "build_experiment_feasibility_report")
+    assert hasattr(study, "require_feasible_experiment_design_for_analysis")
+    assert report.summary.valid_contrast_count == 1
+    assert report.model_support[0].analysis_family.value == "pairwise_differential"
+    assert "analysis_family" in study.render_experiment_feasibility_model_support_tsv(
+        report
+    )
+
+
 def test_study_package_exports_sample_run_identity_surface() -> None:
     report = study.build_sample_run_identity_report(
         (
