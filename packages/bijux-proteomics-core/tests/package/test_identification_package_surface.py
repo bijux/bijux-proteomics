@@ -143,3 +143,35 @@ def test_identification_package_exports_protein_grouping_owner_surface() -> None
     assert report.summary.total_groups == len(case["expected_groups"])
     assert report.reproducibility_hash
     assert rendered.startswith("group_id\trepresentative_protein")
+
+
+def test_identification_package_exports_protein_parsimony_owner_surface() -> None:
+    raw_cases = json.loads(
+        _identification_fixture("protein_parsimony_reference_cases.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+
+    report = identification.build_protein_parsimony_report(
+        records,
+        variant=identification.ParsimonyVariant(case["variant"]),
+        review_variants=tuple(
+            identification.ParsimonyVariant(value)
+            for value in case["review_variants"]
+        ),
+    )
+    rendered = identification.render_protein_parsimony_summary_tsv(report)
+
+    assert hasattr(identification, "build_protein_parsimony_report")
+    assert hasattr(identification, "render_protein_parsimony_summary_tsv")
+    assert hasattr(identification, "render_protein_parsimony_proteins_tsv")
+    assert hasattr(identification, "render_protein_parsimony_ambiguities_tsv")
+    assert report.summary.selected_protein_count == len(
+        case["expected_selected_proteins"]
+    )
+    assert report.reproducibility_hash
+    assert "reproducibility_hash" in rendered
