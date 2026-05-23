@@ -499,6 +499,11 @@ from bijux_proteomics.isotope_labeling import (
 )
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
+    build_skyline_result_import_report,
+    build_targeted_carryover_report,
+    build_transition_table_result_import_report,
+    render_targeted_carryover_candidates_tsv,
+    render_targeted_carryover_summary_tsv,
     render_targeted_assay_qc_coelution_tsv,
     render_targeted_assay_qc_fragment_ratio_tsv,
     render_targeted_assay_qc_replicate_cv_tsv,
@@ -4269,6 +4274,82 @@ def targeted_assay_qc_command(
             ),
             "unreliable_tsv": (
                 None if unreliable_tsv_out is None else str(unreliable_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("targeted-carryover-review")
+@click.argument(
+    "input_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--source-kind",
+    type=click.Choice([kind.value for kind in TargetedResultSourceKind]),
+    required=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--candidate-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def targeted_carryover_review_command(
+    input_path: Path,
+    design_path: Path,
+    source_kind: str,
+    summary_tsv_out: Path | None,
+    candidate_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review ordered targeted runs for carryover candidates."""
+
+    source_kind_value = TargetedResultSourceKind(source_kind)
+    if source_kind_value is TargetedResultSourceKind.SKYLINE_EXPORT:
+        import_report = build_skyline_result_import_report(input_path)
+    else:
+        import_report = build_transition_table_result_import_report(input_path)
+    design_report = parse_experimental_design_table(design_path)
+    try:
+        carryover_report = build_targeted_carryover_report(
+            import_report,
+            design_report.accepted_entries,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_targeted_carryover_summary_tsv(carryover_report),
+        )
+    if candidate_tsv_out is not None:
+        _write_text_output(
+            candidate_tsv_out,
+            render_targeted_carryover_candidates_tsv(carryover_report),
+        )
+
+    payload = {
+        "source_kind": import_report.source_kind.value,
+        "source_name": carryover_report.source_name,
+        "import_summary": import_report.summary.to_dict(),
+        "design_summary": {
+            "accepted_entry_count": len(design_report.accepted_entries),
+            "rejected_row_count": len(design_report.rejected_rows),
+        },
+        "carryover_summary": carryover_report.summary.to_dict(),
+        "candidates": [entry.to_dict() for entry in carryover_report.candidates],
+        "note": carryover_report.note,
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "candidate_tsv": (
+                None if candidate_tsv_out is None else str(candidate_tsv_out)
             ),
         },
     }
