@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable
 import csv
+from enum import StrEnum
 from io import StringIO
 import json
 import math
@@ -28,6 +29,13 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
+
+
+class ProteinSetScoreConfidenceStatus(StrEnum):
+    """Confidence classification for scored protein-set activity entries."""
+
+    HIGH_CONFIDENCE = "high_confidence"
+    LOW_CONFIDENCE = "low_confidence"
 
 
 class ProteinSetColumnMapping(JsonModel):
@@ -100,7 +108,9 @@ class ProteinSetSampleScoreEntry(JsonModel):
 
     set_id: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
     sample_id: str = Field(..., min_length=1)
     condition: str | None = None
     batch: str | None = None
@@ -109,6 +119,9 @@ class ProteinSetSampleScoreEntry(JsonModel):
     observed_member_count: int = Field(..., ge=0)
     missing_member_count: int = Field(..., ge=0)
     observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    minimum_observed_member_count: int = Field(..., ge=1)
+    confidence_status: ProteinSetScoreConfidenceStatus
+    confidence_reason: str | None = None
     observed_member_ids: tuple[str, ...] = Field(default_factory=tuple)
     missing_member_ids: tuple[str, ...] = Field(default_factory=tuple)
 
@@ -120,10 +133,15 @@ class ProteinSetConditionScoreEntry(JsonModel):
 
     set_id: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
     condition: str = Field(..., min_length=1)
     sample_count: int = Field(..., ge=0)
     scored_sample_count: int = Field(..., ge=0)
+    high_confidence_sample_count: int = Field(..., ge=0)
+    low_confidence_sample_count: int = Field(..., ge=0)
+    confidence_status: ProteinSetScoreConfidenceStatus
     mean_activity_score: float | None = None
 
 
@@ -134,9 +152,14 @@ class ProteinSetConditionComparisonEntry(JsonModel):
 
     set_id: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    condition_a_confidence_status: ProteinSetScoreConfidenceStatus
+    condition_b_confidence_status: ProteinSetScoreConfidenceStatus
+    comparison_confidence_status: ProteinSetScoreConfidenceStatus
     mean_activity_score_a: float | None = None
     mean_activity_score_b: float | None = None
     activity_score_delta: float | None = None
@@ -149,7 +172,9 @@ class UnresolvedProteinSetMemberEntry(JsonModel):
 
     set_id: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
     protein_ref: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
 
@@ -168,10 +193,20 @@ class ProteinSetScoringSummary(JsonModel):
     feature_protein_count: int = Field(..., ge=0)
     sample_score_count: int = Field(..., ge=0)
     scored_sample_count: int = Field(..., ge=0)
+    high_confidence_sample_score_count: int = Field(..., ge=0)
+    low_confidence_sample_score_count: int = Field(..., ge=0)
     sample_entries_with_missing_members: int = Field(..., ge=0)
     unresolved_member_count: int = Field(..., ge=0)
     condition_count: int = Field(..., ge=0)
     condition_comparison_count: int = Field(..., ge=0)
+
+
+class ProteinSetScoringPolicy(JsonModel):
+    """Confidence policy for protein-set activity scoring."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    minimum_observed_member_count: int = Field(default=2, ge=1)
 
 
 class ProteinSetScoringReport(JsonModel):
@@ -333,12 +368,14 @@ def build_protein_set_scoring_report(
     protein_set_records: tuple[ProteinSetRecord, ...],
     *,
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
+    policy: ProteinSetScoringPolicy | None = None,
 ) -> ProteinSetScoringReport:
     """Score protein sets per sample over one normalized protein quant table."""
 
     if table.entity_level is not QuantEntityLevel.PROTEIN:
         raise ValueError("protein set scoring requires a protein-level quantification table")
 
+    active_policy = policy or ProteinSetScoringPolicy()
     sample_ids = table.sample_ids
     sample_conditions = _condition_lookup(design_entries)
     sample_batches = {entry.sample_id: entry.batch for entry in design_entries}
@@ -362,7 +399,9 @@ def build_protein_set_scoring_report(
                 UnresolvedProteinSetMemberEntry(
                     set_id=set_id,
                     set_name=first.set_name,
+                    set_category=first.set_category,
                     source_name=first.source_name,
+                    source_accession=first.source_accession,
                     protein_ref=protein_ref,
                     reason="protein set member was not present in the quantification table",
                 )
@@ -380,6 +419,10 @@ def build_protein_set_scoring_report(
                 observed_scores.append(standardized)
             total_member_count = len(member_ids)
             observed_member_count = len(observed_member_ids)
+            confidence_status = _sample_confidence_status(
+                observed_member_count=observed_member_count,
+                minimum_observed_member_count=active_policy.minimum_observed_member_count,
+            )
             activity_score = (
                 round(float(np.mean(observed_scores)), 6) if observed_scores else None
             )
@@ -387,7 +430,9 @@ def build_protein_set_scoring_report(
                 ProteinSetSampleScoreEntry(
                     set_id=set_id,
                     set_name=first.set_name,
+                    set_category=first.set_category,
                     source_name=first.source_name,
+                    source_accession=first.source_accession,
                     sample_id=sample_id,
                     condition=sample_conditions.get(sample_id),
                     batch=sample_batches.get(sample_id),
@@ -399,6 +444,12 @@ def build_protein_set_scoring_report(
                         observed_member_count / total_member_count
                         if total_member_count > 0
                         else 0.0
+                    ),
+                    minimum_observed_member_count=active_policy.minimum_observed_member_count,
+                    confidence_status=confidence_status,
+                    confidence_reason=_confidence_reason(
+                        observed_member_count=observed_member_count,
+                        minimum_observed_member_count=active_policy.minimum_observed_member_count,
                     ),
                     observed_member_ids=tuple(observed_member_ids),
                     missing_member_ids=tuple(missing_member_ids),
@@ -425,6 +476,18 @@ def build_protein_set_scoring_report(
             scored_sample_count=sum(
                 1 for entry in sample_scores if entry.activity_score is not None
             ),
+            high_confidence_sample_score_count=sum(
+                1
+                for entry in sample_scores
+                if entry.confidence_status
+                is ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE
+            ),
+            low_confidence_sample_score_count=sum(
+                1
+                for entry in sample_scores
+                if entry.confidence_status
+                is ProteinSetScoreConfidenceStatus.LOW_CONFIDENCE
+            ),
             sample_entries_with_missing_members=sum(
                 1 for entry in sample_scores if entry.missing_member_count > 0
             ),
@@ -433,7 +496,7 @@ def build_protein_set_scoring_report(
             condition_comparison_count=len(condition_comparisons),
         ),
         note=(
-            "protein set scoring standardizes normalized protein abundances across samples, averages observed member signal per sample, and preserves missing or unresolved members explicitly"
+            "protein set scoring standardizes normalized protein abundances across samples, averages observed member signal per sample, preserves member coverage explicitly, and marks sparse member support as low confidence"
         ),
     )
 
@@ -454,6 +517,8 @@ def render_protein_set_scoring_summary_tsv(report: ProteinSetScoringReport) -> s
             "feature_protein_count",
             "sample_score_count",
             "scored_sample_count",
+            "high_confidence_sample_score_count",
+            "low_confidence_sample_score_count",
             "sample_entries_with_missing_members",
             "unresolved_member_count",
             "condition_count",
@@ -471,6 +536,8 @@ def render_protein_set_scoring_summary_tsv(report: ProteinSetScoringReport) -> s
             report.summary.feature_protein_count,
             report.summary.sample_score_count,
             report.summary.scored_sample_count,
+            report.summary.high_confidence_sample_score_count,
+            report.summary.low_confidence_sample_score_count,
             report.summary.sample_entries_with_missing_members,
             report.summary.unresolved_member_count,
             report.summary.condition_count,
@@ -492,14 +559,18 @@ def render_protein_set_score_matrix_tsv(report: ProteinSetScoringReport) -> str:
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(("set_id", "set_name", "source_name", *sample_ids))
+    writer.writerow(
+        ("set_id", "set_name", "set_category", "source_name", "source_accession", *sample_ids)
+    )
     for set_id in sorted(grouped_entries):
         metadata = metadata_by_set[set_id]
         writer.writerow(
             (
                 set_id,
                 metadata.set_name or "",
+                metadata.set_category or "",
                 metadata.source_name or "",
+                metadata.source_accession or "",
                 *[
                     ""
                     if grouped_entries[set_id][sample_id].activity_score is None
@@ -520,7 +591,9 @@ def render_protein_set_sample_score_tsv(report: ProteinSetScoringReport) -> str:
         (
             "set_id",
             "set_name",
+            "set_category",
             "source_name",
+            "source_accession",
             "sample_id",
             "condition",
             "batch",
@@ -529,6 +602,9 @@ def render_protein_set_sample_score_tsv(report: ProteinSetScoringReport) -> str:
             "observed_member_count",
             "missing_member_count",
             "observed_fraction",
+            "minimum_observed_member_count",
+            "confidence_status",
+            "confidence_reason",
             "observed_member_ids",
             "missing_member_ids",
         )
@@ -538,7 +614,9 @@ def render_protein_set_sample_score_tsv(report: ProteinSetScoringReport) -> str:
             (
                 entry.set_id,
                 entry.set_name or "",
+                entry.set_category or "",
                 entry.source_name or "",
+                entry.source_accession or "",
                 entry.sample_id,
                 entry.condition or "",
                 entry.batch or "",
@@ -547,6 +625,9 @@ def render_protein_set_sample_score_tsv(report: ProteinSetScoringReport) -> str:
                 entry.observed_member_count,
                 entry.missing_member_count,
                 f"{entry.observed_fraction:g}",
+                entry.minimum_observed_member_count,
+                entry.confidence_status.value,
+                entry.confidence_reason or "",
                 ";".join(entry.observed_member_ids),
                 ";".join(entry.missing_member_ids),
             )
@@ -563,10 +644,15 @@ def render_protein_set_condition_score_tsv(report: ProteinSetScoringReport) -> s
         (
             "set_id",
             "set_name",
+            "set_category",
             "source_name",
+            "source_accession",
             "condition",
             "sample_count",
             "scored_sample_count",
+            "high_confidence_sample_count",
+            "low_confidence_sample_count",
+            "confidence_status",
             "mean_activity_score",
         )
     )
@@ -575,10 +661,15 @@ def render_protein_set_condition_score_tsv(report: ProteinSetScoringReport) -> s
             (
                 entry.set_id,
                 entry.set_name or "",
+                entry.set_category or "",
                 entry.source_name or "",
+                entry.source_accession or "",
                 entry.condition,
                 entry.sample_count,
                 entry.scored_sample_count,
+                entry.high_confidence_sample_count,
+                entry.low_confidence_sample_count,
+                entry.confidence_status.value,
                 "" if entry.mean_activity_score is None else f"{entry.mean_activity_score:g}",
             )
         )
@@ -596,9 +687,14 @@ def render_protein_set_condition_comparison_tsv(
         (
             "set_id",
             "set_name",
+            "set_category",
             "source_name",
+            "source_accession",
             "condition_a",
             "condition_b",
+            "condition_a_confidence_status",
+            "condition_b_confidence_status",
+            "comparison_confidence_status",
             "mean_activity_score_a",
             "mean_activity_score_b",
             "activity_score_delta",
@@ -609,9 +705,14 @@ def render_protein_set_condition_comparison_tsv(
             (
                 entry.set_id,
                 entry.set_name or "",
+                entry.set_category or "",
                 entry.source_name or "",
+                entry.source_accession or "",
                 entry.condition_a,
                 entry.condition_b,
+                entry.condition_a_confidence_status.value,
+                entry.condition_b_confidence_status.value,
+                entry.comparison_confidence_status.value,
                 ""
                 if entry.mean_activity_score_a is None
                 else f"{entry.mean_activity_score_a:g}",
@@ -629,13 +730,25 @@ def render_protein_set_unresolved_member_tsv(report: ProteinSetScoringReport) ->
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(("set_id", "set_name", "source_name", "protein_ref", "reason"))
+    writer.writerow(
+        (
+            "set_id",
+            "set_name",
+            "set_category",
+            "source_name",
+            "source_accession",
+            "protein_ref",
+            "reason",
+        )
+    )
     for entry in report.unresolved_members:
         writer.writerow(
             (
                 entry.set_id,
                 entry.set_name or "",
+                entry.set_category or "",
                 entry.source_name or "",
+                entry.source_accession or "",
                 entry.protein_ref,
                 entry.reason,
             )
@@ -674,10 +787,27 @@ def _build_condition_scores(
             ProteinSetConditionScoreEntry(
                 set_id=set_id,
                 set_name=first.set_name,
+                set_category=first.set_category,
                 source_name=first.source_name,
+                source_accession=first.source_accession,
                 condition=condition,
                 sample_count=len(entries),
                 scored_sample_count=len(scored_values),
+                high_confidence_sample_count=sum(
+                    1
+                    for entry in entries
+                    if entry.confidence_status
+                    is ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE
+                ),
+                low_confidence_sample_count=sum(
+                    1
+                    for entry in entries
+                    if entry.confidence_status
+                    is ProteinSetScoreConfidenceStatus.LOW_CONFIDENCE
+                ),
+                confidence_status=_aggregate_confidence_status(
+                    tuple(entry.confidence_status for entry in entries)
+                ),
                 mean_activity_score=(
                     round(float(np.mean(scored_values)), 6) if scored_values else None
                 ),
@@ -709,9 +839,16 @@ def _build_condition_comparisons(
                     ProteinSetConditionComparisonEntry(
                         set_id=set_id,
                         set_name=left.set_name,
+                        set_category=left.set_category,
                         source_name=left.source_name,
+                        source_accession=left.source_accession,
                         condition_a=left.condition,
                         condition_b=right.condition,
+                        condition_a_confidence_status=left.confidence_status,
+                        condition_b_confidence_status=right.confidence_status,
+                        comparison_confidence_status=_aggregate_confidence_status(
+                            (left.confidence_status, right.confidence_status)
+                        ),
                         mean_activity_score_a=left.mean_activity_score,
                         mean_activity_score_b=right.mean_activity_score,
                         activity_score_delta=delta,
@@ -753,6 +890,37 @@ def _standardized_protein_values(
     return standardized
 
 
+def _sample_confidence_status(
+    *,
+    observed_member_count: int,
+    minimum_observed_member_count: int,
+) -> ProteinSetScoreConfidenceStatus:
+    if observed_member_count >= minimum_observed_member_count:
+        return ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE
+    return ProteinSetScoreConfidenceStatus.LOW_CONFIDENCE
+
+
+def _aggregate_confidence_status(
+    statuses: tuple[ProteinSetScoreConfidenceStatus, ...],
+) -> ProteinSetScoreConfidenceStatus:
+    if all(status is ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE for status in statuses):
+        return ProteinSetScoreConfidenceStatus.HIGH_CONFIDENCE
+    return ProteinSetScoreConfidenceStatus.LOW_CONFIDENCE
+
+
+def _confidence_reason(
+    *,
+    observed_member_count: int,
+    minimum_observed_member_count: int,
+) -> str | None:
+    if observed_member_count >= minimum_observed_member_count:
+        return None
+    return (
+        "observed member count "
+        f"{observed_member_count} was below minimum {minimum_observed_member_count}"
+    )
+
+
 def _infer_delimiter(header_line: str) -> str:
     return "\t" if "\t" in header_line else ","
 
@@ -792,10 +960,12 @@ __all__ = [
     "ProteinSetColumnMapping",
     "ProteinSetConditionComparisonEntry",
     "ProteinSetConditionScoreEntry",
+    "ProteinSetScoreConfidenceStatus",
     "ProteinSetImportReport",
     "ProteinSetImportSummary",
     "ProteinSetRecord",
     "ProteinSetSampleScoreEntry",
+    "ProteinSetScoringPolicy",
     "ProteinSetScoringReport",
     "ProteinSetScoringSummary",
     "RejectedProteinSetRow",
