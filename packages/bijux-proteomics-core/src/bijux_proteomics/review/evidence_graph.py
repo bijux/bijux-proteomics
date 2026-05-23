@@ -32,6 +32,43 @@ class ProteomicsEvidenceNodeKind(StrEnum):
     QC_DECISION = "qc_decision"
 
 
+class ProteomicsEvidenceEdgeKind(StrEnum):
+    """Stable typed relations admitted into the canonical proteomics evidence graph."""
+
+    CANDIDATE_SUPPORTS_PROTEIN = "candidate_supports_protein"
+    SAMPLE_CONTAINS_RUN = "sample_contains_run"
+    RUN_ACQUIRED_SPECTRUM = "run_acquired_spectrum"
+    SPECTRUM_ASSIGNS_PRECURSOR = "spectrum_assigns_precursor"
+    SPECTRUM_SUPPORTS_PSM = "spectrum_supports_psm"
+    PRECURSOR_SUPPORTS_PEPTIDE = "precursor_supports_peptide"
+    PSM_SUPPORTS_PEPTIDE = "psm_supports_peptide"
+    PEPTIDE_HAS_MODIFIED_FORM = "peptide_has_modified_form"
+    MODIFIED_PEPTIDE_LOCALIZES_PTM_SITE = "modified_peptide_localizes_ptm_site"
+    PEPTIDE_MAPS_TO_PROTEIN = "peptide_maps_to_protein"
+    PEPTIDE_QUANTIFIES_PROTEIN = "peptide_quantifies_protein"
+    PTM_SITE_BELONGS_TO_PROTEIN = "ptm_site_belongs_to_protein"
+    PROTEIN_MEMBER_OF_GROUP = "protein_member_of_group"
+    PRECURSOR_SUPPORTS_TRANSITION = "precursor_supports_transition"
+    PROTEIN_QUANTIFIED_BY_QUANT_VALUE = "protein_quantified_by_quant_value"
+    PROTEIN_MEMBER_OF_PATHWAY = "protein_member_of_pathway"
+    RUN_GOVERNED_BY_QC_DECISION = "run_governed_by_qc_decision"
+
+
+class ProteomicsEvidenceType(StrEnum):
+    """Evidence classes attached to typed graph edges."""
+
+    INFERENCE = "inference"
+    SPECTRUM_ASSIGNMENT = "spectrum_assignment"
+    PRECURSOR_ASSIGNMENT = "precursor_assignment"
+    SEQUENCE_MAPPING = "sequence_mapping"
+    PTM_LOCALIZATION = "ptm_localization"
+    QUANTIFICATION = "quantification"
+    ANNOTATION = "annotation"
+    QC = "qc"
+    WORKFLOW_CONTEXT = "workflow_context"
+    TARGETED_ASSAY = "targeted_assay"
+
+
 class ProteomicsEvidenceContextRef(JsonModel):
     """One stable context reference attached to a graph node."""
 
@@ -63,7 +100,11 @@ class ProteomicsEvidenceEdge(JsonModel):
 
     source_node_id: str = Field(..., min_length=1)
     target_node_id: str = Field(..., min_length=1)
-    relation: str = Field(..., min_length=1)
+    relation: ProteomicsEvidenceEdgeKind
+    source_row_ref: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    evidence_type: ProteomicsEvidenceType
+    reason: str = Field(..., min_length=1)
     support_count: int = Field(default=1, ge=1)
 
 
@@ -76,6 +117,8 @@ class ProteomicsEvidenceGraphSummary(JsonModel):
     edge_count: int = Field(..., ge=0)
     contradiction_node_count: int = Field(..., ge=0)
     node_kind_counts: dict[str, int] = Field(default_factory=dict)
+    edge_kind_counts: dict[str, int] = Field(default_factory=dict)
+    evidence_type_counts: dict[str, int] = Field(default_factory=dict)
 
 
 class ProteomicsEvidenceGraph(JsonModel):
@@ -117,14 +160,23 @@ def build_proteomics_evidence_graph(
         )
     )
     kind_counts: dict[str, int] = {}
+    edge_kind_counts: dict[str, int] = {}
+    evidence_type_counts: dict[str, int] = {}
     for node in sorted_nodes:
         kind_counts[node.entity_type.value] = kind_counts.get(node.entity_type.value, 0) + 1
+    for edge in sorted_edges:
+        edge_kind_counts[edge.relation.value] = edge_kind_counts.get(edge.relation.value, 0) + 1
+        evidence_type_counts[edge.evidence_type.value] = (
+            evidence_type_counts.get(edge.evidence_type.value, 0) + 1
+        )
 
     summary = ProteomicsEvidenceGraphSummary(
         node_count=len(sorted_nodes),
         edge_count=len(sorted_edges),
         contradiction_node_count=sum(bool(node.contradiction_ids) for node in sorted_nodes),
         node_kind_counts=dict(sorted(kind_counts.items())),
+        edge_kind_counts=dict(sorted(edge_kind_counts.items())),
+        evidence_type_counts=dict(sorted(evidence_type_counts.items())),
     )
     return ProteomicsEvidenceGraph(
         nodes=sorted_nodes,
@@ -134,11 +186,11 @@ def build_proteomics_evidence_graph(
 
 
 class ProteomicsEvidenceGraphBuilder:
-    """Builder that canonicalizes nodes and aggregates repeated evidence edges."""
+    """Builder that canonicalizes nodes and preserves typed evidentiary edges."""
 
     def __init__(self) -> None:
         self._nodes_by_id: dict[str, ProteomicsEvidenceNode] = {}
-        self._edge_support_by_key: dict[tuple[str, str, str], int] = {}
+        self._edges: list[ProteomicsEvidenceEdge] = []
 
     def add_node(
         self,
@@ -184,18 +236,336 @@ class ProteomicsEvidenceGraphBuilder:
         self,
         source_node_id: str,
         target_node_id: str,
-        relation: str,
+        relation: ProteomicsEvidenceEdgeKind,
         *,
+        source_row_ref: str,
+        confidence: float,
+        evidence_type: ProteomicsEvidenceType,
+        reason: str,
         support_count: int = 1,
     ) -> None:
-        """Add or aggregate one directed relation between existing nodes."""
+        """Add one typed evidentiary relation between existing nodes."""
 
         if source_node_id not in self._nodes_by_id:
             raise ValueError(f"source node is missing from builder: {source_node_id}")
         if target_node_id not in self._nodes_by_id:
             raise ValueError(f"target node is missing from builder: {target_node_id}")
-        key = (source_node_id, target_node_id, relation)
-        self._edge_support_by_key[key] = self._edge_support_by_key.get(key, 0) + support_count
+        self._edges.append(
+            ProteomicsEvidenceEdge(
+                source_node_id=source_node_id,
+                target_node_id=target_node_id,
+                relation=relation,
+                source_row_ref=source_row_ref,
+                confidence=confidence,
+                evidence_type=evidence_type,
+                reason=reason,
+                support_count=support_count,
+            )
+        )
+
+    def add_sample_contains_run(
+        self,
+        sample_node_id: str,
+        run_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            sample_node_id,
+            run_node_id,
+            ProteomicsEvidenceEdgeKind.SAMPLE_CONTAINS_RUN,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.WORKFLOW_CONTEXT,
+            reason=reason,
+        )
+
+    def add_run_acquired_spectrum(
+        self,
+        run_node_id: str,
+        spectrum_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            run_node_id,
+            spectrum_node_id,
+            ProteomicsEvidenceEdgeKind.RUN_ACQUIRED_SPECTRUM,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.WORKFLOW_CONTEXT,
+            reason=reason,
+        )
+
+    def add_spectrum_assigns_precursor(
+        self,
+        spectrum_node_id: str,
+        precursor_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            spectrum_node_id,
+            precursor_node_id,
+            ProteomicsEvidenceEdgeKind.SPECTRUM_ASSIGNS_PRECURSOR,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.PRECURSOR_ASSIGNMENT,
+            reason=reason,
+        )
+
+    def add_spectrum_supports_psm(
+        self,
+        spectrum_node_id: str,
+        psm_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            spectrum_node_id,
+            psm_node_id,
+            ProteomicsEvidenceEdgeKind.SPECTRUM_SUPPORTS_PSM,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.SPECTRUM_ASSIGNMENT,
+            reason=reason,
+        )
+
+    def add_precursor_supports_peptide(
+        self,
+        precursor_node_id: str,
+        peptide_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            precursor_node_id,
+            peptide_node_id,
+            ProteomicsEvidenceEdgeKind.PRECURSOR_SUPPORTS_PEPTIDE,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.PRECURSOR_ASSIGNMENT,
+            reason=reason,
+        )
+
+    def add_psm_supports_peptide(
+        self,
+        psm_node_id: str,
+        peptide_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            psm_node_id,
+            peptide_node_id,
+            ProteomicsEvidenceEdgeKind.PSM_SUPPORTS_PEPTIDE,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.SPECTRUM_ASSIGNMENT,
+            reason=reason,
+        )
+
+    def add_peptide_has_modified_form(
+        self,
+        peptide_node_id: str,
+        modified_peptide_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            peptide_node_id,
+            modified_peptide_node_id,
+            ProteomicsEvidenceEdgeKind.PEPTIDE_HAS_MODIFIED_FORM,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason=reason,
+        )
+
+    def add_modified_peptide_localizes_ptm_site(
+        self,
+        modified_peptide_node_id: str,
+        ptm_site_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            modified_peptide_node_id,
+            ptm_site_node_id,
+            ProteomicsEvidenceEdgeKind.MODIFIED_PEPTIDE_LOCALIZES_PTM_SITE,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.PTM_LOCALIZATION,
+            reason=reason,
+        )
+
+    def add_peptide_maps_to_protein(
+        self,
+        peptide_node_id: str,
+        protein_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            peptide_node_id,
+            protein_node_id,
+            ProteomicsEvidenceEdgeKind.PEPTIDE_MAPS_TO_PROTEIN,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.SEQUENCE_MAPPING,
+            reason=reason,
+        )
+
+    def add_peptide_quantifies_protein(
+        self,
+        peptide_node_id: str,
+        protein_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            peptide_node_id,
+            protein_node_id,
+            ProteomicsEvidenceEdgeKind.PEPTIDE_QUANTIFIES_PROTEIN,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.QUANTIFICATION,
+            reason=reason,
+        )
+
+    def add_ptm_site_belongs_to_protein(
+        self,
+        ptm_site_node_id: str,
+        protein_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            ptm_site_node_id,
+            protein_node_id,
+            ProteomicsEvidenceEdgeKind.PTM_SITE_BELONGS_TO_PROTEIN,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.SEQUENCE_MAPPING,
+            reason=reason,
+        )
+
+    def add_protein_member_of_group(
+        self,
+        protein_node_id: str,
+        protein_group_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            protein_node_id,
+            protein_group_node_id,
+            ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_GROUP,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason=reason,
+        )
+
+    def add_precursor_supports_transition(
+        self,
+        precursor_node_id: str,
+        transition_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            precursor_node_id,
+            transition_node_id,
+            ProteomicsEvidenceEdgeKind.PRECURSOR_SUPPORTS_TRANSITION,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.TARGETED_ASSAY,
+            reason=reason,
+        )
+
+    def add_protein_quantified_by_quant_value(
+        self,
+        protein_node_id: str,
+        quant_value_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            protein_node_id,
+            quant_value_node_id,
+            ProteomicsEvidenceEdgeKind.PROTEIN_QUANTIFIED_BY_QUANT_VALUE,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.QUANTIFICATION,
+            reason=reason,
+        )
+
+    def add_protein_member_of_pathway(
+        self,
+        protein_node_id: str,
+        pathway_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            protein_node_id,
+            pathway_node_id,
+            ProteomicsEvidenceEdgeKind.PROTEIN_MEMBER_OF_PATHWAY,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.ANNOTATION,
+            reason=reason,
+        )
+
+    def add_run_governed_by_qc_decision(
+        self,
+        run_node_id: str,
+        qc_decision_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            run_node_id,
+            qc_decision_node_id,
+            ProteomicsEvidenceEdgeKind.RUN_GOVERNED_BY_QC_DECISION,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.QC,
+            reason=reason,
+        )
 
     def add_candidate(self, candidate_id: str, **kwargs: object) -> ProteomicsEvidenceNode:
         return self.ensure_node(ProteomicsEvidenceNodeKind.CANDIDATE, candidate_id, **kwargs)
@@ -271,18 +641,7 @@ class ProteomicsEvidenceGraphBuilder:
     def build(self) -> ProteomicsEvidenceGraph:
         """Build one validated canonical graph from the accumulated nodes and edges."""
 
-        edges = tuple(
-            ProteomicsEvidenceEdge(
-                source_node_id=source_node_id,
-                target_node_id=target_node_id,
-                relation=relation,
-                support_count=support_count,
-            )
-            for (source_node_id, target_node_id, relation), support_count in sorted(
-                self._edge_support_by_key.items()
-            )
-        )
         return build_proteomics_evidence_graph(
             tuple(self._nodes_by_id.values()),
-            edges,
+            tuple(self._edges),
         )
