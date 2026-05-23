@@ -42,7 +42,11 @@ from bijux_proteomics.dia import (
 from bijux_proteomics.identification.diann_import import (
     DiaNnBundleImportReport,
     build_diann_import_report,
+    render_diann_rejected_row_tsv,
     render_diann_summary_tsv,
+)
+from bijux_proteomics.identification.rejected_evidence_table import (
+    render_rejected_evidence_tsv,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import NormalizationMethod
@@ -73,6 +77,8 @@ class DiannBiologicalWorkflowSummary(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     imported_precursor_count: int = Field(..., ge=0)
+    rejected_precursor_count: int = Field(..., ge=0)
+    rejected_evidence_count: int = Field(..., ge=0)
     imported_protein_group_row_count: int = Field(..., ge=0)
     filtered_q_value_row_count: int = Field(..., ge=0)
     precursor_matrix_row_count: int = Field(..., ge=0)
@@ -81,6 +87,8 @@ class DiannBiologicalWorkflowSummary(JsonModel):
     flagged_run_count: int = Field(..., ge=0)
     significant_protein_count: int = Field(..., ge=0)
     annotation_entry_count: int = Field(..., ge=0)
+    protein_card_count: int = Field(..., ge=0)
+    context_term_count: int = Field(..., ge=0)
     go_enriched_term_count: int = Field(..., ge=0)
     pathway_enriched_entry_count: int = Field(..., ge=0)
     complex_enriched_entry_count: int = Field(..., ge=0)
@@ -109,6 +117,8 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
 
     summary_tsv: str = Field(..., min_length=1)
     import_summary_tsv: str = Field(..., min_length=1)
+    import_rejected_rows_tsv: str = Field(..., min_length=1)
+    import_rejected_evidence_tsv: str = Field(..., min_length=1)
     precursor_summary_tsv: str = Field(..., min_length=1)
     precursor_quantity_matrix_tsv: str = Field(..., min_length=1)
     precursor_q_value_matrix_tsv: str = Field(..., min_length=1)
@@ -128,6 +138,14 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     differential_qc_summary_tsv: str = Field(..., min_length=1)
     differential_balance_tsv: str = Field(..., min_length=1)
     biological_manifest_json: str = Field(..., min_length=1)
+    protein_card_summary_tsv: str = Field(..., min_length=1)
+    protein_card_tsv: str = Field(..., min_length=1)
+    annotation_tsv: str = Field(..., min_length=1)
+    annotation_unmapped_tsv: str = Field(..., min_length=1)
+    context_mapping_tsv: str | None = None
+    context_term_tsv: str | None = None
+    context_unmapped_tsv: str | None = None
+    context_rejected_tsv: str | None = None
     report_html: str = Field(..., min_length=1)
 
 
@@ -158,6 +176,7 @@ def build_diann_biological_workflow_bundle(
     condition_a: str | None = None,
     condition_b: str | None = None,
     annotation_tsv_path: Path | None = None,
+    context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -213,6 +232,7 @@ def build_diann_biological_workflow_bundle(
         design_entries,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
+        context_annotation_tsv_path=context_annotation_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
@@ -232,6 +252,8 @@ def build_diann_biological_workflow_bundle(
         biological_report=biological_report,
         summary=DiannBiologicalWorkflowSummary(
             imported_precursor_count=import_report.summary.accepted_precursor_count,
+            rejected_precursor_count=import_report.summary.rejected_precursor_count,
+            rejected_evidence_count=len(import_report.rejected_evidence_rows),
             imported_protein_group_row_count=import_report.summary.protein_group_row_count,
             filtered_q_value_row_count=precursor_matrix_report.summary.excluded_q_value_count,
             precursor_matrix_row_count=precursor_matrix_report.summary.precursor_row_count,
@@ -240,6 +262,8 @@ def build_diann_biological_workflow_bundle(
             flagged_run_count=run_qc_report.summary.flagged_run_count,
             significant_protein_count=biological_report.summary.significant_protein_count,
             annotation_entry_count=biological_report.summary.annotation_entry_count,
+            protein_card_count=biological_report.summary.protein_card_count,
+            context_term_count=biological_report.summary.context_term_count,
             go_enriched_term_count=biological_report.summary.go_enriched_term_count,
             pathway_enriched_entry_count=biological_report.summary.pathway_enriched_entry_count,
             complex_enriched_entry_count=biological_report.summary.complex_enriched_entry_count,
@@ -260,6 +284,8 @@ def render_diann_biological_workflow_summary_tsv(
     writer.writerow(("field", "value"))
     for field_name, value in (
         ("imported_precursor_count", report.summary.imported_precursor_count),
+        ("rejected_precursor_count", report.summary.rejected_precursor_count),
+        ("rejected_evidence_count", report.summary.rejected_evidence_count),
         ("imported_protein_group_row_count", report.summary.imported_protein_group_row_count),
         ("filtered_q_value_row_count", report.summary.filtered_q_value_row_count),
         ("precursor_matrix_row_count", report.summary.precursor_matrix_row_count),
@@ -268,6 +294,8 @@ def render_diann_biological_workflow_summary_tsv(
         ("flagged_run_count", report.summary.flagged_run_count),
         ("significant_protein_count", report.summary.significant_protein_count),
         ("annotation_entry_count", report.summary.annotation_entry_count),
+        ("protein_card_count", report.summary.protein_card_count),
+        ("context_term_count", report.summary.context_term_count),
         ("go_enriched_term_count", report.summary.go_enriched_term_count),
         ("pathway_enriched_entry_count", report.summary.pathway_enriched_entry_count),
         ("complex_enriched_entry_count", report.summary.complex_enriched_entry_count),
@@ -286,6 +314,8 @@ def export_diann_biological_workflow_bundle(
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_name = "diann_biological_summary.tsv"
     import_summary_name = "diann_import_summary.tsv"
+    import_rejected_rows_name = "diann_import_rejected_rows.tsv"
+    import_rejected_evidence_name = "diann_import_rejected_evidence.tsv"
     precursor_summary_name = "diann_precursor_matrix_summary.tsv"
     precursor_matrix_name = "diann_precursor_quantity_matrix.tsv"
     precursor_q_value_name = "diann_precursor_q_values.tsv"
@@ -312,6 +342,14 @@ def export_diann_biological_workflow_bundle(
     )
     (output_dir / import_summary_name).write_text(
         render_diann_summary_tsv(report.import_report.summary),
+        encoding="utf-8",
+    )
+    (output_dir / import_rejected_rows_name).write_text(
+        render_diann_rejected_row_tsv(report.import_report.rejected_rows),
+        encoding="utf-8",
+    )
+    (output_dir / import_rejected_evidence_name).write_text(
+        render_rejected_evidence_tsv(report.import_report.rejected_evidence_rows),
         encoding="utf-8",
     )
     (output_dir / precursor_summary_name).write_text(
@@ -405,6 +443,8 @@ def export_diann_biological_workflow_bundle(
         artifacts=DiannBiologicalWorkflowArtifactPaths(
             summary_tsv=summary_name,
             import_summary_tsv=import_summary_name,
+            import_rejected_rows_tsv=import_rejected_rows_name,
+            import_rejected_evidence_tsv=import_rejected_evidence_name,
             precursor_summary_tsv=precursor_summary_name,
             precursor_quantity_matrix_tsv=precursor_matrix_name,
             precursor_q_value_matrix_tsv=precursor_q_value_name,
@@ -424,6 +464,14 @@ def export_diann_biological_workflow_bundle(
             differential_qc_summary_tsv=differential_qc_summary_name,
             differential_balance_tsv=differential_balance_name,
             biological_manifest_json=biological_manifest_name,
+            protein_card_summary_tsv=biological_manifest.artifacts.protein_card_summary_tsv,
+            protein_card_tsv=biological_manifest.artifacts.protein_card_tsv,
+            annotation_tsv=biological_manifest.artifacts.annotation_tsv,
+            annotation_unmapped_tsv=biological_manifest.artifacts.annotation_unmapped_tsv,
+            context_mapping_tsv=biological_manifest.artifacts.context_mapping_tsv,
+            context_term_tsv=biological_manifest.artifacts.context_term_tsv,
+            context_unmapped_tsv=biological_manifest.artifacts.context_unmapped_tsv,
+            context_rejected_tsv=biological_manifest.artifacts.context_rejected_tsv,
             report_html=biological_manifest.artifacts.report_html,
         ),
         biological_report_manifest=biological_manifest,
