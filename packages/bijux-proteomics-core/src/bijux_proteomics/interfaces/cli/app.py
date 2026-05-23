@@ -533,6 +533,7 @@ from bijux_proteomics.quantification import (
     Ms1FeatureColumnMapping,
     NormalizationMethod,
     PeptideMatrixGroupingMode,
+    PrecursorIntensityColumnMapping,
     ProteinMatrixTargetKind,
     QuantEntityLevel,
     QuantMeasureKind,
@@ -554,6 +555,7 @@ from bijux_proteomics.quantification import (
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_peptide_intensity_matrix_from_features,
+    build_peptide_intensity_matrix_from_precursors,
     build_peptide_intensity_matrix_from_psms,
     build_protein_intensity_matrix_from_features,
     build_protein_intensity_matrix_from_psms,
@@ -586,7 +588,10 @@ from bijux_proteomics.quantification import (
     normalize_label_free_table,
     parse_limma_result_table,
     parse_ms1_feature_table,
+    parse_precursor_intensity_table,
     parse_msstats_result_table,
+    render_peptide_intensity_aggregation_tsv,
+    render_peptide_intensity_missingness_mask_tsv,
     render_peptide_intensity_matrix_summary_tsv,
     render_peptide_intensity_matrix_tsv,
     render_peptide_intensity_missingness_tsv,
@@ -1142,6 +1147,10 @@ def _heatmap_missing_value_choice() -> click.Choice[str]:
 
 def _peptide_matrix_input_kind_choice() -> click.Choice[str]:
     return click.Choice(("feature", "psm"), case_sensitive=False)
+
+
+def _peptide_matrix_builder_input_kind_choice() -> click.Choice[str]:
+    return click.Choice(("feature", "precursor", "psm"), case_sensitive=False)
 
 
 def _peptide_matrix_grouping_choice() -> click.Choice[str]:
@@ -9319,7 +9328,7 @@ def maxquant_biological_report_command(
 )
 @click.option(
     "--input-kind",
-    type=_peptide_matrix_input_kind_choice(),
+    type=_peptide_matrix_builder_input_kind_choice(),
     default="feature",
     show_default=True,
 )
@@ -9343,6 +9352,7 @@ def maxquant_biological_report_command(
 @click.option("--top-n", type=int, default=3, show_default=True)
 @click.option("--sample-column", default="sample_id", show_default=True)
 @click.option("--feature-id-column", default="feature_id", show_default=True)
+@click.option("--precursor-id-column", default="precursor_id", show_default=True)
 @click.option("--run-column", default="run_id", show_default=True)
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
@@ -9376,6 +9386,16 @@ def maxquant_biological_report_command(
     default=None,
 )
 @click.option(
+    "--missingness-mask-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--aggregation-table-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -9391,6 +9411,7 @@ def peptide_matrix_command(
     top_n: int,
     sample_column: str,
     feature_id_column: str,
+    precursor_id_column: str,
     run_column: str,
     spectrum_id_column: str,
     peptide_column: str,
@@ -9409,9 +9430,11 @@ def peptide_matrix_command(
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
+    missingness_mask_tsv_out: Path | None,
+    aggregation_table_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    """Build one peptide-by-sample intensity matrix from feature or PSM evidence."""
+    """Build one peptide-by-sample intensity matrix from feature, precursor, or PSM evidence."""
     try:
         grouping = PeptideMatrixGroupingMode(grouping_mode)
         rollup_method = QuantRollupMethod(aggregation)
@@ -9440,6 +9463,38 @@ def peptide_matrix_command(
                 "input_kind": input_kind,
                 "accepted_source_records": len(parse_report.accepted_records),
                 "rejected_source_records": len(parse_report.rejected_rows),
+                "report": report.to_dict(),
+            }
+        elif input_kind == "precursor":
+            precursor_mapping = PrecursorIntensityColumnMapping(
+                peptide=peptide_column,
+                modified_peptide=modified_peptide_column,
+                intensity=intensity_column,
+                sample_id=sample_column,
+                run_id=run_column,
+                protein_refs=protein_refs_column,
+                precursor_id=precursor_id_column,
+                charge=charge_column,
+                missing_reason=missing_reason_column,
+                protein_separator=protein_separator,
+            )
+            precursor_parse_report = parse_precursor_intensity_table(
+                input_table,
+                mapping=precursor_mapping,
+            )
+            report = build_peptide_intensity_matrix_from_precursors(
+                precursor_parse_report.accepted_records,
+                grouping_mode=grouping,
+                separate_charge_states=separate_charge_states,
+                aggregation_method=rollup_method,
+                top_n=top_n,
+            )
+            payload = {
+                "input_kind": input_kind,
+                "accepted_source_records": len(
+                    precursor_parse_report.accepted_records
+                ),
+                "rejected_source_records": len(precursor_parse_report.rejected_rows),
                 "report": report.to_dict(),
             }
         else:
@@ -9486,11 +9541,31 @@ def peptide_matrix_command(
             missingness_tsv_out,
             render_peptide_intensity_missingness_tsv(report),
         )
+    if missingness_mask_tsv_out is not None:
+        _write_text_output(
+            missingness_mask_tsv_out,
+            render_peptide_intensity_missingness_mask_tsv(report),
+        )
+    if aggregation_table_tsv_out is not None:
+        _write_text_output(
+            aggregation_table_tsv_out,
+            render_peptide_intensity_aggregation_tsv(report),
+        )
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
         "missingness_tsv": (
             None if missingness_tsv_out is None else str(missingness_tsv_out)
+        ),
+        "missingness_mask_tsv": (
+            None
+            if missingness_mask_tsv_out is None
+            else str(missingness_mask_tsv_out)
+        ),
+        "aggregation_table_tsv": (
+            None
+            if aggregation_table_tsv_out is None
+            else str(aggregation_table_tsv_out)
         ),
     }
     _emit_json(payload, out_path=out_path)
