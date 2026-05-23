@@ -10,6 +10,7 @@ from bijux_proteomics.review.contracts import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_chain_reconstruction import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph_confidence import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph_contradictions import *  # noqa: F401,F403
+from bijux_proteomics.review.evidence_graph_downgrades import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph_queries import *  # noqa: F401,F403
 from bijux_proteomics.review.flagship_kernel import *  # noqa: F401,F403

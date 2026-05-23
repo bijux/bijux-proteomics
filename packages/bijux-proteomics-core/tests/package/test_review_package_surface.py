@@ -202,3 +202,70 @@ def test_review_package_exports_evidence_graph_confidence_surface() -> None:
     assert "claim_node_id\tclaim_node_ref\tsubject_node_id" in (
         review.render_evidence_graph_confidence_tsv(report)
     )
+
+
+def test_review_package_exports_evidence_graph_downgrade_surface() -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    protein = builder.add_protein("P11111", label="P11111", trust_class="high")
+    peptide = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
+    alternate = builder.add_protein("P22222", label="P22222", trust_class="high")
+    result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+        claim_state="changed",
+    )
+    spectrum = builder.add_spectrum("scan=1001", label="scan=1001", trust_class="high")
+    psm = builder.add_psm("psm:1001", label="psm:1001", trust_class="high")
+
+    builder.add_spectrum_supports_psm(
+        spectrum.node_id,
+        psm.node_id,
+        source_row_ref="psm.tsv:4",
+        confidence=0.97,
+        reason="strong spectrum supports accepted PSM",
+    )
+    builder.add_psm_supports_peptide(
+        psm.node_id,
+        peptide.node_id,
+        source_row_ref="peptide.tsv:4",
+        confidence=0.96,
+        reason="strong PSM supports peptide PEPA",
+    )
+    builder.add_peptide_quantifies_protein(
+        peptide.node_id,
+        protein.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.93,
+        reason="strong peptide quantifies protein P11111",
+    )
+    builder.add_peptide_maps_to_protein(
+        peptide.node_id,
+        protein.node_id,
+        source_row_ref="digest.tsv:4",
+        confidence=1.0,
+        reason="PEPA maps to P11111",
+    )
+    builder.add_peptide_maps_to_protein(
+        peptide.node_id,
+        alternate.node_id,
+        source_row_ref="digest.tsv:5",
+        confidence=1.0,
+        reason="PEPA also maps to P22222",
+    )
+    builder.add_protein_supports_statistical_result(
+        protein.node_id,
+        result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.91,
+        reason="strong protein differential result",
+    )
+
+    report = review.build_evidence_graph_final_result_table(builder.build())
+
+    assert hasattr(review, "build_evidence_graph_final_result_table")
+    assert hasattr(review, "render_evidence_graph_final_results_tsv")
+    assert report.entry_count == 1
+    assert report.entries[0].evidence_tier.value == "ambiguous"
+    assert [reason.value for reason in report.entries[0].downgrade_reasons] == [
+        "shared_peptide_only"
+    ]
