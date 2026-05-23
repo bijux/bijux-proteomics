@@ -28,7 +28,11 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
     )
 
     assert hasattr(workflow, "build_protein_evidence_card_report")
+    assert hasattr(workflow, "build_biological_result_graph_report")
     assert "card_id" in workflow.render_protein_evidence_card_tsv(report.protein_cards)
+    assert "graph_claim_node_id" in workflow.render_protein_evidence_card_tsv(
+        report.protein_cards
+    )
     assert report.protein_cards.summary.protein_result_count == report.summary.protein_count
 
 
