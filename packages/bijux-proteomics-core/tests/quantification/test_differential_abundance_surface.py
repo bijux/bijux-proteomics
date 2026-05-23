@@ -6,6 +6,7 @@ from __future__ import annotations
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import (
     BrokenPairDisposition,
+    DifferentialReplicatePolicy,
     DifferentialAbundanceTestType,
     MissingValueKind,
     Ms1FeatureRecord,
@@ -16,6 +17,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_quant_design_matrix_report,
 )
+from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
 def _design() -> tuple[ExperimentalDesignEntry, ...]:
@@ -337,3 +339,129 @@ def test_differential_abundance_owner_can_block_broken_pairs_under_policy() -> N
         assert "blocked" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("paired differential testing should block broken pairs")
+
+
+def test_differential_abundance_combines_multi_run_samples_by_default() -> None:
+    table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="combine-001",
+                sample_id="S1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P1",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="combine-002",
+                sample_id="S2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=220.0,
+                protein_refs=("P1",),
+            ),
+        ),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    report = build_differential_abundance_report(
+        table,
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001.mzml",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002.mzml",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S2",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-003.mzml",
+                technical_replicate_id="tech-3",
+            ),
+        ),
+        condition_a="control",
+        condition_b="treatment",
+        replicate_policy=DifferentialReplicatePolicy(min_replicates_per_condition=1),
+    )
+
+    assert report.condition_a == "control"
+    assert report.condition_b == "treatment"
+    assert report.entries[0].observations_a == 1
+    assert report.entries[0].observations_b == 1
+
+
+def test_differential_abundance_rejects_unresolved_separate_run_policy() -> None:
+    table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="separate-001",
+                sample_id="S1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P1",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="separate-002",
+                sample_id="S2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=220.0,
+                protein_refs=("P1",),
+            ),
+        ),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    try:
+        build_differential_abundance_report(
+            table,
+            (
+                ExperimentalDesignEntry(
+                    sample_id="S1",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-001.mzml",
+                    technical_replicate_id="tech-1",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="S1",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-002.mzml",
+                    technical_replicate_id="tech-2",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="S2",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-003.mzml",
+                    technical_replicate_id="tech-3",
+                ),
+            ),
+            condition_a="control",
+            condition_b="treatment",
+            sample_run_policy=SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+        )
+    except ValueError as exc:
+        assert "sample/run policy 'separate_technical_runs'" in str(exc)
+        assert "S1__technical_replicate_tech-1" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected unresolved separate-run policy to be rejected")

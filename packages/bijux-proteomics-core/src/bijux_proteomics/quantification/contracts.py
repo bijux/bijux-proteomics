@@ -3931,10 +3931,16 @@ def build_differential_abundance_report(
     contrast_name: str | None = None,
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_run_policy: "SampleRunAnalysisPolicy" = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
     from bijux_proteomics.quantification.differential_abundance import (
         build_differential_abundance_report as _implementation,
+    )
+    from bijux_proteomics.study.sample_run_identity import SampleRunAnalysisPolicy
+
+    resolved_sample_run_policy = (
+        sample_run_policy or SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
     )
 
     return _implementation(
@@ -3947,6 +3953,7 @@ def build_differential_abundance_report(
         contrast_name=contrast_name,
         paired_policy=paired_policy,
         replicate_policy=replicate_policy,
+        sample_run_policy=resolved_sample_run_policy,
     )
 
 
@@ -4035,13 +4042,23 @@ def build_time_course_differential_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     policy: TimeCourseTestingPolicy | None = None,
+    sample_run_policy: "SampleRunAnalysisPolicy" = None,
 ) -> TimeCourseDifferentialReport:
     """Build one ordered time-course differential report over a quant table."""
     from bijux_proteomics.quantification.time_course_differential import (
         build_time_course_differential_report as _implementation,
     )
+    from bijux_proteomics.study.sample_run_identity import SampleRunAnalysisPolicy
 
-    return _implementation(table, design_entries, policy=policy)
+    resolved_sample_run_policy = (
+        sample_run_policy or SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
+    )
+    return _implementation(
+        table,
+        design_entries,
+        policy=policy,
+        sample_run_policy=resolved_sample_run_policy,
+    )
 
 
 def render_time_course_differential_tsv(

@@ -16,6 +16,7 @@ from bijux_proteomics.quantification import (
     export_time_course_differential_tsv,
     render_time_course_differential_tsv,
 )
+from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
 def _design_entries(*, labels: tuple[str, ...]) -> tuple[ExperimentalDesignEntry, ...]:
@@ -307,3 +308,216 @@ def test_time_course_differential_accepts_explicit_order_and_exports_tsv(
     assert output_path.read_text(encoding="utf-8").startswith(
         "entity_id\tcondition\treference_condition"
     )
+
+
+def test_time_course_differential_combines_multi_run_samples_by_default() -> None:
+    table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="mrc0",
+                sample_id="c0",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="mrc1",
+                sample_id="c1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=130.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="mrt0",
+                sample_id="t0",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="mrt1",
+                sample_id="t1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=420.0,
+                protein_refs=("P001",),
+            ),
+        ),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    report = build_time_course_differential_report(
+        table,
+        (
+            ExperimentalDesignEntry(
+                sample_id="c0",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="c0_run1.mzml",
+                technical_replicate_id="tech-1",
+                metadata={"timepoint": "t0"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="c0",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="c0_run2.mzml",
+                technical_replicate_id="tech-2",
+                metadata={"timepoint": "t0"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="c1",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="c1_run1.mzml",
+                technical_replicate_id="tech-3",
+                metadata={"timepoint": "t1"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="t0",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="t0_run1.mzml",
+                technical_replicate_id="tech-4",
+                metadata={"timepoint": "t0"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="t0",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="t0_run2.mzml",
+                technical_replicate_id="tech-5",
+                metadata={"timepoint": "t0"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="t1",
+                condition="treatment",
+                replicate=2,
+                fraction=1,
+                spectra_file="t1_run1.mzml",
+                technical_replicate_id="tech-6",
+                metadata={"timepoint": "t1"},
+            ),
+        ),
+        policy=TimeCourseTestingPolicy(timepoint_field="timepoint"),
+    )
+
+    assert report.condition_count == 2
+    assert report.ordered_timepoints == ("t0", "t1")
+
+
+def test_time_course_differential_rejects_unresolved_separate_run_policy() -> None:
+    table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="src0",
+                sample_id="c0",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="src1",
+                sample_id="c1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=130.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="srt0",
+                sample_id="t0",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P001",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="srt1",
+                sample_id="t1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=420.0,
+                protein_refs=("P001",),
+            ),
+        ),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    try:
+        build_time_course_differential_report(
+            table,
+            (
+                ExperimentalDesignEntry(
+                    sample_id="c0",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="c0_run1.mzml",
+                    technical_replicate_id="tech-1",
+                    metadata={"timepoint": "t0"},
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="c0",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="c0_run2.mzml",
+                    technical_replicate_id="tech-2",
+                    metadata={"timepoint": "t0"},
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="c1",
+                    condition="control",
+                    replicate=2,
+                    fraction=1,
+                    spectra_file="c1_run1.mzml",
+                    technical_replicate_id="tech-3",
+                    metadata={"timepoint": "t1"},
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="t0",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="t0_run1.mzml",
+                    technical_replicate_id="tech-4",
+                    metadata={"timepoint": "t0"},
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="t0",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="t0_run2.mzml",
+                    technical_replicate_id="tech-5",
+                    metadata={"timepoint": "t0"},
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="t1",
+                    condition="treatment",
+                    replicate=2,
+                    fraction=1,
+                    spectra_file="t1_run1.mzml",
+                    technical_replicate_id="tech-6",
+                    metadata={"timepoint": "t1"},
+                ),
+            ),
+            policy=TimeCourseTestingPolicy(timepoint_field="timepoint"),
+            sample_run_policy=SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+        )
+    except ValueError as exc:
+        assert "resolved time-course analysis design" in str(exc)
+        assert "c0__technical_replicate_tech-1" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected unresolved separate-run policy to be rejected")

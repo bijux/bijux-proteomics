@@ -39,6 +39,10 @@ from bijux_proteomics.quantification.contracts import (
 from bijux_proteomics.quantification.design_matrix import (
     build_quant_design_matrix_report,
 )
+from bijux_proteomics.study.sample_run_identity import (
+    SampleRunAnalysisPolicy,
+    resolve_sample_run_analysis_entries,
+)
 
 
 def build_differential_abundance_report(
@@ -52,10 +56,22 @@ def build_differential_abundance_report(
     contrast_name: str | None = None,
     paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_run_policy: SampleRunAnalysisPolicy = (
+        SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
+    ),
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
     active_policy = replicate_policy or DifferentialReplicatePolicy()
-    condition_by_sample = _condition_lookup(design_entries)
+    analysis_design_entries = resolve_sample_run_analysis_entries(
+        design_entries,
+        policy=sample_run_policy,
+    )
+    _require_table_sample_ids(
+        table,
+        design_entries=analysis_design_entries,
+        sample_run_policy=sample_run_policy,
+    )
+    condition_by_sample = _condition_lookup(analysis_design_entries)
     conditions = tuple(
         sorted({condition for condition in condition_by_sample.values() if condition})
     )
@@ -91,13 +107,13 @@ def build_differential_abundance_report(
         if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
             active_paired_policy = paired_policy or PairedDifferentialPolicy()
             active_design_matrix = design_matrix or build_quant_design_matrix_report(
-                design_entries,
+                analysis_design_entries,
                 batch_field="",
                 pairing_field=active_paired_policy.pair_id_field,
             )
         else:
             active_design_matrix = design_matrix or build_quant_design_matrix_report(
-                design_entries
+                analysis_design_entries
             )
         selected_contrast = _resolve_design_contrast(
             active_design_matrix,
@@ -299,10 +315,22 @@ def build_multi_condition_differential_abundance_report(
     test_type: DifferentialAbundanceTestType = DifferentialAbundanceTestType.WELCH_T_TEST,
     design_matrix: QuantDesignMatrixReport | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
+    sample_run_policy: SampleRunAnalysisPolicy = (
+        SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
+    ),
 ) -> MultiConditionDifferentialAbundanceReport:
     """Build pairwise differential reports across a study design."""
     active_policy = replicate_policy or DifferentialReplicatePolicy()
-    condition_by_sample = _condition_lookup(design_entries)
+    analysis_design_entries = resolve_sample_run_analysis_entries(
+        design_entries,
+        policy=sample_run_policy,
+    )
+    _require_table_sample_ids(
+        table,
+        design_entries=analysis_design_entries,
+        sample_run_policy=sample_run_policy,
+    )
+    condition_by_sample = _condition_lookup(analysis_design_entries)
     conditions = tuple(
         sorted({condition for condition in condition_by_sample.values() if condition})
     )
@@ -319,7 +347,7 @@ def build_multi_condition_differential_abundance_report(
     active_design_matrix: QuantDesignMatrixReport | None = None
     if test_type is DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST:
         active_design_matrix = design_matrix or build_quant_design_matrix_report(
-            design_entries
+            analysis_design_entries
         )
 
     known_conditions = set(conditions)
@@ -353,13 +381,14 @@ def build_multi_condition_differential_abundance_report(
         reports.append(
             build_differential_abundance_report(
                 table,
-                design_entries,
+                analysis_design_entries,
                 condition_a=condition_a,
                 condition_b=condition_b,
                 test_type=test_type,
                 design_matrix=active_design_matrix,
                 contrast_name=contrast_name,
                 replicate_policy=active_policy,
+                sample_run_policy=sample_run_policy,
             )
         )
 
@@ -374,6 +403,30 @@ def build_multi_condition_differential_abundance_report(
         note=(
             "pairwise differential abundance preserves one benjamini-hochberg-corrected report per selected condition contrast"
         ),
+    )
+
+
+def _require_table_sample_ids(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    sample_run_policy: SampleRunAnalysisPolicy,
+) -> None:
+    missing_sample_ids = tuple(
+        sorted(
+            {
+                entry.sample_id
+                for entry in design_entries
+                if entry.sample_id not in table.sample_ids
+            }
+        )
+    )
+    if not missing_sample_ids:
+        return
+    raise ValueError(
+        "quantification table sample ids do not cover the resolved analysis design "
+        f"for sample/run policy {sample_run_policy.value!r}; missing sample ids: "
+        + ", ".join(missing_sample_ids)
     )
 
 

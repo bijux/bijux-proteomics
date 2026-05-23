@@ -37,6 +37,10 @@ from bijux_proteomics.study import (
     require_matching_experiment_design_analysis_family,
     require_valid_experiment_design_for_differential_analysis,
 )
+from bijux_proteomics.study.sample_run_identity import (
+    SampleRunAnalysisPolicy,
+    resolve_sample_run_analysis_entries,
+)
 
 _PREFIXED_NUMERIC_LABEL_RE = re.compile(
     r"^(?P<prefix>.*?)(?P<number>[+-]?\d+(?:\.\d+)?)$"
@@ -48,21 +52,30 @@ def build_time_course_differential_report(
     design_entries: tuple[ExperimentalDesignEntry, ...],
     *,
     policy: TimeCourseTestingPolicy | None = None,
+    sample_run_policy: SampleRunAnalysisPolicy = (
+        SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
+    ),
 ) -> TimeCourseDifferentialReport:
     """Build one ordered time-course differential report over a quant table."""
     if not design_entries:
         raise ValueError("time-course testing requires design entries")
-    _require_unique_sample_ids(design_entries)
     active_policy = policy or TimeCourseTestingPolicy()
-    require_valid_experiment_design_for_differential_analysis(
+    analysis_design_entries = resolve_sample_run_analysis_entries(
         design_entries,
+        policy=sample_run_policy,
+        required_consistency_fields=_required_consistency_fields(active_policy),
+    )
+    _require_unique_sample_ids(analysis_design_entries)
+    _require_table_sample_ids(table, design_entries=analysis_design_entries)
+    require_valid_experiment_design_for_differential_analysis(
+        analysis_design_entries,
         batch_field=active_policy.batch_field,
         pairing_field=active_policy.pairing_field,
         timepoint_field=active_policy.timepoint_field,
         ordered_timepoints=active_policy.ordered_timepoints,
     )
     require_matching_experiment_design_analysis_family(
-        design_entries,
+        analysis_design_entries,
         chosen_analysis_family=ExperimentDesignAnalysisFamily.TIME_COURSE_DIFFERENTIAL,
         batch_field=active_policy.batch_field,
         pairing_field=active_policy.pairing_field,
@@ -71,7 +84,7 @@ def build_time_course_differential_report(
     )
     timepoint_by_sample, timepoint_positions, ordered_timepoints, order_note = (
         _resolve_timepoint_positions(
-            design_entries,
+            analysis_design_entries,
             timepoint_field=active_policy.timepoint_field,
             ordered_timepoints=active_policy.ordered_timepoints,
         )
@@ -82,7 +95,7 @@ def build_time_course_differential_report(
         sorted(
             {
                 str(_resolve_design_value(entry, "condition"))
-                for entry in design_entries
+                for entry in analysis_design_entries
                 if _resolve_design_value(entry, "condition") not in (None, "")
             }
         )
@@ -93,12 +106,12 @@ def build_time_course_differential_report(
 
     effective_pairing_field = active_policy.pairing_field
     if effective_pairing_field is None and all(
-        entry.pair_id not in (None, "") for entry in design_entries
+        entry.pair_id not in (None, "") for entry in analysis_design_entries
     ):
         effective_pairing_field = "pair_id"
 
     design_columns, design_values, condition_columns = _build_time_course_design(
-        design_entries,
+        analysis_design_entries,
         timepoint_by_sample=timepoint_by_sample,
         timepoint_field=active_policy.timepoint_field,
         batch_field=active_policy.batch_field,
@@ -108,7 +121,8 @@ def build_time_course_differential_report(
     _require_full_rank_design(design_columns, design_values)
 
     row_index_by_sample = {
-        entry.sample_id: row_index for row_index, entry in enumerate(design_entries)
+        entry.sample_id: row_index
+        for row_index, entry in enumerate(analysis_design_entries)
     }
     condition_column_by_level = {
         column.level: column
@@ -133,7 +147,7 @@ def build_time_course_differential_report(
         observed_timepoints_by_condition = {
             condition: set() for condition in conditions
         }
-        for entry in design_entries:
+        for entry in analysis_design_entries:
             cell = lookup.get((entity_id, entry.sample_id))
             if cell is None or cell.abundance is None:
                 continue
@@ -255,6 +269,42 @@ def build_time_course_differential_report(
         ),
     )
     return _apply_time_course_multiple_testing(report)
+
+
+def _required_consistency_fields(
+    policy: TimeCourseTestingPolicy,
+) -> tuple[str, ...]:
+    fields = [
+        policy.batch_field,
+        policy.pairing_field,
+        policy.timepoint_field,
+        *policy.covariate_fields,
+    ]
+    return tuple(
+        field
+        for field in dict.fromkeys(field for field in fields if field not in (None, ""))
+    )
+
+
+def _require_table_sample_ids(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> None:
+    missing_sample_ids = tuple(
+        sorted(
+            {
+                entry.sample_id
+                for entry in design_entries
+                if entry.sample_id not in table.sample_ids
+            }
+        )
+    )
+    if missing_sample_ids:
+        raise ValueError(
+            "quantification table sample ids do not cover the resolved time-course "
+            "analysis design; missing sample ids: " + ", ".join(missing_sample_ids)
+        )
 
 
 def render_time_course_differential_tsv(
