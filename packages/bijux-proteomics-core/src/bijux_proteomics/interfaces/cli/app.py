@@ -5578,6 +5578,9 @@ def psm_inspect_command(
     show_default=True,
 )
 @click.option("--strong-q-value", type=float, default=0.01, show_default=True)
+@click.option(
+    "--reproducible-spectrum-count", type=int, default=2, show_default=True
+)
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
 @click.option("--run-id-column", default=None)
@@ -5605,6 +5608,7 @@ def peptide_evidence_command(
     threshold: float,
     score_orientation: str,
     strong_q_value: float,
+    reproducible_spectrum_count: int,
     spectrum_id_column: str,
     peptide_column: str,
     run_id_column: str | None,
@@ -5622,7 +5626,7 @@ def peptide_evidence_command(
     entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    """Review strong, weak, shared, modified, contaminant, and decoy peptides."""
+    """Review classified peptide evidence with strong, moderate, shared, and weak states."""
     try:
         mapping = _build_psm_mapping(
             run_id_column=run_id_column,
@@ -5651,6 +5655,7 @@ def peptide_evidence_command(
             threshold=threshold,
             score_orientation=score_orientation,
             strong_q_value=strong_q_value,
+            reproducible_spectrum_count=reproducible_spectrum_count,
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc

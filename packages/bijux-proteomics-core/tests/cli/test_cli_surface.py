@@ -2206,22 +2206,27 @@ def test_peptide_evidence_command_reports_classes_and_tags() -> None:
 
         assert result.exit_code == 0
         payload = json.loads(result.output)
-        assert payload["summary"]["total_peptides"] == 6
-        assert payload["summary"]["strong_count"] == 2
+        assert payload["summary"]["total_peptides"] == 8
+        assert payload["summary"]["strong_count"] == 1
+        assert payload["summary"]["moderate_count"] == 1
         assert payload["summary"]["weak_count"] == 2
+        assert payload["summary"]["shared_count"] == 1
+        assert payload["summary"]["ambiguous_count"] == 1
         assert payload["summary"]["modified_count"] == 1
         assert payload["summary"]["contaminant_count"] == 1
         assert payload["summary"]["decoy_count"] == 1
         by_peptide = {entry["canonical_peptide"]: entry for entry in payload["entries"]}
         assert by_peptide["STRONGK"]["primary_class"] == "strong"
+        assert by_peptide["SHAREDFINEK"]["primary_class"] == "shared"
         assert by_peptide["SHAREDK"]["primary_class"] == "weak"
         assert "shared" in by_peptide["SHAREDK"]["tags"]
         assert "modified" in by_peptide["ACDM[Oxidation]K"]["tags"]
+        assert by_peptide["AMBIGK"]["primary_class"] == "ambiguous"
         assert by_peptide["CONTAMK"]["primary_class"] == "contaminant"
         assert by_peptide["DECOYSEQ"]["primary_class"] == "decoy"
         assert Path("peptide_evidence.summary.tsv").exists()
         assert Path("peptide_evidence.entries.tsv").exists()
-        assert "strong_count\t2" in Path("peptide_evidence.summary.tsv").read_text(
+        assert "strong_count\t1" in Path("peptide_evidence.summary.tsv").read_text(
             encoding="utf-8"
         )
         assert "CONTAMK\tCONTAMK\tcontaminant\tunique;contaminant" in Path(
