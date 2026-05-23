@@ -1,0 +1,176 @@
+[
+  {
+    "case_id": "higher_better_picked_protein_reference",
+    "score_orientation": "higher_better",
+    "threshold": 0.1,
+    "records": [
+      {
+        "spectrum_id": "scan=8001",
+        "peptide": "PEPTIDEK",
+        "canonical_peptide": "PEPTIDEK",
+        "charge": 2,
+        "score": 110.0,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=8002",
+        "peptide": "M[Oxidation]PEPTIDEK",
+        "canonical_peptide": "M[Oxidation]PEPTIDEK",
+        "charge": 3,
+        "score": 105.0,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=8003",
+        "peptide": "SHAREDK",
+        "canonical_peptide": "SHAREDK",
+        "charge": 2,
+        "score": 100.0,
+        "protein_refs": [
+          "P22222",
+          "P33333"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=8004",
+        "peptide": "GLYGLYK",
+        "canonical_peptide": "GLYGLYK",
+        "charge": 2,
+        "score": 98.0,
+        "protein_refs": [
+          "P22222"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=8008",
+        "peptide": "TARGETK",
+        "canonical_peptide": "TARGETK",
+        "charge": 4,
+        "score": 93.0,
+        "protein_refs": [
+          "P44444"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=8006",
+        "peptide": "DECOYPEP",
+        "canonical_peptide": "DECOYPEP",
+        "charge": 2,
+        "score": 96.0,
+        "protein_refs": [
+          "DECOY_P11111"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=8007",
+        "peptide": "DECOYSHAREDK",
+        "canonical_peptide": "DECOYSHAREDK",
+        "charge": 2,
+        "score": 94.0,
+        "protein_refs": [
+          "DECOY_P22222"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=8009",
+        "peptide": "DECOYWINK",
+        "canonical_peptide": "DECOYWINK",
+        "charge": 2,
+        "score": 92.0,
+        "protein_refs": [
+          "DECOY_P55555"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=8010",
+        "peptide": "TARGETWINK",
+        "canonical_peptide": "TARGETWINK",
+        "charge": 2,
+        "score": 89.0,
+        "protein_refs": [
+          "P55555"
+        ],
+        "target_decoy_label": "target"
+      }
+    ],
+    "expected_entries": [
+      {
+        "rank": 1,
+        "pair_id": "picked:P11111",
+        "target_ref": "P11111",
+        "decoy_ref": "DECOY_P11111",
+        "target_score": 110.0,
+        "decoy_score": 96.0,
+        "winner_ref": "P11111",
+        "winner_target_decoy_label": "target",
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 2,
+        "pair_id": "picked:P22222",
+        "target_ref": "P22222",
+        "decoy_ref": "DECOY_P22222",
+        "target_score": 100.0,
+        "decoy_score": 94.0,
+        "winner_ref": "P22222",
+        "winner_target_decoy_label": "target",
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 3,
+        "pair_id": "picked:P33333",
+        "target_ref": "P33333",
+        "decoy_ref": null,
+        "target_score": 100.0,
+        "decoy_score": null,
+        "winner_ref": "P33333",
+        "winner_target_decoy_label": "target",
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 4,
+        "pair_id": "picked:P44444",
+        "target_ref": "P44444",
+        "decoy_ref": null,
+        "target_score": 93.0,
+        "decoy_score": null,
+        "winner_ref": "P44444",
+        "winner_target_decoy_label": "target",
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 5,
+        "pair_id": "picked:P55555",
+        "target_ref": "P55555",
+        "decoy_ref": "DECOY_P55555",
+        "target_score": 89.0,
+        "decoy_score": 92.0,
+        "winner_ref": "DECOY_P55555",
+        "winner_target_decoy_label": "decoy",
+        "raw_fdr": 0.25,
+        "q_value": 0.25,
+        "accepted": false
+      }
+    ]
+  }
+]
