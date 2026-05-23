@@ -28,6 +28,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         _fixture("biological_report_features.tsv"),
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
         complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
@@ -41,12 +42,18 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     )
     output_dir = tmp_path / "biological_report"
 
+    assert manifest.context_summary_included is True
     assert manifest.go_summary_included is True
     assert manifest.pathway_summary_included is True
     assert manifest.complex_summary_included is True
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.annotation_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_term_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_unmapped_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_rejected_tsv).exists()
     assert (output_dir / manifest.artifacts.go_term_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
@@ -62,6 +69,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "annotation_status" in (
         output_dir / manifest.artifacts.annotation_tsv
+    ).read_text(encoding="utf-8")
+    assert "context_entry_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "context_kind" in (
+        output_dir / manifest.artifacts.context_mapping_tsv
+    ).read_text(encoding="utf-8")
+    assert "supporting_protein_refs" in (
+        output_dir / manifest.artifacts.context_term_tsv
     ).read_text(encoding="utf-8")
     assert "gene_symbol" in (
         output_dir / manifest.artifacts.annotation_tsv

@@ -35,6 +35,7 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
         _fixture("biological_report_features.tsv"),
         design_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
         condition_a="control",
         condition_b="treatment",
     )
@@ -43,11 +44,24 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.significant_protein_count >= 3
     assert report.summary.sample_count == 6
     assert report.summary.annotation_entry_count == 5
+    assert report.summary.context_entry_count == 3
+    assert report.summary.context_unmapped_count == 2
+    assert report.summary.context_term_count == 3
     assert report.summary.heatmap_entity_count >= 3
     assert report.volcano_review.source_kind.value == "quantification"
     assert report.volcano_review.significant_point_count >= 3
     assert report.sample_exploration_report.summary.sample_count == 6
     assert report.heatmap_report.summary.output_entity_count >= 3
+    assert report.context_import_report is not None
+    assert report.context_mapping_report is not None
+    assert any(
+        entry.context_id == "DB0001"
+        for entry in report.context_mapping_report.mapped_entries
+    )
+    assert any(
+        entry.protein_ref == "Q9Y243"
+        for entry in report.context_mapping_report.unmapped_entries
+    )
 
 
 def test_build_biological_result_report_bundle_from_quant_table_uses_entity_protein_refs_for_annotation() -> (
