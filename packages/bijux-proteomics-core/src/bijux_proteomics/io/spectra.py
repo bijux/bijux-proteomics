@@ -54,6 +54,9 @@ class SpectrumModel(JsonModel):
     scan_number: int | None = Field(default=None, ge=1)
     ms_level: int | None = Field(default=None, ge=1)
     parent_spectrum_id: str | None = None
+    isolation_window_target_mz: float | None = Field(default=None, gt=0.0)
+    isolation_window_lower_offset: float | None = Field(default=None, ge=0.0)
+    isolation_window_upper_offset: float | None = Field(default=None, ge=0.0)
     product_isolation_mz: float | None = Field(default=None, gt=0.0)
     precursor_mz: float = Field(..., gt=0.0)
     precursor_intensity: float | None = Field(default=None, ge=0.0)
@@ -86,6 +89,21 @@ class SpectrumModel(JsonModel):
                 "source_contract": "io.spectrum_model",
                 "title": self.title or "",
                 "parent_spectrum_id": self.parent_spectrum_id or "",
+                "isolation_window_target_mz": (
+                    ""
+                    if self.isolation_window_target_mz is None
+                    else str(self.isolation_window_target_mz)
+                ),
+                "isolation_window_lower_offset": (
+                    ""
+                    if self.isolation_window_lower_offset is None
+                    else str(self.isolation_window_lower_offset)
+                ),
+                "isolation_window_upper_offset": (
+                    ""
+                    if self.isolation_window_upper_offset is None
+                    else str(self.isolation_window_upper_offset)
+                ),
             },
         )
 

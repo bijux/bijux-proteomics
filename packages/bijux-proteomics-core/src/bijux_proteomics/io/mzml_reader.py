@@ -43,6 +43,8 @@ _CV_SELECTED_ION_MZ = "MS:1000744"
 _CV_CHARGE_STATE = "MS:1000041"
 _CV_SELECTED_ION_INTENSITY = "MS:1000042"
 _CV_ISOLATION_WINDOW_TARGET_MZ = "MS:1000827"
+_CV_ISOLATION_WINDOW_LOWER_OFFSET = "MS:1000828"
+_CV_ISOLATION_WINDOW_UPPER_OFFSET = "MS:1000829"
 _CV_TOTAL_ION_CURRENT_CHROMATOGRAM = "MS:1000235"
 _CV_BASE_PEAK_CHROMATOGRAM = "MS:1000628"
 
@@ -375,6 +377,9 @@ def _parse_spectrum_element(
     precursor_mz: float | None = None
     precursor_intensity: float | None = None
     precursor_charge: int | None = None
+    isolation_window_target_mz: float | None = None
+    isolation_window_lower_offset: float | None = None
+    isolation_window_upper_offset: float | None = None
     parent_spectrum_id: str | None = None
     product_isolation_mz: float | None = None
     mz_values: tuple[float, ...] | None = None
@@ -441,6 +446,42 @@ def _parse_spectrum_element(
                         "invalid_precursor_intensity",
                         str(exc),
                         field="precursor_intensity",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_ISOLATION_WINDOW_TARGET_MZ:
+            try:
+                isolation_window_target_mz = float(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_isolation_window_target_mz",
+                        str(exc),
+                        field="isolation_window_target_mz",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_ISOLATION_WINDOW_LOWER_OFFSET:
+            try:
+                isolation_window_lower_offset = float(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_isolation_window_lower_offset",
+                        str(exc),
+                        field="isolation_window_lower_offset",
+                        record_id=spectrum_id,
+                    )
+                )
+        elif accession == _CV_ISOLATION_WINDOW_UPPER_OFFSET:
+            try:
+                isolation_window_upper_offset = float(element.attrib["value"])
+            except (KeyError, ValueError) as exc:
+                issues.append(
+                    _issue(
+                        "invalid_isolation_window_upper_offset",
+                        str(exc),
+                        field="isolation_window_upper_offset",
                         record_id=spectrum_id,
                     )
                 )
@@ -539,6 +580,9 @@ def _parse_spectrum_element(
             scan_number=_scan_number_from_text(spectrum_id),
             ms_level=ms_level,
             parent_spectrum_id=parent_spectrum_id,
+            isolation_window_target_mz=isolation_window_target_mz,
+            isolation_window_lower_offset=isolation_window_lower_offset,
+            isolation_window_upper_offset=isolation_window_upper_offset,
             product_isolation_mz=product_isolation_mz,
             precursor_mz=precursor_mz or 1.0,
             precursor_intensity=precursor_intensity,
