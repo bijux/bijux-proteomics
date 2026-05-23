@@ -311,6 +311,7 @@ class QuantNormalizationPolicyKind(StrEnum):
     TOTAL = "total"
     MEDIAN = "median"
     QUANTILE = "quantile"
+    LOG2_MEDIAN_CENTERING = "log2_median_centering"
     VSN_LIKE = "vsn_like"
     REFERENCE_CHANNEL = "reference_channel"
 
@@ -349,6 +350,7 @@ def build_normalization_policy_comparison_matrix_report(
             NormalizationMethod.TIC,
             NormalizationMethod.MEDIAN,
             NormalizationMethod.QUANTILE,
+            NormalizationMethod.LOG2_MEDIAN_CENTERING,
             NormalizationMethod.VSN_LIKE,
         ),
     )
@@ -381,6 +383,15 @@ def build_normalization_policy_comparison_matrix_report(
             mapped_method=NormalizationMethod.QUANTILE,
             balance_score=score_by_method.get(NormalizationMethod.QUANTILE),
             note="quantile normalization is supported natively",
+        ),
+        NormalizationPolicyComparisonEntry(
+            policy=QuantNormalizationPolicyKind.LOG2_MEDIAN_CENTERING,
+            supported=True,
+            mapped_method=NormalizationMethod.LOG2_MEDIAN_CENTERING,
+            balance_score=score_by_method.get(
+                NormalizationMethod.LOG2_MEDIAN_CENTERING
+            ),
+            note="log2 median-centering is supported with explicit nonpositive-value handling before log transform",
         ),
         NormalizationPolicyComparisonEntry(
             policy=QuantNormalizationPolicyKind.VSN_LIKE,
