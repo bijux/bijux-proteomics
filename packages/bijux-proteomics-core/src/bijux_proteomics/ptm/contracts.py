@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 from enum import StrEnum
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ConfigDict, Field
@@ -111,7 +112,21 @@ class PtmEvidenceRecord(JsonModel):
     localization_score: float = Field(..., ge=0.0)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
     modification_names: tuple[str, ...] = Field(default_factory=tuple)
+    site_candidates: tuple["PtmEvidenceSiteCandidate", ...] = Field(default_factory=tuple)
     provenance: ImportedEvidenceProvenance
+
+
+class PtmEvidenceSiteCandidate(JsonModel):
+    """One localized PTM site candidate preserved inside one evidence row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    modification_name: str = Field(..., min_length=1)
+    controlled_id: str | None = None
+    residue: str = Field(..., min_length=1, max_length=1)
+    peptide_site_index: int = Field(..., ge=1)
+    candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
+    site_kind: ModificationPosition
 
 
 class PtmEvidenceParseReport(JsonModel):
@@ -423,6 +438,64 @@ def _localization_candidates_from_field(value: str, separator: str) -> tuple[int
     return tuple(dict.fromkeys(indices))
 
 
+def _site_candidate_indices(
+    *,
+    site_index: int,
+    candidate_site_indices: tuple[int, ...],
+    advisory_candidate_indices: tuple[int, ...],
+    same_name_count: int,
+) -> tuple[int, ...]:
+    if (
+        same_name_count == 1
+        and candidate_site_indices
+        and site_index in candidate_site_indices
+    ):
+        return candidate_site_indices
+    if advisory_candidate_indices:
+        return advisory_candidate_indices
+    return (site_index,)
+
+
+def _build_ptm_evidence_site_candidates(
+    *,
+    parsed_sites: tuple,
+    parsed_modifications: tuple,
+    advisory_candidates: tuple,
+    candidate_site_indices: tuple[int, ...],
+) -> tuple[PtmEvidenceSiteCandidate, ...]:
+    same_name_counts: dict[str, int] = {}
+    for site in parsed_sites:
+        if site.site_kind is ModificationPosition.ANYWHERE:
+            same_name_counts[site.modification_name] = (
+                same_name_counts.get(site.modification_name, 0) + 1
+            )
+    site_candidates: list[PtmEvidenceSiteCandidate] = []
+    for site, modification, advisory in zip(
+        parsed_sites,
+        parsed_modifications,
+        advisory_candidates,
+        strict=False,
+    ):
+        if site.site_kind is not ModificationPosition.ANYWHERE:
+            continue
+        site_candidates.append(
+            PtmEvidenceSiteCandidate(
+                modification_name=site.modification_name,
+                controlled_id=site.controlled_id,
+                residue=site.residue,
+                peptide_site_index=site.peptide_position,
+                candidate_site_indices=_site_candidate_indices(
+                    site_index=site.peptide_position,
+                    candidate_site_indices=candidate_site_indices,
+                    advisory_candidate_indices=advisory.candidate_site_indices,
+                    same_name_count=same_name_counts.get(site.modification_name, 1),
+                ),
+                site_kind=site.site_kind,
+            )
+        )
+    return tuple(site_candidates)
+
+
 def _find_occurrences(sequence: str, peptide_sequence: str) -> tuple[int, ...]:
     starts: list[int] = []
     offset = sequence.find(peptide_sequence)
@@ -588,15 +661,26 @@ def parse_ptm_localization_tsv(
                     )
 
             modification_names: tuple[str, ...] = ()
+            site_candidates: tuple[PtmEvidenceSiteCandidate, ...] = ()
             if parsed is not None:
-                modification_names = tuple(
-                    dict.fromkeys(
-                        site.modification_name
-                        for site in parsed.sites
-                        if site.site_kind is ModificationPosition.ANYWHERE
-                    )
+                parsed_peptide = parse_modified_peptide(
+                    parsed.canonical_peptide,
+                    registry=registry,
                 )
-                if not modification_names:
+                advisory = build_modification_localization_advisory(
+                    parsed_peptide,
+                    registry=registry,
+                )
+                site_candidates = _build_ptm_evidence_site_candidates(
+                    parsed_sites=parsed.sites,
+                    parsed_modifications=parsed_peptide.modifications,
+                    advisory_candidates=advisory.candidates,
+                    candidate_site_indices=candidate_sites,
+                )
+                modification_names = tuple(
+                    site.modification_name for site in site_candidates
+                )
+                if not site_candidates:
                     issues.append(
                         _row_issue(
                             "missing_internal_modification",
@@ -604,19 +688,15 @@ def parse_ptm_localization_tsv(
                             row_number,
                         )
                     )
-                if not candidate_sites:
-                    parsed_peptide = parse_modified_peptide(
-                        parsed.canonical_peptide,
-                        registry=registry,
+                candidate_sites = tuple(
+                    sorted(
+                        {
+                            site_index
+                            for site_candidate in site_candidates
+                            for site_index in site_candidate.candidate_site_indices
+                        }
                     )
-                    advisory = build_modification_localization_advisory(
-                        parsed_peptide,
-                        registry=registry,
-                    )
-                    for candidate in advisory.candidates:
-                        if candidate.assigned_site_index is not None:
-                            candidate_sites = candidate.candidate_site_indices
-                            break
+                )
 
             if issues or parsed is None:
                 rejected.append(
@@ -653,6 +733,7 @@ def parse_ptm_localization_tsv(
                     localization_score=localization_score,
                     candidate_site_indices=candidate_sites,
                     modification_names=modification_names,
+                    site_candidates=site_candidates,
                     provenance=ImportedEvidenceProvenance.from_single_row(
                         source_engine="ptm-localization",
                         source_file=str(path),
@@ -681,6 +762,47 @@ def parse_ptm_localization_tsv(
         rejected_rows=tuple(rejected),
         column_mapping=active_mapping,
     )
+
+
+def render_ptm_evidence_site_candidate_tsv(report: PtmEvidenceParseReport) -> str:
+    """Render one PTM evidence parser candidate-site ledger as TSV."""
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "sample_id",
+            "spectrum_id",
+            "localized_peptide",
+            "canonical_peptide",
+            "protein_refs",
+            "modification_name",
+            "controlled_id",
+            "residue",
+            "peptide_site_index",
+            "candidate_site_indices",
+            "site_kind",
+        ]
+    )
+    for record in report.accepted_records:
+        for site in record.site_candidates:
+            writer.writerow(
+                [
+                    record.sample_id or "",
+                    record.spectrum_id,
+                    record.localized_peptide,
+                    record.canonical_peptide,
+                    ";".join(record.protein_refs),
+                    site.modification_name,
+                    site.controlled_id or "",
+                    site.residue,
+                    site.peptide_site_index,
+                    ";".join(
+                        str(site_index) for site_index in site.candidate_site_indices
+                    ),
+                    site.site_kind.value,
+                ]
+            )
+    return buffer.getvalue()
 
 
 def map_ptm_evidence_to_protein_sites(
