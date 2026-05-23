@@ -2002,6 +2002,10 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
                 "protein_coverage.tsv",
                 "--regions-tsv-out",
                 "protein_coverage.regions.tsv",
+                "--uncovered-tsv-out",
+                "protein_coverage.uncovered.tsv",
+                "--peptide-coordinate-tsv-out",
+                "protein_coverage.coordinates.tsv",
             ],
         )
 
@@ -2014,12 +2018,17 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
             entry for entry in payload["entries"] if entry["protein_ref"] == "P11111"
         )
         assert p11111["covered_ranges"] == [[2, 9], [13, 19]]
+        assert p11111["uncovered_ranges"] == [[1, 1], [10, 12], [20, 21]]
         assert p11111["unique_peptides"] == ["PEPTIDEK"]
         assert p11111["shared_peptides"] == ["SHAREDK"]
         assert payload["regions"][0]["protein_ref"] == "P11111"
+        assert payload["uncovered_regions"][0]["protein_ref"] == "P11111"
+        assert payload["peptide_coordinates"][0]["protein_ref"] == "P11111"
         assert Path("protein_coverage.summary.tsv").exists()
         assert Path("protein_coverage.tsv").exists()
         assert Path("protein_coverage.regions.tsv").exists()
+        assert Path("protein_coverage.uncovered.tsv").exists()
+        assert Path("protein_coverage.coordinates.tsv").exists()
         assert "proteins_with_shared_peptides\t3" in Path(
             "protein_coverage.summary.tsv"
         ).read_text(encoding="utf-8")
@@ -2029,6 +2038,12 @@ def test_protein_coverage_command_reports_regions_and_shared_peptides() -> None:
         assert "P11111\t2\t13\t19\t7" in Path("protein_coverage.regions.tsv").read_text(
             encoding="utf-8"
         )
+        assert "P11111\t1\t1\t1\t1" in Path(
+            "protein_coverage.uncovered.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P11111\tPEPTIDEK\tPEPTIDEK\tmatched\t1\t2\t9" in Path(
+            "protein_coverage.coordinates.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_protein_coverage_plot_command_emits_positions_svg_and_html() -> None:
