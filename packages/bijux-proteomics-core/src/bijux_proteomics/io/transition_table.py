@@ -30,12 +30,14 @@ class TransitionTableEntry(JsonModel):
 
     transition_id: str = Field(..., min_length=1)
     precursor_id: str = Field(..., min_length=1)
+    precursor_charge: int = Field(..., ge=1)
     sample_id: str = Field(..., min_length=1)
     intensity: float = Field(..., ge=0.0)
     run_id: str | None = None
     peptide_sequence: str | None = None
     protein_ref: str | None = None
     fragment_label: str | None = None
+    retention_time_minutes: float | None = Field(default=None, ge=0.0)
     precursor_mz: float | None = Field(default=None, gt=0.0)
     fragment_mz: float | None = Field(default=None, gt=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -72,12 +74,14 @@ class TransitionTableEntry(JsonModel):
         return CanonicalTransitionRecord(
             transition_id=self.transition_id,
             precursor_id=self.precursor_id,
+            precursor_charge=self.precursor_charge,
             sample_id=self.sample_id,
             intensity=self.intensity,
             peptide_sequence=self.peptide_sequence or self.precursor_id,
             run_id=self.run_id,
             protein_ref=self.protein_ref,
             fragment_label=self.fragment_label,
+            retention_time_minutes=self.retention_time_minutes,
             precursor_mz=self.precursor_mz,
             fragment_mz=self.fragment_mz,
             q_value=self.q_value,
@@ -182,12 +186,15 @@ def _parse_transition_row(
 ) -> TransitionTableEntry:
     transition_id = row.get("transition_id") or None
     precursor_id = row.get("precursor_id") or None
+    precursor_charge = row.get("precursor_charge") or row.get("charge") or None
     sample_id = row.get("sample_id") or None
     intensity = row.get("intensity") or None
     if transition_id is None:
         raise ValueError("transition row requires transition_id")
     if precursor_id is None:
         raise ValueError("transition row requires precursor_id")
+    if precursor_charge is None:
+        raise ValueError("transition row requires precursor_charge")
     if sample_id is None:
         raise ValueError("transition row requires sample_id")
     if intensity is None:
@@ -200,11 +207,13 @@ def _parse_transition_row(
             "transition_id",
             "precursor_id",
             "sample_id",
+            "precursor_charge",
             "intensity",
             "run_id",
             "peptide_sequence",
             "protein_ref",
             "fragment_label",
+            "retention_time_minutes",
             "precursor_mz",
             "fragment_mz",
             "q_value",
@@ -214,6 +223,7 @@ def _parse_transition_row(
     return TransitionTableEntry(
         transition_id=transition_id,
         precursor_id=precursor_id,
+        precursor_charge=int(precursor_charge),
         sample_id=sample_id,
         intensity=float(intensity),
         run_id=row.get("run_id") or row.get("run") or None,
@@ -224,6 +234,11 @@ def _parse_transition_row(
             or row.get("fragment")
             or row.get("product_ion")
             or None
+        ),
+        retention_time_minutes=_optional_float(
+            row.get("retention_time_minutes")
+            or row.get("retention_time")
+            or row.get("rt")
         ),
         precursor_mz=_optional_float(row.get("precursor_mz") or row.get("q1")),
         fragment_mz=_optional_float(

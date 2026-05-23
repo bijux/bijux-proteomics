@@ -664,6 +664,12 @@ def build_transition_table_schema() -> ScientificTableSchema:
                 required=True,
             ),
             DelimitedColumnSpec(
+                name="precursor_charge",
+                source_columns=("charge", "precursor_charge"),
+                required=True,
+                value_type=DelimitedColumnValueType.INTEGER,
+            ),
+            DelimitedColumnSpec(
                 name="sample_id",
                 source_columns=("sample",),
                 required=True,
@@ -680,6 +686,11 @@ def build_transition_table_schema() -> ScientificTableSchema:
             DelimitedColumnSpec(
                 name="fragment_label",
                 source_columns=("fragment", "product_ion"),
+            ),
+            DelimitedColumnSpec(
+                name="retention_time_minutes",
+                source_columns=("retention_time_minutes", "retention_time", "rt"),
+                value_type=DelimitedColumnValueType.FLOAT,
             ),
             DelimitedColumnSpec(
                 name="precursor_mz",
