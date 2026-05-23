@@ -167,6 +167,13 @@ from bijux_proteomics.identification import (
     render_target_decoy_reference_entries_tsv,
     render_target_decoy_reference_summary_tsv,
 )
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    RunDetectionContext,
+    build_peptide_cross_run_reproducibility_report,
+    build_protein_cross_run_reproducibility_report,
+    render_cross_run_reproducibility_entries_tsv,
+    render_cross_run_reproducibility_summary_tsv,
+)
 from bijux_proteomics.identification.error_rate_annotation import (
     annotate_psm_error_rates,
     build_psm_error_rate_annotation_report,
@@ -1296,6 +1303,20 @@ def _build_decoy_policy(
     return TargetDecoyLabelPolicy(
         protein_prefix=decoy_prefix,
         protein_suffix=decoy_suffix,
+    )
+
+
+def _build_run_detection_contexts(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[RunDetectionContext, ...]:
+    return tuple(
+        RunDetectionContext(
+            run_id=entry.spectra_file,
+            sample_id=entry.sample_id,
+            condition_id=entry.condition,
+            replicate_id=str(entry.replicate),
+        )
+        for entry in design_entries
     )
 
 
@@ -5683,6 +5704,7 @@ def peptide_evidence_command(
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
+    pep_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
@@ -5703,6 +5725,7 @@ def peptide_evidence_command(
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
+            posterior_error_probability_column=pep_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
             contaminant_label_column=contaminant_label_column,
@@ -5741,6 +5764,130 @@ def peptide_evidence_command(
     payload = review.to_dict()
     payload["accepted_rows"] = len(report.accepted_records)
     payload["rejected_rows"] = len(report.rejected_rows)
+    payload["outputs"] = {
+        "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+        "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("cross-run-reproducibility")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--entity-type",
+    type=click.Choice(("peptide", "protein"), case_sensitive=False),
+    default="peptide",
+    show_default=True,
+)
+@click.option(
+    "--design-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--exploratory-entity", multiple=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default="run_id", show_default=True)
+@click.option("--modified-peptide-column", default=None)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option(
+    "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--entries-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def cross_run_reproducibility_command(
+    input_tsv: Path,
+    entity_type: str,
+    design_tsv: Path,
+    exploratory_entity: tuple[str, ...],
+    spectrum_id_column: str,
+    peptide_column: str,
+    run_id_column: str,
+    modified_peptide_column: str | None,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    contaminant_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    summary_tsv_out: Path | None,
+    entries_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score peptide or protein evidence by cross-run detection consistency."""
+    try:
+        mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
+            protein_separator=protein_separator,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        psm_report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        design_report = parse_experimental_design_table(design_tsv)
+        if design_report.rejected_rows:
+            raise ValueError("design table contains rejected rows")
+        run_contexts = _build_run_detection_contexts(design_report.accepted_entries)
+        if entity_type == "peptide":
+            reproducibility_report = build_peptide_cross_run_reproducibility_report(
+                psm_report.accepted_records,
+                run_contexts=run_contexts,
+                exploratory_canonical_peptides=exploratory_entity,
+            )
+        else:
+            reproducibility_report = build_protein_cross_run_reproducibility_report(
+                psm_report.accepted_records,
+                run_contexts=run_contexts,
+                exploratory_protein_refs=exploratory_entity,
+            )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_cross_run_reproducibility_summary_tsv(reproducibility_report),
+        )
+    if entries_tsv_out is not None:
+        _write_text_output(
+            entries_tsv_out,
+            render_cross_run_reproducibility_entries_tsv(reproducibility_report),
+        )
+
+    payload = reproducibility_report.to_dict()
+    payload["accepted_rows"] = len(psm_report.accepted_records)
+    payload["rejected_rows"] = len(psm_report.rejected_rows)
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),

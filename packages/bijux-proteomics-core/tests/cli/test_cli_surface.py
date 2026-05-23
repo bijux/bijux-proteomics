@@ -2344,6 +2344,58 @@ def test_peptide_evidence_command_reports_classes_and_tags() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_cross_run_reproducibility_command_reports_detection_consistency() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "cross_run_reproducibility.tsv",
+            "cross_run_reproducibility.tsv",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "cross_run_reproducibility.design.tsv",
+            "cross_run_reproducibility.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "cross-run-reproducibility",
+                "cross_run_reproducibility.tsv",
+                "--design-tsv",
+                "cross_run_reproducibility.design.tsv",
+                "--run-id-column",
+                "run_id",
+                "--summary-tsv-out",
+                "cross_run_reproducibility.summary.tsv",
+                "--entries-tsv-out",
+                "cross_run_reproducibility.entries.tsv",
+                "--exploratory-entity",
+                "PEPC",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["total_entries"] == 4
+        assert payload["summary"]["condition_specific_count"] == 1
+        assert payload["summary"]["single_run_only_count"] == 1
+        assert payload["summary"]["exploratory_count"] == 1
+        by_entity = {entry["entity_id"]: entry for entry in payload["entries"]}
+        assert by_entity["PEPA"]["reproducibility_class"] == "condition_specific"
+        assert by_entity["PEPB"]["reproducibility_class"] == "single_run_only"
+        assert by_entity["PEPC"]["reproducibility_class"] == "exploratory"
+        assert by_entity["PEPD"]["reproducibility_class"] == "reproducible"
+        assert by_entity["PEPD"]["condition_specificity"] == 0.5
+        assert Path("cross_run_reproducibility.summary.tsv").exists()
+        assert Path("cross_run_reproducibility.entries.tsv").exists()
+        assert "condition_specific_count\t1" in Path(
+            "cross_run_reproducibility.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPB\t1\t4\t0.25" in Path(
+            "cross_run_reproducibility.entries.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectrum_stats_command_reports_collection_summary_and_provenance() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

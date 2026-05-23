@@ -1,0 +1,7 @@
+spectrum_id	run_id	peptide	charge	score	q_value	proteins
+scan-001	run-a	PEPA	2	100.0	0.003	P11111
+scan-002	run-b	PEPA	2	98.0	0.004	P11111
+scan-003	run-c	PEPB	2	95.0	0.005	P22222
+scan-004	run-d	PEPC	2	94.0	0.006	P33333
+scan-005	run-a	PEPD	2	93.0	0.007	P44444
+scan-006	run-c	PEPD	2	92.0	0.008	P44444
