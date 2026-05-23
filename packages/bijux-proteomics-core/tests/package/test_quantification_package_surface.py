@@ -383,3 +383,84 @@ def test_quantification_package_exports_heatmap_preparation_owner_surface() -> N
     assert hasattr(quantification, "export_heatmap_column_metadata_tsv")
     assert report.row_metadata[0].missing_value_policy.value == "fill_row_median"
     assert "missing_value_policy" in rendered
+
+
+def test_quantification_package_exports_power_estimation_owner_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="power001",
+            sample_id="c1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="power002",
+            sample_id="c2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=110.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="power003",
+            sample_id="t1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=140.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="power004",
+            sample_id="t2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=150.0,
+            protein_refs=("P001",),
+        ),
+    )
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="c1",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="c1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="c2",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="c2.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t1",
+            condition="treatment",
+            replicate=1,
+            fraction=1,
+            spectra_file="t1.mzml",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t2",
+            condition="treatment",
+            replicate=2,
+            fraction=1,
+            spectra_file="t2.mzml",
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+
+    report = quantification.build_power_estimation_report(table, design_entries)
+    rendered = quantification.render_power_effect_size_grid_tsv(report)
+
+    assert hasattr(quantification, "build_power_estimation_report")
+    assert hasattr(quantification, "render_power_effect_size_grid_tsv")
+    assert hasattr(quantification, "export_power_variance_tsv")
+    assert report.effect_size_grid
+    assert rendered.startswith("replicates_per_condition\tevaluable_entity_count")
