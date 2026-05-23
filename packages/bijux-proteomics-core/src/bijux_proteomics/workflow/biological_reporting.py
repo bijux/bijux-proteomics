@@ -105,6 +105,10 @@ from bijux_proteomics.workflow.protein_evidence_cards import (
     render_protein_evidence_card_summary_tsv,
     render_protein_evidence_card_tsv,
 )
+from bijux_proteomics.workflow.biological_result_graph import (
+    BiologicalResultGraphReport,
+    build_biological_result_graph_report,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -147,6 +151,7 @@ class BiologicalResultReportBundle(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     differential_report: DifferentialAbundanceReport
+    graph_report: BiologicalResultGraphReport
     annotation_report: ProteinAnnotationMappingReport
     protein_cards: ProteinEvidenceCardReport
     context_import_report: BiologicalContextImportReport | None = None
@@ -422,6 +427,13 @@ def build_biological_result_report_bundle_from_quant_table(
             ),
         )
     protein_cards = build_protein_evidence_card_report(
+        graph_report := build_biological_result_graph_report(
+            normalized_table,
+            differential_report,
+            design_entries,
+            max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
+            min_absolute_log2_fold_change=active_selection_policy.min_absolute_log2_fold_change,
+        ),
         normalized_table,
         differential_report,
         annotation_report,
@@ -472,6 +484,7 @@ def build_biological_result_report_bundle_from_quant_table(
     )
     return BiologicalResultReportBundle(
         differential_report=differential_report,
+        graph_report=graph_report,
         annotation_report=annotation_report,
         protein_cards=protein_cards,
         context_import_report=context_import_report,
@@ -1002,6 +1015,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
     headers = (
         "Protein group",
         "Representative protein",
+        "Graph claim",
         "Gene",
         "Evidence tier",
         "Peptides",
@@ -1018,6 +1032,7 @@ def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str
             "<tr>"
             f"<td>{escape(card.protein_group_id)}</td>"
             f"<td>{escape(card.representative_protein_ref)}</td>"
+            f"<td><code>{escape(card.graph_claim_node_id)}</code></td>"
             f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
             f"<td>{escape(card.evidence_tier.value)}</td>"
             f"<td>{card.peptide_count}</td>"

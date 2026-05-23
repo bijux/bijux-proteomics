@@ -36,6 +36,13 @@ from bijux_proteomics.quantification import (
     MissingValueKind,
     QuantValue,
 )
+from bijux_proteomics.review import (
+    FinalClaimEvidenceTier,
+    ProteomicsEvidenceNodeKind,
+    ProteinEvidenceSummaryReport,
+    query_protein_evidence_summary,
+)
+from bijux_proteomics.workflow.biological_result_graph import BiologicalResultGraphReport
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -187,6 +194,11 @@ class ProteinEvidenceCard(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     card_id: str = Field(..., min_length=1)
+    graph_claim_node_id: str = Field(..., min_length=1)
+    graph_subject_node_id: str = Field(..., min_length=1)
+    graph_subject_node_kind: ProteomicsEvidenceNodeKind
+    graph_support_node_ids: tuple[str, ...] = Field(default_factory=tuple)
+    graph_source_row_refs: tuple[str, ...] = Field(default_factory=tuple)
     protein_group_id: str = Field(..., min_length=1)
     representative_protein_ref: str = Field(..., min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
@@ -231,6 +243,7 @@ class ProteinEvidenceCardReport(JsonModel):
 
 
 def build_protein_evidence_card_report(
+    graph_report: BiologicalResultGraphReport,
     quant_table: LabelFreeQuantTable,
     differential_report: DifferentialAbundanceReport,
     annotation_report: ProteinAnnotationMappingReport,
@@ -264,11 +277,19 @@ def build_protein_evidence_card_report(
         pathway_enrichment_report,
         complex_enrichment_report,
     )
+    differential_by_entity = {
+        entry.entity_id: entry for entry in differential_report.entries
+    }
+    final_entries = tuple(
+        entry
+        for entry in graph_report.final_results.entries
+        if entry.subject_node_kind is ProteomicsEvidenceNodeKind.PROTEIN
+    )
     cards: list[ProteinEvidenceCard] = []
-    for differential_entry in sorted(
-        differential_report.entries,
-        key=lambda entry: entry.entity_id,
-    ):
+    for final_entry in sorted(final_entries, key=lambda entry: entry.subject_node_ref):
+        differential_entry = differential_by_entity.get(final_entry.subject_node_ref)
+        if differential_entry is None:
+            continue
         protein_refs = quant_table.entity_protein_refs.get(
             differential_entry.entity_id,
             (),
@@ -315,6 +336,10 @@ def build_protein_evidence_card_report(
             annotation_entries=annotation_entries,
             by_member=pathway_by_member,
         )
+        graph_summary = query_protein_evidence_summary(
+            graph_report.graph,
+            protein_id=final_entry.subject_node_ref,
+        )
         warnings = _build_warnings(
             annotation=annotation,
             coverage=coverage,
@@ -326,6 +351,11 @@ def build_protein_evidence_card_report(
         cards.append(
             ProteinEvidenceCard(
                 card_id=_build_card_id(differential_entry.entity_id),
+                graph_claim_node_id=final_entry.claim_node_id,
+                graph_subject_node_id=final_entry.subject_node_id,
+                graph_subject_node_kind=final_entry.subject_node_kind,
+                graph_support_node_ids=_graph_support_node_ids(graph_summary),
+                graph_source_row_refs=final_entry.source_row_refs,
                 protein_group_id=differential_entry.entity_id,
                 representative_protein_ref=representative_protein_ref,
                 protein_refs=protein_refs,
@@ -341,12 +371,7 @@ def build_protein_evidence_card_report(
                 pathways=pathways,
                 ptm_sites=(),
                 significant=significant,
-                evidence_tier=_classify_evidence_tier(
-                    unique_peptide_count=unique_peptide_count,
-                    peptide_count=len(peptides),
-                    observed_sample_count=quantification.observed_sample_count,
-                    coverage_fraction=coverage.coverage_fraction,
-                ),
+                evidence_tier=_graph_evidence_tier(final_entry.evidence_tier),
                 warnings=warnings,
             )
         )
@@ -364,9 +389,10 @@ def build_protein_evidence_card_report(
         cards=tuple(cards),
         note=(
             "protein evidence cards preserve one structured object per final protein result, "
+            "derive final claim identity and evidence tiers from the canonical review graph, "
             "carry annotation, peptide membership, coverage, quantification, differential, "
             "context, pathway, and warning evidence together, and give biological reporting "
-            "one stable table source instead of ad hoc final-protein summaries"
+            "one stable graph-backed table source instead of ad hoc final-protein summaries"
         ),
     )
 
@@ -406,6 +432,11 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
     writer.writerow(
         (
             "card_id",
+            "graph_claim_node_id",
+            "graph_subject_node_id",
+            "graph_subject_node_kind",
+            "graph_support_node_ids",
+            "graph_source_row_refs",
             "protein_group_id",
             "representative_protein_ref",
             "protein_refs",
@@ -436,6 +467,11 @@ def render_protein_evidence_card_tsv(report: ProteinEvidenceCardReport) -> str:
         writer.writerow(
             (
                 card.card_id,
+                card.graph_claim_node_id,
+                card.graph_subject_node_id,
+                card.graph_subject_node_kind.value,
+                ";".join(card.graph_support_node_ids),
+                ";".join(card.graph_source_row_refs),
                 card.protein_group_id,
                 card.representative_protein_ref,
                 ";".join(card.protein_refs),
@@ -893,18 +929,23 @@ def _build_warnings(
     return tuple(warnings)
 
 
-def _classify_evidence_tier(
-    *,
-    unique_peptide_count: int,
-    peptide_count: int,
-    observed_sample_count: int,
-    coverage_fraction: float,
-) -> ProteinEvidenceCardTier:
-    if unique_peptide_count >= 2 and observed_sample_count >= 2 and coverage_fraction >= 0.15:
+def _graph_evidence_tier(evidence_tier: FinalClaimEvidenceTier) -> ProteinEvidenceCardTier:
+    if evidence_tier is FinalClaimEvidenceTier.HIGH_CONFIDENCE:
         return ProteinEvidenceCardTier.HIGH_SUPPORT
-    if unique_peptide_count >= 1 and peptide_count >= 2 and coverage_fraction >= 0.05:
+    if evidence_tier is FinalClaimEvidenceTier.MODERATE:
         return ProteinEvidenceCardTier.MODERATE_SUPPORT
     return ProteinEvidenceCardTier.REVIEW
+
+
+def _graph_support_node_ids(report: ProteinEvidenceSummaryReport) -> tuple[str, ...]:
+    node_ids = {
+        report.protein.node_id,
+        *(node.node_id for node in report.mapped_peptides),
+        *(node.node_id for node in report.quantifying_peptides),
+        *(node.node_id for node in report.protein_groups),
+        *(node.node_id for node in report.quant_values),
+    }
+    return tuple(sorted(node_ids))
 
 
 def _build_card_id(entity_id: str) -> str:
