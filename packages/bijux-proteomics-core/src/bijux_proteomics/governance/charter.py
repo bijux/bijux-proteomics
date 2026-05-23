@@ -247,6 +247,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/structure_reports/render.py",
             "interpretation/protein_set_enrichment.py",
             "interpretation/protein_set_scoring.py",
+            "interpretation/ppi_network_modules.py",
             "panels/target_panel.py",
         ),
         release_blocker="Core cannot ship if review-facing scientific artifacts become presentation-only shells without underlying evidence structure.",
