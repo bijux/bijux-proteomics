@@ -21,6 +21,44 @@ def _psm_fixture(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "psm" / name
 
 
+def test_extract_mzml_raw_signal_evidence_cards_preserves_precursor_isotope_fit_review() -> (
+    None
+):
+    report = extract_mzml_raw_signal_evidence_cards(
+        (
+            _format_fixture("precursor_isotope_fit_reference.mzml"),
+            _format_fixture("precursor_isotope_fit_shifted.mzml"),
+            _format_fixture("precursor_isotope_fit_wrong_charge.mzml"),
+        ),
+        _format_fixture("precursor_isotope_fit_targets.tsv"),
+        tolerance_da=0.05,
+        selected_precursor_ids=("prec_peptide",),
+    )
+
+    assert report.summary.card_count == 1
+    assert report.summary.isotope_fit_card_count == 1
+    card = report.cards[0]
+
+    assert card.precursor_id == "prec_peptide"
+    assert len(card.precursor_isotope_fit_entries) == 3
+    by_run = {entry.run_id: entry for entry in card.precursor_isotope_fit_entries}
+    assert by_run["precursor_isotope_fit_reference"].isotope_fit_score > 0.95
+    assert by_run["precursor_isotope_fit_shifted"].concern_codes == (
+        "shifted_monoisotopic_mz",
+    )
+    assert by_run["precursor_isotope_fit_wrong_charge"].concern_codes == (
+        "inconsistent_charge_spacing",
+        "missing_isotope_peak",
+    )
+    assert by_run["precursor_isotope_fit_wrong_charge"].missing_isotope_indices == (1,)
+    assert {
+        warning.code.value for warning in card.warnings
+    } == {
+        "chromatographic_peak_concern",
+        "precursor_isotope_mismatch",
+    }
+
+
 def test_extract_mzml_raw_signal_evidence_cards_preserves_raw_sections_and_warnings() -> None:
     report = extract_mzml_raw_signal_evidence_cards(
         (
@@ -103,9 +141,10 @@ def test_render_raw_signal_evidence_cards_keep_all_review_sections_visible() -> 
 
     assert summary_tsv.splitlines()[0] == (
         "card_count\twarning_card_count\tspectrum_evidence_card_count\t"
-        "fragment_support_card_count\tretention_time_flagged_card_count"
+        "fragment_support_card_count\tretention_time_flagged_card_count\t"
+        "isotope_fit_card_count"
     )
-    assert summary_tsv.splitlines()[1] == "1\t1\t1\t1\t1"
+    assert summary_tsv.splitlines()[1] == "1\t1\t1\t1\t1\t0"
     assert (
         "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor\t400.687246\t"
         "prec_peptide_ms1\t2\t1\t0\t2\t1\t2\t2\t"

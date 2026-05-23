@@ -40,6 +40,11 @@ from bijux_proteomics.io.dia_fragment_coelution import (
     extract_mzml_dia_fragment_trace_coelution,
 )
 from bijux_proteomics.io.mzml_reader import parse_mzml
+from bijux_proteomics.io.precursor_isotope_fit import (
+    PrecursorIsotopeFitEntry,
+    PrecursorIsotopeFitReport,
+    extract_mzml_precursor_isotope_fit,
+)
 from bijux_proteomics.io.retention_time_alignment import (
     RetentionTimeAlignmentFailedAnchor,
     RetentionTimeAlignmentReport,
@@ -60,6 +65,7 @@ class RawSignalEvidenceCardWarningCode(StrEnum):
         "retention_time_alignment_outside_tolerance"
     )
     RETENTION_TIME_ALIGNMENT_MISSING_ANCHOR = "retention_time_alignment_missing_anchor"
+    PRECURSOR_ISOTOPE_MISMATCH = "precursor_isotope_mismatch"
     WEAK_FRAGMENT_SUPPORT = "weak_fragment_support"
 
 
@@ -118,6 +124,9 @@ class RawSignalEvidenceCard(JsonModel):
     fragment_entries: tuple[DiaFragmentCoelutionFragmentEntry, ...] = Field(
         default_factory=tuple
     )
+    precursor_isotope_fit_entries: tuple[PrecursorIsotopeFitEntry, ...] = Field(
+        default_factory=tuple
+    )
     warnings: tuple[RawSignalEvidenceCardWarning, ...] = Field(default_factory=tuple)
 
 
@@ -131,6 +140,7 @@ class RawSignalEvidenceCardSummary(JsonModel):
     spectrum_evidence_card_count: int = Field(..., ge=0)
     fragment_support_card_count: int = Field(..., ge=0)
     retention_time_flagged_card_count: int = Field(..., ge=0)
+    isotope_fit_card_count: int = Field(..., ge=0)
 
 
 class RawSignalEvidenceCardReport(JsonModel):
@@ -150,6 +160,7 @@ def build_raw_signal_evidence_card_report(
     alignment_report: RetentionTimeAlignmentReport | None = None,
     spectrum_report: ChimericSpectrumReport | None = None,
     fragment_coelution_report: DiaFragmentCoelutionReport | None = None,
+    precursor_isotope_fit_report: PrecursorIsotopeFitReport | None = None,
     selected_precursor_ids: tuple[str, ...] = (),
     selected_peptide_refs: tuple[str, ...] = (),
 ) -> RawSignalEvidenceCardReport:
@@ -269,6 +280,10 @@ def build_raw_signal_evidence_card_report(
             fragment_coelution_report,
             precursor_id,
         )
+        precursor_isotope_fit_entries = _precursor_isotope_fit_entries_for_precursor(
+            precursor_isotope_fit_report,
+            precursor_id,
+        )
         warnings = _build_card_warnings(
             spec.peptide_ref,
             chromatographic_targets=chromatographic_targets,
@@ -277,6 +292,7 @@ def build_raw_signal_evidence_card_report(
             spectrum_evidence=spectrum_evidence,
             fragment_run_entries=fragment_run_entries,
             fragment_entries=fragment_entries,
+            precursor_isotope_fit_entries=precursor_isotope_fit_entries,
         )
         cards.append(
             RawSignalEvidenceCard(
@@ -295,6 +311,7 @@ def build_raw_signal_evidence_card_report(
                 competing_spectrum_evidence=competing_spectrum_evidence,
                 fragment_run_entries=fragment_run_entries,
                 fragment_entries=fragment_entries,
+                precursor_isotope_fit_entries=precursor_isotope_fit_entries,
                 warnings=warnings,
             )
         )
@@ -315,12 +332,15 @@ def build_raw_signal_evidence_card_report(
                 for card in cards
                 if card.retention_time_residuals or card.retention_time_failed_anchors
             ),
+            isotope_fit_card_count=sum(
+                1 for card in cards if card.precursor_isotope_fit_entries
+            ),
         ),
         note=(
             "raw-signal evidence cards preserve spectrum evidence, chromatographic peaks, "
-            "retention-time alignment, fragment support, and explicit warnings together "
-            "so one peptide or precursor can be reviewed without opening multiple raw "
-            "signal ledgers"
+            "retention-time alignment, fragment support, precursor isotope fit, and "
+            "explicit warnings together so one peptide or precursor can be reviewed "
+            "without opening multiple raw signal ledgers"
         ),
     )
 
@@ -391,6 +411,18 @@ def extract_mzml_raw_signal_evidence_cards(
             min_passing_fragment_count=min_passing_fragment_count,
         )
     )
+    precursor_isotope_fit_report = (
+        None
+        if not _targets_support_precursor_isotope_fit(target_report)
+        else extract_mzml_precursor_isotope_fit(
+            chromatogram_mzml_paths,
+            target_report,
+            extraction_tolerance_da=tolerance_da,
+            extraction_tolerance_ppm=tolerance_ppm,
+            fit_tolerance_da=tolerance_da,
+            fit_tolerance_ppm=tolerance_ppm,
+        )
+    )
     spectrum_report = None
     if spectrum_mzml_path is not None and psm_path is not None:
         spectra = parse_mzml(spectrum_mzml_path).accepted_spectra
@@ -411,6 +443,7 @@ def extract_mzml_raw_signal_evidence_cards(
         alignment_report=alignment_report,
         spectrum_report=spectrum_report,
         fragment_coelution_report=fragment_coelution_report,
+        precursor_isotope_fit_report=precursor_isotope_fit_report,
         selected_precursor_ids=selected_precursor_ids,
         selected_peptide_refs=selected_peptide_refs,
     )
@@ -430,6 +463,7 @@ def render_raw_signal_evidence_card_summary_tsv(
             "spectrum_evidence_card_count",
             "fragment_support_card_count",
             "retention_time_flagged_card_count",
+            "isotope_fit_card_count",
         )
     )
     writer.writerow(
@@ -439,6 +473,7 @@ def render_raw_signal_evidence_card_summary_tsv(
             report.summary.spectrum_evidence_card_count,
             report.summary.fragment_support_card_count,
             report.summary.retention_time_flagged_card_count,
+            report.summary.isotope_fit_card_count,
         )
     )
     return buffer.getvalue()
@@ -465,6 +500,8 @@ def render_raw_signal_evidence_card_tsv(report: RawSignalEvidenceCardReport) -> 
             "fragment_run_count",
             "failed_fragment_count",
             "warning_codes",
+            "isotope_fit_run_count",
+            "flagged_isotope_fit_count",
         )
     )
     for card in report.cards:
@@ -490,6 +527,12 @@ def render_raw_signal_evidence_card_tsv(report: RawSignalEvidenceCardReport) -> 
                     }
                 ),
                 "|".join(warning.code.value for warning in card.warnings),
+                len(card.precursor_isotope_fit_entries),
+                sum(
+                    1
+                    for entry in card.precursor_isotope_fit_entries
+                    if entry.concern_codes or entry.isotope_fit_score < 0.75
+                ),
             )
         )
     return buffer.getvalue()
@@ -546,6 +589,7 @@ def render_raw_signal_evidence_cards_html(report: RawSignalEvidenceCardReport) -
         lines.extend(_html_table_for_retention_time(card))
         lines.extend(_html_table_for_spectra(card))
         lines.extend(_html_table_for_fragment_runs(card))
+        lines.extend(_html_table_for_precursor_isotope_fit(card))
         lines.append("</section>")
     lines.extend(["</body>", "</html>"])
     return "\n".join(lines) + "\n"
@@ -744,6 +788,22 @@ def _fragment_entries_for_precursor(
     )
 
 
+def _precursor_isotope_fit_entries_for_precursor(
+    precursor_isotope_fit_report: PrecursorIsotopeFitReport | None,
+    precursor_id: str,
+) -> tuple[PrecursorIsotopeFitEntry, ...]:
+    if precursor_isotope_fit_report is None:
+        return ()
+    return tuple(
+        entry
+        for entry in sorted(
+            precursor_isotope_fit_report.entries,
+            key=lambda item: (item.run_id, item.target_id),
+        )
+        if entry.precursor_id == precursor_id
+    )
+
+
 def _build_card_warnings(
     peptide_ref: str,
     *,
@@ -753,6 +813,7 @@ def _build_card_warnings(
     spectrum_evidence: tuple[ChimericSpectrumEntry, ...],
     fragment_run_entries: tuple[DiaFragmentCoelutionRunEntry, ...],
     fragment_entries: tuple[DiaFragmentCoelutionFragmentEntry, ...],
+    precursor_isotope_fit_entries: tuple[PrecursorIsotopeFitEntry, ...],
 ) -> tuple[RawSignalEvidenceCardWarning, ...]:
     warnings: list[RawSignalEvidenceCardWarning] = []
     if any(entry.flagged_chimeric for entry in spectrum_evidence):
@@ -796,6 +857,20 @@ def _build_card_warnings(
             )
         )
     if any(
+        entry.concern_codes or entry.isotope_fit_score < 0.75
+        for entry in precursor_isotope_fit_entries
+    ):
+        warnings.append(
+            RawSignalEvidenceCardWarning(
+                code=RawSignalEvidenceCardWarningCode.PRECURSOR_ISOTOPE_MISMATCH,
+                message=(
+                    f"{peptide_ref} has precursor isotope evidence with shifted "
+                    "monoisotopic mass, missing isotope peaks, or inconsistent "
+                    "charge spacing in at least one run"
+                ),
+            )
+        )
+    if any(
         "insufficient_passing_fragments" in entry.concern_codes
         for entry in fragment_run_entries
     ) or any(entry.failure_reason is not None for entry in fragment_entries):
@@ -813,6 +888,15 @@ def _build_card_warnings(
 
 def _run_id_from_peak_report(report: ChromatographicPeakPickingReport) -> str:
     return Path(report.trace_report.source_path).stem
+
+
+def _targets_support_precursor_isotope_fit(target_report) -> bool:
+    if not target_report.accepted_entries:
+        return False
+    return all(
+        target.expected_charge is not None and bool(target.metadata.get("peptide_ref"))
+        for target in target_report.accepted_entries
+    )
 
 
 def _default_psm_mapping() -> SearchResultColumnMapping:
@@ -953,6 +1037,31 @@ def _html_table_for_fragment_runs(card: RawSignalEvidenceCard) -> list[str]:
             f"<td>{entry.coelution_score:.4f}</td>"
             f"<td>{entry.passing_fragment_count}</td>"
             f"<td>{escape('|'.join(entry.failed_fragment_ids))}</td>"
+            f"<td>{escape('|'.join(entry.concern_codes))}</td>"
+            "</tr>"
+        )
+    lines.append("</table>")
+    return lines
+
+
+def _html_table_for_precursor_isotope_fit(card: RawSignalEvidenceCard) -> list[str]:
+    if not card.precursor_isotope_fit_entries:
+        return []
+    lines = [
+        "<h3>Precursor Isotope Fit</h3>",
+        "<table>",
+        "<tr><th>run_id</th><th>apex_spectrum_id</th><th>mass_error_ppm</th><th>pattern_score</th><th>charge_score</th><th>fit_score</th><th>missing_isotopes</th><th>concerns</th></tr>",
+    ]
+    for entry in card.precursor_isotope_fit_entries:
+        lines.append(
+            "<tr>"
+            f"<td>{escape(entry.run_id)}</td>"
+            f"<td>{escape(entry.apex_spectrum_id or '')}</td>"
+            f"<td>{'' if entry.monoisotopic_mass_error_ppm is None else f'{entry.monoisotopic_mass_error_ppm:.4f}'}</td>"
+            f"<td>{entry.isotope_pattern_score:.4f}</td>"
+            f"<td>{entry.charge_consistency_score:.4f}</td>"
+            f"<td>{entry.isotope_fit_score:.4f}</td>"
+            f"<td>{escape('|'.join(str(index) for index in entry.missing_isotope_indices))}</td>"
             f"<td>{escape('|'.join(entry.concern_codes))}</td>"
             "</tr>"
         )
