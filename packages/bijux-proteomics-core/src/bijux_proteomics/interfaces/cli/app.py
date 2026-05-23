@@ -480,10 +480,6 @@ from bijux_proteomics.isotope_labeling import (
 )
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
-    build_targeted_assay_qc_report,
-    build_skyline_result_import_report,
-    build_targeted_matrix_report,
-    build_transition_table_result_import_report,
     render_targeted_assay_qc_fragment_ratio_tsv,
     render_targeted_assay_qc_replicate_cv_tsv,
     render_targeted_assay_qc_retention_tsv,
@@ -502,7 +498,6 @@ from bijux_proteomics.targeted import (
     render_targeted_result_observation_tsv,
 )
 from bijux_proteomics.ptm import (
-    PtmEvidenceCardPolicy,
     PtmLocalizationColumnMapping,
     PtmMotifComparisonPolicy,
     PtmMotifBackgroundMode,
@@ -748,36 +743,20 @@ from bijux_proteomics.workflow import (
     BiologicalResultSelectionPolicy,
     DiaDifferentialSourceKind,
     ProteomicsRunEngine,
-    build_biological_result_report_bundle,
-    build_dda_biological_workflow_bundle,
     build_diann_benchmark_report,
-    build_diann_biological_workflow_bundle,
     build_maxquant_benchmark_report,
-    build_maxquant_biological_workflow_bundle,
     build_proteomics_run_bundle,
-    build_ptm_site_workflow_bundle,
     build_dia_differential_volcano_plot,
     build_diann_differential_analysis_report,
     build_diann_vs_dda_psm_comparison_report,
     build_label_based_differential_volcano_plot,
-    build_silac_label_based_report_bundle,
     build_silac_differential_analysis_report,
-    build_tmt_experiment_workflow_bundle,
     build_tmt_differential_analysis_report,
     build_spectronaut_differential_analysis_report,
-    DdaPsmAcceptancePolicy,
-    MaxquantProteinGroupAcceptancePolicy,
-    export_diann_biological_workflow_bundle,
-    export_biological_result_report_bundle,
-    export_dda_biological_workflow_bundle,
-    export_maxquant_biological_workflow_bundle,
-    export_ptm_site_workflow_bundle,
-    export_tmt_experiment_workflow_bundle,
     export_dia_differential_matrix_tsv,
     export_dia_differential_qc_summary_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
-    export_label_based_report_bundle,
     export_dia_normalization_balance_plot_tsv,
     export_label_based_differential_matrix_tsv,
     export_label_based_differential_results_tsv,
@@ -800,6 +779,19 @@ from bijux_proteomics.workflow import (
     render_dia_dda_peptide_overlap_tsv,
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
+)
+from bijux_proteomics.workflow.orchestrator import (
+    DdaWorkflowConfig,
+    DiannWorkflowConfig,
+    LabelFreeWorkflowConfig,
+    MaxquantWorkflowConfig,
+    PtmWorkflowConfig,
+    SilacWorkflowConfig,
+    TargetedWorkflowConfig,
+    TargetedWorkflowStage,
+    TmtWorkflowConfig,
+    WorkflowMode,
+    run_proteomics_workflow,
 )
 
 
@@ -828,6 +820,13 @@ def _build_volcano_review_policy(
         absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
         top_label_count=top_label_count,
     )
+
+
+def _run_orchestrated_workflow(config):
+    try:
+        return run_proteomics_workflow(config)
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
 
 
 def _validate_proteomics_run_inputs(
@@ -3728,15 +3727,17 @@ def targeted_target_matrix_command(
     out_path: Path | None,
 ) -> None:
     """Import targeted assay results and build a precursor-target matrix review."""
-    try:
-        selected_source = TargetedResultSourceKind(source_kind)
-        if selected_source is TargetedResultSourceKind.SKYLINE_EXPORT:
-            import_report = build_skyline_result_import_report(input_path)
-        else:
-            import_report = build_transition_table_result_import_report(input_path)
-        matrix_report = build_targeted_matrix_report(import_report)
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
+    result = _run_orchestrated_workflow(
+        TargetedWorkflowConfig(
+            input_tsv_path=input_path,
+            source_kind=TargetedResultSourceKind(source_kind),
+            stage=TargetedWorkflowStage.MATRIX,
+        )
+    )
+    import_report = result.source_report
+    matrix_report = result.report
+    if import_report is None:
+        raise click.ClickException("workflow source report was not produced")
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_targeted_matrix_summary_tsv(matrix_report))
@@ -3854,19 +3855,18 @@ def targeted_assay_qc_command(
     out_path: Path | None,
 ) -> None:
     """Import targeted assay results and build assay-QC review ledgers."""
-    try:
-        selected_source = TargetedResultSourceKind(source_kind)
-        if selected_source is TargetedResultSourceKind.SKYLINE_EXPORT:
-            import_report = build_skyline_result_import_report(input_path)
-        else:
-            import_report = build_transition_table_result_import_report(input_path)
-        design_report = parse_experimental_design_table(design_path)
-        assay_qc_report = build_targeted_assay_qc_report(
-            import_report,
-            design_report.accepted_entries,
+    result = _run_orchestrated_workflow(
+        TargetedWorkflowConfig(
+            input_tsv_path=input_path,
+            source_kind=TargetedResultSourceKind(source_kind),
+            stage=TargetedWorkflowStage.ASSAY_QC,
+            design_tsv_path=design_path,
         )
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
+    )
+    import_report = result.source_report
+    assay_qc_report = result.report
+    if import_report is None:
+        raise click.ClickException("workflow source report was not produced")
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report))
@@ -3911,8 +3911,8 @@ def targeted_assay_qc_command(
         "source_name": assay_qc_report.source_name,
         "import_summary": import_report.summary.to_dict(),
         "design_summary": {
-            "accepted_entry_count": len(design_report.accepted_entries),
-            "rejected_row_count": len(design_report.rejected_rows),
+            "accepted_entry_count": result.design_row_count,
+            "rejected_row_count": 0,
         },
         "assay_qc_summary": assay_qc_report.summary.to_dict(),
         "target_qc": [entry.to_dict() for entry in assay_qc_report.target_qc],
@@ -9569,13 +9569,10 @@ def biological_report_command(
 ) -> None:
     """Build one biological interpretation report bundle over governed LFQ results."""
 
-    try:
-        design_report = parse_experimental_design_table(design_tsv)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_biological_result_report_bundle(
-            input_tsv,
-            tuple(design_report.accepted_entries),
+    result = _run_orchestrated_workflow(
+        LabelFreeWorkflowConfig(
+            input_tsv_path=input_tsv,
+            design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
             annotation_tsv_path=annotation_tsv,
             context_annotation_tsv_path=context_annotation_tsv,
@@ -9610,25 +9607,20 @@ def biological_report_command(
                 absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
                 top_label_count=volcano_top_label_count,
             ),
+            output_dir=output_dir,
         )
-        manifest = export_biological_result_report_bundle(report, output_dir)
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    manifest_path = output_dir / "biological_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    )
+    report = result.report
+    manifest = result.export_manifest
+    if manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
-            "design_rows": len(design_report.accepted_entries),
+            "design_rows": result.design_row_count,
             "report": report.to_dict(),
             "export_manifest": manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -9788,20 +9780,20 @@ def dda_biological_report_command(
 ) -> None:
     """Build one DDA search-result-to-biology report bundle."""
 
-    try:
-        design_report = parse_experimental_design_table(design_tsv)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_dda_biological_workflow_bundle(
-            search_result_tsv,
-            tuple(design_report.accepted_entries),
+    result = _run_orchestrated_workflow(
+        DdaWorkflowConfig(
+            mode=WorkflowMode.GENERIC_PSM,
+            search_result_tsv_path=search_result_tsv,
+            design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
             adapter_kind=SearchAdapterKind(adapter_kind),
             generic_mapping_path=mapping_path,
             dialect_id=dialect_id,
-            acceptance_policy=DdaPsmAcceptancePolicy(
-                max_q_value=psm_q_value_threshold
-            ),
+            annotation_tsv_path=annotation_tsv,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
+            psm_q_value_threshold=psm_q_value_threshold,
             parsimony_variant=ParsimonyVariant(parsimony_variant),
             aggregation_method=QuantRollupMethod(aggregation),
             top_n=top_n,
@@ -9809,10 +9801,6 @@ def dda_biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            annotation_tsv_path=annotation_tsv,
-            go_annotation_tsv_path=go_annotation_tsv,
-            pathway_membership_tsv_path=pathway_membership_tsv,
-            complex_membership_tsv_path=complex_membership_tsv,
             selection_policy=BiologicalResultSelectionPolicy(
                 max_adjusted_p_value=max_adjusted_p_value,
                 min_absolute_log2_fold_change=min_absolute_log2_fold_change,
@@ -9824,25 +9812,20 @@ def dda_biological_report_command(
                 absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
                 top_label_count=volcano_top_label_count,
             ),
+            output_dir=output_dir,
         )
-        manifest = export_dda_biological_workflow_bundle(report, output_dir)
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    manifest_path = output_dir / "dda_biological_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    )
+    report = result.report
+    manifest = result.export_manifest
+    if manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
-            "design_rows": len(design_report.accepted_entries),
+            "design_rows": result.design_row_count,
             "report": report.to_dict(),
             "export_manifest": manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -9984,15 +9967,15 @@ def diann_biological_report_command(
 ) -> None:
     """Build one DIA-NN-to-biology report bundle."""
 
-    try:
-        design_report = parse_experimental_design_table(design_tsv)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_diann_biological_workflow_bundle(
-            result_tsv,
-            tuple(design_report.accepted_entries),
+    result = _run_orchestrated_workflow(
+        DiannWorkflowConfig(
+            result_tsv_path=result_tsv,
+            design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
             config_path=config_path,
+            go_annotation_tsv_path=go_annotation_tsv,
+            pathway_membership_tsv_path=pathway_membership_tsv,
+            complex_membership_tsv_path=complex_membership_tsv,
             max_q_value=max_q_value,
             peptide_rollup_method=DiaPeptideRollupMethod(peptide_rollup),
             target_kind=DiaProteinMatrixTargetKind(target_kind),
@@ -10001,9 +9984,6 @@ def diann_biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            go_annotation_tsv_path=go_annotation_tsv,
-            pathway_membership_tsv_path=pathway_membership_tsv,
-            complex_membership_tsv_path=complex_membership_tsv,
             selection_policy=BiologicalResultSelectionPolicy(
                 max_adjusted_p_value=max_adjusted_p_value,
                 min_absolute_log2_fold_change=min_absolute_log2_fold_change,
@@ -10015,25 +9995,20 @@ def diann_biological_report_command(
                 absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
                 top_label_count=volcano_top_label_count,
             ),
+            output_dir=output_dir,
         )
-        manifest = export_diann_biological_workflow_bundle(report, output_dir)
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    manifest_path = output_dir / "diann_biological_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    )
+    report = result.report
+    manifest = result.export_manifest
+    if manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
-            "design_rows": len(design_report.accepted_entries),
+            "design_rows": result.design_row_count,
             "report": report.to_dict(),
             "export_manifest": manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -10173,29 +10148,24 @@ def maxquant_biological_report_command(
 ) -> None:
     """Build one MaxQuant-to-biology report bundle."""
 
-    try:
-        design_report = parse_experimental_design_table(design_tsv)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_maxquant_biological_workflow_bundle(
-            evidence_txt,
-            tuple(design_report.accepted_entries),
+    result = _run_orchestrated_workflow(
+        MaxquantWorkflowConfig(
+            evidence_txt_path=evidence_txt,
             peptides_txt_path=peptides_txt,
             protein_groups_txt_path=protein_groups_txt,
+            design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
             config_path=config_path,
-            acceptance_policy=MaxquantProteinGroupAcceptancePolicy(
-                exclude_contaminants=not include_contaminants,
-                exclude_reverse=not include_reverse,
-                exclude_only_identified_by_site=not include_only_identified_by_site,
-                require_lfq_signal=not allow_empty_lfq_signal,
-            ),
-            normalization_method=NormalizationMethod(normalization),
-            condition_a=condition_a,
-            condition_b=condition_b,
             go_annotation_tsv_path=go_annotation_tsv,
             pathway_membership_tsv_path=pathway_membership_tsv,
             complex_membership_tsv_path=complex_membership_tsv,
+            include_contaminants=include_contaminants,
+            include_reverse=include_reverse,
+            include_only_identified_by_site=include_only_identified_by_site,
+            allow_empty_lfq_signal=allow_empty_lfq_signal,
+            normalization_method=NormalizationMethod(normalization),
+            condition_a=condition_a,
+            condition_b=condition_b,
             selection_policy=BiologicalResultSelectionPolicy(
                 max_adjusted_p_value=max_adjusted_p_value,
                 min_absolute_log2_fold_change=min_absolute_log2_fold_change,
@@ -10207,25 +10177,20 @@ def maxquant_biological_report_command(
                 absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
                 top_label_count=volcano_top_label_count,
             ),
+            output_dir=output_dir,
         )
-        manifest = export_maxquant_biological_workflow_bundle(report, output_dir)
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    manifest_path = output_dir / "maxquant_biological_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    )
+    report = result.report
+    manifest = result.export_manifest
+    if manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
-            "design_rows": len(design_report.accepted_entries),
+            "design_rows": result.design_row_count,
             "report": report.to_dict(),
             "export_manifest": manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -14753,13 +14718,10 @@ def silac_report_command(
     out_path: Path | None,
 ) -> None:
     """Build a governed SILAC report directory with ratios, QC, and differential results."""
-    try:
-        design_report = parse_experimental_design_table(design_path)
-        if design_report.rejected_rows:
-            raise click.ClickException("design table contains rejected rows")
-        report = build_silac_label_based_report_bundle(
-            input_tsv,
-            tuple(design_report.accepted_entries),
+    result = _run_orchestrated_workflow(
+        SilacWorkflowConfig(
+            input_tsv_path=input_tsv,
+            design_tsv_path=design_path,
             mapping=SilacColumnMapping(
                 sample_id=sample_id_column,
                 peptide=peptide_column,
@@ -14783,24 +14745,19 @@ def silac_report_command(
             batch_field=batch_field,
             covariate_fields=tuple(dict.fromkeys(covariate_fields)),
             pairing_field=pairing_field,
+            output_dir=output_dir,
         )
-        manifest = export_label_based_report_bundle(report, output_dir)
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    manifest_path = output_dir / "label_based_report_manifest.json"
-    manifest_path.write_text(manifest.to_stable_json() + "\n", encoding="utf-8")
+    )
+    report = result.report
+    manifest = result.export_manifest
+    if manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
             "report": report.to_dict(),
             "export_manifest": manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(manifest_path),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -16021,11 +15978,10 @@ def tmt_report_command(
     out_path: Path | None,
 ) -> None:
     """Build a governed TMT report directory with channel quality, ratios, and protein changes."""
-    try:
-        explicit_channels = _parse_tmt_channel_column_specs(channel_columns)
-        workflow_report = build_tmt_experiment_workflow_bundle(
-            input_tsv,
-            design_path,
+    result = _run_orchestrated_workflow(
+        TmtWorkflowConfig(
+            result_tsv_path=input_tsv,
+            design_tsv_path=design_path,
             control_channel=control_channel,
             source_kind=TmtSearchResultSourceKind(source_kind),
             mapping=TmtReporterColumnMapping(
@@ -16036,7 +15992,7 @@ def tmt_report_command(
                 default_multiplex_group=default_multiplex_group,
                 protein_separator=protein_separator,
             ),
-            channel_columns=explicit_channels,
+            channel_columns=_parse_tmt_channel_column_specs(channel_columns),
             channel_normalization_method=TmtNormalizationMethod(
                 channel_normalization_method
             ),
@@ -16048,21 +16004,13 @@ def tmt_report_command(
             batch_field=batch_field,
             covariate_fields=tuple(dict.fromkeys(covariate_fields)),
             pairing_field=pairing_field,
+            output_dir=output_dir,
         )
-        workflow_manifest = export_tmt_experiment_workflow_bundle(
-            workflow_report,
-            output_dir,
-        )
-    except click.ClickException:
-        raise
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    workflow_manifest_path = output_dir / "tmt_workflow_manifest.json"
-    workflow_manifest_path.write_text(
-        workflow_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
+    workflow_report = result.report
+    workflow_manifest = result.export_manifest
+    if workflow_manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
@@ -16072,16 +16020,7 @@ def tmt_report_command(
             "report": workflow_report.report.to_dict(),
             "workflow_export_manifest": workflow_manifest.to_dict(),
             "export_manifest": workflow_manifest.label_based_report_manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "manifest_json": str(
-                    output_dir / workflow_manifest.artifacts.label_based_report_manifest_json
-                ),
-                "workflow_manifest_json": str(workflow_manifest_path),
-                "report_manifest_json": str(
-                    output_dir / workflow_manifest.artifacts.label_based_report_manifest_json
-                ),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
@@ -18946,12 +18885,12 @@ def ptm_report_command(
     out_path: Path | None,
 ) -> None:
     """Build one governed PTM report directory over peptide, site, quant, and motif surfaces."""
-    try:
-        workflow_report = build_ptm_site_workflow_bundle(
-            evidence_tsv,
-            proteins_fasta,
+    result = _run_orchestrated_workflow(
+        PtmWorkflowConfig(
+            evidence_tsv_path=evidence_tsv,
+            proteins_fasta_path=proteins_fasta,
             feature_tsv_path=feature_tsv,
-            design_path=design_path,
+            design_tsv_path=design_path,
             mapping=PtmLocalizationColumnMapping(
                 sample_id=sample_column,
                 spectrum_id=spectrum_id_column,
@@ -18972,44 +18911,31 @@ def ptm_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            protein_correction_mode=PtmProteinCorrectionMode(
-                protein_correction_mode.lower()
-            ),
             batch_field=design_batch_field,
             covariate_fields=tuple(dict.fromkeys(design_covariates)),
             pairing_field=design_pairing_field,
+            protein_correction_mode=PtmProteinCorrectionMode(
+                protein_correction_mode.lower()
+            ),
             motif_flank_size=flank_size,
-            motif_selection_policy=PtmPhosphositeSelectionPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-                direction=PtmMotifRegulationDirection(direction.lower()),
-                include_ambiguous_regulated_sites=include_ambiguous_regulated_sites,
-                include_ambiguous_background_sites=include_ambiguous_background_sites,
-            ),
-            motif_comparison_policy=PtmMotifComparisonPolicy(
-                min_frequency_difference=min_frequency_difference,
-                min_enrichment_ratio=min_enrichment_ratio,
-                max_reported_term_count=max_reported_term_count,
-            ),
+            max_adjusted_p_value=max_adjusted_p_value,
+            min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+            direction=PtmMotifRegulationDirection(direction.lower()),
+            include_ambiguous_regulated_sites=include_ambiguous_regulated_sites,
+            include_ambiguous_background_sites=include_ambiguous_background_sites,
+            min_frequency_difference=min_frequency_difference,
+            min_enrichment_ratio=min_enrichment_ratio,
+            max_reported_term_count=max_reported_term_count,
             annotation_tsv_path=annotation_tsv,
             annotation_target_species=target_species,
-            regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-            ),
-            evidence_card_policy=PtmEvidenceCardPolicy(
-                max_adjusted_p_value=card_max_adjusted_p_value
-            ),
+            card_max_adjusted_p_value=card_max_adjusted_p_value,
+            output_dir=output_dir,
         )
-        workflow_manifest = export_ptm_site_workflow_bundle(workflow_report, output_dir)
-    except Exception as exc:  # noqa: BLE001
-        raise click.ClickException(str(exc)) from exc
-
-    workflow_manifest_path = output_dir / "ptm_site_workflow_manifest.json"
-    workflow_manifest_path.write_text(
-        workflow_manifest.to_stable_json() + "\n",
-        encoding="utf-8",
     )
+    workflow_report = result.report
+    workflow_manifest = result.export_manifest
+    if workflow_manifest is None:
+        raise click.ClickException("workflow export manifest was not produced")
 
     _emit_json(
         {
@@ -19021,13 +18947,7 @@ def ptm_report_command(
             "report": workflow_report.report.to_dict(),
             "workflow_export_manifest": workflow_manifest.to_dict(),
             "export_manifest": workflow_manifest.ptm_report_manifest.to_dict(),
-            "outputs": {
-                "output_dir": str(output_dir),
-                "workflow_manifest_json": str(workflow_manifest_path),
-                "report_manifest_json": str(
-                    output_dir / workflow_manifest.artifacts.ptm_report_manifest_json
-                ),
-            },
+            "outputs": result.outputs,
         },
         out_path=out_path,
     )
