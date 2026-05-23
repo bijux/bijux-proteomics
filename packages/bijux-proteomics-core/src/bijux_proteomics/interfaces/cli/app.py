@@ -169,6 +169,10 @@ from bijux_proteomics.identification.psm_target_decoy_fdr import (
     render_psm_target_decoy_fdr_summary_tsv,
     render_psm_target_decoy_fdr_tsv,
 )
+from bijux_proteomics.identification.protein_coverage import (
+    render_protein_coverage_peptide_coordinates_tsv,
+    render_protein_coverage_uncovered_regions_tsv,
+)
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
     SearchAdapterKind,
@@ -6478,6 +6482,16 @@ def protein_inference_benchmarks_command(
     "--regions-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
+    "--uncovered-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--peptide-coordinate-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def protein_coverage_command(
@@ -6501,6 +6515,8 @@ def protein_coverage_command(
     summary_tsv_out: Path | None,
     coverage_tsv_out: Path | None,
     regions_tsv_out: Path | None,
+    uncovered_tsv_out: Path | None,
+    peptide_coordinate_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Review protein sequence coverage from accepted peptide evidence."""
@@ -6571,6 +6587,16 @@ def protein_coverage_command(
             regions_tsv_out,
             render_protein_coverage_regions_tsv(review),
         )
+    if uncovered_tsv_out is not None:
+        _write_text_output(
+            uncovered_tsv_out,
+            render_protein_coverage_uncovered_regions_tsv(review),
+        )
+    if peptide_coordinate_tsv_out is not None:
+        _write_text_output(
+            peptide_coordinate_tsv_out,
+            render_protein_coverage_peptide_coordinates_tsv(review),
+        )
 
     payload = review.to_dict()
     payload["accepted_rows"] = len(accepted_records)
@@ -6579,6 +6605,12 @@ def protein_coverage_command(
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "coverage_tsv": None if coverage_tsv_out is None else str(coverage_tsv_out),
         "regions_tsv": None if regions_tsv_out is None else str(regions_tsv_out),
+        "uncovered_tsv": None if uncovered_tsv_out is None else str(uncovered_tsv_out),
+        "peptide_coordinate_tsv": (
+            None
+            if peptide_coordinate_tsv_out is None
+            else str(peptide_coordinate_tsv_out)
+        ),
     }
     _emit_json(payload, out_path=out_path)
 
