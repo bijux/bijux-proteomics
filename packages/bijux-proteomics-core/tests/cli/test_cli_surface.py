@@ -4804,6 +4804,10 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
                 "diann.library.peptides.tsv",
                 "--protein-tsv-out",
                 "diann.library.proteins.tsv",
+                "--outside-library-peptide-tsv-out",
+                "diann.library.outside.peptides.tsv",
+                "--outside-library-protein-tsv-out",
+                "diann.library.outside.proteins.tsv",
             ],
         )
 
@@ -4813,8 +4817,10 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         assert payload["library_source_format"] == "msp"
         assert payload["summary"]["library_peptide_count"] == 5
         assert payload["summary"]["detected_peptide_count"] == 4
+        assert payload["summary"]["observed_outside_library_peptide_count"] == 1
         assert payload["summary"]["library_protein_count"] == 5
         assert payload["summary"]["detected_protein_count"] == 4
+        assert payload["summary"]["observed_outside_library_protein_count"] == 1
         assert payload["condition_entries"][0]["condition"] == "control"
         assert payload["condition_entries"][0]["detected_peptide_count"] == 4
         assert payload["condition_entries"][1]["condition"] == "treatment"
@@ -4823,6 +4829,14 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         assert payload["peptide_entries"][0]["detected_overall"] is False
         assert payload["protein_entries"][-1]["protein_ref"] == "P44444"
         assert payload["protein_entries"][-1]["detected_overall"] is False
+        assert (
+            payload["observed_outside_library_peptide_entries"][0]["canonical_peptide"]
+            == "PEPNOVEL"
+        )
+        assert (
+            payload["observed_outside_library_protein_entries"][0]["protein_ref"]
+            == "P55555"
+        )
         assert payload["outputs"]["summary_tsv"] == "diann.library.summary.tsv"
         assert payload["outputs"]["sample_tsv"] == "diann.library.samples.tsv"
         assert (
@@ -4830,11 +4844,21 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         )
         assert payload["outputs"]["peptide_tsv"] == "diann.library.peptides.tsv"
         assert payload["outputs"]["protein_tsv"] == "diann.library.proteins.tsv"
+        assert (
+            payload["outputs"]["outside_library_peptide_tsv"]
+            == "diann.library.outside.peptides.tsv"
+        )
+        assert (
+            payload["outputs"]["outside_library_protein_tsv"]
+            == "diann.library.outside.proteins.tsv"
+        )
         assert Path("diann.library.summary.tsv").exists()
         assert Path("diann.library.samples.tsv").exists()
         assert Path("diann.library.conditions.tsv").exists()
         assert Path("diann.library.peptides.tsv").exists()
         assert Path("diann.library.proteins.tsv").exists()
+        assert Path("diann.library.outside.peptides.tsv").exists()
+        assert Path("diann.library.outside.proteins.tsv").exists()
         assert "sample_id\tdetected_peptide_count\tdetected_protein_count" in Path(
             "diann.library.samples.tsv"
         ).read_text(encoding="utf-8")
@@ -4846,6 +4870,12 @@ def test_diann_library_coverage_command_emits_identity_and_scope_ledgers() -> No
         ).read_text(encoding="utf-8")
         assert "P44444\tfalse\t0\t0" in Path(
             "diann.library.proteins.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPNOVEL\tP55555\tsample_A\tcontrol\t1\t1" in Path(
+            "diann.library.outside.peptides.tsv"
+        ).read_text(encoding="utf-8")
+        assert "P55555\tsample_A\tcontrol\t1\t1" in Path(
+            "diann.library.outside.proteins.tsv"
         ).read_text(encoding="utf-8")
 
 
