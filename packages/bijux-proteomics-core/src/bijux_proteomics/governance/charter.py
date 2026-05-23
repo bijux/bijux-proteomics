@@ -209,7 +209,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
     ),
     CoreDomainFamilyEntry(
         family=CoreScientificDomainFamily.PTM_AND_DIA,
-        owned_surface="PTM localization and DIA-native evidence semantics that preserve uncertainty, library identity, and targeted follow-up meaning.",
+        owned_surface="PTM localization, protein-abundance-corrected site differential semantics, and DIA-native evidence surfaces that preserve uncertainty, library identity, and targeted follow-up meaning.",
         required_modules=(
             "targeted/assay_qc.py",
             "ptm/contracts.py",
