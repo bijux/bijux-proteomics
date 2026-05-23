@@ -24,6 +24,7 @@ class DiaTransitionSampleValue(JsonModel):
     sample_id: str = Field(..., min_length=1)
     run_ids: tuple[str, ...] = Field(default_factory=tuple)
     intensity: float | None = Field(default=None, ge=0.0)
+    retention_time_minutes: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
     precursor_total_intensity: float | None = Field(default=None, ge=0.0)
     relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -38,6 +39,7 @@ class DiaTransitionQcEntry(JsonModel):
 
     transition_id: str = Field(..., min_length=1)
     precursor_id: str = Field(..., min_length=1)
+    precursor_charge: int | None = Field(default=None, ge=1)
     peptide_sequence: str | None = None
     protein_ref: str | None = None
     fragment_label: str | None = None
@@ -49,6 +51,7 @@ class DiaTransitionQcEntry(JsonModel):
     total_intensity: float = Field(..., ge=0.0)
     mean_intensity: float = Field(..., ge=0.0)
     median_intensity: float = Field(..., ge=0.0)
+    median_retention_time_minutes: float | None = Field(default=None, ge=0.0)
     median_relative_share: float = Field(..., ge=0.0, le=1.0)
     min_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
     weak: bool = False
@@ -120,6 +123,7 @@ def build_transition_qc_report(
             entry.transition_id,
             {
                 "precursor_id": entry.precursor_id,
+                "precursor_charge": entry.precursor_charge,
                 "peptide_sequence": entry.peptide_sequence,
                 "protein_ref": entry.protein_ref,
                 "fragment_label": entry.fragment_label,
@@ -147,6 +151,7 @@ def build_transition_qc_report(
         assert isinstance(sample_entries, dict)
         values: list[DiaTransitionSampleValue] = []
         detected_intensities: list[float] = []
+        detected_retention_times: list[float] = []
         detected_shares: list[float] = []
         min_q_value: float | None = None
         for sample_id in sample_ids:
@@ -174,7 +179,13 @@ def build_transition_qc_report(
                 for observation in observations
                 if observation.q_value is not None
             ]
+            retention_times = [
+                observation.retention_time_minutes
+                for observation in observations
+                if observation.retention_time_minutes is not None
+            ]
             detected_intensities.append(intensity)
+            detected_retention_times.extend(retention_times)
             if relative_share is not None:
                 detected_shares.append(relative_share)
             if q_values:
@@ -197,6 +208,9 @@ def build_transition_qc_report(
                         )
                     ),
                     intensity=intensity,
+                    retention_time_minutes=_median(retention_times)
+                    if retention_times
+                    else None,
                     q_value=min(q_values) if q_values else None,
                     precursor_total_intensity=precursor_total_intensity,
                     relative_share=relative_share,
@@ -218,6 +232,11 @@ def build_transition_qc_report(
             DiaTransitionQcEntry(
                 transition_id=transition_id,
                 precursor_id=precursor_id,
+                precursor_charge=(
+                    None
+                    if group["precursor_charge"] is None
+                    else int(group["precursor_charge"])
+                ),
                 peptide_sequence=(
                     None
                     if group["peptide_sequence"] is None
@@ -251,6 +270,11 @@ def build_transition_qc_report(
                     else 0.0
                 ),
                 median_intensity=_median(detected_intensities),
+                median_retention_time_minutes=(
+                    _median(detected_retention_times)
+                    if detected_retention_times
+                    else None
+                ),
                 median_relative_share=median_relative_share,
                 min_q_value=min_q_value,
                 weak=weak,
@@ -354,6 +378,7 @@ def render_transition_qc_transition_tsv(report: DiaTransitionQcReport) -> str:
         [
             "transition_id",
             "precursor_id",
+            "precursor_charge",
             "peptide_sequence",
             "protein_ref",
             "fragment_label",
@@ -364,6 +389,7 @@ def render_transition_qc_transition_tsv(report: DiaTransitionQcReport) -> str:
             "total_intensity",
             "mean_intensity",
             "median_intensity",
+            "median_retention_time_minutes",
             "median_relative_share",
             "min_q_value",
             "weak",
@@ -375,6 +401,7 @@ def render_transition_qc_transition_tsv(report: DiaTransitionQcReport) -> str:
             [
                 entry.transition_id,
                 entry.precursor_id,
+                "" if entry.precursor_charge is None else entry.precursor_charge,
                 "" if entry.peptide_sequence is None else entry.peptide_sequence,
                 "" if entry.protein_ref is None else entry.protein_ref,
                 "" if entry.fragment_label is None else entry.fragment_label,
@@ -385,6 +412,11 @@ def render_transition_qc_transition_tsv(report: DiaTransitionQcReport) -> str:
                 f"{entry.total_intensity:g}",
                 f"{entry.mean_intensity:g}",
                 f"{entry.median_intensity:g}",
+                (
+                    ""
+                    if entry.median_retention_time_minutes is None
+                    else f"{entry.median_retention_time_minutes:g}"
+                ),
                 f"{entry.median_relative_share:.6g}",
                 "" if entry.min_q_value is None else f"{entry.min_q_value:.6g}",
                 str(entry.weak).lower(),
@@ -406,6 +438,7 @@ def render_transition_qc_sample_tsv(report: DiaTransitionQcReport) -> str:
             "sample_id",
             "run_ids",
             "intensity",
+            "retention_time_minutes",
             "q_value",
             "precursor_total_intensity",
             "relative_share",
@@ -422,6 +455,11 @@ def render_transition_qc_sample_tsv(report: DiaTransitionQcReport) -> str:
                     value.sample_id,
                     ";".join(value.run_ids),
                     "" if value.intensity is None else f"{value.intensity:g}",
+                    (
+                        ""
+                        if value.retention_time_minutes is None
+                        else f"{value.retention_time_minutes:g}"
+                    ),
                     "" if value.q_value is None else f"{value.q_value:.6g}",
                     (
                         ""
