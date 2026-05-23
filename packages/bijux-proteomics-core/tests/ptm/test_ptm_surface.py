@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    PtmMotifBackgroundMode,
     build_ptm_protein_site_mapping_report,
     PtmSiteGroupEvidenceEntry,
     build_ptm_enrichment_input,
@@ -313,6 +314,11 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
         site_table,
         protein_sequences=_protein_sequences(),
     )
+    observed_background = build_ptm_motif_background_report(
+        site_table,
+        protein_sequences=_protein_sequences(),
+        background_mode=PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND.value,
+    )
 
     c1 = next(
         entry
@@ -334,6 +340,9 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     assert "P11111:S5:Phospho" in enrichment.site_ids
     assert "P11111:S5" in enrichment.background_ids
     assert background.total_foreground_sites >= 1
+    assert background.background_mode == "whole_proteome_background"
+    assert observed_background.background_mode == "observed_site_background"
+    assert background.total_background_sites > observed_background.total_background_sites
     assert (
         next(
             entry for entry in background.entries if entry.residue == "S"
