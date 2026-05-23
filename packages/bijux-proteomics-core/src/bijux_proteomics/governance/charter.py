@@ -214,6 +214,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "targeted/assay_qc.py",
             "ptm/contracts.py",
             "ptm/ambiguity_handling.py",
+            "ptm/context_annotation.py",
             "ptm/localization_scoring.py",
             "ptm/motif_analysis.py",
             "ptm/occupancy_estimation.py",
