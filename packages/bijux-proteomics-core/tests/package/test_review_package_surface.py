@@ -357,3 +357,40 @@ def test_review_package_exports_evidence_graph_run_diff_surface() -> None:
     assert hasattr(review, "render_evidence_graph_run_diff_tsv")
     assert report.entry_count == 2
     assert {entry.change_kind.value for entry in report.entries} == {"added", "removed"}
+
+
+def test_review_package_exports_evidence_graph_external_export_surface() -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    sample = builder.add_sample("S1", label="sample S1")
+    run = builder.add_run("R1", label="run R1")
+    protein = builder.add_protein(
+        "P11111",
+        label="P11111",
+        trust_class="reviewed",
+        contradiction_ids=("cx-1",),
+    )
+    peptide = builder.add_peptide("PEPTIDE", label="PEPTIDE", trust_class="high")
+    builder.add_sample_contains_run(
+        sample.node_id,
+        run.node_id,
+        source_row_ref="design.tsv:2",
+        confidence=1.0,
+        reason="sample table assigns run R1 to sample S1",
+    )
+    builder.add_peptide_quantifies_protein(
+        peptide.node_id,
+        protein.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.93,
+        reason="strong peptide quantifies protein P11111",
+    )
+
+    bundle = review.export_proteomics_evidence_graph(builder.build())
+
+    assert hasattr(review, "export_proteomics_evidence_graph")
+    assert hasattr(review, "render_proteomics_evidence_graph_nodes_tsv")
+    assert hasattr(review, "render_proteomics_evidence_graph_edges_tsv")
+    assert hasattr(review, "render_proteomics_evidence_graph_compact_json")
+    assert bundle.node_count == 4
+    assert bundle.edge_count == 2
+    assert bundle.contradiction_node_count == 1
