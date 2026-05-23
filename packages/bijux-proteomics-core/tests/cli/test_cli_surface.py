@@ -1817,6 +1817,9 @@ def test_picked_protein_fdr_command_reports_pairs_groups_and_ledgers() -> None:
         assert threshold_tenth["accepted_count"] == 4
         entries = payload["entries"]
         picked_p22222 = next(row for row in entries if row["protein_ref"] == "P22222")
+        assert picked_p22222["pair_id"] == "picked:P22222"
+        assert picked_p22222["target_ref"] == "P22222"
+        assert picked_p22222["decoy_ref"] == "DECOY_P22222"
         assert picked_p22222["partner_ref"] == "DECOY_P22222"
         assert picked_p22222["protein_group_ids"]
         assert Path("picked.summary.tsv").exists()
@@ -1824,8 +1827,9 @@ def test_picked_protein_fdr_command_reports_pairs_groups_and_ledgers() -> None:
         assert "0.1\t5\t4\t1\t0\t2\t4\t4\t0\t0\t2" in Path(
             "picked.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "P22222\tDECOY_P22222\tpg-" in Path("picked.entries.tsv").read_text(
-            encoding="utf-8"
+        assert (
+            "picked:P22222\tP22222\tP22222\tDECOY_P22222\tP22222\tDECOY_P22222"
+            in Path("picked.entries.tsv").read_text(encoding="utf-8")
         )
 
 

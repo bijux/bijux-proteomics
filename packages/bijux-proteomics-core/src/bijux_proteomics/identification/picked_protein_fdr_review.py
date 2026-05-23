@@ -11,12 +11,13 @@ import io
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
-    PickedProteinFdrEntry,
     PsmRecord,
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
     build_shared_peptide_ambiguity_report,
-    calculate_picked_protein_fdr,
+)
+from bijux_proteomics.identification.picked_protein_fdr import (
+    build_picked_protein_fdr_report_from_psm_records,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -45,8 +46,16 @@ class PickedProteinFdrReviewEntry(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     threshold: float = Field(..., ge=0.0)
+    pair_id: str = Field(..., min_length=1)
+    base_accession: str = Field(..., min_length=1)
     protein_ref: str = Field(..., min_length=1)
     partner_ref: str | None = None
+    target_ref: str | None = None
+    decoy_ref: str | None = None
+    target_score: float | None = Field(default=None, ge=0.0)
+    decoy_score: float | None = Field(default=None, ge=0.0)
+    winner_ref: str = Field(..., min_length=1)
+    winner_target_decoy_label: TargetDecoyLabel
     protein_group_ids: tuple[str, ...] = Field(default_factory=tuple)
     score: float
     q_value: float = Field(..., ge=0.0)
@@ -71,8 +80,8 @@ class PickedProteinFdrReviewReport(JsonModel):
     entries: tuple[PickedProteinFdrReviewEntry, ...] = Field(default_factory=tuple)
 
 
-def _entry_contaminant_flag(entry: PickedProteinFdrEntry) -> bool:
-    return entry.protein_ref.startswith("CON__")
+def _contaminant_flag(protein_ref: str) -> bool:
+    return protein_ref.startswith("CON__")
 
 
 def build_picked_protein_fdr_review_report(
@@ -99,12 +108,13 @@ def build_picked_protein_fdr_review_report(
     summaries: list[PickedProteinFdrThresholdSummary] = []
     entries: list[PickedProteinFdrReviewEntry] = []
     for threshold in normalized_thresholds:
-        picked_entries = calculate_picked_protein_fdr(
+        picked_report = build_picked_protein_fdr_report_from_psm_records(
             records,
             threshold=threshold,
             score_orientation=score_orientation,
             decoy_policy=decoy_policy,
         )
+        picked_entries = picked_report.entries
         accepted_entries = tuple(entry for entry in picked_entries if entry.accepted)
         summaries.append(
             PickedProteinFdrThresholdSummary(
@@ -113,59 +123,75 @@ def build_picked_protein_fdr_review_report(
                 total_target_count=sum(
                     1
                     for entry in picked_entries
-                    if entry.target_decoy_label is TargetDecoyLabel.TARGET
+                    if entry.winner_target_decoy_label is TargetDecoyLabel.TARGET
                 ),
                 total_decoy_count=sum(
                     1
                     for entry in picked_entries
-                    if entry.target_decoy_label is TargetDecoyLabel.DECOY
+                    if entry.winner_target_decoy_label is TargetDecoyLabel.DECOY
                 ),
                 total_contaminant_count=sum(
-                    1 for entry in picked_entries if _entry_contaminant_flag(entry)
+                    1 for entry in picked_entries if _contaminant_flag(entry.winner_ref)
                 ),
                 grouped_protein_count=sum(
                     1
                     for entry in picked_entries
-                    if group_ids_by_protein.get(entry.protein_ref)
+                    if group_ids_by_protein.get(entry.winner_ref)
                 ),
                 accepted_count=len(accepted_entries),
                 accepted_target_count=sum(
                     1
                     for entry in accepted_entries
-                    if entry.target_decoy_label is TargetDecoyLabel.TARGET
+                    if entry.winner_target_decoy_label is TargetDecoyLabel.TARGET
                 ),
                 accepted_decoy_count=sum(
                     1
                     for entry in accepted_entries
-                    if entry.target_decoy_label is TargetDecoyLabel.DECOY
+                    if entry.winner_target_decoy_label is TargetDecoyLabel.DECOY
                 ),
                 accepted_contaminant_count=sum(
-                    1 for entry in accepted_entries if _entry_contaminant_flag(entry)
+                    1
+                    for entry in accepted_entries
+                    if _contaminant_flag(entry.winner_ref)
                 ),
                 accepted_grouped_protein_count=sum(
                     1
                     for entry in accepted_entries
-                    if group_ids_by_protein.get(entry.protein_ref)
+                    if group_ids_by_protein.get(entry.winner_ref)
                 ),
             )
         )
         for entry in picked_entries:
+            protein_ref = entry.winner_ref
+            partner_ref = (
+                entry.decoy_ref
+                if entry.winner_target_decoy_label is TargetDecoyLabel.TARGET
+                else entry.target_ref
+            )
             entries.append(
                 PickedProteinFdrReviewEntry(
                     threshold=threshold,
-                    protein_ref=entry.protein_ref,
-                    partner_ref=entry.partner_ref,
+                    pair_id=entry.pair_id,
+                    base_accession=entry.base_accession,
+                    protein_ref=protein_ref,
+                    partner_ref=partner_ref,
+                    target_ref=entry.target_ref,
+                    decoy_ref=entry.decoy_ref,
+                    target_score=entry.target_score,
+                    decoy_score=entry.decoy_score,
+                    winner_ref=entry.winner_ref,
+                    winner_target_decoy_label=entry.winner_target_decoy_label,
                     protein_group_ids=tuple(
-                        sorted(group_ids_by_protein.get(entry.protein_ref, set()))
+                        sorted(group_ids_by_protein.get(protein_ref, set()))
                     ),
-                    score=entry.score,
+                    score=entry.winner_score,
                     q_value=entry.q_value,
-                    fdr=entry.fdr,
+                    fdr=entry.raw_fdr,
                     rank=entry.rank,
                     accepted=entry.accepted,
-                    target_decoy_label=entry.target_decoy_label,
-                    contaminant_flag=_entry_contaminant_flag(entry),
-                    supporting_peptides=entry.supporting_peptides,
+                    target_decoy_label=entry.winner_target_decoy_label,
+                    contaminant_flag=_contaminant_flag(protein_ref),
+                    supporting_peptides=entry.winner_supporting_peptides,
                 )
             )
     return PickedProteinFdrReviewReport(
@@ -221,8 +247,16 @@ def render_picked_protein_fdr_entries_tsv(report: PickedProteinFdrReviewReport) 
     writer.writerow(
         (
             "threshold",
+            "pair_id",
+            "base_accession",
             "protein_ref",
             "partner_ref",
+            "target_ref",
+            "decoy_ref",
+            "target_score",
+            "decoy_score",
+            "winner_ref",
+            "winner_target_decoy_label",
             "protein_group_ids",
             "score",
             "q_value",
@@ -238,8 +272,16 @@ def render_picked_protein_fdr_entries_tsv(report: PickedProteinFdrReviewReport) 
         writer.writerow(
             (
                 entry.threshold,
+                entry.pair_id,
+                entry.base_accession,
                 entry.protein_ref,
                 "" if entry.partner_ref is None else entry.partner_ref,
+                "" if entry.target_ref is None else entry.target_ref,
+                "" if entry.decoy_ref is None else entry.decoy_ref,
+                entry.target_score,
+                entry.decoy_score,
+                entry.winner_ref,
+                entry.winner_target_decoy_label.value,
                 ";".join(entry.protein_group_ids),
                 entry.score,
                 entry.q_value,

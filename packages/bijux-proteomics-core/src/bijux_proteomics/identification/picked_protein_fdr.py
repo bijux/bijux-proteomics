@@ -295,22 +295,6 @@ def build_picked_protein_fdr_report(
     )
 
 
-def build_picked_protein_fdr_report_from_psms(
-    records: tuple[ProteinEvidenceEntry] | tuple,
-    *,
-    threshold: float | None = None,
-    score_orientation: str = "higher_better",
-    decoy_policy: TargetDecoyLabelPolicy | None = None,
-) -> PickedProteinFdrReport:
-    """Build picked-protein FDR directly from PSM-derived protein evidence."""
-    return build_picked_protein_fdr_report(
-        tuple(records),
-        threshold=threshold,
-        score_orientation=score_orientation,
-        decoy_policy=decoy_policy,
-    )
-
-
 def build_picked_protein_fdr_report_from_psm_records(
     records: tuple,
     *,
