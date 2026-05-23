@@ -160,3 +160,22 @@ def test_build_spectronaut_differential_analysis_report_preserves_the_same_resul
     pg3 = next(entry for entry in differential.entries if entry.entity_id == "PG003")
     assert pg2.log2_fold_change < -1.4
     assert pg3.adjusted_p_value == 1.0
+
+
+def test_build_diann_differential_analysis_report_blocks_invalid_contrasts() -> None:
+    design_report = parse_experimental_design_table(
+        _format_fixture("diann_differential.design.tsv")
+    )
+    experiment_design = build_experiment_design(design_report.accepted_entries)
+
+    try:
+        build_diann_differential_analysis_report(
+            _diann_fixture("diann_differential_report.tsv"),
+            experiment_design,
+            condition_a="control",
+            condition_b="missing",
+        )
+    except ValueError as exc:
+        assert "invalid_contrast_unknown_condition" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected invalid contrast to be rejected")

@@ -53,7 +53,11 @@ from bijux_proteomics.quantification.normalization import (
     build_normalization_comparison_report,
     normalize_label_free_table,
 )
-from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study import (
+    ExperimentDesign,
+    coerce_experiment_design,
+    require_valid_experiment_design_for_differential_analysis,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -318,7 +322,13 @@ def build_dia_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Normalize one DIA-native matrix, build the design, and run differential testing."""
 
-    experiment_design = coerce_experiment_design(design_entries)
+    experiment_design = require_valid_experiment_design_for_differential_analysis(
+        coerce_experiment_design(design_entries),
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field if batch_field else None,
+        pairing_field=pairing_field,
+    )
     design_entries = experiment_design.entries
     normalized_table = normalize_label_free_table(
         input_report.table,

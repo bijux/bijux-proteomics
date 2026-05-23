@@ -32,6 +32,7 @@ from bijux_proteomics.quantification.design_matrix import (
     _require_unique_sample_ids,
     _resolve_design_value,
 )
+from bijux_proteomics.study import require_valid_experiment_design_for_differential_analysis
 
 _PREFIXED_NUMERIC_LABEL_RE = re.compile(
     r"^(?P<prefix>.*?)(?P<number>[+-]?\d+(?:\.\d+)?)$"
@@ -49,6 +50,13 @@ def build_time_course_differential_report(
         raise ValueError("time-course testing requires design entries")
     _require_unique_sample_ids(design_entries)
     active_policy = policy or TimeCourseTestingPolicy()
+    require_valid_experiment_design_for_differential_analysis(
+        design_entries,
+        batch_field=active_policy.batch_field,
+        pairing_field=active_policy.pairing_field,
+        timepoint_field=active_policy.timepoint_field,
+        ordered_timepoints=active_policy.ordered_timepoints,
+    )
     timepoint_by_sample, timepoint_positions, ordered_timepoints, order_note = (
         _resolve_timepoint_positions(
             design_entries,

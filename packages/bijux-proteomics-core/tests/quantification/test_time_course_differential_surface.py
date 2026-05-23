@@ -262,7 +262,7 @@ def test_time_course_differential_requires_explicit_order_for_unordered_labels()
             _design_entries(labels=("baseline", "endpoint")),
         )
     except ValueError as exc:
-        assert str(exc) == "unordered timepoint labels require an explicit order file"
+        assert "missing_timepoint_order" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected unordered timepoint labels to be rejected")
 
