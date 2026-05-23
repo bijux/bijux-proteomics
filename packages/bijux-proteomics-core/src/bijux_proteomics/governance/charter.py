@@ -155,6 +155,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/chromatographic_evidence.py",
             "io/chromatographic_peak_picking.py",
             "io/dia_fragment_coelution.py",
+            "io/fragment_ratio_stability.py",
             "io/retention_time_alignment.py",
             "io/xic_extraction.py",
             "identification/contracts.py",
