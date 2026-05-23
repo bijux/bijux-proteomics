@@ -746,6 +746,7 @@ class QuantArtifactBundle(JsonModel):
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None
+    time_course_differential_report: TimeCourseDifferentialReport | None = None
 
 
 class LabelFreeQuantTable(JsonModel):
@@ -1446,6 +1447,61 @@ class MultiConditionDifferentialAbundanceReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class TimeCourseTestingPolicy(JsonModel):
+    """Ordered-timepoint policy for one time-course differential analysis."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    timepoint_field: str = Field(default="timepoint", min_length=1)
+    ordered_timepoints: tuple[str, ...] = Field(default_factory=tuple)
+    batch_field: str | None = None
+    pairing_field: str | None = None
+    covariate_fields: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class TimeCourseDifferentialEntry(JsonModel):
+    """One entity-level time-course effect row for one condition."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    reference_condition: str = Field(..., min_length=1)
+    observed_sample_count: int = Field(..., ge=0)
+    observed_timepoint_count: int = Field(..., ge=0)
+    slope_per_timepoint: float
+    slope_standard_error: float | None = Field(default=None, ge=0.0)
+    slope_confidence_interval_low: float | None = None
+    slope_confidence_interval_high: float | None = None
+    time_effect_p_value: float = Field(..., ge=0.0, le=1.0)
+    time_effect_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    interaction_effect: float | None = None
+    interaction_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    interaction_adjusted_p_value: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+    note: str | None = None
+
+
+class TimeCourseDifferentialReport(JsonModel):
+    """Time-course differential report over ordered study timepoints."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    normalization_method: NormalizationMethod
+    imputation_method: ImputationMethod = ImputationMethod.NONE
+    reference_condition: str = Field(..., min_length=1)
+    condition_count: int = Field(..., ge=1)
+    ordered_timepoints: tuple[str, ...] = Field(default_factory=tuple)
+    timepoint_positions: dict[str, float] = Field(default_factory=dict)
+    policy: TimeCourseTestingPolicy
+    entries: tuple[TimeCourseDifferentialEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class QuantDesignMatrixColumnKind(StrEnum):
     """Durable ownership categories for design-matrix columns."""
 
@@ -1453,6 +1509,7 @@ class QuantDesignMatrixColumnKind(StrEnum):
     CONDITION = "condition"
     BATCH = "batch"
     TIMEPOINT = "timepoint"
+    INTERACTION = "interaction"
     COVARIATE = "covariate"
     PAIRING = "pairing"
 
@@ -2830,6 +2887,7 @@ def build_quant_artifact_bundle(
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None,
+    time_course_differential_report: TimeCourseDifferentialReport | None = None,
 ) -> QuantArtifactBundle:
     """Bundle quant outputs so review can happen without workflow runtime logs."""
     bundle = QuantArtifactBundle(
@@ -2864,6 +2922,7 @@ def build_quant_artifact_bundle(
         differential_abundance_multi_condition_report=(
             differential_abundance_multi_condition_report
         ),
+        time_course_differential_report=time_course_differential_report,
     )
     return bundle.model_copy(
         update={
@@ -3887,6 +3946,43 @@ def export_multi_condition_differential_abundance_tsv(
     """Write a multi-condition DA collection to one flattened TSV artifact."""
     from bijux_proteomics.quantification.differential_abundance import (
         export_multi_condition_differential_abundance_tsv as _implementation,
+    )
+
+    _implementation(report, path)
+
+
+def build_time_course_differential_report(
+    table: LabelFreeQuantTable,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    policy: TimeCourseTestingPolicy | None = None,
+) -> TimeCourseDifferentialReport:
+    """Build one ordered time-course differential report over a quant table."""
+    from bijux_proteomics.quantification.time_course_differential import (
+        build_time_course_differential_report as _implementation,
+    )
+
+    return _implementation(table, design_entries, policy=policy)
+
+
+def render_time_course_differential_tsv(
+    report: TimeCourseDifferentialReport,
+) -> str:
+    """Render one time-course differential report as a stable TSV table."""
+    from bijux_proteomics.quantification.time_course_differential import (
+        render_time_course_differential_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_time_course_differential_tsv(
+    report: TimeCourseDifferentialReport,
+    path: Path,
+) -> None:
+    """Write one time-course differential report to a stable TSV artifact."""
+    from bijux_proteomics.quantification.time_course_differential import (
+        export_time_course_differential_tsv as _implementation,
     )
 
     _implementation(report, path)
