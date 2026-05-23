@@ -8734,6 +8734,8 @@ def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() 
                 "ptm.annotation.function.tsv",
                 "--kinase-tsv-out",
                 "ptm.annotation.kinase.tsv",
+                "--phosphatase-tsv-out",
+                "ptm.annotation.phosphatase.tsv",
                 "--pathway-tsv-out",
                 "ptm.annotation.pathway.tsv",
             ],
@@ -8753,7 +8755,64 @@ def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() 
             "ptm.annotation.function.tsv"
         ).read_text()
         assert "AKT1" in Path("ptm.annotation.kinase.tsv").read_text()
+        assert "PPP2CA" in Path("ptm.annotation.phosphatase.tsv").read_text()
         assert "MAPK signaling" in Path("ptm.annotation.pathway.tsv").read_text()
+
+
+def test_ptm_regulator_enrichment_command_emits_supporting_site_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(ptm_fixture_dir / "ptm.design.tsv", "ptm.design.tsv")
+        shutil.copy(
+            ptm_fixture_dir / "ptm_site_annotations.tsv",
+            "ptm_site_annotations.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "regulator-enrichment",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "ptm.design.tsv",
+                "ptm_site_annotations.tsv",
+                "--design-batch-field",
+                "",
+                "--max-adjusted-p-value",
+                "1.0",
+                "--min-absolute-log2-fold-change",
+                "0.5",
+                "--summary-tsv-out",
+                "ptm.regulator.summary.tsv",
+                "--results-tsv-out",
+                "ptm.regulator.results.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["annotation_rows"] == 5
+        assert (
+            payload["regulator_enrichment_report"]["summary"]["evaluated_regulator_count"]
+            >= 1
+        )
+        assert "supporting_sites" in Path("ptm.regulator.results.tsv").read_text()
+        assert "AKT1" in Path("ptm.regulator.results.tsv").read_text()
+        assert "P11111:S5:Phospho" in Path("ptm.regulator.results.tsv").read_text()
+        assert "evaluated_regulator_count" in Path(
+            "ptm.regulator.summary.tsv"
+        ).read_text()
 
 
 def test_ptm_report_command_emits_full_report_bundle() -> None:
