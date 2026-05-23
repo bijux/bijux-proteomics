@@ -1038,7 +1038,47 @@ def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups()
     )
     assert ambiguous.shared_peptide_count == 2
     assert ambiguous.unique_peptide_count == 0
-    assert ambiguous.confidence_label.value in {"medium", "high"}
+    assert ambiguous.confidence_label.value == "low"
+    assert "weak or ambiguous" in ambiguous.explanation
+
+
+def test_grouped_confidence_report_keeps_one_weak_shared_peptide_from_strong_calls() -> (
+    None
+):
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                spectrum_id="scan=1",
+                peptide="SHAREDK",
+                canonical_peptide="SHAREDK",
+                charge=2,
+                score=50.0,
+                q_value=0.020,
+                protein_refs=("P11111", "P22222"),
+            ),
+            PsmRecord(
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=55.0,
+                q_value=0.010,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        )
+    )
+
+    entry = next(
+        candidate
+        for candidate in grouped.entries
+        if candidate.protein_refs == ("P11111", "P22222")
+    )
+
+    assert entry.protein_refs == ("P11111", "P22222")
+    assert entry.shared_peptide_count == 1
+    assert entry.confidence_label.value == "low"
+    assert "weak or ambiguous" in entry.explanation
 
 
 def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> None:

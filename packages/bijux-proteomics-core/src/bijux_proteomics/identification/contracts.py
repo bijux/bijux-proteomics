@@ -2689,6 +2689,20 @@ def build_grouped_confidence_report(
     medium_threshold: float = 0.05,
 ) -> GroupedConfidenceReport:
     """Summarize confidence over indistinguishable protein groups."""
+    from bijux_proteomics.identification.peptide_evidence import (
+        PeptideEvidenceClass,
+        build_peptide_evidence_report,
+    )
+
+    peptide_classes = {
+        entry.canonical_peptide: entry
+        for entry in build_peptide_evidence_report(
+            records,
+            threshold=medium_threshold,
+            score_orientation="higher_better",
+            strong_q_value=high_threshold,
+        ).entries
+    }
     entries: list[GroupedConfidenceEntry] = []
     for group in build_protein_groups(records):
         q_value = group.best_q_value if group.best_q_value is not None else 1.0
@@ -2706,6 +2720,34 @@ def build_grouped_confidence_report(
         else:
             label = ConfidenceLabel.LOW
             explanation = f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
+        primary_classes = tuple(
+            peptide_classes[peptide].primary_class
+            for peptide in group.peptides
+            if peptide in peptide_classes
+        )
+        if label is not ConfidenceLabel.DECOY and primary_classes:
+            if any(
+                primary_class is PeptideEvidenceClass.STRONG
+                for primary_class in primary_classes
+            ):
+                pass
+            elif any(
+                primary_class in {
+                    PeptideEvidenceClass.MODERATE,
+                    PeptideEvidenceClass.SHARED,
+                }
+                for primary_class in primary_classes
+            ):
+                if label is ConfidenceLabel.HIGH:
+                    label = ConfidenceLabel.MEDIUM
+                    explanation = (
+                        "group q-value is strong, but protein evidence is capped at medium because support remains moderate or non-unique at the peptide level"
+                    )
+            else:
+                label = ConfidenceLabel.LOW
+                explanation = (
+                    "protein evidence remains low because the supporting peptides are weak or ambiguous even though the grouped q-value is reviewable"
+                )
         entries.append(
             GroupedConfidenceEntry(
                 group_id=group.group_id,
