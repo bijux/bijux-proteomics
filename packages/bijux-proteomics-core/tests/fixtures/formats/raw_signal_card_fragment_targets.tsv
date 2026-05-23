@@ -1,0 +1,4 @@
+target_id	precursor_mz	rt_start	rt_end	precursor_id	fragment_id	peptide_ref
+prec_peptide_y7	300.0	10	80	prec_peptide	peptide_y7	PEPTIDE
+prec_peptide_y8	310.0	10	80	prec_peptide	peptide_y8	PEPTIDE
+prec_peptide_b4	320.0	10	80	prec_peptide	peptide_b4	PEPTIDE
