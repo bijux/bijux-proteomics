@@ -219,6 +219,8 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "dia/protein_matrix.py",
             "dia/run_qc.py",
             "dia/transition_qc.py",
+            "targeted/result_import.py",
+            "targeted/target_matrix.py",
         ),
         release_blocker="Core cannot ship if PTM or DIA workflows flatten ambiguity into generic evidence records.",
     ),
