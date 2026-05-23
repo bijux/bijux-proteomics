@@ -5246,7 +5246,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         )
 
 
-def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs() -> None:
+def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         workflow_dir = FIXTURE_ROOT / "workflow"
@@ -5258,6 +5258,14 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
             workflow_dir / "dia_dda_comparison_dda_psms.tsv",
             "dia_dda_comparison_dda_psms.tsv",
         )
+        shutil.copy(
+            workflow_dir / "dia_dda_comparison_dia_differential.tsv",
+            "dia_dda_comparison_dia_differential.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "dia_dda_comparison_dda_differential.tsv",
+            "dia_dda_comparison_dda_differential.tsv",
+        )
 
         result = runner.invoke(
             cli,
@@ -5265,6 +5273,10 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
                 "dia-dda-compare",
                 "dia_dda_comparison_diann.tsv",
                 "dia_dda_comparison_dda_psms.tsv",
+                "--dia-differential-tsv",
+                "dia_dda_comparison_dia_differential.tsv",
+                "--dda-differential-tsv",
+                "dia_dda_comparison_dda_differential.tsv",
                 "--summary-tsv-out",
                 "dia_dda.summary.tsv",
                 "--protein-overlap-tsv-out",
@@ -5275,6 +5287,10 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
                 "dia_dda.correlation.tsv",
                 "--exclusive-tsv-out",
                 "dia_dda.exclusive.tsv",
+                "--conflicts-tsv-out",
+                "dia_dda.conflicts.tsv",
+                "--differential-tsv-out",
+                "dia_dda.differential.tsv",
             ],
         )
 
@@ -5284,25 +5300,32 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
         assert payload["dda_source_name"] == "DDA PSM"
         assert payload["summary"]["shared_protein_count"] == 2
         assert payload["summary"]["shared_peptide_count"] == 2
-        assert payload["summary"]["shared_intensity_correlation_entry_count"] == 4
-        assert payload["summary"]["exclusive_evidence_entry_count"] == 4
+        assert payload["summary"]["conflicting_peptide_count"] == 1
+        assert payload["summary"]["shared_intensity_correlation_entry_count"] == 5
+        assert payload["summary"]["exclusive_evidence_entry_count"] == 6
+        assert payload["summary"]["conflicting_evidence_entry_count"] == 1
+        assert payload["summary"]["conflicting_differential_count"] == 1
         assert payload["outputs"]["summary_tsv"] == "dia_dda.summary.tsv"
         assert payload["outputs"]["protein_overlap_tsv"] == "dia_dda.protein.tsv"
         assert payload["outputs"]["peptide_overlap_tsv"] == "dia_dda.peptide.tsv"
         assert payload["outputs"]["correlation_tsv"] == "dia_dda.correlation.tsv"
         assert payload["outputs"]["exclusive_tsv"] == "dia_dda.exclusive.tsv"
+        assert payload["outputs"]["conflicts_tsv"] == "dia_dda.conflicts.tsv"
+        assert payload["outputs"]["differential_tsv"] == "dia_dda.differential.tsv"
         assert Path("dia_dda.summary.tsv").exists()
         assert Path("dia_dda.protein.tsv").exists()
         assert Path("dia_dda.peptide.tsv").exists()
         assert Path("dia_dda.correlation.tsv").exists()
         assert Path("dia_dda.exclusive.tsv").exists()
-        assert "DIA-NN\tDDA PSM\t3\t3\t2\t1\t1\t3\t3\t2\t1\t1\t4\t4\t2\t2" in Path(
+        assert Path("dia_dda.conflicts.tsv").exists()
+        assert Path("dia_dda.differential.tsv").exists()
+        assert "DIA-NN\tDDA PSM\t4\t4\t2\t2\t2\t4\t4\t2\t1\t1\t1\t6\t1\t5\t2\t3\t4\t1\t1\t1\t1" in Path(
             "dia_dda.summary.tsv"
         ).read_text(encoding="utf-8")
         assert "P55555\tdia_only\t2\t0\t2e+06\t0" in Path(
             "dia_dda.protein.tsv"
         ).read_text(encoding="utf-8")
-        assert "DDAONLY\tdda_only\t0\t2\t0\t1.34e+06\t\tP33333" in Path(
+        assert "CONFLICTSEQ\tconflicting\t2\t2\t1.02e+06\t930000\tP77777\tP88888" in Path(
             "dia_dda.peptide.tsv"
         ).read_text(encoding="utf-8")
         assert "protein\tP22222\t2\t1.23e+06\t826000\t1" in Path(
@@ -5310,6 +5333,12 @@ def test_dia_dda_compare_command_emits_overlap_correlation_and_exclusive_outputs
         ).read_text(encoding="utf-8")
         assert "dia\tpeptide\tDIAONLY\t2\t1.46e+06\tP55555" in Path(
             "dia_dda.exclusive.tsv"
+        ).read_text(encoding="utf-8")
+        assert "peptide\tCONFLICTSEQ\tconflicting\tprotein_assignment_mismatch" in Path(
+            "dia_dda.conflicts.tsv"
+        ).read_text(encoding="utf-8")
+        assert "protein\tP44444\tcontrol\ttreatment\ttreatment_vs_control\tconflicting\t1.1\t-1.2\t0.02\t0.03\ttrue\ttrue\topposite\tdifferential_direction_mismatch" in Path(
+            "dia_dda.differential.tsv"
         ).read_text(encoding="utf-8")
 
 
