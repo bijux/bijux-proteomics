@@ -8370,7 +8370,87 @@ def test_ptm_quantify_sites_command_emits_site_matrix_outputs() -> None:
         assert payload["feature_rows"] == 12
         assert payload["site_quantification"]["ambiguity_policy"] == "exclude"
         assert "P11111:S5:Phospho" in Path("ptm.site_quant.matrix.tsv").read_text()
-        assert "P11111:S17:Phospho" in Path("ptm.site_quant.excluded.tsv").read_text()
+        assert "P11111:S17:Phospho" not in Path(
+            "ptm.site_quant.matrix.tsv"
+        ).read_text()
+        assert (
+            "P11111:S17:Phospho\tP11111:Phospho:17|18|19"
+            in Path("ptm.site_quant.excluded.tsv").read_text()
+        )
+
+
+def test_ptm_quantify_sites_command_emits_ambiguity_group_matrix_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "quantify-sites",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "--ambiguous-group-summary-tsv-out",
+                "ptm.site_groups.summary.tsv",
+                "--ambiguous-group-matrix-tsv-out",
+                "ptm.site_groups.matrix.tsv",
+                "--ambiguous-group-missingness-tsv-out",
+                "ptm.site_groups.missingness.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["site_quantification"]["summary"]["site_row_count"] == 3
+        assert (
+            payload["site_quantification"]["summary"]["ambiguous_group_row_count"] == 2
+        )
+        assert "P11111:Phospho:17|18|19" in Path(
+            "ptm.site_groups.matrix.tsv"
+        ).read_text()
+        assert "group_row_count" in Path("ptm.site_groups.summary.tsv").read_text()
+
+
+def test_ptm_quantify_sites_command_rejects_group_exports_under_exclude_policy() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "quantify-sites",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_features.tsv",
+                "--ambiguity-policy",
+                "exclude",
+                "--ambiguous-group-matrix-tsv-out",
+                "ptm.site_groups.matrix.tsv",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "ambiguous-group TSV outputs require --ambiguity-policy preserve" in (
+            result.output
+        )
 
 
 def test_ptm_estimate_occupancy_command_emits_occupancy_ledgers() -> None:
