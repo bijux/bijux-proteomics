@@ -35,6 +35,7 @@ class TargetedResultObservation(JsonModel):
     source_kind: TargetedResultSourceKind
     transition_id: str = Field(..., min_length=1)
     precursor_id: str = Field(..., min_length=1)
+    precursor_charge: int | None = Field(default=None, ge=1)
     peptide_sequence: str = Field(..., min_length=1)
     sample_id: str = Field(..., min_length=1)
     intensity: float = Field(..., ge=0.0)
@@ -52,6 +53,7 @@ class TargetedResultObservation(JsonModel):
         return CanonicalTransitionRecord(
             transition_id=self.transition_id,
             precursor_id=self.precursor_id,
+            precursor_charge=self.precursor_charge,
             sample_id=self.sample_id,
             intensity=self.intensity,
             peptide_sequence=self.peptide_sequence,
@@ -118,6 +120,7 @@ def build_skyline_result_import_report(path: Path) -> TargetedResultImportReport
                 source_kind=TargetedResultSourceKind.SKYLINE_EXPORT,
                 transition_id=transition_id,
                 precursor_id=precursor_id,
+                precursor_charge=int(precursor_charge),
                 peptide_sequence=peptide_sequence,
                 sample_id=_required_value(row, "ReplicateName", "SampleName"),
                 intensity=float(_required_value(row, "Area")),
@@ -169,14 +172,11 @@ def build_transition_table_result_import_report(path: Path) -> TargetedResultImp
             source_kind=TargetedResultSourceKind.TRANSITION_TABLE,
             transition_id=entry.transition_id,
             precursor_id=entry.precursor_id,
+            precursor_charge=entry.precursor_charge,
             peptide_sequence=entry.peptide_sequence or entry.precursor_id,
             sample_id=entry.sample_id,
             intensity=entry.intensity,
-            retention_time_minutes=_optional_float(
-                entry.metadata.get("retention_time_minutes")
-                or entry.metadata.get("retention_time")
-                or entry.metadata.get("rt")
-            ),
+            retention_time_minutes=entry.retention_time_minutes,
             quality_flag=entry.metadata.get("quality_flag") or entry.metadata.get("flag"),
             protein_ref=entry.protein_ref,
             fragment_label=entry.fragment_label,
@@ -269,6 +269,7 @@ def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -
             "source_kind",
             "transition_id",
             "precursor_id",
+            "precursor_charge",
             "peptide_sequence",
             "sample_id",
             "intensity",
@@ -287,6 +288,7 @@ def render_targeted_result_observation_tsv(report: TargetedResultImportReport) -
                 item.source_kind.value,
                 item.transition_id,
                 item.precursor_id,
+                "" if item.precursor_charge is None else item.precursor_charge,
                 item.peptide_sequence,
                 item.sample_id,
                 f"{item.intensity:g}",
