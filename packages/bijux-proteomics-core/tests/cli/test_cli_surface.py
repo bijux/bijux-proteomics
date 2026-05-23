@@ -6887,6 +6887,8 @@ def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> Non
                 "protein_matrix.matrix.tsv",
                 "--missingness-tsv-out",
                 "protein_matrix.missingness.tsv",
+                "--contributions-tsv-out",
+                "protein_matrix.contributions.tsv",
             ],
         )
 
@@ -6900,11 +6902,19 @@ def test_protein_matrix_command_emits_feature_backed_rollup_and_ledgers() -> Non
         assert Path("protein_matrix.summary.tsv").exists()
         assert Path("protein_matrix.matrix.tsv").exists()
         assert Path("protein_matrix.missingness.tsv").exists()
+        assert Path("protein_matrix.contributions.tsv").exists()
+        assert (
+            payload["report"]["rows"][0]["values"][0]["shared_peptide_policy"]
+            == "unique_only"
+        )
         assert "feature\tmodified_peptide\tprotein\tfalse\ttop_n\ttrue" in Path(
             "protein_matrix.summary.tsv"
         ).read_text(encoding="utf-8")
         assert "P1\tprotein\tP1\t2\t2\t0\tPEPAAK;PEPMTK\t1600\t2100" in Path(
             "protein_matrix.matrix.tsv"
+        ).read_text(encoding="utf-8")
+        assert "included_by_policy" in Path(
+            "protein_matrix.contributions.tsv"
         ).read_text(encoding="utf-8")
 
 
