@@ -267,6 +267,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "workflow/blueprint.py",
             "workflow/biological_reporting.py",
+            "workflow/biological_result_graph.py",
             "workflow/dia_differential_analysis.py",
             "workflow/dia_dda_comparison.py",
             "workflow/orchestrator.py",
