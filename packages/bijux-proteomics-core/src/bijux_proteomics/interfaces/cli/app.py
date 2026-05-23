@@ -599,6 +599,7 @@ from bijux_proteomics.quantification import (
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
+    render_protein_lfq_disconnected_components_tsv,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
@@ -9867,6 +9868,11 @@ def protein_matrix_command(
     default=None,
 )
 @click.option(
+    "--disconnected-components-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -9904,6 +9910,7 @@ def protein_lfq_command(
     matrix_tsv_out: Path | None,
     pairwise_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
+    disconnected_components_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Build one MaxLFQ-like protein abundance matrix from feature or PSM evidence."""
@@ -9990,12 +9997,22 @@ def protein_lfq_command(
             missingness_tsv_out,
             render_protein_lfq_missingness_tsv(report),
         )
+    if disconnected_components_tsv_out is not None:
+        _write_text_output(
+            disconnected_components_tsv_out,
+            render_protein_lfq_disconnected_components_tsv(report),
+        )
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
         "pairwise_tsv": None if pairwise_tsv_out is None else str(pairwise_tsv_out),
         "missingness_tsv": (
             None if missingness_tsv_out is None else str(missingness_tsv_out)
+        ),
+        "disconnected_components_tsv": (
+            None
+            if disconnected_components_tsv_out is None
+            else str(disconnected_components_tsv_out)
         ),
     }
     _emit_json(payload, out_path=out_path)
