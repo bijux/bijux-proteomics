@@ -1,15 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Owned DIA precursor-matrix surfaces over DIA-NN precursor evidence."""
+"""Owned DIA precursor-matrix surfaces over DIA-native precursor evidence."""
 
 from __future__ import annotations
 
+import csv
+from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable
-
-import csv
 
 from pydantic import ConfigDict, Field
 
@@ -18,6 +18,32 @@ from bijux_proteomics_foundation import JsonModel
 
 if TYPE_CHECKING:
     from bijux_proteomics.identification.diann_import import DiaNnPrecursorReviewEntry
+    from bijux_proteomics.identification.spectronaut_import import (
+        SpectronautPrecursorReviewEntry,
+    )
+
+    DiaNativePrecursorMatrixEntry = (
+        DiaNnPrecursorReviewEntry | SpectronautPrecursorReviewEntry
+    )
+
+
+class DiaPrecursorQValueFilterTiming(StrEnum):
+    """When precursor q-value filtering is applied relative to matrix construction."""
+
+    BEFORE_MATRIX_CONSTRUCTION = "before_matrix_construction"
+    AFTER_MATRIX_CONSTRUCTION = "after_matrix_construction"
+
+
+class DiaPrecursorMatrixPolicy(JsonModel):
+    """Owned policy controlling DIA precursor matrix inclusion semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    include_decoys: bool = False
+    max_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    q_value_filter_timing: DiaPrecursorQValueFilterTiming = (
+        DiaPrecursorQValueFilterTiming.BEFORE_MATRIX_CONSTRUCTION
+    )
 
 
 class DiaPrecursorMatrixValue(JsonModel):
@@ -31,6 +57,8 @@ class DiaPrecursorMatrixValue(JsonModel):
     abundance: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0, le=1.0)
     source_observation_count: int = Field(..., ge=0)
+    retained_observation_count: int = Field(..., ge=0)
+    excluded_q_value_observation_count: int = Field(..., ge=0)
     detected: bool
 
 
@@ -51,6 +79,26 @@ class DiaPrecursorMatrixRow(JsonModel):
     values: tuple[DiaPrecursorMatrixValue, ...] = Field(default_factory=tuple)
 
 
+class DiaPrecursorMetadataEntry(JsonModel):
+    """One precursor metadata row carried alongside the wide matrices."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_key: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    charge: int = Field(..., ge=1)
+    protein_group_id: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    source_precursor_ids: tuple[str, ...] = Field(default_factory=tuple)
+    target_decoy_label: TargetDecoyLabel
+    source_observation_count: int = Field(..., ge=0)
+    retained_observation_count: int = Field(..., ge=0)
+    excluded_q_value_observation_count: int = Field(..., ge=0)
+    detected_sample_count: int = Field(..., ge=0)
+
+
 class DiaPrecursorMatrixSummary(JsonModel):
     """Compact summary over one DIA precursor-by-sample matrix."""
 
@@ -65,49 +113,66 @@ class DiaPrecursorMatrixSummary(JsonModel):
     decoy_row_count: int = Field(..., ge=0)
     excluded_decoy_count: int = Field(..., ge=0)
     excluded_q_value_count: int = Field(..., ge=0)
+    source_observation_count: int = Field(..., ge=0)
+    retained_observation_count: int = Field(..., ge=0)
+    q_value_filter_timing: DiaPrecursorQValueFilterTiming
+    max_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class DiaPrecursorMatrixReport(JsonModel):
-    """Owned DIA precursor matrix retaining source precursor IDs and q-values."""
+    """Owned DIA precursor matrix retaining source IDs, q-values, and filter policy."""
 
     model_config = ConfigDict(extra="forbid")
 
-    source_name: str = Field(default="DIA-NN", min_length=1)
+    source_name: str = Field(default="DIA-native", min_length=1)
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     run_names: tuple[str, ...] = Field(default_factory=tuple)
+    policy: DiaPrecursorMatrixPolicy
     rows: tuple[DiaPrecursorMatrixRow, ...] = Field(default_factory=tuple)
+    metadata_entries: tuple[DiaPrecursorMetadataEntry, ...] = Field(default_factory=tuple)
     summary: DiaPrecursorMatrixSummary
     note: str = Field(..., min_length=1)
 
 
 def build_dia_precursor_matrix_report(
-    rows: tuple[DiaNnPrecursorReviewEntry, ...],
+    rows: tuple[DiaNativePrecursorMatrixEntry, ...],
     *,
+    source_name: str = "DIA-native",
+    policy: DiaPrecursorMatrixPolicy | None = None,
     include_decoys: bool = False,
     max_q_value: float | None = None,
+    q_value_filter_timing: DiaPrecursorQValueFilterTiming = (
+        DiaPrecursorQValueFilterTiming.BEFORE_MATRIX_CONSTRUCTION
+    ),
 ) -> DiaPrecursorMatrixReport:
-    """Build a DIA precursor-by-sample matrix from normalized DIA-NN precursor rows."""
+    """Build a DIA precursor-by-sample matrix from DIA-native precursor review rows."""
 
-    if max_q_value is not None and not 0.0 <= max_q_value <= 1.0:
-        raise ValueError("max_q_value must be between 0.0 and 1.0")
-
+    active_policy = policy or DiaPrecursorMatrixPolicy(
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        q_value_filter_timing=q_value_filter_timing,
+    )
     sample_ids = tuple(sorted({row.sample_name for row in rows}))
     run_names = tuple(sorted({row.run_name for row in rows}))
     excluded_decoy_count = 0
     excluded_q_value_count = 0
+    source_observation_count = 0
 
-    grouped: dict[
-        str,
-        dict[str, object],
-    ] = {}
+    grouped: dict[str, dict[str, object]] = {}
     for row in rows:
         if (
-            not include_decoys
+            not active_policy.include_decoys
             and row.target_decoy_label is TargetDecoyLabel.DECOY
         ):
             excluded_decoy_count += 1
             continue
-        if max_q_value is not None and row.q_value > max_q_value:
+        source_observation_count += 1
+        if (
+            active_policy.max_q_value is not None
+            and active_policy.q_value_filter_timing
+            is DiaPrecursorQValueFilterTiming.BEFORE_MATRIX_CONSTRUCTION
+            and row.q_value > active_policy.max_q_value
+        ):
             excluded_q_value_count += 1
             continue
         precursor_key = _build_precursor_key(row)
@@ -116,7 +181,7 @@ def build_dia_precursor_matrix_report(
             {
                 "peptide_sequence": row.peptide_sequence,
                 "modified_peptide": row.modified_peptide,
-                "canonical_peptide": row.canonical_peptide,
+                "canonical_peptide": _canonical_peptide(row),
                 "charge": row.charge,
                 "protein_group_id": row.protein_group_id,
                 "protein_refs": set(row.protein_refs),
@@ -139,10 +204,12 @@ def build_dia_precursor_matrix_report(
         sample_rows.setdefault(row.sample_name, []).append(row)
 
     matrix_rows: list[DiaPrecursorMatrixRow] = []
+    metadata_entries: list[DiaPrecursorMetadataEntry] = []
     observed_cell_count = 0
     missing_cell_count = 0
     target_row_count = 0
     decoy_row_count = 0
+    retained_observation_count = 0
     for precursor_key in sorted(grouped):
         group = grouped[precursor_key]
         sample_rows = group["sample_rows"]
@@ -155,45 +222,91 @@ def build_dia_precursor_matrix_report(
         else:
             target_row_count += 1
         values: list[DiaPrecursorMatrixValue] = []
+        row_source_observation_count = 0
+        row_retained_observation_count = 0
+        row_excluded_q_value_observation_count = 0
+        detected_sample_count = 0
         for sample_id in sample_ids:
-            observations = sample_rows.get(sample_id, [])
-            if not observations:
+            observations = tuple(sample_rows.get(sample_id, ()))
+            row_source_observation_count += len(observations)
+            retained_observations = observations
+            if (
+                active_policy.max_q_value is not None
+                and active_policy.q_value_filter_timing
+                is DiaPrecursorQValueFilterTiming.AFTER_MATRIX_CONSTRUCTION
+            ):
+                retained_observations = tuple(
+                    observation
+                    for observation in observations
+                    if observation.q_value <= active_policy.max_q_value
+                )
+                excluded_for_sample = len(observations) - len(retained_observations)
+                row_excluded_q_value_observation_count += excluded_for_sample
+                excluded_q_value_count += excluded_for_sample
+            if not retained_observations:
                 missing_cell_count += 1
                 values.append(
                     DiaPrecursorMatrixValue(
                         sample_id=sample_id,
-                        source_observation_count=0,
+                        run_names=tuple(
+                            sorted({observation.run_name for observation in observations})
+                        ),
+                        source_precursor_ids=tuple(
+                            sorted(
+                                {
+                                    observation.precursor_id
+                                    for observation in observations
+                                }
+                            )
+                        ),
+                        source_observation_count=len(observations),
+                        retained_observation_count=0,
+                        excluded_q_value_observation_count=len(observations),
                         detected=False,
                     )
                 )
                 continue
             observed_cell_count += 1
+            detected_sample_count += 1
+            row_retained_observation_count += len(retained_observations)
+            retained_observation_count += len(retained_observations)
             best_quantity = max(
                 (
                     observation.precursor_quantity
-                    for observation in observations
+                    for observation in retained_observations
                     if observation.precursor_quantity is not None
                 ),
                 default=None,
             )
-            best_q_value = min(observation.q_value for observation in observations)
+            best_q_value = min(
+                observation.q_value for observation in retained_observations
+            )
             values.append(
                 DiaPrecursorMatrixValue(
                     sample_id=sample_id,
                     run_names=tuple(
-                        sorted({observation.run_name for observation in observations})
+                        sorted(
+                            {
+                                observation.run_name
+                                for observation in retained_observations
+                            }
+                        )
                     ),
                     source_precursor_ids=tuple(
                         sorted(
                             {
                                 observation.precursor_id
-                                for observation in observations
+                                for observation in retained_observations
                             }
                         )
                     ),
                     abundance=best_quantity,
                     q_value=best_q_value,
                     source_observation_count=len(observations),
+                    retained_observation_count=len(retained_observations),
+                    excluded_q_value_observation_count=(
+                        len(observations) - len(retained_observations)
+                    ),
                     detected=True,
                 )
             )
@@ -215,11 +328,33 @@ def build_dia_precursor_matrix_report(
                 values=tuple(values),
             )
         )
+        metadata_entries.append(
+            DiaPrecursorMetadataEntry(
+                precursor_key=precursor_key,
+                peptide_sequence=str(group["peptide_sequence"]),
+                modified_peptide=str(group["modified_peptide"]),
+                canonical_peptide=str(group["canonical_peptide"]),
+                charge=int(group["charge"]),
+                protein_group_id=str(group["protein_group_id"]),
+                protein_refs=tuple(sorted(protein_refs)),
+                source_precursor_ids=tuple(sorted(source_precursor_ids)),
+                target_decoy_label=label,
+                source_observation_count=row_source_observation_count,
+                retained_observation_count=row_retained_observation_count,
+                excluded_q_value_observation_count=(
+                    row_excluded_q_value_observation_count
+                ),
+                detected_sample_count=detected_sample_count,
+            )
+        )
 
     return DiaPrecursorMatrixReport(
+        source_name=source_name,
         sample_ids=sample_ids,
         run_names=run_names,
+        policy=active_policy,
         rows=tuple(matrix_rows),
+        metadata_entries=tuple(metadata_entries),
         summary=DiaPrecursorMatrixSummary(
             precursor_row_count=len(matrix_rows),
             sample_count=len(sample_ids),
@@ -230,9 +365,13 @@ def build_dia_precursor_matrix_report(
             decoy_row_count=decoy_row_count,
             excluded_decoy_count=excluded_decoy_count,
             excluded_q_value_count=excluded_q_value_count,
+            source_observation_count=source_observation_count,
+            retained_observation_count=retained_observation_count,
+            q_value_filter_timing=active_policy.q_value_filter_timing,
+            max_q_value=active_policy.max_q_value,
         ),
         note=(
-            "precursor matrix groups DIA-NN evidence by modified peptide, charge, and protein group while preserving sample-specific source precursor identifiers because exported precursor ids may be run-scoped"
+            "precursor matrix groups DIA-native evidence by modified peptide, charge, and protein group while preserving run-scoped source precursor identifiers and explicit q-value filter timing"
         ),
     )
 
@@ -243,6 +382,10 @@ def build_diann_precursor_matrix_report(
     config_path: Path | None = None,
     include_decoys: bool = False,
     max_q_value: float | None = None,
+    q_value_filter_timing: DiaPrecursorQValueFilterTiming = (
+        DiaPrecursorQValueFilterTiming.BEFORE_MATRIX_CONSTRUCTION
+    ),
+    policy: DiaPrecursorMatrixPolicy | None = None,
 ) -> DiaPrecursorMatrixReport:
     """Build a DIA precursor-by-sample matrix directly from a DIA-NN report."""
 
@@ -251,8 +394,39 @@ def build_diann_precursor_matrix_report(
     report = build_diann_import_report(result_tsv_path, config_path=config_path)
     return build_dia_precursor_matrix_report(
         report.precursor_rows,
+        source_name="DIA-NN",
         include_decoys=include_decoys,
         max_q_value=max_q_value,
+        q_value_filter_timing=q_value_filter_timing,
+        policy=policy,
+    )
+
+
+def build_spectronaut_precursor_matrix_report(
+    result_tsv_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+    q_value_filter_timing: DiaPrecursorQValueFilterTiming = (
+        DiaPrecursorQValueFilterTiming.BEFORE_MATRIX_CONSTRUCTION
+    ),
+    policy: DiaPrecursorMatrixPolicy | None = None,
+) -> DiaPrecursorMatrixReport:
+    """Build a DIA precursor-by-sample matrix directly from a Spectronaut report."""
+
+    from bijux_proteomics.identification.spectronaut_import import (
+        build_spectronaut_import_report,
+    )
+
+    report = build_spectronaut_import_report(result_tsv_path, config_path=config_path)
+    return build_dia_precursor_matrix_report(
+        report.precursor_rows,
+        source_name="Spectronaut",
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        q_value_filter_timing=q_value_filter_timing,
+        policy=policy,
     )
 
 
@@ -273,6 +447,10 @@ def render_dia_precursor_matrix_summary_tsv(report: DiaPrecursorMatrixReport) ->
             "decoy_row_count",
             "excluded_decoy_count",
             "excluded_q_value_count",
+            "source_observation_count",
+            "retained_observation_count",
+            "q_value_filter_timing",
+            "max_q_value",
             "note",
         ]
     )
@@ -288,6 +466,14 @@ def render_dia_precursor_matrix_summary_tsv(report: DiaPrecursorMatrixReport) ->
             report.summary.decoy_row_count,
             report.summary.excluded_decoy_count,
             report.summary.excluded_q_value_count,
+            report.summary.source_observation_count,
+            report.summary.retained_observation_count,
+            report.summary.q_value_filter_timing.value,
+            (
+                ""
+                if report.summary.max_q_value is None
+                else f"{report.summary.max_q_value:.6g}"
+            ),
             report.note,
         ]
     )
@@ -316,6 +502,49 @@ def render_dia_precursor_q_value_matrix_tsv(report: DiaPrecursorMatrixReport) ->
     )
 
 
+def render_dia_precursor_metadata_tsv(report: DiaPrecursorMatrixReport) -> str:
+    """Render the precursor metadata ledger carried alongside the wide matrices."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "precursor_key",
+            "peptide_sequence",
+            "modified_peptide",
+            "canonical_peptide",
+            "charge",
+            "protein_group_id",
+            "protein_refs",
+            "source_precursor_ids",
+            "target_decoy_label",
+            "source_observation_count",
+            "retained_observation_count",
+            "excluded_q_value_observation_count",
+            "detected_sample_count",
+        ]
+    )
+    for entry in report.metadata_entries:
+        writer.writerow(
+            [
+                entry.precursor_key,
+                entry.peptide_sequence,
+                entry.modified_peptide,
+                entry.canonical_peptide,
+                entry.charge,
+                entry.protein_group_id,
+                ";".join(entry.protein_refs),
+                ";".join(entry.source_precursor_ids),
+                entry.target_decoy_label.value,
+                entry.source_observation_count,
+                entry.retained_observation_count,
+                entry.excluded_q_value_observation_count,
+                entry.detected_sample_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
 def export_dia_precursor_matrix_summary_tsv(
     report: DiaPrecursorMatrixReport,
     path: Path,
@@ -337,8 +566,22 @@ def export_dia_precursor_q_value_matrix_tsv(
     path.write_text(render_dia_precursor_q_value_matrix_tsv(report), encoding="utf-8")
 
 
-def _build_precursor_key(row: DiaNnPrecursorReviewEntry) -> str:
+def export_dia_precursor_metadata_tsv(
+    report: DiaPrecursorMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_precursor_metadata_tsv(report), encoding="utf-8")
+
+
+def _build_precursor_key(row: DiaNativePrecursorMatrixEntry) -> str:
     return f"{row.modified_peptide}|z{row.charge}|{row.protein_group_id}"
+
+
+def _canonical_peptide(row: DiaNativePrecursorMatrixEntry) -> str:
+    canonical_peptide = getattr(row, "canonical_peptide", None)
+    if canonical_peptide is not None:
+        return canonical_peptide
+    return row.canonical_modified_peptide
 
 
 def _combine_target_decoy_labels(
@@ -394,3 +637,25 @@ def _render_dia_precursor_wide_matrix(
             ]
         )
     return buffer.getvalue()
+
+
+__all__ = [
+    "DiaPrecursorMetadataEntry",
+    "DiaPrecursorMatrixPolicy",
+    "DiaPrecursorMatrixReport",
+    "DiaPrecursorMatrixRow",
+    "DiaPrecursorMatrixSummary",
+    "DiaPrecursorMatrixValue",
+    "DiaPrecursorQValueFilterTiming",
+    "build_dia_precursor_matrix_report",
+    "build_diann_precursor_matrix_report",
+    "build_spectronaut_precursor_matrix_report",
+    "export_dia_precursor_matrix_summary_tsv",
+    "export_dia_precursor_metadata_tsv",
+    "export_dia_precursor_q_value_matrix_tsv",
+    "export_dia_precursor_quantity_matrix_tsv",
+    "render_dia_precursor_matrix_summary_tsv",
+    "render_dia_precursor_metadata_tsv",
+    "render_dia_precursor_q_value_matrix_tsv",
+    "render_dia_precursor_quantity_matrix_tsv",
+]
