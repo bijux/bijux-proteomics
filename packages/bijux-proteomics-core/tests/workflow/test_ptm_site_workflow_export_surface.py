@@ -5,7 +5,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.ptm import PtmProteinCorrectionMode
+from bijux_proteomics.ptm import (
+    PtmEvidenceCardPolicy,
+    PtmProteinCorrectionMode,
+    PtmRegulatorEnrichmentPolicy,
+)
 from bijux_proteomics.workflow import (
     build_ptm_site_workflow_bundle,
     export_ptm_site_workflow_bundle,
@@ -32,9 +36,17 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
         _fasta_fixture("ptm_sites.fasta"),
         feature_tsv_path=_ptm_fixture("ptm_features.tsv"),
         design_path=_ptm_fixture("ptm.design.tsv"),
+        annotation_tsv_path=_ptm_fixture("ptm_site_annotations.tsv"),
+        annotation_target_species="Homo sapiens",
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
+        batch_field="",
         condition_a="control",
         condition_b="treated",
+        regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        evidence_card_policy=PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
     )
 
     manifest = export_ptm_site_workflow_bundle(report, tmp_path / "ptm_site_report")
@@ -56,4 +68,5 @@ def test_ptm_site_workflow_export_writes_evidence_review_and_report_assets(
     assert (output_dir / manifest.ptm_report_manifest.artifacts.peptide_tsv).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.site_tsv).exists()
     assert (output_dir / manifest.ptm_report_manifest.artifacts.differential_tsv).exists()
-
+    assert (output_dir / manifest.ptm_report_manifest.artifacts.evidence_card_tsv).exists()
+    assert (output_dir / manifest.ptm_report_manifest.artifacts.evidence_claim_tsv).exists()

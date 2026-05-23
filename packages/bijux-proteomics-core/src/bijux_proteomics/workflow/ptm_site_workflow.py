@@ -17,6 +17,7 @@ from bijux_proteomics.io.formats import (
     parse_experimental_design_table,
 )
 from bijux_proteomics.ptm import (
+    PtmEvidenceCardPolicy,
     PtmEvidenceParseReport,
     PtmLocalizationColumnMapping,
     PtmMotifComparisonPolicy,
@@ -24,9 +25,11 @@ from bijux_proteomics.ptm import (
     PtmProteinCorrectionMode,
     PtmReportBundle,
     PtmReportExportManifest,
+    PtmRegulatorEnrichmentPolicy,
     PtmSiteQuantAmbiguityPolicy,
     export_ptm_report_bundle,
     parse_ptm_localization_tsv,
+    parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.ptm.reporting import build_ptm_report_bundle
 from bijux_proteomics.quantification import (
@@ -53,6 +56,8 @@ class PtmSiteWorkflowSummary(JsonModel):
     quantified_site_row_count: int = Field(..., ge=0)
     differential_site_count: int = Field(..., ge=0)
     motif_term_count: int = Field(..., ge=0)
+    evidence_card_count: int = Field(..., ge=0)
+    narrative_claim_count: int = Field(..., ge=0)
 
 
 class PtmSiteWorkflowBundle(JsonModel):
@@ -110,6 +115,10 @@ def build_ptm_site_workflow_bundle(
     motif_flank_size: int = 7,
     motif_selection_policy: PtmPhosphositeSelectionPolicy | None = None,
     motif_comparison_policy: PtmMotifComparisonPolicy | None = None,
+    annotation_tsv_path: Path | None = None,
+    annotation_target_species: str | None = None,
+    regulator_enrichment_policy: PtmRegulatorEnrichmentPolicy | None = None,
+    evidence_card_policy: PtmEvidenceCardPolicy | None = None,
 ) -> PtmSiteWorkflowBundle:
     """Build one governed PTM-site workflow bundle from TSV inputs."""
 
@@ -135,6 +144,11 @@ def build_ptm_site_workflow_bundle(
     fragment_ion_support_by_spectrum = _load_fragment_support_by_spectrum(
         fragment_support_json_path
     )
+    annotation_records = None
+    if annotation_tsv_path is not None:
+        annotation_records = parse_ptm_site_annotation_tsv(
+            annotation_tsv_path
+        ).accepted_records
     protein_sequences = {
         record.canonical_accession: record.residues
         for record in fasta_report.accepted_records
@@ -156,6 +170,10 @@ def build_ptm_site_workflow_bundle(
         motif_flank_size=motif_flank_size,
         motif_selection_policy=motif_selection_policy,
         motif_comparison_policy=motif_comparison_policy,
+        annotation_records=annotation_records,
+        annotation_target_species=annotation_target_species,
+        regulator_enrichment_policy=regulator_enrichment_policy,
+        evidence_card_policy=evidence_card_policy,
     )
     return PtmSiteWorkflowBundle(
         evidence_parse_report=evidence_parse_report,
@@ -175,6 +193,8 @@ def build_ptm_site_workflow_bundle(
             quantified_site_row_count=report.summary.quantified_site_row_count,
             differential_site_count=report.summary.differential_site_count,
             motif_term_count=report.summary.motif_term_count,
+            evidence_card_count=report.summary.evidence_card_count,
+            narrative_claim_count=report.summary.narrative_claim_count,
         ),
         note=(
             "PTM-site workflow parses localized evidence and experiment context from governed files, preserves rejected evidence review, and routes accepted site biology through the owned PTM report bundle"
@@ -200,6 +220,8 @@ def render_ptm_site_workflow_summary_tsv(report: PtmSiteWorkflowBundle) -> str:
         ("quantified_site_row_count", report.summary.quantified_site_row_count),
         ("differential_site_count", report.summary.differential_site_count),
         ("motif_term_count", report.summary.motif_term_count),
+        ("evidence_card_count", report.summary.evidence_card_count),
+        ("narrative_claim_count", report.summary.narrative_claim_count),
         ("note", report.note),
     ):
         writer.writerow((field_name, value))
@@ -339,4 +361,3 @@ def _load_fragment_support_by_spectrum(
         str(spectrum_id): tuple(str(ion) for ion in ions)
         for spectrum_id, ions in raw_fragment_support.items()
     }
-
