@@ -245,6 +245,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "review/protein_family_graphs.py",
             "review/collaboration.py",
             "review/structure_reports/render.py",
+            "interpretation/biological_context_mapping.py",
             "interpretation/protein_set_enrichment.py",
             "interpretation/protein_set_scoring.py",
             "interpretation/ppi_network_modules.py",
