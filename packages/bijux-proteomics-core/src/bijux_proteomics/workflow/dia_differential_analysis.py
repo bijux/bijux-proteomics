@@ -57,8 +57,7 @@ from bijux_proteomics.study import (
     ExperimentDesignAnalysisFamily,
     ExperimentDesign,
     coerce_experiment_design,
-    require_matching_experiment_design_analysis_family,
-    require_valid_experiment_design_for_differential_analysis,
+    require_feasible_experiment_design_for_analysis,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -324,14 +323,29 @@ def build_dia_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Normalize one DIA-native matrix, build the design, and run differential testing."""
 
-    experiment_design = require_valid_experiment_design_for_differential_analysis(
-        coerce_experiment_design(design_entries),
+    experiment_design = coerce_experiment_design(design_entries)
+    selected_contrast = _resolve_selected_contrast(
+        experiment_design.entries,
         condition_a=condition_a,
         condition_b=condition_b,
+    )
+    feasibility_report = require_feasible_experiment_design_for_analysis(
+        experiment_design,
+        chosen_analysis_family=(
+            ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+            if selected_contrast is not None
+            else ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
+        ),
+        condition_a=(
+            selected_contrast[0] if selected_contrast is not None else condition_a
+        ),
+        condition_b=(
+            selected_contrast[1] if selected_contrast is not None else condition_b
+        ),
         batch_field=batch_field if batch_field else None,
         pairing_field=pairing_field,
     )
-    design_entries = experiment_design.entries
+    design_entries = feasibility_report.experiment_design.entries
     normalized_table = normalize_label_free_table(
         input_report.table,
         method=normalization_method,
@@ -349,27 +363,6 @@ def build_dia_differential_analysis_report(
     design_model_fit = fit_quant_design_matrix_model(
         normalized_table,
         design_matrix,
-    )
-    selected_contrast = _resolve_selected_contrast(
-        design_entries,
-        condition_a=condition_a,
-        condition_b=condition_b,
-    )
-    require_matching_experiment_design_analysis_family(
-        experiment_design,
-        chosen_analysis_family=(
-            ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
-            if selected_contrast is not None
-            else ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
-        ),
-        condition_a=(
-            selected_contrast[0] if selected_contrast is not None else condition_a
-        ),
-        condition_b=(
-            selected_contrast[1] if selected_contrast is not None else condition_b
-        ),
-        batch_field=batch_field if batch_field else None,
-        pairing_field=pairing_field,
     )
     differential_abundance_report: DifferentialAbundanceReport | None = None
     differential_abundance_multi_condition_report: (

@@ -51,8 +51,7 @@ from bijux_proteomics.quantification.normalization import (
 )
 from bijux_proteomics.study import (
     ExperimentDesignAnalysisFamily,
-    require_matching_experiment_design_analysis_family,
-    require_valid_experiment_design_for_differential_analysis,
+    require_feasible_experiment_design_for_analysis,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -193,14 +192,7 @@ def build_ptm_differential_analysis_report(
         entry.pair_id not in (None, "") for entry in design_entries
     ):
         effective_pairing_field = "pair_id"
-    require_valid_experiment_design_for_differential_analysis(
-        design_entries,
-        condition_a=condition_a,
-        condition_b=condition_b,
-        batch_field=batch_field if batch_field else None,
-        pairing_field=effective_pairing_field,
-    )
-    require_matching_experiment_design_analysis_family(
+    require_feasible_experiment_design_for_analysis(
         design_entries,
         chosen_analysis_family=(
             ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL

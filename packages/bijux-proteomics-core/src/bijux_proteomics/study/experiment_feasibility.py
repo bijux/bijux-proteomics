@@ -621,6 +621,12 @@ def _build_model_support_entries(
     minimum_statistical_units_per_condition: int,
 ) -> tuple[ExperimentFeasibilityModelEntry, ...]:
     valid_pairwise_contrast_count = sum(1 for entry in contrast_entries if entry.supported)
+    invalid_pairwise_reason_codes = {
+        reason_code
+        for entry in contrast_entries
+        if not entry.supported
+        for reason_code in entry.reason_codes
+    }
     underpowered_condition_count = len(
         {
             condition
@@ -641,6 +647,7 @@ def _build_model_support_entries(
         _pairwise_model_entry(
             primary_design_type=primary_design_type,
             valid_pairwise_contrast_count=valid_pairwise_contrast_count,
+            invalid_pairwise_reason_codes=invalid_pairwise_reason_codes,
         ),
         _paired_model_entry(
             effective_pairing_field=effective_pairing_field,
@@ -667,10 +674,14 @@ def _pairwise_model_entry(
     *,
     primary_design_type: ExperimentDesignType,
     valid_pairwise_contrast_count: int,
+    invalid_pairwise_reason_codes: set[str],
 ) -> ExperimentFeasibilityModelEntry:
     reason_codes: list[str] = []
     if valid_pairwise_contrast_count == 0:
-        reason_codes.append("no_supported_contrast")
+        if invalid_pairwise_reason_codes:
+            reason_codes.extend(sorted(invalid_pairwise_reason_codes))
+        else:
+            reason_codes.append("no_supported_contrast")
     if primary_design_type in (
         ExperimentDesignType.PAIRED,
         ExperimentDesignType.LONGITUDINAL,
@@ -735,7 +746,7 @@ def _multi_condition_model_entry(
     underpowered_condition_count: int,
 ) -> ExperimentFeasibilityModelEntry:
     reason_codes: list[str] = []
-    if condition_count < 3:
+    if condition_count < 2:
         reason_codes.append("insufficient_condition_count")
     if valid_pairwise_contrast_count == 0 or underpowered_condition_count > 0:
         reason_codes.append("insufficient_group_size")

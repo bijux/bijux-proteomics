@@ -68,7 +68,7 @@ from bijux_proteomics.study import (
     build_experiment_design,
     count_effective_statistical_units_by_condition,
     coerce_experiment_design,
-    require_matching_experiment_design_analysis_family,
+    require_feasible_experiment_design_for_analysis,
     require_valid_experiment_design_for_differential_analysis,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -320,8 +320,8 @@ def build_label_based_differential_analysis_report(
         condition_a=condition_a,
         condition_b=condition_b,
     )
-    require_matching_experiment_design_analysis_family(
-        experiment_design,
+    require_feasible_experiment_design_for_analysis(
+        analysis_experiment_design,
         chosen_analysis_family=(
             ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
             if selected_contrast is not None

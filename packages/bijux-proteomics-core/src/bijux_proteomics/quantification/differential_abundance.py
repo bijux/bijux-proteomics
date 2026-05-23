@@ -46,6 +46,12 @@ from bijux_proteomics.study.sample_run_identity import (
 from bijux_proteomics.study.replicate_structure import (
     count_effective_statistical_units_by_condition,
 )
+from bijux_proteomics.study.experiment_feasibility import (
+    require_feasible_experiment_design_for_analysis,
+)
+from bijux_proteomics.study.design_classification import (
+    ExperimentDesignAnalysisFamily,
+)
 
 
 def build_differential_abundance_report(
@@ -87,6 +93,24 @@ def build_differential_abundance_report(
     assert condition_a is not None
     assert condition_b is not None
 
+    active_paired_policy: PairedDifferentialPolicy | None = None
+    chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+    effective_pairing_field: str | None = None
+    if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
+        active_paired_policy = paired_policy or PairedDifferentialPolicy()
+        chosen_analysis_family = ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL
+        effective_pairing_field = active_paired_policy.pair_id_field
+    require_feasible_experiment_design_for_analysis(
+        analysis_design_entries,
+        chosen_analysis_family=chosen_analysis_family,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        pairing_field=effective_pairing_field,
+        minimum_statistical_units_per_condition=(
+            active_policy.min_replicates_per_condition
+        ),
+    )
+
     samples_a = _sample_ids_for_condition(condition_by_sample, condition_a)
     samples_b = _sample_ids_for_condition(condition_by_sample, condition_b)
     if not samples_a or not samples_b:
@@ -107,13 +131,11 @@ def build_differential_abundance_report(
     active_design_matrix: QuantDesignMatrixReport | None = None
     active_contrast_name = contrast_name
     selected_contrast: QuantDesignContrast | None = None
-    active_paired_policy: PairedDifferentialPolicy | None = None
     if test_type in (
         DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST,
         DifferentialAbundanceTestType.PAIRED_T_TEST,
     ):
         if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
-            active_paired_policy = paired_policy or PairedDifferentialPolicy()
             active_design_matrix = design_matrix or build_quant_design_matrix_report(
                 analysis_design_entries,
                 batch_field="",
@@ -346,6 +368,15 @@ def build_multi_condition_differential_abundance_report(
         raise ValueError(
             "multi-condition differential abundance requires at least two conditions"
         )
+    require_feasible_experiment_design_for_analysis(
+        analysis_design_entries,
+        chosen_analysis_family=(
+            ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
+        ),
+        minimum_statistical_units_per_condition=(
+            active_policy.min_replicates_per_condition
+        ),
+    )
     contrast_pairs = (
         tuple(combinations(conditions, 2)) if contrasts is None else contrasts
     )

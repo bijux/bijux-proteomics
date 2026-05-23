@@ -39,8 +39,7 @@ from bijux_proteomics.study import (
     ExperimentDesignAnalysisFamily,
     ExperimentDesign,
     coerce_experiment_design,
-    require_matching_experiment_design_analysis_family,
-    require_valid_experiment_design_for_differential_analysis,
+    require_feasible_experiment_design_for_analysis,
 )
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
@@ -244,12 +243,8 @@ def build_maxquant_benchmark_report(
     differential_comparison_applied = design_entries is not None
     differential_matched: bool | None = None
     if design_entries is not None:
-        experiment_design = require_valid_experiment_design_for_differential_analysis(
-            coerce_experiment_design(design_entries),
-            condition_a=condition_a,
-            condition_b=condition_b,
-        )
-        require_matching_experiment_design_analysis_family(
+        experiment_design = coerce_experiment_design(design_entries)
+        require_feasible_experiment_design_for_analysis(
             experiment_design,
             chosen_analysis_family=ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL,
             condition_a=condition_a,
