@@ -6357,6 +6357,12 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["imputation_report"]["method"] == "low_intensity"
         assert payload["imputation_report"]["imputed_value_count"] > 0
         assert payload["imputation_sensitivity"]["entries"]
+        assert tuple(
+            entry["method"] for entry in payload["imputation_sensitivity"]["entries"]
+        ) == ("none", "low_intensity", "knn")
+        assert payload["imputation_sensitivity"]["overlap_entries"]
+        assert payload["imputation_sensitivity"]["changed_significance_entries"]
+        assert payload["imputation_sensitivity"]["imputation_dependent_hits"]
         assert payload["batch_effect"]["disposition"] == "ADVISORY"
         assert payload["replicate_correlations"]["entries"]
         assert payload["replicate_qc"]["replicate_cv_report"]["entries"]
@@ -6506,6 +6512,14 @@ def test_quantify_command_reports_group_aware_imputation_provenance() -> None:
         assert payload["table"]["imputation_method"] == "group_aware_low_intensity"
         assert payload["imputation_report"]["method"] == "group_aware_low_intensity"
         assert payload["imputation_report"]["entries"]
+        assert tuple(
+            entry["method"] for entry in payload["imputation_sensitivity"]["entries"]
+        ) == (
+            "none",
+            "low_intensity",
+            "knn",
+            "group_aware_low_intensity",
+        )
         first_entry = payload["imputation_report"]["entries"][0]
         assert first_entry["strategy"] == "condition_low_intensity_floor"
         assert first_entry["reference_group"] in {"control", "treatment"}
