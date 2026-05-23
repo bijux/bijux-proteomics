@@ -41,6 +41,7 @@ class ExperimentDesignRun(JsonModel):
 
     run_id: str = Field(..., min_length=1)
     sample_id: str = Field(..., min_length=1)
+    technical_replicate_id: str = Field(..., min_length=1)
     condition: str = Field(..., min_length=1)
     cohort: str | None = None
     replicate: int = Field(..., ge=1)
@@ -75,6 +76,7 @@ class ExperimentDesignSample(JsonModel):
     tissue_or_cell_type: str | None = None
     perturbation: str | None = None
     run_ids: tuple[str, ...] = Field(default_factory=tuple)
+    technical_replicate_ids: tuple[str, ...] = Field(default_factory=tuple)
     batch_ids: tuple[str, ...] = Field(default_factory=tuple)
     instrument_ids: tuple[str, ...] = Field(default_factory=tuple)
     plex_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -89,6 +91,7 @@ class ExperimentDesignSummary(JsonModel):
 
     sample_count: int = Field(..., ge=0)
     run_count: int = Field(..., ge=0)
+    technical_replicate_count: int = Field(..., ge=0)
     condition_count: int = Field(..., ge=0)
     batch_count: int = Field(..., ge=0)
     pair_count: int = Field(..., ge=0)
@@ -133,6 +136,7 @@ def build_experiment_design(
                 ExperimentDesignRun(
                     run_id=entry.spectra_file,
                     sample_id=entry.sample_id,
+                    technical_replicate_id=_technical_replicate_id(entry),
                     condition=entry.condition,
                     cohort=entry.cohort,
                     replicate=entry.replicate,
@@ -172,6 +176,9 @@ def build_experiment_design(
                 tissue_or_cell_type=_tissue_or_cell_type(primary),
                 perturbation=_metadata_value(primary, "perturbation"),
                 run_ids=tuple(sorted({entry.spectra_file for entry in sample_entries})),
+                technical_replicate_ids=tuple(
+                    sorted({_technical_replicate_id(entry) for entry in sample_entries})
+                ),
                 batch_ids=_sorted_nonempty(entry.batch for entry in sample_entries),
                 instrument_ids=_sorted_nonempty(entry.instrument for entry in sample_entries),
                 plex_ids=_sorted_nonempty(entry.multiplex_group for entry in sample_entries),
@@ -230,6 +237,12 @@ def build_experiment_design(
         summary=ExperimentDesignSummary(
             sample_count=len(sample_records),
             run_count=len(runs),
+            technical_replicate_count=len(
+                {
+                    _technical_replicate_id(entry)
+                    for entry in entries
+                }
+            ),
             condition_count=len(conditions),
             batch_count=len(batches),
             pair_count=len(pair_ids),
@@ -257,6 +270,13 @@ def coerce_experiment_design(
     if isinstance(design, ExperimentDesign):
         return design
     return build_experiment_design(design)
+
+
+def _technical_replicate_id(entry: ExperimentalDesignEntry) -> str:
+    value = entry.technical_replicate_id
+    if value not in (None, ""):
+        return value
+    return entry.spectra_file
 
 
 def _sorted_nonempty(values) -> tuple[str, ...]:

@@ -458,11 +458,12 @@ def build_experimental_design_schema() -> ScientificTableSchema:
             DelimitedColumnSpec(name="instrument"),
             DelimitedColumnSpec(name="search_engine"),
             DelimitedColumnSpec(name="pair_id"),
+            DelimitedColumnSpec(name="technical_replicate_id"),
             DelimitedColumnSpec(name="multiplex_group"),
             DelimitedColumnSpec(name="multiplex_channel"),
             DelimitedColumnSpec(name="sample_role"),
         ),
-        unique_key_columns=("sample_id",),
+        unique_key_columns=("sample_id", "spectra_file"),
         allowed_values_by_column={
             "sample_role": (
                 "sample",

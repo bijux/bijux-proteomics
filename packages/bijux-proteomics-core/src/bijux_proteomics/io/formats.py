@@ -105,6 +105,7 @@ class ExperimentalDesignEntry(JsonModel):
     instrument: str | None = None
     search_engine: str | None = None
     pair_id: str | None = None
+    technical_replicate_id: str | None = None
     multiplex_group: str | None = None
     multiplex_channel: str | None = None
     sample_role: ExperimentalDesignSampleRole = ExperimentalDesignSampleRole.SAMPLE
@@ -120,6 +121,7 @@ class ExperimentalDesignEntry(JsonModel):
         "instrument",
         "search_engine",
         "pair_id",
+        "technical_replicate_id",
         "multiplex_group",
         "multiplex_channel",
         mode="before",
@@ -157,6 +159,7 @@ class ExperimentalDesignEntry(JsonModel):
             fraction=self.fraction,
             batch=self.batch,
             pair_id=self.pair_id,
+            technical_replicate_id=self.technical_replicate_id,
             plex_id=self.multiplex_group,
             channel=self.multiplex_channel,
             sample_role=self.sample_role.value,
@@ -640,6 +643,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         "instrument",
         "search_engine",
         "pair_id",
+        "technical_replicate_id",
         "multiplex_group",
         "multiplex_channel",
         "sample_role",
@@ -673,6 +677,9 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 instrument=_optional_design_text(row.values.get("instrument")),
                 search_engine=_optional_design_text(row.values.get("search_engine")),
                 pair_id=_optional_design_text(row.values.get("pair_id")),
+                technical_replicate_id=_optional_design_text(
+                    row.values.get("technical_replicate_id")
+                ),
                 multiplex_group=_optional_design_text(row.values.get("multiplex_group")),
                 multiplex_channel=_optional_design_text(
                     row.values.get("multiplex_channel")

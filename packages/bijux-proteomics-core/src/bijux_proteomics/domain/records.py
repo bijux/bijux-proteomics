@@ -355,6 +355,7 @@ class SampleMetadata(_CanonicalRecord):
     fraction: int | None = Field(default=None, ge=1)
     batch: str | None = None
     pair_id: str | None = None
+    technical_replicate_id: str | None = None
     timepoint: str | None = None
     plex_id: str | None = None
     channel: str | None = None

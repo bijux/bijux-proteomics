@@ -10,6 +10,7 @@ from bijux_proteomics.study.contracts import *  # noqa: F401,F403
 from bijux_proteomics.study.design_classification import *  # noqa: F401,F403
 from bijux_proteomics.study.design_validity import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_design import *  # noqa: F401,F403
+from bijux_proteomics.study.sample_run_identity import *  # noqa: F401,F403
 from bijux_proteomics.study.sample_metadata import *  # noqa: F401,F403
 from bijux_proteomics.study.laboratory_operations import *  # noqa: F401,F403
 from bijux_proteomics.study.laboratory_plans import *  # noqa: F401,F403

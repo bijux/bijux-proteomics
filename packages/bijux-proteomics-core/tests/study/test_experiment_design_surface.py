@@ -16,6 +16,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             replicate=1,
             fraction=1,
             spectra_file="run-001",
+            technical_replicate_id="tech-001",
             identifications_file="id-001.tsv",
             batch="B1",
             instrument="Exploris-1",
@@ -35,6 +36,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             replicate=1,
             fraction=2,
             spectra_file="run-002",
+            technical_replicate_id="tech-002",
             identifications_file="id-002.tsv",
             batch="B1",
             instrument="Exploris-1",
@@ -54,6 +56,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             replicate=1,
             fraction=1,
             spectra_file="run-003",
+            technical_replicate_id="tech-003",
             identifications_file="id-003.tsv",
             batch="B2",
             instrument="Orbitrap-2",
@@ -76,6 +79,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             replicate=1,
             fraction=1,
             spectra_file="run-004",
+            technical_replicate_id="tech-bridge",
             identifications_file="id-004.tsv",
             batch="B2",
             instrument="Orbitrap-2",
@@ -96,6 +100,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
 
     assert design.summary.sample_count == 3
     assert design.summary.run_count == 4
+    assert design.summary.technical_replicate_count == 4
     assert design.summary.condition_count == 3
     assert design.summary.batch_count == 2
     assert design.summary.pair_count == 1
@@ -112,8 +117,11 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
     assert design.tissue_or_cell_types == ("hepatocyte",)
     sample = next(sample for sample in design.samples if sample.sample_id == "S1")
     assert sample.run_ids == ("run-001", "run-002")
+    assert sample.technical_replicate_ids == ("tech-001", "tech-002")
     assert sample.batch_ids == ("B1",)
     assert sample.instrument_ids == ("Exploris-1",)
+    run = next(run for run in design.runs if run.run_id == "run-001")
+    assert run.technical_replicate_id == "tech-001"
     plex = design.plexes[0]
     assert plex.plex_id == "plex-01"
     assert plex.run_ids == ("run-003", "run-004")

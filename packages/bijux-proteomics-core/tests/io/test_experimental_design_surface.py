@@ -83,16 +83,16 @@ def test_parse_experimental_design_table_preserves_row_validation_semantics(
     )
 
 
-def test_parse_experimental_design_table_rejects_duplicate_sample_identifiers(
+def test_parse_experimental_design_table_accepts_multi_run_sample_rows(
     tmp_path: Path,
 ) -> None:
     design_path = tmp_path / "duplicate_design.tsv"
     design_path.write_text(
         "\n".join(
             (
-                "sample_id\tcondition\treplicate\tfraction\tspectra_file",
-                "s1\ttreated\t1\t1\trun_a.mzML",
-                "s1\tcontrol\t1\t1\trun_b.mzML",
+                "sample_id\tcondition\treplicate\tfraction\tspectra_file\ttechnical_replicate_id",
+                "s1\ttreated\t1\t1\trun_a.mzML\ttech-1",
+                "s1\ttreated\t1\t1\trun_b.mzML\ttech-2",
             )
         )
         + "\n",
@@ -101,6 +101,8 @@ def test_parse_experimental_design_table_rejects_duplicate_sample_identifiers(
 
     report = parse_experimental_design_table(design_path)
 
-    assert report.accepted_entries == ()
-    assert len(report.rejected_rows) == 2
-    assert report.rejected_rows[0].issues[0].code == "duplicate_design_identifier"
+    assert report.rejected_rows == ()
+    assert len(report.accepted_entries) == 2
+    assert report.accepted_entries[0].sample_id == "s1"
+    assert report.accepted_entries[0].technical_replicate_id == "tech-1"
+    assert report.accepted_entries[1].technical_replicate_id == "tech-2"
