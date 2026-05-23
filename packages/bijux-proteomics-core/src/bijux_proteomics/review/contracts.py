@@ -7,6 +7,12 @@ from __future__ import annotations
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.review.evidence_graph import (
+    ProteomicsEvidenceEdge as EvidenceGraphEdge,
+)
+from bijux_proteomics.review.evidence_graph import (
+    ProteomicsEvidenceNode as EvidenceGraphNode,
+)
 from bijux_proteomics.review.inference_packets import (
     InferenceDisagreementReviewEntry as InferenceDisagreementReviewEntry,
 )
@@ -20,29 +26,6 @@ from bijux_proteomics.review.inference_packets import (
     build_inference_disagreement_review_packet as build_inference_disagreement_review_packet,
 )
 from bijux_proteomics_foundation import JsonModel
-
-
-class EvidenceGraphNode(JsonModel):
-    """One node in the evidence graph query surface."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    node_id: str = Field(..., min_length=1)
-    entity_type: str = Field(..., min_length=1)
-    entity_ref: str = Field(..., min_length=1)
-    claim_state: str = Field(..., min_length=1)
-    trust_class: str = Field(..., min_length=1)
-    contradiction_ids: tuple[str, ...] = Field(default_factory=tuple)
-
-
-class EvidenceGraphEdge(JsonModel):
-    """One directed edge in the evidence graph."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    source_node_id: str = Field(..., min_length=1)
-    target_node_id: str = Field(..., min_length=1)
-    relation: str = Field(..., min_length=1)
 
 
 class EvidenceGraphQuery(JsonModel):
