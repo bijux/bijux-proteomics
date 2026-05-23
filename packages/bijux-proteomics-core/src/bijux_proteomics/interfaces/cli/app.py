@@ -745,6 +745,10 @@ from bijux_proteomics.study.lab_protocol_context import (
     parse_lab_protocol_context_table,
     require_single_lab_protocol_context,
 )
+from bijux_proteomics.study.protocol_consistency import (
+    build_protocol_consistency_report,
+    render_protocol_consistency_tsv,
+)
 from bijux_proteomics.study.experiment_feasibility import (
     build_experiment_feasibility_report,
     render_experiment_feasibility_group_sizes_tsv,
@@ -861,6 +865,40 @@ def _load_protocol_context(protocol_context_tsv_path: Path | None):
         return None
     return require_single_lab_protocol_context(
         parse_lab_protocol_context_table(protocol_context_tsv_path)
+    )
+
+
+def _build_protocol_consistency_report_from_inputs(
+    *,
+    protocol_context_tsv_path: Path,
+    run_qc_report=None,
+    reporter_table_path: Path | None = None,
+    ptm_evidence_tsv_path: Path | None = None,
+):
+    protocol_context = _load_protocol_context(protocol_context_tsv_path)
+    if protocol_context is None:  # pragma: no cover
+        raise ValueError("protocol context is required")
+    reporter_import_report = None
+    reporter_input_issue = None
+    if reporter_table_path is not None:
+        try:
+            reporter_import_report = parse_tmt_reporter_table(reporter_table_path)
+        except Exception as exc:  # noqa: BLE001
+            reporter_input_issue = str(exc)
+    ptm_evidence_report = None
+    ptm_input_issue = None
+    if ptm_evidence_tsv_path is not None:
+        try:
+            ptm_evidence_report = parse_ptm_localization_tsv(ptm_evidence_tsv_path)
+        except Exception as exc:  # noqa: BLE001
+            ptm_input_issue = str(exc)
+    return build_protocol_consistency_report(
+        protocol_context,
+        run_qc_report=run_qc_report,
+        reporter_import_report=reporter_import_report,
+        ptm_evidence_report=ptm_evidence_report,
+        reporter_input_issue=reporter_input_issue,
+        ptm_input_issue=ptm_input_issue,
     )
 
 
@@ -12387,6 +12425,120 @@ def experiment_feasibility_command(
     )
 
 
+@cli.command("protocol-consistency-report")
+@click.argument(
+    "protocol_context_tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--spectra",
+    "spectra_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--psm",
+    "psm_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--proteins-fasta",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--reporter-table",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--ptm-evidence-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--diagnostics-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def protocol_consistency_report_command(
+    protocol_context_tsv: Path,
+    spectra_path: Path | None,
+    psm_path: Path | None,
+    proteins_fasta: Path | None,
+    reporter_table: Path | None,
+    ptm_evidence_tsv: Path | None,
+    diagnostics_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Check whether observed evidence matches the declared lab protocol context."""
+    try:
+        run_qc_report = None
+        digestion_inputs = (spectra_path, psm_path, proteins_fasta)
+        if any(path is not None for path in digestion_inputs) and any(
+            path is None for path in digestion_inputs
+        ):
+            raise ValueError(
+                "spectra, psm, and proteins-fasta must be provided together for digestion consistency checks"
+            )
+        if all(path is not None for path in digestion_inputs):
+            fasta_report = parse_fasta_document(
+                proteins_fasta.read_text(),
+                mode=FastaParseMode.STRICT,
+            )
+            if fasta_report.rejected_records:
+                rejected = ", ".join(
+                    record.source_identifier for record in fasta_report.rejected_records
+                )
+                raise ValueError(
+                    "FASTA input contains rejected records under strict mode: "
+                    f"{rejected}"
+                )
+            spectrum_report = parse_mgf(spectra_path)
+            psm_report = parse_psm_tsv(psm_path, mapping=_default_psm_mapping())
+            run_qc_report = build_lcms_run_qc_report(
+                spectrum_report.accepted_spectra,
+                psm_report.accepted_records,
+                protein_sequences={
+                    record.canonical_accession: record.residues
+                    for record in fasta_report.accepted_records
+                },
+            )
+        report = _build_protocol_consistency_report_from_inputs(
+            protocol_context_tsv_path=protocol_context_tsv,
+            run_qc_report=run_qc_report,
+            reporter_table_path=reporter_table,
+            ptm_evidence_tsv_path=ptm_evidence_tsv,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if diagnostics_tsv_out is not None:
+        _write_text_output(
+            diagnostics_tsv_out,
+            render_protocol_consistency_tsv(report),
+        )
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "outputs": {
+                "diagnostics_tsv": (
+                    None if diagnostics_tsv_out is None else str(diagnostics_tsv_out)
+                )
+            },
+        },
+        out_path=out_path,
+    )
+
+
 @cli.command("sample-sheet-repair-suggestions")
 @click.argument(
     "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -16725,6 +16877,14 @@ def qc_report_command(
             run_id=run_id,
         )
         run_assessment = build_run_qc_assessment(run_report, policy=policy)
+        protocol_consistency_report = (
+            None
+            if protocol_context_tsv is None
+            else _build_protocol_consistency_report_from_inputs(
+                protocol_context_tsv_path=protocol_context_tsv,
+                run_qc_report=run_report,
+            )
+        )
         timings["build_run_qc"] = (
             time.perf_counter() - started,
             len(run_assessment.metric_assessments),
@@ -16839,6 +16999,9 @@ def qc_report_command(
     payload = {
         "run_report": run_report.to_dict(),
         "run_assessment": run_assessment.to_dict(),
+        "protocol_consistency_report": None
+        if protocol_consistency_report is None
+        else protocol_consistency_report.to_dict(),
         "batch_report": None if batch_report is None else batch_report.to_dict(),
         "batch_assessment": None
         if batch_assessment is None
