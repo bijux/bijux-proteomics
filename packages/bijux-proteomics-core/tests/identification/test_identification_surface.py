@@ -777,6 +777,52 @@ def test_level_specific_peptide_fdr_collapses_duplicate_psms_into_one_peptide_en
     assert peptide_entry.protein_refs == ("P12345", "Q11111")
 
 
+def test_level_specific_protein_fdr_uses_protein_entities_not_psm_rows() -> None:
+    records = (
+        PsmRecord(
+            spectrum_id="scan=7001",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=100.0,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan=7002",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            charge=2,
+            score=95.0,
+            protein_refs=("P11111",),
+            target_decoy_label=TargetDecoyLabel.TARGET,
+        ),
+        PsmRecord(
+            spectrum_id="scan=7003",
+            peptide="DECOYSEQ",
+            canonical_peptide="DECOYSEQ",
+            charge=2,
+            score=80.0,
+            protein_refs=("DECOY_P11111",),
+            target_decoy_label=TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    level_report = calculate_level_specific_fdr(
+        records,
+        threshold=0.5,
+        score_orientation="higher_better",
+    )
+
+    assert len(level_report.psm_entries) == 3
+    assert len(level_report.protein_entries) == 2
+    protein_entry = next(
+        entry for entry in level_report.protein_entries if entry.entity_id == "P11111"
+    )
+    assert protein_entry.member_count == 2
+    assert protein_entry.q_value == 0.0
+
+
 def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> None:
     report = parse_psm_tsv(
         _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()

@@ -3152,6 +3152,9 @@ def calculate_level_specific_fdr(
     from bijux_proteomics.identification.peptide_target_decoy_fdr import (
         build_peptide_target_decoy_fdr_report,
     )
+    from bijux_proteomics.identification.protein_target_decoy_fdr import (
+        build_protein_target_decoy_fdr_report,
+    )
 
     psm_entries = tuple(
         FdrLevelEntry(
@@ -3194,28 +3197,32 @@ def calculate_level_specific_fdr(
             evidence_policy="best_score",
         ).entries
     )
-    protein_rollups = rollup_protein_evidence(records)
-    protein_entities = tuple(
-        (
-            rollup.protein_ref,
-            rollup.best_score,
-            rollup.target_decoy_label,
-            rollup.peptide_count,
-            (rollup.protein_ref,),
+    protein_entries = tuple(
+        FdrLevelEntry(
+            evidence_level=FdrEvidenceLevel.PROTEIN,
+            entity_id=entry.evidence.protein_ref,
+            score=entry.evidence.best_score,
+            q_value=entry.q_value,
+            fdr=entry.raw_fdr,
+            rank=entry.rank,
+            accepted=entry.accepted,
+            target_decoy_label=entry.evidence.target_decoy_label,
+            member_count=entry.evidence.peptide_count,
+            protein_refs=(entry.evidence.protein_ref,),
         )
-        for rollup in protein_rollups
+        for entry in build_protein_target_decoy_fdr_report(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+            evidence_policy="best_score",
+        ).entries
     )
     return LevelSpecificFdrReport(
         score_orientation=score_orientation,
         threshold=threshold,
         psm_entries=psm_entries,
         peptide_entries=peptide_entries,
-        protein_entries=_entity_fdr_entries(
-            protein_entities,
-            evidence_level=FdrEvidenceLevel.PROTEIN,
-            threshold=threshold,
-            score_orientation=score_orientation,
-        ),
+        protein_entries=protein_entries,
     )
 
 
