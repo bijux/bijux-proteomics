@@ -184,6 +184,7 @@ class DdaWorkflowConfig(WorkflowBaseConfig):
     adapter_kind: SearchAdapterKind = SearchAdapterKind.GENERIC
     generic_mapping_path: Path | None = None
     dialect_id: str = "default"
+    source_protein_tsv_path: Path | None = None
     annotation_tsv_path: Path | None = None
     go_annotation_tsv_path: Path | None = None
     pathway_membership_tsv_path: Path | None = None
@@ -496,6 +497,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         normalization_method=config.normalization_method,
         condition_a=config.condition_a,
         condition_b=config.condition_b,
+        source_protein_tsv_path=config.source_protein_tsv_path,
         annotation_tsv_path=config.annotation_tsv_path,
         go_annotation_tsv_path=config.go_annotation_tsv_path,
         pathway_membership_tsv_path=config.pathway_membership_tsv_path,
