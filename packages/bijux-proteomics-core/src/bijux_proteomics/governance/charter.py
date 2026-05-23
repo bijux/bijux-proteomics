@@ -148,6 +148,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/run_qc.py",
             "io/spectrum_peak_matching.py",
             "io/spectra.py",
+            "io/spectral_library.py",
             "io/stable_outputs.py",
             "identification/contracts.py",
             "identification/contaminant_evidence.py",
