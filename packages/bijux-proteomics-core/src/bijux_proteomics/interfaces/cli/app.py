@@ -595,6 +595,7 @@ from bijux_proteomics.quantification import (
     render_peptide_intensity_matrix_summary_tsv,
     render_peptide_intensity_matrix_tsv,
     render_peptide_intensity_missingness_tsv,
+    render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
@@ -9645,6 +9646,11 @@ def peptide_matrix_command(
     default=None,
 )
 @click.option(
+    "--contributions-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -9680,6 +9686,7 @@ def protein_matrix_command(
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
+    contributions_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Build one protein-by-sample intensity matrix from feature or PSM evidence."""
@@ -9762,11 +9769,19 @@ def protein_matrix_command(
             missingness_tsv_out,
             render_protein_intensity_missingness_tsv(report),
         )
+    if contributions_tsv_out is not None:
+        _write_text_output(
+            contributions_tsv_out,
+            render_protein_peptide_contribution_tsv(report),
+        )
     payload["outputs"] = {
         "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
         "matrix_tsv": None if matrix_tsv_out is None else str(matrix_tsv_out),
         "missingness_tsv": (
             None if missingness_tsv_out is None else str(missingness_tsv_out)
+        ),
+        "contributions_tsv": (
+            None if contributions_tsv_out is None else str(contributions_tsv_out)
         ),
     }
     _emit_json(payload, out_path=out_path)
