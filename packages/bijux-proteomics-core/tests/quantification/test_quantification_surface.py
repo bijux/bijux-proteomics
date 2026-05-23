@@ -43,6 +43,7 @@ from bijux_proteomics.quantification import (
     StudyScaleReplicateCorrelationReport,
     apply_benjamini_hochberg,
     build_batch_effect_advisory,
+    build_batch_effect_estimator_report,
     build_differential_abundance_report,
     build_limma_compatible_quant_package,
     build_quant_design_matrix_report,
@@ -507,6 +508,9 @@ def test_batch_effect_and_replicate_correlation_reports_are_stable() -> None:
     assert batch_report.disposition.value == "ADVISORY"
     assert len(batch_report.batches) == 2
     assert {entry.batch_id for entry in batch_report.batches} == {"batch-a", "batch-b"}
+    assert batch_report.batch_variance_proxy >= 0.0
+    assert batch_report.batch_associated_component_count >= 0
+    assert batch_report.batch_correction_blocked is False
     assert replicate_report.within_condition_mean is not None
     assert len(replicate_report.entries) >= 2
     assert all(entry.shared_entity_count >= 2 for entry in replicate_report.entries)
@@ -769,6 +773,45 @@ def test_study_scale_quant_reports_summarize_large_designs_compactly() -> None:
     assert len(replicate_summary.weakest_within_condition_pairs) == 2
     assert isinstance(batch_summary, StudyScaleBatchEffectReport)
     assert batch_summary.flagged_batch_count == 2
+    assert batch_summary.batch_variance_proxy >= 0.0
+    assert batch_summary.batch_correction_blocked is False
+
+
+def test_batch_effect_estimator_honors_custom_batch_field_metadata() -> None:
+    feature_report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    design_entries = tuple(
+        entry.model_copy(
+            update={
+                "batch": None,
+                "metadata": {
+                    **entry.metadata,
+                    "instrument_run": "run-a"
+                    if entry.sample_id in {"C1", "T1"}
+                    else "run-b",
+                },
+            }
+        )
+        for entry in design_report.accepted_entries
+    )
+    table = normalize_label_free_table(
+        build_label_free_intensity_table(
+            feature_report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+
+    report = build_batch_effect_estimator_report(
+        table,
+        design_entries,
+        batch_field="instrument_run",
+    )
+
+    assert report.batch_field == "instrument_run"
+    assert {entry.batch_id for entry in report.batches} == {"run-a", "run-b"}
+    assert report.batch_correction_blocked is False
 
 
 def test_quant_reproducibility_manifest_matches_stable_fixture() -> None:
