@@ -1,0 +1,144 @@
+[
+  {
+    "case_id": "classifies_final_protein_evidence_tiers",
+    "high_q_value": 0.01,
+    "moderate_q_value": 0.05,
+    "score_orientation": "higher_better",
+    "run_contexts": [
+      {
+        "run_id": "run-control-1",
+        "sample_id": "control-1",
+        "condition_id": "control",
+        "replicate_id": "1"
+      },
+      {
+        "run_id": "run-control-2",
+        "sample_id": "control-2",
+        "condition_id": "control",
+        "replicate_id": "2"
+      },
+      {
+        "run_id": "run-treated-1",
+        "sample_id": "treated-1",
+        "condition_id": "treated",
+        "replicate_id": "1"
+      }
+    ],
+    "records": [
+      {
+        "run_id": "run-control-1",
+        "spectrum_id": "scan=15001",
+        "peptide": "ALPHAK",
+        "canonical_peptide": "ALPHAK",
+        "charge": 2,
+        "score": 120.0,
+        "q_value": 0.002,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-control-2",
+        "spectrum_id": "scan=15002",
+        "peptide": "ALPHAK",
+        "canonical_peptide": "ALPHAK",
+        "charge": 2,
+        "score": 118.0,
+        "q_value": 0.003,
+        "protein_refs": ["P11111"]
+      },
+      {
+        "run_id": "run-treated-1",
+        "spectrum_id": "scan=15003",
+        "peptide": "BETAK",
+        "canonical_peptide": "BETAK",
+        "charge": 2,
+        "score": 110.0,
+        "q_value": 0.004,
+        "protein_refs": ["P22222"]
+      },
+      {
+        "run_id": "run-control-1",
+        "spectrum_id": "scan=15004",
+        "peptide": "GAMMAK",
+        "canonical_peptide": "GAMMAK",
+        "charge": 2,
+        "score": 105.0,
+        "q_value": 0.003,
+        "protein_refs": ["P33333", "P44444"]
+      },
+      {
+        "run_id": "run-control-1",
+        "spectrum_id": "scan=15005",
+        "peptide": "CONTAMK",
+        "canonical_peptide": "CONTAMK",
+        "charge": 2,
+        "score": 95.0,
+        "q_value": 0.002,
+        "protein_refs": ["CON__KERATIN_HUMAN"]
+      },
+      {
+        "run_id": "run-control-1",
+        "spectrum_id": "scan=15006",
+        "peptide": "DECOYK",
+        "canonical_peptide": "DECOYK",
+        "charge": 2,
+        "score": 94.0,
+        "q_value": 0.020,
+        "protein_refs": ["DECOY_P55555"],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "run_id": "run-treated-1",
+        "spectrum_id": "scan=15007",
+        "peptide": "WEAKK",
+        "canonical_peptide": "WEAKK",
+        "charge": 2,
+        "score": 70.0,
+        "q_value": 0.080,
+        "protein_refs": ["P66666"]
+      }
+    ],
+    "expected_entries": [
+      {
+        "representative_protein": "CON__KERATIN_HUMAN",
+        "evidence_tier": "contaminant",
+        "downgrade_reasons": ["contaminant_support"],
+        "detected_run_count": 1
+      },
+      {
+        "representative_protein": "DECOY_P55555",
+        "evidence_tier": "decoy",
+        "downgrade_reasons": ["decoy_support"],
+        "detected_run_count": 1
+      },
+      {
+        "representative_protein": "P11111",
+        "evidence_tier": "high_confidence",
+        "downgrade_reasons": [],
+        "detected_run_count": 2
+      },
+      {
+        "representative_protein": "P22222",
+        "evidence_tier": "moderate",
+        "downgrade_reasons": ["single_run_only"],
+        "detected_run_count": 1
+      },
+      {
+        "representative_protein": "P33333",
+        "evidence_tier": "ambiguous",
+        "downgrade_reasons": ["shared_peptide_only"],
+        "detected_run_count": 1
+      },
+      {
+        "representative_protein": "P66666",
+        "evidence_tier": "weak",
+        "downgrade_reasons": [
+          "group_q_value_above_high_confidence",
+          "group_q_value_above_moderate",
+          "weak_or_ambiguous_unique_peptide_support",
+          "single_run_only"
+        ],
+        "detected_run_count": 1
+      }
+    ]
+  }
+]
