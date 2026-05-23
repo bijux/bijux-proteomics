@@ -18,6 +18,11 @@ from bijux_proteomics.identification.contracts import (
     build_protein_groups,
     build_shared_peptide_ambiguity_report,
 )
+from bijux_proteomics.identification.protein_evidence import (
+    ProteinEvidenceDowngradeReason,
+    ProteinEvidenceTier,
+    build_protein_evidence_report,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -57,6 +62,10 @@ class ProteinAmbiguityReviewEntry(JsonModel):
     shared_peptide_count: int = Field(..., ge=0)
     best_score: float
     best_q_value: float | None = Field(default=None, ge=0.0)
+    evidence_tier: ProteinEvidenceTier
+    downgrade_reasons: tuple[ProteinEvidenceDowngradeReason, ...] = Field(
+        default_factory=tuple
+    )
     confidence_label: ConfidenceLabel
     confidence_explanation: str = Field(..., min_length=1)
     target_decoy_label: TargetDecoyLabel
@@ -89,15 +98,20 @@ def build_protein_ambiguity_review_report(
         raise ValueError("high_q_value must not exceed medium_q_value")
 
     groups_by_id = {entry.group_id: entry for entry in build_protein_groups(records)}
+    protein_evidence_by_group = {
+        entry.group_id: entry
+        for entry in build_protein_evidence_report(
+            records,
+            high_q_value=high_q_value,
+            moderate_q_value=medium_q_value,
+        ).entries
+    }
     entries: list[ProteinAmbiguityReviewEntry] = []
     for ambiguity in build_shared_peptide_ambiguity_report(records).entries:
         group = groups_by_id[ambiguity.group_id]
-        confidence_label, confidence_explanation = _group_confidence(
-            best_q_value=group.best_q_value,
-            target_decoy_label=group.target_decoy_label,
-            high_q_value=high_q_value,
-            medium_q_value=medium_q_value,
-            threshold=threshold,
+        protein_evidence = protein_evidence_by_group[group.group_id]
+        confidence_label = _map_protein_evidence_tier_to_confidence_label(
+            protein_evidence.evidence_tier
         )
         entries.append(
             ProteinAmbiguityReviewEntry(
@@ -117,8 +131,10 @@ def build_protein_ambiguity_review_report(
                 shared_peptide_count=group.shared_peptide_count,
                 best_score=group.best_score,
                 best_q_value=group.best_q_value,
+                evidence_tier=protein_evidence.evidence_tier,
+                downgrade_reasons=protein_evidence.downgrade_reasons,
                 confidence_label=confidence_label,
-                confidence_explanation=confidence_explanation,
+                confidence_explanation=protein_evidence.explanation,
                 target_decoy_label=group.target_decoy_label,
                 contaminant_flag=any(
                     protein_ref.startswith("CON__")
@@ -226,6 +242,8 @@ def render_protein_ambiguity_entries_tsv(report: ProteinAmbiguityReviewReport) -
             "shared_peptide_count",
             "best_score",
             "best_q_value",
+            "evidence_tier",
+            "downgrade_reasons",
             "confidence_label",
             "confidence_explanation",
             "target_decoy_label",
@@ -249,6 +267,8 @@ def render_protein_ambiguity_entries_tsv(report: ProteinAmbiguityReviewReport) -
                 entry.shared_peptide_count,
                 entry.best_score,
                 "" if entry.best_q_value is None else entry.best_q_value,
+                entry.evidence_tier.value,
+                ";".join(reason.value for reason in entry.downgrade_reasons),
                 entry.confidence_label.value,
                 entry.confidence_explanation,
                 entry.target_decoy_label.value,
@@ -258,40 +278,13 @@ def render_protein_ambiguity_entries_tsv(report: ProteinAmbiguityReviewReport) -
     return buffer.getvalue()
 
 
-def _group_confidence(
-    *,
-    best_q_value: float | None,
-    target_decoy_label: TargetDecoyLabel,
-    high_q_value: float,
-    medium_q_value: float,
-    threshold: float | None,
-) -> tuple[ConfidenceLabel, str]:
-    if target_decoy_label is TargetDecoyLabel.DECOY:
-        return (
-            ConfidenceLabel.DECOY,
-            "decoy-only protein evidence is never promoted to biological confidence",
-        )
-    if best_q_value is None:
-        return (
-            ConfidenceLabel.LOW,
-            "group confidence is advisory only because no protein-level q-value was available",
-        )
-    if best_q_value <= high_q_value:
-        return (
-            ConfidenceLabel.HIGH,
-            f"group q-value {best_q_value:.4f} is at or below the high-confidence threshold",
-        )
-    if best_q_value <= medium_q_value:
-        return (
-            ConfidenceLabel.MEDIUM,
-            f"group q-value {best_q_value:.4f} is at or below the medium-confidence threshold",
-        )
-    if threshold is not None and best_q_value > threshold:
-        return (
-            ConfidenceLabel.REJECTED,
-            f"group q-value {best_q_value:.4f} exceeds the requested acceptance threshold",
-        )
-    return (
-        ConfidenceLabel.LOW,
-        f"group q-value {best_q_value:.4f} remains reviewable but misses the medium-confidence threshold",
-    )
+def _map_protein_evidence_tier_to_confidence_label(
+    evidence_tier: ProteinEvidenceTier,
+) -> ConfidenceLabel:
+    if evidence_tier is ProteinEvidenceTier.HIGH_CONFIDENCE:
+        return ConfidenceLabel.HIGH
+    if evidence_tier is ProteinEvidenceTier.MODERATE:
+        return ConfidenceLabel.MEDIUM
+    if evidence_tier is ProteinEvidenceTier.DECOY:
+        return ConfidenceLabel.DECOY
+    return ConfidenceLabel.LOW
