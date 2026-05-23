@@ -26,6 +26,7 @@ from bijux_proteomics.quantification.contracts import (
     MissingValueSummaryPolicy,
     MissingValueSummaryReport,
     Ms1FeatureRecord,
+    PrecursorIntensityRecord,
     QuantEntityLevel,
     QuantRollupMethod,
 )
@@ -38,6 +39,7 @@ class PeptideMatrixSourceKind(StrEnum):
 
     FEATURE = "feature"
     PSM = "psm"
+    PRECURSOR = "precursor"
 
 
 class PeptideMatrixGroupingMode(StrEnum):
@@ -86,6 +88,30 @@ class PeptideIntensityMatrixSummary(JsonModel):
     filtered_cell_count: int = Field(..., ge=0)
 
 
+class PeptideIntensityAggregationEntry(JsonModel):
+    """Explicit duplicate-rollup ledger for one peptide-by-sample matrix cell."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    modified_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    charge_states: tuple[int, ...] = Field(default_factory=tuple)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    aggregation_method: QuantRollupMethod
+    source_record_ids: tuple[str, ...] = Field(default_factory=tuple)
+    source_record_count: int = Field(..., ge=0)
+    quantified_record_count: int = Field(..., ge=0)
+    observed_source_record_count: int = Field(..., ge=0)
+    zero_source_record_count: int = Field(..., ge=0)
+    not_observed_source_record_count: int = Field(..., ge=0)
+    filtered_source_record_count: int = Field(..., ge=0)
+    source_abundances: tuple[float, ...] = Field(default_factory=tuple)
+    aggregated_abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+
+
 class PeptideIntensityMatrixReport(JsonModel):
     """Owned peptide-by-sample matrix with explicit grouping and missingness."""
 
@@ -97,6 +123,9 @@ class PeptideIntensityMatrixReport(JsonModel):
     aggregation_method: QuantRollupMethod
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[PeptideIntensityMatrixRow, ...] = Field(default_factory=tuple)
+    aggregation_entries: tuple[PeptideIntensityAggregationEntry, ...] = Field(
+        default_factory=tuple
+    )
     quant_matrix: CanonicalQuantMatrix | None = None
     missing_summary: MissingValueSummaryReport
     summary: PeptideIntensityMatrixSummary
@@ -233,6 +262,57 @@ class PeptideIntensityMatrixReport(JsonModel):
                     ),
                 )
             )
+        aggregation_entries: list[PeptideIntensityAggregationEntry] = []
+        for row in rows:
+            for value in row.values:
+                aggregation_entries.append(
+                    PeptideIntensityAggregationEntry(
+                        entity_id=row.entity_id,
+                        sample_id=value.sample_id,
+                        peptide_sequence=row.peptide_sequence,
+                        modified_peptides=row.modified_peptides,
+                        charge_states=row.charge_states,
+                        protein_refs=row.protein_refs,
+                        aggregation_method=QuantRollupMethod(
+                            matrix.metadata.get(
+                                "aggregation_method",
+                                QuantRollupMethod.SUM.value,
+                            )
+                        ),
+                        source_record_count=value.source_record_count,
+                        quantified_record_count=(
+                            value.source_record_count
+                            if value.missing_value_kind
+                            in (
+                                MissingValueKind.OBSERVED,
+                                MissingValueKind.ZERO,
+                            )
+                            else 0
+                        ),
+                        observed_source_record_count=(
+                            value.source_record_count
+                            if value.missing_value_kind is MissingValueKind.OBSERVED
+                            else 0
+                        ),
+                        zero_source_record_count=(
+                            value.source_record_count
+                            if value.missing_value_kind is MissingValueKind.ZERO
+                            else 0
+                        ),
+                        not_observed_source_record_count=(
+                            value.source_record_count
+                            if value.missing_value_kind is MissingValueKind.NOT_OBSERVED
+                            else 0
+                        ),
+                        filtered_source_record_count=(
+                            value.source_record_count
+                            if value.missing_value_kind is MissingValueKind.FILTERED
+                            else 0
+                        ),
+                        aggregated_abundance=value.abundance,
+                        missing_value_kind=value.missing_value_kind,
+                    )
+                )
         observed_cell_count = sum(
             1
             for row in rows
@@ -274,6 +354,7 @@ class PeptideIntensityMatrixReport(JsonModel):
             ),
             sample_ids=matrix.sample_ids,
             rows=tuple(rows),
+            aggregation_entries=tuple(aggregation_entries),
             quant_matrix=matrix,
             missing_summary=MissingValueSummaryReport(
                 entity_level=QuantEntityLevel.PEPTIDE,
@@ -334,6 +415,7 @@ class PeptideIntensityMatrixReport(JsonModel):
 
 @dataclass(frozen=True)
 class _PeptideObservation:
+    source_record_id: str
     sample_id: str
     peptide_sequence: str
     modified_peptide: str
@@ -358,6 +440,32 @@ def build_peptide_intensity_matrix_from_features(
     return _build_peptide_intensity_matrix_report(
         observations,
         source_kind=PeptideMatrixSourceKind.FEATURE,
+        grouping_mode=grouping_mode,
+        separate_charge_states=separate_charge_states,
+        aggregation_method=aggregation_method,
+        top_n=top_n,
+        accepted_source_record_count=len(records),
+        skipped_source_record_count=0,
+        sample_ids=tuple(record.sample_id for record in records),
+    )
+
+
+def build_peptide_intensity_matrix_from_precursors(
+    records: tuple[PrecursorIntensityRecord, ...],
+    *,
+    grouping_mode: PeptideMatrixGroupingMode = (
+        PeptideMatrixGroupingMode.MODIFIED_PEPTIDE
+    ),
+    separate_charge_states: bool = False,
+    aggregation_method: QuantRollupMethod = QuantRollupMethod.SUM,
+    top_n: int = 3,
+) -> PeptideIntensityMatrixReport:
+    """Build one peptide-intensity matrix from precursor-quantity records."""
+
+    observations = tuple(_precursor_observation(record) for record in records)
+    return _build_peptide_intensity_matrix_report(
+        observations,
+        source_kind=PeptideMatrixSourceKind.PRECURSOR,
         grouping_mode=grouping_mode,
         separate_charge_states=separate_charge_states,
         aggregation_method=aggregation_method,
@@ -504,9 +612,99 @@ def render_peptide_intensity_missingness_tsv(
     return "\n".join(rows) + "\n"
 
 
+def render_peptide_intensity_missingness_mask_tsv(
+    report: PeptideIntensityMatrixReport,
+) -> str:
+    """Render one peptide-by-sample missingness mask as a wide TSV."""
+
+    ordered_sample_ids = sort_strings(report.sample_ids)
+    ordered_rows = sort_rows_by_fields(report.rows, "entity_id")
+    header = [
+        "entity_id",
+        "peptide_sequence",
+        "modified_peptides",
+        "charge_states",
+        "protein_refs",
+    ]
+    header.extend(ordered_sample_ids)
+    rows = ["\t".join(header)]
+    for row in ordered_rows:
+        value_lookup = {value.sample_id: value for value in row.values}
+        mask_values = [
+            value_lookup[sample_id].missing_value_kind.value
+            for sample_id in ordered_sample_ids
+        ]
+        rows.append(
+            "\t".join(
+                (
+                    row.entity_id,
+                    row.peptide_sequence,
+                    ";".join(sort_strings(row.modified_peptides)),
+                    ";".join(str(charge) for charge in row.charge_states),
+                    ";".join(sort_strings(row.protein_refs)),
+                    *mask_values,
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_peptide_intensity_aggregation_tsv(
+    report: PeptideIntensityMatrixReport,
+) -> str:
+    """Render the explicit duplicate-rollup ledger for one peptide matrix."""
+
+    header = (
+        "entity_id",
+        "sample_id",
+        "peptide_sequence",
+        "modified_peptides",
+        "charge_states",
+        "protein_refs",
+        "aggregation_method",
+        "source_record_ids",
+        "source_record_count",
+        "quantified_record_count",
+        "observed_source_record_count",
+        "zero_source_record_count",
+        "not_observed_source_record_count",
+        "filtered_source_record_count",
+        "source_abundances",
+        "aggregated_abundance",
+        "missing_value_kind",
+    )
+    rows = ["\t".join(header)]
+    for entry in sort_rows_by_fields(report.aggregation_entries, "entity_id", "sample_id"):
+        rows.append(
+            "\t".join(
+                (
+                    entry.entity_id,
+                    entry.sample_id,
+                    entry.peptide_sequence,
+                    ";".join(sort_strings(entry.modified_peptides)),
+                    ";".join(str(charge) for charge in entry.charge_states),
+                    ";".join(sort_strings(entry.protein_refs)),
+                    entry.aggregation_method.value,
+                    ";".join(sort_strings(entry.source_record_ids)),
+                    str(entry.source_record_count),
+                    str(entry.quantified_record_count),
+                    str(entry.observed_source_record_count),
+                    str(entry.zero_source_record_count),
+                    str(entry.not_observed_source_record_count),
+                    str(entry.filtered_source_record_count),
+                    ";".join(f"{value:g}" for value in entry.source_abundances),
+                    "" if entry.aggregated_abundance is None else f"{entry.aggregated_abundance:g}",
+                    entry.missing_value_kind.value,
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
 def _feature_observation(record: Ms1FeatureRecord) -> _PeptideObservation:
     parsed = parse_modified_peptide(record.canonical_peptide)
     return _PeptideObservation(
+        source_record_id=record.feature_id,
         sample_id=record.sample_id,
         peptide_sequence=parsed.sequence,
         modified_peptide=parsed.canonical_notation,
@@ -528,12 +726,27 @@ def _psm_observation(record: PsmRecord) -> _PeptideObservation | None:
         MissingValueKind.ZERO if record.intensity == 0.0 else MissingValueKind.OBSERVED
     )
     return _PeptideObservation(
+        source_record_id=record.spectrum_id,
         sample_id=record.run_id,
         peptide_sequence=peptide_sequence,
         modified_peptide=modified_peptide,
         charge_state=record.charge,
         intensity=record.intensity,
         missing_value_kind=missing_value_kind,
+        protein_refs=record.protein_refs,
+    )
+
+
+def _precursor_observation(record: PrecursorIntensityRecord) -> _PeptideObservation:
+    parsed = parse_modified_peptide(record.canonical_peptide)
+    return _PeptideObservation(
+        source_record_id=record.precursor_id,
+        sample_id=record.sample_id,
+        peptide_sequence=record.peptide_sequence or parsed.sequence,
+        modified_peptide=record.modified_peptide or parsed.canonical_notation,
+        charge_state=record.charge,
+        intensity=record.intensity,
+        missing_value_kind=record.missing_value_kind,
         protein_refs=record.protein_refs,
     )
 
@@ -559,6 +772,8 @@ def _build_peptide_intensity_matrix_report(
     grouped_values: dict[tuple[str, str], list[float]] = {}
     grouped_kinds: dict[tuple[str, str], list[MissingValueKind]] = {}
     grouped_counts: dict[tuple[str, str], int] = {}
+    grouped_quantified_counts: dict[tuple[str, str], int] = {}
+    grouped_record_ids: dict[tuple[str, str], list[str]] = {}
     row_sequences: dict[str, str] = {}
     row_modified_peptides: dict[str, set[str]] = {}
     row_charge_states: dict[str, set[int]] = {}
@@ -572,6 +787,8 @@ def _build_peptide_intensity_matrix_report(
         )
         key = (entity_id, observation.sample_id)
         grouped_kinds.setdefault(key, []).append(observation.missing_value_kind)
+        grouped_record_ids.setdefault(key, []).append(observation.source_record_id)
+        grouped_counts[key] = grouped_counts.get(key, 0) + 1
         row_sequences.setdefault(entity_id, observation.peptide_sequence)
         row_modified_peptides.setdefault(entity_id, set()).add(
             observation.modified_peptide
@@ -586,10 +803,11 @@ def _build_peptide_intensity_matrix_report(
             grouped_values.setdefault(key, []).append(
                 float(observation.intensity or 0.0)
             )
-            grouped_counts[key] = grouped_counts.get(key, 0) + 1
+            grouped_quantified_counts[key] = grouped_quantified_counts.get(key, 0) + 1
 
     ordered_entity_ids = tuple(sorted(row_sequences))
     rows: list[PeptideIntensityMatrixRow] = []
+    aggregation_entries: list[PeptideIntensityAggregationEntry] = []
     missing_entries: list[MissingValueSummaryEntry] = []
     observed_cell_count = 0
     zero_cell_count = 0
@@ -666,6 +884,45 @@ def _build_peptide_intensity_matrix_report(
                     source_record_count=grouped_counts.get(key, 0),
                 )
             )
+            aggregation_entries.append(
+                PeptideIntensityAggregationEntry(
+                    entity_id=entity_id,
+                    sample_id=sample_id,
+                    peptide_sequence=row_sequences[entity_id],
+                    modified_peptides=tuple(
+                        sorted(row_modified_peptides.get(entity_id, ()))
+                    ),
+                    charge_states=tuple(sorted(row_charge_states.get(entity_id, ()))),
+                    protein_refs=tuple(sorted(row_protein_refs.get(entity_id, ()))),
+                    aggregation_method=aggregation_method,
+                    source_record_ids=tuple(sorted(grouped_record_ids.get(key, ()))),
+                    source_record_count=len(grouped_record_ids.get(key, ())),
+                    quantified_record_count=grouped_quantified_counts.get(key, 0),
+                    observed_source_record_count=sum(
+                        1
+                        for kind in grouped_kinds.get(key, ())
+                        if kind is MissingValueKind.OBSERVED
+                    ),
+                    zero_source_record_count=sum(
+                        1
+                        for kind in grouped_kinds.get(key, ())
+                        if kind is MissingValueKind.ZERO
+                    ),
+                    not_observed_source_record_count=sum(
+                        1
+                        for kind in grouped_kinds.get(key, ())
+                        if kind is MissingValueKind.NOT_OBSERVED
+                    ),
+                    filtered_source_record_count=sum(
+                        1
+                        for kind in grouped_kinds.get(key, ())
+                        if kind is MissingValueKind.FILTERED
+                    ),
+                    source_abundances=tuple(observed_values),
+                    aggregated_abundance=abundance,
+                    missing_value_kind=missing_kind,
+                )
+            )
         rows.append(
             PeptideIntensityMatrixRow(
                 entity_id=entity_id,
@@ -690,6 +947,7 @@ def _build_peptide_intensity_matrix_report(
         aggregation_method=aggregation_method,
         sample_ids=ordered_sample_ids,
         rows=tuple(rows),
+        aggregation_entries=tuple(aggregation_entries),
         missing_summary=MissingValueSummaryReport(
             entity_level=QuantEntityLevel.PEPTIDE,
             policy=MissingValueSummaryPolicy(),
