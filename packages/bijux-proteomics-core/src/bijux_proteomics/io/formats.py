@@ -105,6 +105,7 @@ class ExperimentalDesignEntry(JsonModel):
     instrument: str | None = None
     search_engine: str | None = None
     pair_id: str | None = None
+    run_order: int | None = Field(default=None, ge=1)
     technical_replicate_id: str | None = None
     multiplex_group: str | None = None
     multiplex_channel: str | None = None
@@ -159,6 +160,7 @@ class ExperimentalDesignEntry(JsonModel):
             fraction=self.fraction,
             batch=self.batch,
             pair_id=self.pair_id,
+            run_order=self.run_order,
             technical_replicate_id=self.technical_replicate_id,
             plex_id=self.multiplex_group,
             channel=self.multiplex_channel,
@@ -643,6 +645,7 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
         "instrument",
         "search_engine",
         "pair_id",
+        "run_order",
         "technical_replicate_id",
         "multiplex_group",
         "multiplex_channel",
@@ -677,6 +680,11 @@ def parse_experimental_design_table(path: Path) -> ExperimentalDesignReport:
                 instrument=_optional_design_text(row.values.get("instrument")),
                 search_engine=_optional_design_text(row.values.get("search_engine")),
                 pair_id=_optional_design_text(row.values.get("pair_id")),
+                run_order=(
+                    int(row.values["run_order"])
+                    if row.values.get("run_order") is not None
+                    else None
+                ),
                 technical_replicate_id=_optional_design_text(
                     row.values.get("technical_replicate_id")
                 ),

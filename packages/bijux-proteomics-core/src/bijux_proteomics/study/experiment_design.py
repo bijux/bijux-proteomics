@@ -52,6 +52,7 @@ class ExperimentDesignRun(JsonModel):
     instrument: str | None = None
     search_engine: str | None = None
     pair_id: str | None = None
+    run_order: int | None = Field(default=None, ge=1)
     timepoint: str | None = None
     species: str | None = None
     tissue_or_cell_type: str | None = None
@@ -147,6 +148,7 @@ def build_experiment_design(
                     instrument=entry.instrument,
                     search_engine=entry.search_engine,
                     pair_id=entry.pair_id,
+                    run_order=entry.run_order,
                     timepoint=_metadata_value(entry, "timepoint"),
                     species=_metadata_value(entry, "species"),
                     tissue_or_cell_type=_tissue_or_cell_type(entry),
@@ -158,7 +160,11 @@ def build_experiment_design(
                 )
                 for entry in entries
             ),
-            key=lambda run: run.run_id,
+            key=lambda run: (
+                run.run_order is None,
+                run.run_order or 0,
+                run.run_id,
+            ),
         )
     )
     sample_records: list[ExperimentDesignSample] = []
@@ -256,7 +262,7 @@ def build_experiment_design(
         ),
         note=(
             "experiment design aggregates normalized design-table rows into owned sample, run, "
-            "plex, channel, condition, batch, pair, timepoint, species, tissue-or-cell-type, "
+            "plex, channel, condition, batch, pair, run order, timepoint, species, tissue-or-cell-type, "
             "perturbation, and instrument views so workflows do not rebuild study structure ad hoc"
         ),
     )

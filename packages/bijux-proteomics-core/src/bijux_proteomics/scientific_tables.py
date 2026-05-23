@@ -458,6 +458,11 @@ def build_experimental_design_schema() -> ScientificTableSchema:
             DelimitedColumnSpec(name="instrument"),
             DelimitedColumnSpec(name="search_engine"),
             DelimitedColumnSpec(name="pair_id"),
+            DelimitedColumnSpec(
+                name="run_order",
+                source_columns=("run_order", "injection_order", "acquisition_order"),
+                value_type=DelimitedColumnValueType.INTEGER,
+            ),
             DelimitedColumnSpec(name="technical_replicate_id"),
             DelimitedColumnSpec(name="multiplex_group"),
             DelimitedColumnSpec(name="multiplex_channel"),
