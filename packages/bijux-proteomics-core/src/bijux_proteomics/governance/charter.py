@@ -243,6 +243,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "review/evidence_graph.py",
             "review/evidence_graph_queries.py",
+            "review/evidence_graph_contradictions.py",
             "review/evidence_chain_reconstruction.py",
             "review/contracts.py",
             "review/protein_family_graphs.py",
