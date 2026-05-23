@@ -145,6 +145,33 @@ def test_identification_package_exports_protein_grouping_owner_surface() -> None
     assert rendered.startswith("group_id\trepresentative_protein")
 
 
+def test_identification_package_exports_protein_coverage_owner_surface() -> None:
+    raw_cases = json.loads(
+        _identification_fixture("protein_coverage_reference_cases.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+
+    report = identification.build_protein_coverage_report(
+        records,
+        protein_sequences=case["protein_sequences"],
+        threshold=case["threshold"],
+        score_orientation=case["score_orientation"],
+    )
+    rendered = identification.render_protein_coverage_summary_tsv(report)
+
+    assert hasattr(identification, "build_protein_coverage_report")
+    assert hasattr(identification, "render_protein_coverage_uncovered_regions_tsv")
+    assert hasattr(identification, "render_protein_coverage_peptide_coordinates_tsv")
+    assert report.summary.total_covered_residues == 6
+    assert report.reproducibility_hash
+    assert "reproducibility_hash" in rendered
+
+
 def test_identification_package_exports_protein_parsimony_owner_surface() -> None:
     raw_cases = json.loads(
         _identification_fixture("protein_parsimony_reference_cases.json").read_text(
