@@ -15,6 +15,7 @@ from bijux_proteomics.ptm.protein_site_mapping import *  # noqa: F401,F403
 from bijux_proteomics.ptm.regulator_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.ptm.ambiguity_handling import *  # noqa: F401,F403
 from bijux_proteomics.ptm.context_annotation import *  # noqa: F401,F403
+from bijux_proteomics.ptm.evidence_cards import *  # noqa: F401,F403
 from bijux_proteomics.ptm.reporting import *  # noqa: F401,F403
 from bijux_proteomics.ptm.site_quantification import *  # noqa: F401,F403
 from bijux_proteomics.ptm.proteoforms import *  # noqa: F401,F403
