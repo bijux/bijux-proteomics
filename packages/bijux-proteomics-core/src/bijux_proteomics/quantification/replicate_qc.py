@@ -24,8 +24,7 @@ from bijux_proteomics.quantification.contracts import (
     _matrix_value_index,
 )
 from bijux_proteomics.quantification.sample_exploration import (
-    build_condition_clustering_report,
-    build_sample_pca_report,
+    build_sample_exploration_report,
 )
 
 
@@ -100,8 +99,7 @@ def build_replicate_and_batch_qc_report(
     """Build integrated replicate-correlation and batch-shift QC diagnostics."""
     replicate = build_replicate_correlation_report(table, design_entries)
     replicate_cv = build_replicate_cv_report(table, design_entries)
-    sample_pca = build_sample_pca_report(table, design_entries)
-    condition_clustering = build_condition_clustering_report(table, design_entries)
+    sample_exploration = build_sample_exploration_report(table, design_entries)
     batch = build_batch_effect_estimator_report(
         table,
         design_entries,
@@ -130,11 +128,16 @@ def build_replicate_and_batch_qc_report(
             flagged_samples.setdefault(sample_id, set()).add(
                 "sample belongs to a batch with flagged global-abundance shift"
             )
-    for entry in sample_pca.entries:
+    outlier_reasons_by_sample = {
+        entry.sample_id: entry.outlier_reasons
+        for entry in sample_exploration.sample_outlier_report.entries
+    }
+    for entry in sample_exploration.sample_pca_report.entries:
         if entry.outlier:
-            flagged_samples.setdefault(entry.sample_id, set()).add(
-                "principal-component profile lies far from the study centroid"
-            )
+            for reason in outlier_reasons_by_sample.get(entry.sample_id, ()):
+                flagged_samples.setdefault(entry.sample_id, set()).add(
+                    f"sample exploration flagged {reason}"
+                )
     outliers = tuple(
         sorted(
             (
@@ -163,16 +166,14 @@ def build_replicate_and_batch_qc_report(
         replicate_cv_report=replicate_cv,
         replicate_correlation_count=len(replicate.entries),
         flagged_batch_count=sum(1 for entry in batch.batches if entry.flagged),
-        sample_pca_report=sample_pca,
-        condition_clustering_report=condition_clustering,
+        sample_pca_report=sample_exploration.sample_pca_report,
+        condition_clustering_report=sample_exploration.condition_clustering_report,
         outlier_samples=outliers,
         note=note,
     )
 
 
 __all__ = [
-    "build_condition_clustering_report",
     "build_replicate_and_batch_qc_report",
     "build_replicate_cv_report",
-    "build_sample_pca_report",
 ]

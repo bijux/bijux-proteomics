@@ -287,6 +287,10 @@ def test_sample_pca_report_surfaces_study_space_outlier() -> None:
 
     assert report.explained_variance_ratio_pc1 > 0.5
     assert by_sample["case-3"].outlier is True
+    assert any(
+        reason.startswith("distance_from_")
+        for reason in by_sample["case-3"].outlier_reasons
+    )
     assert by_sample["case-1"].outlier is False
 
 

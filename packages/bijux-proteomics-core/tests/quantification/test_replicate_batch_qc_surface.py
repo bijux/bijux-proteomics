@@ -160,3 +160,8 @@ def test_replicate_and_batch_qc_report_surfaces_outlier_sample_context() -> None
     assert report.batch_effect_report.batch_associated_component_count >= 0
     assert len(report.outlier_samples) >= 1
     assert report.outlier_samples[0].spectra_file.endswith(".mzml")
+    assert all(
+        entry.outlier_reasons
+        for entry in report.sample_pca_report.entries
+        if entry.outlier
+    )
