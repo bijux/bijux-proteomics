@@ -94,13 +94,31 @@ class MaxquantBiologicalWorkflowSummary(JsonModel):
     imported_protein_group_row_count: int = Field(..., ge=0)
     accepted_protein_group_count: int = Field(..., ge=0)
     filtered_protein_group_count: int = Field(..., ge=0)
+    enrichment_foreground_protein_count: int = Field(..., ge=0)
     lfq_experiment_count: int = Field(..., ge=0)
     quantified_protein_count: int = Field(..., ge=0)
     significant_protein_count: int = Field(..., ge=0)
     annotation_entry_count: int = Field(..., ge=0)
+    protein_card_count: int = Field(..., ge=0)
+    context_term_count: int = Field(..., ge=0)
     go_enriched_term_count: int = Field(..., ge=0)
     pathway_enriched_entry_count: int = Field(..., ge=0)
     complex_enriched_entry_count: int = Field(..., ge=0)
+
+
+class MaxquantBiologicalForegroundEntry(JsonModel):
+    """One final MaxQuant protein that entered the biological enrichment foreground."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    card_id: str = Field(..., min_length=1)
+    entity_id: str = Field(..., min_length=1)
+    representative_protein_ref: str = Field(..., min_length=1)
+    protein_ids: tuple[str, ...] = Field(default_factory=tuple)
+    majority_protein_ids: tuple[str, ...] = Field(default_factory=tuple)
+    contaminant_flag: bool = False
+    reverse_flag: bool = False
+    only_identified_by_site: bool = False
 
 
 class MaxquantBiologicalWorkflowBundle(JsonModel):
@@ -114,6 +132,9 @@ class MaxquantBiologicalWorkflowBundle(JsonModel):
         default_factory=tuple
     )
     filtered_protein_groups: tuple[MaxquantFilteredProteinGroupEntry, ...] = Field(
+        default_factory=tuple
+    )
+    enrichment_foreground_entries: tuple[MaxquantBiologicalForegroundEntry, ...] = Field(
         default_factory=tuple
     )
     lfq_table: LabelFreeQuantTable
@@ -134,9 +155,18 @@ class MaxquantBiologicalWorkflowArtifactPaths(JsonModel):
     protein_groups_tsv: str = Field(..., min_length=1)
     accepted_protein_groups_tsv: str = Field(..., min_length=1)
     filtered_protein_groups_tsv: str = Field(..., min_length=1)
+    enrichment_foreground_tsv: str = Field(..., min_length=1)
     lfq_summary_tsv: str = Field(..., min_length=1)
     lfq_matrix_tsv: str = Field(..., min_length=1)
     biological_manifest_json: str = Field(..., min_length=1)
+    protein_card_summary_tsv: str = Field(..., min_length=1)
+    protein_card_tsv: str = Field(..., min_length=1)
+    annotation_tsv: str = Field(..., min_length=1)
+    annotation_unmapped_tsv: str = Field(..., min_length=1)
+    context_mapping_tsv: str | None = None
+    context_term_tsv: str | None = None
+    context_unmapped_tsv: str | None = None
+    context_rejected_tsv: str | None = None
     report_html: str = Field(..., min_length=1)
 
 
@@ -164,6 +194,7 @@ def build_maxquant_biological_workflow_bundle(
     condition_a: str | None = None,
     condition_b: str | None = None,
     annotation_tsv_path: Path | None = None,
+    context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -179,6 +210,7 @@ def build_maxquant_biological_workflow_bundle(
         config_path=config_path,
     )
     active_policy = acceptance_policy or MaxquantProteinGroupAcceptancePolicy()
+    _validate_biological_acceptance_policy(active_policy)
     accepted_protein_groups, filtered_protein_groups = (
         _filter_protein_groups_for_biology(
             import_report.protein_group_rows,
@@ -198,6 +230,7 @@ def build_maxquant_biological_workflow_bundle(
         design_entries,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
+        context_annotation_tsv_path=context_annotation_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
@@ -207,11 +240,16 @@ def build_maxquant_biological_workflow_bundle(
         selection_policy=selection_policy,
         volcano_policy=volcano_policy,
     )
+    enrichment_foreground_entries = _build_enrichment_foreground_entries(
+        biological_report,
+        accepted_protein_groups,
+    )
     return MaxquantBiologicalWorkflowBundle(
         import_report=import_report,
         acceptance_policy=active_policy,
         accepted_protein_groups=accepted_protein_groups,
         filtered_protein_groups=filtered_protein_groups,
+        enrichment_foreground_entries=enrichment_foreground_entries,
         lfq_table=lfq_table,
         biological_report=biological_report,
         summary=MaxquantBiologicalWorkflowSummary(
@@ -220,16 +258,19 @@ def build_maxquant_biological_workflow_bundle(
             imported_protein_group_row_count=import_report.summary.protein_group_row_count,
             accepted_protein_group_count=len(accepted_protein_groups),
             filtered_protein_group_count=len(filtered_protein_groups),
+            enrichment_foreground_protein_count=len(enrichment_foreground_entries),
             lfq_experiment_count=import_report.summary.lfq_experiment_count,
             quantified_protein_count=len(lfq_table.entity_ids),
             significant_protein_count=biological_report.summary.significant_protein_count,
             annotation_entry_count=biological_report.summary.annotation_entry_count,
+            protein_card_count=biological_report.summary.protein_card_count,
+            context_term_count=biological_report.summary.context_term_count,
             go_enriched_term_count=biological_report.summary.go_enriched_term_count,
             pathway_enriched_entry_count=biological_report.summary.pathway_enriched_entry_count,
             complex_enriched_entry_count=biological_report.summary.complex_enriched_entry_count,
         ),
         note=(
-            "MaxQuant biological workflow preserves imported evidence, peptides, and protein groups, filters contaminant and reverse protein groups under explicit policy, bridges LFQ intensities onto the governed protein quant contract, and hands that matrix to shared biological reporting"
+            "MaxQuant biological workflow preserves imported evidence, peptides, and protein groups, excludes contaminant and reverse protein groups before biological foreground selection, bridges LFQ intensities onto the governed protein quant contract, and hands that matrix to shared biological reporting"
         ),
     )
 
@@ -315,10 +356,16 @@ def render_maxquant_biological_workflow_summary_tsv(
             "filtered_protein_group_count",
             report.summary.filtered_protein_group_count,
         ),
+        (
+            "enrichment_foreground_protein_count",
+            report.summary.enrichment_foreground_protein_count,
+        ),
         ("lfq_experiment_count", report.summary.lfq_experiment_count),
         ("quantified_protein_count", report.summary.quantified_protein_count),
         ("significant_protein_count", report.summary.significant_protein_count),
         ("annotation_entry_count", report.summary.annotation_entry_count),
+        ("protein_card_count", report.summary.protein_card_count),
+        ("context_term_count", report.summary.context_term_count),
         ("go_enriched_term_count", report.summary.go_enriched_term_count),
         (
             "pathway_enriched_entry_count",
@@ -361,6 +408,41 @@ def render_filtered_maxquant_protein_groups_tsv(
                 str(row.only_identified_by_site).lower(),
                 row.observed_lfq_experiment_count,
                 ";".join(reason.value for reason in row.reasons),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_maxquant_enrichment_foreground_tsv(
+    rows: tuple[MaxquantBiologicalForegroundEntry, ...],
+) -> str:
+    """Render the final MaxQuant biological enrichment foreground as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "card_id",
+            "entity_id",
+            "representative_protein_ref",
+            "protein_ids",
+            "majority_protein_ids",
+            "contaminant_flag",
+            "reverse_flag",
+            "only_identified_by_site",
+        )
+    )
+    for row in rows:
+        writer.writerow(
+            (
+                row.card_id,
+                row.entity_id,
+                row.representative_protein_ref,
+                ";".join(row.protein_ids),
+                ";".join(row.majority_protein_ids),
+                str(row.contaminant_flag).lower(),
+                str(row.reverse_flag).lower(),
+                str(row.only_identified_by_site).lower(),
             )
         )
     return handle.getvalue()
@@ -435,6 +517,7 @@ def export_maxquant_biological_workflow_bundle(
     protein_groups_name = "maxquant_protein_groups.tsv"
     accepted_groups_name = "maxquant_accepted_protein_groups.tsv"
     filtered_groups_name = "maxquant_filtered_protein_groups.tsv"
+    foreground_name = "maxquant_biological_foreground.tsv"
     lfq_summary_name = "maxquant_lfq_summary.tsv"
     lfq_matrix_name = "maxquant_lfq_matrix.tsv"
     biological_manifest_name = "biological_report_manifest.json"
@@ -467,6 +550,10 @@ def export_maxquant_biological_workflow_bundle(
         render_filtered_maxquant_protein_groups_tsv(report.filtered_protein_groups),
         encoding="utf-8",
     )
+    (output_dir / foreground_name).write_text(
+        render_maxquant_enrichment_foreground_tsv(report.enrichment_foreground_entries),
+        encoding="utf-8",
+    )
     (output_dir / lfq_summary_name).write_text(
         render_maxquant_lfq_summary_tsv(report),
         encoding="utf-8",
@@ -493,16 +580,38 @@ def export_maxquant_biological_workflow_bundle(
             protein_groups_tsv=protein_groups_name,
             accepted_protein_groups_tsv=accepted_groups_name,
             filtered_protein_groups_tsv=filtered_groups_name,
+            enrichment_foreground_tsv=foreground_name,
             lfq_summary_tsv=lfq_summary_name,
             lfq_matrix_tsv=lfq_matrix_name,
             biological_manifest_json=biological_manifest_name,
+            protein_card_summary_tsv=biological_manifest.artifacts.protein_card_summary_tsv,
+            protein_card_tsv=biological_manifest.artifacts.protein_card_tsv,
+            annotation_tsv=biological_manifest.artifacts.annotation_tsv,
+            annotation_unmapped_tsv=biological_manifest.artifacts.annotation_unmapped_tsv,
+            context_mapping_tsv=biological_manifest.artifacts.context_mapping_tsv,
+            context_term_tsv=biological_manifest.artifacts.context_term_tsv,
+            context_unmapped_tsv=biological_manifest.artifacts.context_unmapped_tsv,
+            context_rejected_tsv=biological_manifest.artifacts.context_rejected_tsv,
             report_html=biological_manifest.artifacts.report_html,
         ),
         biological_report_manifest=biological_manifest,
         note=(
-            "MaxQuant biology export preserves imported tables, explicit protein-group acceptance review, raw LFQ matrix review, and the downstream biological report bundle in one directory"
+            "MaxQuant biology export preserves imported tables, explicit protein-group acceptance review, final biological foreground review, raw LFQ matrix review, and the downstream biological report bundle in one directory"
         ),
     )
+
+
+def _validate_biological_acceptance_policy(
+    policy: MaxquantProteinGroupAcceptancePolicy,
+) -> None:
+    if not policy.exclude_contaminants:
+        raise ValueError(
+            "MaxQuant biological workflows require contaminant protein groups to stay excluded from biological foreground"
+        )
+    if not policy.exclude_reverse:
+        raise ValueError(
+            "MaxQuant biological workflows require reverse protein groups to stay excluded from biological foreground"
+        )
 
 
 def _filter_protein_groups_for_biology(
@@ -535,6 +644,47 @@ def _filter_protein_groups_for_biology(
             continue
         accepted.append(row)
     return tuple(accepted), tuple(filtered)
+
+
+def _build_enrichment_foreground_entries(
+    biological_report: BiologicalResultReportBundle,
+    accepted_groups: tuple[MaxquantProteinGroupReviewEntry, ...],
+) -> tuple[MaxquantBiologicalForegroundEntry, ...]:
+    accepted_by_entity = {
+        _protein_group_entity_id(row): row for row in accepted_groups
+    }
+    foreground_entries: list[MaxquantBiologicalForegroundEntry] = []
+    for card in biological_report.protein_cards.cards:
+        if not card.significant:
+            continue
+        source_group = accepted_by_entity.get(card.protein_group_id)
+        foreground_entries.append(
+            MaxquantBiologicalForegroundEntry(
+                card_id=card.card_id,
+                entity_id=card.protein_group_id,
+                representative_protein_ref=card.representative_protein_ref,
+                protein_ids=(
+                    source_group.protein_ids
+                    if source_group is not None
+                    else card.protein_refs
+                ),
+                majority_protein_ids=(
+                    source_group.majority_protein_ids if source_group is not None else ()
+                ),
+                contaminant_flag=(
+                    source_group.contaminant_flag if source_group is not None else False
+                ),
+                reverse_flag=(
+                    source_group.reverse_flag if source_group is not None else False
+                ),
+                only_identified_by_site=(
+                    source_group.only_identified_by_site
+                    if source_group is not None
+                    else False
+                ),
+            )
+        )
+    return tuple(sorted(foreground_entries, key=lambda entry: entry.entity_id))
 
 
 def _protein_group_filter_reasons(
