@@ -96,3 +96,28 @@ def test_identification_package_exports_protein_target_decoy_fdr_owner_surface()
     assert report.summary.total_protein_count == len(case["expected_entries"])
     assert report.summary.q_values_monotonic is True
     assert "evidence_policy" in rendered
+
+
+def test_identification_package_exports_picked_protein_fdr_owner_surface() -> None:
+    raw_cases = json.loads(
+        _identification_fixture("picked_protein_fdr_reference_cases.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+
+    report = identification.build_picked_protein_fdr_report_from_psm_records(
+        records,
+        threshold=case["threshold"],
+        score_orientation=case["score_orientation"],
+    )
+    rendered = identification.render_picked_protein_pair_tsv(report)
+
+    assert hasattr(identification, "build_picked_protein_fdr_report_from_psm_records")
+    assert hasattr(identification, "render_picked_protein_pair_tsv")
+    assert report.summary.total_pair_count == len(case["expected_entries"])
+    assert report.summary.q_values_monotonic is True
+    assert rendered.startswith("pair_id\tbase_accession")
