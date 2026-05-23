@@ -779,6 +779,10 @@ from bijux_proteomics.workflow import (
     render_dia_dda_peptide_overlap_tsv,
     render_dia_dda_protein_overlap_tsv,
     render_dia_dda_shared_intensity_correlation_tsv,
+    render_public_benchmark_suite_failures_tsv,
+    render_public_benchmark_suite_summary_tsv,
+    run_public_benchmark_descriptor,
+    run_public_benchmark_descriptor_suite,
 )
 from bijux_proteomics.workflow.orchestrator import (
     DdaWorkflowConfig,
@@ -2831,6 +2835,78 @@ def diann_benchmark_command(
             else str(protein_quantities_tsv_out),
         },
     }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("public-benchmark-runner")
+@click.argument(
+    "benchmark_path",
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
+    "--run-output-root",
+    type=click.Path(path_type=Path, file_okay=False),
+    default=Path("artifacts/public-benchmark-runs"),
+    show_default=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--failures-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def public_benchmark_runner_command(
+    benchmark_path: Path,
+    run_output_root: Path,
+    summary_tsv_out: Path | None,
+    failures_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Run one public benchmark descriptor or a whole public benchmark root."""
+
+    try:
+        if benchmark_path.is_dir():
+            suite = run_public_benchmark_descriptor_suite(
+                benchmark_path,
+                output_root=run_output_root,
+            )
+            payload: Any = suite
+        else:
+            run_report = run_public_benchmark_descriptor(
+                benchmark_path,
+                output_root=run_output_root,
+            )
+            from bijux_proteomics.workflow.public_benchmark_runner import (
+                PublicBenchmarkSuiteReport,
+            )
+
+            suite = PublicBenchmarkSuiteReport(
+                benchmark_root=str(benchmark_path.parent),
+                output_root=str(run_output_root),
+                runs=(run_report,),
+                passed_count=1 if run_report.status == "passed" else 0,
+                failed_count=1 if run_report.status == "failed" else 0,
+                note=(
+                    "single benchmark descriptor wrapped as a one-row suite for "
+                    "summary and failure rendering"
+                ),
+            )
+            payload = run_report
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_public_benchmark_suite_summary_tsv(suite),
+        )
+    if failures_tsv_out is not None:
+        _write_text_output(
+            failures_tsv_out,
+            render_public_benchmark_suite_failures_tsv(suite),
+        )
     _emit_json(payload, out_path=out_path)
 
 
