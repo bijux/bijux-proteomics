@@ -21,6 +21,7 @@ from bijux_proteomics.quantification import (
     render_heatmap_row_metadata_tsv,
     render_peptide_intensity_matrix_tsv,
     render_peptide_intensity_missingness_tsv,
+    render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
     render_protein_lfq_matrix_tsv,
@@ -200,6 +201,9 @@ def test_quant_matrix_renderers_ignore_scrambled_report_order() -> None:
     assert render_protein_intensity_matrix_tsv(
         protein_report
     ) == render_protein_intensity_matrix_tsv(scrambled_protein)
+    assert render_protein_peptide_contribution_tsv(
+        protein_report
+    ) == render_protein_peptide_contribution_tsv(scrambled_protein)
     assert render_protein_intensity_missingness_tsv(
         protein_report
     ) == render_protein_intensity_missingness_tsv(scrambled_protein)
