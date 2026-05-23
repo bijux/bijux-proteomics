@@ -11629,6 +11629,11 @@ def spectral_library_search_command(
             "import_report": import_report.to_dict(),
             "library_summary": summary.to_dict(),
             "search_report": search_report.to_dict(),
+            "warnings": (
+                []
+                if search_report.advisory_warning is None
+                else [search_report.advisory_warning]
+            ),
             "tsv_out": str(tsv_out) if tsv_out else None,
         }
         _emit_json(payload, out_path=out_path)
