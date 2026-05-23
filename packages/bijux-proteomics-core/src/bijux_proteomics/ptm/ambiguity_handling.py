@@ -11,7 +11,10 @@ from io import StringIO
 
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics.ptm.contracts import PtmSiteEntry, PtmSiteGroupEvidenceEntry
-from bijux_proteomics.ptm.localization_scoring import PtmLocalizationScoringReport
+from bijux_proteomics.ptm.localization_scoring import (
+    PtmLocalizationConfidenceTier,
+    PtmLocalizationScoringReport,
+)
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -209,7 +212,9 @@ def build_ptm_ambiguity_review_report(
 ) -> PtmAmbiguityReviewReport:
     """Separate localized PTM sites from unresolved site groups with confidence context."""
 
-    probability_lookup = _build_probability_lookup(localization_scoring_report)
+    probability_lookup, tier_lookup = _build_localization_lookup(
+        localization_scoring_report
+    )
     site_by_key = {entry.site_key: entry for entry in site_entries}
 
     localized_sites = tuple(
@@ -227,6 +232,7 @@ def build_ptm_ambiguity_review_report(
                 ambiguous=False,
                 localization_score=entry.localization_score,
                 localization_probability=_site_probability(entry, probability_lookup),
+                localization_tier=_site_tier(entry, tier_lookup),
             ),
             note="site localization resolves to one protein position",
         )
@@ -271,6 +277,7 @@ def build_ptm_ambiguity_review_report(
                     ambiguous=True,
                     localization_score=localization_score,
                     localization_probability=localization_probability,
+                    localization_tier=_group_tier(bucket, tier_lookup),
                 ),
                 note=(
                     "site evidence remains unresolved and should travel as one ambiguity group rather than one exact site"
@@ -656,21 +663,35 @@ def render_ptm_site_group_quant_missingness_tsv(
     return buffer.getvalue()
 
 
-def _build_probability_lookup(
+def _build_localization_lookup(
     report: PtmLocalizationScoringReport | None,
-) -> dict[tuple[str, str], float]:
+) -> tuple[
+    dict[tuple[str, str], float],
+    dict[tuple[str, str], PtmLocalizationConfidenceTier],
+]:
     if report is None:
-        return {}
+        return {}, {}
     grouped: dict[tuple[str, str], list[float]] = {}
+    tier_grouped: dict[tuple[str, str], list[PtmLocalizationConfidenceTier]] = {}
     for entry in report.entries:
         grouped.setdefault(
             (entry.localized_peptide, entry.modification_name),
             [],
         ).append(entry.localization_probability)
-    return {
-        key: round(sum(values) / len(values), 4)
-        for key, values in grouped.items()
-    }
+        tier_grouped.setdefault(
+            (entry.localized_peptide, entry.modification_name),
+            [],
+        ).append(entry.localization_tier)
+    return (
+        {
+            key: round(sum(values) / len(values), 4)
+            for key, values in grouped.items()
+        },
+        {
+            key: max(values, key=_localization_tier_rank)
+            for key, values in tier_grouped.items()
+        },
+    )
 
 
 def _site_probability(
@@ -703,12 +724,48 @@ def _group_probability(
     return round(sum(probabilities) / len(probabilities), 4)
 
 
+def _site_tier(
+    entry: PtmSiteEntry,
+    tier_lookup: dict[tuple[str, str], PtmLocalizationConfidenceTier],
+) -> PtmLocalizationConfidenceTier | None:
+    tiers = [
+        tier_lookup[(peptide, entry.modification_name)]
+        for peptide in entry.localized_peptides
+        if (peptide, entry.modification_name) in tier_lookup
+    ]
+    if not tiers:
+        return None
+    return max(tiers, key=_localization_tier_rank)
+
+
+def _group_tier(
+    entries: list[PtmSiteEntry],
+    tier_lookup: dict[tuple[str, str], PtmLocalizationConfidenceTier],
+) -> PtmLocalizationConfidenceTier | None:
+    tiers = [
+        tier
+        for entry in entries
+        for peptide in entry.localized_peptides
+        if (tier := tier_lookup.get((peptide, entry.modification_name))) is not None
+    ]
+    if not tiers:
+        return None
+    return max(tiers, key=_localization_tier_rank)
+
+
 def _confidence_tier(
     *,
     ambiguous: bool,
     localization_score: float,
     localization_probability: float | None,
+    localization_tier: PtmLocalizationConfidenceTier | None,
 ) -> PtmAmbiguityConfidenceTier:
+    if localization_tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
+        return PtmAmbiguityConfidenceTier.DECISIVE
+    if localization_tier is PtmLocalizationConfidenceTier.AMBIGUOUS:
+        return PtmAmbiguityConfidenceTier.AMBIGUOUS
+    if localization_tier is PtmLocalizationConfidenceTier.SUPPORTED:
+        return PtmAmbiguityConfidenceTier.SUPPORTED
     if not ambiguous and (
         localization_probability is not None and localization_probability >= 0.95
         or localization_score >= 0.95
@@ -721,6 +778,16 @@ def _confidence_tier(
             else PtmAmbiguityConfidenceTier.AMBIGUOUS
         )
     return PtmAmbiguityConfidenceTier.SUPPORTED
+
+
+def _localization_tier_rank(tier: PtmLocalizationConfidenceTier) -> int:
+    if tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
+        return 3
+    if tier is PtmLocalizationConfidenceTier.SUPPORTED:
+        return 2
+    if tier is PtmLocalizationConfidenceTier.AMBIGUOUS:
+        return 1
+    return 0
 
 
 def _possible_residues(

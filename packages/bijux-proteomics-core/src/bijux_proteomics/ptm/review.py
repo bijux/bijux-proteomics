@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
+    PtmLocalizationConfidenceTier,
     PtmEvidenceRecord,
     PtmLocalizationProbabilitySource,
     PtmMotifEnrichmentBackgroundProvenanceReport,  # noqa: F401
@@ -47,6 +48,7 @@ class PtmSiteLocalizationEvidenceNode(JsonModel):
     localization_scores: tuple[float, ...] = Field(default_factory=tuple)
     localization_probability: float = Field(..., ge=0.0, le=1.0)
     localization_probability_source: PtmLocalizationProbabilitySource
+    localization_tier: PtmLocalizationConfidenceTier
     ambiguous: bool
     fragment_ions: tuple[str, ...] = Field(default_factory=tuple)
     site_determining_ions: tuple[str, ...] = Field(default_factory=tuple)
@@ -228,8 +230,11 @@ def build_ptm_site_localization_evidence_graph(
         site_determining_ions: set[str] = set()
         supported_site_determining_ions: set[str] = set()
         probability_source = PtmLocalizationProbabilitySource.NORMALIZED_SCORE
+        localization_tier = PtmLocalizationConfidenceTier.REFUSED
         probability = 0.0
-        probability_candidates: list[tuple[float, PtmLocalizationProbabilitySource]] = []
+        probability_candidates: list[
+            tuple[float, PtmLocalizationProbabilitySource, PtmLocalizationConfidenceTier]
+        ] = []
         scoring_entries = [
             scoring_by_spectrum_and_index[(mapping.spectrum_id, mapping.peptide_site_index)]
             for mapping in bucket
@@ -250,12 +255,14 @@ def build_ptm_site_localization_evidence_graph(
                 (
                     scoring_entry.localization_probability,
                     scoring_entry.probability_source,
+                    scoring_entry.localization_tier,
                 )
             )
         if probability_candidates:
-            probability, probability_source = max(
+            probability, probability_source, localization_tier = max(
                 probability_candidates,
                 key=lambda candidate: (
+                    _localization_tier_rank(candidate[2]),
                     candidate[0],
                     1
                     if candidate[1]
@@ -291,6 +298,7 @@ def build_ptm_site_localization_evidence_graph(
                 localization_scores=scores,
                 localization_probability=probability,
                 localization_probability_source=probability_source,
+                localization_tier=localization_tier,
                 ambiguous=any(mapping.ambiguous for mapping in bucket),
                 fragment_ions=tuple(sorted(fragment_ions)),
                 site_determining_ions=tuple(sorted(site_determining_ions)),
@@ -304,6 +312,16 @@ def build_ptm_site_localization_evidence_graph(
         source_spectrum_count=len(record_by_spectrum),
         source_record_count=len(records),
     )
+
+
+def _localization_tier_rank(tier: PtmLocalizationConfidenceTier) -> int:
+    if tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
+        return 3
+    if tier is PtmLocalizationConfidenceTier.SUPPORTED:
+        return 2
+    if tier is PtmLocalizationConfidenceTier.AMBIGUOUS:
+        return 1
+    return 0
 
 
 def evaluate_ptm_site_fdr_boundary(

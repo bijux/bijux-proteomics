@@ -11,6 +11,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.ptm import (
     PtmEvidenceRecord,
+    PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
     PtmOccupancyCounterpartEvidenceEntry,
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
@@ -266,6 +267,11 @@ def build_ptm_localization_confidence_benchmark_report(
     minimum_fragment_ion_count: int = 2,
 ) -> PtmLocalizationConfidenceBenchmarkReport:
     """Score PTM localization sites on a public confidence ladder."""
+    _ = (
+        decisive_probability_threshold,
+        supported_probability_threshold,
+        minimum_fragment_ion_count,
+    )
 
     graph = build_ptm_site_localization_evidence_graph(
         records,
@@ -277,20 +283,16 @@ def build_ptm_localization_confidence_benchmark_report(
         fragment_ion_count = len(
             node.supported_site_determining_ions or node.fragment_ions
         )
-        if node.ambiguous:
+        if node.localization_tier is PtmLocalizationScoringTier.AMBIGUOUS:
             tier = PtmLocalizationConfidenceTier.AMBIGUOUS
             note = "site remains ambiguous and should not travel as a decisive localization claim"
-        elif (
-            node.localization_probability >= decisive_probability_threshold
-            and fragment_ion_count >= minimum_fragment_ion_count
-        ):
+        elif node.localization_tier is PtmLocalizationScoringTier.HIGH_CONFIDENCE:
             tier = PtmLocalizationConfidenceTier.DECISIVE
             note = (
-                "site has high localization support and sufficient fragment-ion "
-                "evidence, with site-determining ions preferred when alternative "
-                "placement exists"
+                "site has high localization support and enough imported probability "
+                "or site-determining evidence for a decisive localization call"
             )
-        elif node.localization_probability >= supported_probability_threshold:
+        elif node.localization_tier is PtmLocalizationScoringTier.SUPPORTED:
             tier = PtmLocalizationConfidenceTier.SUPPORTED
             note = (
                 "site is reviewable but still short of decisive localization evidence"
