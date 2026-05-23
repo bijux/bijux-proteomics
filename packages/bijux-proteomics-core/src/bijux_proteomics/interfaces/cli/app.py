@@ -269,11 +269,14 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    extract_mzml_chromatographic_evidence,
     extract_mzml_chromatographic_peaks,
     extract_mzml_retention_time_alignment,
+    render_chromatographic_peptide_evidence_tsv,
     render_retention_time_alignment_failed_anchors_tsv,
     render_retention_time_alignment_models_tsv,
     render_retention_time_alignment_residuals_tsv,
+    render_chromatographic_target_evidence_tsv,
     render_chromatographic_peaks_tsv,
     extract_mzml_xic_traces,
     render_xic_traces_tsv,
@@ -11887,6 +11890,78 @@ def xic_align_retention_times_command(
             if failed_anchor_tsv_out is None
             else str(failed_anchor_tsv_out)
         ),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("xic-score-evidence")
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "input_mzml",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--aligned-rt-tolerance-seconds",
+    type=float,
+    default=5.0,
+    show_default=True,
+)
+@click.option("--min-anchor-count", type=int, default=2, show_default=True)
+@click.option(
+    "--target-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON chromatographic evidence output path.",
+)
+def xic_score_evidence_command(
+    target_table: Path,
+    input_mzml: tuple[Path, ...],
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    aligned_rt_tolerance_seconds: float,
+    min_anchor_count: int,
+    target_tsv_out: Path | None,
+    peptide_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Score chromatographic precursor and peptide evidence across mzML runs."""
+    try:
+        report = extract_mzml_chromatographic_evidence(
+            input_mzml,
+            target_table,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+            aligned_rt_tolerance_seconds=aligned_rt_tolerance_seconds,
+            min_anchor_count=min_anchor_count,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if target_tsv_out is not None:
+        _write_text_output(
+            target_tsv_out,
+            render_chromatographic_target_evidence_tsv(report),
+        )
+    if peptide_tsv_out is not None:
+        _write_text_output(
+            peptide_tsv_out,
+            render_chromatographic_peptide_evidence_tsv(report),
+        )
+    payload = report.to_dict()
+    payload["outputs"] = {
+        "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
+        "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
     }
     _emit_json(payload, out_path=out_path)
 
