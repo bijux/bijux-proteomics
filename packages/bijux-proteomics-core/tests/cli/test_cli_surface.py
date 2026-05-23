@@ -6312,6 +6312,10 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
             "fragpipe_biological_psms.tsv",
         )
         shutil.copy(
+            workflow_dir / "fragpipe_biological_proteins.tsv",
+            "fragpipe_biological_proteins.tsv",
+        )
+        shutil.copy(
             workflow_dir / "biological_report.design.tsv",
             "biological_report.design.tsv",
         )
@@ -6337,6 +6341,8 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
                 "fragpipe",
                 "--report",
                 "fragpipe_biological_psms.tsv",
+                "--source-protein-tsv",
+                "fragpipe_biological_proteins.tsv",
                 "--metadata",
                 "biological_report.design.tsv",
                 "--proteins-fasta",
@@ -6359,6 +6365,12 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
         assert payload["metadata_rows"] == 6
         assert payload["run"]["engine"] == "fragpipe"
         assert payload["run"]["fragpipe_workflow"]["summary"]["accepted_psm_count"] == 30
+        assert (
+            payload["run"]["fragpipe_workflow"]["summary"][
+                "protein_group_discrepancy_count"
+            ]
+            == 2
+        )
         report_dir = Path("proteomics_run")
         assert (report_dir / "proteomics_run_manifest.json").exists()
         assert (report_dir / "proteomics_qc_summary.tsv").exists()
@@ -6366,8 +6378,12 @@ def test_proteomics_run_command_emits_fragpipe_result_package() -> None:
         assert (report_dir / "proteomics_differential.tsv").exists()
         assert (report_dir / "proteomics_enrichment.tsv").exists()
         assert (report_dir / "proteomics_report.html").exists()
+        assert (report_dir / "dda_source_protein_discrepancies.tsv").exists()
         assert "go\tgene_ontology" in (
             report_dir / "proteomics_enrichment.tsv"
+        ).read_text(encoding="utf-8")
+        assert "workflow_only" in (
+            report_dir / "dda_source_protein_discrepancies.tsv"
         ).read_text(encoding="utf-8")
 
 
