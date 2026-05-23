@@ -104,6 +104,44 @@ def test_ptm_package_exports_occupancy_owner_surface() -> None:
     assert target.unmodified_feature_count == 1
 
 
+def test_ptm_package_exports_motif_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
+    differential = ptm.build_ptm_differential_analysis_report(
+        site_quantification,
+        design.accepted_entries,
+        batch_field="",
+    )
+    report = ptm.build_ptm_phosphosite_motif_enrichment_report(
+        differential,
+        protein_sequences=_protein_sequences(),
+        flank_size=3,
+        selection_policy=ptm.PtmPhosphositeSelectionPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.5,
+            direction=ptm.PtmMotifRegulationDirection.UPREGULATED,
+        ),
+        comparison_policy=ptm.PtmMotifComparisonPolicy(
+            background_mode=ptm.PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND,
+        ),
+    )
+
+    assert hasattr(ptm, "build_ptm_phosphosite_motif_enrichment_report")
+    assert hasattr(ptm, "PtmMotifBackgroundMode")
+    assert report.background_mode is ptm.PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    assert report.background_site_count > report.regulated_site_count
+
+
 def test_ptm_package_exports_differential_owner_surface() -> None:
     evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = ptm.map_ptm_evidence_to_protein_sites(
