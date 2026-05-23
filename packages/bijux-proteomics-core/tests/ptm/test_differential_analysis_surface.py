@@ -73,7 +73,18 @@ def test_ptm_differential_analysis_reports_regulated_site_changes() -> None:
     assert target.observations_b == 2
     assert target.log2_fold_change > 0.0
     assert target.adjusted_p_value is not None
+    assert target.localization_tier.value == "supported"
+    assert target.low_localization is False
     assert target.localized_peptides == ("S[Phospho]PEPTIDEK",)
+    low_localization = next(
+        entry
+        for entry in report.differential_report.entries
+        if entry.site_key == "Q9DEC1:S5:Phospho"
+    )
+    assert low_localization.localization_tier.value == "refused"
+    assert low_localization.low_localization is True
+    assert low_localization.uncertainty_note is not None
+    assert "low-localization site" in low_localization.uncertainty_note
     volcano_target = next(
         point
         for point in report.volcano_plot.points

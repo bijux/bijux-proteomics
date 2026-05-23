@@ -60,6 +60,7 @@ def test_ptm_site_quantification_tsv_renderers_preserve_matrix_and_exclusions() 
     excluded_tsv = render_ptm_site_quant_excluded_tsv(report)
 
     assert summary_tsv.splitlines()[0].startswith("ambiguity_policy\tsite_row_count")
+    assert "localization_tier" in matrix_tsv.splitlines()[0]
     assert "P11111:S5:Phospho" in matrix_tsv
     assert "P11111:S17:Phospho" not in matrix_tsv
     assert "C1\t1\t0\t2\t0" in missingness_tsv

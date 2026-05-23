@@ -53,12 +53,17 @@ def test_ptm_site_quantification_report_builds_site_by_sample_matrix() -> None:
     assert report.summary.ambiguous_row_count == 2
     assert report.summary.ambiguous_group_row_count == 2
     target = next(row for row in report.rows if row.site_key == "P11111:S5:Phospho")
+    low_localization = next(
+        row for row in report.rows if row.site_key == "Q9DEC1:S5:Phospho"
+    )
     lookup = {value.sample_id: value for value in target.values}
 
     assert lookup["C1"].abundance == 120.0
     assert lookup["C2"].abundance == 180.0
     assert lookup["T1"].abundance == 710.0
     assert lookup["T2"].abundance == 790.0
+    assert target.localization_tier.value == "supported"
+    assert low_localization.localization_tier.value == "refused"
 
 
 def test_ptm_site_quantification_report_routes_ambiguous_signal_to_group_matrix() -> None:
