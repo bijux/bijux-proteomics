@@ -13,11 +13,11 @@ from io import StringIO
 import json
 import math
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationMethod,
@@ -29,6 +29,9 @@ from bijux_proteomics.quantification.contracts import (
 )
 from bijux_proteomics.sequences import canonicalize_protein_reference
 from bijux_proteomics_foundation import JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.io.formats import ExperimentalDesignEntry
 
 
 class ProteinSetScoreConfidenceStatus(StrEnum):
