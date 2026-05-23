@@ -85,6 +85,7 @@ def test_io_package_import_contract() -> None:
     assert hasattr(module, "score_dia_fragment_trace_coelution")
     assert hasattr(module, "score_dia_fragment_ratio_stability")
     assert hasattr(module, "score_chimeric_spectra")
+    assert hasattr(module, "extract_mzml_raw_signal_evidence_cards")
     assert hasattr(module, "build_targeted_fragment_ratio_stability_report")
     assert hasattr(module, "pick_chromatographic_peaks")
     assert hasattr(module, "align_chromatographic_peak_retention_times")

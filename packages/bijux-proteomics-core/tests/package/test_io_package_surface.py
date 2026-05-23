@@ -200,3 +200,38 @@ def test_io_package_exports_chimeric_spectrum_owner_surface() -> None:
     assert report.summary.flagged_chimeric_count == 1
     assert report.spectra[0].spectrum_id == "scan=9002"
     assert "scan=9002\tTIDEPEP\t2\tP22222\t45.0000" in rendered
+
+
+def test_io_package_exports_raw_signal_evidence_card_owner_surface() -> None:
+    report = io.extract_mzml_raw_signal_evidence_cards(
+        (
+            _format_fixture("raw_signal_card_reference.mzml"),
+            _format_fixture("raw_signal_card_shifted.mzml"),
+        ),
+        _format_fixture("raw_signal_card_targets.tsv"),
+        fragment_target_table=_format_fixture("raw_signal_card_fragment_targets.tsv"),
+        spectrum_mzml_path=_format_fixture("chimeric_spectrum_review.mzml"),
+        psm_path=(
+            Path(__file__).resolve().parents[1]
+            / "fixtures"
+            / "psm"
+            / "chimeric_spectrum_candidates.tsv"
+        ),
+        tolerance_ppm=10.0,
+        fragment_ms_level=1,
+        selected_precursor_ids=("prec_peptide",),
+    )
+    rendered = io.render_raw_signal_evidence_card_tsv(report)
+
+    assert hasattr(io, "build_raw_signal_evidence_card_report")
+    assert hasattr(io, "extract_mzml_raw_signal_evidence_cards")
+    assert hasattr(io, "render_raw_signal_evidence_card_summary_tsv")
+    assert hasattr(io, "render_raw_signal_evidence_card_tsv")
+    assert hasattr(io, "render_raw_signal_evidence_cards_html")
+    assert report.summary.card_count == 1
+    assert report.cards[0].precursor_id == "prec_peptide"
+    assert report.cards[0].fragment_run_entries[1].failed_fragment_ids == (
+        "peptide_b4",
+        "peptide_y8",
+    )
+    assert "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE" in rendered
