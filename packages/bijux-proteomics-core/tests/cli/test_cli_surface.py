@@ -5033,6 +5033,8 @@ def test_transition_qc_command_emits_transition_and_weak_outputs() -> None:
         assert payload["sample_ids"] == ["s1", "s2", "s3"]
         assert payload["summary"]["transition_count"] == 4
         assert payload["summary"]["weak_transition_count"] == 1
+        assert payload["entries"][0]["precursor_charge"] == 2
+        assert payload["entries"][0]["median_retention_time_minutes"] == 12.45
         assert payload["weak_transitions"][0]["transition_id"] == "tr_y6_b"
         assert payload["outputs"]["summary_tsv"] == "transition.summary.tsv"
         assert payload["outputs"]["transition_tsv"] == "transition.rows.tsv"
@@ -5045,10 +5047,10 @@ def test_transition_qc_command_emits_transition_and_weak_outputs() -> None:
         assert "source_name\tprecursor_count\ttransition_count" in Path(
             "transition.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "tr_y7_a\tprec_a\tPEPTIDEK\tP001\ty7" in Path(
+        assert "tr_y7_a\tprec_a\t2\tPEPTIDEK\tP001\ty7" in Path(
             "transition.rows.tsv"
         ).read_text(encoding="utf-8")
-        assert "tr_y7_a\tprec_a\ts1\trun_a\t120000\t0.002\t160000\t0.75\t1\ttrue" in (
+        assert "tr_y7_a\tprec_a\ts1\trun_a\t120000\t12.5\t0.002\t160000\t0.75\t1\ttrue" in (
             Path("transition.samples.tsv").read_text(encoding="utf-8")
         )
         assert "tr_y6_b\tprec_b\t1\t3\t0.333333\t0.0789474" in Path(

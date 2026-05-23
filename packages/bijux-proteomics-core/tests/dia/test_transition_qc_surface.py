@@ -22,9 +22,12 @@ def test_build_transition_qc_report_links_transitions_to_precursors() -> None:
     assert report.summary.missing_cell_count == 5
     assert report.summary.weak_transition_count == 1
     assert report.entries[0].precursor_id == "prec_a"
+    assert report.entries[0].precursor_charge == 2
     assert report.entries[0].transition_id == "tr_y7_a"
     assert report.entries[0].fragment_label == "y7"
+    assert report.entries[0].median_retention_time_minutes == 12.45
     assert report.entries[-1].precursor_id == "prec_b"
+    assert report.entries[-1].precursor_charge == 3
     assert report.entries[-1].transition_id == "tr_y6_b"
 
 
@@ -40,6 +43,7 @@ def test_build_transition_qc_report_summarizes_transition_intensities() -> None:
     assert first_entry.min_q_value == 0.002
     assert first_entry.values[0].sample_id == "s1"
     assert first_entry.values[0].intensity == 120000.0
+    assert first_entry.values[0].retention_time_minutes == 12.5
     assert first_entry.values[0].precursor_total_intensity == 160000.0
     assert first_entry.values[0].relative_share == 0.75
     assert first_entry.values[2].detected is False
