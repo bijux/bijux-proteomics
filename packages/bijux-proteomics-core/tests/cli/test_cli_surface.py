@@ -6959,6 +6959,10 @@ def test_heatmap_matrix_command_applies_filter_and_missing_value_policy() -> Non
                 "drop_rows",
                 "--matrix-tsv-out",
                 "heatmap.filtered.tsv",
+                "--row-metadata-tsv-out",
+                "heatmap.rows.tsv",
+                "--column-metadata-tsv-out",
+                "heatmap.columns.tsv",
             ],
         )
 
@@ -6970,8 +6974,18 @@ def test_heatmap_matrix_command_applies_filter_and_missing_value_policy() -> Non
         assert (
             payload["heatmap_report"]["summary"]["missing_value_policy"] == "drop_rows"
         )
+        assert (
+            payload["heatmap_report"]["column_metadata"][0]["missing_value_policy"]
+            == "drop_rows"
+        )
         assert "P001" in Path("heatmap.filtered.tsv").read_text(encoding="utf-8")
         assert "P002" not in Path("heatmap.filtered.tsv").read_text(encoding="utf-8")
+        assert "missing_value_policy" in Path("heatmap.rows.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "missing_value_policy" in Path("heatmap.columns.tsv").read_text(
+            encoding="utf-8"
+        )
 
 
 def test_sample_exploration_command_emits_scores_distances_and_clusters() -> None:
