@@ -541,6 +541,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
+    TimeCourseTestingPolicy,
     build_differential_abundance_report,
     build_heatmap_preparation_report,
     build_limma_compatible_quant_package,
@@ -564,6 +565,7 @@ from bijux_proteomics.quantification import (
     build_replicate_and_batch_qc_report,
     build_sample_exploration_report,
     build_spectral_count_table,
+    build_time_course_differential_report,
     export_limma_assay_matrix_tsv,
     export_limma_contrast_matrix_tsv,
     export_limma_design_matrix_tsv,
@@ -583,6 +585,7 @@ from bijux_proteomics.quantification import (
     export_quant_design_contrast_estimates_tsv,
     export_quant_design_matrix_tsv,
     export_quant_design_model_coefficients_tsv,
+    export_time_course_differential_tsv,
     export_multi_condition_differential_abundance_tsv,
     fit_quant_design_matrix_model,
     impute_label_free_table,
@@ -7586,6 +7589,23 @@ def infer_proteins_command(
     _emit_json(payload, out_path=out_path)
 
 
+def _parse_timepoint_order_file(path: Path) -> tuple[str, ...]:
+    labels: list[str] = []
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        label = line.split("\t", 1)[0].strip()
+        if label:
+            labels.append(label)
+    if labels and labels[0].casefold() in {"timepoint", "label"}:
+        labels = labels[1:]
+    ordered_labels = tuple(labels)
+    if not ordered_labels:
+        raise ValueError("timepoint order file must contain at least one label")
+    return ordered_labels
+
+
 @cli.command("quantify")
 @click.argument(
     "input_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
@@ -7652,6 +7672,11 @@ def infer_proteins_command(
     default=None,
 )
 @click.option(
+    "--time-course-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--design-covariate",
     "design_covariates",
     multiple=True,
@@ -7663,6 +7688,15 @@ def infer_proteins_command(
 )
 @click.option(
     "--design-pairing-field",
+    default=None,
+)
+@click.option(
+    "--design-timepoint-field",
+    default=None,
+)
+@click.option(
+    "--design-timepoint-order-file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
 )
 @click.option(
@@ -7750,9 +7784,12 @@ def quantify_command(
     condition_b: str | None,
     differential_tsv_out: Path | None,
     broken_pairs_tsv_out: Path | None,
+    time_course_tsv_out: Path | None,
     design_covariates: tuple[str, ...],
     design_batch_field: str,
     design_pairing_field: str | None,
+    design_timepoint_field: str | None,
+    design_timepoint_order_file: Path | None,
     design_matrix_tsv_out: Path | None,
     design_coefficients_tsv_out: Path | None,
     design_contrasts_tsv_out: Path | None,
@@ -7841,6 +7878,7 @@ def quantify_command(
         design_model_fit = None
         limma_package = None
         msstats_input_report = None
+        time_course_differential = None
         selected_contrast: tuple[str, str] | None = None
         differential = None
         differential_multi_condition = None
@@ -7851,17 +7889,22 @@ def quantify_command(
             ):
                 effective_pairing_field = "pair_id"
             effective_covariates = tuple(dict.fromkeys(design_covariates))
-            effective_timepoint_field = None
-            if "timepoint" in effective_covariates:
+            effective_timepoint_field = design_timepoint_field
+            if effective_timepoint_field is None and "timepoint" in effective_covariates:
                 effective_timepoint_field = "timepoint"
                 effective_covariates = tuple(
                     field for field in effective_covariates if field != "timepoint"
                 )
-            elif all(
+            elif effective_timepoint_field is None and all(
                 entry.metadata.get("timepoint") not in (None, "")
                 for entry in design_entries
             ):
                 effective_timepoint_field = "timepoint"
+            declared_timepoint_order = (
+                _parse_timepoint_order_file(design_timepoint_order_file)
+                if design_timepoint_order_file is not None
+                else ()
+            )
             design_matrix = build_quant_design_matrix_report(
                 design_entries,
                 batch_field=design_batch_field,
@@ -7892,6 +7935,18 @@ def quantify_command(
             )
             batch_effect = replicate_qc.batch_effect_report
             replicate_correlations = replicate_qc.replicate_correlation_report
+            if effective_timepoint_field is not None:
+                time_course_differential = build_time_course_differential_report(
+                    table,
+                    design_entries,
+                    policy=TimeCourseTestingPolicy(
+                        timepoint_field=effective_timepoint_field,
+                        ordered_timepoints=declared_timepoint_order,
+                        batch_field=design_batch_field or None,
+                        pairing_field=effective_pairing_field,
+                        covariate_fields=effective_covariates,
+                    ),
+                )
             if quant_measure is QuantMeasureKind.INTENSITY:
                 conditions = tuple(
                     sorted({entry.condition for entry in design_entries if entry.condition})
@@ -7985,6 +8040,15 @@ def quantify_command(
                 "broken-pair export requires a resolvable two-condition differential contrast"
             )
         export_differential_broken_pairs_tsv(differential, broken_pairs_tsv_out)
+    if time_course_tsv_out is not None:
+        if time_course_differential is None:
+            raise click.ClickException(
+                "time-course export requires --design with populated ordered timepoint metadata"
+            )
+        export_time_course_differential_tsv(
+            time_course_differential,
+            time_course_tsv_out,
+        )
     if design_matrix_tsv_out is not None:
         if design_matrix is None:
             raise click.ClickException("design matrix export requires --design")
@@ -8167,6 +8231,11 @@ def quantify_command(
             if differential_multi_condition is not None
             else None
         ),
+        "time_course_differential": (
+            time_course_differential.to_dict()
+            if time_course_differential is not None
+            else None
+        ),
         "differential_abundance": differential.to_dict()
         if differential is not None
         else None,
@@ -8179,6 +8248,11 @@ def quantify_command(
             "broken_pairs_tsv": (
                 str(broken_pairs_tsv_out)
                 if broken_pairs_tsv_out is not None
+                else None
+            ),
+            "time_course_tsv": (
+                str(time_course_tsv_out)
+                if time_course_tsv_out is not None
                 else None
             ),
             "design_matrix_tsv": (

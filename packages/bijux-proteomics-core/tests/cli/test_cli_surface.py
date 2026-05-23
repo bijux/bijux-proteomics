@@ -6645,6 +6645,162 @@ def test_quantify_command_blocks_confounded_design_matrices() -> None:
         assert "design matrix is confounded or rank-deficient" in result.output
 
 
+def test_quantify_command_requires_explicit_timepoint_order_for_unordered_labels() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("time_course_features.tsv").write_text(
+            "\n".join(
+                (
+                    "feature_id\tsample_id\tpeptide\tproteins\tintensity\tcharge\tmz\tretention_time_seconds",
+                    "tc001\tc_base_1\tPEPA\tP001\t100\t2\t500.2\t1200",
+                    "tc002\tc_base_2\tPEPA\tP001\t110\t2\t500.2\t1201",
+                    "tc003\tc_end_1\tPEPA\tP001\t130\t2\t500.2\t1202",
+                    "tc004\tc_end_2\tPEPA\tP001\t140\t2\t500.2\t1203",
+                    "tc005\tt_base_1\tPEPA\tP001\t100\t2\t500.2\t1204",
+                    "tc006\tt_base_2\tPEPA\tP001\t110\t2\t500.2\t1205",
+                    "tc007\tt_end_1\tPEPA\tP001\t410\t2\t500.2\t1206",
+                    "tc008\tt_end_2\tPEPA\tP001\t430\t2\t500.2\t1207",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("time_course.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\tinstrument\tsearch_engine\ttimepoint",
+                    "c_base_1\tcontrol\t1\t1\tc_base_1.mzml\tc_base_1.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "c_base_2\tcontrol\t2\t1\tc_base_2.mzml\tc_base_2.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "c_end_1\tcontrol\t3\t1\tc_end_1.mzml\tc_end_1.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "c_end_2\tcontrol\t4\t1\tc_end_2.mzml\tc_end_2.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "t_base_1\ttreatment\t1\t1\tt_base_1.mzml\tt_base_1.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "t_base_2\ttreatment\t2\t1\tt_base_2.mzml\tt_base_2.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "t_end_1\ttreatment\t3\t1\tt_end_1.mzml\tt_end_1.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "t_end_2\ttreatment\t4\t1\tt_end_2.mzml\tt_end_2.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "time_course_features.tsv",
+                "--design",
+                "time_course.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "none",
+                "--imputation",
+                "none",
+                "--design-batch-field",
+                "",
+                "--time-course-tsv-out",
+                "time_course.tsv",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "unordered timepoint labels require an explicit order file" in result.output
+
+
+def test_quantify_command_emits_time_course_differential_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("time_course_features.tsv").write_text(
+            "\n".join(
+                (
+                    "feature_id\tsample_id\tpeptide\tproteins\tintensity\tcharge\tmz\tretention_time_seconds",
+                    "tc001\tc_base_1\tPEPA\tP001\t100\t2\t500.2\t1200",
+                    "tc002\tc_base_2\tPEPA\tP001\t110\t2\t500.2\t1201",
+                    "tc003\tc_end_1\tPEPA\tP001\t130\t2\t500.2\t1202",
+                    "tc004\tc_end_2\tPEPA\tP001\t140\t2\t500.2\t1203",
+                    "tc005\tt_base_1\tPEPA\tP001\t100\t2\t500.2\t1204",
+                    "tc006\tt_base_2\tPEPA\tP001\t110\t2\t500.2\t1205",
+                    "tc007\tt_end_1\tPEPA\tP001\t410\t2\t500.2\t1206",
+                    "tc008\tt_end_2\tPEPA\tP001\t430\t2\t500.2\t1207",
+                    "tc101\tc_base_1\tPEPB\tP002\t200\t2\t600.2\t1300",
+                    "tc102\tc_base_2\tPEPB\tP002\t210\t2\t600.2\t1301",
+                    "tc103\tc_end_1\tPEPB\tP002\t240\t2\t600.2\t1302",
+                    "tc104\tc_end_2\tPEPB\tP002\t250\t2\t600.2\t1303",
+                    "tc105\tt_base_1\tPEPB\tP002\t205\t2\t600.2\t1304",
+                    "tc106\tt_base_2\tPEPB\tP002\t215\t2\t600.2\t1305",
+                    "tc107\tt_end_1\tPEPB\tP002\t245\t2\t600.2\t1306",
+                    "tc108\tt_end_2\tPEPB\tP002\t255\t2\t600.2\t1307",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("time_course.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\tinstrument\tsearch_engine\ttimepoint",
+                    "c_base_1\tcontrol\t1\t1\tc_base_1.mzml\tc_base_1.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "c_base_2\tcontrol\t2\t1\tc_base_2.mzml\tc_base_2.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "c_end_1\tcontrol\t3\t1\tc_end_1.mzml\tc_end_1.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "c_end_2\tcontrol\t4\t1\tc_end_2.mzml\tc_end_2.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "t_base_1\ttreatment\t1\t1\tt_base_1.mzml\tt_base_1.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "t_base_2\ttreatment\t2\t1\tt_base_2.mzml\tt_base_2.tsv\tbatch-a\torbitrap-a\tsage\tbaseline",
+                    "t_end_1\ttreatment\t3\t1\tt_end_1.mzml\tt_end_1.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                    "t_end_2\ttreatment\t4\t1\tt_end_2.mzml\tt_end_2.tsv\tbatch-b\torbitrap-b\tsage\tendpoint",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("timepoint.order.txt").write_text(
+            "baseline\nendpoint\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "time_course_features.tsv",
+                "--design",
+                "time_course.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "none",
+                "--imputation",
+                "none",
+                "--design-batch-field",
+                "",
+                "--design-timepoint-order-file",
+                "timepoint.order.txt",
+                "--time-course-tsv-out",
+                "time_course.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["time_course_differential"] is not None
+        assert payload["time_course_differential"]["ordered_timepoints"] == [
+            "baseline",
+            "endpoint",
+        ]
+        assert payload["outputs"]["time_course_tsv"] == "time_course.tsv"
+        assert Path("time_course.tsv").read_text(encoding="utf-8").startswith(
+            "entity_id\tcondition\treference_condition"
+        )
+        assert "interaction_p_value" in Path("time_course.tsv").read_text(
+            encoding="utf-8"
+        )
+
+
 def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
