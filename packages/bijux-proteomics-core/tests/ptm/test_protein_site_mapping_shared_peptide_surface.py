@@ -47,6 +47,7 @@ def test_ptm_site_mapping_marks_shared_peptide_mappings_explicitly() -> None:
 
     assert shared
     assert all(mapping.shared_peptide is True for mapping in shared)
+    assert all(mapping.ambiguous is True for mapping in shared)
     assert {mapping.protein_ref for mapping in shared} == {"P11111", "P22222"}
 
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    build_ptm_protein_site_mapping_report,
     PtmSiteGroupEvidenceEntry,
     build_ptm_enrichment_input,
     build_ptm_motif_background_report,
@@ -173,6 +174,84 @@ def test_ptm_site_mapping_keeps_multi_modified_candidates_separate() -> None:
         ("P22222", 2, 4),
         ("P22222", 4, 6),
     }
+
+
+def test_ptm_mapping_report_separates_exact_ambiguous_and_unmapped_ledgers() -> None:
+    evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    report = build_ptm_protein_site_mapping_report(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+
+    assert len(report.mappings) == 10
+    assert len(report.exact_mappings) == 6
+    assert len(report.ambiguous_mappings) == 4
+    assert report.unmapped_peptides == ()
+    assert all(mapping.ambiguous is False for mapping in report.exact_mappings)
+    assert all(mapping.ambiguous is True for mapping in report.ambiguous_mappings)
+    assert {
+        mapping.localized_peptide for mapping in report.ambiguous_mappings
+    } == {"AS[Phospho]TYK"}
+
+
+def test_ptm_mapping_report_keeps_shared_peptides_exact_when_one_fasta_mapping_survives(
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "shared_unique.tsv"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "sample_id\tspectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins\tlocalization_score\tcandidate_sites\tdecoy_label",
+                "C1\tscan=shared-unique\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP11111;P40404\t0.990\t1\ttarget",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    evidence = parse_ptm_localization_tsv(evidence_path)
+    report = build_ptm_protein_site_mapping_report(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+
+    assert len(report.exact_mappings) == 1
+    assert report.ambiguous_mappings == ()
+    assert report.unmapped_peptides == ()
+    mapping = report.exact_mappings[0]
+    assert mapping.shared_peptide is True
+    assert mapping.ambiguous is False
+    assert mapping.protein_ref == "P11111"
+
+
+def test_ptm_mapping_report_preserves_unmapped_peptides_when_fasta_cannot_place_site(
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "unmapped.tsv"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "sample_id\tspectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins\tlocalization_score\tcandidate_sites\tdecoy_label",
+                "C1\tscan=unmapped\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP40404\t0.990\t1\ttarget",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    evidence = parse_ptm_localization_tsv(evidence_path)
+    report = build_ptm_protein_site_mapping_report(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+
+    assert report.mappings == ()
+    assert report.exact_mappings == ()
+    assert report.ambiguous_mappings == ()
+    assert len(report.unmapped_peptides) == 1
+    unmapped = report.unmapped_peptides[0]
+    assert unmapped.reason_code == "missing_protein_sequence"
+    assert unmapped.localized_peptide == "S[Phospho]PEPTIDEK"
 
 
 def test_ptm_ambiguity_coverage_and_fdr_reports_are_stable() -> None:
