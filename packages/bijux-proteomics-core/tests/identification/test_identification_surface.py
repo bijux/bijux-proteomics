@@ -1076,8 +1076,10 @@ def test_grouped_confidence_report_summarizes_indistinguishable_protein_groups()
     )
     assert ambiguous.shared_peptide_count == 2
     assert ambiguous.unique_peptide_count == 0
+    assert ambiguous.evidence_tier == "ambiguous"
+    assert ambiguous.downgrade_reasons == ("shared_peptide_only",)
     assert ambiguous.confidence_label.value == "low"
-    assert "weak or ambiguous" in ambiguous.explanation
+    assert "supported only by shared peptides" in ambiguous.explanation
 
 
 def test_grouped_confidence_report_keeps_one_weak_shared_peptide_from_strong_calls() -> (
@@ -1115,6 +1117,8 @@ def test_grouped_confidence_report_keeps_one_weak_shared_peptide_from_strong_cal
 
     assert entry.protein_refs == ("P11111", "P22222")
     assert entry.shared_peptide_count == 1
+    assert entry.evidence_tier == "ambiguous"
+    assert entry.downgrade_reasons == ("shared_peptide_only",)
     assert entry.confidence_label.value == "low"
 
 
@@ -1169,7 +1173,9 @@ def test_grouped_confidence_report_downgrades_single_run_only_proteins() -> None
         candidate for candidate in grouped.entries if candidate.protein_refs == ("P11111",)
     )
 
-    assert entry.confidence_label.value == "low"
+    assert entry.evidence_tier == "moderate"
+    assert entry.downgrade_reasons == ("single_run_only",)
+    assert entry.confidence_label.value == "medium"
     assert "observed in one run only" in entry.explanation
 
 
@@ -1227,6 +1233,8 @@ def test_grouped_confidence_report_preserves_explicit_exploratory_single_run_pro
         candidate for candidate in grouped.entries if candidate.protein_refs == ("P22222",)
     )
 
+    assert entry.evidence_tier == "high_confidence"
+    assert entry.downgrade_reasons == ()
     assert entry.confidence_label.value == "high"
     assert "high-confidence threshold" in entry.explanation
 

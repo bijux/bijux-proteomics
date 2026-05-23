@@ -1181,6 +1181,11 @@ class GroupedConfidenceEntry(JsonModel):
     unique_peptide_count: int = Field(..., ge=0)
     shared_peptide_count: int = Field(..., ge=0)
     best_q_value: float | None = Field(default=None, ge=0.0)
+    evidence_tier: str = Field(
+        ...,
+        pattern="^(high_confidence|moderate|weak|ambiguous|contaminant|decoy)$",
+    )
+    downgrade_reasons: tuple[str, ...] = Field(default_factory=tuple)
     confidence_label: ConfidenceLabel
     explanation: str = Field(..., min_length=1)
 
@@ -2744,122 +2749,53 @@ def build_grouped_confidence_report(
     exploratory_protein_refs: tuple[str, ...] = (),
 ) -> GroupedConfidenceReport:
     """Summarize confidence over indistinguishable protein groups."""
-    from bijux_proteomics.identification.cross_run_reproducibility import (
-        CrossRunReproducibilityClass,
-        build_protein_cross_run_reproducibility_report,
-    )
-    from bijux_proteomics.identification.peptide_evidence import (
-        PeptideEvidenceClass,
-        build_peptide_evidence_report,
+    from bijux_proteomics.identification.protein_evidence import (
+        build_protein_evidence_report,
     )
 
-    exploratory_protein_ref_set = set(exploratory_protein_refs)
-    exploratory_canonical_peptides = tuple(
-        sorted(
-            {
-                record.canonical_peptide
-                for record in records
-                if record.protein_refs
-                and set(record.protein_refs).issubset(exploratory_protein_ref_set)
-            }
-        )
+    protein_evidence = build_protein_evidence_report(
+        records,
+        high_q_value=high_threshold,
+        moderate_q_value=medium_threshold,
+        score_orientation="higher_better",
+        run_contexts=run_contexts,
+        exploratory_protein_refs=exploratory_protein_refs,
     )
-    peptide_classes = {
-        entry.canonical_peptide: entry
-        for entry in build_peptide_evidence_report(
-            records,
-            threshold=medium_threshold,
-            score_orientation="higher_better",
-            strong_q_value=high_threshold,
-            run_contexts=run_contexts,
-            exploratory_canonical_peptides=exploratory_canonical_peptides,
-        ).entries
-    }
-    protein_reproducibility = {
-        entry.entity_id: entry
-        for entry in build_protein_cross_run_reproducibility_report(
-            records,
-            run_contexts=run_contexts,
-            exploratory_protein_refs=exploratory_protein_refs,
-        ).entries
-    }
-    entries: list[GroupedConfidenceEntry] = []
-    for group in build_protein_groups(records):
-        q_value = group.best_q_value if group.best_q_value is not None else 1.0
-        if group.target_decoy_label is TargetDecoyLabel.DECOY:
-            label = ConfidenceLabel.DECOY
-            explanation = (
-                "decoy protein groups are never promoted to biological confidence"
-            )
-        elif q_value <= high_threshold:
-            label = ConfidenceLabel.HIGH
-            explanation = f"group q-value {q_value:.4f} is at or below the high-confidence threshold"
-        elif q_value <= medium_threshold:
-            label = ConfidenceLabel.MEDIUM
-            explanation = f"group q-value {q_value:.4f} is at or below the medium-confidence threshold"
-        else:
-            label = ConfidenceLabel.LOW
-            explanation = f"group q-value {q_value:.4f} is reviewable but above the medium-confidence threshold"
-        primary_classes = tuple(
-            peptide_classes[peptide].primary_class
-            for peptide in group.peptides
-            if peptide in peptide_classes
+    entries = [
+        GroupedConfidenceEntry(
+            group_id=entry.group_id,
+            representative_protein=entry.representative_protein,
+            protein_refs=entry.protein_refs,
+            peptide_count=entry.peptide_count,
+            unique_peptide_count=entry.unique_peptide_count,
+            shared_peptide_count=entry.shared_peptide_count,
+            best_q_value=entry.best_q_value,
+            evidence_tier=entry.evidence_tier.value,
+            downgrade_reasons=tuple(
+                reason.value for reason in entry.downgrade_reasons
+            ),
+            confidence_label=_map_protein_evidence_tier_to_confidence_label(
+                entry.evidence_tier.value
+            ),
+            explanation=entry.explanation,
         )
-        if label is not ConfidenceLabel.DECOY and primary_classes:
-            if any(
-                primary_class is PeptideEvidenceClass.STRONG
-                for primary_class in primary_classes
-            ):
-                pass
-            elif any(
-                primary_class in {
-                    PeptideEvidenceClass.MODERATE,
-                    PeptideEvidenceClass.SHARED,
-                }
-                for primary_class in primary_classes
-            ):
-                if label is ConfidenceLabel.HIGH:
-                    label = ConfidenceLabel.MEDIUM
-                    explanation = (
-                        "group q-value is strong, but protein evidence is capped at medium because support remains moderate or non-unique at the peptide level"
-                    )
-            else:
-                label = ConfidenceLabel.LOW
-                explanation = (
-                    "protein evidence remains low because the supporting peptides are weak or ambiguous even though the grouped q-value is reviewable"
-                )
-        representative_reproducibility = protein_reproducibility.get(
-            group.representative_protein
-        )
-        if (
-            label is not ConfidenceLabel.DECOY
-            and representative_reproducibility is not None
-            and representative_reproducibility.reproducibility_class
-            is CrossRunReproducibilityClass.SINGLE_RUN_ONLY
-        ):
-            if label is ConfidenceLabel.HIGH:
-                label = ConfidenceLabel.MEDIUM
-            else:
-                label = ConfidenceLabel.LOW
-            explanation = (
-                "protein evidence is downgraded because the representative protein is observed in one run only and is not explicitly exploratory"
-            )
-        entries.append(
-            GroupedConfidenceEntry(
-                group_id=group.group_id,
-                representative_protein=group.representative_protein,
-                protein_refs=group.protein_refs,
-                peptide_count=len(group.peptides),
-                unique_peptide_count=group.unique_peptide_count,
-                shared_peptide_count=group.shared_peptide_count,
-                best_q_value=group.best_q_value,
-                confidence_label=label,
-                explanation=explanation,
-            )
-        )
+        for entry in protein_evidence.entries
+    ]
     return GroupedConfidenceReport(
         entries=tuple(sorted(entries, key=lambda entry: entry.group_id))
     )
+
+
+def _map_protein_evidence_tier_to_confidence_label(
+    evidence_tier: str,
+) -> ConfidenceLabel:
+    if evidence_tier == "high_confidence":
+        return ConfidenceLabel.HIGH
+    if evidence_tier == "moderate":
+        return ConfidenceLabel.MEDIUM
+    if evidence_tier == "decoy":
+        return ConfidenceLabel.DECOY
+    return ConfidenceLabel.LOW
 
 
 def compute_fdr_reproducibility_hash(
