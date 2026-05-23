@@ -5,7 +5,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from bijux_proteomics.dia import build_transition_qc_report_from_table
+from bijux_proteomics.dia import (
+    build_transition_qc_report,
+    build_transition_qc_report_from_table,
+)
+from bijux_proteomics.io import parse_transition_table
+from bijux_proteomics.io.transition_table import TransitionTableEntry
 
 
 def _format_fixture(name: str) -> Path:
@@ -64,3 +69,32 @@ def test_build_transition_qc_report_flags_weak_transitions() -> None:
         entry for entry in report.entries if entry.transition_id == "tr_y6_b"
     )
     assert weak_entry.weak is True
+
+
+def test_build_transition_qc_report_keeps_same_transition_id_separate_by_precursor() -> None:
+    parse_report = parse_transition_table(_format_fixture("transition_quant.tsv"))
+    extra_entry = TransitionTableEntry(
+        transition_id="tr_y7_a",
+        precursor_id="prec_c",
+        precursor_charge=4,
+        sample_id="s1",
+        intensity=45000.0,
+        peptide_sequence="ALTPEP",
+        protein_ref="P777",
+        fragment_label="y7",
+        retention_time_minutes=22.1,
+        fragment_mz=801.2,
+    )
+
+    split_report = build_transition_qc_report(parse_report.accepted_entries + (extra_entry,))
+
+    split_entries = [
+        entry for entry in split_report.entries if entry.transition_id == "tr_y7_a"
+    ]
+
+    assert len(split_entries) == 2
+    assert split_entries[0].precursor_id == "prec_a"
+    assert split_entries[1].precursor_id == "prec_c"
+    assert split_entries[1].precursor_charge == 4
+    assert split_entries[1].detected_sample_count == 1
+    assert split_entries[1].values[0].retention_time_minutes == 22.1

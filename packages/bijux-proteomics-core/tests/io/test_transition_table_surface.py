@@ -84,3 +84,28 @@ def test_parse_transition_table_requires_charge_but_keeps_retention_time_optiona
     assert report.accepted_entries[0].retention_time_minutes is None
     assert len(report.rejected_rows) == 1
     assert report.rejected_rows[0].reason == "transition row requires precursor_charge"
+
+
+def test_parse_transition_table_rejects_duplicates_only_within_sample_and_precursor(
+    tmp_path: Path,
+) -> None:
+    table_path = tmp_path / "transition_quant_duplicates.tsv"
+    table_path.write_text(
+        "\n".join(
+            (
+                "transition\tprecursor\tcharge\tsample\tarea\tfragment\tproduct_mz",
+                "tr_shared\tprec_a\t2\ts1\t10\ty7\t700.1",
+                "tr_shared\tprec_b\t3\ts1\t20\ty7\t710.1",
+                "tr_shared\tprec_a\t2\ts1\t30\ty8\t720.1",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = parse_transition_table(table_path)
+
+    assert len(report.accepted_entries) == 1
+    assert report.accepted_entries[0].precursor_id == "prec_b"
+    assert len(report.rejected_rows) == 2
+    assert all("duplicate" in row.reason.lower() for row in report.rejected_rows)
