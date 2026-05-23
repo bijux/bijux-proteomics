@@ -11,8 +11,11 @@ from io import StringIO
 from pathlib import Path
 
 from bijux_proteomics.interpretation import (
+    BiologicalContextImportReport,
+    BiologicalContextMappingReport,
     ComplexEnrichmentCorrectionPolicy,
     ComplexEnrichmentReport,
+    build_biological_context_mapping_report,
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
@@ -30,10 +33,16 @@ from bijux_proteomics.interpretation import (
     build_go_enrichment_report,
     build_pathway_enrichment_report,
     build_protein_annotation_mapping_report,
+    parse_biological_context_table,
     parse_complex_membership_table,
     parse_go_annotation_table,
     parse_pathway_membership_table,
     parse_protein_annotation_table,
+    render_biological_context_mapping_summary_tsv,
+    render_biological_context_mapping_tsv,
+    render_biological_context_term_tsv,
+    render_rejected_biological_context_tsv,
+    render_unmapped_biological_context_tsv,
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
@@ -113,6 +122,9 @@ class BiologicalResultReportSummary(JsonModel):
     sample_count: int = Field(..., ge=0)
     annotation_entry_count: int = Field(..., ge=0)
     annotation_unmapped_count: int = Field(..., ge=0)
+    context_entry_count: int = Field(..., ge=0)
+    context_unmapped_count: int = Field(..., ge=0)
+    context_term_count: int = Field(..., ge=0)
     go_enriched_term_count: int = Field(..., ge=0)
     pathway_enriched_entry_count: int = Field(..., ge=0)
     complex_enriched_entry_count: int = Field(..., ge=0)
@@ -127,6 +139,8 @@ class BiologicalResultReportBundle(JsonModel):
 
     differential_report: DifferentialAbundanceReport
     annotation_report: ProteinAnnotationMappingReport
+    context_import_report: BiologicalContextImportReport | None = None
+    context_mapping_report: BiologicalContextMappingReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
     pathway_enrichment_report: PathwayEnrichmentReport | None = None
     complex_enrichment_report: ComplexEnrichmentReport | None = None
@@ -148,6 +162,11 @@ class BiologicalResultReportArtifactPaths(JsonModel):
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
+    context_summary_tsv: str | None = None
+    context_mapping_tsv: str | None = None
+    context_term_tsv: str | None = None
+    context_unmapped_tsv: str | None = None
+    context_rejected_tsv: str | None = None
     volcano_tsv: str = Field(..., min_length=1)
     volcano_json: str = Field(..., min_length=1)
     volcano_svg: str = Field(..., min_length=1)
@@ -180,6 +199,7 @@ class BiologicalResultReportExportManifest(JsonModel):
 
     summary: BiologicalResultReportSummary
     artifacts: BiologicalResultReportArtifactPaths
+    context_summary_included: bool
     go_summary_included: bool
     pathway_summary_included: bool
     complex_summary_included: bool
@@ -192,6 +212,7 @@ def build_biological_result_report_bundle(
     *,
     proteins_fasta_path: Path,
     annotation_tsv_path: Path | None = None,
+    context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -231,6 +252,7 @@ def build_biological_result_report_bundle(
         design_entries,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
+        context_annotation_tsv_path=context_annotation_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,
         pathway_membership_tsv_path=pathway_membership_tsv_path,
         complex_membership_tsv_path=complex_membership_tsv_path,
@@ -248,6 +270,7 @@ def build_biological_result_report_bundle_from_quant_table(
     *,
     proteins_fasta_path: Path,
     annotation_tsv_path: Path | None = None,
+    context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
     pathway_membership_tsv_path: Path | None = None,
     complex_membership_tsv_path: Path | None = None,
@@ -321,6 +344,14 @@ def build_biological_result_report_bundle_from_quant_table(
         if custom_annotation_report is None
         else custom_annotation_report.accepted_records,
     )
+    context_import_report = None
+    context_mapping_report = None
+    if context_annotation_tsv_path is not None:
+        context_import_report = parse_biological_context_table(context_annotation_tsv_path)
+        context_mapping_report = build_biological_context_mapping_report(
+            differential_reference_entries,
+            context_import_report.accepted_records,
+        )
     background_entries = _build_background_reference_entries(normalized_table)
     foreground_entries = _build_foreground_reference_entries(
         differential_report,
@@ -408,6 +439,8 @@ def build_biological_result_report_bundle_from_quant_table(
     return BiologicalResultReportBundle(
         differential_report=differential_report,
         annotation_report=annotation_report,
+        context_import_report=context_import_report,
+        context_mapping_report=context_mapping_report,
         go_enrichment_report=go_enrichment_report,
         pathway_enrichment_report=pathway_enrichment_report,
         complex_enrichment_report=complex_enrichment_report,
@@ -421,6 +454,21 @@ def build_biological_result_report_bundle_from_quant_table(
             sample_count=len(normalized_table.sample_ids),
             annotation_entry_count=len(annotation_report.result_entries),
             annotation_unmapped_count=len(annotation_report.unmapped_entries),
+            context_entry_count=(
+                0
+                if context_mapping_report is None
+                else len(context_mapping_report.mapped_entries)
+            ),
+            context_unmapped_count=(
+                0
+                if context_mapping_report is None
+                else len(context_mapping_report.unmapped_entries)
+            ),
+            context_term_count=(
+                0
+                if context_mapping_report is None
+                else len(context_mapping_report.term_entries)
+            ),
             go_enriched_term_count=(
                 0
                 if go_enrichment_report is None
@@ -442,7 +490,7 @@ def build_biological_result_report_bundle_from_quant_table(
             ),
         ),
         note=(
-            "biological reporting assembles governed protein differential analysis, annotation mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
+            "biological reporting assembles governed protein differential analysis, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
         ),
     )
 
@@ -582,6 +630,9 @@ def render_biological_result_report_summary_tsv(
     writer.writerow(
         ("annotation_unmapped_count", report.summary.annotation_unmapped_count)
     )
+    writer.writerow(("context_entry_count", report.summary.context_entry_count))
+    writer.writerow(("context_unmapped_count", report.summary.context_unmapped_count))
+    writer.writerow(("context_term_count", report.summary.context_term_count))
     writer.writerow(("go_enriched_term_count", report.summary.go_enriched_term_count))
     writer.writerow(
         ("pathway_enriched_entry_count", report.summary.pathway_enriched_entry_count)
@@ -609,6 +660,11 @@ def export_biological_result_report_bundle(
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
+    context_summary_name = None
+    context_mapping_name = None
+    context_term_name = None
+    context_unmapped_name = None
+    context_rejected_name = None
     volcano_tsv_name = "biological_volcano.tsv"
     volcano_json_name = "biological_volcano.json"
     volcano_svg_name = "biological_volcano.svg"
@@ -644,6 +700,35 @@ def export_biological_result_report_bundle(
         render_unmapped_protein_annotation_tsv(report.annotation_report),
         encoding="utf-8",
     )
+    if (
+        report.context_import_report is not None
+        and report.context_mapping_report is not None
+    ):
+        context_summary_name = "biological_context_summary.tsv"
+        context_mapping_name = "biological_context_mappings.tsv"
+        context_term_name = "biological_context_terms.tsv"
+        context_unmapped_name = "biological_context_unmapped.tsv"
+        context_rejected_name = "biological_context_rejected.tsv"
+        (output_dir / context_summary_name).write_text(
+            render_biological_context_mapping_summary_tsv(report.context_mapping_report),
+            encoding="utf-8",
+        )
+        (output_dir / context_mapping_name).write_text(
+            render_biological_context_mapping_tsv(report.context_mapping_report),
+            encoding="utf-8",
+        )
+        (output_dir / context_term_name).write_text(
+            render_biological_context_term_tsv(report.context_mapping_report),
+            encoding="utf-8",
+        )
+        (output_dir / context_unmapped_name).write_text(
+            render_unmapped_biological_context_tsv(report.context_mapping_report),
+            encoding="utf-8",
+        )
+        (output_dir / context_rejected_name).write_text(
+            render_rejected_biological_context_tsv(report.context_import_report),
+            encoding="utf-8",
+        )
     (output_dir / volcano_tsv_name).write_text(
         render_volcano_review_tsv(report.volcano_review),
         encoding="utf-8",
@@ -745,6 +830,11 @@ def export_biological_result_report_bundle(
         annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
+        context_summary_tsv=context_summary_name,
+        context_mapping_tsv=context_mapping_name,
+        context_term_tsv=context_term_name,
+        context_unmapped_tsv=context_unmapped_name,
+        context_rejected_tsv=context_rejected_name,
         volcano_tsv=volcano_tsv_name,
         volcano_json=volcano_json_name,
         volcano_svg=volcano_svg_name,
@@ -776,11 +866,12 @@ def export_biological_result_report_bundle(
     return BiologicalResultReportExportManifest(
         summary=report.summary,
         artifacts=artifacts,
+        context_summary_included=report.context_mapping_report is not None,
         go_summary_included=report.go_enrichment_report is not None,
         pathway_summary_included=report.pathway_enrichment_report is not None,
         complex_summary_included=report.complex_enrichment_report is not None,
         note=(
-            "biological report export writes stable differential, annotation, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
+            "biological report export writes stable differential, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
         ),
     )
 
@@ -794,6 +885,26 @@ def _render_biological_result_report_html(
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
         ("Unmapped annotations", artifacts.annotation_unmapped_tsv),
+        (
+            "Biological context summary",
+            artifacts.context_summary_tsv,
+        ),
+        (
+            "Biological context mappings",
+            artifacts.context_mapping_tsv,
+        ),
+        (
+            "Biological context terms",
+            artifacts.context_term_tsv,
+        ),
+        (
+            "Biological context unmapped",
+            artifacts.context_unmapped_tsv,
+        ),
+        (
+            "Biological context rejected rows",
+            artifacts.context_rejected_tsv,
+        ),
         ("Volcano TSV", artifacts.volcano_tsv),
         ("Volcano JSON", artifacts.volcano_json),
         ("Volcano SVG", artifacts.volcano_svg),
@@ -813,6 +924,7 @@ def _render_biological_result_report_html(
     section_html = "".join(
         f"<li><strong>{escape(label)}</strong>: <code>{escape(path)}</code></li>"
         for label, path in sections
+        if path is not None
     )
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
