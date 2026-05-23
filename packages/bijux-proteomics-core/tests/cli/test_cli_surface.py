@@ -9231,8 +9231,13 @@ def test_qc_report_command_emits_json_tsv_html_manifest_and_benchmark() -> None:
         payload = json.loads(result.output)
         assert payload["run_report"]["run_id"] == "spectra"
         assert payload["run_assessment"]["policy_name"] == "production-demo-qc"
-        assert Path("qc.tsv").read_text().startswith("scope\tentity_id\tmetric_key")
+        assert payload["run_assessment"]["qc_status"] in {"pass", "caution", "fail"}
+        assert isinstance(payload["run_assessment"]["status_reasons"], list)
+        assert Path("qc.tsv").read_text().startswith(
+            "scope\tentity_id\tqc_status\tstatus_reason_codes\tmetric_key"
+        )
         assert "Bijux Proteomics QC Report" in Path("qc.html").read_text()
+        assert "<strong>Status</strong>:" in Path("qc.html").read_text()
         manifest = json.loads(Path("qc.manifest.json").read_text())
         benchmark = json.loads(Path("qc.benchmark.json").read_text())
         assert manifest["document_schema"]["document_kind"] == "qc_evidence_manifest"
