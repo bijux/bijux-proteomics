@@ -5177,8 +5177,12 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
                 "skyline_export",
                 "--summary-tsv-out",
                 "assay.summary.tsv",
+                "--target-qc-tsv-out",
+                "assay.targets.tsv",
                 "--transition-tsv-out",
                 "assay.transitions.tsv",
+                "--transition-qc-tsv-out",
+                "assay.transition_qc.tsv",
                 "--fragment-ratio-tsv-out",
                 "assay.fragments.tsv",
                 "--retention-tsv-out",
@@ -5197,24 +5201,35 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert payload["import_summary"]["observation_count"] == 14
         assert payload["design_summary"]["accepted_entry_count"] == 4
         assert payload["assay_qc_summary"]["target_count"] == 2
+        assert payload["assay_qc_summary"]["reliable_target_entry_count"] == 3
         assert payload["assay_qc_summary"]["flagged_replicate_cv_entry_count"] == 1
         assert payload["outputs"]["summary_tsv"] == "assay.summary.tsv"
+        assert payload["outputs"]["target_qc_tsv"] == "assay.targets.tsv"
         assert payload["outputs"]["transition_tsv"] == "assay.transitions.tsv"
+        assert payload["outputs"]["transition_qc_tsv"] == "assay.transition_qc.tsv"
         assert payload["outputs"]["fragment_ratio_tsv"] == "assay.fragments.tsv"
         assert payload["outputs"]["retention_tsv"] == "assay.retention.tsv"
         assert payload["outputs"]["replicate_cv_tsv"] == "assay.replicate_cv.tsv"
         assert payload["outputs"]["unreliable_tsv"] == "assay.unreliable.tsv"
         assert Path("assay.summary.tsv").exists()
+        assert Path("assay.targets.tsv").exists()
         assert Path("assay.transitions.tsv").exists()
+        assert Path("assay.transition_qc.tsv").exists()
         assert Path("assay.fragments.tsv").exists()
         assert Path("assay.retention.tsv").exists()
         assert Path("assay.replicate_cv.tsv").exists()
         assert Path("assay.unreliable.tsv").exists()
-        assert "Skyline\t2\t4\t8\t14\t8\t2\t4\t1\t6\t2" in Path(
+        assert "Skyline\t2\t4\t8\t3\t8\t16\t10\t14\t8\t2\t4\t1\t6\t2" in Path(
             "assay.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t1\ty7\ty8\t102000" in Path(
+            "assay.targets.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in Path(
             "assay.transitions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse" in Path(
+            "assay.transition_qc.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\ttrue" in Path(
             "assay.fragments.tsv"
@@ -5226,7 +5241,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
             "assay.replicate_cv.tsv"
         ).read_text(encoding="utf-8")
         assert (
-            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfragment-ion ratios deviate from the target reference pattern; source quality flags require review"
+            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two passing transitions support the target; fragment-ion ratios deviate from the target reference pattern; source quality flags require review"
             in Path("assay.unreliable.tsv").read_text(encoding="utf-8")
         )
 
