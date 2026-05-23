@@ -28,6 +28,7 @@ class ProteomicsEvidenceNodeKind(StrEnum):
     PTM_SITE = "ptm_site"
     TRANSITION = "transition"
     QUANT_VALUE = "quant_value"
+    STATISTICAL_RESULT = "statistical_result"
     PATHWAY = "pathway"
     QC_DECISION = "qc_decision"
 
@@ -50,6 +51,10 @@ class ProteomicsEvidenceEdgeKind(StrEnum):
     PROTEIN_MEMBER_OF_GROUP = "protein_member_of_group"
     PRECURSOR_SUPPORTS_TRANSITION = "precursor_supports_transition"
     PROTEIN_QUANTIFIED_BY_QUANT_VALUE = "protein_quantified_by_quant_value"
+    QUANT_VALUE_SUPPORTS_STATISTICAL_RESULT = "quant_value_supports_statistical_result"
+    PROTEIN_SUPPORTS_STATISTICAL_RESULT = "protein_supports_statistical_result"
+    PTM_SITE_SUPPORTS_STATISTICAL_RESULT = "ptm_site_supports_statistical_result"
+    PATHWAY_SUPPORTS_STATISTICAL_RESULT = "pathway_supports_statistical_result"
     PROTEIN_MEMBER_OF_PATHWAY = "protein_member_of_pathway"
     RUN_GOVERNED_BY_QC_DECISION = "run_governed_by_qc_decision"
 
@@ -548,6 +553,82 @@ class ProteomicsEvidenceGraphBuilder:
             reason=reason,
         )
 
+    def add_quant_value_supports_statistical_result(
+        self,
+        quant_value_node_id: str,
+        statistical_result_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            quant_value_node_id,
+            statistical_result_node_id,
+            ProteomicsEvidenceEdgeKind.QUANT_VALUE_SUPPORTS_STATISTICAL_RESULT,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.QUANTIFICATION,
+            reason=reason,
+        )
+
+    def add_protein_supports_statistical_result(
+        self,
+        protein_node_id: str,
+        statistical_result_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            protein_node_id,
+            statistical_result_node_id,
+            ProteomicsEvidenceEdgeKind.PROTEIN_SUPPORTS_STATISTICAL_RESULT,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason=reason,
+        )
+
+    def add_ptm_site_supports_statistical_result(
+        self,
+        ptm_site_node_id: str,
+        statistical_result_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            ptm_site_node_id,
+            statistical_result_node_id,
+            ProteomicsEvidenceEdgeKind.PTM_SITE_SUPPORTS_STATISTICAL_RESULT,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason=reason,
+        )
+
+    def add_pathway_supports_statistical_result(
+        self,
+        pathway_node_id: str,
+        statistical_result_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            pathway_node_id,
+            statistical_result_node_id,
+            ProteomicsEvidenceEdgeKind.PATHWAY_SUPPORTS_STATISTICAL_RESULT,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason=reason,
+        )
+
     def add_run_governed_by_qc_decision(
         self,
         run_node_id: str,
@@ -623,6 +704,15 @@ class ProteomicsEvidenceGraphBuilder:
         return self.ensure_node(
             ProteomicsEvidenceNodeKind.QUANT_VALUE,
             quant_value_id,
+            **kwargs,
+        )
+
+    def add_statistical_result(
+        self, statistical_result_id: str, **kwargs: object
+    ) -> ProteomicsEvidenceNode:
+        return self.ensure_node(
+            ProteomicsEvidenceNodeKind.STATISTICAL_RESULT,
+            statistical_result_id,
             **kwargs,
         )
 
