@@ -107,7 +107,6 @@ from bijux_proteomics.identification import (
     render_contaminant_proteins_tsv,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
-    render_diann_rejected_row_tsv,
     render_diann_summary_tsv,
     render_evidence_level_fdr_entries_tsv,
     render_evidence_level_fdr_summary_tsv,
@@ -123,7 +122,6 @@ from bijux_proteomics.identification import (
     render_fragpipe_q_value_comparison_tsv,
     render_fragpipe_summary_tsv,
     render_generic_psm_mapper_tsv,
-    render_generic_psm_rejected_row_tsv,
     render_maxquant_evidence_tsv,
     render_maxquant_lfq_candidate_tsv,
     render_maxquant_peptide_tsv,
@@ -132,7 +130,6 @@ from bijux_proteomics.identification import (
     render_openms_feature_tsv,
     render_openms_protein_tsv,
     render_openms_psm_tsv,
-    render_openms_rejected_feature_tsv,
     render_openms_summary_tsv,
     render_parsimony_review_ambiguities_tsv,
     render_parsimony_review_proteins_tsv,
@@ -166,6 +163,9 @@ from bijux_proteomics.identification import (
     render_spectronaut_summary_tsv,
     render_target_decoy_reference_entries_tsv,
     render_target_decoy_reference_summary_tsv,
+)
+from bijux_proteomics.identification.rejected_evidence_table import (
+    render_rejected_evidence_tsv,
 )
 from bijux_proteomics.identification.cross_run_reproducibility import (
     RunDetectionContext,
@@ -1931,6 +1931,7 @@ def psm_contaminants_command(
     "--protein-quantity-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
 )
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -1949,6 +1950,7 @@ def fragpipe_import_command(
     protein_review_tsv_out: Path | None,
     open_search_tsv_out: Path | None,
     protein_quantity_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one FragPipe result bundle with explicit PSM, peptide, and protein review."""
@@ -1991,6 +1993,11 @@ def fragpipe_import_command(
             protein_quantity_tsv_out,
             render_fragpipe_protein_quantity_tsv(report.protein_quantity_rows),
         )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -2007,6 +2014,9 @@ def fragpipe_import_command(
         "protein_rows": [row.to_dict() for row in report.protein_rows],
         "open_search_evidence": [row.to_dict() for row in report.open_search_evidence],
         "protein_quantity_rows": [row.to_dict() for row in report.protein_quantity_rows],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "canonical_psm_tsv": None
@@ -2025,6 +2035,9 @@ def fragpipe_import_command(
             "protein_quantity_tsv": None
             if protein_quantity_tsv_out is None
             else str(protein_quantity_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
@@ -2153,6 +2166,7 @@ def fragpipe_benchmark_command(
     type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -2165,6 +2179,7 @@ def sage_import_command(
     summary_tsv_out: Path | None,
     canonical_psm_tsv_out: Path | None,
     psm_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one Sage result table with explicit score, q-value, and modification review."""
@@ -2182,6 +2197,11 @@ def sage_import_command(
         )
     if psm_tsv_out is not None:
         _write_text_output(psm_tsv_out, render_sage_psm_tsv(report.psm_rows))
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
+        )
 
     payload = {
         "dialect_id": report.dialect_id,
@@ -2196,12 +2216,18 @@ def sage_import_command(
         else report.parameter_report.to_dict(),
         "canonical_psms": [row.to_dict() for row in report.canonical_psms],
         "psm_rows": [row.to_dict() for row in report.psm_rows],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "canonical_psm_tsv": None
             if canonical_psm_tsv_out is None
             else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
@@ -2223,6 +2249,7 @@ def sage_import_command(
     type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option("--psm-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -2235,6 +2262,7 @@ def comet_import_command(
     summary_tsv_out: Path | None,
     canonical_psm_tsv_out: Path | None,
     psm_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one Comet tabular or pepXML result file with explicit score review."""
@@ -2252,6 +2280,11 @@ def comet_import_command(
         )
     if psm_tsv_out is not None:
         _write_text_output(psm_tsv_out, render_comet_psm_tsv(report.psm_rows))
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
+        )
 
     payload = {
         "import_kind": report.import_kind.value,
@@ -2268,12 +2301,18 @@ def comet_import_command(
         else report.parameter_report.to_dict(),
         "canonical_psms": [row.to_dict() for row in report.canonical_psms],
         "psm_rows": [row.to_dict() for row in report.psm_rows],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "canonical_psm_tsv": None
             if canonical_psm_tsv_out is None
             else str(canonical_psm_tsv_out),
             "psm_tsv": None if psm_tsv_out is None else str(psm_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
@@ -2308,6 +2347,7 @@ def comet_import_command(
 @click.option(
     "--lfq-candidate-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
 )
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -2324,6 +2364,7 @@ def maxquant_import_command(
     peptide_tsv_out: Path | None,
     protein_group_tsv_out: Path | None,
     lfq_candidate_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one MaxQuant evidence, peptide, and protein-group bundle."""
@@ -2358,6 +2399,11 @@ def maxquant_import_command(
             lfq_candidate_tsv_out,
             render_maxquant_lfq_candidate_tsv(report.lfq_matrix_candidates),
         )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -2379,6 +2425,9 @@ def maxquant_import_command(
         "lfq_matrix_candidates": [
             row.to_dict() for row in report.lfq_matrix_candidates
         ],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "evidence_tsv": None if evidence_tsv_out is None else str(evidence_tsv_out),
@@ -2389,6 +2438,9 @@ def maxquant_import_command(
             "lfq_candidate_tsv": None
             if lfq_candidate_tsv_out is None
             else str(lfq_candidate_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
@@ -2581,7 +2633,7 @@ def diann_import_command(
     if rejected_tsv_out is not None:
         _write_text_output(
             rejected_tsv_out,
-            render_diann_rejected_row_tsv(report.rejected_rows),
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
         )
 
     payload = {
@@ -2599,6 +2651,9 @@ def diann_import_command(
         "precursor_rows": [row.to_dict() for row in report.precursor_rows],
         "protein_group_rows": [row.to_dict() for row in report.protein_group_rows],
         "rejected_rows": [row.to_dict() for row in report.rejected_rows],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "dia_native_report": report.dia_native_report.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -3915,6 +3970,7 @@ def target_panel_review_command(
     "--protein-group-quantity-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
 )
+@click.option("--rejected-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -3929,6 +3985,7 @@ def spectronaut_import_command(
     precursor_quantity_tsv_out: Path | None,
     protein_group_tsv_out: Path | None,
     protein_group_quantity_tsv_out: Path | None,
+    rejected_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import one Spectronaut report with explicit precursor and protein-group review."""
@@ -3964,6 +4021,11 @@ def spectronaut_import_command(
                 report.protein_group_quantity_rows
             ),
         )
+    if rejected_tsv_out is not None:
+        _write_text_output(
+            rejected_tsv_out,
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
+        )
 
     payload = {
         "summary": report.summary.to_dict(),
@@ -3986,6 +4048,9 @@ def spectronaut_import_command(
         "protein_group_quantity_rows": [
             row.to_dict() for row in report.protein_group_quantity_rows
         ],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "precursor_tsv": None
@@ -4000,6 +4065,9 @@ def spectronaut_import_command(
             "protein_group_quantity_tsv": None
             if protein_group_quantity_tsv_out is None
             else str(protein_group_quantity_tsv_out),
+            "rejected_tsv": None
+            if rejected_tsv_out is None
+            else str(rejected_tsv_out),
         },
     }
     _emit_json(payload, out_path=out_path)
@@ -4064,7 +4132,7 @@ def openms_import_command(
     if rejected_feature_tsv_out is not None:
         _write_text_output(
             rejected_feature_tsv_out,
-            render_openms_rejected_feature_tsv(report.rejected_feature_rows),
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
         )
 
     payload = {
@@ -4075,6 +4143,9 @@ def openms_import_command(
         "feature_rows": [row.to_dict() for row in report.feature_rows],
         "rejected_feature_rows": [
             row.to_dict() for row in report.rejected_feature_rows
+        ],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
         ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -5436,7 +5507,7 @@ def psm_map_command(
     if rejected_tsv_out is not None:
         _write_text_output(
             rejected_tsv_out,
-            render_generic_psm_rejected_row_tsv(report.rejected_rows),
+            render_rejected_evidence_tsv(report.rejected_evidence_rows),
         )
 
     payload = {
@@ -5449,6 +5520,9 @@ def psm_map_command(
         },
         "summary": report.summary.to_dict(),
         "rejected_rows": [row.to_dict() for row in report.rejected_rows],
+        "rejected_evidence_rows": [
+            row.to_dict() for row in report.rejected_evidence_rows
+        ],
         "mapped_rows": [row.to_dict() for row in report.mapped_rows],
         "outputs": {
             "normalized_tsv": None

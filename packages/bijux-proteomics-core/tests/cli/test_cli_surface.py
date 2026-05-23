@@ -3391,6 +3391,8 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
                 "fragpipe.open_search.tsv",
                 "--protein-quantity-tsv-out",
                 "fragpipe.quant.tsv",
+                "--rejected-tsv-out",
+                "fragpipe.rejected.tsv",
             ],
         )
 
@@ -3411,6 +3413,7 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert payload["psm_rows"][1]["open_search_candidate"] is True
         assert payload["open_search_evidence"][0]["mass_difference"] == 42.0106
         assert payload["protein_quantity_rows"][0]["quantity_kind"] == "maxlfq_intensity"
+        assert payload["rejected_evidence_rows"] == []
         assert Path("fragpipe.summary.tsv").exists()
         assert Path("fragpipe.canonical_psm.tsv").exists()
         assert Path("fragpipe.psm.tsv").exists()
@@ -3418,6 +3421,10 @@ def test_fragpipe_import_command_reports_bundle_summary_and_exports() -> None:
         assert Path("fragpipe.protein.tsv").exists()
         assert Path("fragpipe.open_search.tsv").exists()
         assert Path("fragpipe.quant.tsv").exists()
+        assert Path("fragpipe.rejected.tsv").exists()
+        assert Path("fragpipe.rejected.tsv").read_text(encoding="utf-8").startswith(
+            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        )
 
 
 def test_fragpipe_benchmark_command_reports_import_fidelity_and_exports() -> None:
@@ -3497,6 +3504,8 @@ def test_sage_import_command_reports_scores_and_modifications() -> None:
                 "sage.canonical_psm.tsv",
                 "--psm-tsv-out",
                 "sage.psm.tsv",
+                "--rejected-tsv-out",
+                "sage.rejected.tsv",
             ],
         )
 
@@ -3515,9 +3524,11 @@ def test_sage_import_command_reports_scores_and_modifications() -> None:
             "sp|P34567|TRANSFER_MOUSE",
         ]
         assert payload["psm_rows"][0]["hyperscore"] == 41.2
+        assert payload["rejected_evidence_rows"] == []
         assert Path("sage.summary.tsv").exists()
         assert Path("sage.canonical_psm.tsv").exists()
         assert Path("sage.psm.tsv").exists()
+        assert Path("sage.rejected.tsv").exists()
 
 
 def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
@@ -3541,6 +3552,8 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
                 "comet.canonical_psm.tsv",
                 "--psm-tsv-out",
                 "comet.psm.tsv",
+                "--rejected-tsv-out",
+                "comet.rejected.tsv",
             ],
         )
         pepxml_result = runner.invoke(cli, ["comet-import", "comet_results.pepxml"])
@@ -3557,9 +3570,11 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
             tabular_payload["canonical_psms"][1]["record"]["protein_refs"]
             == ["sp|P23456|TRANSFER_HUMAN", "sp|P34567|TRANSFER_MOUSE"]
         )
+        assert tabular_payload["rejected_evidence_rows"] == []
         assert Path("comet.summary.tsv").exists()
         assert Path("comet.canonical_psm.tsv").exists()
         assert Path("comet.psm.tsv").exists()
+        assert Path("comet.rejected.tsv").exists()
 
         assert pepxml_result.exit_code == 0
         pepxml_payload = json.loads(pepxml_result.output)
@@ -3567,6 +3582,7 @@ def test_comet_import_command_reports_tabular_and_pepxml_imports() -> None:
         assert pepxml_payload["import_kind"] == "pepxml"
         assert pepxml_payload["summary"]["accepted_psm_count"] == 3
         assert pepxml_payload["psm_rows"][0]["xcorr"] == 3.52
+        assert pepxml_payload["rejected_evidence_rows"] == []
 
 
 def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
@@ -3599,6 +3615,8 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
                 "maxquant.proteins.tsv",
                 "--lfq-candidate-tsv-out",
                 "maxquant.lfq_candidates.tsv",
+                "--rejected-tsv-out",
+                "maxquant.rejected.tsv",
             ],
         )
 
@@ -3623,11 +3641,13 @@ def test_maxquant_import_command_reports_bundle_experiments_and_lfq() -> None:
         )
         assert payload["lfq_matrix_candidates"][2]["contaminant_flag"] is True
         assert payload["lfq_matrix_candidates"][0]["member_peptides"] == ["PESTIDE"]
+        assert payload["rejected_evidence_rows"] == []
         assert Path("maxquant.summary.tsv").exists()
         assert Path("maxquant.evidence.tsv").exists()
         assert Path("maxquant.peptides.tsv").exists()
         assert Path("maxquant.proteins.tsv").exists()
         assert Path("maxquant.lfq_candidates.tsv").exists()
+        assert Path("maxquant.rejected.tsv").exists()
 
 
 def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
@@ -3667,6 +3687,7 @@ def test_diann_import_command_reports_runs_samples_and_quantities() -> None:
         assert payload["precursor_rows"][2]["modified_peptide"] == "ACDM[Oxidation]K"
         assert payload["dia_native_report"]["imported_count"] == 4
         assert payload["dia_native_report"]["imported_protein_groups"][0]["quantity"] == 3400000.0
+        assert payload["rejected_evidence_rows"] == []
         assert Path("diann.summary.tsv").exists()
         assert Path("diann.precursors.tsv").exists()
         assert Path("diann.protein_groups.tsv").exists()
@@ -3703,6 +3724,10 @@ def test_diann_import_command_exports_rejected_rows_without_failing() -> None:
         payload = json.loads(result.output)
         assert payload["summary"]["accepted_precursor_count"] == 1
         assert payload["summary"]["rejected_precursor_count"] == 1
+        assert payload["rejected_evidence_rows"][0]["reason_code"] == "invalid_q_value"
+        assert Path("diann.rejected.tsv").read_text(encoding="utf-8").startswith(
+            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        )
         assert payload["normalization"] is None
         assert payload["rejected_rows"][0]["issues"][0]["code"] == "invalid_q_value"
         assert Path("diann.rejected.tsv").read_text(encoding="utf-8").count(
@@ -5958,6 +5983,8 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
                 "spectronaut.protein_groups.tsv",
                 "--protein-group-quantity-tsv-out",
                 "spectronaut.protein_group_quantities.tsv",
+                "--rejected-tsv-out",
+                "spectronaut.rejected.tsv",
             ],
         )
 
@@ -5981,11 +6008,13 @@ def test_spectronaut_import_command_reports_samples_quantities_and_modifications
         assert payload["precursor_rows"][0]["modified_peptide"] == "PES[Phospho]TIDE"
         assert payload["precursor_quantity_rows"][0]["precursor_id"] == "sn_rawA_pestide_2"
         assert payload["protein_group_quantity_rows"][0]["protein_group_id"] == "PG001"
+        assert payload["rejected_evidence_rows"] == []
         assert Path("spectronaut.summary.tsv").exists()
         assert Path("spectronaut.precursors.tsv").exists()
         assert Path("spectronaut.precursor_quantities.tsv").exists()
         assert Path("spectronaut.protein_groups.tsv").exists()
         assert Path("spectronaut.protein_group_quantities.tsv").exists()
+        assert Path("spectronaut.rejected.tsv").exists()
 
 
 def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
@@ -6031,8 +6060,12 @@ def test_psm_map_command_reports_unmapped_columns_and_normalized_rows() -> None:
         assert payload["mapped_rows"][1]["target_decoy_label"] == "decoy"
         assert payload["mapped_rows"][1]["target_decoy_contaminant_class"] == "mixed"
         assert payload["mapped_rows"][1]["contaminant_flag"] is True
+        assert payload["rejected_evidence_rows"] == []
         assert Path("mapped.tsv").exists()
         assert Path("rejected.tsv").exists()
+        assert Path("rejected.tsv").read_text(encoding="utf-8").startswith(
+            "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+        )
 
 
 def test_psm_map_command_blocks_missing_required_mapping() -> None:
@@ -6112,11 +6145,15 @@ def test_openms_import_command_reports_idxml_and_feature_bundle() -> None:
         assert payload["feature_rows"][2]["peptide_sequence"] == "M[Oxidation]PEPTIDE"
         assert payload["rejected_feature_rows"][0]["row_number"] == 6
         assert payload["rejected_feature_rows"][0]["issues"][0]["code"] == "invalid_intensity"
+        assert payload["rejected_evidence_rows"][0]["reason_code"] == "invalid_intensity"
         assert Path("openms.summary.tsv").exists()
         assert Path("openms.psm.tsv").exists()
         assert Path("openms.protein.tsv").exists()
         assert Path("openms.feature.tsv").exists()
         assert Path("openms.rejected_features.tsv").exists()
+        assert Path("openms.rejected_features.tsv").read_text(
+            encoding="utf-8"
+        ).startswith("source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n")
 
 
 def test_fdr_command_writes_audit_and_calibration_outputs() -> None:
