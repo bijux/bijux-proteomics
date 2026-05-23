@@ -290,6 +290,14 @@ def _candidate_site_indices(
     candidate: ModificationLocalizationCandidate,
     same_name_count: int,
 ) -> tuple[int, ...]:
+    for site_candidate in record.site_candidates:
+        if (
+            site_candidate.modification_name == modification.name
+            and site_candidate.peptide_site_index == modification.site_index
+        ):
+            return site_candidate.candidate_site_indices or (
+                modification.site_index,
+            )
     if (
         same_name_count == 1
         and record.candidate_site_indices

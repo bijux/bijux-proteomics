@@ -17,6 +17,7 @@ from bijux_proteomics.ptm.contracts import (
     PtmCoordinateValidationIssue,
     PtmCoordinateValidationReport,
     PtmEvidenceRecord,
+    PtmEvidenceSiteCandidate,
     PtmProteinSiteMapping,
     PtmSiteAmbiguityEntry,
     PtmSiteCoverageEntry,
@@ -34,26 +35,21 @@ def map_ptm_evidence_to_protein_sites(
     """Map residue-localized modified peptides onto protein coordinates."""
     mappings: list[PtmProteinSiteMapping] = []
     for record in records:
-        parsed = parse_modified_peptide(record.localized_peptide, registry=registry)
         shared_peptide = len(record.protein_refs) > 1
+        site_candidates = _site_candidates_for_record(record, registry=registry)
         for protein_ref in record.protein_refs:
             sequence = protein_sequences.get(protein_ref)
             if sequence is None:
                 continue
-            starts = _find_occurrences(sequence, parsed.sequence)
+            starts = _find_occurrences(sequence, record.sequence)
             if not starts:
                 continue
-            for modification in parsed.modifications:
-                if (
-                    modification.site is not ModificationPosition.ANYWHERE
-                    or modification.site_index is None
-                ):
-                    continue
+            for site_candidate in site_candidates:
                 for start in starts:
-                    protein_position = start + modification.site_index - 1
+                    protein_position = start + site_candidate.peptide_site_index - 1
                     candidate_positions = tuple(
                         start + site_index - 1
-                        for site_index in record.candidate_site_indices
+                        for site_index in site_candidate.candidate_site_indices
                     ) or (protein_position,)
                     mappings.append(
                         PtmProteinSiteMapping(
@@ -63,9 +59,9 @@ def map_ptm_evidence_to_protein_sites(
                             localized_peptide=record.localized_peptide,
                             canonical_peptide=record.canonical_peptide,
                             sequence=record.sequence,
-                            modification_name=modification.name,
+                            modification_name=site_candidate.modification_name,
                             residue=sequence[protein_position - 1],
-                            peptide_site_index=modification.site_index,
+                            peptide_site_index=site_candidate.peptide_site_index,
                             protein_position=protein_position,
                             localization_score=record.localization_score,
                             q_value=record.q_value,
@@ -87,6 +83,35 @@ def map_ptm_evidence_to_protein_sites(
             ),
         )
     )
+
+
+def _site_candidates_for_record(
+    record: PtmEvidenceRecord,
+    *,
+    registry: ModificationRegistryDocument | None = None,
+) -> tuple[PtmEvidenceSiteCandidate, ...]:
+    if record.site_candidates:
+        return record.site_candidates
+    parsed = parse_modified_peptide(record.localized_peptide, registry=registry)
+    site_candidates: list[PtmEvidenceSiteCandidate] = []
+    for modification in parsed.modifications:
+        if (
+            modification.site is not ModificationPosition.ANYWHERE
+            or modification.site_index is None
+        ):
+            continue
+        site_candidates.append(
+            PtmEvidenceSiteCandidate(
+                modification_name=modification.name,
+                controlled_id=modification.controlled_id,
+                residue=parsed.sequence[modification.site_index - 1],
+                peptide_site_index=modification.site_index,
+                candidate_site_indices=record.candidate_site_indices
+                or (modification.site_index,),
+                site_kind=modification.site,
+            )
+        )
+    return tuple(site_candidates)
 
 
 def build_ptm_site_table(
