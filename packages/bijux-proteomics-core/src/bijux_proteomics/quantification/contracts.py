@@ -1324,6 +1324,38 @@ class DifferentialAbundanceTestType(StrEnum):
 
     WELCH_T_TEST = "welch_t_test"
     LINEAR_MODEL_CONTRAST = "linear_model_contrast"
+    PAIRED_T_TEST = "paired_t_test"
+
+
+class BrokenPairDisposition(StrEnum):
+    """Policies for broken design pairs during paired differential testing."""
+
+    EXCLUDE = "exclude"
+    BLOCK = "block"
+
+
+class PairedDifferentialPolicy(JsonModel):
+    """Pair completeness policy for paired differential abundance testing."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    pair_id_field: str = Field(default="pair_id", min_length=1)
+    minimum_complete_pairs: int = Field(default=2, ge=1)
+    broken_pair_disposition: BrokenPairDisposition = BrokenPairDisposition.EXCLUDE
+
+
+class DifferentialBrokenPairEntry(JsonModel):
+    """One design pair excluded or blocked during paired testing."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    pair_id: str | None = None
+    sample_ids_a: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids_b: tuple[str, ...] = Field(default_factory=tuple)
+    reason_code: str = Field(..., min_length=1)
+    detail: str = Field(..., min_length=1)
 
 
 class DifferentialAbundanceAssumptionReport(JsonModel):
@@ -1336,6 +1368,7 @@ class DifferentialAbundanceAssumptionReport(JsonModel):
     multiple_testing_scope: str = Field(..., min_length=1)
     replicate_policy: DifferentialReplicatePolicy
     contrast_name: str | None = None
+    paired_policy: PairedDifferentialPolicy | None = None
 
 
 class DifferentialAbundanceEntry(JsonModel):
@@ -1348,6 +1381,7 @@ class DifferentialAbundanceEntry(JsonModel):
     condition_b: str = Field(..., min_length=1)
     observations_a: int = Field(..., ge=0)
     observations_b: int = Field(..., ge=0)
+    complete_pair_count: int = Field(default=0, ge=0)
     zero_values_a: int = Field(default=0, ge=0)
     zero_values_b: int = Field(default=0, ge=0)
     not_observed_values_a: int = Field(default=0, ge=0)
@@ -1382,6 +1416,7 @@ class DifferentialAbundanceReport(JsonModel):
     )
     assumption_report: DifferentialAbundanceAssumptionReport
     entries: tuple[DifferentialAbundanceEntry, ...] = Field(default_factory=tuple)
+    broken_pairs: tuple[DifferentialBrokenPairEntry, ...] = Field(default_factory=tuple)
 
 
 class DifferentialAbundanceContrast(JsonModel):
@@ -3756,6 +3791,7 @@ def build_differential_abundance_report(
     test_type: DifferentialAbundanceTestType = DifferentialAbundanceTestType.WELCH_T_TEST,
     design_matrix: QuantDesignMatrixReport | None = None,
     contrast_name: str | None = None,
+    paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
@@ -3771,6 +3807,7 @@ def build_differential_abundance_report(
         test_type=test_type,
         design_matrix=design_matrix,
         contrast_name=contrast_name,
+        paired_policy=paired_policy,
         replicate_policy=replicate_policy,
     )
 
@@ -3795,6 +3832,29 @@ def render_differential_abundance_tsv(
     )
 
     return _implementation(report)
+
+
+def render_differential_broken_pairs_tsv(
+    report: DifferentialAbundanceReport,
+) -> str:
+    """Render one broken-pair ledger for paired differential testing."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        render_differential_broken_pairs_tsv as _implementation,
+    )
+
+    return _implementation(report)
+
+
+def export_differential_broken_pairs_tsv(
+    report: DifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write one broken-pair ledger to a stable TSV artifact."""
+    from bijux_proteomics.quantification.differential_abundance import (
+        export_differential_broken_pairs_tsv as _implementation,
+    )
+
+    _implementation(report, path)
 
 
 def export_differential_abundance_tsv(
