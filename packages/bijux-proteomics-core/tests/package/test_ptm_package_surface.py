@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.ptm as ptm
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -77,3 +78,33 @@ def test_ptm_package_exports_site_quantification_owner_surface() -> None:
     assert report.summary.site_row_count == 3
     assert report.summary.ambiguous_group_row_count == 2
     assert report.ambiguous_group_quantification is not None
+
+
+def test_ptm_package_exports_differential_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    site_quantification = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
+    report = ptm.build_ptm_differential_analysis_report(
+        site_quantification,
+        design.accepted_entries,
+        batch_field="",
+    )
+
+    assert hasattr(ptm, "build_ptm_differential_analysis_report")
+    assert hasattr(ptm, "render_ptm_site_differential_tsv")
+    low_localization = next(
+        entry
+        for entry in report.differential_report.entries
+        if entry.site_key == "Q9DEC1:S5:Phospho"
+    )
+    assert low_localization.localization_tier.value == "refused"
+    assert low_localization.low_localization is True
