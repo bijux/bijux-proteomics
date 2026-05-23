@@ -8039,6 +8039,12 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
                 "ptm_sites.fasta",
                 "--mapping-tsv-out",
                 "ptm.mapping.tsv",
+                "--exact-mapping-tsv-out",
+                "ptm.exact.tsv",
+                "--ambiguous-mapping-tsv-out",
+                "ptm.ambiguous.tsv",
+                "--unmapped-tsv-out",
+                "ptm.unmapped.tsv",
                 "--site-table-tsv-out",
                 "ptm.site_table.tsv",
                 "--ambiguity-tsv-out",
@@ -8054,11 +8060,19 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         payload = json.loads(result.output)
         assert payload["accepted_rows"] == 8
         assert payload["mapping_count"] == 10
+        assert payload["exact_mapping_count"] == 6
+        assert payload["ambiguous_mapping_count"] == 4
+        assert payload["unmapped_peptide_count"] == 0
         assert payload["site_count"] == 5
         assert payload["ambiguity_count"] == 2
         assert payload["ambiguity_review"]["summary"]["possible_residue_count"] == 6
         assert payload["coordinate_validation"]["valid"] is True
         assert "shared_peptide" in Path("ptm.mapping.tsv").read_text()
+        assert "scan=ptm-001" in Path("ptm.exact.tsv").read_text()
+        assert "scan=ptm-005" in Path("ptm.ambiguous.tsv").read_text()
+        assert Path("ptm.unmapped.tsv").read_text().splitlines()[0].startswith(
+            "spectrum_id\tsample_id\tlocalized_peptide"
+        )
         assert "P11111:S5:Phospho" in Path("ptm.site_table.tsv").read_text()
         assert (
             "P11111:Phospho:17|18|19"
@@ -8106,6 +8120,53 @@ def test_ptm_map_sites_command_exports_separate_multi_modified_candidates() -> N
         assert "Phospho\tUNIMOD:21\tY\t4" in Path("ptm.candidates.tsv").read_text()
         assert "\t2\t17\t" in Path("ptm.mapping.tsv").read_text()
         assert "\t4\t19\t" in Path("ptm.mapping.tsv").read_text()
+
+
+def test_ptm_map_sites_command_preserves_exact_shared_and_unmapped_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+        Path("mapping_input.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tspectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins\tlocalization_score\tcandidate_sites\tdecoy_label",
+                    "C1\tscan=shared-unique\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP11111;P40404\t0.990\t1\ttarget",
+                    "C1\tscan=unmapped\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP40404\t0.990\t1\ttarget",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "map-sites",
+                "mapping_input.tsv",
+                "ptm_sites.fasta",
+                "--exact-mapping-tsv-out",
+                "ptm.exact.tsv",
+                "--ambiguous-mapping-tsv-out",
+                "ptm.ambiguous.tsv",
+                "--unmapped-tsv-out",
+                "ptm.unmapped.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["mapping_count"] == 1
+        assert payload["exact_mapping_count"] == 1
+        assert payload["ambiguous_mapping_count"] == 0
+        assert payload["unmapped_peptide_count"] == 1
+        assert "scan=shared-unique" in Path("ptm.exact.tsv").read_text()
+        assert Path("ptm.ambiguous.tsv").read_text().splitlines() == [
+            "spectrum_id\tsample_id\tprotein_ref\tlocalized_peptide\tcanonical_peptide\tmodification_name\tresidue\tpeptide_site_index\tprotein_position\tlocalization_score\tq_value\tcandidate_protein_positions\tambiguous\tshared_peptide\ttarget_decoy_label"
+        ]
+        assert "scan=unmapped" in Path("ptm.unmapped.tsv").read_text()
+        assert "missing_protein_sequence" in Path("ptm.unmapped.tsv").read_text()
 
 
 def test_ptm_ambiguity_review_command_emits_localized_and_group_quant_ledgers() -> None:
