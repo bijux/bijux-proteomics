@@ -500,6 +500,7 @@ from bijux_proteomics.ptm import (
     build_ptm_site_coverage_report,
     build_ptm_site_fdr,
     build_ptm_site_table,
+    build_ptm_protein_site_mapping_report,
     map_ptm_evidence_to_protein_sites,
     parse_ptm_peptide,
     parse_ptm_peptide_tsv,
@@ -538,6 +539,7 @@ from bijux_proteomics.ptm import (
     render_ptm_protein_site_mapping_tsv,
     render_ptm_site_coverage_tsv,
     render_ptm_site_table_tsv,
+    render_ptm_unmapped_peptide_tsv,
     render_ptm_unlocalized_group_review_tsv,
     validate_ptm_site_coordinates,
     parse_ptm_site_annotation_tsv,
@@ -15868,6 +15870,21 @@ def ptm_parse_peptides_command(
     default=None,
 )
 @click.option(
+    "--exact-mapping-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--ambiguous-mapping-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unmapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--candidate-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -15912,6 +15929,9 @@ def ptm_map_sites_command(
     protein_separator: str,
     site_separator: str,
     mapping_tsv_out: Path | None,
+    exact_mapping_tsv_out: Path | None,
+    ambiguous_mapping_tsv_out: Path | None,
+    unmapped_tsv_out: Path | None,
     candidate_tsv_out: Path | None,
     site_table_tsv_out: Path | None,
     ambiguity_tsv_out: Path | None,
@@ -15952,10 +15972,11 @@ def ptm_map_sites_command(
             record.canonical_accession: record.residues
             for record in fasta_report.accepted_records
         }
-        mappings = map_ptm_evidence_to_protein_sites(
+        mapping_report = build_ptm_protein_site_mapping_report(
             evidence.accepted_records,
             protein_sequences=protein_sequences,
         )
+        mappings = mapping_report.mappings
         site_table = build_ptm_site_table(mappings)
         localization = build_ptm_localization_scoring_report(
             evidence.accepted_records
@@ -15976,6 +15997,21 @@ def ptm_map_sites_command(
     if mapping_tsv_out is not None:
         mapping_tsv_out.write_text(
             render_ptm_protein_site_mapping_tsv(mappings),
+            encoding="utf-8",
+        )
+    if exact_mapping_tsv_out is not None:
+        exact_mapping_tsv_out.write_text(
+            render_ptm_protein_site_mapping_tsv(mapping_report.exact_mappings),
+            encoding="utf-8",
+        )
+    if ambiguous_mapping_tsv_out is not None:
+        ambiguous_mapping_tsv_out.write_text(
+            render_ptm_protein_site_mapping_tsv(mapping_report.ambiguous_mappings),
+            encoding="utf-8",
+        )
+    if unmapped_tsv_out is not None:
+        unmapped_tsv_out.write_text(
+            render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides),
             encoding="utf-8",
         )
     if candidate_tsv_out is not None:
@@ -16011,6 +16047,9 @@ def ptm_map_sites_command(
                 len(record.site_candidates) for record in evidence.accepted_records
             ),
             "mapping_count": len(mappings),
+            "exact_mapping_count": len(mapping_report.exact_mappings),
+            "ambiguous_mapping_count": len(mapping_report.ambiguous_mappings),
+            "unmapped_peptide_count": len(mapping_report.unmapped_peptides),
             "site_count": len(site_table),
             "ambiguity_count": len(ambiguity_review.unlocalized_groups),
             "ambiguity_review": ambiguity_review.to_dict(),
