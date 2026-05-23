@@ -242,6 +242,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Typed proteomics evidence graphs, evidence-chain reconstruction, review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
         required_modules=(
             "review/evidence_graph.py",
+            "review/evidence_graph_confidence.py",
             "review/evidence_graph_queries.py",
             "review/evidence_graph_contradictions.py",
             "review/evidence_chain_reconstruction.py",
