@@ -527,6 +527,7 @@ from bijux_proteomics.ptm import (
     parse_ptm_site_annotation_tsv,
 )
 from bijux_proteomics.quantification import (
+    DifferentialAbundanceTestType,
     HeatmapMissingValuePolicy,
     HeatmapPreparationPolicy,
     ImputationMethod,
@@ -538,7 +539,6 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantMeasureKind,
     QuantRollupMethod,
-    apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_heatmap_preparation_report,
     build_limma_compatible_quant_package,
@@ -7928,13 +7928,15 @@ def quantify_command(
                         condition_b=selected_contrast[1],
                         methods=sensitivity_methods,
                     )
-                    differential = apply_benjamini_hochberg(
-                        build_differential_abundance_report(
-                            table,
-                            design_entries,
-                            condition_a=selected_contrast[0],
-                            condition_b=selected_contrast[1],
-                        )
+                    differential = build_differential_abundance_report(
+                        table,
+                        design_entries,
+                        condition_a=selected_contrast[0],
+                        condition_b=selected_contrast[1],
+                        test_type=(
+                            DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST
+                        ),
+                        design_matrix=design_matrix,
                     )
                 elif len(conditions) > 2:
                     differential_multi_condition = (

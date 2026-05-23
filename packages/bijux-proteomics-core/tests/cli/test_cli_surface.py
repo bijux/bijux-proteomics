@@ -5985,7 +5985,7 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert "PG001\tP11111\tPESTIDE\t100000\t110000\t400000\t420000" in Path(
             "dia.raw.tsv"
         ).read_text(encoding="utf-8")
-        assert "PG001\tcontrol\ttreatment\t2\t2" in Path(
+        assert "PG001\tcontrol\ttreatment\t\t2\t2" in Path(
             "dia.differential.tsv"
         ).read_text(encoding="utf-8")
         assert "sample_id\tcondition\tbatch\tpair_id\tintercept" in Path(
@@ -6376,6 +6376,17 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["limma_compatible_package"]["sample_annotations"]
         assert payload["msstats_compatible_input_report"]["rows"]
         assert payload["differential_abundance"]["condition_a"] == "control"
+        assert (
+            payload["differential_abundance"]["assumption_report"]["test_type"]
+            == "linear_model_contrast"
+        )
+        assert (
+            payload["differential_abundance"]["assumption_report"][
+                "multiple_testing_scope"
+            ]
+            == "benjamini_hochberg_report_wide_entities"
+        )
+        assert payload["differential_abundance"]["contrast_name"] == "control_vs_treatment"
         assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
         assert payload["outputs"]["design_matrix_tsv"] == "quantify.design.tsv"
         assert (
@@ -6406,6 +6417,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert "P001\tcontrol\ttreatment" in Path(
             "quantify.differential.tsv"
         ).read_text(encoding="utf-8")
+        assert "contrast_name" in Path("quantify.differential.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "sample_id\tcondition\tbatch\tpair_id" in Path(
             "quantify.design.tsv"
         ).read_text(encoding="utf-8")
