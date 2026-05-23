@@ -10,4 +10,5 @@ from bijux_proteomics.interpretation.go_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.ortholog_mapping import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.pathway_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_annotation_mapping import *  # noqa: F401,F403
+from bijux_proteomics.interpretation.protein_set_enrichment import *  # noqa: F401,F403
 from bijux_proteomics.interpretation.protein_set_scoring import *  # noqa: F401,F403
