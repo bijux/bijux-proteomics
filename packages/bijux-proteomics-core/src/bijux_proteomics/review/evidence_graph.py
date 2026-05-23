@@ -51,6 +51,7 @@ class ProteomicsEvidenceEdgeKind(StrEnum):
     PROTEIN_MEMBER_OF_GROUP = "protein_member_of_group"
     PRECURSOR_SUPPORTS_TRANSITION = "precursor_supports_transition"
     PROTEIN_QUANTIFIED_BY_QUANT_VALUE = "protein_quantified_by_quant_value"
+    PEPTIDE_SUPPORTS_STATISTICAL_RESULT = "peptide_supports_statistical_result"
     QUANT_VALUE_SUPPORTS_STATISTICAL_RESULT = "quant_value_supports_statistical_result"
     PROTEIN_SUPPORTS_STATISTICAL_RESULT = "protein_supports_statistical_result"
     PTM_SITE_SUPPORTS_STATISTICAL_RESULT = "ptm_site_supports_statistical_result"
@@ -531,6 +532,25 @@ class ProteomicsEvidenceGraphBuilder:
             source_row_ref=source_row_ref,
             confidence=confidence,
             evidence_type=ProteomicsEvidenceType.QUANTIFICATION,
+            reason=reason,
+        )
+
+    def add_peptide_supports_statistical_result(
+        self,
+        peptide_node_id: str,
+        statistical_result_node_id: str,
+        *,
+        source_row_ref: str,
+        confidence: float,
+        reason: str,
+    ) -> None:
+        self.add_edge(
+            peptide_node_id,
+            statistical_result_node_id,
+            ProteomicsEvidenceEdgeKind.PEPTIDE_SUPPORTS_STATISTICAL_RESULT,
+            source_row_ref=source_row_ref,
+            confidence=confidence,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
             reason=reason,
         )
 
