@@ -215,6 +215,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/contracts.py",
             "ptm/ambiguity_handling.py",
             "ptm/localization_scoring.py",
+            "ptm/differential_analysis.py",
             "ptm/peptide_parser.py",
             "ptm/protein_site_mapping.py",
             "ptm/review.py",
