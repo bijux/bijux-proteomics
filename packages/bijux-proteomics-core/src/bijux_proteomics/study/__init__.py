@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from bijux_proteomics.study.contrasts import *  # noqa: F401,F403
 from bijux_proteomics.study.contracts import *  # noqa: F401,F403
+from bijux_proteomics.study.design_classification import *  # noqa: F401,F403
 from bijux_proteomics.study.design_validity import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_design import *  # noqa: F401,F403
 from bijux_proteomics.study.sample_metadata import *  # noqa: F401,F403
