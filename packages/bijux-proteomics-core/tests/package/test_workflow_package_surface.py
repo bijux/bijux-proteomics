@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics import workflow
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 
 
 def _fixture(name: str) -> Path:
@@ -21,7 +22,7 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
     )
     report = workflow.build_biological_result_report_bundle(
         _fixture("biological_report_features.tsv"),
-        design_entries,
+        build_experiment_design(design_entries),
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         condition_a="control",
         condition_b="treatment",
