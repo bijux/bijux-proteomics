@@ -12,6 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
+from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.maxquant_import import (
     MaxquantImportReport,
     MaxquantLfqIntensityEntry,
@@ -569,19 +570,37 @@ def _parse_source_protein_groups(
                 "maxquant benchmark protein-groups input must include a header row"
             )
         rows: list[MaxquantBenchmarkSourceProteinGroup] = []
-        for row in reader:
+        for row_number, row in enumerate(reader, start=2):
             normalized = {key: (value or "").strip() for key, value in row.items()}
+            protein_ids = _split_tokens(normalized.get("Protein IDs", ""))
+            majority_protein_ids = _split_tokens(
+                normalized.get("Majority protein IDs", "")
+            )
+            row_provenance = ImportedEvidenceProvenance.from_single_row(
+                source_engine="maxquant-benchmark-source",
+                source_file=str(protein_groups_txt_path),
+                source_row_number=row_number,
+                original_identifiers={
+                    "protein_ids": ";".join(protein_ids),
+                    "majority_protein_ids": ";".join(majority_protein_ids),
+                },
+            )
             lfq_intensities = tuple(
                 MaxquantLfqIntensityEntry(
                     experiment_name=column.removeprefix("LFQ intensity ").strip(),
                     intensity=_parse_float(normalized[column]),
+                    provenance=ImportedEvidenceProvenance.combine(
+                        (row_provenance,),
+                        original_identifiers={
+                            "protein_ids": ";".join(protein_ids),
+                            "experiment_name": column.removeprefix(
+                                "LFQ intensity "
+                            ).strip(),
+                        },
+                    ),
                 )
                 for column in reader.fieldnames
                 if column.startswith("LFQ intensity ")
-            )
-            protein_ids = _split_tokens(normalized.get("Protein IDs", ""))
-            majority_protein_ids = _split_tokens(
-                normalized.get("Majority protein IDs", "")
             )
             rows.append(
                 MaxquantBenchmarkSourceProteinGroup(
