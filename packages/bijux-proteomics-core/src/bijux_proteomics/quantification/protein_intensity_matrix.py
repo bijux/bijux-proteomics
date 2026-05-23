@@ -45,6 +45,13 @@ class ProteinMatrixTargetKind(StrEnum):
     PROTEIN_GROUP = "protein_group"
 
 
+class ProteinSharedPeptidePolicy(StrEnum):
+    """Explicit policy for handling peptides shared across protein targets."""
+
+    UNIQUE_ONLY = "unique_only"
+    ALL_PEPTIDES = "all_peptides"
+
+
 class ProteinIntensityMatrixValue(JsonModel):
     """One sample-specific protein-matrix cell."""
 
@@ -53,7 +60,28 @@ class ProteinIntensityMatrixValue(JsonModel):
     sample_id: str = Field(..., min_length=1)
     abundance: float | None = Field(default=None, ge=0.0)
     missing_value_kind: MissingValueKind
+    shared_peptide_policy: ProteinSharedPeptidePolicy = (
+        ProteinSharedPeptidePolicy.ALL_PEPTIDES
+    )
     contributing_peptide_count: int = Field(..., ge=0)
+
+
+class ProteinPeptideContributionEntry(JsonModel):
+    """One peptide contribution row under one explicit protein rollup policy."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    target_kind: ProteinMatrixTargetKind
+    sample_id: str = Field(..., min_length=1)
+    peptide_id: str = Field(..., min_length=1)
+    peptide_sequence: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    abundance: float | None = Field(default=None, ge=0.0)
+    missing_value_kind: MissingValueKind
+    shared_peptide: bool
+    included_by_policy: bool
+    shared_peptide_policy: ProteinSharedPeptidePolicy
 
 
 class ProteinIntensityMatrixRow(JsonModel):
@@ -99,6 +127,9 @@ class ProteinIntensityMatrixReport(JsonModel):
     unique_only: bool = False
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[ProteinIntensityMatrixRow, ...] = Field(default_factory=tuple)
+    peptide_contribution_entries: tuple[ProteinPeptideContributionEntry, ...] = Field(
+        default_factory=tuple
+    )
     quant_matrix: CanonicalQuantMatrix | None = None
     missing_summary: MissingValueSummaryReport
     summary: ProteinIntensityMatrixSummary
@@ -210,13 +241,19 @@ def build_protein_intensity_matrix_from_peptides(
     if top_n < 1:
         raise ValueError("top_n must be at least 1")
 
+    shared_peptide_policy = (
+        ProteinSharedPeptidePolicy.UNIQUE_ONLY
+        if unique_only
+        else ProteinSharedPeptidePolicy.ALL_PEPTIDES
+    )
     target_peptides: dict[str, list[tuple[ProteinIntensityMatrixValue, str, bool]]] = {}
+    target_contributions: dict[
+        str, list[tuple[str, str, ProteinIntensityMatrixValue, bool, bool]]
+    ] = {}
     target_refs: dict[str, tuple[str, ...]] = {}
 
     for peptide_row in peptide_matrix.rows:
         is_unique = len(peptide_row.protein_refs) == 1
-        if unique_only and not is_unique:
-            continue
         if not peptide_row.protein_refs:
             continue
         target_ids: tuple[str, ...]
@@ -225,20 +262,40 @@ def build_protein_intensity_matrix_from_peptides(
         else:
             target_ids = (";".join(peptide_row.protein_refs),)
         for target_id in target_ids:
-            target_refs.setdefault(
-                target_id,
-                peptide_row.protein_refs
-                if target_kind is ProteinMatrixTargetKind.PROTEIN_GROUP
-                else (target_id,),
-            )
-            target_peptides.setdefault(target_id, [])
+            target_contributions.setdefault(target_id, [])
             for value in peptide_row.values:
+                included_by_policy = is_unique or not unique_only
+                target_refs.setdefault(
+                    target_id,
+                    peptide_row.protein_refs
+                    if target_kind is ProteinMatrixTargetKind.PROTEIN_GROUP
+                    else (target_id,),
+                )
+                target_contributions[target_id].append(
+                    (
+                        peptide_row.entity_id,
+                        peptide_row.peptide_sequence,
+                        ProteinIntensityMatrixValue(
+                            sample_id=value.sample_id,
+                            abundance=value.abundance,
+                            missing_value_kind=value.missing_value_kind,
+                            shared_peptide_policy=shared_peptide_policy,
+                            contributing_peptide_count=1,
+                        ),
+                        is_unique,
+                        included_by_policy,
+                    )
+                )
+                if not included_by_policy:
+                    continue
+                target_peptides.setdefault(target_id, [])
                 target_peptides[target_id].append(
                     (
                         ProteinIntensityMatrixValue(
                             sample_id=value.sample_id,
                             abundance=value.abundance,
                             missing_value_kind=value.missing_value_kind,
+                            shared_peptide_policy=shared_peptide_policy,
                             contributing_peptide_count=1,
                         ),
                         peptide_row.entity_id,
@@ -247,6 +304,7 @@ def build_protein_intensity_matrix_from_peptides(
                 )
 
     rows: list[ProteinIntensityMatrixRow] = []
+    contribution_entries: list[ProteinPeptideContributionEntry] = []
     missing_entries: list[MissingValueSummaryEntry] = []
     observed_cell_count = 0
     zero_cell_count = 0
@@ -350,6 +408,7 @@ def build_protein_intensity_matrix_from_peptides(
                     sample_id=sample_id,
                     abundance=abundance,
                     missing_value_kind=missing_kind,
+                    shared_peptide_policy=shared_peptide_policy,
                     contributing_peptide_count=len(
                         {peptide_id for _, peptide_id, _ in entries}
                     ),
@@ -367,6 +426,28 @@ def build_protein_intensity_matrix_from_peptides(
                 values=tuple(values),
             )
         )
+        for (
+            peptide_id,
+            peptide_sequence,
+            value,
+            is_unique,
+            included_by_policy,
+        ) in target_contributions.get(target_id, ()):
+            contribution_entries.append(
+                ProteinPeptideContributionEntry(
+                    entity_id=target_id,
+                    target_kind=target_kind,
+                    sample_id=value.sample_id,
+                    peptide_id=peptide_id,
+                    peptide_sequence=peptide_sequence,
+                    protein_refs=protein_refs,
+                    abundance=value.abundance,
+                    missing_value_kind=value.missing_value_kind,
+                    shared_peptide=not is_unique,
+                    included_by_policy=included_by_policy,
+                    shared_peptide_policy=shared_peptide_policy,
+                )
+            )
 
     note = (
         "protein matrix rolls peptide intensities up through one explicit policy "
@@ -381,6 +462,7 @@ def build_protein_intensity_matrix_from_peptides(
         unique_only=unique_only,
         sample_ids=peptide_matrix.sample_ids,
         rows=tuple(rows),
+        peptide_contribution_entries=tuple(contribution_entries),
         missing_summary=MissingValueSummaryReport(
             entity_level=QuantEntityLevel.PROTEIN,
             policy=MissingValueSummaryPolicy(),
@@ -556,6 +638,51 @@ def render_protein_intensity_missingness_tsv(
                     str(entry.zero_count),
                     str(entry.not_observed_count),
                     str(entry.filtered_count),
+                )
+            )
+        )
+    return "\n".join(rows) + "\n"
+
+
+def render_protein_peptide_contribution_tsv(
+    report: ProteinIntensityMatrixReport,
+) -> str:
+    """Render one explicit peptide-contribution ledger for a protein matrix."""
+
+    header = (
+        "entity_id",
+        "target_kind",
+        "sample_id",
+        "peptide_id",
+        "peptide_sequence",
+        "protein_refs",
+        "abundance",
+        "missing_value_kind",
+        "shared_peptide",
+        "included_by_policy",
+        "shared_peptide_policy",
+    )
+    rows = ["\t".join(header)]
+    for entry in sort_rows_by_fields(
+        report.peptide_contribution_entries,
+        "entity_id",
+        "sample_id",
+        "peptide_id",
+    ):
+        rows.append(
+            "\t".join(
+                (
+                    entry.entity_id,
+                    entry.target_kind.value,
+                    entry.sample_id,
+                    entry.peptide_id,
+                    entry.peptide_sequence,
+                    ";".join(sort_strings(entry.protein_refs)),
+                    "" if entry.abundance is None else f"{entry.abundance:g}",
+                    entry.missing_value_kind.value,
+                    str(entry.shared_peptide).lower(),
+                    str(entry.included_by_policy).lower(),
+                    entry.shared_peptide_policy.value,
                 )
             )
         )
