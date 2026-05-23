@@ -1687,6 +1687,8 @@ def test_fdr_command_writes_ranked_summary_and_entry_ledgers() -> None:
         payload = json.loads(result.output)
         assert payload["fdr_report"]["total_psm_count"] == 5
         assert payload["fdr_report"]["accepted_psm_count"] == 3
+        assert payload["score_separation"]["summary"]["warning_tier"] == "unstable"
+        assert payload["fdr_unstable"] is True
         assert payload["fdr_reproducibility_hash"]
         assert Path("fdr.summary.tsv").exists()
         assert Path("fdr.entries.tsv").exists()
@@ -1700,6 +1702,43 @@ def test_fdr_command_writes_ranked_summary_and_entry_ledgers() -> None:
             "rank\ttie_group_rank\ttie_group_size\tspectrum_id\tcanonical_peptide"
         )
         assert "\t0.5\ttrue\n" in entries_tsv
+
+
+def test_fdr_command_marks_unstable_score_separation_and_writes_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = FIXTURE_ROOT / "psm" / "fdr_unstable_results.tsv"
+        shutil.copy(source, "fdr.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr.tsv",
+                "--threshold",
+                "0.5",
+                "--score-separation-summary-tsv-out",
+                "score_separation.summary.tsv",
+                "--score-separation-bins-tsv-out",
+                "score_separation.bins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["fdr_unstable"] is True
+        assert payload["score_separation"]["summary"]["warning_tier"] == "unstable"
+        assert payload["score_separation"]["summary"]["overlap_metric"] == 0.75
+        assert Path("score_separation.summary.tsv").exists()
+        assert Path("score_separation.bins.tsv").exists()
+        assert "warning_tier\tfdr_unstable" in Path(
+            "score_separation.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert Path("score_separation.bins.tsv").read_text(
+            encoding="utf-8"
+        ).startswith(
+            "bin_lower\tbin_upper\ttarget_count\tdecoy_count\tmixed_count\tunknown_count"
+        )
 
 
 def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:

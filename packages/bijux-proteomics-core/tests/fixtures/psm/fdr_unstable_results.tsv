@@ -1,0 +1,5 @@
+spectrum_id	peptide	charge	score	proteins
+scan=4501	PEPTIDEA	2	100.0	P12345
+scan=4502	DECOYAA	2	95.0	DECOY_P99999
+scan=4503	PEPTIDEB	2	90.0	P12345
+scan=4504	DECOYBB	2	85.0	DECOY_Q99999
