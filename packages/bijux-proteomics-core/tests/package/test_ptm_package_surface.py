@@ -42,3 +42,17 @@ def test_ptm_package_exports_protein_site_mapping_owner_surface() -> None:
     assert rendered.splitlines()[0].startswith(
         "spectrum_id\tsample_id\tlocalized_peptide"
     )
+
+
+def test_ptm_package_exports_localization_scoring_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(
+        _ptm_fixture("localization_probability_results.tsv")
+    )
+    report = ptm.build_ptm_localization_scoring_report(evidence.accepted_records)
+    rendered = ptm.render_ptm_localization_scoring_entry_tsv(report)
+
+    assert hasattr(ptm, "build_ptm_localization_scoring_report")
+    assert hasattr(ptm, "render_ptm_localization_scoring_summary_tsv")
+    assert hasattr(ptm, "PtmLocalizationConfidenceTier")
+    assert report.high_confidence_entry_count == 1
+    assert "localization_tier" in rendered.splitlines()[0]
