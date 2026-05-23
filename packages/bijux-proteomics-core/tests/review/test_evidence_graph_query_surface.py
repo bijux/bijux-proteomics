@@ -7,6 +7,7 @@ from bijux_proteomics.review import (
     EvidenceGraphEdge,
     EvidenceGraphNode,
     EvidenceGraphQuery,
+    ProteomicsEvidenceNodeKind,
     query_evidence_graph,
 )
 
@@ -15,24 +16,27 @@ def test_query_evidence_graph_filters_nodes_and_connecting_edges() -> None:
     nodes = (
         EvidenceGraphNode(
             node_id="n1",
-            entity_type="candidate",
+            entity_type=ProteomicsEvidenceNodeKind.CANDIDATE,
             entity_ref="cand-1",
+            label="candidate cand-1",
             claim_state="accepted",
             trust_class="high",
             contradiction_ids=("cx-1",),
         ),
         EvidenceGraphNode(
             node_id="n2",
-            entity_type="protein",
+            entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
             entity_ref="P12345",
+            label="protein P12345",
             claim_state="accepted",
             trust_class="high",
             contradiction_ids=("cx-1",),
         ),
         EvidenceGraphNode(
             node_id="n3",
-            entity_type="candidate",
+            entity_type=ProteomicsEvidenceNodeKind.CANDIDATE,
             entity_ref="cand-2",
+            label="candidate cand-2",
             claim_state="deferred",
             trust_class="medium",
         ),
