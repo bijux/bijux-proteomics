@@ -496,11 +496,13 @@ from bijux_proteomics.isotope_labeling import (
 )
 from bijux_proteomics.targeted import (
     TargetedResultSourceKind,
+    render_targeted_assay_qc_coelution_tsv,
     render_targeted_assay_qc_fragment_ratio_tsv,
     render_targeted_assay_qc_replicate_cv_tsv,
     render_targeted_assay_qc_retention_tsv,
     render_targeted_assay_qc_summary_tsv,
     render_targeted_assay_qc_target_tsv,
+    render_targeted_assay_qc_transition_coelution_tsv,
     render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_transition_qc_tsv,
     render_targeted_assay_qc_unreliable_tsv,
@@ -4099,6 +4101,11 @@ def targeted_target_matrix_command(
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--target-qc-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--coelution-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--transition-coelution-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
 @click.option(
     "--transition-qc-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
 )
@@ -4122,6 +4129,8 @@ def targeted_assay_qc_command(
     summary_tsv_out: Path | None,
     target_qc_tsv_out: Path | None,
     transition_tsv_out: Path | None,
+    coelution_tsv_out: Path | None,
+    transition_coelution_tsv_out: Path | None,
     transition_qc_tsv_out: Path | None,
     fragment_ratio_tsv_out: Path | None,
     retention_tsv_out: Path | None,
@@ -4154,6 +4163,16 @@ def targeted_assay_qc_command(
         _write_text_output(
             transition_tsv_out,
             render_targeted_assay_qc_transition_tsv(assay_qc_report),
+        )
+    if coelution_tsv_out is not None:
+        _write_text_output(
+            coelution_tsv_out,
+            render_targeted_assay_qc_coelution_tsv(assay_qc_report),
+        )
+    if transition_coelution_tsv_out is not None:
+        _write_text_output(
+            transition_coelution_tsv_out,
+            render_targeted_assay_qc_transition_coelution_tsv(assay_qc_report),
         )
     if transition_qc_tsv_out is not None:
         _write_text_output(
@@ -4190,9 +4209,17 @@ def targeted_assay_qc_command(
             "rejected_row_count": 0,
         },
         "assay_qc_summary": assay_qc_report.summary.to_dict(),
+        "transition_coelution_summary": assay_qc_report.transition_coelution.summary.to_dict(),
         "target_qc": [entry.to_dict() for entry in assay_qc_report.target_qc],
         "transition_consistency": [
             entry.to_dict() for entry in assay_qc_report.transition_consistency
+        ],
+        "target_coelution": [
+            entry.to_dict() for entry in assay_qc_report.transition_coelution.target_entries
+        ],
+        "transition_coelution": [
+            entry.to_dict()
+            for entry in assay_qc_report.transition_coelution.transition_entries
         ],
         "transition_qc": [entry.to_dict() for entry in assay_qc_report.transition_qc],
         "fragment_ratios": [entry.to_dict() for entry in assay_qc_report.fragment_ratios],
@@ -4211,6 +4238,14 @@ def targeted_assay_qc_command(
             ),
             "transition_tsv": (
                 None if transition_tsv_out is None else str(transition_tsv_out)
+            ),
+            "coelution_tsv": (
+                None if coelution_tsv_out is None else str(coelution_tsv_out)
+            ),
+            "transition_coelution_tsv": (
+                None
+                if transition_coelution_tsv_out is None
+                else str(transition_coelution_tsv_out)
             ),
             "transition_qc_tsv": (
                 None
