@@ -179,6 +179,71 @@ def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -
         assert json_output["report"]["summary"]["suggestion_count"] == 2
 
 
+def test_experiment_feasibility_command_emits_supported_and_unsupported_outputs() -> (
+    None
+):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file",
+                    "control_1\tcontrol\t1\t1\tcontrol_1.raw",
+                    "control_2\tcontrol\t2\t1\tcontrol_2.raw",
+                    "treated_1\ttreatment\t1\t1\ttreated_1.raw",
+                    "treated_2\ttreatment\t2\t1\ttreated_2.raw",
+                    "recovery_1\trecovery\t1\t1\trecovery_1.raw",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "experiment-feasibility",
+                "design.tsv",
+                "--valid-contrasts-tsv-out",
+                "feasibility.valid.tsv",
+                "--invalid-contrasts-tsv-out",
+                "feasibility.invalid.tsv",
+                "--group-sizes-tsv-out",
+                "feasibility.groups.tsv",
+                "--model-support-tsv-out",
+                "feasibility.models.tsv",
+                "--out",
+                "feasibility.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["valid_contrast_count"] == 1
+        assert payload["report"]["summary"]["invalid_contrast_count"] == 2
+        assert (
+            payload["outputs"]["valid_contrasts_tsv"] == "feasibility.valid.tsv"
+        )
+        assert "control\ttreatment" in Path("feasibility.valid.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "insufficient_group_size" in Path(
+            "feasibility.invalid.tsv"
+        ).read_text(encoding="utf-8")
+        assert "underpowered" in Path("feasibility.groups.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert "multi_condition_differential" in Path(
+            "feasibility.models.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            json.loads(Path("feasibility.json").read_text(encoding="utf-8"))["report"][
+                "summary"
+            ]["underpowered_condition_count"]
+            == 1
+        )
+
+
 def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
