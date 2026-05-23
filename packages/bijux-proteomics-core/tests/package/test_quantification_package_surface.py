@@ -128,3 +128,88 @@ def test_quantification_package_exports_time_course_differential_owner_surface()
     assert report.ordered_timepoints == ("0", "1")
     assert len(report.entries) == 4
     assert rendered.startswith("entity_id\tcondition\treference_condition")
+
+
+def test_quantification_package_exports_batch_effect_owner_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="batch001",
+            sample_id="case-a",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=1000.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="batch002",
+            sample_id="ctrl-a",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=950.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="batch003",
+            sample_id="case-b",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=120.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="batch004",
+            sample_id="ctrl-b",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=110.0,
+            protein_refs=("P001",),
+        ),
+    )
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="case-a",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-a.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-a",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-a.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-b",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-b.mzml",
+            batch="batch-b",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-b",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-b.mzml",
+            batch="batch-b",
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+
+    report = quantification.build_batch_effect_estimator_report(table, design_entries)
+    rendered = quantification.render_batch_effect_summary_tsv(report)
+
+    assert hasattr(quantification, "build_batch_effect_estimator_report")
+    assert hasattr(quantification, "render_batch_effect_summary_tsv")
+    assert hasattr(quantification, "export_batch_effect_principal_components_tsv")
+    assert report.batch_field == "batch"
+    assert rendered.startswith("batch_field\tdisposition")
