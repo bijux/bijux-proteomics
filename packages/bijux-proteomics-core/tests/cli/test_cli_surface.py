@@ -8759,6 +8759,51 @@ def test_ptm_annotate_sites_command_emits_mapped_unmapped_and_biology_outputs() 
         assert "MAPK signaling" in Path("ptm.annotation.pathway.tsv").read_text()
 
 
+def test_ptm_annotate_context_command_emits_site_context_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "localization_results.tsv",
+            "localization_results.tsv",
+        )
+        shutil.copy(
+            ptm_fixture_dir / "ptm_site_context.tsv",
+            "ptm_site_context.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "annotate-context",
+                "localization_results.tsv",
+                "ptm_sites.fasta",
+                "ptm_site_context.tsv",
+                "--summary-tsv-out",
+                "ptm.context.summary.tsv",
+                "--context-tsv-out",
+                "ptm.context.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 8
+        assert payload["context_rows"] == 5
+        assert payload["rejected_context_rows"] == 1
+        assert payload["context_report"]["summary"]["outside_annotation_site_count"] == 1
+        assert "outside_annotation_site_count" in Path(
+            "ptm.context.summary.tsv"
+        ).read_text()
+        exported = Path("ptm.context.entries.tsv").read_text()
+        assert "Q9DEC1:S5:Phospho" in exported
+        assert "outside_provided_annotations" in exported
+        assert "activation_segment" in exported
+
+
 def test_ptm_regulator_enrichment_command_emits_supporting_site_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
