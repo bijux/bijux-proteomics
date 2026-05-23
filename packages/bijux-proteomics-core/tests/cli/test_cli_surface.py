@@ -3981,6 +3981,82 @@ def test_xic_score_evidence_command_requires_at_least_one_run() -> None:
         assert "chromatographic evidence scoring requires at least one mzML file" in result.output
 
 
+def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "dia_fragment_coelution.mzml",
+            "dia_fragment_coelution.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "dia_fragment_targets.tsv",
+            "dia_fragment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "dia-fragment-coelution",
+                "dia_fragment_targets.tsv",
+                "dia_fragment_coelution.mzml",
+                "--tolerance-ppm",
+                "10",
+                "--run-tsv-out",
+                "dia.run.tsv",
+                "--fragment-tsv-out",
+                "dia.fragment.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run_ids"] == ["dia_fragment_coelution"]
+        assert len(payload["run_entries"]) == 2
+        assert len(payload["fragment_entries"]) == 6
+        by_precursor = {
+            entry["precursor_id"]: entry for entry in payload["run_entries"]
+        }
+        assert by_precursor["prec_alpha"]["coelution_score"] == 1.0
+        assert by_precursor["prec_beta"]["failed_fragment_ids"] == [
+            "beta_b4",
+            "beta_y8",
+        ]
+        assert payload["outputs"]["run_tsv"] == "dia.run.tsv"
+        assert payload["outputs"]["fragment_tsv"] == "dia.fragment.tsv"
+        assert Path("dia.run.tsv").exists()
+        assert Path("dia.fragment.tsv").exists()
+        assert (
+            "dia_fragment_coelution\tprec_beta\tPEPB\tbeta_y7\t3\t2\t1\t10.0000\t0.5578\t0.2971"
+            in Path("dia.run.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "dia_fragment_coelution\tprec_beta\tPEPB\tbeta_b4\tbeta_b4\tbeta_y7"
+            in Path("dia.fragment.tsv").read_text(encoding="utf-8")
+        )
+
+
+def test_dia_fragment_coelution_command_requires_at_least_one_run() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "dia_fragment_targets.tsv",
+            "dia_fragment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "dia-fragment-coelution",
+                "dia_fragment_targets.tsv",
+                "--tolerance-ppm",
+                "10",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "DIA fragment coelution extraction requires at least one mzML file" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
