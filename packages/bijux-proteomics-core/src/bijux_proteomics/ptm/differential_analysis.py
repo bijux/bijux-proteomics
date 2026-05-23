@@ -184,9 +184,17 @@ def build_ptm_differential_analysis_report(
     ):
         effective_pairing_field = "pair_id"
     site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
-    normalized_table = normalize_label_free_table(
-        site_quant_table,
+    normalization_reference_table = _build_label_free_table_from_site_quantification(
+        site_quantification,
+        include_ambiguity_groups=True,
+    )
+    normalized_reference_table = normalize_label_free_table(
+        normalization_reference_table,
         method=normalization_method,
+    )
+    normalized_table = _project_label_free_table_entities(
+        normalized_reference_table,
+        entity_ids=site_quant_table.entity_ids,
     )
     normalization_comparison = build_normalization_comparison_report(
         site_quant_table,
@@ -251,7 +259,7 @@ def build_ptm_differential_analysis_report(
         differential_report=differential_report,
         volcano_plot=volcano_plot,
         note=(
-            "ptm differential analysis preserves one site-level quantification matrix, explicit design encoding, and benjamini-hochberg-corrected site testing"
+            "ptm differential analysis normalizes exact-site testing against one non-duplicated PTM signal matrix, preserves explicit design encoding, and emits benjamini-hochberg-corrected site testing"
         ),
     )
 
@@ -324,6 +332,8 @@ def build_ptm_differential_volcano_plot(
 
 def _build_label_free_table_from_site_quantification(
     report: PtmSiteQuantificationReport,
+    *,
+    include_ambiguity_groups: bool = False,
 ) -> LabelFreeQuantTable:
     values: list[QuantValue] = []
     entity_protein_refs: dict[str, tuple[str, ...]] = {}
@@ -343,6 +353,21 @@ def _build_label_free_table_from_site_quantification(
                     source_feature_count=value.contributing_feature_count,
                 )
             )
+    if include_ambiguity_groups and report.ambiguous_group_quantification is not None:
+        for row in report.ambiguous_group_quantification.rows:
+            entity_ids.append(row.group_key)
+            entity_protein_refs[row.group_key] = (row.protein_ref,)
+            entity_member_peptides[row.group_key] = row.localized_peptides
+            for value in row.values:
+                values.append(
+                    QuantValue(
+                        sample_id=value.sample_id,
+                        entity_id=row.group_key,
+                        abundance=value.abundance,
+                        missing_value_kind=value.missing_value_kind,
+                        source_feature_count=value.contributing_feature_count,
+                    )
+                )
     return LabelFreeQuantTable(
         entity_level=QuantEntityLevel.PEPTIDE,
         measure_kind=QuantMeasureKind.INTENSITY,
@@ -353,6 +378,33 @@ def _build_label_free_table_from_site_quantification(
         values=tuple(values),
         entity_protein_refs=entity_protein_refs,
         entity_member_peptides=entity_member_peptides,
+    )
+
+
+def _project_label_free_table_entities(
+    table: LabelFreeQuantTable,
+    *,
+    entity_ids: tuple[str, ...],
+) -> LabelFreeQuantTable:
+    entity_id_set = set(entity_ids)
+    return LabelFreeQuantTable(
+        entity_level=table.entity_level,
+        measure_kind=table.measure_kind,
+        aggregation_method=table.aggregation_method,
+        normalization_method=table.normalization_method,
+        sample_ids=table.sample_ids,
+        entity_ids=entity_ids,
+        values=tuple(value for value in table.values if value.entity_id in entity_id_set),
+        entity_protein_refs={
+            entity_id: table.entity_protein_refs[entity_id]
+            for entity_id in entity_ids
+            if entity_id in table.entity_protein_refs
+        },
+        entity_member_peptides={
+            entity_id: table.entity_member_peptides[entity_id]
+            for entity_id in entity_ids
+            if entity_id in table.entity_member_peptides
+        },
     )
 
 
