@@ -3897,6 +3897,90 @@ def test_xic_align_retention_times_command_requires_multiple_runs() -> None:
         assert "retention-time alignment requires at least two mzML files" in result.output
 
 
+def test_xic_score_evidence_command_emits_target_and_peptide_scores() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_reference.mzml",
+            "rt_alignment_reference.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_shifted.mzml",
+            "rt_alignment_shifted.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_targets.tsv",
+            "rt_alignment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-score-evidence",
+                "rt_alignment_targets.tsv",
+                "rt_alignment_reference.mzml",
+                "rt_alignment_shifted.mzml",
+                "--tolerance-ppm",
+                "10",
+                "--aligned-rt-tolerance-seconds",
+                "5",
+                "--target-tsv-out",
+                "chrom.target.tsv",
+                "--peptide-tsv-out",
+                "chrom.peptide.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["run_ids"] == [
+            "rt_alignment_reference",
+            "rt_alignment_shifted",
+        ]
+        assert len(payload["target_entries"]) == 4
+        assert len(payload["peptide_entries"]) == 4
+        assert payload["target_entries"][0]["chromatographic_evidence_score"] == 1.0
+        by_target = {
+            entry["target_id"]: entry for entry in payload["target_entries"]
+        }
+        assert by_target["anchor_gamma"]["rt_agreement_score"] == 0.0
+        assert by_target["anchor_delta"]["missing_run_count"] == 1
+        assert payload["outputs"]["target_tsv"] == "chrom.target.tsv"
+        assert payload["outputs"]["peptide_tsv"] == "chrom.peptide.tsv"
+        assert Path("chrom.target.tsv").exists()
+        assert Path("chrom.peptide.tsv").exists()
+        assert (
+            "anchor_gamma\tPEPC\t700.000000\t2\t2\t0\t0.8334\t1.0000\t1.0000\t0.0000\t1.0000\t0.7583"
+            in Path("chrom.target.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250"
+            in Path("chrom.peptide.tsv").read_text(encoding="utf-8")
+        )
+
+
+def test_xic_score_evidence_command_requires_at_least_one_run() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_targets.tsv",
+            "rt_alignment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-score-evidence",
+                "rt_alignment_targets.tsv",
+                "--tolerance-ppm",
+                "10",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "chromatographic evidence scoring requires at least one mzML file" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
