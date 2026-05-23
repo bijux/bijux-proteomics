@@ -4124,6 +4124,92 @@ def test_dia_fragment_coelution_command_requires_at_least_one_run() -> None:
         assert "DIA fragment coelution extraction requires at least one mzML file" in result.output
 
 
+def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "raw_signal_card_reference.mzml",
+            "raw_signal_card_reference.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "raw_signal_card_shifted.mzml",
+            "raw_signal_card_shifted.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "raw_signal_card_targets.tsv",
+            "raw_signal_card_targets.tsv",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "raw_signal_card_fragment_targets.tsv",
+            "raw_signal_card_fragment_targets.tsv",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chimeric_spectrum_review.mzml",
+            "chimeric_spectrum_review.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "chimeric_spectrum_candidates.tsv",
+            "chimeric_spectrum_candidates.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "raw-signal-evidence-card",
+                "raw_signal_card_targets.tsv",
+                "raw_signal_card_reference.mzml",
+                "raw_signal_card_shifted.mzml",
+                "--fragment-target-table",
+                "raw_signal_card_fragment_targets.tsv",
+                "--fragment-ms-level",
+                "1",
+                "--spectrum-mzml",
+                "chimeric_spectrum_review.mzml",
+                "--psm-tsv",
+                "chimeric_spectrum_candidates.tsv",
+                "--precursor-id",
+                "prec_peptide",
+                "--tolerance-ppm",
+                "10",
+                "--summary-tsv-out",
+                "raw_signal.summary.tsv",
+                "--card-tsv-out",
+                "raw_signal.cards.tsv",
+                "--html-out",
+                "raw_signal.cards.html",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        report = payload["report"]
+        assert report["summary"]["card_count"] == 1
+        assert report["cards"][0]["precursor_id"] == "prec_peptide"
+        assert report["cards"][0]["peptide_ref"] == "PEPTIDE"
+        assert report["cards"][0]["retention_time_residuals"][0]["residual_seconds"] == 20.0
+        assert report["cards"][0]["fragment_run_entries"][1]["failed_fragment_ids"] == [
+            "peptide_b4",
+            "peptide_y8",
+        ]
+        assert report["cards"][0]["spectrum_evidence"][0]["spectrum_id"] == "scan=9002"
+        assert payload["outputs"]["summary_tsv"] == "raw_signal.summary.tsv"
+        assert payload["outputs"]["card_tsv"] == "raw_signal.cards.tsv"
+        assert payload["outputs"]["html"] == "raw_signal.cards.html"
+        assert Path("raw_signal.summary.tsv").exists()
+        assert Path("raw_signal.cards.tsv").exists()
+        assert Path("raw_signal.cards.html").exists()
+        assert "1\t1\t1\t1\t1" in Path("raw_signal.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert (
+            "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE\tPEPTIDE precursor"
+            in Path("raw_signal.cards.tsv").read_text(encoding="utf-8")
+        )
+        assert "retention_time_alignment_outside_tolerance" in Path(
+            "raw_signal.cards.html"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
