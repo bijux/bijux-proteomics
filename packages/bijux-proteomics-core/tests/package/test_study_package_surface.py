@@ -87,3 +87,35 @@ def test_study_package_exports_experiment_design_surface() -> None:
     assert design.summary.sample_count == 1
     assert design.summary.run_count == 1
     assert design.timepoints == ("T0",)
+
+
+def test_study_package_exports_design_validity_surface() -> None:
+    design = study.build_experiment_design(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002",
+            ),
+        )
+    )
+
+    report = study.build_experiment_design_validity_report(
+        design,
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert hasattr(study, "build_experiment_design_validity_report")
+    assert hasattr(study, "require_valid_experiment_design_for_differential_analysis")
+    assert report.summary.duplicate_sample_id_count == 1
+    assert "duplicate_sample_id" in study.render_experiment_design_validity_tsv(report)
