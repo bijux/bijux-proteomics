@@ -201,6 +201,51 @@ def test_identification_package_exports_peptide_evidence_owner_surface() -> None
     assert "reproducibility_hash" in rendered
 
 
+def test_identification_package_exports_contaminant_evidence_owner_surface() -> None:
+    records = (
+        identification.PsmRecord(
+            spectrum_id="run-a:scan-001",
+            peptide="KERATINP",
+            canonical_peptide="KERATINP",
+            charge=2,
+            score=65.0,
+            q_value=0.004,
+            intensity=800.0,
+            protein_refs=("CON__K1C10_HUMAN",),
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+            run_id="run-a",
+        ),
+        identification.PsmRecord(
+            spectrum_id="run-a:scan-002",
+            peptide="TARGETP",
+            canonical_peptide="TARGETP",
+            charge=2,
+            score=58.0,
+            q_value=0.010,
+            intensity=1000.0,
+            protein_refs=("P12345",),
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+            run_id="run-a",
+        ),
+    )
+
+    report = identification.build_contaminant_evidence_report(
+        records,
+        sample_id_by_run={"run-a": "sample-a"},
+        warning_psm_fraction=0.4,
+        warning_intensity_fraction=0.4,
+    )
+    rendered = identification.render_contaminant_burden_tsv(report)
+
+    assert hasattr(identification, "build_contaminant_evidence_report")
+    assert hasattr(identification, "render_contaminant_burden_tsv")
+    assert hasattr(identification, "render_contaminant_proteins_tsv")
+    assert report.summary.contaminant_psm_count == 1
+    assert report.summary.burdened_run_count == 1
+    assert report.reproducibility_hash
+    assert "heavy_contaminant_warning" in rendered
+
+
 def test_identification_package_exports_protein_parsimony_owner_surface() -> None:
     raw_cases = json.loads(
         _identification_fixture("protein_parsimony_reference_cases.json").read_text(
