@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import (
     ProteomicsRunEngine,
     build_proteomics_run_bundle,
@@ -21,10 +22,12 @@ def _bundle_fixture(name: str) -> Path:
 
 
 def test_build_proteomics_run_bundle_supports_diann_mode() -> None:
-    metadata_entries = tuple(
-        parse_experimental_design_table(
-            _fixture("diann_biological.design.tsv")
-        ).accepted_entries
+    metadata_entries = build_experiment_design(
+        tuple(
+            parse_experimental_design_table(
+                _fixture("diann_biological.design.tsv")
+            ).accepted_entries
+        )
     )
 
     report = build_proteomics_run_bundle(
@@ -51,8 +54,12 @@ def test_build_proteomics_run_bundle_supports_diann_mode() -> None:
 
 
 def test_build_proteomics_run_bundle_supports_maxquant_mode() -> None:
-    metadata_entries = tuple(
-        parse_experimental_design_table(_bundle_fixture("design.tsv")).accepted_entries
+    metadata_entries = build_experiment_design(
+        tuple(
+            parse_experimental_design_table(
+                _bundle_fixture("design.tsv")
+            ).accepted_entries
+        )
     )
 
     report = build_proteomics_run_bundle(
@@ -80,10 +87,12 @@ def test_build_proteomics_run_bundle_supports_maxquant_mode() -> None:
 
 
 def test_build_proteomics_run_bundle_supports_fragpipe_mode() -> None:
-    metadata_entries = tuple(
-        parse_experimental_design_table(
-            _fixture("biological_report.design.tsv")
-        ).accepted_entries
+    metadata_entries = build_experiment_design(
+        tuple(
+            parse_experimental_design_table(
+                _fixture("biological_report.design.tsv")
+            ).accepted_entries
+        )
     )
 
     report = build_proteomics_run_bundle(
@@ -111,10 +120,12 @@ def test_build_proteomics_run_bundle_supports_fragpipe_mode() -> None:
 
 
 def test_build_proteomics_run_bundle_accepts_explicit_case_control_semantics() -> None:
-    metadata_entries = tuple(
-        parse_experimental_design_table(
-            _fixture("diann_biological.design.tsv")
-        ).accepted_entries
+    metadata_entries = build_experiment_design(
+        tuple(
+            parse_experimental_design_table(
+                _fixture("diann_biological.design.tsv")
+            ).accepted_entries
+        )
     )
 
     report = build_proteomics_run_bundle(

@@ -20,6 +20,7 @@ from bijux_proteomics.quantification import (
     render_differential_abundance_tsv,
 )
 from bijux_proteomics.review import VolcanoReviewPolicy
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -126,7 +127,7 @@ class ProteomicsRunExportManifest(JsonModel):
 def build_proteomics_run_bundle(
     *,
     engine: ProteomicsRunEngine,
-    metadata_entries: tuple[ExperimentalDesignEntry, ...],
+    metadata_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     proteins_fasta_path: Path,
     report_tsv_path: Path,
     contrast: str | None = None,
@@ -146,14 +147,15 @@ def build_proteomics_run_bundle(
 ) -> ProteomicsRunBundle:
     """Build one flagship proteomics run bundle over a supported engine input."""
 
-    if not metadata_entries:
+    experiment_design = coerce_experiment_design(metadata_entries)
+    if not experiment_design.entries:
         raise ValueError("flagship proteomics run requires at least one metadata row")
-    condition_a, condition_b = _resolve_contrast(metadata_entries, contrast=contrast)
+    condition_a, condition_b = _resolve_contrast(experiment_design, contrast=contrast)
     active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
     if engine is ProteomicsRunEngine.DIANN:
         diann_workflow = build_diann_biological_workflow_bundle(
             report_tsv_path,
-            metadata_entries,
+            experiment_design,
             proteins_fasta_path=proteins_fasta_path,
             config_path=config_path,
             max_q_value=max_q_value,
@@ -177,7 +179,7 @@ def build_proteomics_run_bundle(
             summary=_build_summary(
                 engine=engine,
                 biological_report=biological_report,
-                metadata_entries=metadata_entries,
+                experiment_design=experiment_design,
                 condition_a=condition_a,
                 condition_b=condition_b,
                 qc_issue_count=qc_issue_count,
@@ -194,7 +196,7 @@ def build_proteomics_run_bundle(
             )
         maxquant_workflow = build_maxquant_biological_workflow_bundle(
             report_tsv_path,
-            metadata_entries,
+            experiment_design,
             peptides_txt_path=peptides_tsv_path,
             protein_groups_txt_path=protein_groups_tsv_path,
             proteins_fasta_path=proteins_fasta_path,
@@ -220,7 +222,7 @@ def build_proteomics_run_bundle(
             summary=_build_summary(
                 engine=engine,
                 biological_report=biological_report,
-                metadata_entries=metadata_entries,
+                experiment_design=experiment_design,
                 condition_a=condition_a,
                 condition_b=condition_b,
                 qc_issue_count=qc_issue_count,
@@ -230,44 +232,46 @@ def build_proteomics_run_bundle(
                 "flagship proteomics run dispatches MaxQuant evidence through governed protein-group acceptance, LFQ bridging, differential analysis, enrichment, and final biology reporting"
             ),
         )
-    fragpipe_workflow = build_dda_biological_workflow_bundle(
-        report_tsv_path,
-        metadata_entries,
-        proteins_fasta_path=proteins_fasta_path,
-        adapter_kind=SearchAdapterKind.MSFRAGGER,
-        dialect_id="fragpipe-psm",
-        acceptance_policy=DdaPsmAcceptancePolicy(max_q_value=psm_q_value_threshold),
-        normalization_method=normalization_method,
-        condition_a=condition_a,
-        condition_b=condition_b,
-        source_protein_tsv_path=source_protein_tsv_path,
-        annotation_tsv_path=annotation_tsv_path,
-        go_annotation_tsv_path=go_annotation_tsv_path,
-        pathway_membership_tsv_path=pathway_membership_tsv_path,
-        complex_membership_tsv_path=complex_membership_tsv_path,
-        selection_policy=active_selection_policy,
-        volcano_policy=volcano_policy,
-    )
-    biological_report = fragpipe_workflow.biological_report
-    qc_issue_count = biological_report.summary.pca_outlier_sample_count
-    return ProteomicsRunBundle(
-        engine=engine,
-        normalization_method=normalization_method,
-        condition_a=condition_a,
-        condition_b=condition_b,
-        summary=_build_summary(
-            engine=engine,
-            biological_report=biological_report,
-            metadata_entries=metadata_entries,
+    if engine is ProteomicsRunEngine.FRAGPIPE:
+        fragpipe_workflow = build_dda_biological_workflow_bundle(
+            report_tsv_path,
+            experiment_design,
+            proteins_fasta_path=proteins_fasta_path,
+            adapter_kind=SearchAdapterKind.MSFRAGGER,
+            dialect_id="fragpipe-psm",
+            acceptance_policy=DdaPsmAcceptancePolicy(max_q_value=psm_q_value_threshold),
+            normalization_method=normalization_method,
             condition_a=condition_a,
             condition_b=condition_b,
-            qc_issue_count=qc_issue_count,
-        ),
-        fragpipe_workflow=fragpipe_workflow,
-        note=(
-            "flagship proteomics run dispatches FragPipe PSM export through governed MSFragger normalization, DDA protein inference, LFQ, differential analysis, enrichment, and final biology reporting"
-        ),
-    )
+            source_protein_tsv_path=source_protein_tsv_path,
+            annotation_tsv_path=annotation_tsv_path,
+            go_annotation_tsv_path=go_annotation_tsv_path,
+            pathway_membership_tsv_path=pathway_membership_tsv_path,
+            complex_membership_tsv_path=complex_membership_tsv_path,
+            selection_policy=active_selection_policy,
+            volcano_policy=volcano_policy,
+        )
+        biological_report = fragpipe_workflow.biological_report
+        qc_issue_count = biological_report.summary.pca_outlier_sample_count
+        return ProteomicsRunBundle(
+            engine=engine,
+            normalization_method=normalization_method,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            summary=_build_summary(
+                engine=engine,
+                biological_report=biological_report,
+                experiment_design=experiment_design,
+                condition_a=condition_a,
+                condition_b=condition_b,
+                qc_issue_count=qc_issue_count,
+            ),
+            fragpipe_workflow=fragpipe_workflow,
+            note=(
+                "flagship proteomics run dispatches FragPipe PSM export through governed MSFragger normalization, DDA protein inference, LFQ, differential analysis, enrichment, and final biology reporting"
+            ),
+        )
+    raise ValueError(f"unsupported flagship proteomics run engine: {engine.value}")
 
 
 def render_proteomics_run_summary_tsv(report: ProteomicsRunBundle) -> str:
@@ -503,16 +507,16 @@ def export_proteomics_run_bundle(
 
 
 def _resolve_contrast(
-    metadata_entries: tuple[ExperimentalDesignEntry, ...],
+    experiment_design: ExperimentDesign,
     *,
     contrast: str | None,
 ) -> tuple[str, str]:
     from bijux_proteomics.study.contrasts import resolve_pairwise_study_contrast
 
-    study_samples = tuple(entry.to_domain_record() for entry in metadata_entries)
-    conditions = tuple(
-        sorted({entry.condition for entry in metadata_entries if entry.condition})
+    study_samples = tuple(
+        entry.to_domain_record() for entry in experiment_design.entries
     )
+    conditions = experiment_design.conditions
     if contrast is None:
         if len(conditions) != 2:
             raise ValueError(
@@ -530,14 +534,14 @@ def _build_summary(
     *,
     engine: ProteomicsRunEngine,
     biological_report: BiologicalResultReportBundle,
-    metadata_entries: tuple[ExperimentalDesignEntry, ...],
+    experiment_design: ExperimentDesign,
     condition_a: str,
     condition_b: str,
     qc_issue_count: int,
 ) -> ProteomicsRunSummary:
     return ProteomicsRunSummary(
         engine=engine,
-        metadata_row_count=len(metadata_entries),
+        metadata_row_count=len(experiment_design.entries),
         condition_a=condition_a,
         condition_b=condition_b,
         protein_count=biological_report.summary.protein_count,

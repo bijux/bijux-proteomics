@@ -19,7 +19,6 @@ from bijux_proteomics.dia import (
 from bijux_proteomics.identification import ParsimonyVariant, SearchAdapterKind
 from bijux_proteomics.io.formats import (
     ExperimentalDesignEntry,
-    ExperimentalDesignReport,
     parse_experimental_design_table,
 )
 from bijux_proteomics.isotope_labeling import (
@@ -46,6 +45,7 @@ from bijux_proteomics.quantification import (
     NormalizationMethod,
     QuantRollupMethod,
 )
+from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics.review import VolcanoReviewPolicy
 from bijux_proteomics.targeted import (
     TargetedAssayQcReport,
@@ -433,10 +433,10 @@ def run_proteomics_workflow(config: WorkflowConfig) -> WorkflowResult:
 
 
 def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
-    design_report = _parse_design(config.design_tsv_path)
+    experiment_design = _parse_design(config.design_tsv_path)
     report = build_biological_result_report_bundle(
         config.input_tsv_path,
-        tuple(design_report.accepted_entries),
+        experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
         annotation_tsv_path=config.annotation_tsv_path,
         context_annotation_tsv_path=config.context_annotation_tsv_path,
@@ -466,7 +466,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         export_manifest=manifest,
-        design_row_count=len(design_report.accepted_entries),
+        design_row_count=len(experiment_design.entries),
         outputs=outputs,
         note=(
             "workflow orchestrator routed label-free matrix, differential, annotation, enrichment, and reporting through the shared biological workflow owner"
@@ -475,7 +475,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
 
 
 def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
-    design_report = _parse_design(config.design_tsv_path)
+    experiment_design = _parse_design(config.design_tsv_path)
     adapter_kind = (
         SearchAdapterKind.MSFRAGGER
         if config.mode is WorkflowMode.FRAGPIPE
@@ -484,7 +484,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
     dialect_id = "fragpipe-psm" if config.mode is WorkflowMode.FRAGPIPE else config.dialect_id
     report = build_dda_biological_workflow_bundle(
         config.search_result_tsv_path,
-        tuple(design_report.accepted_entries),
+        experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
         adapter_kind=adapter_kind,
         generic_mapping_path=config.generic_mapping_path,
@@ -524,7 +524,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         export_manifest=manifest,
-        design_row_count=len(design_report.accepted_entries),
+        design_row_count=len(experiment_design.entries),
         outputs=outputs,
         note=(
             "workflow orchestrator routed DDA, generic PSM, or FragPipe input through the governed DDA biological workflow owner"
@@ -533,10 +533,10 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
 
 
 def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
-    design_report = _parse_design(config.design_tsv_path)
+    experiment_design = _parse_design(config.design_tsv_path)
     report = build_diann_biological_workflow_bundle(
         config.result_tsv_path,
-        tuple(design_report.accepted_entries),
+        experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
         config_path=config.config_path,
         annotation_tsv_path=config.annotation_tsv_path,
@@ -570,7 +570,7 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         export_manifest=manifest,
-        design_row_count=len(design_report.accepted_entries),
+        design_row_count=len(experiment_design.entries),
         outputs=outputs,
         note=(
             "workflow orchestrator routed DIA-NN input through the governed DIA import, matrix, QC, differential, and biology workflow owner"
@@ -579,10 +579,10 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
 
 
 def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
-    design_report = _parse_design(config.design_tsv_path)
+    experiment_design = _parse_design(config.design_tsv_path)
     report = build_maxquant_biological_workflow_bundle(
         config.evidence_txt_path,
-        tuple(design_report.accepted_entries),
+        experiment_design,
         peptides_txt_path=config.peptides_txt_path,
         protein_groups_txt_path=config.protein_groups_txt_path,
         proteins_fasta_path=config.proteins_fasta_path,
@@ -616,7 +616,7 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         export_manifest=manifest,
-        design_row_count=len(design_report.accepted_entries),
+        design_row_count=len(experiment_design.entries),
         outputs=outputs,
         note=(
             "workflow orchestrator routed MaxQuant evidence through the governed protein-group acceptance and biology workflow owner"
@@ -763,7 +763,7 @@ def _run_ptm_workflow(config: PtmWorkflowConfig) -> WorkflowResult:
         mode=config.mode,
         report=report,
         export_manifest=manifest,
-        design_row_count=len(report.design_entries),
+        design_row_count=len(report.experiment_design.entries),
         outputs=outputs,
         note=(
             "workflow orchestrator routed localized PTM evidence through the governed PTM site workflow owner"
@@ -791,9 +791,9 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
     design_entries: tuple[ExperimentalDesignEntry, ...] = ()
     design_row_count = None
     if config.design_tsv_path is not None:
-        design_report = _parse_design(config.design_tsv_path)
-        design_entries = tuple(design_report.accepted_entries)
-        design_row_count = len(design_entries)
+        experiment_design = _parse_design(config.design_tsv_path)
+        design_entries = experiment_design.entries
+        design_row_count = len(experiment_design.entries)
     report = build_targeted_assay_qc_report(
         import_report,
         design_entries,
@@ -810,11 +810,11 @@ def _run_targeted_workflow(config: TargetedWorkflowConfig) -> WorkflowResult:
     )
 
 
-def _parse_design(path: Path) -> ExperimentalDesignReport:
+def _parse_design(path: Path) -> ExperimentDesign:
     report = parse_experimental_design_table(path)
     if report.rejected_rows:
         raise ValueError("design table contains rejected rows")
-    return report
+    return build_experiment_design(report.accepted_entries)
 
 
 def _build_targeted_import_report(

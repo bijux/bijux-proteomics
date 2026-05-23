@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import build_maxquant_benchmark_report
 
 
@@ -18,15 +19,19 @@ def _bundle_fixture(name: str) -> Path:
 
 
 def test_build_maxquant_benchmark_report_preserves_differential_results() -> None:
-    design_entries = tuple(
-        parse_experimental_design_table(_bundle_fixture("design.tsv")).accepted_entries
+    experiment_design = build_experiment_design(
+        tuple(
+            parse_experimental_design_table(
+                _bundle_fixture("design.tsv")
+            ).accepted_entries
+        )
     )
     report = build_maxquant_benchmark_report(
         _bundle_fixture("evidence.txt"),
         peptides_txt_path=_bundle_fixture("peptides.txt"),
         protein_groups_txt_path=_bundle_fixture("proteinGroups.txt"),
         config_path=_bundle_fixture("maxquant_settings.txt"),
-        design_entries=design_entries,
+        design_entries=experiment_design,
         condition_a="control",
         condition_b="treatment",
     )

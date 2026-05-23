@@ -35,6 +35,7 @@ from bijux_proteomics.quantification import (
 from bijux_proteomics.quantification.differential_abundance import (
     apply_benjamini_hochberg,
 )
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.maxquant_biological_workflow import (
     MaxquantProteinGroupAcceptancePolicy,
     MaxquantProteinGroupAcceptanceReason,
@@ -185,7 +186,7 @@ def build_maxquant_benchmark_report(
     peptides_txt_path: Path,
     protein_groups_txt_path: Path,
     config_path: Path | None = None,
-    design_entries: tuple[ExperimentalDesignEntry, ...] | None = None,
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...] | None = None,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
     condition_b: str | None = None,
@@ -237,6 +238,7 @@ def build_maxquant_benchmark_report(
     differential_comparison_applied = design_entries is not None
     differential_matched: bool | None = None
     if design_entries is not None:
+        experiment_design = coerce_experiment_design(design_entries)
         source_lfq_table = _build_source_lfq_table(source_accepted)
         normalized_source_table = normalize_label_free_table(
             source_lfq_table,
@@ -249,7 +251,7 @@ def build_maxquant_benchmark_report(
         source_differential_report = apply_benjamini_hochberg(
             build_differential_abundance_report(
                 normalized_source_table,
-                design_entries,
+                experiment_design.entries,
                 condition_a=condition_a,
                 condition_b=condition_b,
             )
@@ -257,7 +259,7 @@ def build_maxquant_benchmark_report(
         differential_report = apply_benjamini_hochberg(
             build_differential_abundance_report(
                 normalized_imported_table,
-                design_entries,
+                experiment_design.entries,
                 condition_a=condition_a,
                 condition_b=condition_b,
             )
