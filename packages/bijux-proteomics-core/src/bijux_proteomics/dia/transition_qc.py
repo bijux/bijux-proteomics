@@ -113,15 +113,16 @@ def build_transition_qc_report(
 
     sample_ids = tuple(sorted({entry.sample_id for entry in entries}))
     precursor_sample_totals: dict[tuple[str, str], float] = {}
-    grouped: dict[str, dict[str, object]] = {}
+    grouped: dict[tuple[str, str], dict[str, object]] = {}
     for entry in entries:
         precursor_sample_totals[(entry.precursor_id, entry.sample_id)] = (
             precursor_sample_totals.get((entry.precursor_id, entry.sample_id), 0.0)
             + entry.intensity
         )
         group = grouped.setdefault(
-            entry.transition_id,
+            (entry.precursor_id, entry.transition_id),
             {
+                "transition_id": entry.transition_id,
                 "precursor_id": entry.precursor_id,
                 "precursor_charge": entry.precursor_charge,
                 "peptide_sequence": entry.peptide_sequence,
@@ -141,10 +142,11 @@ def build_transition_qc_report(
     observed_cell_count = 0
     missing_cell_count = 0
     precursor_ids: set[str] = set()
-    for transition_id, group in sorted(
+    for _, group in sorted(
         grouped.items(),
-        key=lambda item: (str(item[1]["precursor_id"]), item[0]),
+        key=lambda item: (str(item[1]["precursor_id"]), str(item[1]["transition_id"])),
     ):
+        transition_id = str(group["transition_id"])
         precursor_id = str(group["precursor_id"])
         precursor_ids.add(precursor_id)
         sample_entries = group["sample_entries"]

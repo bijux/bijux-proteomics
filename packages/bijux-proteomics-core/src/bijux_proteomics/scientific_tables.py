@@ -708,7 +708,7 @@ def build_transition_table_schema() -> ScientificTableSchema:
                 value_type=DelimitedColumnValueType.FLOAT,
             ),
         ),
-        unique_key_columns=("transition_id", "sample_id"),
+        unique_key_columns=("transition_id", "precursor_id", "sample_id"),
         q_value_columns=("q_value",),
         nonnegative_numeric_columns=("intensity",),
     )
