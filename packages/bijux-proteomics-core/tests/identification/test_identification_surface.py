@@ -756,6 +756,27 @@ def test_level_specific_and_grouped_fdr_reports_cover_multiple_evidence_levels()
     assert grouped_report.groups[0].group_key == "z2"
 
 
+def test_level_specific_peptide_fdr_collapses_duplicate_psms_into_one_peptide_entity() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
+
+    level_report = calculate_level_specific_fdr(
+        report.accepted_records,
+        threshold=0.05,
+        score_orientation="higher_better",
+    )
+
+    assert len(level_report.peptide_entries) == 2
+    peptide_entry = next(
+        entry for entry in level_report.peptide_entries if entry.entity_id == "PEPTIDER"
+    )
+    assert peptide_entry.member_count == 2
+    assert peptide_entry.protein_refs == ("P12345", "Q11111")
+
+
 def test_level_specific_confidence_labels_keep_evidence_levels_separate() -> None:
     report = parse_psm_tsv(
         _psm_fixture("protein_inference_results.tsv"), mapping=_default_mapping()

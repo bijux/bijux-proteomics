@@ -3149,6 +3149,10 @@ def calculate_level_specific_fdr(
     score_orientation: str = "higher_better",
 ) -> LevelSpecificFdrReport:
     """Calculate separate PSM-, peptide-, and protein-level FDR surfaces."""
+    from bijux_proteomics.identification.peptide_target_decoy_fdr import (
+        build_peptide_target_decoy_fdr_report,
+    )
+
     psm_entries = tuple(
         FdrLevelEntry(
             evidence_level=FdrEvidenceLevel.PSM,
@@ -3170,16 +3174,25 @@ def calculate_level_specific_fdr(
             decoy_policy=None,
         )
     )
-    peptide_rollups = rollup_peptide_evidence(records)
-    peptide_entities = tuple(
-        (
-            rollup.canonical_peptide,
-            rollup.best_score,
-            rollup.target_decoy_label,
-            rollup.psm_count,
-            rollup.protein_refs,
+    peptide_entries = tuple(
+        FdrLevelEntry(
+            evidence_level=FdrEvidenceLevel.PEPTIDE,
+            entity_id=entry.evidence.canonical_peptide,
+            score=entry.evidence.best_score,
+            q_value=entry.q_value,
+            fdr=entry.raw_fdr,
+            rank=entry.rank,
+            accepted=entry.accepted,
+            target_decoy_label=entry.evidence.target_decoy_label,
+            member_count=entry.evidence.psm_count,
+            protein_refs=entry.evidence.protein_refs,
         )
-        for rollup in peptide_rollups
+        for entry in build_peptide_target_decoy_fdr_report(
+            records,
+            threshold=threshold,
+            score_orientation=score_orientation,
+            evidence_policy="best_score",
+        ).entries
     )
     protein_rollups = rollup_protein_evidence(records)
     protein_entities = tuple(
@@ -3196,12 +3209,7 @@ def calculate_level_specific_fdr(
         score_orientation=score_orientation,
         threshold=threshold,
         psm_entries=psm_entries,
-        peptide_entries=_entity_fdr_entries(
-            peptide_entities,
-            evidence_level=FdrEvidenceLevel.PEPTIDE,
-            threshold=threshold,
-            score_orientation=score_orientation,
-        ),
+        peptide_entries=peptide_entries,
         protein_entries=_entity_fdr_entries(
             protein_entities,
             evidence_level=FdrEvidenceLevel.PROTEIN,
