@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.interpretation import (
     ProteinAnnotationRecord,
     ProteinAnnotationSourceKind,
+    ProteinAnnotationStatus,
     ProteinReferenceEntry,
     build_protein_annotation_mapping_report,
     parse_protein_annotation_table,
@@ -44,6 +45,7 @@ def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotat
     assert report.summary.input_entry_count == 6
     assert report.summary.mapped_entry_count == 6
     assert report.summary.unmapped_entry_count == 0
+    assert len(report.result_entries) == 6
     assert report.summary.fasta_annotation_count == 3
     assert report.summary.custom_annotation_count == 1
     assert report.summary.merged_annotation_count == 2
@@ -54,6 +56,7 @@ def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotat
         if entry.protein_ref == "P04637" and entry.source_row_id == "row-1"
     )
     assert tp53_entry.annotation_source is ProteinAnnotationSourceKind.MERGED
+    assert tp53_entry.accession_aliases == ("sp|P04637|P53_HUMAN",)
     assert tp53_entry.gene_symbol == "TRP53"
     assert tp53_entry.description == "Tumor suppressor p53 override"
     assert tp53_entry.organism == "Homo sapiens"
@@ -65,7 +68,7 @@ def test_build_protein_annotation_mapping_report_merges_fasta_and_custom_annotat
     assert custom_only_entry.annotation_source is ProteinAnnotationSourceKind.CUSTOM
     assert custom_only_entry.source_identifier is None
     assert custom_only_entry.gene_symbol == "CUST1"
-    assert custom_only_entry.annotation_metadata == {"source": "curated"}
+    assert custom_only_entry.custom_annotation == {"source": "curated"}
 
 
 def test_build_protein_annotation_mapping_report_preserves_explicit_unmapped_entries() -> None:
@@ -94,5 +97,8 @@ def test_build_protein_annotation_mapping_report_preserves_explicit_unmapped_ent
 
     assert report.summary.mapped_entry_count == 0
     assert report.summary.unmapped_entry_count == 1
+    assert len(report.result_entries) == 1
     assert report.unmapped_entries[0].protein_ref == "UNKNOWN123"
     assert "not present" in report.unmapped_entries[0].reason
+    assert report.result_entries[0].annotation_status is ProteinAnnotationStatus.UNMAPPED
+    assert report.result_entries[0].unmapped_reason is not None
