@@ -5617,6 +5617,7 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert payload["design_rows"] == 6
         assert payload["report"]["summary"]["protein_count"] == 5
         assert payload["report"]["summary"]["significant_protein_count"] >= 3
+        assert payload["report"]["summary"]["protein_card_count"] == 5
         assert payload["report"]["summary"]["context_entry_count"] == 3
         assert payload["report"]["summary"]["go_enriched_term_count"] == 1
         assert payload["export_manifest"]["context_summary_included"] is True
@@ -5625,6 +5626,8 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert (report_dir / "biological_report_manifest.json").exists()
         assert (report_dir / "biological_report_summary.tsv").exists()
         assert (report_dir / "biological_differential.tsv").exists()
+        assert (report_dir / "biological_protein_card_summary.tsv").exists()
+        assert (report_dir / "biological_protein_cards.tsv").exists()
         assert (report_dir / "biological_annotations.tsv").exists()
         assert (report_dir / "biological_context_summary.tsv").exists()
         assert (report_dir / "biological_context_mappings.tsv").exists()
@@ -5638,6 +5641,12 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert (report_dir / "biological_report.html").exists()
         assert "annotation_entry_count" in (
             report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "protein_card_count" in (
+            report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "card_id" in (
+            report_dir / "biological_protein_cards.tsv"
         ).read_text(encoding="utf-8")
         assert "context_entry_count" in (
             report_dir / "biological_report_summary.tsv"
@@ -5662,6 +5671,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         ).read_text(encoding="utf-8")
         assert "Volcano plot:" in (
             report_dir / "biological_volcano.html"
+        ).read_text(encoding="utf-8")
+        assert "Final protein cards" in (
+            report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
         assert "Biological result report" in (
             report_dir / "biological_report.html"
