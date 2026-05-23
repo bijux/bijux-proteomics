@@ -13,6 +13,7 @@ from bijux_proteomics.review.evidence_graph_contradictions import *  # noqa: F40
 from bijux_proteomics.review.evidence_graph_downgrades import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph import *  # noqa: F401,F403
 from bijux_proteomics.review.evidence_graph_queries import *  # noqa: F401,F403
+from bijux_proteomics.review.evidence_graph_run_diff import *  # noqa: F401,F403
 from bijux_proteomics.review.flagship_kernel import *  # noqa: F401,F403
 from bijux_proteomics.review.inference_packets import *  # noqa: F401,F403
 from bijux_proteomics.review.protein_family_graphs import *  # noqa: F401,F403

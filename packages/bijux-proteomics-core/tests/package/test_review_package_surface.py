@@ -269,3 +269,91 @@ def test_review_package_exports_evidence_graph_downgrade_surface() -> None:
     assert [reason.value for reason in report.entries[0].downgrade_reasons] == [
         "shared_peptide_only"
     ]
+
+
+def test_review_package_exports_evidence_graph_run_diff_surface() -> None:
+    left = review.ProteomicsEvidenceGraphBuilder()
+    right = review.ProteomicsEvidenceGraphBuilder()
+
+    left_protein = left.add_protein("P11111", label="P11111", trust_class="high")
+    left_peptide = left.add_peptide("PEPA", label="PEPA", trust_class="high")
+    left_claim = left.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+        claim_state="changed",
+    )
+    left_spectrum = left.add_spectrum("scan=1001", label="scan=1001", trust_class="high")
+    left_psm = left.add_psm("psm:1001", label="psm:1001", trust_class="high")
+    left.add_spectrum_supports_psm(
+        left_spectrum.node_id,
+        left_psm.node_id,
+        source_row_ref="psm.tsv:4",
+        confidence=0.97,
+        reason="strong spectrum supports accepted PSM",
+    )
+    left.add_psm_supports_peptide(
+        left_psm.node_id,
+        left_peptide.node_id,
+        source_row_ref="peptide.tsv:4",
+        confidence=0.96,
+        reason="strong PSM supports peptide PEPA",
+    )
+    left.add_peptide_quantifies_protein(
+        left_peptide.node_id,
+        left_protein.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.93,
+        reason="strong peptide quantifies protein P11111",
+    )
+    left.add_protein_supports_statistical_result(
+        left_protein.node_id,
+        left_claim.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.91,
+        reason="strong protein differential result",
+    )
+
+    right_protein = right.add_protein("P22222", label="P22222", trust_class="high")
+    right_peptide = right.add_peptide("PEPB", label="PEPB", trust_class="high")
+    right_claim = right.add_statistical_result(
+        "protein:treatment_vs_control:P22222",
+        label="protein differential result",
+        claim_state="changed",
+    )
+    right_spectrum = right.add_spectrum("scan=1002", label="scan=1002", trust_class="high")
+    right_psm = right.add_psm("psm:1002", label="psm:1002", trust_class="high")
+    right.add_spectrum_supports_psm(
+        right_spectrum.node_id,
+        right_psm.node_id,
+        source_row_ref="psm.tsv:5",
+        confidence=0.97,
+        reason="strong spectrum supports accepted PSM",
+    )
+    right.add_psm_supports_peptide(
+        right_psm.node_id,
+        right_peptide.node_id,
+        source_row_ref="peptide.tsv:5",
+        confidence=0.96,
+        reason="strong PSM supports peptide PEPB",
+    )
+    right.add_peptide_quantifies_protein(
+        right_peptide.node_id,
+        right_protein.node_id,
+        source_row_ref="protein_matrix.tsv:5",
+        confidence=0.93,
+        reason="strong peptide quantifies protein P22222",
+    )
+    right.add_protein_supports_statistical_result(
+        right_protein.node_id,
+        right_claim.node_id,
+        source_row_ref="protein_stats.tsv:5",
+        confidence=0.91,
+        reason="strong protein differential result",
+    )
+
+    report = review.compare_evidence_graph_runs(left.build(), right.build())
+
+    assert hasattr(review, "compare_evidence_graph_runs")
+    assert hasattr(review, "render_evidence_graph_run_diff_tsv")
+    assert report.entry_count == 2
+    assert {entry.change_kind.value for entry in report.entries} == {"added", "removed"}
