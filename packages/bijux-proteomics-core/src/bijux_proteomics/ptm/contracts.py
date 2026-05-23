@@ -164,6 +164,37 @@ class PtmProteinSiteMapping(JsonModel):
     provenance: ImportedEvidenceProvenance
 
 
+class PtmUnmappedPeptideEntry(JsonModel):
+    """One localized PTM peptide site that could not be placed onto protein coordinates."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    spectrum_id: str = Field(..., min_length=1)
+    sample_id: str | None = None
+    localized_peptide: str = Field(..., min_length=1)
+    canonical_peptide: str = Field(..., min_length=1)
+    sequence: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    modification_name: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    peptide_site_index: int = Field(..., ge=1)
+    candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
+    reason_code: str = Field(..., min_length=1)
+    detail: str = Field(..., min_length=1)
+    provenance: ImportedEvidenceProvenance
+
+
+class PtmProteinSiteMappingReport(JsonModel):
+    """Stable PTM protein-site mapping report with explicit ambiguity and miss ledgers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
+    exact_mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
+    ambiguous_mappings: tuple[PtmProteinSiteMapping, ...] = Field(default_factory=tuple)
+    unmapped_peptides: tuple[PtmUnmappedPeptideEntry, ...] = Field(default_factory=tuple)
+
+
 class PtmCoordinateValidationIssue(JsonModel):
     """One PTM coordinate validation issue over peptide and protein mappings."""
 
@@ -817,6 +848,24 @@ def map_ptm_evidence_to_protein_sites(
     )
 
     return _map_ptm_evidence_to_protein_sites(
+        records,
+        protein_sequences=protein_sequences,
+        registry=registry,
+    )
+
+
+def build_ptm_protein_site_mapping_report(
+    records: tuple[PtmEvidenceRecord, ...],
+    *,
+    protein_sequences: dict[str, str],
+    registry: ModificationRegistryDocument | None = None,
+) -> PtmProteinSiteMappingReport:
+    """Classify PTM protein-site mappings into exact, ambiguous, and unmapped ledgers."""
+    from bijux_proteomics.ptm.protein_site_mapping import (
+        build_ptm_protein_site_mapping_report as _build_ptm_protein_site_mapping_report,
+    )
+
+    return _build_ptm_protein_site_mapping_report(
         records,
         protein_sequences=protein_sequences,
         registry=registry,

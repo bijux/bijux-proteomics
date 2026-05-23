@@ -19,10 +19,12 @@ from bijux_proteomics.ptm.contracts import (
     PtmEvidenceRecord,
     PtmEvidenceSiteCandidate,
     PtmProteinSiteMapping,
+    PtmProteinSiteMappingReport,
     PtmSiteAmbiguityEntry,
     PtmSiteCoverageEntry,
     PtmSiteEntry,
     PtmSiteGroupEvidenceEntry,
+    PtmUnmappedPeptideEntry,
 )
 
 
@@ -33,25 +35,49 @@ def map_ptm_evidence_to_protein_sites(
     registry: ModificationRegistryDocument | None = None,
 ) -> tuple[PtmProteinSiteMapping, ...]:
     """Map residue-localized modified peptides onto protein coordinates."""
+    return build_ptm_protein_site_mapping_report(
+        records,
+        protein_sequences=protein_sequences,
+        registry=registry,
+    ).mappings
+
+
+def build_ptm_protein_site_mapping_report(
+    records: tuple[PtmEvidenceRecord, ...],
+    *,
+    protein_sequences: dict[str, str],
+    registry: ModificationRegistryDocument | None = None,
+) -> PtmProteinSiteMappingReport:
+    """Map residue-localized PTM peptides and classify exact, ambiguous, and unmapped cases."""
     mappings: list[PtmProteinSiteMapping] = []
+    exact_mappings: list[PtmProteinSiteMapping] = []
+    ambiguous_mappings: list[PtmProteinSiteMapping] = []
+    unmapped_peptides: list[PtmUnmappedPeptideEntry] = []
     for record in records:
         shared_peptide = len(record.protein_refs) > 1
         site_candidates = _site_candidates_for_record(record, registry=registry)
+        matched_sequences: list[tuple[str, str, tuple[int, ...]]] = []
+        matched_refs: list[str] = []
+        missing_refs: list[str] = []
         for protein_ref in record.protein_refs:
             sequence = protein_sequences.get(protein_ref)
             if sequence is None:
+                missing_refs.append(protein_ref)
                 continue
             starts = _find_occurrences(sequence, record.sequence)
-            if not starts:
-                continue
-            for site_candidate in site_candidates:
+            if starts:
+                matched_sequences.append((protein_ref, sequence, starts))
+                matched_refs.append(protein_ref)
+        for site_candidate in site_candidates:
+            candidate_mappings: list[PtmProteinSiteMapping] = []
+            for protein_ref, sequence, starts in matched_sequences:
                 for start in starts:
                     protein_position = start + site_candidate.peptide_site_index - 1
                     candidate_positions = tuple(
                         start + site_index - 1
                         for site_index in site_candidate.candidate_site_indices
                     ) or (protein_position,)
-                    mappings.append(
+                    candidate_mappings.append(
                         PtmProteinSiteMapping(
                             spectrum_id=record.spectrum_id,
                             sample_id=record.sample_id,
@@ -67,21 +93,86 @@ def map_ptm_evidence_to_protein_sites(
                             q_value=record.q_value,
                             target_decoy_label=record.target_decoy_label,
                             candidate_protein_positions=candidate_positions,
-                            ambiguous=(len(candidate_positions) > 1 or len(starts) > 1),
+                            ambiguous=False,
                             shared_peptide=shared_peptide,
                             provenance=record.provenance,
                         )
                     )
-    return tuple(
-        sorted(
-            mappings,
-            key=lambda mapping: (
-                mapping.protein_ref,
-                mapping.protein_position,
-                -mapping.localization_score,
-                mapping.spectrum_id,
-            ),
-        )
+            if not candidate_mappings:
+                reason_code, detail = _unmapped_reason_for_record(
+                    record,
+                    site_candidate,
+                    matched_protein_refs=tuple(matched_refs),
+                    missing_protein_refs=tuple(missing_refs),
+                )
+                unmapped_peptides.append(
+                    PtmUnmappedPeptideEntry(
+                        spectrum_id=record.spectrum_id,
+                        sample_id=record.sample_id,
+                        localized_peptide=record.localized_peptide,
+                        canonical_peptide=record.canonical_peptide,
+                        sequence=record.sequence,
+                        protein_refs=record.protein_refs,
+                        modification_name=site_candidate.modification_name,
+                        residue=site_candidate.residue,
+                        peptide_site_index=site_candidate.peptide_site_index,
+                        candidate_site_indices=site_candidate.candidate_site_indices,
+                        reason_code=reason_code,
+                        detail=detail,
+                        provenance=record.provenance,
+                    )
+                )
+                continue
+            ambiguous = _mapping_group_is_ambiguous(candidate_mappings)
+            target_bucket = ambiguous_mappings if ambiguous else exact_mappings
+            for mapping in candidate_mappings:
+                finalized = mapping.model_copy(update={"ambiguous": ambiguous})
+                mappings.append(finalized)
+                target_bucket.append(finalized)
+    return PtmProteinSiteMappingReport(
+        mappings=tuple(
+            sorted(
+                mappings,
+                key=lambda mapping: (
+                    mapping.protein_ref,
+                    mapping.protein_position,
+                    -mapping.localization_score,
+                    mapping.spectrum_id,
+                ),
+            )
+        ),
+        exact_mappings=tuple(
+            sorted(
+                exact_mappings,
+                key=lambda mapping: (
+                    mapping.protein_ref,
+                    mapping.protein_position,
+                    mapping.spectrum_id,
+                ),
+            )
+        ),
+        ambiguous_mappings=tuple(
+            sorted(
+                ambiguous_mappings,
+                key=lambda mapping: (
+                    mapping.protein_ref,
+                    mapping.protein_position,
+                    mapping.spectrum_id,
+                ),
+            )
+        ),
+        unmapped_peptides=tuple(
+            sorted(
+                unmapped_peptides,
+                key=lambda entry: (
+                    entry.reason_code,
+                    entry.localized_peptide,
+                    entry.spectrum_id,
+                    entry.modification_name,
+                    entry.peptide_site_index,
+                ),
+            )
+        ),
     )
 
 
@@ -112,6 +203,42 @@ def _site_candidates_for_record(
             )
         )
     return tuple(site_candidates)
+
+
+def _mapping_group_is_ambiguous(
+    mappings: list[PtmProteinSiteMapping],
+) -> bool:
+    if len(mappings) > 1:
+        return True
+    return len(mappings[0].candidate_protein_positions) > 1
+
+
+def _unmapped_reason_for_record(
+    record: PtmEvidenceRecord,
+    site_candidate: PtmEvidenceSiteCandidate,
+    *,
+    matched_protein_refs: tuple[str, ...],
+    missing_protein_refs: tuple[str, ...],
+) -> tuple[str, str]:
+    if matched_protein_refs:
+        return (
+            "peptide_not_found_in_protein",
+            "localized peptide sequence did not occur in any declared protein sequence",
+        )
+    if missing_protein_refs and len(missing_protein_refs) == len(record.protein_refs):
+        return (
+            "missing_protein_sequence",
+            "none of the declared protein references were present in the provided FASTA",
+        )
+    if missing_protein_refs:
+        return (
+            "missing_protein_sequence",
+            "declared protein references were missing from the provided FASTA and no exact protein-site mapping remained",
+        )
+    return (
+        "peptide_not_found_in_protein",
+        f"localized peptide sequence did not occur in the declared proteins: {';'.join(record.protein_refs)}",
+    )
 
 
 def build_ptm_site_table(
@@ -380,6 +507,56 @@ def render_ptm_protein_site_mapping_tsv(
                 str(mapping.ambiguous).lower(),
                 str(mapping.shared_peptide).lower(),
                 mapping.target_decoy_label.value,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_ptm_unmapped_peptide_tsv(
+    entries: tuple[PtmUnmappedPeptideEntry, ...],
+) -> str:
+    """Render unmapped PTM peptide-site evidence as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "spectrum_id",
+            "sample_id",
+            "localized_peptide",
+            "canonical_peptide",
+            "protein_refs",
+            "modification_name",
+            "residue",
+            "peptide_site_index",
+            "candidate_site_indices",
+            "reason_code",
+            "detail",
+            *ImportedEvidenceProvenance.tsv_header(),
+        ]
+    )
+    for entry in sort_rows_by_fields(
+        entries,
+        "reason_code",
+        "localized_peptide",
+        "spectrum_id",
+    ):
+        writer.writerow(
+            [
+                entry.spectrum_id,
+                entry.sample_id or "",
+                entry.localized_peptide,
+                entry.canonical_peptide,
+                ";".join(sort_strings(entry.protein_refs)),
+                entry.modification_name,
+                entry.residue,
+                entry.peptide_site_index,
+                ";".join(
+                    str(site_index) for site_index in entry.candidate_site_indices
+                ),
+                entry.reason_code,
+                entry.detail,
+                *entry.provenance.to_tsv_row(),
             ]
         )
     return buffer.getvalue()
