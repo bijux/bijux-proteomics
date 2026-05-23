@@ -13,7 +13,9 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     build_label_free_intensity_table,
     build_sample_cluster_report,
+    build_sample_correlation_report,
     build_sample_distance_report,
+    build_sample_exploration_report,
     build_sample_pca_variance_report,
 )
 
@@ -172,6 +174,24 @@ def test_sample_distance_report_orders_closest_pairs_first() -> None:
     assert report.entries[-1].euclidean_distance > report.entries[0].euclidean_distance
 
 
+def test_sample_correlation_report_orders_highest_pairs_first() -> None:
+    records, design = _sample_exploration_inputs()
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_sample_correlation_report(table, design)
+
+    assert report.sample_count == 4
+    assert len(report.entries) == 6
+    assert report.entries[0].sample_id_a == "case-1"
+    assert report.entries[0].sample_id_b == "case-2"
+    assert report.entries[0].pearson_correlation >= report.entries[-1].pearson_correlation
+    assert report.entries[0].same_condition is True
+
+
 def test_sample_cluster_report_preserves_average_linkage_merge_order() -> None:
     records, design = _sample_exploration_inputs()
     table = build_label_free_intensity_table(
@@ -208,3 +228,160 @@ def test_sample_exploration_reports_accept_canonical_quant_matrix_input() -> Non
 
     assert pca_report.entries[0].component_label == "PC1"
     assert distance_report.sample_count == 4
+
+
+def test_sample_exploration_report_preserves_metric_labeled_outliers() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="outlier-001",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-002",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=101.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-003",
+            sample_id="case-3",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=850.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-004",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=20.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-005",
+            sample_id="ctrl-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=22.0,
+            protein_refs=("P1",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-006",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=120.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-007",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=122.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-008",
+            sample_id="case-3",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=940.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-009",
+            sample_id="ctrl-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=30.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="outlier-010",
+            sample_id="ctrl-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=32.0,
+            protein_refs=("P2",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-3",
+            condition="case",
+            replicate=3,
+            fraction=1,
+            spectra_file="case-3.mzml",
+            batch="b1",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+            batch="b2",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-2",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="ctrl-2.mzml",
+            batch="b2",
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_sample_exploration_report(table, design)
+    by_sample = {
+        entry.sample_id: entry for entry in report.sample_pca_report.entries
+    }
+
+    assert report.summary.pairwise_correlation_count == 10
+    assert report.sample_correlation_report.entries
+    assert report.sample_outlier_report.entries
+    assert by_sample["case-3"].outlier is True
+    assert by_sample["case-3"].outlier_reasons
+    assert any(
+        reason.startswith("distance_from_")
+        for reason in by_sample["case-3"].outlier_reasons
+    )
