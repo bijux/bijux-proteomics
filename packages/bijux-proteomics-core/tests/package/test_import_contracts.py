@@ -99,3 +99,9 @@ def test_interpretation_ppi_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.interpretation")
 
     assert hasattr(module, "build_ppi_network_module_report")
+
+
+def test_workflow_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.workflow")
+
+    assert hasattr(module, "run_proteomics_workflow")
