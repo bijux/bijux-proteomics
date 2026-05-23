@@ -60,6 +60,7 @@ def test_ptm_site_localization_evidence_graph_links_core_coordinates_and_fragmen
     assert target.candidate_protein_positions == (5,)
     assert target.localization_probability > 0.95
     assert target.localization_probability_source == "normalized_score"
+    assert target.localization_tier == "supported"
     assert target.fragment_ions == ("b5", "y6", "y7")
     assert target.site_determining_ions == ()
     assert target.supported_site_determining_ions == ()
