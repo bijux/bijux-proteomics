@@ -3804,6 +3804,99 @@ def test_xic_pick_peaks_command_rejects_dual_tolerance_modes() -> None:
         assert "provide either tolerance_da or tolerance_ppm, not both" in result.output
 
 
+def test_xic_align_retention_times_command_emits_models_residuals_and_failed_anchors() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_reference.mzml",
+            "rt_alignment_reference.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_shifted.mzml",
+            "rt_alignment_shifted.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_targets.tsv",
+            "rt_alignment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-align-retention-times",
+                "rt_alignment_targets.tsv",
+                "rt_alignment_reference.mzml",
+                "rt_alignment_shifted.mzml",
+                "--tolerance-ppm",
+                "10",
+                "--aligned-rt-tolerance-seconds",
+                "5",
+                "--model-tsv-out",
+                "rt.models.tsv",
+                "--residual-tsv-out",
+                "rt.residuals.tsv",
+                "--failed-anchor-tsv-out",
+                "rt.failed.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["reference_run_id"] == "rt_alignment_reference"
+        assert len(payload["run_models"]) == 2
+        assert payload["run_models"][1]["status"] == "aligned"
+        assert payload["run_models"][1]["shift_seconds"] == 10.0
+        assert len(payload["flagged_residuals"]) == 1
+        assert payload["flagged_residuals"][0]["target_id"] == "anchor_gamma"
+        assert payload["flagged_residuals"][0]["outside_aligned_tolerance"] is True
+        assert len(payload["failed_anchors"]) == 1
+        assert payload["failed_anchors"][0]["reason"] == "missing_run_peak"
+        assert payload["outputs"]["model_tsv"] == "rt.models.tsv"
+        assert payload["outputs"]["residual_tsv"] == "rt.residuals.tsv"
+        assert payload["outputs"]["failed_anchor_tsv"] == "rt.failed.tsv"
+        assert Path("rt.models.tsv").exists()
+        assert Path("rt.residuals.tsv").exists()
+        assert Path("rt.failed.tsv").exists()
+        assert "\taligned\t3\t10\t0\t10\t" in Path("rt.models.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert (
+            "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70\t10\t10\t10\ttrue"
+            in Path("rt.residuals.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "\tanchor_delta\tmissing_run_peak\t1\t0"
+            in Path("rt.failed.tsv").read_text(encoding="utf-8")
+        )
+
+
+def test_xic_align_retention_times_command_requires_multiple_runs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_reference.mzml",
+            "rt_alignment_reference.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "rt_alignment_targets.tsv",
+            "rt_alignment_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-align-retention-times",
+                "rt_alignment_targets.tsv",
+                "rt_alignment_reference.mzml",
+                "--tolerance-ppm",
+                "10",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "retention-time alignment requires at least two mzML files" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
