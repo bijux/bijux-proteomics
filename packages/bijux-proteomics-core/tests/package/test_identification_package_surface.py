@@ -332,6 +332,26 @@ def test_identification_package_exports_protein_parsimony_owner_surface() -> Non
     assert "selected_protein_count" in rendered
 
 
+def test_identification_package_exports_protein_inference_benchmark_owner_surface() -> (
+    None
+):
+    suite = identification.build_core_protein_inference_benchmark_suite()
+    rendered = identification.render_protein_inference_benchmark_summary_tsv(suite)
+
+    assert hasattr(identification, "build_core_protein_inference_benchmark_suite")
+    assert hasattr(identification, "render_protein_inference_benchmark_summary_tsv")
+    assert hasattr(identification, "render_protein_inference_benchmark_scenarios_tsv")
+    assert hasattr(
+        identification,
+        "render_protein_inference_benchmark_assessments_tsv",
+    )
+    assert suite.scenario_count == 8
+    assert suite.tied_score_scenario_count == 1
+    assert suite.missing_fasta_scenario_count == 1
+    assert suite.hidden_ambiguity_scenario_count == 0
+    assert "hidden_ambiguity_scenario_count" in rendered
+
+
 def test_identification_package_exports_error_rate_annotation_owner_surface() -> None:
     records = (
         identification.PsmRecord(
