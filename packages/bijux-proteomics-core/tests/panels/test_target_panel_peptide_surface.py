@@ -43,12 +43,21 @@ def test_build_diann_peptide_target_panel_report_keeps_matched_and_missing_targe
     assert report.summary.missing_target_count == 1
     assert report.summary.matched_entity_count == 3
     assert report.summary.sample_count == 3
+    assert report.matched_targets[0].modified_peptide == "PEPALFA"
+    assert report.matched_targets[0].expected_charge == 2
     assert report.matched_targets[1].target_id == "dia-p22222"
     assert report.matched_targets[1].detected_sample_count == 2
     assert report.filtered_rows[1].target_id == "dia-p22222"
     assert report.filtered_rows[1].peptide_sequence == "PEPGAMMA"
+    assert report.filtered_rows[0].modified_peptide == "PEPALFA"
+    assert report.filtered_rows[0].expected_charge == 2
+    assert report.filtered_rows[0].charge_states == (2,)
     assert report.missing_targets[0].target_id == "dia-missing-protein"
+    assert report.missing_targets[0].modified_peptide is None
+    assert report.missing_targets[0].expected_charge is None
     assert report.intensity_entries[0].target_id == "dia-pepalfa"
+    assert report.intensity_entries[0].modified_peptide == "PEPALFA"
+    assert report.intensity_entries[0].expected_charge == 2
 
 
 def test_build_lfq_peptide_target_panel_report_keeps_target_intensities_visible() -> None:
@@ -64,8 +73,13 @@ def test_build_lfq_peptide_target_panel_report_keeps_target_intensities_visible(
     assert report.summary.sample_count == 4
     assert report.filtered_rows[0].target_id == "lfq-apeptide"
     assert report.filtered_rows[0].peptide_sequence == "APEPTIDE"
+    assert report.filtered_rows[0].modified_peptide == "APEPTIDE"
+    assert report.filtered_rows[0].expected_charge == 2
+    assert report.filtered_rows[0].charge_states == (2,)
     assert report.filtered_rows[1].target_id == "lfq-cpeptide"
     assert report.filtered_rows[1].peptide_sequence == "CPEPTIDE"
     assert report.filtered_rows[2].target_id == "lfq-p003"
     assert report.filtered_rows[2].protein_refs == ("P003",)
     assert report.missing_targets[0].target_id == "lfq-missing-peptide"
+    assert report.missing_targets[0].modified_peptide == "ZPEPTIDE"
+    assert report.missing_targets[0].expected_charge == 2

@@ -42,11 +42,26 @@ def test_render_target_panel_exports_keep_summary_missing_and_intensity_visible(
     matrix_tsv = render_target_panel_matrix_tsv(report)
 
     assert "source_kind\tsource_name\ttotal_target_count\tmatched_target_count" in summary_tsv
-    assert "target_id\ttarget_kind\tmatched_entity_ids\tdetected_sample_count" in target_tsv
-    assert "target_id\ttarget_kind\treason" in missing_tsv
-    assert "target_id\ttarget_kind\tmatched_entity_id\tsample_id\tabundance\tdetected" in intensity_tsv
-    assert "target_id\ttarget_kind\tmatched_entity_id\tpeptide_sequence\tprotein_refs" in matrix_tsv
-    assert "dia-missing-protein\tprotein\ttarget is absent from the selected peptide-level matrix" in missing_tsv
-    assert "dia-p22222\tprotein\tPEPGAMMA|PG002\t2" in target_tsv
-    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tsample_A\t1200000.0\ttrue" in intensity_tsv
-    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tP11111\t1200000.0" in matrix_tsv
+    assert (
+        "target_id\ttarget_kind\tmodified_peptide\texpected_charge\tmatched_entity_ids\tdetected_sample_count"
+        in target_tsv
+    )
+    assert (
+        "target_id\ttarget_kind\tmodified_peptide\texpected_charge\treason"
+        in missing_tsv
+    )
+    assert (
+        "target_id\ttarget_kind\tmatched_entity_id\tmodified_peptide\texpected_charge\tsample_id\tabundance\tdetected"
+        in intensity_tsv
+    )
+    assert (
+        "target_id\ttarget_kind\tmatched_entity_id\tpeptide_sequence\tmodified_peptide\texpected_charge\tcharge_states\tprotein_refs"
+        in matrix_tsv
+    )
+    assert (
+        "dia-missing-protein\tprotein\t\t\ttarget is absent from the selected peptide-level matrix"
+        in missing_tsv
+    )
+    assert "dia-p22222\tprotein\t\t\tPEPGAMMA|PG002\t2" in target_tsv
+    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\t2\tsample_A\t1200000.0\ttrue" in intensity_tsv
+    assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111\t1200000.0" in matrix_tsv

@@ -42,8 +42,12 @@ def test_build_diann_protein_target_panel_report_keeps_missing_targets_visible()
     assert report.summary.missing_target_count == 1
     assert report.filtered_rows[0].target_id == "dia-p11111"
     assert report.filtered_rows[0].matched_entity_id == "P11111"
+    assert report.filtered_rows[0].modified_peptide is None
+    assert report.filtered_rows[0].expected_charge is None
     assert report.filtered_rows[1].target_id == "dia-p22222"
     assert report.missing_targets[0].target_id == "dia-missing-protein"
+    assert report.missing_targets[0].modified_peptide is None
+    assert report.missing_targets[0].expected_charge is None
 
 
 def test_build_lfq_protein_target_panel_report_keeps_protein_intensities_visible() -> None:
@@ -59,6 +63,8 @@ def test_build_lfq_protein_target_panel_report_keeps_protein_intensities_visible
     assert report.filtered_rows[0].matched_entity_id == "P001"
     assert report.filtered_rows[1].matched_entity_id == "P003"
     assert report.missing_targets[0].target_id == "lfq-missing-protein"
+    assert report.matched_targets[0].modified_peptide is None
+    assert report.matched_targets[0].expected_charge is None
 
 
 def test_build_lfq_protein_lfq_target_panel_report_keeps_lfq_targets_visible() -> None:
