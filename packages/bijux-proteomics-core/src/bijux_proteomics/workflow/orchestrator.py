@@ -213,6 +213,7 @@ class DiannWorkflowConfig(WorkflowBaseConfig):
     proteins_fasta_path: Path
     config_path: Path | None = None
     annotation_tsv_path: Path | None = None
+    context_annotation_tsv_path: Path | None = None
     go_annotation_tsv_path: Path | None = None
     pathway_membership_tsv_path: Path | None = None
     complex_membership_tsv_path: Path | None = None
@@ -537,6 +538,8 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
         tuple(design_report.accepted_entries),
         proteins_fasta_path=config.proteins_fasta_path,
         config_path=config.config_path,
+        annotation_tsv_path=config.annotation_tsv_path,
+        context_annotation_tsv_path=config.context_annotation_tsv_path,
         include_decoys=config.include_decoys,
         max_q_value=config.max_q_value,
         peptide_rollup_method=config.peptide_rollup_method,
@@ -546,7 +549,6 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
         normalization_method=config.normalization_method,
         condition_a=config.condition_a,
         condition_b=config.condition_b,
-        annotation_tsv_path=config.annotation_tsv_path,
         go_annotation_tsv_path=config.go_annotation_tsv_path,
         pathway_membership_tsv_path=config.pathway_membership_tsv_path,
         complex_membership_tsv_path=config.complex_membership_tsv_path,
