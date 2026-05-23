@@ -6,8 +6,10 @@ from __future__ import annotations
 from bijux_proteomics.review import (
     EvidenceGraphEdge,
     EvidenceGraphNode,
+    ProteomicsEvidenceEdgeKind,
     EvidenceGraphQuery,
     ProteomicsEvidenceNodeKind,
+    ProteomicsEvidenceType,
     query_evidence_graph,
 )
 
@@ -43,10 +45,22 @@ def test_query_evidence_graph_filters_nodes_and_connecting_edges() -> None:
     )
     edges = (
         EvidenceGraphEdge(
-            source_node_id="n1", target_node_id="n2", relation="supports"
+            source_node_id="n1",
+            target_node_id="n2",
+            relation=ProteomicsEvidenceEdgeKind.CANDIDATE_SUPPORTS_PROTEIN,
+            source_row_ref="review.tsv:2",
+            confidence=0.9,
+            evidence_type=ProteomicsEvidenceType.INFERENCE,
+            reason="candidate cand-1 supports protein P12345",
         ),
         EvidenceGraphEdge(
-            source_node_id="n1", target_node_id="n3", relation="competes"
+            source_node_id="n1",
+            target_node_id="n3",
+            relation=ProteomicsEvidenceEdgeKind.PSM_SUPPORTS_PEPTIDE,
+            source_row_ref="psm.tsv:8",
+            confidence=0.7,
+            evidence_type=ProteomicsEvidenceType.SPECTRUM_ASSIGNMENT,
+            reason="candidate-linked psm also supports peptide cand-2",
         ),
     )
 
