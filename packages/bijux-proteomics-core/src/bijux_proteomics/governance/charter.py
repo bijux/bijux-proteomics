@@ -228,6 +228,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="PTM localization, occupancy, motif-enrichment background semantics, protein-abundance-corrected site differential semantics, and DIA-native evidence surfaces that preserve uncertainty, library identity, and targeted follow-up meaning.",
         required_modules=(
             "targeted/assay_qc.py",
+            "targeted/carryover.py",
             "targeted/transition_coelution.py",
             "ptm/contracts.py",
             "ptm/ambiguity_handling.py",
