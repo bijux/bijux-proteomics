@@ -25,6 +25,14 @@ from bijux_proteomics.quantification import (
     MissingValueKind,
     QuantEntityLevel,
 )
+from bijux_proteomics.study.lab_protocol_context import (
+    AcquisitionType,
+    DepletionMode,
+    EnrichmentType,
+    FractionationMode,
+    LabProtocolContextEntry,
+    LabelingMethod,
+)
 from bijux_proteomics.sequences.digestion import (
     ProteaseCleavageMode,
     ProteaseRule,
@@ -1127,6 +1135,53 @@ def default_qc_threshold_policy() -> QcThresholdPolicy:
                 disposition=QcAssessmentDisposition.ADVISORY,
             ),
         ),
+    )
+
+
+def build_protocol_aware_qc_threshold_policy(
+    protocol_context: LabProtocolContextEntry,
+    *,
+    base_policy: QcThresholdPolicy | None = None,
+) -> QcThresholdPolicy:
+    """Adapt run-QC thresholds to one governed lab protocol context."""
+
+    thresholds_by_metric: dict[str, dict[str, float]] = {}
+
+    def _set(metric_key: str, **updates: float) -> None:
+        thresholds_by_metric.setdefault(metric_key, {}).update(updates)
+
+    if protocol_context.acquisition_type is AcquisitionType.DIA:
+        _set("spectrum_count", lower_warn=700.0, lower_fail=350.0)
+        _set("identification_rate", lower_warn=0.12, lower_fail=0.06)
+    if protocol_context.acquisition_type is AcquisitionType.TARGETED:
+        _set("spectrum_count", lower_warn=200.0, lower_fail=100.0)
+        _set("identification_rate", lower_warn=0.05, lower_fail=0.02)
+        _set("contaminant_psm_fraction", upper_warn=0.08, upper_fail=0.16)
+    if protocol_context.labeling_method is LabelingMethod.TMT:
+        _set("missed_cleavage_rate", upper_warn=0.25, upper_fail=0.4)
+        _set("non_specific_fraction", upper_warn=0.2, upper_fail=0.35)
+    if protocol_context.enrichment_type is not EnrichmentType.NONE:
+        _set("spectrum_count", lower_warn=600.0, lower_fail=300.0)
+        _set("identification_rate", lower_warn=0.1, lower_fail=0.05)
+        _set("missed_cleavage_rate", upper_warn=0.28, upper_fail=0.45)
+    if protocol_context.fractionation_mode is not FractionationMode.NONE:
+        _set("spectrum_count", lower_warn=500.0, lower_fail=250.0)
+    if protocol_context.depletion_mode is DepletionMode.PLASMA_HIGH_ABUNDANCE:
+        _set("contaminant_psm_fraction", upper_warn=0.12, upper_fail=0.24)
+
+    active_policy = base_policy or default_qc_threshold_policy()
+    return active_policy.model_copy(
+        update={
+            "policy_name": (
+                f"{active_policy.policy_name}:{protocol_context.protocol_id}"
+            ),
+            "rules": tuple(
+                rule.model_copy(
+                    update=thresholds_by_metric.get(rule.metric_key, {})
+                )
+                for rule in active_policy.rules
+            ),
+        }
     )
 
 

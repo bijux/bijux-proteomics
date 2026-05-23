@@ -536,6 +536,94 @@ def build_contrast_table_schema() -> ScientificTableSchema:
     )
 
 
+def build_lab_protocol_context_schema() -> ScientificTableSchema:
+    """Build the governed schema for one experiment-level lab protocol table."""
+
+    return ScientificTableSchema(
+        table_kind="lab_protocol_context",
+        column_specs=(
+            DelimitedColumnSpec(
+                name="protocol_id",
+                source_columns=("protocol_id",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="digestion_enzyme",
+                source_columns=("digestion_enzyme",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="acquisition_type",
+                source_columns=("acquisition_type",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="labeling_method",
+                source_columns=("labeling_method",),
+                required=True,
+            ),
+            DelimitedColumnSpec(
+                name="enrichment_type",
+                source_columns=("enrichment_type",),
+                required=True,
+                missing_tokens=("", "na", "n/a", "null", "nan"),
+            ),
+            DelimitedColumnSpec(
+                name="fractionation_mode",
+                source_columns=("fractionation_mode",),
+                required=True,
+                missing_tokens=("", "na", "n/a", "null", "nan"),
+            ),
+            DelimitedColumnSpec(
+                name="depletion_mode",
+                source_columns=("depletion_mode",),
+                required=True,
+                missing_tokens=("", "na", "n/a", "null", "nan"),
+            ),
+            DelimitedColumnSpec(
+                name="instrument_platform",
+                source_columns=("instrument_platform",),
+                required=True,
+            ),
+        ),
+        unique_key_columns=("protocol_id",),
+        allowed_values_by_column={
+            "digestion_enzyme": (
+                "trypsin",
+                "lysc",
+                "trypsin_lysc",
+                "gluc",
+                "chymotrypsin",
+                "aspn",
+                "other",
+            ),
+            "acquisition_type": ("dda", "dia", "targeted"),
+            "labeling_method": ("label_free", "tmt", "silac", "other"),
+            "enrichment_type": (
+                "none",
+                "phospho",
+                "acetyl",
+                "ubiquitin",
+                "glyco",
+                "other",
+            ),
+            "fractionation_mode": (
+                "none",
+                "offline_high_ph",
+                "gel",
+                "sax",
+                "other",
+            ),
+            "depletion_mode": (
+                "none",
+                "plasma_high_abundance",
+                "ribosomal",
+                "other",
+            ),
+        },
+    )
+
+
 def build_ptm_evidence_schema(
     mapping: PtmLocalizationColumnMapping | Any,
 ) -> ScientificTableSchema:

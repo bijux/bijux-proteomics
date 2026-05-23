@@ -11,6 +11,7 @@ from bijux_proteomics.study.design_classification import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_feasibility import *  # noqa: F401,F403
 from bijux_proteomics.study.design_validity import *  # noqa: F401,F403
 from bijux_proteomics.study.experiment_design import *  # noqa: F401,F403
+from bijux_proteomics.study.lab_protocol_context import *  # noqa: F401,F403
 from bijux_proteomics.study.replicate_structure import *  # noqa: F401,F403
 from bijux_proteomics.study.sample_sheet_repairs import *  # noqa: F401,F403
 from bijux_proteomics.study.sample_run_identity import *  # noqa: F401,F403
