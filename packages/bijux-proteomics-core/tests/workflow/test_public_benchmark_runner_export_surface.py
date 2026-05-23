@@ -30,6 +30,7 @@ def test_public_benchmark_runner_renders_summary_and_failure_ledgers(
     assert summary_tsv.splitlines()[0] == (
         "dataset_id\taccession\tsearch_engine\tstatus\tfailure_count\toutput_dir\tnote"
     )
+    assert "lfq_cohort_review_package" in summary_tsv
     assert "ptm_localization_review_package" in summary_tsv
     assert "dia_diann_review_snapshot" in summary_tsv
     assert failures_tsv.splitlines()[0] == (

@@ -50,8 +50,13 @@ def test_public_benchmark_descriptor_suite_records_explicit_success_and_failures
     )
     runs = {run.dataset_id: run for run in suite.runs}
 
-    assert suite.passed_count == 1
+    assert suite.passed_count == 2
     assert suite.failed_count == 5
+
+    lfq_run = runs["lfq_cohort_review_package"]
+    assert lfq_run.status == "passed"
+    assert lfq_run.verified_counts["protein_card_count"] == 3
+    assert Path(lfq_run.output_dir, "biological_report_manifest.json").exists()
 
     ptm_run = runs["ptm_localization_review_package"]
     assert ptm_run.status == "passed"
