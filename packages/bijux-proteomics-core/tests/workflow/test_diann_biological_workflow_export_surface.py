@@ -45,7 +45,9 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert (output_dir / manifest.artifacts.import_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.precursor_quantity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.precursor_metadata_tsv).exists()
+    assert (output_dir / manifest.artifacts.peptide_quantity_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_quantity_matrix_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_rollup_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.run_qc_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
@@ -62,8 +64,14 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert "retained_observation_count" in (
         output_dir / manifest.artifacts.precursor_metadata_tsv
     ).read_text(encoding="utf-8")
+    assert "peptide_key" in (
+        output_dir / manifest.artifacts.peptide_quantity_matrix_tsv
+    ).read_text(encoding="utf-8")
     assert "entity_id" in (
         output_dir / manifest.artifacts.protein_quantity_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "rollup_stage" in (
+        output_dir / manifest.artifacts.protein_rollup_evidence_tsv
     ).read_text(encoding="utf-8")
     assert "run_name\tsample_name\tprecursor_id_count" in (
         output_dir / manifest.artifacts.run_qc_runs_tsv
