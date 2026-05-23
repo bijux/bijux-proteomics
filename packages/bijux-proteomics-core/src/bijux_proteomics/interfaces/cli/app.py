@@ -273,6 +273,8 @@ from bijux_proteomics.io import (
     extract_mzml_chromatographic_evidence,
     extract_mzml_chromatographic_peaks,
     extract_mzml_retention_time_alignment,
+    render_fragment_ratio_stability_fragments_tsv,
+    render_fragment_ratio_stability_observations_tsv,
     render_dia_fragment_coelution_fragments_tsv,
     render_dia_fragment_coelution_runs_tsv,
     render_chromatographic_peptide_evidence_tsv,
@@ -281,6 +283,7 @@ from bijux_proteomics.io import (
     render_retention_time_alignment_residuals_tsv,
     render_chromatographic_target_evidence_tsv,
     render_chromatographic_peaks_tsv,
+    score_dia_fragment_ratio_stability,
     extract_mzml_xic_traces,
     render_xic_traces_tsv,
 )
@@ -4210,6 +4213,9 @@ def targeted_assay_qc_command(
         },
         "assay_qc_summary": assay_qc_report.summary.to_dict(),
         "transition_coelution_summary": assay_qc_report.transition_coelution.summary.to_dict(),
+        "fragment_ratio_stability_summary": (
+            assay_qc_report.fragment_ratio_stability.summary.to_dict()
+        ),
         "target_qc": [entry.to_dict() for entry in assay_qc_report.target_qc],
         "transition_consistency": [
             entry.to_dict() for entry in assay_qc_report.transition_consistency
@@ -12032,6 +12038,16 @@ def xic_score_evidence_command(
     default=None,
 )
 @click.option(
+    "--ratio-fragment-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--ratio-observation-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -12048,6 +12064,8 @@ def dia_fragment_coelution_command(
     min_passing_fragment_count: int,
     run_tsv_out: Path | None,
     fragment_tsv_out: Path | None,
+    ratio_fragment_tsv_out: Path | None,
+    ratio_observation_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Score coelution among DIA fragment traces assigned to one precursor."""
@@ -12063,6 +12081,7 @@ def dia_fragment_coelution_command(
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
+    ratio_report = score_dia_fragment_ratio_stability(report)
     if run_tsv_out is not None:
         _write_text_output(
             run_tsv_out,
@@ -12073,10 +12092,35 @@ def dia_fragment_coelution_command(
             fragment_tsv_out,
             render_dia_fragment_coelution_fragments_tsv(report),
         )
+    if ratio_fragment_tsv_out is not None:
+        _write_text_output(
+            ratio_fragment_tsv_out,
+            render_fragment_ratio_stability_fragments_tsv(ratio_report),
+        )
+    if ratio_observation_tsv_out is not None:
+        _write_text_output(
+            ratio_observation_tsv_out,
+            render_fragment_ratio_stability_observations_tsv(ratio_report),
+        )
     payload = report.to_dict()
+    payload["fragment_ratio_stability_summary"] = ratio_report.summary.to_dict()
+    payload["fragment_ratio_fragments"] = [
+        entry.to_dict() for entry in ratio_report.fragment_entries
+    ]
+    payload["fragment_ratio_observations"] = [
+        entry.to_dict() for entry in ratio_report.observation_entries
+    ]
     payload["outputs"] = {
         "run_tsv": None if run_tsv_out is None else str(run_tsv_out),
         "fragment_tsv": None if fragment_tsv_out is None else str(fragment_tsv_out),
+        "ratio_fragment_tsv": (
+            None if ratio_fragment_tsv_out is None else str(ratio_fragment_tsv_out)
+        ),
+        "ratio_observation_tsv": (
+            None
+            if ratio_observation_tsv_out is None
+            else str(ratio_observation_tsv_out)
+        ),
     }
     _emit_json(payload, out_path=out_path)
 

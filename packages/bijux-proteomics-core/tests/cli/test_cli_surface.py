@@ -4005,6 +4005,10 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
                 "dia.run.tsv",
                 "--fragment-tsv-out",
                 "dia.fragment.tsv",
+                "--ratio-fragment-tsv-out",
+                "dia.ratio_fragment.tsv",
+                "--ratio-observation-tsv-out",
+                "dia.ratio_observation.tsv",
             ],
         )
 
@@ -4013,6 +4017,11 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
         assert payload["run_ids"] == ["dia_fragment_coelution"]
         assert len(payload["run_entries"]) == 2
         assert len(payload["fragment_entries"]) == 6
+        assert payload["fragment_ratio_stability_summary"]["analyte_count"] == 2
+        assert payload["fragment_ratio_stability_summary"]["fragment_entry_count"] == 5
+        assert payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 0
+        assert len(payload["fragment_ratio_fragments"]) == 5
+        assert len(payload["fragment_ratio_observations"]) == 5
         by_precursor = {
             entry["precursor_id"]: entry for entry in payload["run_entries"]
         }
@@ -4023,8 +4032,12 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
         ]
         assert payload["outputs"]["run_tsv"] == "dia.run.tsv"
         assert payload["outputs"]["fragment_tsv"] == "dia.fragment.tsv"
+        assert payload["outputs"]["ratio_fragment_tsv"] == "dia.ratio_fragment.tsv"
+        assert payload["outputs"]["ratio_observation_tsv"] == "dia.ratio_observation.tsv"
         assert Path("dia.run.tsv").exists()
         assert Path("dia.fragment.tsv").exists()
+        assert Path("dia.ratio_fragment.tsv").exists()
+        assert Path("dia.ratio_observation.tsv").exists()
         assert (
             "dia_fragment_coelution\tprec_beta\tPEPB\tbeta_y7\t3\t2\t1\t10.0000\t0.5578\t0.2971"
             in Path("dia.run.tsv").read_text(encoding="utf-8")
@@ -4032,6 +4045,14 @@ def test_dia_fragment_coelution_command_emits_run_and_fragment_outputs() -> None
         assert (
             "dia_fragment_coelution\tprec_beta\tPEPB\tbeta_b4\tbeta_b4\tbeta_y7"
             in Path("dia.fragment.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "dia\tprec_alpha\tPEPA\talpha_b4\t1\t1\t0.276008\t\t0\tfalse\t1.000000\tinsufficient_runs"
+            in Path("dia.ratio_fragment.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "dia\tprec_alpha\tPEPA\tdia_fragment_coelution\talpha_b4\t0.276008\t0.276008\t0.000000\t\tfalse\tfalse"
+            in Path("dia.ratio_observation.tsv").read_text(encoding="utf-8")
         )
 
 
@@ -6041,9 +6062,15 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert payload["import_summary"]["observation_count"] == 14
         assert payload["design_summary"]["accepted_entry_count"] == 4
         assert payload["assay_qc_summary"]["target_count"] == 2
-        assert payload["assay_qc_summary"]["reliable_target_entry_count"] == 3
+        assert payload["assay_qc_summary"]["reliable_target_entry_count"] == 1
         assert payload["assay_qc_summary"]["flagged_coelution_target_entry_count"] == 3
         assert payload["assay_qc_summary"]["flagged_replicate_cv_entry_count"] == 1
+        assert payload["fragment_ratio_stability_summary"]["fragment_entry_count"] == 4
+        assert payload["fragment_ratio_stability_summary"]["unstable_fragment_count"] == 1
+        assert (
+            payload["fragment_ratio_stability_summary"]["drift_flagged_observation_count"]
+            == 2
+        )
         assert payload["transition_coelution_summary"]["coeluting_transition_entry_count"] == 14
         assert payload["outputs"]["summary_tsv"] == "assay.summary.tsv"
         assert payload["outputs"]["target_qc_tsv"] == "assay.targets.tsv"
@@ -6068,7 +6095,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert Path("assay.retention.tsv").exists()
         assert Path("assay.replicate_cv.tsv").exists()
         assert Path("assay.unreliable.tsv").exists()
-        assert "Skyline\t2\t4\t8\t3\t8\t8\t3\t16\t14\t16\t10\t14\t8\t2\t4\t1\t6\t2" in Path(
+        assert "Skyline\t2\t4\t8\t1\t8\t8\t3\t16\t14\t16\t8\t14\t4\t1\t2\t8\t2\t4\t1\t8\t2" in Path(
             "assay.summary.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t2\ty7;y8\t1\ty7\ty8\t102000" in Path(
@@ -6086,7 +6113,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse" in Path(
             "assay.transition_qc.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\ttrue" in Path(
+        assert "PEPTIDEK/2\ttreat_r1\ty8\t12000\t114000\t0.105263\t0.236842\t0.131579\t0.396731\ttrue\ttrue\ttrue" in Path(
             "assay.fragments.tsv"
         ).read_text(encoding="utf-8")
         assert "ACDMPEP/3\ttreat_r2\t1\t20.2\t18.2\t2\ttrue" in Path(
@@ -6096,7 +6123,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
             "assay.replicate_cv.tsv"
         ).read_text(encoding="utf-8")
         assert (
-            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two coeluting transitions pass transition-quality review; fragment-ion ratios deviate from the target reference pattern; source quality flags require review"
+            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two coeluting transitions pass transition-quality review; fragment-ion ratios deviate from the cross-run reference pattern; source quality flags require review"
             in Path("assay.unreliable.tsv").read_text(encoding="utf-8")
         )
 
