@@ -1,0 +1,5 @@
+row_id	protein_ref	condition
+row-1	P04637	treated
+row-2	Q9Y243	control
+row-3	O14920	treated
+row-4	UNKNOWN123	review

@@ -1,0 +1,8 @@
+protein_ref	context_kind	context_id	context_name	source_name	source_accession	evidence	curator
+P04637	drug_target	DB0001	Palbociclib	DrugBank	DRUGBANK:DB0001	curated	team-a
+Q9Y243	disease_term	DOID:162	cancer	Disease Ontology	DOID:162	literature	team-a
+Q9Y243	subcellular_compartment	GO:0005737	cytoplasm	UniProt	GO:0005737	reviewed	team-b
+O14920	phenotype_term	HP:0001250	seizure	HPO	HP:0001250	inferred	team-c
+P04637	drug_target	DB0001	Palbociclib	DrugBank	DRUGBANK:DB0001	curated	team-a
+	drug_target	DB0002	Missing protein row	DrugBank	DRUGBANK:DB0002	curated	team-d
+P62993	unsupported_kind	SUB-001	Unsupported context	Reviewer	SUB-001	reviewed	team-e

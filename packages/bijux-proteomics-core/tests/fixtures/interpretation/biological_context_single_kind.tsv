@@ -1,0 +1,3 @@
+protein_ref	context_id	context_name	source_name	source_accession	evidence
+P04637	GO:0005634	nucleus	UniProt	GO:0005634	reviewed
+Q9Y243	GO:0005737	cytoplasm	UniProt	GO:0005737	reviewed
