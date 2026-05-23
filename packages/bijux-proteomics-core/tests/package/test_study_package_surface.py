@@ -151,3 +151,32 @@ def test_study_package_exports_design_classification_surface() -> None:
     assert "pairwise_differential" in study.render_experiment_design_classification_tsv(
         report
     )
+
+
+def test_study_package_exports_sample_run_identity_surface() -> None:
+    report = study.build_sample_run_identity_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002",
+                technical_replicate_id="tech-2",
+            ),
+        ),
+        policy=study.SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+    )
+
+    assert hasattr(study, "build_sample_run_identity_report")
+    assert hasattr(study, "resolve_sample_run_analysis_entries")
+    assert report.summary.analysis_sample_count == 2
+    assert report.run_assignments[0].biological_sample_id == "S1"

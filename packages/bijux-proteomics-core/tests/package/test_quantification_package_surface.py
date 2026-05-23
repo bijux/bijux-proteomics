@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import bijux_proteomics.quantification as quantification
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
 def test_quantification_package_exports_time_course_differential_owner_surface() -> (
@@ -213,6 +214,43 @@ def test_quantification_package_exports_batch_effect_owner_surface() -> None:
     assert hasattr(quantification, "export_batch_effect_principal_components_tsv")
     assert report.batch_field == "batch"
     assert rendered.startswith("batch_field\tdisposition")
+
+
+def test_quantification_package_exports_sample_run_policy_surface() -> None:
+    report = quantification.build_quant_design_matrix_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S2",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-003",
+                technical_replicate_id="tech-3",
+            ),
+        ),
+        batch_field="",
+        sample_run_policy=SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+    )
+
+    assert hasattr(quantification, "build_quant_design_matrix_report")
+    assert report.sample_count == 3
+    assert report.rows[0].sample_id == "S1__technical_replicate_tech-1"
 
 
 def test_quantification_package_exports_sample_exploration_owner_surface() -> None:
