@@ -239,10 +239,11 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
     ),
     CoreDomainFamilyEntry(
         family=CoreScientificDomainFamily.REVIEW_AND_HANDOFF,
-        owned_surface="Typed proteomics evidence graphs, review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
+        owned_surface="Typed proteomics evidence graphs, evidence-chain reconstruction, review packets, contradiction-aware evidence summaries, collaboration bundles, and core-owned handoff-ready scientific artifacts.",
         required_modules=(
             "review/evidence_graph.py",
             "review/evidence_graph_queries.py",
+            "review/evidence_chain_reconstruction.py",
             "review/contracts.py",
             "review/protein_family_graphs.py",
             "review/collaboration.py",
