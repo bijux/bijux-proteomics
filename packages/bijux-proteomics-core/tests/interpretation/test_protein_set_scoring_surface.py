@@ -81,6 +81,11 @@ def test_build_protein_set_scoring_report_scores_programs_per_sample() -> None:
     assert activation_scores["T2"].activity_score > activation_scores["C1"].activity_score
     assert activation_scores["C1"].observed_member_count == 1
     assert activation_scores["C1"].missing_member_count == 2
+    assert activation_scores["C1"].confidence_status.value == "low_confidence"
+    assert activation_scores["C1"].confidence_reason == (
+        "observed member count 1 was below minimum 2"
+    )
+    assert report.summary.low_confidence_sample_score_count >= 1
 
 
 def test_build_protein_set_scoring_report_emits_condition_deltas() -> None:
@@ -99,6 +104,10 @@ def test_build_protein_set_scoring_report_emits_condition_deltas() -> None:
     assert comparisons["activation"].condition_a == "control"
     assert comparisons["activation"].condition_b == "treatment"
     assert comparisons["activation"].activity_score_delta is not None
+    assert comparisons["activation"].comparison_confidence_status.value in {
+        "high_confidence",
+        "low_confidence",
+    }
     assert comparisons["activation"].activity_score_delta > 0.0
     assert comparisons["suppression"].activity_score_delta is not None
     assert comparisons["suppression"].activity_score_delta < 0.0

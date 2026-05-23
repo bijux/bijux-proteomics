@@ -73,6 +73,13 @@ def test_protein_set_condition_scores_preserve_mean_activity_by_condition() -> N
     assert condition_scores[("activation", "treatment")].sample_count == 2
     assert condition_scores[("activation", "control")].scored_sample_count == 2
     assert condition_scores[("activation", "treatment")].scored_sample_count == 2
+    assert (
+        condition_scores[("activation", "control")].low_confidence_sample_count >= 1
+    )
+    assert (
+        condition_scores[("activation", "control")].confidence_status.value
+        == "low_confidence"
+    )
     assert condition_scores[("activation", "treatment")].mean_activity_score is not None
     assert condition_scores[("activation", "control")].mean_activity_score is not None
     assert (

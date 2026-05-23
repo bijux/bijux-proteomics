@@ -82,10 +82,15 @@ def test_protein_set_renderers_emit_summary_matrix_condition_and_unresolved_ledg
     rejected_tsv = render_rejected_protein_set_tsv(invalid_sets)
 
     assert summary_tsv.splitlines()[0].startswith("entity_level\tmeasure_kind")
-    assert "set_id\tset_name\tsource_name\tC1\tC2\tT1\tT2" in matrix_tsv
-    assert "activation\tActivation program\tcurated" in matrix_tsv
+    assert (
+        "set_id\tset_name\tset_category\tsource_name\tsource_accession\tC1\tC2\tT1\tT2"
+        in matrix_tsv
+    )
+    assert "activation\tActivation program\t\tcurated\t" in matrix_tsv
     assert "sample_id\tcondition\tbatch\tactivity_score" in sample_tsv
-    assert "control" in condition_tsv
-    assert "condition_a\tcondition_b\tmean_activity_score_a" in comparison_tsv
+    assert "confidence_status" in sample_tsv.splitlines()[0]
+    assert "low_confidence" in sample_tsv
+    assert "confidence_status" in condition_tsv.splitlines()[0]
+    assert "condition_a_confidence_status" in comparison_tsv.splitlines()[0]
     assert "P999" in unresolved_tsv
     assert "duplicate protein set membership for activation and protein P001" in rejected_tsv
