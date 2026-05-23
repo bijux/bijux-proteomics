@@ -258,3 +258,43 @@ def test_proteomics_evidence_graph_rejects_conflicts_and_missing_endpoints() -> 
                 ),
             ),
         )
+
+
+def test_proteomics_evidence_graph_tracks_statistical_result_support_edges() -> None:
+    builder = ProteomicsEvidenceGraphBuilder()
+    protein = builder.add_protein("P11111", label="P11111")
+    quant_value = builder.add_quant_value("quant:S1:P11111", label="quant:S1:P11111")
+    statistical_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+    )
+
+    builder.add_protein_quantified_by_quant_value(
+        protein.node_id,
+        quant_value.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.88,
+        reason="protein matrix contains abundance for P11111 in S1",
+    )
+    builder.add_quant_value_supports_statistical_result(
+        quant_value.node_id,
+        statistical_result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.92,
+        reason="protein statistic used quantified protein abundance",
+    )
+    builder.add_protein_supports_statistical_result(
+        protein.node_id,
+        statistical_result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.87,
+        reason="protein P11111 is significant in treatment vs control",
+    )
+
+    graph = builder.build()
+
+    assert graph.summary.node_kind_counts["statistical_result"] == 1
+    assert (
+        graph.summary.edge_kind_counts["quant_value_supports_statistical_result"] == 1
+    )
+    assert graph.summary.edge_kind_counts["protein_supports_statistical_result"] == 1
