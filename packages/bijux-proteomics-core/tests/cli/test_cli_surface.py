@@ -2864,6 +2864,50 @@ def test_psm_contaminants_command_reports_contaminant_matches() -> None:
         }
 
 
+def test_psm_contaminants_command_exports_burden_and_protein_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "contaminant_burden_results.tsv",
+            "contaminant_burden_results.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "psm-contaminants",
+                "contaminant_burden_results.tsv",
+                "--run-id-column",
+                "run_id",
+                "--intensity-column",
+                "intensity",
+                "--burden-tsv-out",
+                "contaminant_burden.tsv",
+                "--protein-tsv-out",
+                "contaminant_proteins.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["contaminant_evidence"]["summary"]["contaminant_psm_count"] == 3
+        assert payload["contaminant_evidence"]["summary"]["contaminant_intensity"] == 1050.0
+        assert (
+            payload["contaminant_evidence"]["burden_entries"][0][
+                "heavy_contaminant_warning"
+            ]
+            is True
+        )
+        assert (
+            "run-a\t\t3\t2\t1\t1\t2\t2\t2000.0\t1000.0\t0.6666666666666666\t0.5\ttrue"
+            in Path("contaminant_burden.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "CON__K1C10_HUMAN\trun-a;run-b\t\t2\t2\t850.0"
+            in Path("contaminant_proteins.tsv").read_text(encoding="utf-8")
+        )
+
+
 def test_validate_and_summarize_commands_support_mzml_and_design_tables() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

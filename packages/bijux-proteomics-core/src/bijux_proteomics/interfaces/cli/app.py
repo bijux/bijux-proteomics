@@ -64,6 +64,7 @@ from bijux_proteomics.identification import (
     build_calibration_plot_data,
     build_comet_import_report,
     build_contaminant_peptide_match_report,
+    build_contaminant_evidence_report,
     build_core_protein_inference_benchmark_suite,
     build_diann_import_report,
     build_evidence_level_fdr_review_report,
@@ -102,6 +103,8 @@ from bijux_proteomics.identification import (
     render_comet_canonical_psm_tsv,
     render_comet_psm_tsv,
     render_comet_summary_tsv,
+    render_contaminant_burden_tsv,
+    render_contaminant_proteins_tsv,
     render_diann_precursor_tsv,
     render_diann_protein_group_tsv,
     render_diann_rejected_row_tsv,
@@ -1787,6 +1790,14 @@ def fasta_profile_command(
     show_default=True,
     help="Protein-reference prefixes that mark contaminant evidence.",
 )
+@click.option("--run-id-column", default=None)
+@click.option("--intensity-column", default=None)
+@click.option(
+    "--burden-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
 @click.option(
     "--out",
     "out_path",
@@ -1797,15 +1808,55 @@ def fasta_profile_command(
 def psm_contaminants_command(
     input_tsv: Path,
     contaminant_prefixes: tuple[str, ...],
+    run_id_column: str | None,
+    intensity_column: str | None,
+    burden_tsv_out: Path | None,
+    protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Separate contaminant-carrying peptide-spectrum matches from target-only evidence."""
-    report = parse_psm_tsv(input_tsv, mapping=_default_psm_mapping())
+    report = parse_psm_tsv(
+        input_tsv,
+        mapping=_build_psm_mapping(
+            run_id_column=run_id_column,
+            spectrum_id_column="spectrum_id",
+            peptide_column="peptide",
+            modified_peptide_column=None,
+            charge_column="charge",
+            score_column="score",
+            q_value_column="q_value",
+            protein_refs_column="proteins",
+            decoy_label_column=None,
+            contaminant_label_column=None,
+            protein_separator=";",
+            intensity_column=intensity_column,
+        ),
+    )
     contaminant_report = build_contaminant_peptide_match_report(
         report.accepted_records,
         contaminant_prefixes=tuple(contaminant_prefixes),
     )
-    _emit_json(contaminant_report, out_path=out_path)
+    contaminant_evidence = build_contaminant_evidence_report(
+        report.accepted_records,
+        contaminant_prefixes=tuple(contaminant_prefixes),
+    )
+    if burden_tsv_out is not None:
+        _write_text_output(
+            burden_tsv_out,
+            render_contaminant_burden_tsv(contaminant_evidence),
+        )
+    if protein_tsv_out is not None:
+        _write_text_output(
+            protein_tsv_out,
+            render_contaminant_proteins_tsv(contaminant_evidence),
+        )
+    _emit_json(
+        {
+            **contaminant_report.to_dict(),
+            "contaminant_evidence": contaminant_evidence.to_dict(),
+        },
+        out_path=out_path,
+    )
 
 
 @cli.command("fragpipe-import")
