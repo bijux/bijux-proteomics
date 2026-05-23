@@ -548,9 +548,7 @@ from bijux_proteomics.quantification import (
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_free_intensity_table,
-    build_missingness_condition_summary_report,
-    build_missingness_entity_summary_report,
-    build_missingness_intensity_dependence_report,
+    build_missingness_classifier_report,
     build_multi_condition_differential_abundance_report,
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
@@ -7783,6 +7781,7 @@ def quantify_command(
         missingness_entity_summary = None
         missingness_condition_summary = None
         missingness_intensity_dependence = None
+        missingness_mechanism_report = None
         normalization_comparison = None
         normalization_strategy = None
         imputation_report = None
@@ -7872,17 +7871,19 @@ def quantify_command(
                 conditions = tuple(
                     sorted({entry.condition for entry in design_entries if entry.condition})
                 )
-                missingness_entity_summary = build_missingness_entity_summary_report(
-                    table
+                missingness_classifier = build_missingness_classifier_report(
+                    table,
+                    design_entries=design_entries,
                 )
+                missingness_entity_summary = missingness_classifier.entity_summary
                 missingness_condition_summary = (
-                    build_missingness_condition_summary_report(
-                        table,
-                        design_entries=design_entries,
-                    )
+                    missingness_classifier.condition_summary
                 )
                 missingness_intensity_dependence = (
-                    build_missingness_intensity_dependence_report(table)
+                    missingness_classifier.intensity_dependence
+                )
+                missingness_mechanism_report = (
+                    missingness_classifier.mechanism_report
                 )
                 if condition_a is not None or condition_b is not None:
                     if not condition_a or not condition_b:
@@ -8032,6 +8033,11 @@ def quantify_command(
         "missingness_intensity_dependence": (
             missingness_intensity_dependence.to_dict()
             if missingness_intensity_dependence is not None
+            else None
+        ),
+        "missingness_mechanism_report": (
+            missingness_mechanism_report.to_dict()
+            if missingness_mechanism_report is not None
             else None
         ),
         "normalization_comparison": (
