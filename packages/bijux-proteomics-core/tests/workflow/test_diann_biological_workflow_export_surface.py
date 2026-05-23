@@ -50,6 +50,7 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     assert (output_dir / manifest.artifacts.protein_rollup_evidence_tsv).exists()
     assert (output_dir / manifest.artifacts.run_qc_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_results_tsv).exists()
+    assert (output_dir / manifest.artifacts.differential_qc_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
     assert (output_dir / manifest.artifacts.report_html).exists()
     assert "filtered_q_value_row_count" in (
@@ -81,6 +82,9 @@ def test_diann_biological_workflow_export_writes_matrix_qc_differential_and_repo
     ).read_text(encoding="utf-8")
     assert "entity_id\tcondition_a\tcondition_b" in (
         output_dir / manifest.artifacts.differential_results_tsv
+    ).read_text(encoding="utf-8")
+    assert "contrast_count" in (
+        output_dir / manifest.artifacts.differential_qc_summary_tsv
     ).read_text(encoding="utf-8")
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html

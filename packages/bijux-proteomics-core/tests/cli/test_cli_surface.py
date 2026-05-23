@@ -6060,6 +6060,8 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
                 "dia.normalized.tsv",
                 "--differential-tsv-out",
                 "dia.differential.tsv",
+                "--qc-summary-tsv-out",
+                "dia.qc.tsv",
                 "--design-matrix-tsv-out",
                 "dia.design.tsv",
                 "--design-coefficients-tsv-out",
@@ -6085,6 +6087,8 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert payload["source_name"] == "DIA-NN"
         assert payload["matrix_summary"]["entity_count"] == 3
         assert payload["normalization_comparison"]["method"] == "median"
+        assert payload["qc_summary"]["contrast_count"] == 1
+        assert payload["qc_summary"]["significant_entry_count"] == 2
         assert payload["differential_abundance"]["condition_a"] == "control"
         assert payload["differential_abundance"]["condition_b"] == "treatment"
         assert payload["volcano_plot"]["significant_point_count"] == 2
@@ -6092,6 +6096,7 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert payload["outputs"]["matrix_tsv"] == "dia.raw.tsv"
         assert payload["outputs"]["normalized_matrix_tsv"] == "dia.normalized.tsv"
         assert payload["outputs"]["differential_tsv"] == "dia.differential.tsv"
+        assert payload["outputs"]["qc_summary_tsv"] == "dia.qc.tsv"
         assert payload["outputs"]["design_matrix_tsv"] == "dia.design.tsv"
         assert payload["outputs"]["design_coefficients_tsv"] == "dia.coefficients.tsv"
         assert payload["outputs"]["volcano_tsv"] == "dia.volcano.tsv"
@@ -6102,6 +6107,7 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert Path("dia.raw.tsv").exists()
         assert Path("dia.normalized.tsv").exists()
         assert Path("dia.differential.tsv").exists()
+        assert Path("dia.qc.tsv").exists()
         assert Path("dia.design.tsv").exists()
         assert Path("dia.coefficients.tsv").exists()
         assert Path("dia.volcano.tsv").exists()
@@ -6121,6 +6127,7 @@ def test_dia_differential_command_emits_matrices_results_and_plot_ledgers() -> N
         assert "PG001\tcondition[treatment]" in Path(
             "dia.coefficients.tsv"
         ).read_text(encoding="utf-8")
+        assert "contrast_count\t1" in Path("dia.qc.tsv").read_text(encoding="utf-8")
         assert "raw_p_value" in Path("dia.volcano.tsv").read_text(encoding="utf-8")
         assert "PG001\tP11111\t2.00208\t0.00729495\t0.0136062\t1.86626\ttrue" in Path(
             "dia.volcano.tsv"
