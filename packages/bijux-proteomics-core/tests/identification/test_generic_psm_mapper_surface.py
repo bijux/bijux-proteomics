@@ -187,4 +187,9 @@ def test_generic_psm_mapper_rejected_rows_render_stably(tmp_path: Path) -> None:
     assert report.summary.accepted_rows == 1
     assert report.summary.rejected_rows == 1
     assert report.rejected_rows[0].issues[0].code == "invalid_charge"
+    assert len(report.rejected_evidence_rows) == 1
+    assert report.rejected_evidence_rows[0].source_file == "generic_mapper_invalid.tsv"
+    assert report.rejected_evidence_rows[0].entity_type == "psm"
+    assert report.rejected_evidence_rows[0].entity_id == "generic-1002"
+    assert report.rejected_evidence_rows[0].reason_code == "invalid_charge"
     assert "raw_fields_json" in render_generic_psm_rejected_row_tsv(report.rejected_rows)

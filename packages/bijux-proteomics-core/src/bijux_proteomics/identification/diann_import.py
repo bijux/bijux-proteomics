@@ -12,6 +12,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.dia import DiaNnImportReport, DiaNnImportRow, import_dia_nn_rows
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_scientific_rows,
+)
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
@@ -107,6 +111,9 @@ class DiaNnBundleImportReport(JsonModel):
         default_factory=tuple
     )
     rejected_rows: tuple[DiaNnRejectedRowEntry, ...] = Field(default_factory=tuple)
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaNnImportSummary
     dia_native_report: DiaNnImportReport
     parameter_report: SearchParameterReport | None = None
@@ -197,6 +204,17 @@ def build_diann_import_report(
         precursor_rows=precursor_rows,
         protein_group_rows=protein_group_rows,
         rejected_rows=rejected_rows,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_scientific_rows(
+            validation_report.rejected_rows,
+            source_file=result_tsv_path.name,
+            entity_type="precursor",
+            entity_id_columns=(
+                "Precursor.Id",
+                "Modified.Sequence",
+                "Stripped.Sequence",
+                "Protein.Group",
+            ),
+        ),
         summary=summary,
         dia_native_report=dia_native_report,
         parameter_report=parameter_report,

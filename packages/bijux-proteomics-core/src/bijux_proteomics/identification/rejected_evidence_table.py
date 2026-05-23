@@ -49,7 +49,7 @@ def build_rejected_evidence_rows_from_psm_rows(
         entity_type=entity_type,
         entity_id_columns=entity_id_columns,
         default_entity_id_prefix=entity_type,
-        raw_values_attr="raw_fields",
+        raw_values_attrs=("raw_fields",),
         default_reason_code="rejected_psm_row",
     )
 
@@ -69,7 +69,7 @@ def build_rejected_evidence_rows_from_scientific_rows(
         entity_type=entity_type,
         entity_id_columns=entity_id_columns,
         default_entity_id_prefix=entity_type,
-        raw_values_attr="raw_values",
+        raw_values_attrs=("raw_values", "raw_fields"),
         default_reason_code="rejected_scientific_row",
     )
 
@@ -123,13 +123,13 @@ def _build_rejected_evidence_rows(
     entity_type: str,
     entity_id_columns: tuple[str, ...],
     default_entity_id_prefix: str,
-    raw_values_attr: str,
+    raw_values_attrs: tuple[str, ...],
     default_reason_code: str,
 ) -> tuple[RejectedEvidenceTableEntry, ...]:
     entries: list[RejectedEvidenceTableEntry] = []
     for row in rows:
         row_number = int(getattr(row, "row_number"))
-        raw_values = dict(getattr(row, raw_values_attr))
+        raw_values = _read_raw_values(row, raw_values_attrs=raw_values_attrs)
         entity_id = _resolve_entity_id(
             raw_values=raw_values,
             entity_id_columns=entity_id_columns,
@@ -176,9 +176,12 @@ def _resolve_entity_id(
         "Precursor.Id",
         "precursor_id",
         "spectrum_id",
-        "Spectrum",
         "scan_ref",
+        "Spectrum",
+        "feature_id",
         "Sequence",
+        "sequence",
+        "sequence_text",
         "peptide",
         "Modified.Sequence",
         "modified_sequence",
@@ -192,6 +195,19 @@ def _resolve_entity_id(
         if value is not None and str(value).strip():
             return str(value).strip()
     return f"{default_entity_id_prefix}-row-{row_number}"
+
+
+def _read_raw_values(
+    row: object,
+    *,
+    raw_values_attrs: tuple[str, ...],
+) -> dict[str, str]:
+    for attribute_name in raw_values_attrs:
+        if hasattr(row, attribute_name):
+            return dict(getattr(row, attribute_name))
+    raise AttributeError(
+        f"rejected evidence row does not expose any raw value attribute from {raw_values_attrs}"
+    )
 
 
 __all__ = [

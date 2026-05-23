@@ -19,6 +19,10 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabel,
     TargetDecoyLabelPolicy,
 )
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_psm_rows,
+)
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
     SearchAdapterDialectManifest,
@@ -163,6 +167,9 @@ class GenericPsmMapperReport(JsonModel):
     normalization: SearchAdapterNormalizationReport
     mapped_rows: tuple[GenericMappedPsmRow, ...] = Field(default_factory=tuple)
     rejected_rows: tuple[RejectedPsmRow, ...] = Field(default_factory=tuple)
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: GenericPsmMapperSummary
 
 
@@ -223,6 +230,20 @@ def build_generic_psm_mapper_report(
         normalization=normalization,
         mapped_rows=mapped_rows,
         rejected_rows=normalization.parse_report.rejected_rows,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_psm_rows(
+            normalization.parse_report.rejected_rows,
+            source_file=source_path.name,
+            entity_type="psm",
+            entity_id_columns=tuple(
+                column_name
+                for column_name in (
+                    column_mapping.spectrum_id,
+                    column_mapping.modified_peptide,
+                    column_mapping.peptide,
+                )
+                if column_name is not None
+            ),
+        ),
         summary=summary,
     )
 

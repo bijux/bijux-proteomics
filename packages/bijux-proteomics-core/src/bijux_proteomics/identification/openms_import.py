@@ -14,6 +14,10 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_scientific_rows,
+)
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
 from bijux_proteomics_foundation import JsonModel
 
@@ -133,6 +137,9 @@ class OpenMsImportReport(JsonModel):
     rejected_feature_rows: tuple[OpenMsRejectedFeatureRow, ...] = Field(
         default_factory=tuple
     )
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     feature_parse_summary: OpenMsFeatureParseSummary
     summary: OpenMsImportSummary
 
@@ -182,6 +189,12 @@ def build_openms_import_report(
         protein_rows=protein_rows,
         feature_rows=feature_rows,
         rejected_feature_rows=rejected_feature_rows,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_scientific_rows(
+            feature_report.rejected_rows,
+            source_file=feature_table_path.name,
+            entity_type="ms1_feature",
+            entity_id_columns=("feature_id", "sequence"),
+        ),
         feature_parse_summary=OpenMsFeatureParseSummary(
             total_rows=feature_report.total_rows,
             accepted_rows=len(feature_report.accepted_records),

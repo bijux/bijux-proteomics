@@ -49,6 +49,7 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert report.feature_parse_summary.accepted_rows == 4
     assert report.feature_parse_summary.rejected_rows == 1
     assert len(report.rejected_feature_rows) == 1
+    assert len(report.rejected_evidence_rows) == 1
 
     assert report.psm_rows[0].run_id == "openms-run-01"
     assert report.psm_rows[0].spectrum_id.endswith("scan=1002")
@@ -71,6 +72,10 @@ def test_openms_import_report_preserves_idxml_and_feature_table_evidence() -> No
     assert feature_rows_by_id["feature-001"].provenance.source_engine == "ms1-feature-table"
     assert report.rejected_feature_rows[0].row_number == 6
     assert report.rejected_feature_rows[0].issues[0].code == "invalid_intensity"
+    assert report.rejected_evidence_rows[0].source_file == "openms_features.tsv"
+    assert report.rejected_evidence_rows[0].entity_type == "ms1_feature"
+    assert report.rejected_evidence_rows[0].entity_id == "feature-005"
+    assert report.rejected_evidence_rows[0].reason_code == "invalid_intensity"
 
     assert "accepted_psm_count" in render_openms_summary_tsv(report.summary)
     assert "source_engine" in render_openms_psm_tsv(report.psm_rows)

@@ -67,6 +67,7 @@ def test_diann_import_preserves_runs_samples_and_quantities() -> None:
     assert len(report.dia_native_report.imported_protein_groups) == 4
     assert report.dia_native_report.imported_protein_groups[0].quantity == 3400000
     assert report.rejected_rows == ()
+    assert report.rejected_evidence_rows == ()
     assert "run_names" in render_diann_summary_tsv(report.summary)
     assert "modified_peptide" in render_diann_precursor_tsv(report.precursor_rows)
     assert "protein_group_quantity" in render_diann_precursor_tsv(report.precursor_rows)
@@ -107,6 +108,15 @@ def test_diann_import_keeps_invalid_report_rows_as_explicit_rejections(
     }
     assert "invalid_q_value" in issue_codes
     assert "negative_intensity" in issue_codes
+    assert len(report.rejected_evidence_rows) == 2
+    assert report.rejected_evidence_rows[0].source_file == "diann_invalid.tsv"
+    assert report.rejected_evidence_rows[0].entity_type == "precursor"
+    assert {
+        row.entity_id for row in report.rejected_evidence_rows
+    } == {"raw_B_BADQ_2", "raw_C_NEGQTY_2"}
+    assert {
+        row.reason_code for row in report.rejected_evidence_rows
+    } == {"invalid_q_value", "negative_intensity"}
     assert report.precursor_rows[0].precursor_id == "raw_A_PEPTIDE_2"
     assert report.dia_native_report.imported_protein_groups[0].quantity == 1000.0
     rejected_tsv = render_diann_rejected_row_tsv(report.rejected_rows)
