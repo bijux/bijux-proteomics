@@ -55,6 +55,7 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
         site_quantification,
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
         feature_records=features.accepted_records,
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
     )

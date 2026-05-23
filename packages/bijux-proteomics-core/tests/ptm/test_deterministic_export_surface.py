@@ -295,6 +295,7 @@ def test_ptm_ambiguity_and_differential_renderers_are_deterministic_under_equiva
         ),
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
         feature_records=features.accepted_records,
         protein_correction_mode=PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN,
     )

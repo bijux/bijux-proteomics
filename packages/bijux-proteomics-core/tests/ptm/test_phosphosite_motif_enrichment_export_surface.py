@@ -62,6 +62,7 @@ def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo()
         site_quantification,
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
     )
     report = build_ptm_phosphosite_motif_enrichment_report(
         differential,

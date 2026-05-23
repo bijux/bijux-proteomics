@@ -55,6 +55,7 @@ def test_phosphosite_motif_enrichment_selects_regulated_sites_and_centered_windo
         site_quantification,
         design.accepted_entries,
         normalization_method=NormalizationMethod.MEDIAN,
+        batch_field="",
     )
 
     report = build_ptm_phosphosite_motif_enrichment_report(
