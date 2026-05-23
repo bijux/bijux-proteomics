@@ -18,6 +18,7 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.target_panel",
     "bijux_proteomics.io.transition_table",
     "bijux_proteomics.io.spectral_library",
+    "bijux_proteomics.io.chimeric_spectrum",
     "bijux_proteomics.io.chromatographic_evidence",
     "bijux_proteomics.io.dia_fragment_coelution",
     "bijux_proteomics.io.fragment_ratio_stability",
