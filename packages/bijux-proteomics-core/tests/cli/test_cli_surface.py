@@ -4024,9 +4024,12 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         assert payload["source_name"] == "DIA-NN"
         assert payload["summary"]["run_count"] == 3
         assert payload["summary"]["flagged_run_count"] == 1
+        assert payload["summary"]["weak_run_flag_count"] == 5
         assert payload["run_entries"][2]["run_name"] == "raw_C"
+        assert payload["run_entries"][2]["weak_run_flag_count"] == 5
         assert payload["run_entries"][2]["flagged"] is True
         assert payload["outlier_runs"][0]["run_name"] == "raw_C"
+        assert payload["outlier_runs"][0]["flags"][0]["threshold_name"] == "high_missing_fraction"
         assert payload["outputs"]["summary_tsv"] == "diann.run_qc.summary.tsv"
         assert payload["outputs"]["run_tsv"] == "diann.run_qc.runs.tsv"
         assert payload["outputs"]["intensity_tsv"] == "diann.run_qc.intensity.tsv"
@@ -4043,12 +4046,18 @@ def test_diann_run_qc_command_emits_qc_ledgers_and_outlier_calls() -> None:
         assert "run_name\tsample_name\tprecursor_id_count" in Path(
             "diann.run_qc.runs.tsv"
         ).read_text(encoding="utf-8")
+        assert "weak_run_flag_count" in Path(
+            "diann.run_qc.summary.tsv"
+        ).read_text(encoding="utf-8")
         assert "run_name_a\tsample_name_a\trun_name_b\tsample_name_b" in Path(
             "diann.run_qc.correlation.tsv"
         ).read_text(encoding="utf-8")
-        assert "raw_C\tsample_C\t" in Path("diann.run_qc.outliers.tsv").read_text(
-            encoding="utf-8"
-        )
+        assert "reason_code\treason\tthreshold_name\tthreshold_value\tobserved_value" in Path(
+            "diann.run_qc.outliers.tsv"
+        ).read_text(encoding="utf-8")
+        assert "raw_C\tsample_C\tlow_precursor_coverage" in Path(
+            "diann.run_qc.outliers.tsv"
+        ).read_text(encoding="utf-8")
 
 
 def test_tmt_reporter_matrix_command_emits_mapping_totals_and_matrices() -> None:
@@ -5488,6 +5497,9 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         ).read_text(encoding="utf-8")
         assert "run_name\tsample_name\tprecursor_id_count" in (
             report_dir / "diann_run_qc_runs.tsv"
+        ).read_text(encoding="utf-8")
+        assert "weak_run_flag_count" in (
+            report_dir / "diann_run_qc_summary.tsv"
         ).read_text(encoding="utf-8")
         assert "entity_id\tcondition_a\tcondition_b" in (
             report_dir / "diann_differential_results.tsv"
