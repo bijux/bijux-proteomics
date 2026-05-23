@@ -91,3 +91,25 @@ def test_io_package_exports_chromatographic_peak_picking_owner_surface() -> None
     assert len(report.peaks) == 3
     assert report.peaks[0].overlap_flag is True
     assert "target_single_peak_001\ttarget_single\t0\t60\t30\t160" in rendered
+
+
+def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
+    report = io.extract_mzml_retention_time_alignment(
+        (
+            _format_fixture("rt_alignment_reference.mzml"),
+            _format_fixture("rt_alignment_shifted.mzml"),
+        ),
+        _format_fixture("rt_alignment_targets.tsv"),
+        tolerance_ppm=10.0,
+        aligned_rt_tolerance_seconds=5.0,
+    )
+    rendered = io.render_retention_time_alignment_residuals_tsv(report)
+
+    assert hasattr(io, "align_chromatographic_peak_retention_times")
+    assert hasattr(io, "extract_mzml_retention_time_alignment")
+    assert hasattr(io, "render_retention_time_alignment_models_tsv")
+    assert hasattr(io, "render_retention_time_alignment_residuals_tsv")
+    assert hasattr(io, "render_retention_time_alignment_failed_anchors_tsv")
+    assert report.run_models[1].status.value == "aligned"
+    assert len(report.flagged_residuals) == 1
+    assert "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70" in rendered
