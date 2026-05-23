@@ -11,6 +11,7 @@ from bijux_proteomics.workflow.flagship_run import *  # noqa: F401,F403
 from bijux_proteomics.workflow.maxquant_benchmarks import *  # noqa: F401,F403
 from bijux_proteomics.workflow.maxquant_biological_workflow import *  # noqa: F401,F403
 from bijux_proteomics.workflow.ptm_site_workflow import *  # noqa: F401,F403
+from bijux_proteomics.workflow.protein_evidence_cards import *  # noqa: F401,F403
 from bijux_proteomics.workflow.tmt_experiment_workflow import *  # noqa: F401,F403
 from bijux_proteomics.workflow.dia_differential_analysis import *  # noqa: F401,F403
 from bijux_proteomics.workflow.dia_dda_comparison import *  # noqa: F401,F403
