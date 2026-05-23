@@ -8,6 +8,7 @@ from pathlib import Path
 from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics.quantification import (
     PeptideMatrixGroupingMode,
+    ProteinSharedPeptidePolicy,
     ProteinMatrixTargetKind,
     QuantRollupMethod,
     build_peptide_intensity_matrix_from_features,
@@ -15,6 +16,7 @@ from bijux_proteomics.quantification import (
     build_protein_intensity_matrix_from_peptides,
     build_protein_intensity_matrix_from_psms,
     parse_ms1_feature_table,
+    render_protein_peptide_contribution_tsv,
     render_protein_intensity_matrix_summary_tsv,
     render_protein_intensity_matrix_tsv,
     render_protein_intensity_missingness_tsv,
@@ -92,6 +94,24 @@ def test_protein_intensity_matrix_supports_unique_only_and_reports_peptide_count
     assert p2.peptide_count == 1
     assert p2_lookup["S2"].abundance is None
     assert p2_lookup["S2"].missing_value_kind.value == "missing_not_observed"
+    assert all(
+        value.shared_peptide_policy is ProteinSharedPeptidePolicy.UNIQUE_ONLY
+        for row in matrix.rows
+        for value in row.values
+    )
+
+    shared_entries = [
+        entry
+        for entry in matrix.peptide_contribution_entries
+        if entry.entity_id == "P1" and entry.peptide_id == "SHAREDK"
+    ]
+    assert len(shared_entries) == 2
+    assert all(entry.shared_peptide is True for entry in shared_entries)
+    assert all(entry.included_by_policy is False for entry in shared_entries)
+    assert all(
+        entry.shared_peptide_policy is ProteinSharedPeptidePolicy.UNIQUE_ONLY
+        for entry in shared_entries
+    )
 
 
 def test_protein_intensity_matrix_can_target_exact_protein_groups() -> None:
@@ -137,6 +157,7 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
     summary_tsv = render_protein_intensity_matrix_summary_tsv(matrix)
     matrix_tsv = render_protein_intensity_matrix_tsv(matrix)
     missingness_tsv = render_protein_intensity_missingness_tsv(matrix)
+    contribution_tsv = render_protein_peptide_contribution_tsv(matrix)
 
     assert matrix.summary.protein_row_count == 1
     assert matrix.summary.missing_cell_count == 0
@@ -150,6 +171,14 @@ def test_protein_intensity_matrix_from_psms_and_renderers_preserve_skips_and_led
         in matrix_tsv
     )
     assert "R1\t1\t0\t0\t0" in missingness_tsv
+    assert (
+        "entity_id\ttarget_kind\tsample_id\tpeptide_id\tpeptide_sequence\tprotein_refs\tabundance\tmissing_value_kind\tshared_peptide\tincluded_by_policy\tshared_peptide_policy"
+        in contribution_tsv
+    )
+    assert (
+        "P001\tprotein\tR1\tPEMTIDE\tPEMTIDE\tP001\t1900\tobserved\tfalse\ttrue\tall_peptides"
+        in contribution_tsv
+    )
 
 
 def test_protein_intensity_matrix_accepts_canonical_peptide_matrix_input() -> None:
