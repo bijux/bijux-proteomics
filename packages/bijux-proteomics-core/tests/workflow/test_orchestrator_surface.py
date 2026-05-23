@@ -137,6 +137,14 @@ def test_run_proteomics_workflow_supports_maxquant_mode() -> None:
             design_tsv_path=maxquant_dir / "design.tsv",
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
             config_path=maxquant_dir / "maxquant_settings.txt",
+            annotation_tsv_path=(
+                _fixture_root()
+                / "interpretation"
+                / "protein_annotation_custom.tsv"
+            ),
+            context_annotation_tsv_path=_workflow_fixture(
+                "biological_report_context.tsv"
+            ),
             condition_a="control",
             condition_b="treatment",
         )
@@ -145,6 +153,9 @@ def test_run_proteomics_workflow_supports_maxquant_mode() -> None:
     assert result.mode is WorkflowMode.MAXQUANT
     assert result.design_row_count == 6
     assert result.report.summary.accepted_protein_group_count >= 1
+    assert result.report.summary.enrichment_foreground_protein_count == 3
+    assert result.report.summary.protein_card_count == 5
+    assert result.report.summary.context_term_count == 3
 
 
 def test_run_proteomics_workflow_supports_tmt_mode() -> None:

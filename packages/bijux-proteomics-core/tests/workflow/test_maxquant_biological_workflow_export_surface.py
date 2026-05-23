@@ -20,6 +20,10 @@ def _bundle_fixture(name: str) -> Path:
     return _workflow_fixture("maxquant_biological") / name
 
 
+def _interpretation_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "interpretation" / name
+
+
 def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets(
     tmp_path: Path,
 ) -> None:
@@ -33,6 +37,8 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
         protein_groups_txt_path=_bundle_fixture("proteinGroups.txt"),
         proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
         config_path=_bundle_fixture("maxquant_settings.txt"),
+        annotation_tsv_path=_interpretation_fixture("protein_annotation_custom.tsv"),
+        context_annotation_tsv_path=_workflow_fixture("biological_report_context.tsv"),
         go_annotation_tsv_path=_workflow_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_workflow_fixture("biological_report_pathways.tsv"),
         complex_membership_tsv_path=_workflow_fixture("biological_report_complexes.tsv"),
@@ -53,9 +59,25 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert (output_dir / manifest.artifacts.protein_groups_tsv).exists()
     assert (output_dir / manifest.artifacts.accepted_protein_groups_tsv).exists()
     assert (output_dir / manifest.artifacts.filtered_protein_groups_tsv).exists()
+    assert (output_dir / manifest.artifacts.enrichment_foreground_tsv).exists()
     assert (output_dir / manifest.artifacts.lfq_matrix_tsv).exists()
     assert (output_dir / manifest.artifacts.biological_manifest_json).exists()
+    assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
+    assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.annotation_tsv).exists()
+    assert (output_dir / manifest.artifacts.annotation_unmapped_tsv).exists()
+    assert manifest.artifacts.context_mapping_tsv is not None
+    assert manifest.artifacts.context_term_tsv is not None
+    assert manifest.artifacts.context_unmapped_tsv is not None
+    assert manifest.artifacts.context_rejected_tsv is not None
+    assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_term_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_unmapped_tsv).exists()
+    assert (output_dir / manifest.artifacts.context_rejected_tsv).exists()
     assert (output_dir / manifest.artifacts.report_html).exists()
+    assert "enrichment_foreground_protein_count" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
     assert "accepted_protein_group_count" in (
         output_dir / manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
@@ -65,8 +87,19 @@ def test_maxquant_biological_workflow_export_writes_import_lfq_and_report_assets
     assert "entity_id" in (
         output_dir / manifest.artifacts.filtered_protein_groups_tsv
     ).read_text(encoding="utf-8")
+    foreground_tsv = (
+        output_dir / manifest.artifacts.enrichment_foreground_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_id" in foreground_tsv
+    assert "\ttrue\t" not in foreground_tsv
     assert "entity_id" in (
         output_dir / manifest.artifacts.lfq_matrix_tsv
+    ).read_text(encoding="utf-8")
+    assert "card_id" in (
+        output_dir / manifest.artifacts.protein_card_tsv
+    ).read_text(encoding="utf-8")
+    assert "context_kind" in (
+        output_dir / manifest.artifacts.context_mapping_tsv
     ).read_text(encoding="utf-8")
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html
