@@ -21,6 +21,7 @@ from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     QuantMeasureKind,
+    QuantCellImputationProvenance,
     QuantValue,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
@@ -33,11 +34,6 @@ def build_imputation_report(
 ) -> ImputationReport:
     """Build a stable ledger of values introduced by imputation."""
     _validate_imputation_pair(before, after)
-    knn_neighbors = (
-        _knn_neighbor_lookup(before)
-        if after.imputation_method is ImputationMethod.KNN
-        else {}
-    )
     before_lookup = {
         (value.entity_id, value.sample_id): value for value in before.values
     }
@@ -46,13 +42,20 @@ def build_imputation_report(
         key = (value.entity_id, value.sample_id)
         prior = before_lookup[key]
         if prior.abundance is None and value.abundance is not None:
+            if value.imputation_provenance is None:
+                raise ValueError(
+                    "imputed cells must carry explicit per-cell imputation provenance"
+                )
             entries.append(
                 ImputationEntry(
                     entity_id=value.entity_id,
                     sample_id=value.sample_id,
                     original_missing_value_kind=prior.missing_value_kind,
                     imputed_abundance=float(value.abundance),
-                    neighbor_entity_ids=knn_neighbors.get(key, ()),
+                    neighbor_entity_ids=value.imputation_provenance.donor_entity_ids,
+                    donor_sample_ids=value.imputation_provenance.donor_sample_ids,
+                    reference_group=value.imputation_provenance.reference_group,
+                    strategy=value.imputation_provenance.strategy,
                 )
             )
     return ImputationReport(
@@ -72,6 +75,7 @@ def impute_label_free_table(
     table: LabelFreeQuantTable,
     *,
     method: ImputationMethod = ImputationMethod.NONE,
+    design_entries: tuple[ExperimentalDesignEntry, ...] = (),
 ) -> LabelFreeQuantTable:
     """Impute a label-free quant table under one explicit imputation policy."""
     if table.measure_kind is not QuantMeasureKind.INTENSITY:
@@ -91,6 +95,11 @@ def impute_label_free_table(
         )
     if method is ImputationMethod.LOW_INTENSITY:
         return _low_intensity_imputed_table(table)
+    if method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY:
+        return _group_aware_low_intensity_imputed_table(
+            table,
+            design_entries=design_entries,
+        )
     if method is ImputationMethod.KNN:
         return _knn_imputed_table(table)
     raise ValueError(f"unsupported imputation method: {method.value}")
@@ -105,6 +114,7 @@ def build_imputation_sensitivity_report(
     methods: tuple[ImputationMethod, ...] = (
         ImputationMethod.NONE,
         ImputationMethod.LOW_INTENSITY,
+        ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
         ImputationMethod.KNN,
     ),
 ) -> ImputationSensitivityReport:
@@ -115,7 +125,11 @@ def build_imputation_sensitivity_report(
     resolved_condition_b = condition_b
     for method in methods:
         try:
-            imputed = impute_label_free_table(table, method=method)
+            imputed = impute_label_free_table(
+                table,
+                method=method,
+                design_entries=design_entries,
+            )
             imputation_report = build_imputation_report(table, imputed)
             differential = apply_benjamini_hochberg(
                 build_differential_abundance_report(
@@ -195,7 +209,102 @@ def _low_intensity_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTa
             and value.missing_value_kind
             in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
         },
+        provenance_lookup={
+            (value.entity_id, value.sample_id): QuantCellImputationProvenance(
+                method=ImputationMethod.LOW_INTENSITY,
+                original_missing_value_kind=value.missing_value_kind,
+                strategy="sample_low_intensity_floor",
+                donor_sample_ids=(value.sample_id,),
+            )
+            for value in table.values
+            if value.abundance is None
+            and value.missing_value_kind
+            in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
+        },
         method=ImputationMethod.LOW_INTENSITY,
+    )
+
+
+def _group_aware_low_intensity_imputed_table(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> LabelFreeQuantTable:
+    """Impute with condition-aware low-intensity floors and explicit fallback scope."""
+    if not design_entries:
+        raise ValueError(
+            "group-aware low-intensity imputation requires experimental design entries"
+        )
+    (
+        matrix,
+        sample_ids,
+        _entity_ids,
+        sample_index,
+        _entity_index,
+    ) = _table_grid(table)
+    design_by_sample = {entry.sample_id: entry for entry in design_entries}
+    missing_samples = set(table.sample_ids) - set(design_by_sample)
+    if missing_samples:
+        missing = ", ".join(sorted(missing_samples))
+        raise ValueError(
+            f"group-aware low-intensity imputation requires design rows for all samples: {missing}"
+        )
+    sample_fill_values = _sample_low_intensity_fill_values(
+        matrix,
+        sample_ids,
+        sample_index,
+    )
+    condition_sample_ids: dict[str, tuple[str, ...]] = {}
+    for entry in design_entries:
+        condition_sample_ids.setdefault(entry.condition, [])
+        condition_sample_ids[entry.condition].append(entry.sample_id)
+    condition_sample_ids = {
+        condition: tuple(sample_ids)
+        for condition, sample_ids in condition_sample_ids.items()
+    }
+    condition_fill_values = _condition_low_intensity_fill_values(
+        matrix,
+        condition_sample_ids=condition_sample_ids,
+        sample_index=sample_index,
+    )
+    fill_lookup: dict[tuple[str, str], float] = {}
+    provenance_lookup: dict[tuple[str, str], QuantCellImputationProvenance] = {}
+    for value in table.values:
+        if value.abundance is not None or value.missing_value_kind not in {
+            MissingValueKind.NOT_OBSERVED,
+            MissingValueKind.FILTERED,
+        }:
+            continue
+        condition = design_by_sample[value.sample_id].condition
+        donor_sample_ids = condition_sample_ids[condition]
+        strategy = "condition_low_intensity_floor"
+        fill_value = condition_fill_values[condition]
+        condition_has_positive_signal = any(
+            np.any(
+                np.isfinite(matrix[:, sample_index[sample_id]])
+                & (matrix[:, sample_index[sample_id]] > 0.0)
+            )
+            for sample_id in donor_sample_ids
+        )
+        if not condition_has_positive_signal:
+            strategy = "sample_low_intensity_fallback"
+            fill_value = sample_fill_values[value.sample_id]
+            donor_sample_ids = (value.sample_id,)
+        fill_lookup[(value.entity_id, value.sample_id)] = fill_value
+        provenance_lookup[(value.entity_id, value.sample_id)] = (
+            QuantCellImputationProvenance(
+                method=ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
+                original_missing_value_kind=value.missing_value_kind,
+                strategy=strategy,
+                reference_group=condition,
+                donor_sample_ids=tuple(sorted(donor_sample_ids)),
+            )
+        )
+    return _rebuild_imputed_table(
+        table,
+        fill_lookup=fill_lookup,
+        provenance_lookup=provenance_lookup,
+        method=ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
     )
 
 
@@ -244,9 +353,24 @@ def _knn_imputed_table(table: LabelFreeQuantTable) -> LabelFreeQuantTable:
         fill_lookup[(value.entity_id, value.sample_id)] = sample_fill_values[
             value.sample_id
         ]
+    provenance_lookup = {
+        (value.entity_id, value.sample_id): _knn_cell_provenance(
+            value=value,
+            selected_neighbors=_select_knn_neighbors(
+                matrix,
+                entity_ids=entity_ids,
+                target_row=entity_index[value.entity_id],
+                target_col=sample_index[value.sample_id],
+            ),
+        )
+        for value in table.values
+        if value.abundance is None
+        and value.missing_value_kind in {MissingValueKind.NOT_OBSERVED, MissingValueKind.FILTERED}
+    }
     return _rebuild_imputed_table(
         table,
         fill_lookup=fill_lookup,
+        provenance_lookup=provenance_lookup,
         method=ImputationMethod.KNN,
     )
 
@@ -291,10 +415,39 @@ def _sample_low_intensity_fill_values(
     return sample_fill_values
 
 
+def _condition_low_intensity_fill_values(
+    matrix: np.ndarray,
+    *,
+    condition_sample_ids: dict[str, tuple[str, ...]],
+    sample_index: dict[str, int],
+) -> dict[str, float]:
+    finite_positive = matrix[np.isfinite(matrix) & (matrix > 0.0)]
+    global_floor = (
+        max(float(np.nanpercentile(finite_positive, 5.0)) * 0.5, 1e-6)
+        if finite_positive.size
+        else 1e-6
+    )
+    condition_fill_values: dict[str, float] = {}
+    for condition, sample_ids in condition_sample_ids.items():
+        columns = [matrix[:, sample_index[sample_id]] for sample_id in sample_ids]
+        positives = np.concatenate(
+            [column[np.isfinite(column) & (column > 0.0)] for column in columns]
+        )
+        if positives.size == 0:
+            condition_fill_values[condition] = global_floor
+            continue
+        condition_fill_values[condition] = max(
+            float(np.nanpercentile(positives, 5.0)) * 0.5,
+            1e-6,
+        )
+    return condition_fill_values
+
+
 def _rebuild_imputed_table(
     table: LabelFreeQuantTable,
     *,
     fill_lookup: dict[tuple[str, str], float],
+    provenance_lookup: dict[tuple[str, str], QuantCellImputationProvenance],
     method: ImputationMethod,
 ) -> LabelFreeQuantTable:
     dense_matrix = quant_matrix_to_dense_array(table.to_quant_matrix())
@@ -321,7 +474,14 @@ def _rebuild_imputed_table(
             sample_index[value.sample_id],
         ] = max(fill_value, 0.0)
         rebuilt_values.append(
-            value.model_copy(update={"abundance": max(fill_value, 0.0)})
+            value.model_copy(
+                update={
+                    "abundance": max(fill_value, 0.0),
+                    "imputation_provenance": provenance_lookup[
+                        (value.entity_id, value.sample_id)
+                    ],
+                }
+            )
         )
     quant_matrix = rebuild_quant_matrix_from_dense_array(
         table.to_quant_matrix(),
@@ -338,27 +498,25 @@ def _rebuild_imputed_table(
     )
 
 
-def _knn_neighbor_lookup(
-    table: LabelFreeQuantTable,
-) -> dict[tuple[str, str], tuple[str, ...]]:
-    matrix, _, entity_ids, sample_index, entity_index = _table_grid(table)
-    neighbors: dict[tuple[str, str], tuple[str, ...]] = {}
-    for value in table.values:
-        if value.abundance is not None or value.missing_value_kind not in {
-            MissingValueKind.NOT_OBSERVED,
-            MissingValueKind.FILTERED,
-        }:
-            continue
-        selected = _select_knn_neighbors(
-            matrix,
-            entity_ids=entity_ids,
-            target_row=entity_index[value.entity_id],
-            target_col=sample_index[value.sample_id],
+def _knn_cell_provenance(
+    *,
+    value: QuantValue,
+    selected_neighbors: tuple[tuple[str, float], ...],
+) -> QuantCellImputationProvenance:
+    if selected_neighbors:
+        return QuantCellImputationProvenance(
+            method=ImputationMethod.KNN,
+            original_missing_value_kind=value.missing_value_kind,
+            strategy="knn_profile_average",
+            donor_sample_ids=(value.sample_id,),
+            donor_entity_ids=tuple(entity_id for entity_id, _ in selected_neighbors),
         )
-        neighbors[(value.entity_id, value.sample_id)] = tuple(
-            entity_id for entity_id, _ in selected
-        )
-    return neighbors
+    return QuantCellImputationProvenance(
+        method=ImputationMethod.KNN,
+        original_missing_value_kind=value.missing_value_kind,
+        strategy="sample_low_intensity_fallback",
+        donor_sample_ids=(value.sample_id,),
+    )
 
 
 def _select_knn_neighbors(
