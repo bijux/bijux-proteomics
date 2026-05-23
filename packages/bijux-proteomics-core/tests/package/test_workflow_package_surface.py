@@ -49,3 +49,14 @@ def test_workflow_package_exports_public_benchmark_runner_surface() -> None:
 
     assert hasattr(workflow, "run_public_benchmark_descriptor_suite")
     assert descriptor.dataset_id == "ptm_localization_review_package"
+
+
+def test_workflow_package_exports_trust_bundle_surface(tmp_path: Path) -> None:
+    report = workflow.build_public_benchmark_trust_bundle(
+        Path(__file__).resolve().parents[4] / "benchmarks" / "public",
+        output_dir=tmp_path / "trust_bundle",
+    )
+
+    assert hasattr(workflow, "build_public_benchmark_trust_bundle")
+    assert report.suite_report.passed_count == 2
+    assert Path(report.html_index_path).exists()
