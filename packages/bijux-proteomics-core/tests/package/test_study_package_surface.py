@@ -119,3 +119,33 @@ def test_study_package_exports_design_validity_surface() -> None:
     assert hasattr(study, "require_valid_experiment_design_for_differential_analysis")
     assert report.summary.duplicate_sample_id_count == 1
     assert "duplicate_sample_id" in study.render_experiment_design_validity_tsv(report)
+
+
+def test_study_package_exports_design_classification_surface() -> None:
+    design = study.build_experiment_design(
+        (
+            ExperimentalDesignEntry(
+                sample_id="control_r1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control_r1.raw",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treat_r1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treat_r1.raw",
+            ),
+        )
+    )
+
+    report = study.build_experiment_design_classification_report(design)
+
+    assert hasattr(study, "build_experiment_design_classification_report")
+    assert hasattr(study, "require_matching_experiment_design_analysis_family")
+    assert report.primary_design_type.value == "two_group"
+    assert "pairwise_differential" in study.render_experiment_design_classification_tsv(
+        report
+    )
