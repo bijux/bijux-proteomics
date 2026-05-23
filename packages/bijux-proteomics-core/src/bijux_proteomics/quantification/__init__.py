@@ -5,22 +5,37 @@
 
 from __future__ import annotations
 
-from bijux_proteomics.quantification.batch_effect import *  # noqa: F401,F403
-from bijux_proteomics.quantification.core_matrix import *  # noqa: F401,F403
-from bijux_proteomics.quantification.contracts import *  # noqa: F401,F403
-from bijux_proteomics.quantification.design_matrix import *  # noqa: F401,F403
-from bijux_proteomics.quantification.differential_abundance import *  # noqa: F401,F403
-from bijux_proteomics.quantification.heatmap_preparation import *  # noqa: F401,F403
-from bijux_proteomics.quantification.imputation import *  # noqa: F401,F403
-from bijux_proteomics.quantification.missingness import *  # noqa: F401,F403
-from bijux_proteomics.quantification.normalization import *  # noqa: F401,F403
-from bijux_proteomics.quantification.peptide_intensity_matrix import *  # noqa: F401,F403
-from bijux_proteomics.quantification.power_estimation import *  # noqa: F401,F403
-from bijux_proteomics.quantification.protein_intensity_matrix import *  # noqa: F401,F403
-from bijux_proteomics.quantification.protein_lfq import *  # noqa: F401,F403
-from bijux_proteomics.quantification.readiness import *  # noqa: F401,F403
-from bijux_proteomics.quantification.replicate_qc import *  # noqa: F401,F403
-from bijux_proteomics.quantification.review import *  # noqa: F401,F403
-from bijux_proteomics.quantification.sample_exploration import *  # noqa: F401,F403
-from bijux_proteomics.quantification.statistical_backend import *  # noqa: F401,F403
-from bijux_proteomics.quantification.time_course_differential import *  # noqa: F401,F403
+from importlib import import_module
+
+_QUANTIFICATION_EXPORT_MODULES = (
+    "bijux_proteomics.quantification.batch_effect",
+    "bijux_proteomics.quantification.core_matrix",
+    "bijux_proteomics.quantification.contracts",
+    "bijux_proteomics.quantification.design_matrix",
+    "bijux_proteomics.quantification.differential_abundance",
+    "bijux_proteomics.quantification.heatmap_preparation",
+    "bijux_proteomics.quantification.imputation",
+    "bijux_proteomics.quantification.missingness",
+    "bijux_proteomics.quantification.normalization",
+    "bijux_proteomics.quantification.peptide_intensity_matrix",
+    "bijux_proteomics.quantification.power_estimation",
+    "bijux_proteomics.quantification.protein_intensity_matrix",
+    "bijux_proteomics.quantification.protein_lfq",
+    "bijux_proteomics.quantification.readiness",
+    "bijux_proteomics.quantification.replicate_qc",
+    "bijux_proteomics.quantification.review",
+    "bijux_proteomics.quantification.sample_exploration",
+    "bijux_proteomics.quantification.statistical_backend",
+    "bijux_proteomics.quantification.time_course_differential",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _QUANTIFICATION_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
