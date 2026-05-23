@@ -6128,6 +6128,89 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         )
 
 
+def test_targeted_carryover_review_command_emits_ordered_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            format_dir / "skyline_targeted_carryover_results.tsv",
+            "skyline_targeted_carryover_results.tsv",
+        )
+        shutil.copy(
+            format_dir / "skyline_targeted_carryover.design.tsv",
+            "skyline_targeted_carryover.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-carryover-review",
+                "skyline_targeted_carryover_results.tsv",
+                "skyline_targeted_carryover.design.tsv",
+                "--source-kind",
+                "skyline_export",
+                "--summary-tsv-out",
+                "carryover.summary.tsv",
+                "--candidate-tsv-out",
+                "carryover.candidates.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["source_kind"] == "skyline_export"
+        assert payload["source_name"] == "Skyline"
+        assert payload["import_summary"]["observation_count"] == 10
+        assert payload["design_summary"]["accepted_entry_count"] == 4
+        assert payload["design_summary"]["rejected_row_count"] == 0
+        assert payload["carryover_summary"]["run_count"] == 4
+        assert payload["carryover_summary"]["precursor_count"] == 2
+        assert payload["carryover_summary"]["candidate_entry_count"] == 2
+        assert payload["outputs"]["summary_tsv"] == "carryover.summary.tsv"
+        assert payload["outputs"]["candidate_tsv"] == "carryover.candidates.tsv"
+        assert len(payload["candidates"]) == 2
+        assert payload["candidates"][0]["source_run_id"] == "source_high.raw"
+        assert payload["candidates"][0]["affected_run_id"] == "blank_after_source.raw"
+        assert payload["candidates"][0]["carryover_score"] == 0.9333
+        assert Path("carryover.summary.tsv").exists()
+        assert Path("carryover.candidates.tsv").exists()
+        assert "Skyline\t4\t2\t2\t2\t1" in Path(
+            "carryover.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert (
+            "source_high.raw\tsource_high\t1\tblank_after_source.raw\tblank_after_source\t2\t1\tCARRYPEP/2\tCARRYPEP\tP100\t200000\t4000\t0.020000\t0.9333\thigh_intensity_previous_run|low_level_repeated_signal|immediate_run_order_followup"
+            in Path("carryover.candidates.tsv").read_text(encoding="utf-8")
+        )
+
+
+def test_targeted_carryover_review_command_requires_run_order() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            format_dir / "skyline_targeted_carryover_results.tsv",
+            "skyline_targeted_carryover_results.tsv",
+        )
+        shutil.copy(
+            format_dir / "skyline_targeted_qc.design.tsv",
+            "skyline_targeted_qc.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "targeted-carryover-review",
+                "skyline_targeted_carryover_results.tsv",
+                "skyline_targeted_qc.design.tsv",
+                "--source-kind",
+                "skyline_export",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "run_order is required for carryover analysis" in result.output
+
+
 def test_dia_dda_compare_command_emits_overlap_conflict_and_differential_outputs() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
