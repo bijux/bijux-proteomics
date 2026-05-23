@@ -25,9 +25,10 @@ class ProteinInferenceBenchmarkScenarioKind(StrEnum):
     ISOFORM_HEAVY = "isoform_heavy"
     HOMOLOG_FAMILY_HEAVY = "homolog_family_heavy"
     CONTAMINANT_HEAVY = "contaminant_heavy"
-    DECOY_PRESSURE = "decoy_pressure"
-    FALSE_POSITIVE_PRESSURE = "false_positive_pressure"
-    FALSE_NEGATIVE_PRESSURE = "false_negative_pressure"
+    ALL_DECOY = "all_decoy"
+    ALL_TARGET = "all_target"
+    TIED_SCORE = "tied_score"
+    MISSING_FASTA_ENTRY = "missing_fasta_entry"
 
 
 class ProteinInferenceBenchmarkScenario(JsonModel):
@@ -40,6 +41,8 @@ class ProteinInferenceBenchmarkScenario(JsonModel):
     records: tuple[PsmRecord, ...] = Field(default_factory=tuple)
     expected_present_proteins: tuple[str, ...] = Field(default_factory=tuple)
     expected_absent_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    fasta_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    ambiguity_should_be_visible: bool = False
     note: str = Field(..., min_length=1)
 
 
@@ -62,6 +65,7 @@ class ProteinInferenceMethodAssessment(JsonModel):
     recall_interval_high: float = Field(..., ge=0.0, le=1.0)
     false_positive_proteins: tuple[str, ...] = Field(default_factory=tuple)
     missed_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    selected_missing_fasta_proteins: tuple[str, ...] = Field(default_factory=tuple)
     trustworthy_for_review: bool
     trust_note: str = Field(..., min_length=1)
 
@@ -75,11 +79,17 @@ class ProteinInferenceBenchmarkReport(JsonModel):
     scenario_kind: ProteinInferenceBenchmarkScenarioKind
     expected_present_proteins: tuple[str, ...] = Field(default_factory=tuple)
     expected_absent_proteins: tuple[str, ...] = Field(default_factory=tuple)
+    fasta_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     shared_peptide_pressure: bool
     isoform_pressure: bool
     homolog_family_pressure: bool
     contaminant_pressure: bool
-    decoy_pressure: bool
+    all_decoy_pressure: bool
+    all_target_pressure: bool
+    tied_score_pressure: bool
+    missing_fasta_pressure: bool
+    ambiguity_should_be_visible: bool
+    ambiguity_exposed: bool
     method_assessments: tuple[ProteinInferenceMethodAssessment, ...] = Field(
         default_factory=tuple
     )
@@ -104,7 +114,12 @@ class ProteinInferenceBenchmarkSuiteReport(JsonModel):
     isoform_scenario_count: int = Field(..., ge=0)
     homolog_family_scenario_count: int = Field(..., ge=0)
     contaminant_scenario_count: int = Field(..., ge=0)
-    decoy_scenario_count: int = Field(..., ge=0)
+    all_decoy_scenario_count: int = Field(..., ge=0)
+    all_target_scenario_count: int = Field(..., ge=0)
+    tied_score_scenario_count: int = Field(..., ge=0)
+    missing_fasta_scenario_count: int = Field(..., ge=0)
+    ambiguity_visible_scenario_count: int = Field(..., ge=0)
+    hidden_ambiguity_scenario_count: int = Field(..., ge=0)
     worst_precision_lower_bound: float = Field(..., ge=0.0, le=1.0)
     worst_recall_lower_bound: float = Field(..., ge=0.0, le=1.0)
     scenario_count: int = Field(..., ge=0)
@@ -194,6 +209,17 @@ def _base_accession(protein_ref: str) -> str:
     return token
 
 
+def _has_tied_top_score(records: tuple[PsmRecord, ...]) -> bool:
+    if not records:
+        return False
+    top_score = max(record.score for record in records)
+    top_records = tuple(record for record in records if record.score == top_score)
+    top_proteins = {
+        protein_ref for record in top_records for protein_ref in record.protein_refs
+    }
+    return len(top_proteins) > 1
+
+
 def _benchmark_record(
     *,
     spectrum_id: str,
@@ -248,6 +274,8 @@ def build_core_protein_inference_benchmark_scenarios() -> tuple[
             ),
             expected_present_proteins=("P11111", "P33333"),
             expected_absent_proteins=("P22222",),
+            fasta_protein_refs=("P11111", "P22222", "P33333"),
+            ambiguity_should_be_visible=True,
             note="One absent protein is attractive only because it borrows shared-peptide support.",
         ),
         ProteinInferenceBenchmarkScenario(
@@ -270,6 +298,7 @@ def build_core_protein_inference_benchmark_scenarios() -> tuple[
             ),
             expected_present_proteins=("P55555-1",),
             expected_absent_proteins=("P55555-2",),
+            fasta_protein_refs=("P55555-1", "P55555-2"),
             note="Isoform-specific evidence should keep the silent sibling isoform out.",
         ),
         ProteinInferenceBenchmarkScenario(
@@ -292,6 +321,8 @@ def build_core_protein_inference_benchmark_scenarios() -> tuple[
             ),
             expected_present_proteins=("Q11111",),
             expected_absent_proteins=("Q22222", "Q33333"),
+            fasta_protein_refs=("Q11111", "Q22222", "Q33333"),
+            ambiguity_should_be_visible=True,
             note="Homolog-family sharing should not inflate silent family members into accepted proteins.",
         ),
         ProteinInferenceBenchmarkScenario(
@@ -314,52 +345,104 @@ def build_core_protein_inference_benchmark_scenarios() -> tuple[
             ),
             expected_present_proteins=("P77777",),
             expected_absent_proteins=("CON__KERATIN1",),
+            fasta_protein_refs=("P77777", "CON__KERATIN1"),
             note="Contaminant-borrowed evidence must remain explicit instead of promoting the contaminant alongside the target.",
         ),
         ProteinInferenceBenchmarkScenario(
-            scenario_id="decoy-pressure",
-            scenario_kind=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE,
+            scenario_id="all-decoy-input",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.ALL_DECOY,
             records=(
                 _benchmark_record(
                     spectrum_id="d001",
-                    peptide="TARGETDK",
-                    score=124.0,
-                    protein_refs=("P88888",),
-                ),
-                _benchmark_record(
-                    spectrum_id="d002",
                     peptide="DECADYK",
-                    score=122.0,
-                    q_value=0.002,
+                    score=124.0,
                     protein_refs=("DECOY_P88888",),
                     target_decoy_label=TargetDecoyLabel.DECOY,
                 ),
+                _benchmark_record(
+                    spectrum_id="d002",
+                    peptide="DECOYQQ",
+                    score=122.0,
+                    q_value=0.002,
+                    protein_refs=("DECOY_Q99999",),
+                    target_decoy_label=TargetDecoyLabel.DECOY,
+                ),
             ),
-            expected_present_proteins=("P88888",),
-            expected_absent_proteins=("DECOY_P88888",),
-            note="A decoy-only protein should stay absent from accepted inference surfaces even when its score is competitive.",
+            expected_present_proteins=(),
+            expected_absent_proteins=("DECOY_P88888", "DECOY_Q99999"),
+            fasta_protein_refs=(),
+            note="A decoy-only evidence table should not produce accepted biological proteins under any inference claim.",
         ),
         ProteinInferenceBenchmarkScenario(
-            scenario_id="false-negative-pressure",
-            scenario_kind=ProteinInferenceBenchmarkScenarioKind.FALSE_NEGATIVE_PRESSURE,
+            scenario_id="all-target-input",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.ALL_TARGET,
             records=(
                 _benchmark_record(
-                    spectrum_id="f001",
+                    spectrum_id="t001",
                     peptide="ANCHRPK",
                     score=125.0,
                     protein_refs=("P10101",),
                 ),
                 _benchmark_record(
-                    spectrum_id="f002",
+                    spectrum_id="t002",
                     peptide="RIDGEPK",
                     score=112.0,
                     q_value=0.003,
-                    protein_refs=("P10101", "P20202"),
+                    protein_refs=("P20202",),
                 ),
             ),
             expected_present_proteins=("P10101", "P20202"),
             expected_absent_proteins=(),
-            note="A conservative unique-only policy should make false-negative pressure visible when one present protein has only shared support.",
+            fasta_protein_refs=("P10101", "P20202"),
+            note="A target-only evidence table should preserve its supported proteins without inventing absent or decoy proteins.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="tied-score-ambiguity",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.TIED_SCORE,
+            records=(
+                _benchmark_record(
+                    spectrum_id="u001",
+                    peptide="TIEDPEP",
+                    score=121.0,
+                    protein_refs=("P30303", "P40404"),
+                ),
+                _benchmark_record(
+                    spectrum_id="u002",
+                    peptide="TIEDALT",
+                    score=121.0,
+                    q_value=0.002,
+                    protein_refs=("P30303", "P40404"),
+                ),
+            ),
+            expected_present_proteins=("P30303", "P40404"),
+            expected_absent_proteins=(),
+            fasta_protein_refs=("P30303", "P40404"),
+            ambiguity_should_be_visible=True,
+            note="Exact tied-score proteins with only shared evidence should stay explicitly ambiguous instead of collapsing silently to one winner.",
+        ),
+        ProteinInferenceBenchmarkScenario(
+            scenario_id="missing-fasta-entry",
+            scenario_kind=ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY,
+            records=(
+                _benchmark_record(
+                    spectrum_id="m001",
+                    peptide="FASTAOK",
+                    score=123.0,
+                    protein_refs=("P50505",),
+                ),
+                _benchmark_record(
+                    spectrum_id="m002",
+                    peptide="MISSINGF",
+                    score=119.0,
+                    q_value=0.002,
+                    protein_refs=("P60606",),
+                ),
+            ),
+            expected_present_proteins=("P50505",),
+            expected_absent_proteins=("P60606",),
+            fasta_protein_refs=("P50505",),
+            ambiguity_should_be_visible=True,
+            note="A protein supported by PSM rows but missing from the FASTA catalog must remain an explicit inference risk instead of blending into accepted output.",
         ),
     )
 
@@ -377,6 +460,7 @@ def build_protein_inference_benchmark_report(
     )
     expected_present = set(scenario.expected_present_proteins)
     expected_absent = set(scenario.expected_absent_proteins)
+    fasta_protein_refs = set(scenario.fasta_protein_refs)
     method_assessments: list[ProteinInferenceMethodAssessment] = []
     disagreement_count = 0
     for selection in comparison.selections:
@@ -384,6 +468,9 @@ def build_protein_inference_benchmark_report(
         true_positives = selected & expected_present
         false_positives = selected & expected_absent
         false_negatives = expected_present - selected
+        selected_missing_fasta = (
+            selected - fasta_protein_refs if fasta_protein_refs else set()
+        )
         precision_denominator = len(true_positives) + len(false_positives)
         recall_denominator = len(true_positives) + len(false_negatives)
         precision = (
@@ -400,13 +487,21 @@ def build_protein_inference_benchmark_report(
             len(true_positives),
             recall_denominator,
         )
-        trustworthy = precision_low >= 0.5 and not false_positives
+        trustworthy = (
+            precision_low >= 0.5
+            and not false_positives
+            and not selected_missing_fasta
+        )
         note = (
             "strategy keeps the expected proteins without absent-protein bleed"
             if trustworthy
-            else "strategy still shows absent-protein bleed or an unstable lower-bound interval"
+            else (
+                "strategy still promotes proteins missing from the FASTA catalog"
+                if selected_missing_fasta
+                else "strategy still shows absent-protein bleed or an unstable lower-bound interval"
+            )
         )
-        if false_positives or false_negatives:
+        if false_positives or false_negatives or selected_missing_fasta:
             disagreement_count += 1
         method_assessments.append(
             ProteinInferenceMethodAssessment(
@@ -424,15 +519,24 @@ def build_protein_inference_benchmark_report(
                 recall_interval_high=recall_high,
                 false_positive_proteins=tuple(sorted(false_positives)),
                 missed_proteins=tuple(sorted(false_negatives)),
+                selected_missing_fasta_proteins=tuple(sorted(selected_missing_fasta)),
                 trustworthy_for_review=trustworthy,
                 trust_note=note,
             )
         )
+    ambiguity_exposed = scenario.ambiguity_should_be_visible and (
+        disagreement_count > 0
+        or any(
+            assessment.selected_missing_fasta_proteins
+            for assessment in method_assessments
+        )
+    )
     return ProteinInferenceBenchmarkReport(
         scenario_id=scenario.scenario_id,
         scenario_kind=scenario.scenario_kind,
         expected_present_proteins=tuple(sorted(expected_present)),
         expected_absent_proteins=tuple(sorted(expected_absent)),
+        fasta_protein_refs=tuple(sorted(fasta_protein_refs)),
         shared_peptide_pressure=any(
             len(record.protein_refs) > 1 for record in scenario.records
         ),
@@ -450,14 +554,22 @@ def build_protein_inference_benchmark_report(
             for record in scenario.records
             for protein_ref in record.protein_refs
         ),
-        decoy_pressure=any(
+        all_decoy_pressure=all(
             record.target_decoy_label is TargetDecoyLabel.DECOY
-            or any(
-                protein_ref.startswith(("DECOY_", "REV__"))
-                for protein_ref in record.protein_refs
-            )
             for record in scenario.records
         ),
+        all_target_pressure=all(
+            record.target_decoy_label is TargetDecoyLabel.TARGET
+            for record in scenario.records
+        ),
+        tied_score_pressure=_has_tied_top_score(scenario.records),
+        missing_fasta_pressure=bool(fasta_protein_refs) and any(
+            protein_ref not in fasta_protein_refs
+            for record in scenario.records
+            for protein_ref in record.protein_refs
+        ),
+        ambiguity_should_be_visible=scenario.ambiguity_should_be_visible,
+        ambiguity_exposed=ambiguity_exposed,
         method_assessments=tuple(method_assessments),
         disagreement_count=disagreement_count,
         scenario_note=scenario.note,
@@ -522,8 +634,29 @@ def build_protein_inference_benchmark_suite(
             is ProteinInferenceBenchmarkScenarioKind.CONTAMINANT_HEAVY
             for report in reports
         ),
-        decoy_scenario_count=sum(
-            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+        all_decoy_scenario_count=sum(
+            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.ALL_DECOY
+            for report in reports
+        ),
+        all_target_scenario_count=sum(
+            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.ALL_TARGET
+            for report in reports
+        ),
+        tied_score_scenario_count=sum(
+            report.scenario_kind is ProteinInferenceBenchmarkScenarioKind.TIED_SCORE
+            for report in reports
+        ),
+        missing_fasta_scenario_count=sum(
+            report.scenario_kind
+            is ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY
+            for report in reports
+        ),
+        ambiguity_visible_scenario_count=sum(
+            report.ambiguity_should_be_visible and report.ambiguity_exposed
+            for report in reports
+        ),
+        hidden_ambiguity_scenario_count=sum(
+            report.ambiguity_should_be_visible and not report.ambiguity_exposed
             for report in reports
         ),
         worst_precision_lower_bound=min(lower_bounds) if lower_bounds else 0.0,
@@ -532,7 +665,7 @@ def build_protein_inference_benchmark_suite(
         else 0.0,
         scenario_count=len(reports),
         note=(
-            "protein-inference benchmark suite keeps shared-peptide, isoform, homolog-family, contaminant, decoy, and false-negative pressure explicit across named truth scenarios"
+            "protein-inference benchmark suite keeps shared-peptide, isoform, homolog-family, contaminant, all-target, all-decoy, tied-score, and missing-fasta pressure explicit across named truth scenarios"
             if reports
             else "protein-inference benchmark suite has no scenarios to evaluate"
         ),
@@ -562,7 +695,12 @@ def render_protein_inference_benchmark_summary_tsv(
         ("isoform_scenario_count", suite.isoform_scenario_count),
         ("homolog_family_scenario_count", suite.homolog_family_scenario_count),
         ("contaminant_scenario_count", suite.contaminant_scenario_count),
-        ("decoy_scenario_count", suite.decoy_scenario_count),
+        ("all_decoy_scenario_count", suite.all_decoy_scenario_count),
+        ("all_target_scenario_count", suite.all_target_scenario_count),
+        ("tied_score_scenario_count", suite.tied_score_scenario_count),
+        ("missing_fasta_scenario_count", suite.missing_fasta_scenario_count),
+        ("ambiguity_visible_scenario_count", suite.ambiguity_visible_scenario_count),
+        ("hidden_ambiguity_scenario_count", suite.hidden_ambiguity_scenario_count),
         ("worst_precision_lower_bound", suite.worst_precision_lower_bound),
         ("worst_recall_lower_bound", suite.worst_recall_lower_bound),
         (
@@ -591,11 +729,17 @@ def render_protein_inference_benchmark_scenarios_tsv(
                 "scenario_kind",
                 "expected_present_proteins",
                 "expected_absent_proteins",
+                "fasta_protein_refs",
                 "shared_peptide_pressure",
                 "isoform_pressure",
                 "homolog_family_pressure",
                 "contaminant_pressure",
-                "decoy_pressure",
+                "all_decoy_pressure",
+                "all_target_pressure",
+                "tied_score_pressure",
+                "missing_fasta_pressure",
+                "ambiguity_should_be_visible",
+                "ambiguity_exposed",
                 "disagreement_count",
                 "scenario_note",
             )
@@ -609,11 +753,17 @@ def render_protein_inference_benchmark_scenarios_tsv(
                     report.scenario_kind.value,
                     ";".join(report.expected_present_proteins),
                     ";".join(report.expected_absent_proteins),
+                    ";".join(report.fasta_protein_refs),
                     str(report.shared_peptide_pressure).lower(),
                     str(report.isoform_pressure).lower(),
                     str(report.homolog_family_pressure).lower(),
                     str(report.contaminant_pressure).lower(),
-                    str(report.decoy_pressure).lower(),
+                    str(report.all_decoy_pressure).lower(),
+                    str(report.all_target_pressure).lower(),
+                    str(report.tied_score_pressure).lower(),
+                    str(report.missing_fasta_pressure).lower(),
+                    str(report.ambiguity_should_be_visible).lower(),
+                    str(report.ambiguity_exposed).lower(),
                     str(report.disagreement_count),
                     report.scenario_note,
                 )
@@ -646,6 +796,7 @@ def render_protein_inference_benchmark_assessments_tsv(
                 "recall_interval_high",
                 "false_positive_proteins",
                 "missed_proteins",
+                "selected_missing_fasta_proteins",
                 "trustworthy_for_review",
                 "trust_note",
             )
@@ -672,6 +823,7 @@ def render_protein_inference_benchmark_assessments_tsv(
                         f"{assessment.recall_interval_high:.6g}",
                         ";".join(assessment.false_positive_proteins),
                         ";".join(assessment.missed_proteins),
+                        ";".join(assessment.selected_missing_fasta_proteins),
                         str(assessment.trustworthy_for_review).lower(),
                         assessment.trust_note,
                     )
@@ -775,9 +927,33 @@ def build_identification_workflow_claim_review(
         ),
         WorkflowTrustCriterionResult(
             criterion_id="decoy-pressure-covered",
-            passed=ProteinInferenceBenchmarkScenarioKind.DECOY_PRESSURE
+            passed=ProteinInferenceBenchmarkScenarioKind.ALL_DECOY
             in scenario_kinds,
-            detail="decoy-pressure truth pressure is present in the benchmark suite",
+            detail="all-decoy truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="all-target-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.ALL_TARGET in scenario_kinds,
+            detail="all-target truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="tied-score-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.TIED_SCORE in scenario_kinds,
+            detail="tied-score ambiguity pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="missing-fasta-pressure-covered",
+            passed=ProteinInferenceBenchmarkScenarioKind.MISSING_FASTA_ENTRY
+            in scenario_kinds,
+            detail="missing-fasta truth pressure is present in the benchmark suite",
+        ),
+        WorkflowTrustCriterionResult(
+            criterion_id="hidden-ambiguity-absent",
+            passed=benchmark_suite.hidden_ambiguity_scenario_count == 0,
+            detail=(
+                "hidden ambiguity scenario count is "
+                f"{benchmark_suite.hidden_ambiguity_scenario_count}"
+            ),
         ),
         WorkflowTrustCriterionResult(
             criterion_id="precision-lower-bound-supported",
