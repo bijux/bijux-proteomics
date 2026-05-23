@@ -121,3 +121,25 @@ def test_identification_package_exports_picked_protein_fdr_owner_surface() -> No
     assert report.summary.total_pair_count == len(case["expected_entries"])
     assert report.summary.q_values_monotonic is True
     assert rendered.startswith("pair_id\tbase_accession")
+
+
+def test_identification_package_exports_protein_grouping_owner_surface() -> None:
+    raw_cases = json.loads(
+        _identification_fixture("protein_grouping_reference_cases.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+
+    report = identification.build_protein_grouping_report(records)
+    rendered = identification.render_protein_grouping_entries_tsv(report)
+
+    assert hasattr(identification, "build_protein_grouping_report")
+    assert hasattr(identification, "render_protein_grouping_entries_tsv")
+    assert hasattr(identification, "render_protein_grouping_summary_tsv")
+    assert report.summary.total_groups == len(case["expected_groups"])
+    assert report.reproducibility_hash
+    assert rendered.startswith("group_id\trepresentative_protein")
