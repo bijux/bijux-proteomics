@@ -176,6 +176,32 @@ class QcAssessmentSeverity(StrEnum):
     NOT_ASSESSED = "NOT_ASSESSED"
 
 
+class QcStatus(StrEnum):
+    """Operator-facing QC status for laboratory review and handoff."""
+
+    PASS = "pass"
+    CAUTION = "caution"
+    FAIL = "fail"
+
+
+class QcStatusReasonSource(StrEnum):
+    """Stable provenance for one operator-facing QC reason code."""
+
+    METRIC = "metric"
+    LAB = "lab"
+
+
+class QcStatusReasonEntry(JsonModel):
+    """One operator-facing non-pass reason with a stable code and message."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(..., min_length=1)
+    status: QcStatus
+    source: QcStatusReasonSource
+    message: str = Field(..., min_length=1)
+
+
 class QcRunAnomalyCategory(StrEnum):
     """Stable anomaly categories for run-level QC summaries."""
 
@@ -284,14 +310,17 @@ class QcRunAssessmentReport(JsonModel):
 
     document_schema: DocumentSchema
     run_id: str = Field(..., min_length=1)
+    sample_id: str | None = None
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
     policy_sha256: str = Field(..., min_length=64, max_length=64)
     threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
+    qc_status: QcStatus
     blocked: bool = False
     advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    status_reasons: tuple[QcStatusReasonEntry, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -308,9 +337,11 @@ class QcBatchAssessmentReport(JsonModel):
     policy_sha256: str = Field(..., min_length=64, max_length=64)
     threshold_profile: QcThresholdPolicyProfile
     overall_severity: QcAssessmentSeverity
+    qc_status: QcStatus
     blocked: bool = False
     advisory_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
     enforced_failure_metric_keys: tuple[str, ...] = Field(default_factory=tuple)
+    status_reasons: tuple[QcStatusReasonEntry, ...] = Field(default_factory=tuple)
     metric_assessments: tuple[QcMetricAssessment, ...] = Field(default_factory=tuple)
 
 
@@ -381,6 +412,7 @@ class LcmsRunQcReport(JsonModel):
     fraction: int | None = Field(default=None, ge=1)
     batch: str | None = None
     instrument: str | None = None
+    design_metadata: dict[str, str] = Field(default_factory=dict)
     instrument_summary: QcInstrumentSummary
     identification_summary: QcIdentificationSummary
     quant_summary: QcQuantSummary | None = None
@@ -400,6 +432,7 @@ class LcmsRunQcReport(JsonModel):
     missed_cleavage_count: int = Field(..., ge=0)
     missed_cleavage_rate: float = Field(..., ge=0.0, le=1.0)
     contaminant_summary: QcContaminantSummary
+    protein_psm_counts: dict[str, int] = Field(default_factory=dict)
     digestion_specificity: tuple[QcDigestionSpecificityEntry, ...] = Field(
         default_factory=tuple
     )
@@ -491,11 +524,13 @@ class QcRunBundleSummary(JsonModel):
     policy_name: str = Field(..., min_length=1)
     policy_version: str = Field(..., min_length=1)
     overall_severity: QcAssessmentSeverity
+    qc_status: QcStatus
     blocked: bool = False
     identification_rate: float = Field(..., ge=0.0, le=1.0)
     contaminant_psm_fraction: float = Field(..., ge=0.0, le=1.0)
     quant_observed_fraction: float | None = Field(default=None, ge=0.0, le=1.0)
     anomaly_codes: tuple[str, ...] = Field(default_factory=tuple)
+    status_reason_codes: tuple[str, ...] = Field(default_factory=tuple)
     evidence_file_roles: tuple[str, ...] = Field(default_factory=tuple)
     evidence_file_paths: tuple[str, ...] = Field(default_factory=tuple)
     manifest_sha256s: dict[str, str] = Field(default_factory=dict)
@@ -635,6 +670,249 @@ def _severity_rank(severity: QcAssessmentSeverity) -> int:
         QcAssessmentSeverity.WARNING: 2,
         QcAssessmentSeverity.FAILED: 3,
     }[severity]
+
+
+def _status_rank(status: QcStatus) -> int:
+    return {
+        QcStatus.PASS: 0,
+        QcStatus.CAUTION: 1,
+        QcStatus.FAIL: 2,
+    }[status]
+
+
+def _status_from_severity(severity: QcAssessmentSeverity) -> QcStatus:
+    if severity is QcAssessmentSeverity.FAILED:
+        return QcStatus.FAIL
+    if severity in (QcAssessmentSeverity.WARNING, QcAssessmentSeverity.NOT_ASSESSED):
+        return QcStatus.CAUTION
+    return QcStatus.PASS
+
+
+def _metadata_reference_values(metadata: dict[str, str], key: str) -> tuple[str, ...]:
+    value = metadata.get(key, "").strip()
+    if not value:
+        return ()
+    return tuple(sorted({token.strip() for token in value.split(";") if token.strip()}))
+
+
+def _metric_status_reason(assessment: QcMetricAssessment) -> QcStatusReasonEntry | None:
+    status = _status_from_severity(assessment.severity)
+    if status is QcStatus.PASS:
+        return None
+    return QcStatusReasonEntry(
+        code=assessment.metric_key,
+        status=status,
+        source=QcStatusReasonSource.METRIC,
+        message=assessment.message,
+    )
+
+
+def _build_run_status_reasons(
+    run_report: LcmsRunQcReport,
+    metric_assessments: tuple[QcMetricAssessment, ...],
+) -> tuple[QcStatusReasonEntry, ...]:
+    reasons: list[QcStatusReasonEntry] = []
+    reasons.extend(
+        reason
+        for reason in (
+            _metric_status_reason(assessment) for assessment in metric_assessments
+        )
+        if reason is not None
+    )
+
+    specificity_lookup = {
+        entry.specificity: entry.fraction for entry in run_report.digestion_specificity
+    }
+    non_specific_fraction = specificity_lookup.get(QcDigestionSpecificity.NON_SPECIFIC, 0.0)
+    if run_report.missed_cleavage_rate >= 0.2 or non_specific_fraction >= 0.15:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="digestion_inefficiency",
+                status=(
+                    QcStatus.FAIL
+                    if run_report.missed_cleavage_rate >= 0.35 or non_specific_fraction >= 0.25
+                    else QcStatus.CAUTION
+                ),
+                source=QcStatusReasonSource.LAB,
+                message=(
+                    "missed-cleavage rate "
+                    f"{run_report.missed_cleavage_rate:.4g} and non-specific fraction "
+                    f"{non_specific_fraction:.4g} indicate weak digestion efficiency"
+                ),
+            )
+        )
+
+    contamination_fraction = run_report.contaminant_summary.contaminant_intensity_fraction
+    if contamination_fraction >= 0.05 or run_report.contaminant_summary.contaminant_psm_fraction >= 0.1:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="contamination_burden",
+                status=QcStatus.FAIL if contamination_fraction >= 0.15 else QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message=(
+                    "contaminant intensity fraction "
+                    f"{contamination_fraction:.4g} indicates meaningful contamination burden"
+                ),
+            )
+        )
+
+    carryover_refs = _metadata_reference_values(
+        run_report.design_metadata, "carryover_marker_refs"
+    )
+    carryover_hits = tuple(
+        sorted(ref for ref in carryover_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+    )
+    if carryover_hits:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="carryover_suspected",
+                status=QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message="carryover markers were observed: " + ", ".join(carryover_hits),
+            )
+        )
+
+    expected_species_refs = _metadata_reference_values(
+        run_report.design_metadata, "expected_species_marker_refs"
+    )
+    expected_species_hits = tuple(
+        sorted(ref for ref in expected_species_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+    )
+    forbidden_species_hits = tuple(
+        sorted(
+            ref
+            for ref in _metadata_reference_values(
+                run_report.design_metadata, "forbidden_species_marker_refs"
+            )
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
+    )
+    if forbidden_species_hits or (expected_species_refs and not expected_species_hits):
+        reasons.append(
+            QcStatusReasonEntry(
+                code="species_marker_mismatch",
+                status=QcStatus.FAIL if forbidden_species_hits else QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message=(
+                    "species marker posture did not match the expected sample metadata"
+                    if not forbidden_species_hits
+                    else "forbidden species markers were observed: "
+                    + ", ".join(forbidden_species_hits)
+                ),
+            )
+        )
+
+    expected_sex_refs = _metadata_reference_values(
+        run_report.design_metadata, "expected_sex_marker_refs"
+    )
+    expected_sex_hits = tuple(
+        sorted(ref for ref in expected_sex_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+    )
+    forbidden_sex_hits = tuple(
+        sorted(
+            ref
+            for ref in _metadata_reference_values(
+                run_report.design_metadata, "forbidden_sex_marker_refs"
+            )
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
+    )
+    if forbidden_sex_hits or (expected_sex_refs and not expected_sex_hits):
+        reasons.append(
+            QcStatusReasonEntry(
+                code="sex_marker_mismatch",
+                status=QcStatus.FAIL if forbidden_sex_hits else QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message=(
+                    "sex marker posture did not match the expected sample metadata"
+                    if not forbidden_sex_hits
+                    else "forbidden sex markers were observed: "
+                    + ", ".join(forbidden_sex_hits)
+                ),
+            )
+        )
+
+    if forbidden_species_hits or forbidden_sex_hits:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="sample_swap_suspected",
+                status=QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message=(
+                    "marker evidence conflicts with the expected sample identity and suggests a sample swap"
+                ),
+            )
+        )
+
+    expected_enrichment_refs = _metadata_reference_values(
+        run_report.design_metadata, "enrichment_marker_refs"
+    )
+    enrichment_hits = tuple(
+        sorted(ref for ref in expected_enrichment_refs if run_report.protein_psm_counts.get(ref, 0) > 0)
+    )
+    if expected_enrichment_refs and not enrichment_hits:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="enrichment_inefficiency",
+                status=QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message="expected enrichment markers were not observed",
+            )
+        )
+
+    depletion_hits = tuple(
+        sorted(
+            ref
+            for ref in _metadata_reference_values(
+                run_report.design_metadata, "depletion_marker_refs"
+            )
+            if run_report.protein_psm_counts.get(ref, 0) > 0
+        )
+    )
+    if depletion_hits:
+        reasons.append(
+            QcStatusReasonEntry(
+                code="depletion_inefficiency",
+                status=QcStatus.CAUTION,
+                source=QcStatusReasonSource.LAB,
+                message="depletion markers remained visible: " + ", ".join(depletion_hits),
+            )
+        )
+
+    unique_reasons: dict[tuple[str, str], QcStatusReasonEntry] = {}
+    for reason in reasons:
+        key = (reason.code, reason.message)
+        incumbent = unique_reasons.get(key)
+        if incumbent is None or _status_rank(reason.status) > _status_rank(incumbent.status):
+            unique_reasons[key] = reason
+    return tuple(
+        sorted(
+            unique_reasons.values(),
+            key=lambda entry: (_status_rank(entry.status), entry.source.value, entry.code),
+            reverse=True,
+        )
+    )
+
+
+def _status_from_reasons(
+    reasons: tuple[QcStatusReasonEntry, ...],
+    overall_severity: QcAssessmentSeverity,
+) -> QcStatus:
+    if reasons:
+        return max(reasons, key=lambda entry: _status_rank(entry.status)).status
+    return _status_from_severity(overall_severity)
+
+
+def _build_batch_status_reasons(
+    metric_assessments: tuple[QcMetricAssessment, ...],
+) -> tuple[QcStatusReasonEntry, ...]:
+    return tuple(
+        reason
+        for reason in (
+            _metric_status_reason(assessment) for assessment in metric_assessments
+        )
+        if reason is not None
+    )
 
 
 def _assessment_message(
@@ -934,19 +1212,24 @@ def build_run_qc_assessment(
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
     )
+    overall_severity = (
+        QcAssessmentSeverity.PASSED if overall is None else overall.severity
+    )
+    status_reasons = _build_run_status_reasons(run_report, assessments)
     return QcRunAssessmentReport(
         document_schema=_build_document_schema("qc_run_assessment_report"),
         run_id=run_report.run_id,
+        sample_id=run_report.sample_id,
         policy_name=policy.policy_name,
         policy_version=policy.version,
         policy_sha256=policy_sha256,
         threshold_profile=threshold_profile,
-        overall_severity=QcAssessmentSeverity.PASSED
-        if overall is None
-        else overall.severity,
+        overall_severity=overall_severity,
+        qc_status=_status_from_reasons(status_reasons, overall_severity),
         blocked=any(entry.enforced_violation for entry in assessments),
         advisory_failure_metric_keys=advisory_failure_metric_keys,
         enforced_failure_metric_keys=enforced_failure_metric_keys,
+        status_reasons=status_reasons,
         metric_assessments=assessments,
     )
 
@@ -1034,6 +1317,10 @@ def build_batch_qc_assessment(
     overall = max(
         assessments, key=lambda entry: _severity_rank(entry.severity), default=None
     )
+    overall_severity = (
+        QcAssessmentSeverity.PASSED if overall is None else overall.severity
+    )
+    status_reasons = _build_batch_status_reasons(assessments)
     return QcBatchAssessmentReport(
         document_schema=_build_document_schema("qc_batch_assessment_report"),
         batch_id=batch_report.batch_id,
@@ -1042,12 +1329,12 @@ def build_batch_qc_assessment(
         policy_version=policy.version,
         policy_sha256=policy_sha256,
         threshold_profile=threshold_profile,
-        overall_severity=QcAssessmentSeverity.PASSED
-        if overall is None
-        else overall.severity,
+        overall_severity=overall_severity,
+        qc_status=_status_from_reasons(status_reasons, overall_severity),
         blocked=any(entry.enforced_violation for entry in assessments),
         advisory_failure_metric_keys=advisory_failure_metric_keys,
         enforced_failure_metric_keys=enforced_failure_metric_keys,
+        status_reasons=status_reasons,
         metric_assessments=assessments,
     )
 
@@ -1107,6 +1394,7 @@ def build_qc_run_bundle_summary(
         policy_name=run_assessment.policy_name,
         policy_version=run_assessment.policy_version,
         overall_severity=run_assessment.overall_severity,
+        qc_status=run_assessment.qc_status,
         blocked=run_assessment.blocked,
         identification_rate=run_report.identification_rate,
         contaminant_psm_fraction=run_report.contaminant_summary.contaminant_psm_fraction,
@@ -1114,6 +1402,9 @@ def build_qc_run_bundle_summary(
         if run_report.quant_summary is None
         else run_report.quant_summary.observed_fraction,
         anomaly_codes=tuple(sorted(entry.code for entry in run_report.run_anomalies)),
+        status_reason_codes=tuple(
+            sorted({entry.code for entry in run_assessment.status_reasons})
+        ),
         evidence_file_roles=tuple(
             sorted(entry.role for entry in evidence_manifest.input_files)
         ),
@@ -1198,6 +1489,8 @@ def render_qc_assessment_tsv(
         [
             "scope",
             "entity_id",
+            "qc_status",
+            "status_reason_codes",
             "metric_key",
             "metric_label",
             "observed_value",
@@ -1213,6 +1506,8 @@ def render_qc_assessment_tsv(
             [
                 "run",
                 run_assessment.run_id,
+                run_assessment.qc_status.value,
+                ";".join(reason.code for reason in run_assessment.status_reasons),
                 assessment.metric_key,
                 assessment.metric_label,
                 _format_metric_value(assessment.observed_value),
@@ -1230,6 +1525,8 @@ def render_qc_assessment_tsv(
                 [
                     "batch",
                     entity_id,
+                    batch_assessment.qc_status.value,
+                    ";".join(reason.code for reason in batch_assessment.status_reasons),
                     assessment.metric_key,
                     assessment.metric_label,
                     _format_metric_value(assessment.observed_value),
@@ -1255,7 +1552,7 @@ def render_qc_assessment_html(
     for assessment in run_assessment.metric_assessments:
         rows.append(
             "<tr>"
-            f"<td>run</td><td>{run_assessment.run_id}</td><td>{assessment.metric_label}</td>"
+            f"<td>run</td><td>{run_assessment.run_id}</td><td>{run_assessment.qc_status.value}</td><td>{'; '.join(reason.code for reason in run_assessment.status_reasons) or 'none'}</td><td>{assessment.metric_label}</td>"
             f"<td>{_format_metric_value(assessment.observed_value)}</td>"
             f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
             "</tr>"
@@ -1265,7 +1562,7 @@ def render_qc_assessment_html(
         for assessment in batch_assessment.metric_assessments:
             rows.append(
                 "<tr>"
-                f"<td>batch</td><td>{entity_id}</td><td>{assessment.metric_label}</td>"
+                f"<td>batch</td><td>{entity_id}</td><td>{batch_assessment.qc_status.value}</td><td>{'; '.join(reason.code for reason in batch_assessment.status_reasons) or 'none'}</td><td>{assessment.metric_label}</td>"
                 f"<td>{_format_metric_value(assessment.observed_value)}</td>"
                 f"<td>{assessment.severity.value}</td><td>{assessment.disposition.value}</td><td>{assessment.message}</td>"
                 "</tr>"
@@ -1282,10 +1579,11 @@ def render_qc_assessment_html(
         f"<h1>QC report for {run_report.run_id}</h1>"
         f"<p><strong>Sample</strong>: {run_report.sample_id or 'n/a'} | "
         f"<strong>Overall</strong>: {run_assessment.overall_severity.value} | "
+        f"<strong>Status</strong>: {run_assessment.qc_status.value} | "
         f"<strong>Blocked</strong>: {'yes' if run_assessment.blocked else 'no'}</p>"
         f"{batch_summary}"
         "<table border='1' cellspacing='0' cellpadding='4'>"
-        "<thead><tr><th>Scope</th><th>Entity</th><th>Metric</th><th>Observed</th><th>Severity</th><th>Disposition</th><th>Message</th></tr></thead>"
+        "<thead><tr><th>Scope</th><th>Entity</th><th>Status</th><th>Reason codes</th><th>Metric</th><th>Observed</th><th>Severity</th><th>Disposition</th><th>Message</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
         "</body></html>\n"
     )
@@ -1587,6 +1885,7 @@ def build_lcms_run_qc_report(
         fraction=design_entry.fraction if design_entry else None,
         batch=design_entry.batch if design_entry else None,
         instrument=design_entry.instrument if design_entry else None,
+        design_metadata={} if design_entry is None else dict(sorted(design_entry.metadata.items())),
         instrument_summary=instrument_summary,
         identification_summary=identification_summary,
         quant_summary=quant_summary,
@@ -1612,6 +1911,9 @@ def build_lcms_run_qc_report(
         missed_cleavage_count=missed_cleavage_count,
         missed_cleavage_rate=_fraction(missed_cleavage_count, len(psm_records)),
         contaminant_summary=contaminant_summary,
+        protein_psm_counts=dict(
+            sorted(Counter(ref for record in psm_records for ref in record.protein_refs).items())
+        ),
         digestion_specificity=digestion_specificity,
     )
 

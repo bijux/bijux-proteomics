@@ -1,11 +1,11 @@
-scope	entity_id	metric_key	metric_label	observed_value	unit	severity	disposition	enforced_violation	message
-run	run-c	spectrum_count	Spectrum count	6		FAIL	ADVISORY	false	Spectrum count breached fail threshold at 6
-run	run-c	identification_rate	Identification rate	0.3333	fraction	FAIL	ENFORCED	true	Identification rate breached fail threshold at 0.3333 fraction
-run	run-c	median_abs_mass_error_ppm	Median absolute precursor error	13	ppm	WARN	ENFORCED	false	Median absolute precursor error breached advisory threshold at 13 ppm
-run	run-c	contaminant_psm_fraction	Contaminant PSM fraction	0.5	fraction	FAIL	ADVISORY	false	Contaminant PSM fraction breached fail threshold at 0.5 fraction
-run	run-c	missed_cleavage_rate	Missed-cleavage rate	0	fraction	PASS	ADVISORY	false	Missed-cleavage rate is within policy at 0 fraction
-run	run-c	non_specific_fraction	Non-specific peptide fraction	0	fraction	PASS	ADVISORY	false	Non-specific peptide fraction is within policy at 0 fraction
-batch	B1	median_spectrum_count	Median spectrum count	6		FAIL	ADVISORY	false	Median spectrum count breached fail threshold at 6
-batch	B1	median_identification_rate	Median identification rate	0.5833	fraction	PASS	ENFORCED	false	Median identification rate is within policy at 0.5833 fraction
-batch	B1	median_abs_mass_error_ppm	Median absolute precursor error	7.25	ppm	PASS	ENFORCED	false	Median absolute precursor error is within policy at 7.25 ppm
-batch	B1	outlier_run_count	Outlier run count	1		WARN	ADVISORY	false	Outlier run count breached advisory threshold at 1
+scope	entity_id	qc_status	status_reason_codes	metric_key	metric_label	observed_value	unit	severity	disposition	enforced_violation	message
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	spectrum_count	Spectrum count	6		FAIL	ADVISORY	false	Spectrum count breached fail threshold at 6
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	identification_rate	Identification rate	0.3333	fraction	FAIL	ENFORCED	true	Identification rate breached fail threshold at 0.3333 fraction
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	median_abs_mass_error_ppm	Median absolute precursor error	13	ppm	WARN	ENFORCED	false	Median absolute precursor error breached advisory threshold at 13 ppm
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	contaminant_psm_fraction	Contaminant PSM fraction	0.5	fraction	FAIL	ADVISORY	false	Contaminant PSM fraction breached fail threshold at 0.5 fraction
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	missed_cleavage_rate	Missed-cleavage rate	0	fraction	PASS	ADVISORY	false	Missed-cleavage rate is within policy at 0 fraction
+run	run-c	fail	spectrum_count;identification_rate;contaminant_psm_fraction;median_abs_mass_error_ppm;contamination_burden	non_specific_fraction	Non-specific peptide fraction	0	fraction	PASS	ADVISORY	false	Non-specific peptide fraction is within policy at 0 fraction
+batch	B1	fail	median_spectrum_count;outlier_run_count	median_spectrum_count	Median spectrum count	6		FAIL	ADVISORY	false	Median spectrum count breached fail threshold at 6
+batch	B1	fail	median_spectrum_count;outlier_run_count	median_identification_rate	Median identification rate	0.5833	fraction	PASS	ENFORCED	false	Median identification rate is within policy at 0.5833 fraction
+batch	B1	fail	median_spectrum_count;outlier_run_count	median_abs_mass_error_ppm	Median absolute precursor error	7.25	ppm	PASS	ENFORCED	false	Median absolute precursor error is within policy at 7.25 ppm
+batch	B1	fail	median_spectrum_count;outlier_run_count	outlier_run_count	Outlier run count	1		WARN	ADVISORY	false	Outlier run count breached advisory threshold at 1
