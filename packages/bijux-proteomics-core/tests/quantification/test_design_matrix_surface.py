@@ -7,6 +7,7 @@ import pytest
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import build_quant_design_matrix_report
+from bijux_proteomics.study import SampleRunAnalysisPolicy
 
 
 def _design() -> tuple[ExperimentalDesignEntry, ...]:
@@ -213,3 +214,79 @@ def test_build_quant_design_matrix_report_blocks_confounded_designs() -> None:
             timepoint_field="timepoint",
             covariate_fields=("age_years",),
         )
+
+
+def test_build_quant_design_matrix_report_combines_multi_run_samples_by_default() -> None:
+    report = build_quant_design_matrix_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001.mzml",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002.mzml",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S2",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-003.mzml",
+                technical_replicate_id="tech-3",
+            ),
+        ),
+        batch_field="",
+    )
+
+    assert report.sample_count == 2
+    assert tuple(row.sample_id for row in report.rows) == ("S1", "S2")
+    assert report.rows[0].metadata["run_ids"] == "run-001.mzml;run-002.mzml"
+
+
+def test_build_quant_design_matrix_report_can_separate_multi_run_samples() -> None:
+    report = build_quant_design_matrix_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-001.mzml",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-002.mzml",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="S2",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="run-003.mzml",
+                technical_replicate_id="tech-3",
+            ),
+        ),
+        batch_field="",
+        sample_run_policy=SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+    )
+
+    assert report.sample_count == 3
+    assert tuple(row.sample_id for row in report.rows) == (
+        "S1__technical_replicate_tech-1",
+        "S1__technical_replicate_tech-2",
+        "S2__technical_replicate_tech-3",
+    )

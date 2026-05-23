@@ -27,6 +27,10 @@ from bijux_proteomics.quantification.contracts import (
     QuantDesignMatrixSampleRow,
     _matrix_value_index,
 )
+from bijux_proteomics.study.sample_run_identity import (
+    SampleRunAnalysisPolicy,
+    resolve_sample_run_analysis_entries,
+)
 
 
 def _resolve_design_value(entry: ExperimentalDesignEntry, field: str) -> str | None:
@@ -207,18 +211,32 @@ def build_quant_design_matrix_report(
     pairing_field: str | None = None,
     timepoint_field: str | None = None,
     condition_field: str = "condition",
+    sample_run_policy: SampleRunAnalysisPolicy = (
+        SampleRunAnalysisPolicy.COMBINE_TECHNICAL_RUNS
+    ),
 ) -> QuantDesignMatrixReport:
     """Build one explicit sample design matrix for quantification modeling."""
     if not design_entries:
         raise ValueError("design matrix requires at least one design entry")
-    _require_unique_sample_ids(design_entries)
+    analysis_design_entries = resolve_sample_run_analysis_entries(
+        design_entries,
+        policy=sample_run_policy,
+        required_consistency_fields=_required_consistency_fields(
+            condition_field=condition_field,
+            batch_field=batch_field,
+            pairing_field=pairing_field,
+            timepoint_field=timepoint_field,
+            covariate_fields=covariate_fields,
+        ),
+    )
+    _require_unique_sample_ids(analysis_design_entries)
 
     conditions = tuple(
         sorted(
             {
                 value
                 for value in _require_populated_design_field(
-                    design_entries, condition_field
+                    analysis_design_entries, condition_field
                 )
             }
         )
@@ -234,10 +252,12 @@ def build_quant_design_matrix_report(
             source_field="intercept",
         )
     ]
-    column_values: list[tuple[float, ...]] = [tuple(1.0 for _ in design_entries)]
+    column_values: list[tuple[float, ...]] = [
+        tuple(1.0 for _ in analysis_design_entries)
+    ]
 
     condition_columns, condition_values = _build_categorical_columns(
-        design_entries,
+        analysis_design_entries,
         field=condition_field,
         kind=QuantDesignMatrixColumnKind.CONDITION,
     )
@@ -246,7 +266,7 @@ def build_quant_design_matrix_report(
 
     if batch_field:
         batch_columns, batch_values = _build_categorical_columns(
-            design_entries,
+            analysis_design_entries,
             field=batch_field,
             kind=QuantDesignMatrixColumnKind.BATCH,
         )
@@ -255,7 +275,7 @@ def build_quant_design_matrix_report(
 
     if pairing_field:
         pairing_columns, pairing_values = _build_categorical_columns(
-            design_entries,
+            analysis_design_entries,
             field=pairing_field,
             kind=QuantDesignMatrixColumnKind.PAIRING,
         )
@@ -268,7 +288,7 @@ def build_quant_design_matrix_report(
         pairing_field,
     }:
         numeric_timepoint = _build_numeric_covariate_column(
-            design_entries,
+            analysis_design_entries,
             timepoint_field,
             kind=QuantDesignMatrixColumnKind.TIMEPOINT,
         )
@@ -278,7 +298,7 @@ def build_quant_design_matrix_report(
             column_values.append(values)
         else:
             timepoint_columns, timepoint_values = _build_categorical_columns(
-                design_entries,
+                analysis_design_entries,
                 field=timepoint_field,
                 kind=QuantDesignMatrixColumnKind.TIMEPOINT,
             )
@@ -288,14 +308,17 @@ def build_quant_design_matrix_report(
     for field in covariate_fields:
         if field in {condition_field, batch_field, pairing_field, timepoint_field}:
             continue
-        numeric_covariate = _build_numeric_covariate_column(design_entries, field)
+        numeric_covariate = _build_numeric_covariate_column(
+            analysis_design_entries,
+            field,
+        )
         if numeric_covariate is not None:
             column, values = numeric_covariate
             columns.append(column)
             column_values.append(values)
             continue
         covariate_columns, covariate_values = _build_categorical_columns(
-            design_entries,
+            analysis_design_entries,
             field=field,
             kind=QuantDesignMatrixColumnKind.COVARIATE,
         )
@@ -303,7 +326,7 @@ def build_quant_design_matrix_report(
         column_values.extend(covariate_values)
 
     rows: list[QuantDesignMatrixSampleRow] = []
-    for row_index, entry in enumerate(design_entries):
+    for row_index, entry in enumerate(analysis_design_entries):
         rows.append(
             QuantDesignMatrixSampleRow(
                 sample_id=entry.sample_id,
@@ -336,8 +359,29 @@ def build_quant_design_matrix_report(
             conditions=conditions,
         ),
         note=(
-            "design matrix preserves intercept, condition contrasts, optional batch blocking, optional pairing blocks, optional timepoint structure, and declared sample covariates while blocking confounded designs"
+            "design matrix preserves intercept, condition contrasts, optional batch blocking, optional pairing blocks, optional timepoint structure, and declared sample covariates while honoring explicit biological-sample versus technical-run resolution policy"
         ),
+    )
+
+
+def _required_consistency_fields(
+    *,
+    condition_field: str,
+    batch_field: str | None,
+    pairing_field: str | None,
+    timepoint_field: str | None,
+    covariate_fields: tuple[str, ...],
+) -> tuple[str, ...]:
+    fields = [
+        condition_field,
+        batch_field,
+        pairing_field,
+        timepoint_field,
+        *covariate_fields,
+    ]
+    return tuple(
+        field
+        for field in dict.fromkeys(field for field in fields if field not in (None, ""))
     )
 
 
