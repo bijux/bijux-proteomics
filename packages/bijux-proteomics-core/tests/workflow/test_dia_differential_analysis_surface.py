@@ -6,7 +6,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.dia import build_diann_protein_matrix_report
-from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.io.formats import (
+    ExperimentalDesignEntry,
+    parse_experimental_design_table,
+)
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialSourceKind,
@@ -38,6 +41,22 @@ def _spectronaut_fixture(name: str) -> Path:
         / "search_result_bundles"
         / "spectronaut"
         / name
+    )
+
+
+def _entry(
+    *,
+    sample_id: str,
+    condition: str,
+    spectra_file: str,
+    replicate: int = 1,
+) -> ExperimentalDesignEntry:
+    return ExperimentalDesignEntry(
+        sample_id=sample_id,
+        condition=condition,
+        replicate=replicate,
+        fraction=1,
+        spectra_file=spectra_file,
     )
 
 
@@ -204,3 +223,33 @@ def test_build_diann_differential_analysis_report_blocks_paired_design_methods()
         assert "paired_differential" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected paired DIA design to be rejected")
+
+
+def test_build_diann_differential_analysis_report_blocks_underpowered_designs() -> (
+    None
+):
+    underpowered_design = build_experiment_design(
+        (
+            _entry(sample_id="C1", condition="control", spectra_file="c1.raw"),
+            _entry(sample_id="T1", condition="treatment", spectra_file="t1.raw"),
+            _entry(
+                sample_id="T2",
+                condition="treatment",
+                spectra_file="t2.raw",
+                replicate=2,
+            ),
+        )
+    )
+
+    try:
+        build_diann_differential_analysis_report(
+            _diann_fixture("diann_differential_report.tsv"),
+            underpowered_design,
+            condition_a="control",
+            condition_b="treatment",
+        )
+    except ValueError as exc:
+        assert "not feasible" in str(exc)
+        assert "insufficient_group_size" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected underpowered DIA design to be rejected")
