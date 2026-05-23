@@ -8,11 +8,17 @@ from pathlib import Path
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.label_based_differential_analysis import (
+    LabelBasedDifferentialInputReport,
+    LabelBasedDifferentialMatrixRow,
+    LabelBasedDifferentialMatrixSummary,
+    LabelBasedDifferentialMatrixValue,
+    LabelBasedMeasurementKind,
     LabelBasedDifferentialSourceKind,
     build_label_based_differential_analysis_report,
     build_tmt_differential_analysis_report,
     build_tmt_differential_input_report,
 )
+from bijux_proteomics.quantification import DifferentialReplicatePolicy
 
 
 def _multiplex_fixture(name: str) -> Path:
@@ -132,3 +138,118 @@ def test_build_label_based_differential_analysis_report_blocks_longitudinal_desi
         assert "time_course_differential" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected longitudinal labeled design to be rejected")
+
+
+def test_build_label_based_differential_analysis_report_does_not_count_technical_runs_as_replicate_power() -> (
+    None
+):
+    input_report = LabelBasedDifferentialInputReport(
+        source_kind=LabelBasedDifferentialSourceKind.TMT,
+        source_name="manual",
+        measurement_kind=LabelBasedMeasurementKind.INTENSITY,
+        summary=LabelBasedDifferentialMatrixSummary(
+            source_kind=LabelBasedDifferentialSourceKind.TMT,
+            measurement_kind=LabelBasedMeasurementKind.INTENSITY,
+            entity_count=1,
+            sample_count=2,
+            observed_cell_count=2,
+            missing_cell_count=0,
+        ),
+        sample_ids=("control-1", "treated-1"),
+        rows=(
+            LabelBasedDifferentialMatrixRow(
+                entity_id="P001",
+                protein_refs=("P001",),
+                member_peptides=("PEPA",),
+                values=(
+                    LabelBasedDifferentialMatrixValue(
+                        sample_id="control-1",
+                        abundance=100.0,
+                        source_feature_count=1,
+                    ),
+                    LabelBasedDifferentialMatrixValue(
+                        sample_id="treated-1",
+                        abundance=220.0,
+                        source_feature_count=1,
+                    ),
+                ),
+            ),
+        ),
+        note="manual labeled matrix",
+    )
+    design = build_experiment_design(
+        (
+            parse_experimental_design_table(
+                _multiplex_fixture("tmt.design.tsv")
+            ).accepted_entries[0].model_copy(
+                update={
+                    "sample_id": "control-1",
+                    "condition": "control",
+                    "replicate": 1,
+                    "spectra_file": "control-1_run-1.mzml",
+                    "technical_replicate_id": "tech-1",
+                    "multiplex_group": None,
+                    "multiplex_channel": None,
+                    "metadata": {},
+                }
+            ),
+            parse_experimental_design_table(
+                _multiplex_fixture("tmt.design.tsv")
+            ).accepted_entries[0].model_copy(
+                update={
+                    "sample_id": "control-1",
+                    "condition": "control",
+                    "replicate": 1,
+                    "spectra_file": "control-1_run-2.mzml",
+                    "technical_replicate_id": "tech-2",
+                    "multiplex_group": None,
+                    "multiplex_channel": None,
+                    "metadata": {},
+                }
+            ),
+            parse_experimental_design_table(
+                _multiplex_fixture("tmt.design.tsv")
+            ).accepted_entries[0].model_copy(
+                update={
+                    "sample_id": "treated-1",
+                    "condition": "treatment",
+                    "replicate": 1,
+                    "spectra_file": "treated-1_run-1.mzml",
+                    "technical_replicate_id": "tech-3",
+                    "multiplex_group": None,
+                    "multiplex_channel": None,
+                    "metadata": {},
+                }
+            ),
+            parse_experimental_design_table(
+                _multiplex_fixture("tmt.design.tsv")
+            ).accepted_entries[0].model_copy(
+                update={
+                    "sample_id": "treated-1",
+                    "condition": "treatment",
+                    "replicate": 1,
+                    "spectra_file": "treated-1_run-2.mzml",
+                    "technical_replicate_id": "tech-4",
+                    "multiplex_group": None,
+                    "multiplex_channel": None,
+                    "metadata": {},
+                }
+            ),
+        )
+    )
+
+    try:
+        build_label_based_differential_analysis_report(
+            input_report,
+            design,
+            replicate_policy=DifferentialReplicatePolicy(
+                min_replicates_per_condition=2
+            ),
+            batch_field="",
+        )
+    except ValueError as exc:
+        assert "minimum replicate policy not satisfied" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError(
+            "expected labeled differential analysis to keep technical runs below biological replicate policy"
+        )

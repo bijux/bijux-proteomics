@@ -465,3 +465,97 @@ def test_differential_abundance_rejects_unresolved_separate_run_policy() -> None
         assert "S1__technical_replicate_tech-1" in str(exc)
     else:  # pragma: no cover
         raise AssertionError("expected unresolved separate-run policy to be rejected")
+
+
+def test_differential_abundance_does_not_count_separated_technical_runs_as_replicate_power() -> (
+    None
+):
+    table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="resolved-001",
+                sample_id="S1__technical_replicate_tech-1",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=100.0,
+                protein_refs=("P1",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="resolved-002",
+                sample_id="S1__technical_replicate_tech-2",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=103.0,
+                protein_refs=("P1",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="resolved-003",
+                sample_id="S2__technical_replicate_tech-3",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=220.0,
+                protein_refs=("P1",),
+            ),
+            Ms1FeatureRecord(
+                feature_id="resolved-004",
+                sample_id="S2__technical_replicate_tech-4",
+                peptide="PEPA",
+                canonical_peptide="PEPA",
+                intensity=223.0,
+                protein_refs=("P1",),
+            ),
+        ),
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    try:
+        build_differential_abundance_report(
+            table,
+            (
+                ExperimentalDesignEntry(
+                    sample_id="S1",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-001.mzml",
+                    technical_replicate_id="tech-1",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="S1",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-002.mzml",
+                    technical_replicate_id="tech-2",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="S2",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-003.mzml",
+                    technical_replicate_id="tech-3",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="S2",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="run-004.mzml",
+                    technical_replicate_id="tech-4",
+                ),
+            ),
+            condition_a="control",
+            condition_b="treatment",
+            sample_run_policy=SampleRunAnalysisPolicy.SEPARATE_TECHNICAL_RUNS,
+            replicate_policy=DifferentialReplicatePolicy(
+                min_replicates_per_condition=2
+            ),
+        )
+    except ValueError as exc:
+        assert "minimum replicate policy not satisfied" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError(
+            "expected separated technical runs to stay below biological replicate policy"
+        )
