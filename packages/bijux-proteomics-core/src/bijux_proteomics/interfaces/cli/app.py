@@ -269,6 +269,8 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    extract_mzml_chromatographic_peaks,
+    render_chromatographic_peaks_tsv,
     extract_mzml_xic_traces,
     render_xic_traces_tsv,
 )
@@ -11734,6 +11736,57 @@ def xic_extract_command(
         _write_text_output(tsv_out, render_xic_traces_tsv(report))
     payload = report.to_dict()
     payload["tsv_out"] = str(tsv_out) if tsv_out is not None else None
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("xic-pick-peaks")
+@click.argument(
+    "input_mzml", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--trace-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--peak-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON peak-picking output path.",
+)
+def xic_pick_peaks_command(
+    input_mzml: Path,
+    target_table: Path,
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    trace_tsv_out: Path | None,
+    peak_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Extract XIC traces and detect chromatographic peaks from mzML."""
+    try:
+        report = extract_mzml_chromatographic_peaks(
+            input_mzml,
+            target_table,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if trace_tsv_out is not None:
+        _write_text_output(trace_tsv_out, render_xic_traces_tsv(report.trace_report))
+    if peak_tsv_out is not None:
+        _write_text_output(peak_tsv_out, render_chromatographic_peaks_tsv(report))
+    payload = report.to_dict()
+    payload["trace_tsv_out"] = str(trace_tsv_out) if trace_tsv_out is not None else None
+    payload["peak_tsv_out"] = str(peak_tsv_out) if peak_tsv_out is not None else None
     _emit_json(payload, out_path=out_path)
 
 
