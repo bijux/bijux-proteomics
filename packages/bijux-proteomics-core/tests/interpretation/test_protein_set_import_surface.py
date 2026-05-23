@@ -30,3 +30,14 @@ def test_parse_protein_set_table_preserves_memberships_and_rejections() -> None:
         in rejected_reasons
     )
     assert "protein set row requires protein_ref" in rejected_reasons
+
+
+def test_parse_protein_set_table_preserves_optional_category_and_accession_fields() -> (
+    None
+):
+    report = parse_protein_set_table(_fixture_path("protein_set_enrichment.tsv"))
+
+    assert report.summary.accepted_record_count == 6
+    first_record = report.accepted_records[0]
+    assert first_record.set_category == "compartment"
+    assert first_record.source_accession == "SL-0191"

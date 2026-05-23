@@ -38,7 +38,9 @@ class ProteinSetColumnMapping(JsonModel):
     set_id: str = Field(..., min_length=1)
     protein_ref: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
 
 
 class ProteinSetRecord(JsonModel):
@@ -49,7 +51,9 @@ class ProteinSetRecord(JsonModel):
     set_id: str = Field(..., min_length=1)
     protein_ref: str = Field(..., min_length=1)
     set_name: str | None = None
+    set_category: str | None = None
     source_name: str | None = None
+    source_accession: str | None = None
     metadata: dict[str, str] = Field(default_factory=dict)
 
 
@@ -202,7 +206,9 @@ def parse_protein_set_table(
         set_id="set_id",
         protein_ref="protein_ref",
         set_name="set_name",
+        set_category="set_category",
         source_name="source_name",
+        source_accession="source_accession",
     )
     if not lines:
         return ProteinSetImportReport(
@@ -278,7 +284,9 @@ def parse_protein_set_table(
                 set_id=set_id,
                 protein_ref=protein_ref,
                 set_name=_optional_value(values, active_mapping.set_name),
+                set_category=_optional_value(values, active_mapping.set_category),
                 source_name=_optional_value(values, active_mapping.source_name),
+                source_accession=_optional_value(values, active_mapping.source_accession),
                 metadata={
                     key: value
                     for key, value in values.items()
@@ -287,7 +295,9 @@ def parse_protein_set_table(
                         active_mapping.set_id,
                         active_mapping.protein_ref,
                         active_mapping.set_name,
+                        active_mapping.set_category,
                         active_mapping.source_name,
+                        active_mapping.source_accession,
                     }
                     and value
                 },
