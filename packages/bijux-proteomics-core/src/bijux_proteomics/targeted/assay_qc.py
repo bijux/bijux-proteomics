@@ -17,6 +17,12 @@ from bijux_proteomics.targeted.result_import import (
     build_skyline_result_import_report,
     build_transition_table_result_import_report,
 )
+from bijux_proteomics.targeted.transition_coelution import (
+    TargetedTransitionCoelutionReport,
+    build_targeted_transition_coelution_report,
+    render_targeted_transition_coelution_target_tsv,
+    render_targeted_transition_coelution_transition_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -63,6 +69,11 @@ class TargetedTransitionQcEntry(JsonModel):
     relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
     reference_relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
     absolute_share_delta: float | None = Field(default=None, ge=0.0, le=1.0)
+    coeluting: bool = False
+    coelution_flagged: bool = False
+    reference_alignment_flagged: bool = False
+    coelution_delta_minutes: float | None = Field(default=None, ge=0.0)
+    reference_delta_minutes: float | None = Field(default=None, ge=0.0)
     quality_flagged: bool = False
     ratio_flagged: bool = False
     passed: bool
@@ -107,6 +118,8 @@ class TargetedTargetQcEntry(JsonModel):
     condition: str | None = None
     expected_transition_count: int = Field(..., ge=0)
     observed_transition_count: int = Field(..., ge=0)
+    coeluting_transition_count: int = Field(..., ge=0)
+    coeluting_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
     passing_transition_count: int = Field(..., ge=0)
     passing_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
     failing_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
@@ -145,6 +158,10 @@ class TargetedAssayQcSummary(JsonModel):
     target_qc_entry_count: int = Field(..., ge=0)
     reliable_target_entry_count: int = Field(..., ge=0)
     transition_consistency_entry_count: int = Field(..., ge=0)
+    coelution_target_entry_count: int = Field(..., ge=0)
+    flagged_coelution_target_entry_count: int = Field(..., ge=0)
+    transition_coelution_entry_count: int = Field(..., ge=0)
+    coeluting_transition_entry_count: int = Field(..., ge=0)
     transition_qc_entry_count: int = Field(..., ge=0)
     passing_transition_qc_entry_count: int = Field(..., ge=0)
     fragment_ratio_entry_count: int = Field(..., ge=0)
@@ -162,6 +179,7 @@ class TargetedAssayQcReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_name: str = Field(..., min_length=1)
+    transition_coelution: TargetedTransitionCoelutionReport
     target_qc: tuple[TargetedTargetQcEntry, ...] = Field(default_factory=tuple)
     transition_consistency: tuple[TargetedTransitionConsistencyEntry, ...] = Field(
         default_factory=tuple
@@ -184,6 +202,7 @@ def build_targeted_assay_qc_report(
     design_entries: tuple[ExperimentalDesignEntry, ...] = (),
     *,
     retention_time_delta_threshold_minutes: float = 0.75,
+    transition_coelution_delta_threshold_minutes: float = 0.2,
     fragment_ratio_delta_threshold: float = 0.12,
     high_replicate_cv_threshold: float = 0.3,
 ) -> TargetedAssayQcReport:
@@ -195,6 +214,19 @@ def build_targeted_assay_qc_report(
         entry.sample_id: entry.condition
         for entry in design_entries
         if entry.sample_id in sample_ids
+    }
+    transition_coelution = build_targeted_transition_coelution_report(
+        import_report,
+        coelution_rt_delta_threshold_minutes=transition_coelution_delta_threshold_minutes,
+        alignment_rt_delta_threshold_minutes=retention_time_delta_threshold_minutes,
+    )
+    target_coelution_by_target_sample = {
+        (entry.target_id, entry.sample_id): entry
+        for entry in transition_coelution.target_entries
+    }
+    transition_coelution_by_target_sample_transition = {
+        (entry.target_id, entry.sample_id, entry.transition_id): entry
+        for entry in transition_coelution.transition_entries
     }
     target_to_transitions = {
         target_id: sorted(
@@ -245,18 +277,12 @@ def build_targeted_assay_qc_report(
             or 0.0
             for transition_id in expected_transition_ids
         }
-        reference_retention_time = _median(
-            [
-                item.retention_time_minutes
-                for item in import_report.observations
-                if item.precursor_id == target_id and item.retention_time_minutes is not None
-            ]
-        )
         for sample_id in sample_ids:
             sample_observations = observations_by_sample[sample_id]
             observations_by_transition_id = {
                 item.transition_id: item for item in sample_observations
             }
+            target_coelution_entry = target_coelution_by_target_sample[(target_id, sample_id)]
             detected_transition_ids = {item.transition_id for item in sample_observations}
             detected_count = len(detected_transition_ids)
             missing_transition_ids = set(expected_transition_ids) - detected_transition_ids
@@ -311,41 +337,35 @@ def build_targeted_assay_qc_report(
                         flagged=ratio_flagged,
                     )
                 )
-            sample_retention_times = [
-                item.retention_time_minutes
-                for item in sample_observations
-                if item.retention_time_minutes is not None
-            ]
-            mean_retention_time = (
-                sum(sample_retention_times) / len(sample_retention_times)
-                if sample_retention_times
-                else None
-            )
-            absolute_delta = (
-                abs(mean_retention_time - reference_retention_time)
-                if mean_retention_time is not None and reference_retention_time is not None
-                else None
-            )
             retention_time_entries.append(
                 TargetedRetentionTimeConsistencyEntry(
                     target_id=target_id,
                     sample_id=sample_id,
                     observed_transition_count=len(sample_observations),
-                    mean_retention_time_minutes=mean_retention_time,
-                    reference_retention_time_minutes=reference_retention_time,
-                    absolute_delta_minutes=absolute_delta,
-                    flagged=(
-                        absolute_delta is not None
-                        and absolute_delta > retention_time_delta_threshold_minutes
+                    mean_retention_time_minutes=(
+                        target_coelution_entry.mean_retention_time_minutes
                     ),
+                    reference_retention_time_minutes=(
+                        target_coelution_entry.reference_retention_time_minutes
+                    ),
+                    absolute_delta_minutes=(
+                        target_coelution_entry.absolute_alignment_delta_minutes
+                    ),
+                    flagged=target_coelution_entry.alignment_flagged,
                 )
             )
 
+            coeluting_transition_ids: list[str] = []
             passing_transition_ids: list[str] = []
             failing_transition_ids: list[str] = []
             passing_total_intensity = 0.0
             for transition_id in expected_transition_ids:
                 observation = observations_by_transition_id.get(transition_id)
+                transition_coelution_entry = (
+                    transition_coelution_by_target_sample_transition[
+                        (target_id, sample_id, transition_id)
+                    ]
+                )
                 if observation is None:
                     transition_qc_entries.append(
                         TargetedTransitionQcEntry(
@@ -354,19 +374,33 @@ def build_targeted_assay_qc_report(
                             condition=condition_by_sample.get(sample_id),
                             transition_id=transition_id,
                             detected=False,
+                            coeluting=False,
                             passed=False,
-                            failure_reasons=("transition not observed",),
+                            failure_reasons=transition_coelution_entry.failure_reasons,
                         )
                     )
                     failing_transition_ids.append(transition_id)
                     continue
 
+                if transition_coelution_entry.coeluting:
+                    coeluting_transition_ids.append(transition_id)
                 quality_flagged = (
                     observation.quality_flag is not None
                     and observation.quality_flag != "pass"
                 )
                 ratio_flagged = transition_id in ratio_flags_for_sample
+                reference_alignment_flagged = (
+                    "transition is misaligned from the target reference window"
+                    in transition_coelution_entry.failure_reasons
+                )
+                coelution_failure_reasons = tuple(
+                    reason
+                    for reason in transition_coelution_entry.failure_reasons
+                    if reason != "transition is misaligned from the target reference window"
+                )
+                coelution_flagged = not transition_coelution_entry.coeluting
                 failure_reasons: list[str] = []
+                failure_reasons.extend(coelution_failure_reasons)
                 if quality_flagged:
                     failure_reasons.append("source quality flag is not pass")
                 if ratio_flagged:
@@ -402,6 +436,15 @@ def build_targeted_assay_qc_report(
                             )
                             - reference_relative_shares[transition_id]
                         ),
+                        coeluting=transition_coelution_entry.coeluting,
+                        coelution_flagged=coelution_flagged,
+                        reference_alignment_flagged=reference_alignment_flagged,
+                        coelution_delta_minutes=(
+                            transition_coelution_entry.coelution_delta_minutes
+                        ),
+                        reference_delta_minutes=(
+                            transition_coelution_entry.reference_delta_minutes
+                        ),
                         quality_flagged=quality_flagged,
                         ratio_flagged=ratio_flagged,
                         passed=passed,
@@ -411,15 +454,19 @@ def build_targeted_assay_qc_report(
 
             retention_entry = retention_time_entries[-1]
             reliability_reasons: list[str] = []
-            if len(passing_transition_ids) < 2:
+            if len(coeluting_transition_ids) < 2:
                 reliability_reasons.append(
-                    "fewer than two passing transitions support the target"
+                    "fewer than two coeluting transitions support the target"
+                )
+            elif len(passing_transition_ids) < 2:
+                reliability_reasons.append(
+                    "fewer than two coeluting transitions pass transition-quality review"
                 )
             if retention_entry.flagged:
                 reliability_reasons.append(
                     "retention time deviates from the target reference window"
                 )
-            transition_support_component = min(len(passing_transition_ids) / 2.0, 1.0)
+            transition_support_component = min(len(coeluting_transition_ids) / 2.0, 1.0)
             completeness_component = (
                 len(passing_transition_ids) / expected_count if expected_count else 0.0
             )
@@ -436,6 +483,8 @@ def build_targeted_assay_qc_report(
                     condition=condition_by_sample.get(sample_id),
                     expected_transition_count=expected_count,
                     observed_transition_count=detected_count,
+                    coeluting_transition_count=len(coeluting_transition_ids),
+                    coeluting_transition_ids=tuple(sorted(coeluting_transition_ids)),
                     passing_transition_count=len(passing_transition_ids),
                     passing_transition_ids=tuple(passing_transition_ids),
                     failing_transition_ids=tuple(sorted(failing_transition_ids)),
@@ -490,8 +539,12 @@ def build_targeted_assay_qc_report(
                 for entry in target_qc_entries
                 if entry.target_id == target_id and entry.sample_id == sample_id
             )
-            if target_qc_entry.passing_transition_count < 2:
-                reasons.append("fewer than two passing transitions support the target")
+            if target_qc_entry.coeluting_transition_count < 2:
+                reasons.append("fewer than two coeluting transitions support the target")
+            elif target_qc_entry.passing_transition_count < 2:
+                reasons.append(
+                    "fewer than two coeluting transitions pass transition-quality review"
+                )
             if ratio_flags_by_target_sample.get((target_id, sample_id)):
                 reasons.append("fragment-ion ratios deviate from the target reference pattern")
             retention_entry = next(
@@ -579,6 +632,7 @@ def build_targeted_assay_qc_report(
 
     return TargetedAssayQcReport(
         source_name=import_report.source_name,
+        transition_coelution=transition_coelution,
         target_qc=tuple(
             sorted(
                 target_qc_entries,
@@ -618,6 +672,15 @@ def build_targeted_assay_qc_report(
             target_qc_entry_count=len(target_qc_entries),
             reliable_target_entry_count=sum(entry.reliable for entry in target_qc_entries),
             transition_consistency_entry_count=len(consistency_entries),
+            coelution_target_entry_count=len(transition_coelution.target_entries),
+            flagged_coelution_target_entry_count=sum(
+                not entry.reliable_transition_support
+                for entry in transition_coelution.target_entries
+            ),
+            transition_coelution_entry_count=len(transition_coelution.transition_entries),
+            coeluting_transition_entry_count=sum(
+                entry.coeluting for entry in transition_coelution.transition_entries
+            ),
             transition_qc_entry_count=len(transition_qc_entries),
             passing_transition_qc_entry_count=sum(
                 entry.passed for entry in transition_qc_entries
@@ -637,7 +700,7 @@ def build_targeted_assay_qc_report(
             ),
         ),
         note=(
-            "targeted assay qc keeps target-level reliability, transition-level pass-fail evidence, transition consistency, fragment-ion ratio stability, retention-time consistency, replicate cv, and explicit unreliable-target review visible before any sample or target is trusted"
+            "targeted assay qc keeps target-level reliability, transition-level pass-fail evidence, transition consistency, transition coelution, fragment-ion ratio stability, retention-time consistency, replicate cv, and explicit unreliable-target review visible before any sample or target is trusted"
         ),
     )
 
@@ -688,6 +751,10 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             "target_qc_entry_count",
             "reliable_target_entry_count",
             "transition_consistency_entry_count",
+            "coelution_target_entry_count",
+            "flagged_coelution_target_entry_count",
+            "transition_coelution_entry_count",
+            "coeluting_transition_entry_count",
             "transition_qc_entry_count",
             "passing_transition_qc_entry_count",
             "fragment_ratio_entry_count",
@@ -708,6 +775,10 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             report.summary.target_qc_entry_count,
             report.summary.reliable_target_entry_count,
             report.summary.transition_consistency_entry_count,
+            report.summary.coelution_target_entry_count,
+            report.summary.flagged_coelution_target_entry_count,
+            report.summary.transition_coelution_entry_count,
+            report.summary.coeluting_transition_entry_count,
             report.summary.transition_qc_entry_count,
             report.summary.passing_transition_qc_entry_count,
             report.summary.fragment_ratio_entry_count,
@@ -735,6 +806,8 @@ def render_targeted_assay_qc_target_tsv(report: TargetedAssayQcReport) -> str:
             "condition",
             "expected_transition_count",
             "observed_transition_count",
+            "coeluting_transition_count",
+            "coeluting_transition_ids",
             "passing_transition_count",
             "passing_transition_ids",
             "failing_transition_ids",
@@ -758,6 +831,8 @@ def render_targeted_assay_qc_target_tsv(report: TargetedAssayQcReport) -> str:
                 "" if entry.condition is None else entry.condition,
                 entry.expected_transition_count,
                 entry.observed_transition_count,
+                entry.coeluting_transition_count,
+                ";".join(entry.coeluting_transition_ids),
                 entry.passing_transition_count,
                 ";".join(entry.passing_transition_ids),
                 ";".join(entry.failing_transition_ids),
@@ -836,6 +911,11 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
             "relative_share",
             "reference_relative_share",
             "absolute_share_delta",
+            "coeluting",
+            "coelution_flagged",
+            "reference_alignment_flagged",
+            "coelution_delta_minutes",
+            "reference_delta_minutes",
             "quality_flagged",
             "ratio_flagged",
             "passed",
@@ -862,6 +942,19 @@ def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) ->
                     ""
                     if entry.absolute_share_delta is None
                     else f"{entry.absolute_share_delta:g}"
+                ),
+                str(entry.coeluting).lower(),
+                str(entry.coelution_flagged).lower(),
+                str(entry.reference_alignment_flagged).lower(),
+                (
+                    ""
+                    if entry.coelution_delta_minutes is None
+                    else f"{entry.coelution_delta_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.reference_delta_minutes is None
+                    else f"{entry.reference_delta_minutes:g}"
                 ),
                 str(entry.quality_flagged).lower(),
                 str(entry.ratio_flagged).lower(),
@@ -905,6 +998,20 @@ def render_targeted_assay_qc_fragment_ratio_tsv(report: TargetedAssayQcReport) -
             ]
         )
     return buffer.getvalue()
+
+
+def render_targeted_assay_qc_coelution_tsv(report: TargetedAssayQcReport) -> str:
+    """Render target-level transition coelution review rows as TSV."""
+
+    return render_targeted_transition_coelution_target_tsv(report.transition_coelution)
+
+
+def render_targeted_assay_qc_transition_coelution_tsv(
+    report: TargetedAssayQcReport,
+) -> str:
+    """Render transition-level coelution review rows as TSV."""
+
+    return render_targeted_transition_coelution_transition_tsv(report.transition_coelution)
 
 
 def render_targeted_assay_qc_retention_tsv(report: TargetedAssayQcReport) -> str:
