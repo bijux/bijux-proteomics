@@ -478,6 +478,7 @@ from bijux_proteomics.targeted import (
 from bijux_proteomics.ptm import (
     PtmLocalizationColumnMapping,
     PtmMotifComparisonPolicy,
+    PtmMotifBackgroundMode,
     PtmMotifRegulationDirection,
     PtmPhosphositeSelectionPolicy,
     PtmProteinCorrectionMode,
@@ -17164,6 +17165,15 @@ def ptm_differential_command(
     show_default=True,
 )
 @click.option(
+    "--background-mode",
+    type=click.Choice(
+        [mode.value for mode in PtmMotifBackgroundMode],
+        case_sensitive=False,
+    ),
+    default=PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND.value,
+    show_default=True,
+)
+@click.option(
     "--min-frequency-difference",
     default=0.1,
     show_default=True,
@@ -17236,6 +17246,7 @@ def ptm_motif_enrichment_command(
     direction: str,
     include_ambiguous_regulated_sites: bool,
     include_ambiguous_background_sites: bool,
+    background_mode: str,
     min_frequency_difference: float,
     min_enrichment_ratio: float,
     max_reported_term_count: int,
@@ -17320,6 +17331,7 @@ def ptm_motif_enrichment_command(
                 include_ambiguous_background_sites=include_ambiguous_background_sites,
             ),
             comparison_policy=PtmMotifComparisonPolicy(
+                background_mode=PtmMotifBackgroundMode(background_mode.lower()),
                 min_frequency_difference=min_frequency_difference,
                 min_enrichment_ratio=min_enrichment_ratio,
                 max_reported_term_count=max_reported_term_count,

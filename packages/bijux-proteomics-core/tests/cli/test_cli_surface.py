@@ -8666,6 +8666,10 @@ def test_ptm_motif_enrichment_command_emits_windows_terms_and_logo() -> None:
                 "0.5",
                 "--direction",
                 "upregulated",
+                "--design-batch-field",
+                "",
+                "--background-mode",
+                "whole_proteome_background",
                 "--window-tsv-out",
                 "ptm.motif.windows.tsv",
                 "--frequency-tsv-out",
@@ -8681,11 +8685,16 @@ def test_ptm_motif_enrichment_command_emits_windows_terms_and_logo() -> None:
         payload = json.loads(result.output)
         assert payload["accepted_rows"] == 8
         assert payload["feature_rows"] == 12
+        assert (
+            payload["motif_enrichment_report"]["background_mode"]
+            == "whole_proteome_background"
+        )
         assert payload["motif_enrichment_report"]["regulated_site_count"] == 1
         assert any(
-            term["residue"] == "P" and term["exclusive_to_regulated"]
+            term["residue"] == "P"
             for term in payload["motif_enrichment_report"]["enriched_terms"]
         )
+        assert "whole_proteome_background" in Path("ptm.motif.windows.tsv").read_text()
         assert "centered_window" in Path("ptm.motif.windows.tsv").read_text()
         assert "regulated_frequency" in Path("ptm.motif.frequency.tsv").read_text()
         assert "exclusive_to_regulated" in Path("ptm.motif.terms.tsv").read_text()
