@@ -333,7 +333,7 @@ def _emit_api_envelope(
     data: Any | None,
     *,
     pretty: bool,
-    error: ErrorResponse | None = None,
+    error: Any | None = None,
     meta: dict[str, Any] | None = None,
     surface: str = "cli",
     correlation_key: str | None = None,
