@@ -75,3 +75,21 @@ def test_core_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> 
         "click",
         "pydantic",
     )
+
+
+def test_io_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.io")
+
+    assert hasattr(module, "parse_mzml")
+
+
+def test_quantification_package_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.quantification")
+
+    assert hasattr(module, "build_label_free_intensity_table")
+
+
+def test_interpretation_ppi_import_contract() -> None:
+    module = importlib.import_module("bijux_proteomics.interpretation")
+
+    assert hasattr(module, "build_ppi_network_module_report")
