@@ -1071,9 +1071,57 @@ class ImputationSensitivityEntry(JsonModel):
     method: ImputationMethod
     supported: bool
     imputed_value_count: int = Field(..., ge=0)
+    significant_entity_count: int = Field(default=0, ge=0)
     top_entity_id: str | None = None
     top_entity_direction: str | None = None
     top_entity_effect_size: float | None = None
+    note: str = Field(..., min_length=1)
+
+
+class ImputationSensitivityOverlapEntry(JsonModel):
+    """Pairwise overlap of significant hits across imputation methods."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    method_a: ImputationMethod
+    method_b: ImputationMethod
+    significant_entity_count_a: int = Field(..., ge=0)
+    significant_entity_count_b: int = Field(..., ge=0)
+    overlapping_significant_entity_count: int = Field(..., ge=0)
+    method_a_only_count: int = Field(..., ge=0)
+    method_b_only_count: int = Field(..., ge=0)
+    jaccard_index: float = Field(..., ge=0.0, le=1.0)
+
+
+class ImputationSensitivityChangedSignificanceEntry(JsonModel):
+    """One entity whose significance changes between two imputation methods."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    reference_method: ImputationMethod
+    compared_method: ImputationMethod
+    reference_significant: bool
+    compared_significant: bool
+    reference_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    compared_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    reference_log2_fold_change: float | None = None
+    compared_log2_fold_change: float | None = None
+    note: str = Field(..., min_length=1)
+
+
+class ImputationDependentHitEntry(JsonModel):
+    """One entity that becomes significant only after imputation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_id: str = Field(..., min_length=1)
+    baseline_method: ImputationMethod
+    imputation_methods: tuple[ImputationMethod, ...] = Field(default_factory=tuple)
+    baseline_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    best_imputation_method: ImputationMethod
+    best_imputation_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    best_imputation_log2_fold_change: float | None = None
     note: str = Field(..., min_length=1)
 
 
@@ -1084,7 +1132,18 @@ class ImputationSensitivityReport(JsonModel):
 
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    baseline_method: ImputationMethod = ImputationMethod.NONE
+    significance_threshold: float = Field(default=0.05, ge=0.0, le=1.0)
     entries: tuple[ImputationSensitivityEntry, ...] = Field(default_factory=tuple)
+    overlap_entries: tuple[ImputationSensitivityOverlapEntry, ...] = Field(
+        default_factory=tuple
+    )
+    changed_significance_entries: tuple[
+        ImputationSensitivityChangedSignificanceEntry, ...
+    ] = Field(default_factory=tuple)
+    imputation_dependent_hits: tuple[ImputationDependentHitEntry, ...] = Field(
+        default_factory=tuple
+    )
     primary_narrative_changed: bool
 
 
