@@ -14,11 +14,14 @@ from typing import Callable
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.dia.precursor_matrix import (
+    DiaPrecursorExclusionEntry,
+    DiaPrecursorExclusionReason,
     DiaPrecursorMatrixPolicy,
     DiaPrecursorMatrixReport,
     DiaPrecursorMatrixRow,
     DiaPrecursorMatrixValue,
     build_diann_precursor_matrix_report,
+    build_spectronaut_precursor_matrix_report,
 )
 from bijux_proteomics.identification.contracts import TargetDecoyLabel
 from bijux_proteomics_foundation import JsonModel
@@ -82,6 +85,9 @@ class DiaPeptideMatrixReport(JsonModel):
     rollup_method: DiaPeptideRollupMethod
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[DiaPeptideMatrixRow, ...] = Field(default_factory=tuple)
+    rollup_evidence_entries: tuple[DiaRollupEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaPeptideMatrixSummary
     note: str = Field(..., min_length=1)
 
@@ -105,6 +111,50 @@ class DiaProteinRollupMethod(StrEnum):
 
     SUM = "sum"
     MAX = "max"
+
+
+class DiaRollupEvidenceStage(StrEnum):
+    """Governed stages in the DIA precursor-to-protein rollup path."""
+
+    PRECURSOR_TO_PEPTIDE = "precursor_to_peptide"
+    PEPTIDE_TO_PROTEIN = "peptide_to_protein"
+
+
+class DiaRollupEvidenceEntityLevel(StrEnum):
+    """Target entity levels carried on DIA rollup evidence rows."""
+
+    PEPTIDE = "peptide"
+    PROTEIN = "protein"
+    PROTEIN_GROUP = "protein_group"
+
+
+class DiaRollupExclusionReason(StrEnum):
+    """Governed reasons for exclusion on DIA rollup evidence rows."""
+
+    DECOY_EXCLUDED = "decoy_excluded"
+    Q_VALUE_THRESHOLD = "q_value_threshold"
+    SHARED_PEPTIDE_POLICY = "shared_peptide_policy"
+
+
+class DiaRollupEvidenceEntry(JsonModel):
+    """One reviewable DIA rollup row across peptide and protein stages."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    rollup_stage: DiaRollupEvidenceStage
+    target_entity_level: DiaRollupEvidenceEntityLevel
+    target_entity_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    source_precursor_key: str | None = None
+    source_peptide_key: str | None = None
+    source_modified_peptide: str = Field(..., min_length=1)
+    source_protein_group_id: str = Field(..., min_length=1)
+    source_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    shared_peptide: bool
+    included: bool
+    exclusion_reason: DiaRollupExclusionReason | None = None
+    abundance: float | None = Field(default=None, ge=0.0)
+    q_value: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class DiaProteinMatrixValue(JsonModel):
@@ -145,6 +195,8 @@ class DiaProteinMatrixSummary(JsonModel):
     missing_cell_count: int = Field(..., ge=0)
     shared_peptide_row_count: int = Field(..., ge=0)
     excluded_shared_peptide_count: int = Field(..., ge=0)
+    excluded_precursor_count: int = Field(..., ge=0)
+    rollup_evidence_entry_count: int = Field(..., ge=0)
 
 
 class DiaProteinMatrixReport(JsonModel):
@@ -158,6 +210,9 @@ class DiaProteinMatrixReport(JsonModel):
     rollup_method: DiaProteinRollupMethod
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[DiaProteinMatrixRow, ...] = Field(default_factory=tuple)
+    rollup_evidence_entries: tuple[DiaRollupEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: DiaProteinMatrixSummary
     note: str = Field(..., min_length=1)
 
@@ -214,6 +269,58 @@ def build_diann_protein_matrix_report(
     )
 
 
+def build_spectronaut_peptide_matrix_report(
+    result_tsv_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+    rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+) -> DiaPeptideMatrixReport:
+    """Build a DIA peptide-by-sample matrix directly from one Spectronaut report."""
+
+    precursor_matrix = build_spectronaut_precursor_matrix_report(
+        result_tsv_path,
+        config_path=config_path,
+        policy=DiaPrecursorMatrixPolicy(
+            include_decoys=include_decoys,
+            max_q_value=max_q_value,
+        ),
+    )
+    return build_dia_peptide_matrix_report(
+        precursor_matrix,
+        rollup_method=rollup_method,
+    )
+
+
+def build_spectronaut_protein_matrix_report(
+    result_tsv_path: Path,
+    *,
+    config_path: Path | None = None,
+    include_decoys: bool = False,
+    max_q_value: float | None = None,
+    peptide_rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+    target_kind: DiaProteinMatrixTargetKind = DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+    shared_peptide_policy: DiaSharedPeptidePolicy = DiaSharedPeptidePolicy.INCLUDE,
+    protein_rollup_method: DiaProteinRollupMethod = DiaProteinRollupMethod.SUM,
+) -> DiaProteinMatrixReport:
+    """Build a DIA protein-by-sample matrix directly from one Spectronaut report."""
+
+    peptide_matrix = build_spectronaut_peptide_matrix_report(
+        result_tsv_path,
+        config_path=config_path,
+        include_decoys=include_decoys,
+        max_q_value=max_q_value,
+        rollup_method=peptide_rollup_method,
+    )
+    return build_dia_protein_matrix_report(
+        peptide_matrix,
+        target_kind=target_kind,
+        shared_peptide_policy=shared_peptide_policy,
+        rollup_method=protein_rollup_method,
+    )
+
+
 def build_dia_peptide_matrix_report(
     precursor_matrix: DiaPrecursorMatrixReport,
     *,
@@ -226,6 +333,10 @@ def build_dia_peptide_matrix_report(
         grouped.setdefault(_build_peptide_key(row), []).append(row)
 
     peptide_rows: list[DiaPeptideMatrixRow] = []
+    evidence_entries: list[DiaRollupEvidenceEntry] = [
+        _build_excluded_precursor_rollup_entry(entry)
+        for entry in precursor_matrix.excluded_entries
+    ]
     observed_cell_count = 0
     missing_cell_count = 0
     shared_peptide_row_count = 0
@@ -288,6 +399,26 @@ def build_dia_peptide_matrix_report(
                     detected=True,
                 )
             )
+            evidence_entries.extend(
+                DiaRollupEvidenceEntry(
+                    rollup_stage=DiaRollupEvidenceStage.PRECURSOR_TO_PEPTIDE,
+                    target_entity_level=DiaRollupEvidenceEntityLevel.PEPTIDE,
+                    target_entity_id=peptide_key,
+                    sample_id=observation.sample_id,
+                    source_precursor_key=precursor_row.precursor_key,
+                    source_peptide_key=peptide_key,
+                    source_modified_peptide=precursor_row.modified_peptide,
+                    source_protein_group_id=precursor_row.protein_group_id,
+                    source_protein_refs=precursor_row.protein_refs,
+                    shared_peptide=len(precursor_row.protein_refs) > 1,
+                    included=True,
+                    abundance=observation.abundance,
+                    q_value=observation.q_value,
+                )
+                for precursor_row in precursor_rows
+                for observation in precursor_row.values
+                if observation.sample_id == sample_id and observation.detected
+            )
         peptide_rows.append(
             DiaPeptideMatrixRow(
                 peptide_key=peptide_key,
@@ -307,9 +438,16 @@ def build_dia_peptide_matrix_report(
         )
 
     return DiaPeptideMatrixReport(
+        source_name=precursor_matrix.source_name,
         rollup_method=rollup_method,
         sample_ids=precursor_matrix.sample_ids,
         rows=tuple(peptide_rows),
+        rollup_evidence_entries=tuple(
+            sorted(
+                evidence_entries,
+                key=_rollup_evidence_sort_key,
+            )
+        ),
         summary=DiaPeptideMatrixSummary(
             peptide_row_count=len(peptide_rows),
             sample_count=len(precursor_matrix.sample_ids),
@@ -334,15 +472,30 @@ def build_dia_protein_matrix_report(
 
     grouped: dict[str, list[DiaPeptideMatrixRow]] = {}
     excluded_shared_peptide_count = 0
+    evidence_entries = list(peptide_matrix.rollup_evidence_entries)
     for row in peptide_matrix.rows:
         is_shared = len(row.protein_refs) > 1
-        if is_shared and shared_peptide_policy is DiaSharedPeptidePolicy.EXCLUDE:
-            excluded_shared_peptide_count += 1
-            continue
         target_ids = (
             row.protein_refs
             if target_kind is DiaProteinMatrixTargetKind.PROTEIN
             else (row.protein_group_id,)
+        )
+        if is_shared and shared_peptide_policy is DiaSharedPeptidePolicy.EXCLUDE:
+            excluded_shared_peptide_count += 1
+            evidence_entries.extend(
+                _build_excluded_shared_peptide_entries(
+                    row,
+                    target_ids=target_ids,
+                    target_kind=target_kind,
+                )
+            )
+            continue
+        evidence_entries.extend(
+            _build_included_protein_rollup_entries(
+                row,
+                target_ids=target_ids,
+                target_kind=target_kind,
+            )
         )
         for target_id in target_ids:
             grouped.setdefault(target_id, []).append(row)
@@ -430,11 +583,18 @@ def build_dia_protein_matrix_report(
         )
 
     return DiaProteinMatrixReport(
+        source_name=peptide_matrix.source_name,
         target_kind=target_kind,
         shared_peptide_policy=shared_peptide_policy,
         rollup_method=rollup_method,
         sample_ids=peptide_matrix.sample_ids,
         rows=tuple(protein_rows),
+        rollup_evidence_entries=tuple(
+            sorted(
+                evidence_entries,
+                key=_rollup_evidence_sort_key,
+            )
+        ),
         summary=DiaProteinMatrixSummary(
             protein_row_count=len(protein_rows),
             sample_count=len(peptide_matrix.sample_ids),
@@ -442,9 +602,16 @@ def build_dia_protein_matrix_report(
             missing_cell_count=missing_cell_count,
             shared_peptide_row_count=shared_peptide_row_count,
             excluded_shared_peptide_count=excluded_shared_peptide_count,
+            excluded_precursor_count=sum(
+                1
+                for entry in evidence_entries
+                if entry.rollup_stage is DiaRollupEvidenceStage.PRECURSOR_TO_PEPTIDE
+                and not entry.included
+            ),
+            rollup_evidence_entry_count=len(evidence_entries),
         ),
         note=(
-            "protein matrix preserves peptide-level DIA rollup and makes shared-peptide participation explicit before protein-level interpretation"
+            "protein matrix preserves peptide-level DIA rollup, keeps excluded precursors listed, and makes shared-peptide participation explicit before protein-level interpretation"
         ),
     )
 
@@ -520,6 +687,8 @@ def render_dia_protein_matrix_summary_tsv(report: DiaProteinMatrixReport) -> str
             "missing_cell_count",
             "shared_peptide_row_count",
             "excluded_shared_peptide_count",
+            "excluded_precursor_count",
+            "rollup_evidence_entry_count",
             "note",
         ]
     )
@@ -535,6 +704,8 @@ def render_dia_protein_matrix_summary_tsv(report: DiaProteinMatrixReport) -> str
             report.summary.missing_cell_count,
             report.summary.shared_peptide_row_count,
             report.summary.excluded_shared_peptide_count,
+            report.summary.excluded_precursor_count,
+            report.summary.rollup_evidence_entry_count,
             report.note,
         ]
     )
@@ -561,6 +732,55 @@ def render_dia_protein_q_value_matrix_tsv(report: DiaProteinMatrixReport) -> str
             "" if value.q_value is None else f"{value.q_value:.6g}"
         ),
     )
+
+
+def render_dia_protein_rollup_evidence_tsv(report: DiaProteinMatrixReport) -> str:
+    """Render one reviewable DIA protein rollup evidence ledger as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "rollup_stage",
+            "target_entity_level",
+            "target_entity_id",
+            "sample_id",
+            "source_precursor_key",
+            "source_peptide_key",
+            "source_modified_peptide",
+            "source_protein_group_id",
+            "source_protein_refs",
+            "shared_peptide",
+            "included",
+            "exclusion_reason",
+            "abundance",
+            "q_value",
+        ]
+    )
+    for entry in report.rollup_evidence_entries:
+        writer.writerow(
+            [
+                entry.rollup_stage.value,
+                entry.target_entity_level.value,
+                entry.target_entity_id,
+                entry.sample_id,
+                "" if entry.source_precursor_key is None else entry.source_precursor_key,
+                "" if entry.source_peptide_key is None else entry.source_peptide_key,
+                entry.source_modified_peptide,
+                entry.source_protein_group_id,
+                ";".join(entry.source_protein_refs),
+                str(entry.shared_peptide).lower(),
+                str(entry.included).lower(),
+                (
+                    ""
+                    if entry.exclusion_reason is None
+                    else entry.exclusion_reason.value
+                ),
+                "" if entry.abundance is None else f"{entry.abundance:g}",
+                "" if entry.q_value is None else f"{entry.q_value:.6g}",
+            ]
+        )
+    return buffer.getvalue()
 
 
 def export_dia_peptide_matrix_summary_tsv(
@@ -605,8 +825,23 @@ def export_dia_protein_q_value_matrix_tsv(
     path.write_text(render_dia_protein_q_value_matrix_tsv(report), encoding="utf-8")
 
 
+def export_dia_protein_rollup_evidence_tsv(
+    report: DiaProteinMatrixReport,
+    path: Path,
+) -> None:
+    path.write_text(render_dia_protein_rollup_evidence_tsv(report), encoding="utf-8")
+
+
 def _build_peptide_key(row: DiaPrecursorMatrixRow) -> str:
     return f"{row.modified_peptide}|{row.protein_group_id}"
+
+
+def _build_peptide_key_from_parts(
+    *,
+    modified_peptide: str,
+    protein_group_id: str,
+) -> str:
+    return f"{modified_peptide}|{protein_group_id}"
 
 
 def _sample_observations(
@@ -631,6 +866,122 @@ def _sample_peptide_observations(
         for value in row.values
         if value.sample_id == sample_id and value.detected
     ]
+
+
+def _build_excluded_precursor_rollup_entry(
+    entry: DiaPrecursorExclusionEntry,
+) -> DiaRollupEvidenceEntry:
+    peptide_key = _build_peptide_key_from_parts(
+        modified_peptide=entry.modified_peptide,
+        protein_group_id=entry.protein_group_id,
+    )
+    return DiaRollupEvidenceEntry(
+        rollup_stage=DiaRollupEvidenceStage.PRECURSOR_TO_PEPTIDE,
+        target_entity_level=DiaRollupEvidenceEntityLevel.PEPTIDE,
+        target_entity_id=peptide_key,
+        sample_id=entry.sample_id,
+        source_precursor_key=entry.precursor_key,
+        source_peptide_key=peptide_key,
+        source_modified_peptide=entry.modified_peptide,
+        source_protein_group_id=entry.protein_group_id,
+        source_protein_refs=entry.protein_refs,
+        shared_peptide=len(entry.protein_refs) > 1,
+        included=False,
+        exclusion_reason=_map_precursor_exclusion_reason(entry.reason),
+        q_value=entry.q_value,
+    )
+
+
+def _build_included_protein_rollup_entries(
+    row: DiaPeptideMatrixRow,
+    *,
+    target_ids: tuple[str, ...],
+    target_kind: DiaProteinMatrixTargetKind,
+) -> list[DiaRollupEvidenceEntry]:
+    entries: list[DiaRollupEvidenceEntry] = []
+    for target_id in target_ids:
+        for value in row.values:
+            if not value.detected:
+                continue
+            entries.append(
+                DiaRollupEvidenceEntry(
+                    rollup_stage=DiaRollupEvidenceStage.PEPTIDE_TO_PROTEIN,
+                    target_entity_level=_target_entity_level(target_kind),
+                    target_entity_id=target_id,
+                    sample_id=value.sample_id,
+                    source_peptide_key=row.peptide_key,
+                    source_modified_peptide=row.modified_peptide,
+                    source_protein_group_id=row.protein_group_id,
+                    source_protein_refs=row.protein_refs,
+                    shared_peptide=len(row.protein_refs) > 1,
+                    included=True,
+                    abundance=value.abundance,
+                    q_value=value.q_value,
+                )
+            )
+    return entries
+
+
+def _build_excluded_shared_peptide_entries(
+    row: DiaPeptideMatrixRow,
+    *,
+    target_ids: tuple[str, ...],
+    target_kind: DiaProteinMatrixTargetKind,
+) -> list[DiaRollupEvidenceEntry]:
+    entries: list[DiaRollupEvidenceEntry] = []
+    for target_id in target_ids:
+        for value in row.values:
+            if not value.detected:
+                continue
+            entries.append(
+                DiaRollupEvidenceEntry(
+                    rollup_stage=DiaRollupEvidenceStage.PEPTIDE_TO_PROTEIN,
+                    target_entity_level=_target_entity_level(target_kind),
+                    target_entity_id=target_id,
+                    sample_id=value.sample_id,
+                    source_peptide_key=row.peptide_key,
+                    source_modified_peptide=row.modified_peptide,
+                    source_protein_group_id=row.protein_group_id,
+                    source_protein_refs=row.protein_refs,
+                    shared_peptide=True,
+                    included=False,
+                    exclusion_reason=DiaRollupExclusionReason.SHARED_PEPTIDE_POLICY,
+                    abundance=value.abundance,
+                    q_value=value.q_value,
+                )
+            )
+    return entries
+
+
+def _map_precursor_exclusion_reason(
+    reason: DiaPrecursorExclusionReason,
+) -> DiaRollupExclusionReason:
+    if reason is DiaPrecursorExclusionReason.DECOY_EXCLUDED:
+        return DiaRollupExclusionReason.DECOY_EXCLUDED
+    return DiaRollupExclusionReason.Q_VALUE_THRESHOLD
+
+
+def _target_entity_level(
+    target_kind: DiaProteinMatrixTargetKind,
+) -> DiaRollupEvidenceEntityLevel:
+    if target_kind is DiaProteinMatrixTargetKind.PROTEIN:
+        return DiaRollupEvidenceEntityLevel.PROTEIN
+    return DiaRollupEvidenceEntityLevel.PROTEIN_GROUP
+
+
+def _rollup_evidence_sort_key(
+    entry: DiaRollupEvidenceEntry,
+) -> tuple[str, str, str, str, str, str, str, str]:
+    return (
+        entry.rollup_stage.value,
+        entry.target_entity_level.value,
+        entry.target_entity_id,
+        entry.sample_id,
+        "" if entry.source_peptide_key is None else entry.source_peptide_key,
+        "" if entry.source_precursor_key is None else entry.source_precursor_key,
+        str(entry.included),
+        "" if entry.exclusion_reason is None else entry.exclusion_reason.value,
+    )
 
 
 def _combine_target_decoy_labels(
