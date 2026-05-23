@@ -16,6 +16,7 @@ from bijux_proteomics.quantification import (
     build_protein_lfq_report_from_peptides,
     build_protein_lfq_report_from_psms,
     parse_ms1_feature_table,
+    render_protein_lfq_disconnected_components_tsv,
     render_protein_lfq_matrix_tsv,
     render_protein_lfq_missingness_tsv,
     render_protein_lfq_pairwise_ratios_tsv,
@@ -83,6 +84,7 @@ def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status
     assert p2.fully_connected is False
     assert p2.connected_component_count == 2
     assert p2.pairwise_ratio_count == 1
+    assert lfq.summary.disconnected_component_entry_count == 2
 
     value_lookup = {value.sample_id: value for value in p2.values}
     assert value_lookup["S1"].component_id == 1
@@ -96,6 +98,21 @@ def test_protein_lfq_handles_disconnected_missing_peptides_with_component_status
         rel_tol=1e-6,
     )
     assert value_lookup["S3"].abundance is not None
+
+    disconnected_components = {
+        entry.component_id: entry
+        for entry in lfq.disconnected_components
+        if entry.entity_id == "P2"
+    }
+    assert tuple(sorted(disconnected_components)) == (1, 2)
+    assert disconnected_components[1].sample_ids == ("S1", "S2")
+    assert disconnected_components[1].disconnected_from_sample_ids == ("S3",)
+    assert disconnected_components[1].pairwise_ratio_count == 1
+    assert disconnected_components[1].contributing_peptides == ("DISCAAK",)
+    assert disconnected_components[2].sample_ids == ("S3",)
+    assert disconnected_components[2].disconnected_from_sample_ids == ("S1", "S2")
+    assert disconnected_components[2].pairwise_ratio_count == 0
+    assert disconnected_components[2].contributing_peptides == ("DISCVVK",)
 
 
 def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_ledgers() -> (
@@ -127,6 +144,7 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
     summary_tsv = render_protein_lfq_summary_tsv(lfq)
     matrix_tsv = render_protein_lfq_matrix_tsv(lfq)
     pairwise_tsv = render_protein_lfq_pairwise_ratios_tsv(lfq)
+    disconnected_tsv = render_protein_lfq_disconnected_components_tsv(lfq)
     missingness_tsv = render_protein_lfq_missingness_tsv(lfq)
 
     assert (
@@ -147,6 +165,13 @@ def test_protein_lfq_from_psms_skips_rows_without_run_or_intensity_and_renders_l
     assert (
         "sample_id\tobserved_count\tzero_count\tnot_observed_count\tfiltered_count"
         in missingness_tsv
+    )
+    assert (
+        "entity_id\ttarget_kind\tprotein_refs\tcomponent_id\tsample_ids\tdisconnected_from_sample_ids\tsample_count\tpairwise_ratio_count\tcontributing_peptides"
+        in disconnected_tsv
+    )
+    assert disconnected_tsv == (
+        "entity_id\ttarget_kind\tprotein_refs\tcomponent_id\tsample_ids\tdisconnected_from_sample_ids\tsample_count\tpairwise_ratio_count\tcontributing_peptides\n"
     )
 
 
