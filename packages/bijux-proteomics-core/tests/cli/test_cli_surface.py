@@ -64,7 +64,7 @@ def test_program_template_writes_manifest() -> None:
         assert manifest["document_schema"]["schema_version"] == "1.0.0"
 
 
-def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() -> None:
+def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
         interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
@@ -92,8 +92,8 @@ def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() 
                 "protein_annotation_custom.tsv",
                 "--summary-tsv-out",
                 "protein_annotation.summary.tsv",
-                "--mapped-tsv-out",
-                "protein_annotation.mapped.tsv",
+                "--annotated-tsv-out",
+                "protein_annotation.annotated.tsv",
                 "--unmapped-tsv-out",
                 "protein_annotation.unmapped.tsv",
                 "--rejected-input-tsv-out",
@@ -111,10 +111,11 @@ def test_annotate_proteins_command_emits_mapped_unmapped_and_rejected_ledgers() 
         assert Path("protein_annotation.summary.tsv").read_text().splitlines()[
             0
         ].startswith("input_entry_count\tmapped_entry_count")
-        assert "TRP53" in Path("protein_annotation.mapped.tsv").read_text()
+        assert "TRP53" in Path("protein_annotation.annotated.tsv").read_text()
+        assert "annotation_status" in Path("protein_annotation.annotated.tsv").read_text()
         assert (
             Path("protein_annotation.unmapped.tsv").read_text().splitlines()[0]
-            == "row_number\tsource_row_id\tinput_protein_ref\tprotein_ref\tinput_metadata\treason"
+            == "row_number\tsource_row_id\tinput_protein_ref\tprotein_ref\taccession_aliases\tinput_metadata\treason"
         )
         assert (
             "protein row requires at least one protein reference"
@@ -5414,6 +5415,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert (report_dir / "biological_report.html").exists()
         assert "annotation_entry_count" in (
             report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "annotation_status" in (
+            report_dir / "biological_annotations.tsv"
         ).read_text(encoding="utf-8")
         assert "gene_symbol" in (
             report_dir / "biological_annotations.tsv"

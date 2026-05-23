@@ -46,7 +46,7 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert manifest.complex_summary_included is True
     assert (output_dir / manifest.artifacts.summary_tsv).exists()
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
-    assert (output_dir / manifest.artifacts.annotation_mapped_tsv).exists()
+    assert (output_dir / manifest.artifacts.annotation_tsv).exists()
     assert (output_dir / manifest.artifacts.go_term_tsv).exists()
     assert (output_dir / manifest.artifacts.pathway_entry_tsv).exists()
     assert (output_dir / manifest.artifacts.complex_entry_tsv).exists()
@@ -60,8 +60,11 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert "annotation_entry_count" in (
         output_dir / manifest.artifacts.summary_tsv
     ).read_text(encoding="utf-8")
+    assert "annotation_status" in (
+        output_dir / manifest.artifacts.annotation_tsv
+    ).read_text(encoding="utf-8")
     assert "gene_symbol" in (
-        output_dir / manifest.artifacts.annotation_mapped_tsv
+        output_dir / manifest.artifacts.annotation_tsv
     ).read_text(encoding="utf-8")
     assert "go_term_id" in (
         output_dir / manifest.artifacts.go_term_tsv
