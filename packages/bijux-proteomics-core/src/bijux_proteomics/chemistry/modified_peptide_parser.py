@@ -17,7 +17,7 @@ from bijux_proteomics.chemistry.contracts import (
     canonicalize_modified_peptide,
     parse_modified_peptide,
 )
-from bijux_proteomics.domain import ModifiedPeptide as CanonicalModifiedPeptide
+from bijux_proteomics.domain.records import ModifiedPeptide as CanonicalModifiedPeptide
 from bijux_proteomics_foundation import JsonModel
 
 
