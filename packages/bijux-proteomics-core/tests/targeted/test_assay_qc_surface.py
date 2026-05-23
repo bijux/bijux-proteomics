@@ -32,6 +32,10 @@ def test_build_targeted_assay_qc_report_keeps_transition_consistency_visible() -
     assert report.summary.target_count == 2
     assert report.summary.sample_count == 4
     assert report.summary.transition_consistency_entry_count == 8
+    assert report.summary.coelution_target_entry_count == 8
+    assert report.summary.flagged_coelution_target_entry_count == 3
+    assert report.summary.transition_coelution_entry_count == 16
+    assert report.summary.coeluting_transition_entry_count == 14
     assert report.transition_consistency[0].target_id == "ACDMPEP/3"
     assert report.transition_consistency[0].consistency_fraction == 1.0
     missing_transition_entry = next(
@@ -52,6 +56,7 @@ def test_build_targeted_assay_qc_report_keeps_transition_consistency_visible() -
         and entry.transition_id == "y8"
     )
     assert missing_transition_qc.detected is False
+    assert missing_transition_qc.coeluting is False
     assert missing_transition_qc.passed is False
     assert missing_transition_qc.failure_reasons == ("transition not observed",)
 
@@ -80,8 +85,12 @@ def test_build_targeted_assay_qc_report_keeps_fragment_ratios_visible() -> None:
         and entry.transition_id == "y6"
     )
     assert failing_transition_qc.quality_flagged is True
+    assert failing_transition_qc.coeluting is True
+    assert failing_transition_qc.coelution_flagged is False
     assert failing_transition_qc.passed is False
-    assert failing_transition_qc.failure_reasons == ("source quality flag is not pass",)
+    assert failing_transition_qc.failure_reasons == (
+        "source quality flag is not pass",
+    )
 
 
 def test_build_targeted_assay_qc_report_keeps_retention_consistency_visible() -> None:
@@ -106,9 +115,11 @@ def test_build_targeted_assay_qc_report_keeps_retention_consistency_visible() ->
         for entry in report.target_qc
         if entry.target_id == "ACDMPEP/3" and entry.sample_id == "treat_r2"
     )
+    assert target_qc_entry.coeluting_transition_count == 1
+    assert target_qc_entry.coeluting_transition_ids == ("y5",)
     assert target_qc_entry.reliable is False
     assert target_qc_entry.reliability_reasons == (
-        "fewer than two passing transitions support the target",
+        "fewer than two coeluting transitions support the target",
         "replicate cv is above the configured threshold",
         "retention time deviates from the target reference window",
     )
@@ -148,10 +159,12 @@ def test_build_targeted_assay_qc_report_flags_unreliable_targets_explicitly() ->
         for entry in report.target_qc
         if entry.target_id == "PEPTIDEK/2" and entry.sample_id == "treat_r1"
     )
+    assert sample_target_qc.coeluting_transition_count == 2
+    assert sample_target_qc.coeluting_transition_ids == ("y7", "y8")
     assert sample_target_qc.passing_transition_count == 1
     assert sample_target_qc.reliable is False
     assert sample_target_qc.reliability_reasons == (
-        "fewer than two passing transitions support the target",
+        "fewer than two coeluting transitions pass transition-quality review",
     )
     sample_level_flag = next(
         entry
@@ -162,7 +175,7 @@ def test_build_targeted_assay_qc_report_flags_unreliable_targets_explicitly() ->
     assert sample_level_flag.flagged_transition_ids == ("y8",)
     assert sample_level_flag.quality_flags == ("interference",)
     assert sample_level_flag.reasons == (
-        "fewer than two passing transitions support the target",
+        "fewer than two coeluting transitions pass transition-quality review",
         "fragment-ion ratios deviate from the target reference pattern",
         "source quality flags require review",
     )
