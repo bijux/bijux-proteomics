@@ -8072,6 +8072,42 @@ def test_ptm_map_sites_command_emits_site_mapping_ledgers() -> None:
         )
 
 
+def test_ptm_map_sites_command_exports_separate_multi_modified_candidates() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        ptm_fixture_dir = FIXTURE_ROOT / "ptm"
+        fasta_fixture_dir = FIXTURE_ROOT / "fasta"
+        shutil.copy(
+            ptm_fixture_dir / "multi_localization_results.tsv",
+            "multi_localization_results.tsv",
+        )
+        shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
+
+        result = runner.invoke(
+            cli,
+            [
+                "ptm",
+                "map-sites",
+                "multi_localization_results.tsv",
+                "ptm_sites.fasta",
+                "--candidate-tsv-out",
+                "ptm.candidates.tsv",
+                "--mapping-tsv-out",
+                "ptm.mapping.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["accepted_rows"] == 1
+        assert payload["site_candidate_count"] == 2
+        assert payload["mapping_count"] == 4
+        assert "Phospho\tUNIMOD:21\tS\t2" in Path("ptm.candidates.tsv").read_text()
+        assert "Phospho\tUNIMOD:21\tY\t4" in Path("ptm.candidates.tsv").read_text()
+        assert "\t2\t17\t" in Path("ptm.mapping.tsv").read_text()
+        assert "\t4\t19\t" in Path("ptm.mapping.tsv").read_text()
+
+
 def test_ptm_ambiguity_review_command_emits_localized_and_group_quant_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
