@@ -18,7 +18,10 @@ from pathlib import Path
 import numpy as np
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
-from bijux_proteomics.chemistry import canonicalize_modified_peptide
+from bijux_proteomics.chemistry import (
+    canonicalize_modified_peptide,
+    parse_modified_peptide,
+)
 from bijux_proteomics.domain.records import ImportedEvidenceProvenance
 from bijux_proteomics.domain.records import (
     MissingValueState as CanonicalMissingValueState,
@@ -213,6 +216,102 @@ class Ms1FeatureParseReport(JsonModel):
     accepted_records: tuple[Ms1FeatureRecord, ...] = Field(default_factory=tuple)
     rejected_rows: tuple[RejectedMs1FeatureRow, ...] = Field(default_factory=tuple)
     column_mapping: Ms1FeatureColumnMapping
+
+
+class PrecursorIntensityColumnMapping(JsonModel):
+    """User-supplied mapping from precursor-quant columns to the quant contract."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    peptide: str = Field(..., min_length=1)
+    intensity: str = Field(..., min_length=1)
+    sample_id: str | None = "sample_id"
+    run_id: str | None = "run_id"
+    modified_peptide: str | None = None
+    protein_refs: str | None = None
+    precursor_id: str | None = None
+    charge: str | None = None
+    missing_reason: str | None = None
+    protein_separator: str = ";"
+
+    @model_validator(mode="after")
+    def _require_sample_or_run_column(self) -> PrecursorIntensityColumnMapping:
+        if self.sample_id is None and self.run_id is None:
+            raise ValueError("precursor intensity mapping requires sample_id or run_id")
+        return self
+
+
+class RejectedPrecursorIntensityRow(JsonModel):
+    """One rejected precursor-intensity row with stable issue details."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    raw_fields: dict[str, str] = Field(default_factory=dict)
+    issues: tuple[QuantValidationIssue, ...] = Field(default_factory=tuple)
+
+
+class PrecursorIntensityRecord(JsonModel):
+    """One normalized precursor-intensity quantification row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    precursor_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    run_id: str | None = None
+    peptide_sequence: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
+    canonical_peptide: str = Field(..., min_length=1)
+    intensity: float | None = Field(default=None, ge=0.0)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    charge: int | None = Field(default=None, ge=1)
+    missing_value_kind: MissingValueKind = MissingValueKind.OBSERVED
+    missing_reason: str | None = None
+    provenance: ImportedEvidenceProvenance | None = None
+
+    @field_validator(
+        "precursor_id",
+        "sample_id",
+        "run_id",
+        "peptide_sequence",
+        "modified_peptide",
+        "canonical_peptide",
+        "missing_reason",
+        mode="before",
+    )
+    @classmethod
+    def _strip_precursor_text(cls, value: object) -> str | None:
+        if value is None:
+            return None
+        text = str(value).strip()
+        return text or None
+
+    @field_validator("protein_refs", mode="before")
+    @classmethod
+    def _normalize_precursor_protein_refs(cls, value: object) -> tuple[str, ...]:
+        if value in (None, ""):
+            return ()
+        if isinstance(value, str):
+            refs: tuple[str, ...] = (value,)
+        else:
+            if not isinstance(value, Iterable):
+                raise ValueError("protein references must be iterable")
+            refs = tuple(str(token) for token in value)
+        normalized = tuple(token.strip() for token in refs if token.strip())
+        return tuple(dict.fromkeys(normalized))
+
+
+class PrecursorIntensityParseReport(JsonModel):
+    """Stable parse report for one precursor-intensity quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    total_rows: int = Field(..., ge=0)
+    accepted_records: tuple[PrecursorIntensityRecord, ...] = Field(default_factory=tuple)
+    rejected_rows: tuple[RejectedPrecursorIntensityRow, ...] = Field(
+        default_factory=tuple
+    )
+    column_mapping: PrecursorIntensityColumnMapping
 
 
 class QuantValue(JsonModel):
@@ -2917,6 +3016,234 @@ def parse_ms1_feature_table(
         ),
     )
     return Ms1FeatureParseReport(
+        total_rows=len(accepted) + len(rejected),
+        accepted_records=tuple(accepted),
+        rejected_rows=tuple(rejected),
+        column_mapping=active_mapping,
+    )
+
+
+def parse_precursor_intensity_table(
+    path: Path,
+    *,
+    mapping: PrecursorIntensityColumnMapping | None = None,
+) -> PrecursorIntensityParseReport:
+    """Parse one precursor-intensity table into stable precursor records."""
+
+    active_mapping = mapping or PrecursorIntensityColumnMapping(
+        peptide="peptide",
+        modified_peptide="modified_peptide",
+        intensity="intensity",
+        sample_id="sample_id",
+        run_id="run_id",
+        protein_refs="proteins",
+        precursor_id="precursor_id",
+        charge="charge",
+        missing_reason="missing_reason",
+    )
+
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if not lines:
+        return PrecursorIntensityParseReport(
+            total_rows=0,
+            column_mapping=active_mapping,
+        )
+    reader = csv.DictReader(lines, delimiter=_detect_delimiter(lines[0]))
+    if reader.fieldnames is None:
+        raise ValueError("precursor intensity table must include a header row")
+
+    required_columns = {active_mapping.peptide, active_mapping.intensity}
+    missing_columns = required_columns - set(reader.fieldnames)
+    if missing_columns:
+        raise ValueError(
+            "precursor intensity table is missing required columns: "
+            + ", ".join(sorted(missing_columns))
+        )
+    sample_column_present = (
+        active_mapping.sample_id is not None
+        and active_mapping.sample_id in reader.fieldnames
+    )
+    run_column_present = (
+        active_mapping.run_id is not None and active_mapping.run_id in reader.fieldnames
+    )
+    if not sample_column_present and not run_column_present:
+        expected_columns = tuple(
+            column
+            for column in (active_mapping.sample_id, active_mapping.run_id)
+            if column is not None
+        )
+        raise ValueError(
+            "precursor intensity table is missing required sample or run column: "
+            + ", ".join(expected_columns)
+        )
+
+    accepted: list[PrecursorIntensityRecord] = []
+    rejected: list[RejectedPrecursorIntensityRow] = []
+    for row_number, row in enumerate(reader, start=2):
+        raw_fields = {
+            str(key): str(value or "") for key, value in row.items() if key is not None
+        }
+        issues: list[QuantValidationIssue] = []
+        sample_token = (
+            raw_fields.get(active_mapping.sample_id, "").strip()
+            if active_mapping.sample_id is not None
+            else ""
+        )
+        run_token = (
+            raw_fields.get(active_mapping.run_id, "").strip()
+            if active_mapping.run_id is not None
+            else ""
+        )
+        sample_id = sample_token or run_token
+        if not sample_id:
+            issues.append(
+                _row_issue(
+                    "missing_sample_or_run",
+                    "missing sample or run identifier",
+                    row_number,
+                )
+            )
+
+        peptide_token = raw_fields.get(active_mapping.peptide, "").strip()
+        modified_peptide_token = (
+            raw_fields.get(active_mapping.modified_peptide, "").strip()
+            if active_mapping.modified_peptide
+            else ""
+        )
+        peptide_notation = modified_peptide_token or peptide_token
+        if not peptide_notation:
+            issues.append(
+                _row_issue(
+                    "missing_peptide",
+                    "missing peptide or modified peptide identifier",
+                    row_number,
+                )
+            )
+            peptide_sequence = ""
+            canonical_peptide = ""
+        else:
+            try:
+                canonical_peptide = canonicalize_modified_peptide(peptide_notation)
+                peptide_sequence = peptide_token or parse_modified_peptide(
+                    canonical_peptide
+                ).sequence
+            except ValueError as exc:
+                issues.append(
+                    _row_issue("invalid_peptide_notation", str(exc), row_number)
+                )
+                peptide_sequence = peptide_token
+                canonical_peptide = peptide_notation
+
+        intensity_token = raw_fields.get(active_mapping.intensity, "").strip()
+        missing_reason = (
+            raw_fields.get(active_mapping.missing_reason, "").strip()
+            if active_mapping.missing_reason
+            else ""
+        )
+        normalized_missing_reason = missing_reason.strip().lower()
+        intensity: float | None
+        missing_value_kind: MissingValueKind
+        if not intensity_token:
+            intensity = None
+            if normalized_missing_reason == "filtered":
+                missing_value_kind = MissingValueKind.FILTERED
+            else:
+                missing_value_kind = MissingValueKind.NOT_OBSERVED
+        else:
+            try:
+                intensity = float(intensity_token)
+            except ValueError:
+                issues.append(
+                    _row_issue(
+                        "invalid_intensity", "invalid intensity value", row_number
+                    )
+                )
+                intensity = None
+            if intensity is not None and intensity < 0:
+                issues.append(
+                    _row_issue(
+                        "negative_intensity",
+                        "intensity must be non-negative",
+                        row_number,
+                    )
+                )
+            if intensity is not None and intensity == 0.0:
+                missing_value_kind = MissingValueKind.ZERO
+            else:
+                missing_value_kind = MissingValueKind.OBSERVED
+
+        charge: int | None = None
+        if active_mapping.charge:
+            charge_token = raw_fields.get(active_mapping.charge, "").strip()
+            if charge_token:
+                try:
+                    charge = int(charge_token)
+                    if charge < 1:
+                        raise ValueError
+                except ValueError:
+                    issues.append(
+                        _row_issue("invalid_charge", "invalid charge value", row_number)
+                    )
+
+        protein_refs = _parse_protein_refs(
+            raw_fields.get(active_mapping.protein_refs, "")
+            if active_mapping.protein_refs
+            else "",
+            active_mapping.protein_separator,
+        )
+
+        precursor_id = (
+            raw_fields.get(active_mapping.precursor_id, "").strip()
+            if active_mapping.precursor_id
+            else ""
+        ) or f"precursor-{row_number}"
+        if issues:
+            rejected.append(
+                RejectedPrecursorIntensityRow(
+                    row_number=row_number,
+                    raw_fields=raw_fields,
+                    issues=tuple(issues),
+                )
+            )
+            continue
+
+        accepted.append(
+            PrecursorIntensityRecord(
+                precursor_id=precursor_id,
+                sample_id=sample_id,
+                run_id=run_token or None,
+                peptide_sequence=peptide_sequence,
+                modified_peptide=modified_peptide_token or None,
+                canonical_peptide=canonical_peptide,
+                intensity=intensity,
+                protein_refs=protein_refs,
+                charge=charge,
+                missing_value_kind=missing_value_kind,
+                missing_reason=missing_reason or None,
+                provenance=ImportedEvidenceProvenance.from_single_row(
+                    source_engine="precursor-intensity-table",
+                    source_file=str(path),
+                    source_row_number=row_number,
+                    original_identifiers={
+                        "precursor_id": precursor_id,
+                        "sample_id": sample_id,
+                        "run_id": run_token,
+                        "peptide": peptide_sequence,
+                        "modified_peptide": modified_peptide_token or peptide_sequence,
+                    },
+                ),
+            )
+        )
+
+    accepted = sorted(
+        accepted,
+        key=lambda record: (
+            record.sample_id,
+            record.canonical_peptide,
+            record.precursor_id,
+        ),
+    )
+    return PrecursorIntensityParseReport(
         total_rows=len(accepted) + len(rejected),
         accepted_records=tuple(accepted),
         rejected_rows=tuple(rejected),
