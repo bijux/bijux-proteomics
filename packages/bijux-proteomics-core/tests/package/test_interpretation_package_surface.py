@@ -54,3 +54,29 @@ def test_interpretation_package_exports_complete_protein_annotation_surface() ->
     assert "annotation_status" in rendered.splitlines()[0]
     assert "UNKNOWN123" in rendered
     assert "unmapped" in rendered
+
+
+def test_interpretation_package_exports_protein_set_enrichment_surface() -> None:
+    foreground = interpretation.parse_protein_reference_table(
+        _fixture_path("protein_set_enrichment_foreground.tsv")
+    )
+    protein_sets = interpretation.parse_protein_set_table(
+        _fixture_path("protein_set_enrichment.tsv")
+    )
+    report = interpretation.build_protein_set_enrichment_report(
+        foreground.accepted_entries,
+        protein_sets.accepted_records,
+        policy=interpretation.ProteinSetEnrichmentPolicy(
+            missing_background_policy=(
+                interpretation.ProteinSetEnrichmentMissingBackgroundPolicy.MEMBERSHIP_UNIVERSE
+            ),
+            max_adjusted_p_value=1.0,
+            min_enrichment_ratio=0.0,
+        ),
+    )
+
+    assert hasattr(interpretation, "render_protein_set_enrichment_tsv")
+    rendered = interpretation.render_protein_set_enrichment_tsv(report)
+
+    assert "set_category" in rendered.splitlines()[0]
+    assert "nucleus" in rendered
