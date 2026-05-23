@@ -48,9 +48,10 @@ def test_ptm_site_quantification_report_builds_site_by_sample_matrix() -> None:
         feature_records=features.accepted_records,
     )
 
-    assert report.summary.site_row_count == 5
+    assert report.summary.site_row_count == 3
     assert report.summary.sample_count == 4
     assert report.summary.ambiguous_row_count == 2
+    assert report.summary.ambiguous_group_row_count == 2
     target = next(row for row in report.rows if row.site_key == "P11111:S5:Phospho")
     lookup = {value.sample_id: value for value in target.values}
 
@@ -60,7 +61,7 @@ def test_ptm_site_quantification_report_builds_site_by_sample_matrix() -> None:
     assert lookup["T2"].abundance == 790.0
 
 
-def test_ptm_site_quantification_report_preserves_ambiguous_site_signal() -> None:
+def test_ptm_site_quantification_report_routes_ambiguous_signal_to_group_matrix() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
     mappings = map_ptm_evidence_to_protein_sites(
         evidence.accepted_records,
@@ -74,11 +75,16 @@ def test_ptm_site_quantification_report_preserves_ambiguous_site_signal() -> Non
         feature_records=features.accepted_records,
     )
 
-    ambiguous = next(row for row in report.rows if row.site_key == "P11111:S17:Phospho")
+    assert all(row.ambiguous is False for row in report.rows)
+    assert all(row.site_key != "P11111:S17:Phospho" for row in report.rows)
+    assert report.ambiguous_group_quantification is not None
+    ambiguous = next(
+        row
+        for row in report.ambiguous_group_quantification.rows
+        if row.group_key == "P11111:Phospho:17|18|19"
+    )
     lookup = {value.sample_id: value for value in ambiguous.values}
 
-    assert ambiguous.ambiguous is True
-    assert ambiguous.shared_peptide is True
     assert lookup["C1"].abundance == 60.0
     assert lookup["T1"].abundance == 140.0
 
@@ -100,8 +106,17 @@ def test_ptm_site_quantification_report_can_exclude_ambiguous_sites() -> None:
 
     assert report.ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
     assert report.summary.site_row_count == 3
+    assert report.summary.ambiguous_group_row_count == 0
     assert report.summary.excluded_ambiguous_row_count == 2
+    assert report.ambiguous_group_quantification is None
     assert report.excluded_ambiguous_site_keys == (
         "P11111:S17:Phospho",
         "P22222:S4:Phospho",
     )
+    excluded = next(
+        row
+        for row in report.excluded_ambiguous_rows
+        if row.site_key == "P11111:S17:Phospho"
+    )
+    assert excluded.group_key == "P11111:Phospho:17|18|19"
+    assert excluded.localized_peptides == ("AS[Phospho]TYK",)

@@ -108,6 +108,10 @@ def test_ptm_quantification_renderers_are_deterministic_under_equivalent_tuple_o
                     ]
                 )
             ),
+            "ambiguous_group_quantification": report.ambiguous_group_quantification,
+            "excluded_ambiguous_rows": tuple(
+                reversed(report.excluded_ambiguous_rows)
+            ),
             "excluded_ambiguous_site_keys": tuple(
                 reversed(report.excluded_ambiguous_site_keys)
             ),

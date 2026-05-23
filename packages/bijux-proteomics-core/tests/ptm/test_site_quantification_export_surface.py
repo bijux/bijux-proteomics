@@ -61,5 +61,7 @@ def test_ptm_site_quantification_tsv_renderers_preserve_matrix_and_exclusions() 
 
     assert summary_tsv.splitlines()[0].startswith("ambiguity_policy\tsite_row_count")
     assert "P11111:S5:Phospho" in matrix_tsv
+    assert "P11111:S17:Phospho" not in matrix_tsv
     assert "C1\t1\t0\t2\t0" in missingness_tsv
-    assert "P11111:S17:Phospho" in excluded_tsv
+    assert excluded_tsv.splitlines()[0].startswith("site_key\tgroup_key\tprotein_ref")
+    assert "P11111:S17:Phospho\tP11111:Phospho:17|18|19" in excluded_tsv
