@@ -20,6 +20,10 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
 )
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_psm_rows,
+)
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
@@ -180,6 +184,9 @@ class MaxquantImportReport(JsonModel):
     lfq_matrix_candidates: tuple[MaxquantLfqMatrixCandidateEntry, ...] = Field(
         default_factory=tuple
     )
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: MaxquantImportSummary
     parameter_report: SearchParameterReport | None = None
 
@@ -263,6 +270,16 @@ def build_maxquant_import_report(
         peptide_rows=peptide_rows,
         protein_group_rows=protein_group_rows,
         lfq_matrix_candidates=lfq_matrix_candidates,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_psm_rows(
+            evidence_normalization.parse_report.rejected_rows,
+            source_file=evidence_txt_path.name,
+            entity_type="psm",
+            entity_id_columns=(
+                "MS/MS scan number",
+                "Modified sequence",
+                "Sequence",
+            ),
+        ),
         summary=summary,
         parameter_report=parameter_report,
     )

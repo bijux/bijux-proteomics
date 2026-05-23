@@ -15,6 +15,10 @@ from bijux_proteomics.chemistry.modified_peptide_parser import (
     SearchEngineModifiedPeptideDialect,
     build_search_engine_modified_peptide_report,
 )
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_psm_rows,
+)
 from bijux_proteomics.identification.contracts import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
@@ -98,6 +102,9 @@ class SageImportReport(JsonModel):
     normalization: SearchAdapterNormalizationReport
     canonical_psms: tuple[SageCanonicalPsmEntry, ...] = Field(default_factory=tuple)
     psm_rows: tuple[SagePsmReviewEntry, ...] = Field(default_factory=tuple)
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: SageImportSummary
     parameter_report: SearchParameterReport | None = None
     dialect_id: str = Field(..., min_length=1)
@@ -144,6 +151,12 @@ def build_sage_import_report(
         normalization=normalization,
         canonical_psms=canonical_psms,
         psm_rows=psm_rows,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_psm_rows(
+            normalization.parse_report.rejected_rows,
+            source_file=result_tsv_path.name,
+            entity_type="psm",
+            entity_id_columns=("scannr", "peptide"),
+        ),
         summary=summary,
         parameter_report=parameter_report,
         dialect_id=dialect_id,

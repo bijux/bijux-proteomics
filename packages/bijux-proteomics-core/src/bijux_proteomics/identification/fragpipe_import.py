@@ -21,6 +21,10 @@ from bijux_proteomics.identification.contracts import (
     TargetDecoyLabelPolicy,
     parse_target_decoy_label,
 )
+from bijux_proteomics.identification.rejected_evidence_table import (
+    RejectedEvidenceTableEntry,
+    build_rejected_evidence_rows_from_psm_rows,
+)
 from bijux_proteomics.identification.search_adapters import (
     SearchAdapterKind,
     SearchAdapterNormalizationReport,
@@ -176,6 +180,9 @@ class FragpipeImportReport(JsonModel):
     protein_quantity_rows: tuple[FragpipeProteinQuantityEntry, ...] = Field(
         default_factory=tuple
     )
+    rejected_evidence_rows: tuple[RejectedEvidenceTableEntry, ...] = Field(
+        default_factory=tuple
+    )
     summary: FragpipeImportSummary
 
 
@@ -271,6 +278,12 @@ def build_fragpipe_import_report(
         protein_rows=protein_rows,
         open_search_evidence=open_search_evidence,
         protein_quantity_rows=protein_quantity_rows,
+        rejected_evidence_rows=build_rejected_evidence_rows_from_psm_rows(
+            psm_normalization.parse_report.rejected_rows,
+            source_file=psm_tsv_path.name,
+            entity_type="psm",
+            entity_id_columns=("Spectrum", "Modified Peptide", "Peptide"),
+        ),
         summary=summary,
     )
 

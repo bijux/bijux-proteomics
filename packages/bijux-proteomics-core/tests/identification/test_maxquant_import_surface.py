@@ -52,6 +52,7 @@ def test_maxquant_import_preserves_experiments_lfq_and_flags() -> None:
     assert report.summary.reverse_evidence_count == 1
     assert report.summary.contaminant_protein_group_count == 1
     assert report.summary.reverse_protein_group_count == 1
+    assert report.rejected_evidence_rows == ()
     assert report.parameter_report is not None
     assert report.parameter_report.enzyme == "trypsin"
     assert report.evidence_rows[0].residue_sequence == "PESTIDE"
@@ -129,3 +130,33 @@ def test_maxquant_import_rejects_invalid_peptide_and_protein_group_tables(
         for issue in row.issues
     }
     assert "invalid_q_value" in issue_codes or "negative_intensity" in issue_codes
+
+
+def test_maxquant_import_preserves_rejected_evidence_rows(tmp_path: Path) -> None:
+    root = _bundle_root()
+    evidence_path = tmp_path / "evidence_invalid.txt"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "Raw file\tExperiment\tMS/MS scan number\tSequence\tModified sequence\tCharge\tScore\tProteins\tReverse\tPotential contaminant\tPEP",
+                "raw_A\traw_A\t1001\tPESTIDE\tPES(Phospho (STY))TIDE\t2\t120\tP11111\t\t\t0.001",
+                "raw_B\traw_B\t1002\tBROKEN\tBROKEN\tbad\t95\tP22222\t\t\t0.01",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = build_maxquant_import_report(
+        evidence_path,
+        peptides_txt_path=root / "peptides.txt",
+        protein_groups_txt_path=root / "proteinGroups.txt",
+    )
+
+    assert report.summary.accepted_evidence_count == 1
+    assert report.summary.rejected_evidence_count == 1
+    assert len(report.rejected_evidence_rows) == 1
+    assert report.rejected_evidence_rows[0].source_file == "evidence_invalid.txt"
+    assert report.rejected_evidence_rows[0].entity_type == "psm"
+    assert report.rejected_evidence_rows[0].entity_id == "1002"
+    assert report.rejected_evidence_rows[0].reason_code == "invalid_charge"
