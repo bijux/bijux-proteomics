@@ -1,0 +1,125 @@
+[
+  {
+    "case_id": "greedy_coverage_shared_peptide_ambiguity",
+    "variant": "greedy_coverage",
+    "review_variants": [
+      "greedy_coverage",
+      "unique_evidence_priority"
+    ],
+    "records": [
+      {
+        "spectrum_id": "scan=6101",
+        "peptide": "ALPHAK",
+        "canonical_peptide": "ALPHAK",
+        "charge": 2,
+        "score": 98.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P10001"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=6102",
+        "peptide": "BRAVOK",
+        "canonical_peptide": "BRAVOK",
+        "charge": 2,
+        "score": 97.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P10001",
+          "P20002"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=6103",
+        "peptide": "CHARLIEK",
+        "canonical_peptide": "CHARLIEK",
+        "charge": 2,
+        "score": 96.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P10001"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=6104",
+        "peptide": "DELTAK",
+        "canonical_peptide": "DELTAK",
+        "charge": 2,
+        "score": 95.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P10001"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=6105",
+        "peptide": "ECHOK",
+        "canonical_peptide": "ECHOK",
+        "charge": 2,
+        "score": 99.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P20002"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=6106",
+        "peptide": "FOXTROTK",
+        "canonical_peptide": "FOXTROTK",
+        "charge": 2,
+        "score": 94.0,
+        "q_value": 0.01,
+        "protein_refs": [
+          "P20002"
+        ],
+        "target_decoy_label": "target"
+      }
+    ],
+    "expected_selected_proteins": [
+      {
+        "selection_rank": 1,
+        "protein_ref": "P10001",
+        "source_group_id": "pg-001",
+        "newly_explained_peptides": [
+          "ALPHAK",
+          "BRAVOK",
+          "CHARLIEK",
+          "DELTAK"
+        ],
+        "unresolved_shared_peptides": [
+          "BRAVOK"
+        ]
+      },
+      {
+        "selection_rank": 2,
+        "protein_ref": "P20002",
+        "source_group_id": "pg-002",
+        "newly_explained_peptides": [
+          "ECHOK",
+          "FOXTROTK"
+        ],
+        "unresolved_shared_peptides": [
+          "BRAVOK"
+        ]
+      }
+    ],
+    "expected_explained_peptides": [
+      "ALPHAK",
+      "BRAVOK",
+      "CHARLIEK",
+      "DELTAK",
+      "ECHOK",
+      "FOXTROTK"
+    ],
+    "expected_unexplained_peptides": [],
+    "expected_ambiguity_subjects": [
+      "BRAVOK"
+    ]
+  }
+]
