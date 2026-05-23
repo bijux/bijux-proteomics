@@ -112,7 +112,8 @@ class PtmProteinCorrectionStatus(StrEnum):
     """Correction availability status for one PTM site differential row."""
 
     NOT_REQUESTED = "not_requested"
-    CORRECTED = "corrected"
+    HIGH_CONFIDENCE_CORRECTED = "high_confidence_corrected"
+    CORRECTED_LOW_LOCALIZATION = "corrected_low_localization"
     MISSING_PROTEIN_BASELINE = "missing_protein_baseline"
 
 
@@ -310,8 +311,7 @@ def build_ptm_differential_volcano_plot(
         protein_correction_mode=(
             PtmProteinCorrectionMode.SUBTRACT_UNMODIFIED_PROTEIN
             if any(
-                entry.protein_correction_status
-                == PtmProteinCorrectionStatus.CORRECTED.value
+                _is_corrected_status(entry.protein_correction_status)
                 for entry in report.entries
             )
             else PtmProteinCorrectionMode.NONE
@@ -440,7 +440,11 @@ def _build_ptm_site_differential_report(
                 corrected_log2_fold_change = (
                     entry.log2_fold_change - correction_reference.log2_fold_change
                 )
-                correction_status = PtmProteinCorrectionStatus.CORRECTED
+                correction_status = (
+                    PtmProteinCorrectionStatus.CORRECTED_LOW_LOCALIZATION
+                    if low_localization
+                    else PtmProteinCorrectionStatus.HIGH_CONFIDENCE_CORRECTED
+                )
         entries.append(
             PtmSiteDifferentialEntry(
                 site_key=row.site_key,
@@ -619,6 +623,13 @@ def _merge_uncertainty_notes(
     if primary and secondary:
         return f"{primary}; {secondary}"
     return primary or secondary
+
+
+def _is_corrected_status(status: str) -> bool:
+    return status in {
+        PtmProteinCorrectionStatus.HIGH_CONFIDENCE_CORRECTED.value,
+        PtmProteinCorrectionStatus.CORRECTED_LOW_LOCALIZATION.value,
+    }
 
 
 def render_ptm_site_differential_broken_pairs_tsv(
