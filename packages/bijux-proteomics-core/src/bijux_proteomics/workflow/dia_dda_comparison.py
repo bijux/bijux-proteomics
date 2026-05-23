@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 from enum import StrEnum
 from io import StringIO
 from pathlib import Path
@@ -22,6 +23,10 @@ from bijux_proteomics.identification import (
 from bijux_proteomics.identification.diann_import import (
     DiaNnBundleImportReport,
     build_diann_import_report,
+)
+from bijux_proteomics.quantification.contracts import (
+    DifferentialAbundanceReport,
+    QuantEntityLevel,
 )
 from bijux_proteomics.quantification.peptide_intensity_matrix import (
     PeptideMatrixGroupingMode,
@@ -41,6 +46,7 @@ class WorkflowOverlapClass(StrEnum):
     SHARED = "shared"
     DIA_ONLY = "dia_only"
     DDA_ONLY = "dda_only"
+    CONFLICTING = "conflicting"
 
 
 class DiaDdaProteinOverlapEntry(JsonModel):
@@ -111,6 +117,45 @@ class DiaDdaSharedIntensityCorrelationEntry(JsonModel):
     pearson_correlation: float | None = Field(default=None, ge=-1.0, le=1.0)
 
 
+class DiaDdaConflictingEvidenceEntry(JsonModel):
+    """One explicit disagreement row that cannot be flattened into shared evidence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: ComparisonEntityLevel
+    entity_id: str = Field(..., min_length=1)
+    overlap_class: WorkflowOverlapClass = WorkflowOverlapClass.CONFLICTING
+    reason_code: str = Field(..., min_length=1)
+    detail: str = Field(..., min_length=1)
+    dia_sample_count: int = Field(..., ge=0)
+    dda_sample_count: int = Field(..., ge=0)
+    dia_total_intensity: float = Field(..., ge=0.0)
+    dda_total_intensity: float = Field(..., ge=0.0)
+    dia_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    dda_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DiaDdaDifferentialComparisonEntry(JsonModel):
+    """One cross-workflow differential-result comparison row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entity_id: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    contrast_name: str = Field(..., min_length=1)
+    comparison_class: WorkflowOverlapClass
+    dia_log2_fold_change: float | None = None
+    dda_log2_fold_change: float | None = None
+    dia_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    dda_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    dia_significant: bool
+    dda_significant: bool
+    direction_agreement: str | None = None
+    reason_code: str | None = None
+
+
 class DiaDdaComparisonSummary(JsonModel):
     """Compact summary over DIA-vs-DDA evidence overlap."""
 
@@ -126,10 +171,17 @@ class DiaDdaComparisonSummary(JsonModel):
     shared_peptide_count: int = Field(..., ge=0)
     dia_only_peptide_count: int = Field(..., ge=0)
     dda_only_peptide_count: int = Field(..., ge=0)
+    conflicting_peptide_count: int = Field(default=0, ge=0)
     exclusive_evidence_entry_count: int = Field(..., ge=0)
+    conflicting_evidence_entry_count: int = Field(default=0, ge=0)
     shared_intensity_correlation_entry_count: int = Field(..., ge=0)
     protein_correlation_entry_count: int = Field(..., ge=0)
     peptide_correlation_entry_count: int = Field(..., ge=0)
+    differential_comparison_entry_count: int = Field(default=0, ge=0)
+    shared_differential_count: int = Field(default=0, ge=0)
+    dia_only_differential_count: int = Field(default=0, ge=0)
+    dda_only_differential_count: int = Field(default=0, ge=0)
+    conflicting_differential_count: int = Field(default=0, ge=0)
 
 
 class DiaDdaComparisonReport(JsonModel):
@@ -142,7 +194,13 @@ class DiaDdaComparisonReport(JsonModel):
     protein_overlap: tuple[DiaDdaProteinOverlapEntry, ...] = Field(default_factory=tuple)
     peptide_overlap: tuple[DiaDdaPeptideOverlapEntry, ...] = Field(default_factory=tuple)
     exclusive_evidence: tuple[DiaDdaExclusiveEvidenceEntry, ...] = Field(default_factory=tuple)
+    conflicting_evidence: tuple[DiaDdaConflictingEvidenceEntry, ...] = Field(
+        default_factory=tuple
+    )
     shared_intensity_correlation: tuple[DiaDdaSharedIntensityCorrelationEntry, ...] = Field(
+        default_factory=tuple
+    )
+    differential_comparison: tuple[DiaDdaDifferentialComparisonEntry, ...] = Field(
         default_factory=tuple
     )
     summary: DiaDdaComparisonSummary
@@ -154,6 +212,9 @@ def build_dia_dda_comparison_report(
     dda_records: tuple[PsmRecord, ...],
     *,
     max_q_value: float = 0.05,
+    dia_differential_report: DifferentialAbundanceReport | None = None,
+    dda_differential_report: DifferentialAbundanceReport | None = None,
+    differential_significance_threshold: float = 0.05,
 ) -> DiaDdaComparisonReport:
     """Compare accession-level DIA and DDA evidence under one q-value threshold."""
 
@@ -193,14 +254,21 @@ def build_dia_dda_comparison_report(
     shared_peptide_count = 0
     dia_only_peptide_count = 0
     dda_only_peptide_count = 0
+    conflicting_peptide_count = 0
     for peptide_sequence in peptide_ids:
         dia_entry = dia_peptides.get(peptide_sequence)
         dda_entry = dda_peptides.get(peptide_sequence)
         dia_values = {} if dia_entry is None else dia_entry["values"]
         dda_values = {} if dda_entry is None else dda_entry["values"]
         if dia_values and dda_values:
-            overlap_class = WorkflowOverlapClass.SHARED
-            shared_peptide_count += 1
+            dia_protein_refs = () if dia_entry is None else dia_entry["protein_refs"]
+            dda_protein_refs = () if dda_entry is None else dda_entry["protein_refs"]
+            if dia_protein_refs != dda_protein_refs:
+                overlap_class = WorkflowOverlapClass.CONFLICTING
+                conflicting_peptide_count += 1
+            else:
+                overlap_class = WorkflowOverlapClass.SHARED
+                shared_peptide_count += 1
         elif dia_values:
             overlap_class = WorkflowOverlapClass.DIA_ONLY
             dia_only_peptide_count += 1
@@ -278,6 +346,26 @@ def build_dia_dda_comparison_report(
             ),
         )
     )
+    conflicting_evidence = tuple(
+        DiaDdaConflictingEvidenceEntry(
+            entity_level=ComparisonEntityLevel.PEPTIDE,
+            entity_id=entry.peptide_sequence,
+            reason_code="protein_assignment_mismatch",
+            detail=(
+                f"peptide {entry.peptide_sequence} maps to "
+                f"{';'.join(entry.dia_protein_refs) or 'no proteins'} in DIA and "
+                f"{';'.join(entry.dda_protein_refs) or 'no proteins'} in DDA"
+            ),
+            dia_sample_count=entry.dia_sample_count,
+            dda_sample_count=entry.dda_sample_count,
+            dia_total_intensity=entry.dia_total_intensity,
+            dda_total_intensity=entry.dda_total_intensity,
+            dia_protein_refs=entry.dia_protein_refs,
+            dda_protein_refs=entry.dda_protein_refs,
+        )
+        for entry in peptide_overlap
+        if entry.overlap_class is WorkflowOverlapClass.CONFLICTING
+    )
     shared_intensity_correlation = tuple(
         sorted(
             (
@@ -303,11 +391,18 @@ def build_dia_dda_comparison_report(
             key=lambda entry: (entry.entity_level.value, entry.entity_id),
         )
     )
+    differential_comparison = _build_differential_comparison(
+        dia_differential_report=dia_differential_report,
+        dda_differential_report=dda_differential_report,
+        significance_threshold=differential_significance_threshold,
+    )
     return DiaDdaComparisonReport(
         protein_overlap=tuple(protein_overlap),
         peptide_overlap=tuple(peptide_overlap),
         exclusive_evidence=exclusive_evidence,
+        conflicting_evidence=conflicting_evidence,
         shared_intensity_correlation=shared_intensity_correlation,
+        differential_comparison=differential_comparison,
         summary=DiaDdaComparisonSummary(
             dia_protein_count=len(dia_proteins),
             dda_protein_count=len(dda_proteins),
@@ -319,7 +414,9 @@ def build_dia_dda_comparison_report(
             shared_peptide_count=shared_peptide_count,
             dia_only_peptide_count=dia_only_peptide_count,
             dda_only_peptide_count=dda_only_peptide_count,
+            conflicting_peptide_count=conflicting_peptide_count,
             exclusive_evidence_entry_count=len(exclusive_evidence),
+            conflicting_evidence_entry_count=len(conflicting_evidence),
             shared_intensity_correlation_entry_count=len(shared_intensity_correlation),
             protein_correlation_entry_count=sum(
                 entry.entity_level is ComparisonEntityLevel.PROTEIN
@@ -329,9 +426,26 @@ def build_dia_dda_comparison_report(
                 entry.entity_level is ComparisonEntityLevel.PEPTIDE
                 for entry in shared_intensity_correlation
             ),
+            differential_comparison_entry_count=len(differential_comparison),
+            shared_differential_count=sum(
+                entry.comparison_class is WorkflowOverlapClass.SHARED
+                for entry in differential_comparison
+            ),
+            dia_only_differential_count=sum(
+                entry.comparison_class is WorkflowOverlapClass.DIA_ONLY
+                for entry in differential_comparison
+            ),
+            dda_only_differential_count=sum(
+                entry.comparison_class is WorkflowOverlapClass.DDA_ONLY
+                for entry in differential_comparison
+            ),
+            conflicting_differential_count=sum(
+                entry.comparison_class is WorkflowOverlapClass.CONFLICTING
+                for entry in differential_comparison
+            ),
         ),
         note=(
-            "dia-vs-dda comparison keeps protein overlap, peptide overlap, shared intensity correlation, and explicit workflow-exclusive evidence visible before workflow complementarity claims are made"
+            "dia-vs-dda comparison keeps shared, exclusive, conflicting, intensity-correlation, and differential-result disagreement surfaces visible before workflow complementarity claims are made"
         ),
     )
 
@@ -341,15 +455,34 @@ def build_diann_vs_dda_psm_comparison_report(
     dda_psm_path: Path,
     *,
     max_q_value: float = 0.05,
+    dia_differential_tsv_path: Path | None = None,
+    dda_differential_tsv_path: Path | None = None,
+    differential_significance_threshold: float = 0.05,
 ) -> DiaDdaComparisonReport:
     """Build DIA-vs-DDA comparison directly from one DIA-NN report and one DDA PSM TSV."""
 
     dia_report = build_diann_import_report(diann_report_path)
     dda_parse_report = parse_psm_tsv(dda_psm_path, mapping=_comparison_psm_mapping())
-    return build_dia_dda_comparison_report(
+    comparison_report = build_dia_dda_comparison_report(
         dia_report,
         dda_parse_report.accepted_records,
         max_q_value=max_q_value,
+    )
+    dia_differential = _load_differential_snapshots_from_tsv(dia_differential_tsv_path)
+    dda_differential = _load_differential_snapshots_from_tsv(dda_differential_tsv_path)
+    if not dia_differential and not dda_differential:
+        return comparison_report
+    if not dia_differential or not dda_differential:
+        raise ValueError(
+            "dia-vs-dda differential comparison requires both DIA and DDA differential TSV inputs"
+        )
+    return _with_differential_comparison(
+        comparison_report,
+        differential_comparison=_build_differential_comparison_from_snapshots(
+            dia_snapshots=dia_differential,
+            dda_snapshots=dda_differential,
+            significance_threshold=differential_significance_threshold,
+        ),
     )
 
 
@@ -531,6 +664,279 @@ def _pearson_correlation(
     return max(-1.0, min(1.0, raw_correlation))
 
 
+@dataclass(frozen=True)
+class _DifferentialSnapshot:
+    entity_level: QuantEntityLevel
+    entity_id: str
+    condition_a: str
+    condition_b: str
+    contrast_name: str
+    log2_fold_change: float
+    adjusted_p_value: float | None
+    p_value: float
+
+
+def _build_differential_comparison(
+    *,
+    dia_differential_report: DifferentialAbundanceReport | None,
+    dda_differential_report: DifferentialAbundanceReport | None,
+    significance_threshold: float,
+) -> tuple[DiaDdaDifferentialComparisonEntry, ...]:
+    if dia_differential_report is None and dda_differential_report is None:
+        return ()
+    if dia_differential_report is None or dda_differential_report is None:
+        raise ValueError(
+            "dia-vs-dda differential comparison requires both DIA and DDA differential reports"
+        )
+    return _build_differential_comparison_from_snapshots(
+        dia_snapshots=_differential_snapshots_from_report(dia_differential_report),
+        dda_snapshots=_differential_snapshots_from_report(dda_differential_report),
+        significance_threshold=significance_threshold,
+    )
+
+
+def _build_differential_comparison_from_snapshots(
+    *,
+    dia_snapshots: tuple[_DifferentialSnapshot, ...],
+    dda_snapshots: tuple[_DifferentialSnapshot, ...],
+    significance_threshold: float,
+) -> tuple[DiaDdaDifferentialComparisonEntry, ...]:
+    if not dia_snapshots and not dda_snapshots:
+        return ()
+    entity_levels = {entry.entity_level for entry in dia_snapshots} | {
+        entry.entity_level for entry in dda_snapshots
+    }
+    if len(entity_levels) != 1:
+        raise ValueError(
+            "dia-vs-dda differential comparison requires one shared entity level"
+        )
+    dia_by_key = { _differential_key(entry): entry for entry in dia_snapshots }
+    dda_by_key = { _differential_key(entry): entry for entry in dda_snapshots }
+    rows: list[DiaDdaDifferentialComparisonEntry] = []
+    for key in sorted(set(dia_by_key) | set(dda_by_key)):
+        dia_entry = dia_by_key.get(key)
+        dda_entry = dda_by_key.get(key)
+        entity_level, entity_id, condition_a, condition_b, contrast_name = key
+        dia_significant = _is_significant_differential_snapshot(
+            dia_entry,
+            significance_threshold=significance_threshold,
+        )
+        dda_significant = _is_significant_differential_snapshot(
+            dda_entry,
+            significance_threshold=significance_threshold,
+        )
+        reason_code: str | None = None
+        direction_agreement: str | None = None
+        if dia_entry is None:
+            comparison_class = WorkflowOverlapClass.DDA_ONLY
+            reason_code = "missing_dia_result"
+        elif dda_entry is None:
+            comparison_class = WorkflowOverlapClass.DIA_ONLY
+            reason_code = "missing_dda_result"
+        else:
+            direction_agreement = _direction_agreement(dia_entry, dda_entry)
+            if dia_significant and dda_significant and direction_agreement == "opposite":
+                comparison_class = WorkflowOverlapClass.CONFLICTING
+                reason_code = "differential_direction_mismatch"
+            elif dia_significant and not dda_significant:
+                comparison_class = WorkflowOverlapClass.DIA_ONLY
+                reason_code = "significant_only_in_dia"
+            elif dda_significant and not dia_significant:
+                comparison_class = WorkflowOverlapClass.DDA_ONLY
+                reason_code = "significant_only_in_dda"
+            else:
+                comparison_class = WorkflowOverlapClass.SHARED
+                if direction_agreement == "opposite":
+                    reason_code = "non_significant_direction_difference"
+        rows.append(
+            DiaDdaDifferentialComparisonEntry(
+                entity_level=entity_level,
+                entity_id=entity_id,
+                condition_a=condition_a,
+                condition_b=condition_b,
+                contrast_name=contrast_name,
+                comparison_class=comparison_class,
+                dia_log2_fold_change=(
+                    None if dia_entry is None else dia_entry.log2_fold_change
+                ),
+                dda_log2_fold_change=(
+                    None if dda_entry is None else dda_entry.log2_fold_change
+                ),
+                dia_adjusted_p_value=(
+                    None if dia_entry is None else _display_p_value(dia_entry)
+                ),
+                dda_adjusted_p_value=(
+                    None if dda_entry is None else _display_p_value(dda_entry)
+                ),
+                dia_significant=dia_significant,
+                dda_significant=dda_significant,
+                direction_agreement=direction_agreement,
+                reason_code=reason_code,
+            )
+        )
+    return tuple(rows)
+
+
+def _differential_key(
+    entry: _DifferentialSnapshot,
+) -> tuple[QuantEntityLevel, str, str, str, str]:
+    return (
+        entry.entity_level,
+        entry.entity_id,
+        entry.condition_a,
+        entry.condition_b,
+        entry.contrast_name,
+    )
+
+
+def _differential_snapshots_from_report(
+    report: DifferentialAbundanceReport,
+) -> tuple[_DifferentialSnapshot, ...]:
+    contrast_name = _comparison_contrast_name(
+        report.condition_a,
+        report.condition_b,
+        report.contrast_name,
+    )
+    return tuple(
+        _DifferentialSnapshot(
+            entity_level=report.entity_level,
+            entity_id=entry.entity_id,
+            condition_a=entry.condition_a,
+            condition_b=entry.condition_b,
+            contrast_name=contrast_name,
+            log2_fold_change=entry.log2_fold_change,
+            adjusted_p_value=entry.adjusted_p_value,
+            p_value=entry.p_value,
+        )
+        for entry in report.entries
+    )
+
+
+def _load_differential_snapshots_from_tsv(
+    path: Path | None,
+) -> tuple[_DifferentialSnapshot, ...]:
+    if path is None:
+        return ()
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if reader.fieldnames is None:
+            raise ValueError(f"differential TSV {path} is missing a header row")
+        required_columns = {
+            "entity_id",
+            "condition_a",
+            "condition_b",
+            "contrast_name",
+            "log2_fold_change",
+            "p_value",
+            "adjusted_p_value",
+        }
+        missing_columns = sorted(required_columns - set(reader.fieldnames))
+        if missing_columns:
+            raise ValueError(
+                f"differential TSV {path} is missing required columns: "
+                + ", ".join(missing_columns)
+            )
+        rows: list[_DifferentialSnapshot] = []
+        for row in reader:
+            if row["entity_id"].strip() == "":
+                continue
+            rows.append(
+                _DifferentialSnapshot(
+                    entity_level=QuantEntityLevel.PROTEIN,
+                    entity_id=row["entity_id"].strip(),
+                    condition_a=row["condition_a"].strip(),
+                    condition_b=row["condition_b"].strip(),
+                    contrast_name=_comparison_contrast_name(
+                        row["condition_a"].strip(),
+                        row["condition_b"].strip(),
+                        row["contrast_name"].strip(),
+                    ),
+                    log2_fold_change=float(row["log2_fold_change"]),
+                    adjusted_p_value=_parse_optional_float(row["adjusted_p_value"]),
+                    p_value=float(row["p_value"]),
+                )
+            )
+    return tuple(rows)
+
+
+def _parse_optional_float(value: str) -> float | None:
+    stripped = value.strip()
+    return None if stripped == "" else float(stripped)
+
+
+def _comparison_contrast_name(
+    condition_a: str,
+    condition_b: str,
+    contrast_name: str | None,
+) -> str:
+    candidate = "" if contrast_name is None else contrast_name.strip()
+    return candidate or f"{condition_a}_vs_{condition_b}"
+
+
+def _display_p_value(entry: _DifferentialSnapshot) -> float:
+    return entry.p_value if entry.adjusted_p_value is None else entry.adjusted_p_value
+
+
+def _is_significant_differential_snapshot(
+    entry: _DifferentialSnapshot | None,
+    *,
+    significance_threshold: float,
+) -> bool:
+    if entry is None:
+        return False
+    return _display_p_value(entry) <= significance_threshold
+
+
+def _direction_agreement(
+    dia_entry: _DifferentialSnapshot,
+    dda_entry: _DifferentialSnapshot,
+) -> str:
+    dia_direction = _effect_direction(dia_entry.log2_fold_change)
+    dda_direction = _effect_direction(dda_entry.log2_fold_change)
+    if dia_direction == dda_direction:
+        return "same"
+    return "opposite"
+
+
+def _effect_direction(log2_fold_change: float) -> str:
+    if log2_fold_change >= 0.0:
+        return "up_or_flat"
+    return "down"
+
+
+def _with_differential_comparison(
+    report: DiaDdaComparisonReport,
+    *,
+    differential_comparison: tuple[DiaDdaDifferentialComparisonEntry, ...],
+) -> DiaDdaComparisonReport:
+    return report.model_copy(
+        update={
+            "differential_comparison": differential_comparison,
+            "summary": report.summary.model_copy(
+                update={
+                    "differential_comparison_entry_count": len(differential_comparison),
+                    "shared_differential_count": sum(
+                        entry.comparison_class is WorkflowOverlapClass.SHARED
+                        for entry in differential_comparison
+                    ),
+                    "dia_only_differential_count": sum(
+                        entry.comparison_class is WorkflowOverlapClass.DIA_ONLY
+                        for entry in differential_comparison
+                    ),
+                    "dda_only_differential_count": sum(
+                        entry.comparison_class is WorkflowOverlapClass.DDA_ONLY
+                        for entry in differential_comparison
+                    ),
+                    "conflicting_differential_count": sum(
+                        entry.comparison_class is WorkflowOverlapClass.CONFLICTING
+                        for entry in differential_comparison
+                    ),
+                }
+            ),
+        }
+    )
+
+
 def render_dia_dda_comparison_summary_tsv(report: DiaDdaComparisonReport) -> str:
     """Render the compact DIA-vs-DDA comparison summary as TSV."""
 
@@ -550,10 +956,17 @@ def render_dia_dda_comparison_summary_tsv(report: DiaDdaComparisonReport) -> str
             "shared_peptide_count",
             "dia_only_peptide_count",
             "dda_only_peptide_count",
+            "conflicting_peptide_count",
             "exclusive_evidence_entry_count",
+            "conflicting_evidence_entry_count",
             "shared_intensity_correlation_entry_count",
             "protein_correlation_entry_count",
             "peptide_correlation_entry_count",
+            "differential_comparison_entry_count",
+            "shared_differential_count",
+            "dia_only_differential_count",
+            "dda_only_differential_count",
+            "conflicting_differential_count",
             "note",
         ]
     )
@@ -571,10 +984,17 @@ def render_dia_dda_comparison_summary_tsv(report: DiaDdaComparisonReport) -> str
             report.summary.shared_peptide_count,
             report.summary.dia_only_peptide_count,
             report.summary.dda_only_peptide_count,
+            report.summary.conflicting_peptide_count,
             report.summary.exclusive_evidence_entry_count,
+            report.summary.conflicting_evidence_entry_count,
             report.summary.shared_intensity_correlation_entry_count,
             report.summary.protein_correlation_entry_count,
             report.summary.peptide_correlation_entry_count,
+            report.summary.differential_comparison_entry_count,
+            report.summary.shared_differential_count,
+            report.summary.dia_only_differential_count,
+            report.summary.dda_only_differential_count,
+            report.summary.conflicting_differential_count,
             report.note,
         ]
     )
@@ -702,6 +1122,90 @@ def render_dia_dda_exclusive_evidence_tsv(report: DiaDdaComparisonReport) -> str
                 entry.sample_count,
                 f"{entry.total_intensity:g}",
                 ";".join(entry.protein_refs),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_dda_conflicting_evidence_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render workflow disagreements that cannot be collapsed into shared evidence."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_level",
+            "entity_id",
+            "overlap_class",
+            "reason_code",
+            "detail",
+            "dia_sample_count",
+            "dda_sample_count",
+            "dia_total_intensity",
+            "dda_total_intensity",
+            "dia_protein_refs",
+            "dda_protein_refs",
+        ]
+    )
+    for entry in report.conflicting_evidence:
+        writer.writerow(
+            [
+                entry.entity_level.value,
+                entry.entity_id,
+                entry.overlap_class.value,
+                entry.reason_code,
+                entry.detail,
+                entry.dia_sample_count,
+                entry.dda_sample_count,
+                f"{entry.dia_total_intensity:g}",
+                f"{entry.dda_total_intensity:g}",
+                ";".join(entry.dia_protein_refs),
+                ";".join(entry.dda_protein_refs),
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_dda_differential_comparison_tsv(report: DiaDdaComparisonReport) -> str:
+    """Render one stable DIA-vs-DDA differential comparison table."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "entity_level",
+            "entity_id",
+            "condition_a",
+            "condition_b",
+            "contrast_name",
+            "comparison_class",
+            "dia_log2_fold_change",
+            "dda_log2_fold_change",
+            "dia_adjusted_p_value",
+            "dda_adjusted_p_value",
+            "dia_significant",
+            "dda_significant",
+            "direction_agreement",
+            "reason_code",
+        ]
+    )
+    for entry in report.differential_comparison:
+        writer.writerow(
+            [
+                entry.entity_level.value,
+                entry.entity_id,
+                entry.condition_a,
+                entry.condition_b,
+                entry.contrast_name,
+                entry.comparison_class.value,
+                "" if entry.dia_log2_fold_change is None else f"{entry.dia_log2_fold_change:g}",
+                "" if entry.dda_log2_fold_change is None else f"{entry.dda_log2_fold_change:g}",
+                "" if entry.dia_adjusted_p_value is None else f"{entry.dia_adjusted_p_value:g}",
+                "" if entry.dda_adjusted_p_value is None else f"{entry.dda_adjusted_p_value:g}",
+                str(entry.dia_significant).lower(),
+                str(entry.dda_significant).lower(),
+                entry.direction_agreement or "",
+                entry.reason_code or "",
             ]
         )
     return buffer.getvalue()
