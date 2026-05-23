@@ -366,11 +366,11 @@ from bijux_proteomics.interpretation import (
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
     render_mapped_ortholog_tsv,
-    render_mapped_protein_annotation_tsv,
     render_ortholog_mapping_summary_tsv,
     render_pathway_enrichment_entry_tsv,
     render_pathway_enrichment_summary_tsv,
     render_pathway_unresolved_member_tsv,
+    render_protein_annotation_tsv,
     render_protein_annotation_summary_tsv,
     render_protein_set_condition_comparison_tsv,
     render_protein_set_condition_score_tsv,
@@ -12501,7 +12501,7 @@ def multiplex_group() -> None:
     default=None,
 )
 @click.option(
-    "--mapped-tsv-out",
+    "--annotated-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
 )
@@ -12539,7 +12539,7 @@ def annotate_proteins_command(
     annotation_organism_column: str,
     annotation_identifier_column: str,
     summary_tsv_out: Path | None,
-    mapped_tsv_out: Path | None,
+    annotated_tsv_out: Path | None,
     unmapped_tsv_out: Path | None,
     rejected_input_tsv_out: Path | None,
     rejected_annotation_tsv_out: Path | None,
@@ -12597,9 +12597,9 @@ def annotate_proteins_command(
             render_protein_annotation_summary_tsv(mapping_report),
             encoding="utf-8",
         )
-    if mapped_tsv_out is not None:
-        mapped_tsv_out.write_text(
-            render_mapped_protein_annotation_tsv(mapping_report),
+    if annotated_tsv_out is not None:
+        annotated_tsv_out.write_text(
+            render_protein_annotation_tsv(mapping_report),
             encoding="utf-8",
         )
     if unmapped_tsv_out is not None:
@@ -12626,7 +12626,9 @@ def annotate_proteins_command(
         "mapping_report": mapping_report.to_dict(),
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
-            "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
+            "annotated_tsv": (
+                None if annotated_tsv_out is None else str(annotated_tsv_out)
+            ),
             "unmapped_tsv": None if unmapped_tsv_out is None else str(unmapped_tsv_out),
             "rejected_input_tsv": (
                 None
