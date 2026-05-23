@@ -46,6 +46,7 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.annotation_entry_count == 5
     assert report.summary.protein_card_count == 5
     assert report.summary.warning_card_count >= 1
+    assert report.graph_report.protein_claim_count == report.summary.protein_count
     assert report.summary.context_entry_count == 3
     assert report.summary.context_unmapped_count == 2
     assert report.summary.context_term_count == 3
@@ -56,6 +57,8 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.heatmap_report.summary.output_entity_count >= 3
     assert report.protein_cards.summary.protein_result_count == 5
     assert any(card.card_id.startswith("protein-card-") for card in report.protein_cards.cards)
+    assert all(card.graph_claim_node_id.startswith("statistical_result:") for card in report.protein_cards.cards)
+    assert all(card.graph_subject_node_id.startswith("protein:") for card in report.protein_cards.cards)
     assert report.context_import_report is not None
     assert report.context_mapping_report is not None
     assert any(
