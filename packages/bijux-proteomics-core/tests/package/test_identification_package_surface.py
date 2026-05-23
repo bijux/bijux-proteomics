@@ -172,6 +172,35 @@ def test_identification_package_exports_protein_coverage_owner_surface() -> None
     assert "reproducibility_hash" in rendered
 
 
+def test_identification_package_exports_peptide_evidence_owner_surface() -> None:
+    raw_cases = json.loads(
+        _identification_fixture("peptide_evidence_reference_cases.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    case = raw_cases[0]
+    records = tuple(
+        identification.PsmRecord.model_validate(record) for record in case["records"]
+    )
+
+    report = identification.build_peptide_evidence_report(
+        records,
+        threshold=case["threshold"],
+        score_orientation=case["score_orientation"],
+        strong_q_value=case["strong_q_value"],
+        reproducible_spectrum_count=case["reproducible_spectrum_count"],
+    )
+    rendered = identification.render_peptide_evidence_summary_tsv(report)
+
+    assert hasattr(identification, "build_peptide_evidence_report")
+    assert hasattr(identification, "render_peptide_evidence_entries_tsv")
+    assert hasattr(identification, "render_peptide_evidence_summary_tsv")
+    assert report.summary.shared_count == 1
+    assert report.summary.ambiguous_count == 1
+    assert report.reproducibility_hash
+    assert "reproducibility_hash" in rendered
+
+
 def test_identification_package_exports_protein_parsimony_owner_surface() -> None:
     raw_cases = json.loads(
         _identification_fixture("protein_parsimony_reference_cases.json").read_text(
