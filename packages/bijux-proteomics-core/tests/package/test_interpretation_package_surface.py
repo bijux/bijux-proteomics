@@ -6,6 +6,16 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics import interpretation
+from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.quantification import (
+    Ms1FeatureColumnMapping,
+    NormalizationMethod,
+    QuantEntityLevel,
+    QuantRollupMethod,
+    build_label_free_intensity_table,
+    normalize_label_free_table,
+    parse_ms1_feature_table,
+)
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -15,6 +25,37 @@ def _fixture_path(name: str) -> Path:
 
 def _fasta_fixture_path(name: str) -> Path:
     return Path(__file__).resolve().parent.parent / "fixtures" / "fasta" / name
+
+
+def _quant_fixture_path(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "quant" / name
+
+
+def _build_protein_fixture_table():
+    parse_report = parse_ms1_feature_table(
+        _quant_fixture_path("ms1_features.tsv"),
+        mapping=Ms1FeatureColumnMapping(
+            sample_id="sample_id",
+            feature_id="feature_id",
+            peptide="peptide",
+            intensity="intensity",
+            protein_refs="proteins",
+            charge="charge",
+            mz="mz",
+            retention_time_seconds="retention_time_seconds",
+            missing_reason="missing_reason",
+        ),
+    )
+    protein_table = build_label_free_intensity_table(
+        parse_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.TOP_N,
+        top_n=2,
+    )
+    return normalize_label_free_table(
+        protein_table,
+        method=NormalizationMethod.MEDIAN,
+    )
 
 
 def test_interpretation_package_exports_complete_protein_annotation_surface() -> None:
@@ -80,3 +121,19 @@ def test_interpretation_package_exports_protein_set_enrichment_surface() -> None
 
     assert "set_category" in rendered.splitlines()[0]
     assert "nucleus" in rendered
+
+
+def test_interpretation_package_exports_protein_set_scoring_surface() -> None:
+    design_report = parse_experimental_design_table(_quant_fixture_path("quant.design.tsv"))
+    protein_sets = interpretation.parse_protein_set_table(_fixture_path("protein_sets.tsv"))
+    report = interpretation.build_protein_set_scoring_report(
+        _build_protein_fixture_table(),
+        protein_sets.accepted_records,
+        design_entries=design_report.accepted_entries,
+    )
+
+    assert hasattr(interpretation, "render_protein_set_sample_score_tsv")
+    rendered = interpretation.render_protein_set_sample_score_tsv(report)
+
+    assert "confidence_status" in rendered.splitlines()[0]
+    assert "low_confidence" in rendered
