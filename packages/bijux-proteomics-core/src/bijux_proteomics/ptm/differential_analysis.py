@@ -15,6 +15,7 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.localization_scoring import PtmLocalizationConfidenceTier
 from bijux_proteomics.ptm.site_quantification import (
     PtmSiteQuantRow,
     PtmSiteQuantificationReport,
@@ -61,6 +62,8 @@ class PtmSiteDifferentialEntry(JsonModel):
     residue: str = Field(..., min_length=1, max_length=1)
     position: int = Field(..., ge=1)
     modification_name: str = Field(..., min_length=1)
+    localization_tier: PtmLocalizationConfidenceTier
+    low_localization: bool = False
     ambiguous: bool = False
     shared_peptide: bool = False
     localized_peptides: tuple[str, ...] = Field(default_factory=tuple)
@@ -419,6 +422,10 @@ def _build_ptm_site_differential_report(
     entries: list[PtmSiteDifferentialEntry] = []
     for entry in differential.entries:
         row = row_by_site[entry.entity_id]
+        low_localization = row.localization_tier in {
+            PtmLocalizationConfidenceTier.AMBIGUOUS,
+            PtmLocalizationConfidenceTier.REFUSED,
+        }
         correction_reference = protein_differential_lookup.get(row.protein_ref)
         protein_log2_fold_change = None
         protein_adjusted_p_value = None
@@ -441,6 +448,8 @@ def _build_ptm_site_differential_report(
                 residue=row.residue,
                 position=row.position,
                 modification_name=row.modification_name,
+                localization_tier=row.localization_tier,
+                low_localization=low_localization,
                 ambiguous=row.ambiguous,
                 shared_peptide=row.shared_peptide,
                 localized_peptides=row.localized_peptides,
@@ -462,7 +471,12 @@ def _build_ptm_site_differential_report(
                 protein_adjusted_p_value=protein_adjusted_p_value,
                 corrected_log2_fold_change=corrected_log2_fold_change,
                 protein_correction_status=correction_status.value,
-                uncertainty_note=entry.uncertainty_note,
+                uncertainty_note=_merge_uncertainty_notes(
+                    entry.uncertainty_note,
+                    "low-localization site should be reviewed cautiously before biological interpretation"
+                    if low_localization
+                    else None,
+                ),
             )
         )
     return PtmSiteDifferentialReport(
@@ -520,6 +534,8 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
             "residue",
             "position",
             "modification_name",
+            "localization_tier",
+            "low_localization",
             "ambiguous",
             "shared_peptide",
             "localized_peptides",
@@ -551,6 +567,8 @@ def render_ptm_site_differential_tsv(report: PtmSiteDifferentialReport) -> str:
                 entry.residue,
                 entry.position,
                 entry.modification_name,
+                entry.localization_tier.value,
+                str(entry.low_localization).lower(),
                 str(entry.ambiguous).lower(),
                 str(entry.shared_peptide).lower(),
                 ";".join(sort_strings(entry.localized_peptides)),
@@ -592,6 +610,15 @@ def export_ptm_site_differential_tsv(
     """Write one PTM site differential report to a stable TSV artifact."""
 
     path.write_text(render_ptm_site_differential_tsv(report), encoding="utf-8")
+
+
+def _merge_uncertainty_notes(
+    primary: str | None,
+    secondary: str | None,
+) -> str | None:
+    if primary and secondary:
+        return f"{primary}; {secondary}"
+    return primary or secondary
 
 
 def render_ptm_site_differential_broken_pairs_tsv(

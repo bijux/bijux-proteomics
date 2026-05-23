@@ -19,6 +19,7 @@ from bijux_proteomics.ptm.ambiguity_handling import (
     build_ptm_site_group_quantification_report,
 )
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
+from bijux_proteomics.ptm.localization_scoring import PtmLocalizationConfidenceTier
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
     MissingValueSummaryEntry,
@@ -59,6 +60,7 @@ class PtmSiteQuantRow(JsonModel):
     position: int = Field(..., ge=1)
     modification_name: str = Field(..., min_length=1)
     target_decoy_label: TargetDecoyLabel
+    localization_tier: PtmLocalizationConfidenceTier
     ambiguous: bool = False
     shared_peptide: bool = False
     candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
@@ -218,6 +220,7 @@ def build_ptm_site_quantification_report(
                 position=entry.position,
                 modification_name=entry.modification_name,
                 target_decoy_label=entry.target_decoy_label,
+                localization_tier=_infer_site_localization_tier(entry),
                 ambiguous=entry.ambiguous,
                 shared_peptide=entry.shared_peptide,
                 candidate_positions=entry.candidate_positions,
@@ -370,6 +373,7 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
         "position",
         "modification_name",
         "target_decoy_label",
+        "localization_tier",
         "ambiguous",
         "shared_peptide",
         "candidate_positions",
@@ -392,6 +396,7 @@ def render_ptm_site_quant_matrix_tsv(report: PtmSiteQuantificationReport) -> str
                     str(row.position),
                     row.modification_name,
                     row.target_decoy_label.value,
+                    row.localization_tier.value,
                     str(row.ambiguous).lower(),
                     str(row.shared_peptide).lower(),
                     ";".join(str(position) for position in sorted(row.candidate_positions)),
@@ -478,3 +483,13 @@ def _aggregate_missing_kind(kinds: tuple[MissingValueKind, ...]) -> MissingValue
     if any(kind is MissingValueKind.FILTERED for kind in kinds):
         return MissingValueKind.FILTERED
     return MissingValueKind.NOT_OBSERVED
+
+
+def _infer_site_localization_tier(
+    entry: PtmSiteEntry,
+) -> PtmLocalizationConfidenceTier:
+    if entry.ambiguous:
+        return PtmLocalizationConfidenceTier.AMBIGUOUS
+    if entry.localization_score >= 0.75:
+        return PtmLocalizationConfidenceTier.SUPPORTED
+    return PtmLocalizationConfidenceTier.REFUSED
