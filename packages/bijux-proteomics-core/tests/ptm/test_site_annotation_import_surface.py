@@ -20,6 +20,7 @@ def test_ptm_site_annotation_import_preserves_known_biology_and_rejected_rows() 
     assert report.summary.rejected_row_count == 1
     assert report.summary.species_count == 2
     assert report.summary.kinase_annotated_count == 5
+    assert report.summary.phosphatase_annotated_count == 5
     assert report.summary.pathway_annotated_count == 5
     record = next(
         entry
@@ -29,5 +30,6 @@ def test_ptm_site_annotation_import_preserves_known_biology_and_rejected_rows() 
     assert record.species == "Homo sapiens"
     assert record.site_function == "activation-linked phosphosite"
     assert record.kinases == ("AKT1", "MTOR")
+    assert record.phosphatases == ("PPP2CA",)
     assert record.pathways == ("PI3K signaling", "growth control")
     assert report.rejected_rows[0].issues[0].code == "invalid_position"

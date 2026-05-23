@@ -36,7 +36,7 @@ def _protein_sequences() -> dict[str, str]:
     }
 
 
-def test_ptm_site_annotation_biology_summary_preserves_function_kinase_and_pathway_terms() -> (
+def test_ptm_site_annotation_biology_summary_preserves_function_regulator_and_pathway_terms() -> (
     None
 ):
     evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
@@ -64,6 +64,10 @@ def test_ptm_site_annotation_biology_summary_preserves_function_kinase_and_pathw
     assert any(
         entry.term == "AKT1" and entry.site_keys == ("P11111:S5:Phospho",)
         for entry in summary.kinase_entries
+    )
+    assert any(
+        entry.term == "PPP2CA" and entry.site_keys == ("P11111:S5:Phospho",)
+        for entry in summary.phosphatase_entries
     )
     assert any(
         entry.term == "MAPK signaling" and entry.site_keys == ("P22222:Y18:Phospho",)

@@ -27,6 +27,7 @@ class PtmSiteAnnotationColumnMapping(JsonModel):
     modification_name: str = Field(..., min_length=1)
     site_function: str | None = None
     kinases: str | None = None
+    phosphatases: str | None = None
     pathways: str | None = None
     source_name: str | None = None
     source_accession: str | None = None
@@ -64,6 +65,7 @@ class PtmSiteAnnotationRecord(JsonModel):
     modification_name: str = Field(..., min_length=1)
     site_function: str | None = None
     kinases: tuple[str, ...] = Field(default_factory=tuple)
+    phosphatases: tuple[str, ...] = Field(default_factory=tuple)
     pathways: tuple[str, ...] = Field(default_factory=tuple)
     source_name: str | None = None
     source_accession: str | None = None
@@ -79,6 +81,7 @@ class PtmSiteAnnotationImportSummary(JsonModel):
     species_count: int = Field(..., ge=0)
     function_annotated_count: int = Field(..., ge=0)
     kinase_annotated_count: int = Field(..., ge=0)
+    phosphatase_annotated_count: int = Field(..., ge=0)
     pathway_annotated_count: int = Field(..., ge=0)
 
 
@@ -109,6 +112,7 @@ class PtmMappedSiteAnnotationEntry(JsonModel):
     modification_name: str = Field(..., min_length=1)
     site_function: str | None = None
     kinases: tuple[str, ...] = Field(default_factory=tuple)
+    phosphatases: tuple[str, ...] = Field(default_factory=tuple)
     pathways: tuple[str, ...] = Field(default_factory=tuple)
     source_name: str | None = None
     source_accession: str | None = None
@@ -180,6 +184,9 @@ class PtmSiteAnnotationBiologySummary(JsonModel):
     kinase_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
         default_factory=tuple
     )
+    phosphatase_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
+        default_factory=tuple
+    )
     pathway_entries: tuple[PtmSiteAnnotationBiologyEntry, ...] = Field(
         default_factory=tuple
     )
@@ -191,6 +198,7 @@ def parse_ptm_site_annotation_tsv(
     *,
     mapping: PtmSiteAnnotationColumnMapping | None = None,
     kinase_separator: str = ";",
+    phosphatase_separator: str = ";",
     pathway_separator: str = ";",
 ) -> PtmSiteAnnotationImportReport:
     """Parse one PTM site-annotation TSV into owned normalized records."""
@@ -203,6 +211,7 @@ def parse_ptm_site_annotation_tsv(
         modification_name="modification_name",
         site_function="site_function",
         kinases="kinases",
+        phosphatases="phosphatases",
         pathways="pathways",
         source_name="source_name",
         source_accession="source_accession",
@@ -288,6 +297,10 @@ def parse_ptm_site_annotation_tsv(
                         _row_value(raw_fields, active_mapping.kinases),
                         separator=kinase_separator,
                     ),
+                    phosphatases=_split_multi_value(
+                        _row_value(raw_fields, active_mapping.phosphatases),
+                        separator=phosphatase_separator,
+                    ),
                     pathways=_split_multi_value(
                         _row_value(raw_fields, active_mapping.pathways),
                         separator=pathway_separator,
@@ -326,12 +339,15 @@ def parse_ptm_site_annotation_tsv(
             kinase_annotated_count=sum(
                 1 for record in accepted_records if record.kinases
             ),
+            phosphatase_annotated_count=sum(
+                1 for record in accepted_records if record.phosphatases
+            ),
             pathway_annotated_count=sum(
                 1 for record in accepted_records if record.pathways
             ),
         ),
         note=(
-            "ptm site annotation import preserves species, protein, residue, modification, and optional function, kinase, and pathway context before any observed-site mapping"
+            "ptm site annotation import preserves species, protein, residue, modification, and optional function, kinase, phosphatase, and pathway context before any observed-site mapping"
         ),
     )
 
@@ -414,6 +430,7 @@ def build_ptm_site_annotation_mapping_report(
                 modification_name=record.modification_name,
                 site_function=record.site_function,
                 kinases=record.kinases,
+                phosphatases=record.phosphatases,
                 pathways=record.pathways,
                 source_name=record.source_name,
                 source_accession=record.source_accession,
@@ -461,7 +478,7 @@ def build_ptm_site_annotation_mapping_report(
 def build_ptm_site_annotation_biology_summary(
     mapping_report: PtmSiteAnnotationMappingReport,
 ) -> PtmSiteAnnotationBiologySummary:
-    """Summarize known functions, kinases, and pathways over mapped PTM sites."""
+    """Summarize known functions, kinases, phosphatases, and pathways over mapped PTM sites."""
 
     return PtmSiteAnnotationBiologySummary(
         function_entries=_summarize_annotation_terms(
@@ -472,12 +489,16 @@ def build_ptm_site_annotation_biology_summary(
             mapping_report.matched_annotations,
             field_name="kinases",
         ),
+        phosphatase_entries=_summarize_annotation_terms(
+            mapping_report.matched_annotations,
+            field_name="phosphatases",
+        ),
         pathway_entries=_summarize_annotation_terms(
             mapping_report.matched_annotations,
             field_name="pathways",
         ),
         note=(
-            "ptm site annotation biology summary preserves known function, kinase, and pathway labels over the mapped observed-site set"
+            "ptm site annotation biology summary preserves known function, kinase, phosphatase, and pathway labels over the mapped observed-site set"
         ),
     )
 
@@ -528,6 +549,7 @@ def render_ptm_mapped_site_annotation_tsv(
             "modification_name",
             "site_function",
             "kinases",
+            "phosphatases",
             "pathways",
             "source_name",
             "source_accession",
@@ -547,6 +569,7 @@ def render_ptm_mapped_site_annotation_tsv(
                 entry.modification_name,
                 entry.site_function or "",
                 ";".join(entry.kinases),
+                ";".join(entry.phosphatases),
                 ";".join(entry.pathways),
                 entry.source_name or "",
                 entry.source_accession or "",
@@ -604,10 +627,13 @@ def render_ptm_site_annotation_biology_tsv(
     category_entries = {
         "function": summary.function_entries,
         "kinase": summary.kinase_entries,
+        "phosphatase": summary.phosphatase_entries,
         "pathway": summary.pathway_entries,
     }
     if category not in category_entries:
-        raise ValueError("category must be one of function, kinase, or pathway")
+        raise ValueError(
+            "category must be one of function, kinase, phosphatase, or pathway"
+        )
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
     writer.writerow(("term", "site_count", "site_keys"))

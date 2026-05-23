@@ -64,6 +64,7 @@ def test_ptm_site_annotation_mapping_report_preserves_matches_and_unmapped_reaso
     assert matched.ambiguous_site is True
     assert matched.shared_peptide_site is True
     assert matched.kinases == ("PRKAA1",)
+    assert matched.phosphatases == ("PPM1A",)
     species_unmapped = next(
         entry
         for entry in report.unmapped_annotations

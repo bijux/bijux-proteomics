@@ -76,6 +76,11 @@ def test_ptm_site_annotation_exports_preserve_mapped_unmapped_and_biology_ledger
         category="kinase",
         path=Path("ptm.annotation.kinase.tsv"),
     )
+    export_ptm_site_annotation_biology_tsv(
+        biology_summary,
+        category="phosphatase",
+        path=Path("ptm.annotation.phosphatase.tsv"),
+    )
 
     assert Path("ptm.annotation.summary.tsv").read_text().splitlines()[0] == (
         "target_species\tmatched_annotation_count\tmatched_site_count\t"
@@ -85,4 +90,7 @@ def test_ptm_site_annotation_exports_preserve_mapped_unmapped_and_biology_ledger
     assert "Mus musculus" in Path("ptm.annotation.unmapped.tsv").read_text()
     assert "AKT1\t1\tP11111:S5:Phospho" in Path(
         "ptm.annotation.kinase.tsv"
+    ).read_text()
+    assert "PPP2CA\t1\tP11111:S5:Phospho" in Path(
+        "ptm.annotation.phosphatase.tsv"
     ).read_text()
