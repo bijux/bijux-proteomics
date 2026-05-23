@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.ptm as ptm
+from bijux_proteomics.quantification import parse_ms1_feature_table
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -56,3 +57,23 @@ def test_ptm_package_exports_localization_scoring_owner_surface() -> None:
     assert hasattr(ptm, "PtmLocalizationConfidenceTier")
     assert report.high_confidence_entry_count == 1
     assert "localization_tier" in rendered.splitlines()[0]
+
+
+def test_ptm_package_exports_site_quantification_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    mappings = ptm.map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = ptm.build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    report = ptm.build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+
+    assert hasattr(ptm, "build_ptm_site_quantification_report")
+    assert hasattr(ptm, "render_ptm_site_quant_matrix_tsv")
+    assert report.summary.site_row_count == 3
+    assert report.summary.ambiguous_group_row_count == 2
+    assert report.ambiguous_group_quantification is not None
