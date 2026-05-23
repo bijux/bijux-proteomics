@@ -660,10 +660,13 @@ class NormalizationStrategyComparisonReport(JsonModel):
 
 
 class MissingDataMechanism(StrEnum):
-    """Heuristic distinction between biological sparsity and likely failure."""
+    """Heuristic label for one entity-level missingness pattern."""
 
-    LIKELY_BIOLOGICAL_SPARSE = "likely_biological_sparse"
+    NO_MISSING_VALUES = "no_missing_values"
+    CONDITION_SPECIFIC_ABSENCE = "condition_specific_absence"
     LIKELY_TECHNICAL_FAILURE = "likely_technical_failure"
+    BATCH_OR_CHANNEL_ISSUE = "batch_or_channel_issue"
+    MISSING_COMPLETELY_AT_RANDOM = "missing_completely_at_random"
     MIXED_OR_UNRESOLVED = "mixed_or_unresolved"
 
 
@@ -675,6 +678,7 @@ class MissingDataMechanismEntry(JsonModel):
     entity_id: str = Field(..., min_length=1)
     mechanism: MissingDataMechanism
     observed_conditions: tuple[str, ...] = Field(default_factory=tuple)
+    missing_conditions: tuple[str, ...] = Field(default_factory=tuple)
     missing_samples: tuple[str, ...] = Field(default_factory=tuple)
     note: str = Field(..., min_length=1)
 
@@ -687,6 +691,18 @@ class MissingDataMechanismReport(JsonModel):
     entity_level: QuantEntityLevel
     entries: tuple[MissingDataMechanismEntry, ...] = Field(default_factory=tuple)
     summary_counts: dict[MissingDataMechanism, int] = Field(default_factory=dict)
+
+
+class MissingnessClassifierReport(JsonModel):
+    """Owned missingness classifier that bundles table summaries and mechanisms."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_summary: MissingValueSummaryReport
+    entity_summary: MissingnessEntitySummaryReport
+    condition_summary: MissingnessConditionSummaryReport
+    intensity_dependence: MissingnessIntensityDependenceReport
+    mechanism_report: MissingDataMechanismReport
 
 
 class QuantArtifactBundle(JsonModel):
@@ -702,6 +718,7 @@ class QuantArtifactBundle(JsonModel):
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None
     missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None
+    missingness_mechanism_report: MissingDataMechanismReport | None = None
     replicate_qc_report: ReplicateAndBatchQcReport | None = None
     reproducibility_manifest: QuantReproducibilityManifest
     normalization_comparison_report: NormalizationComparisonReport | None = None
@@ -2621,6 +2638,7 @@ def build_quant_artifact_bundle(
     missingness_entity_summary: MissingnessEntitySummaryReport | None = None,
     missingness_condition_summary: MissingnessConditionSummaryReport | None = None,
     missingness_intensity_dependence: MissingnessIntensityDependenceReport | None = None,
+    missingness_mechanism_report: MissingDataMechanismReport | None = None,
     replicate_qc_report: ReplicateAndBatchQcReport | None = None,
     normalization_comparison_report: NormalizationComparisonReport | None = None,
     normalization_strategy_report: NormalizationStrategyComparisonReport | None = None,
@@ -2653,6 +2671,7 @@ def build_quant_artifact_bundle(
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
+        missingness_mechanism_report=missingness_mechanism_report,
         replicate_qc_report=replicate_qc_report,
         reproducibility_manifest=build_quant_reproducibility_manifest(table),
         normalization_comparison_report=normalization_comparison_report,
@@ -3341,12 +3360,32 @@ def build_missing_data_mechanism_report(
     table: LabelFreeQuantTable,
     design_entries: tuple[ExperimentalDesignEntry, ...],
 ) -> MissingDataMechanismReport:
-    """Classify missingness patterns as likely biology, likely failure, or unresolved."""
+    """Classify missingness patterns with explicit mechanism labels."""
     from bijux_proteomics.quantification.missingness import (
         build_missing_data_mechanism_report as _implementation,
     )
 
     return _implementation(table, design_entries)
+
+
+def build_missingness_classifier_report(
+    table: LabelFreeQuantTable,
+    *,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    policy: MissingValueSummaryPolicy | None = None,
+    bin_count: int = 4,
+) -> MissingnessClassifierReport:
+    """Bundle sample, entity, condition, intensity, and mechanism missingness views."""
+    from bijux_proteomics.quantification.missingness import (
+        build_missingness_classifier_report as _implementation,
+    )
+
+    return _implementation(
+        table,
+        design_entries=design_entries,
+        policy=policy,
+        bin_count=bin_count,
+    )
 
 
 def normalize_label_free_table(
