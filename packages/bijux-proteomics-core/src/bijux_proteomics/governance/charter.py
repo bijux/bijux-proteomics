@@ -258,8 +258,10 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         owned_surface="Runtime-agnostic workflow blueprints, execution requests, and replayable scientific workflow contracts.",
         required_modules=(
             "workflow/blueprint.py",
+            "workflow/biological_reporting.py",
             "workflow/dia_differential_analysis.py",
             "workflow/dia_dda_comparison.py",
+            "workflow/protein_evidence_cards.py",
             "interfaces/execution/backend.py",
             "interfaces/execution/runner.py",
             "interfaces/execution/runtime_adapter.py",
