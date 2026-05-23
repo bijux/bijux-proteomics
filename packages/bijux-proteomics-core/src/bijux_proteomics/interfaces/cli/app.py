@@ -835,6 +835,7 @@ def _validate_proteomics_run_inputs(
     report_path: Path | None,
     peptides_path: Path | None,
     protein_groups_path: Path | None,
+    source_protein_tsv: Path | None,
     config_path: Path | None,
 ) -> None:
     if report_path is None:
@@ -856,6 +857,10 @@ def _validate_proteomics_run_inputs(
     if protein_groups_path is not None:
         raise click.ClickException(
             f"{engine.value} runs do not accept --protein-groups; that input is MaxQuant-specific"
+        )
+    if engine is not ProteomicsRunEngine.FRAGPIPE and source_protein_tsv is not None:
+        raise click.ClickException(
+            f"{engine.value} runs do not accept --source-protein-tsv; that input is FragPipe-specific"
         )
     if engine is ProteomicsRunEngine.FRAGPIPE and config_path is not None:
         raise click.ClickException(
@@ -9657,6 +9662,11 @@ def biological_report_command(
     default=None,
 )
 @click.option(
+    "--source-protein-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
     "--annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -9758,6 +9768,7 @@ def dda_biological_report_command(
     adapter_kind: str,
     dialect_id: str,
     mapping_path: Path | None,
+    source_protein_tsv: Path | None,
     annotation_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
@@ -9789,6 +9800,7 @@ def dda_biological_report_command(
             adapter_kind=SearchAdapterKind(adapter_kind),
             generic_mapping_path=mapping_path,
             dialect_id=dialect_id,
+            source_protein_tsv_path=source_protein_tsv,
             annotation_tsv_path=annotation_tsv,
             go_annotation_tsv_path=go_annotation_tsv,
             pathway_membership_tsv_path=pathway_membership_tsv,
@@ -12062,6 +12074,12 @@ def bundle_run_command(
     help="MaxQuant-only proteinGroups.txt input.",
 )
 @click.option(
+    "--source-protein-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional FragPipe or DDA source protein table for discrepancy review.",
+)
+@click.option(
     "--metadata",
     "metadata_path",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
@@ -12159,6 +12177,7 @@ def proteomics_run_command(
     report_path: Path | None,
     peptides_path: Path | None,
     protein_groups_path: Path | None,
+    source_protein_tsv: Path | None,
     metadata_path: Path,
     proteins_fasta: Path,
     contrast: str,
@@ -12187,6 +12206,7 @@ def proteomics_run_command(
             report_path=report_path,
             peptides_path=peptides_path,
             protein_groups_path=protein_groups_path,
+            source_protein_tsv=source_protein_tsv,
             config_path=config_path,
         )
         metadata_report = parse_experimental_design_table(metadata_path)
@@ -12200,6 +12220,7 @@ def proteomics_run_command(
             contrast=contrast,
             peptides_tsv_path=peptides_path,
             protein_groups_tsv_path=protein_groups_path,
+            source_protein_tsv_path=source_protein_tsv,
             config_path=config_path,
             annotation_tsv_path=annotation_tsv,
             go_annotation_tsv_path=go_annotation_tsv,
