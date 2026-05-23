@@ -739,6 +739,10 @@ from bijux_proteomics.study.qc import (
     render_qc_assessment_html,
     render_qc_assessment_tsv,
 )
+from bijux_proteomics.study.sample_sheet_repairs import (
+    build_sample_sheet_repair_suggestion_report,
+    export_sample_sheet_repair_suggestions_tsv,
+)
 from bijux_proteomics.workflow import (
     BiologicalResultSelectionPolicy,
     DiaDifferentialSourceKind,
@@ -813,6 +817,16 @@ def _emit_json(payload: Any, *, out_path: Path | None = None) -> None:
 
 def _write_text_output(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
+
+
+def _read_identifier_lines(path: Path | None) -> tuple[str, ...]:
+    if path is None:
+        return ()
+    return tuple(
+        line
+        for raw_line in path.read_text(encoding="utf-8").splitlines()
+        if (line := raw_line.strip()) and not line.startswith("#")
+    )
 
 
 def _build_volcano_review_policy(
@@ -12080,6 +12094,88 @@ def summarize_command(
             "summarize currently supports fasta, psm, mgf, mzml, and design-table inputs"
         )
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("sample-sheet-repair-suggestions")
+@click.argument(
+    "design_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--observed-sample-id",
+    "observed_sample_ids",
+    multiple=True,
+    help="Observed sample id from analysis data. Repeat for multiple ids.",
+)
+@click.option(
+    "--observed-run-id",
+    "observed_run_ids",
+    multiple=True,
+    help="Observed run id from analysis data. Repeat for multiple ids.",
+)
+@click.option(
+    "--observed-sample-id-file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional text file with one observed sample id per line.",
+)
+@click.option(
+    "--observed-run-id-file",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+    help="Optional text file with one observed run id per line.",
+)
+@click.option(
+    "--suggestions-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON report output path.",
+)
+def sample_sheet_repair_suggestions_command(
+    design_path: Path,
+    observed_sample_ids: tuple[str, ...],
+    observed_run_ids: tuple[str, ...],
+    observed_sample_id_file: Path | None,
+    observed_run_id_file: Path | None,
+    suggestions_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Suggest exact sample-sheet repairs without rewriting study metadata."""
+    try:
+        design_report = parse_experimental_design_table(design_path)
+        report = build_sample_sheet_repair_suggestion_report(
+            design_report,
+            observed_sample_ids=(
+                *observed_sample_ids,
+                *_read_identifier_lines(observed_sample_id_file),
+            ),
+            observed_run_ids=(
+                *observed_run_ids,
+                *_read_identifier_lines(observed_run_id_file),
+            ),
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if suggestions_tsv_out is not None:
+        export_sample_sheet_repair_suggestions_tsv(report, suggestions_tsv_out)
+
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "outputs": {
+                "suggestions_tsv": (
+                    None if suggestions_tsv_out is None else str(suggestions_tsv_out)
+                )
+            },
+        },
+        out_path=out_path,
+    )
 
 
 @cli.command("format-convert")
