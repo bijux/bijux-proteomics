@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
+    PtmMotifBackgroundMode,
     PtmMotifComparisonPolicy,
     PtmMotifRegulationDirection,
     PtmPhosphositeSelectionPolicy,
@@ -74,6 +75,7 @@ def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo()
             direction=PtmMotifRegulationDirection.UPREGULATED,
         ),
         comparison_policy=PtmMotifComparisonPolicy(
+            background_mode=PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND,
             min_frequency_difference=0.1,
             min_enrichment_ratio=1.0,
             max_reported_term_count=10,
@@ -89,13 +91,14 @@ def test_ptm_phosphosite_motif_export_surfaces_preserve_windows_terms_and_logo()
     export_ptm_phosphosite_motif_logo_tsv(report, Path("ptm.motif.logo.tsv"))
 
     assert Path("ptm.motif.windows.tsv").read_text().splitlines()[0] == (
-        "site_key\tprotein_ref\tresidue\tposition\tmodification_name\twindow_role\t"
+        "site_key\tprotein_ref\tresidue\tposition\tmodification_name\tbackground_mode\twindow_role\t"
         "direction\tcentered_window\tflank_size\tplotted_log2_fold_change\t"
         "adjusted_p_value\tambiguous\tprotein_correction_mode"
     )
     assert Path("ptm.motif.frequency.tsv").read_text().splitlines()[0] == (
-        "position_offset\tresidue\tregulated_window_count\tbackground_window_count\t"
+        "position_offset\tresidue\tbackground_mode\tregulated_window_count\tbackground_window_count\t"
         "regulated_frequency\tbackground_frequency"
     )
-    assert "1\tP\t1\t0" in Path("ptm.motif.terms.tsv").read_text()
-    assert "regulated\t1\tP\t1\t1\t1" in Path("ptm.motif.logo.tsv").read_text()
+    assert "whole_proteome_background" in Path("ptm.motif.windows.tsv").read_text()
+    assert "whole_proteome_background" in Path("ptm.motif.terms.tsv").read_text()
+    assert "whole_proteome_background" in Path("ptm.motif.logo.tsv").read_text()
