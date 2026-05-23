@@ -245,11 +245,10 @@ class MaxquantWorkflowConfig(WorkflowBaseConfig):
     proteins_fasta_path: Path
     config_path: Path | None = None
     annotation_tsv_path: Path | None = None
+    context_annotation_tsv_path: Path | None = None
     go_annotation_tsv_path: Path | None = None
     pathway_membership_tsv_path: Path | None = None
     complex_membership_tsv_path: Path | None = None
-    include_contaminants: bool = False
-    include_reverse: bool = False
     include_only_identified_by_site: bool = False
     allow_empty_lfq_signal: bool = False
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
@@ -590,14 +589,13 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
         condition_a=config.condition_a,
         condition_b=config.condition_b,
         annotation_tsv_path=config.annotation_tsv_path,
+        context_annotation_tsv_path=config.context_annotation_tsv_path,
         go_annotation_tsv_path=config.go_annotation_tsv_path,
         pathway_membership_tsv_path=config.pathway_membership_tsv_path,
         complex_membership_tsv_path=config.complex_membership_tsv_path,
         selection_policy=config.selection_policy,
         volcano_policy=config.volcano_policy,
         acceptance_policy=MaxquantProteinGroupAcceptancePolicy(
-            exclude_contaminants=not config.include_contaminants,
-            exclude_reverse=not config.include_reverse,
             exclude_only_identified_by_site=not config.include_only_identified_by_site,
             require_lfq_signal=not config.allow_empty_lfq_signal,
         ),
