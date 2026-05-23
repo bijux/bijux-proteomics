@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import importlib
 from pathlib import Path
 import subprocess
 import sys
@@ -15,35 +14,24 @@ def _source_pythonpath() -> str:
     return ":".join(str(path) for path in src_roots)
 
 
-def test_runtime_cli_import_contract() -> None:
-    module = importlib.import_module("bijux_proteomics_runtime.api.cli")
-
-    assert module.cli is not None
-
-
-def test_runtime_cli_import_contract_avoids_click_and_pydantic_at_import_time() -> (
-    None
-):
+def test_foundation_root_import_contract_avoids_pydantic_at_import_time() -> None:
     code = """
 import builtins
 import sys
 
-blocked = ("click", "pydantic")
 original_import = builtins.__import__
 
 def guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
-    for blocked_name in blocked:
-        if name == blocked_name or name.startswith(blocked_name + "."):
-            raise ModuleNotFoundError(f"blocked import: {blocked_name}")
+    if name == "pydantic" or name.startswith("pydantic."):
+        raise ModuleNotFoundError("blocked import: pydantic")
     return original_import(name, globals, locals, fromlist, level)
 
 for module_name in list(sys.modules):
-    for blocked_name in blocked:
-        if module_name == blocked_name or module_name.startswith(blocked_name + "."):
-            sys.modules.pop(module_name, None)
+    if module_name == "pydantic" or module_name.startswith("pydantic."):
+        sys.modules.pop(module_name, None)
 
 builtins.__import__ = guarded_import
-from bijux_proteomics_runtime.api.cli import cli
+import bijux_proteomics_foundation
 """
     result = subprocess.run(
         [sys.executable, "-c", code],
