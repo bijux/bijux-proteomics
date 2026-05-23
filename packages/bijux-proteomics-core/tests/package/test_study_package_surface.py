@@ -10,6 +10,19 @@ from bijux_proteomics import study
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification.contracts import (
+    MissingnessConditionSummaryEntry,
+    MissingnessConditionSummaryReport,
+    QuantEntityLevel,
+    QuantMeasureKind,
+    QuantRollupMethod,
+)
+from bijux_proteomics.quantification.power_estimation import (
+    PowerEffectSizeGridEntry,
+    PowerEstimationPolicy,
+    PowerEstimationReport,
+    PowerEstimationSummary,
+)
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 
 
@@ -259,6 +272,85 @@ def test_study_package_exports_protocol_consistency_surface() -> None:
     assert study.render_protocol_consistency_tsv(report).splitlines()[0].startswith(
         "protocol_id\taxis\tcode\tseverity"
     )
+
+
+def test_study_package_exports_experiment_confidence_surface() -> None:
+    report = study.build_experiment_confidence_report(
+        study.build_experiment_design(
+            (
+                ExperimentalDesignEntry(
+                    sample_id="C1",
+                    condition="control",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="c1.raw",
+                ),
+                ExperimentalDesignEntry(
+                    sample_id="T1",
+                    condition="treatment",
+                    replicate=1,
+                    fraction=1,
+                    spectra_file="t1.raw",
+                ),
+            )
+        ),
+        missingness_condition_summary_report=MissingnessConditionSummaryReport(
+            entity_level=QuantEntityLevel.PROTEIN,
+            entries=(
+                MissingnessConditionSummaryEntry(
+                    condition="control",
+                    sample_ids=("C1",),
+                    observed_value_count=10,
+                    zero_value_count=0,
+                    not_observed_value_count=0,
+                    filtered_value_count=0,
+                    missing_fraction=0.0,
+                    condition_specific_absence_entity_ids=(),
+                ),
+                MissingnessConditionSummaryEntry(
+                    condition="treatment",
+                    sample_ids=("T1",),
+                    observed_value_count=8,
+                    zero_value_count=0,
+                    not_observed_value_count=2,
+                    filtered_value_count=0,
+                    missing_fraction=0.2,
+                    condition_specific_absence_entity_ids=("P22222",),
+                ),
+            ),
+        ),
+        power_estimation_report=PowerEstimationReport(
+            summary=PowerEstimationSummary(
+                entity_level=QuantEntityLevel.PROTEIN,
+                measure_kind=QuantMeasureKind.INTENSITY,
+                aggregation_method=QuantRollupMethod.SUM,
+                normalization_method="none",
+                sample_count=2,
+                evaluated_entity_count=20,
+                fdr_target=0.05,
+                target_power=0.8,
+                weaker_power_with_fewer_replicates=True,
+            ),
+            policy=PowerEstimationPolicy(candidate_replicates_per_condition=(2, 3)),
+            variance_entries=(),
+            effect_size_grid=(
+                PowerEffectSizeGridEntry(
+                    replicates_per_condition=2,
+                    evaluable_entity_count=20,
+                    median_effective_replicates_per_condition=1.8,
+                    median_detectable_log2_fold_change=1.2,
+                    p75_detectable_log2_fold_change=1.5,
+                ),
+            ),
+            note="package surface proof",
+        ),
+    )
+
+    assert hasattr(study, "build_experiment_confidence_report")
+    assert hasattr(study, "render_experiment_confidence_summary_tsv")
+    assert hasattr(study, "render_experiment_confidence_component_tsv")
+    assert report.summary.component_count == 7
+    assert "overall_score" in study.render_experiment_confidence_summary_tsv(report)
 
 
 def test_study_package_exports_sample_run_identity_surface() -> None:
