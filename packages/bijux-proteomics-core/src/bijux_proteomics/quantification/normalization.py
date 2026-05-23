@@ -16,6 +16,8 @@ from bijux_proteomics.quantification.core_matrix import (
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     NormalizationComparisonReport,
+    NormalizationDistributionSnapshot,
+    NormalizationLogTransformPreparation,
     NormalizationMethod,
     NormalizationSampleSnapshot,
     NormalizationStrategyComparisonReport,
@@ -44,6 +46,16 @@ def build_normalization_comparison_report(
         after=tuple(
             _sample_snapshot(after, sample_id) for sample_id in after.sample_ids
         ),
+        before_distributions=tuple(
+            _distribution_snapshot(before, sample_id) for sample_id in before.sample_ids
+        ),
+        after_distributions=tuple(
+            _distribution_snapshot(after, sample_id) for sample_id in after.sample_ids
+        ),
+        log_transform_preparation=_log_transform_preparation(
+            before,
+            method=after.normalization_method,
+        ),
     )
 
 
@@ -55,6 +67,7 @@ def build_normalization_strategy_comparison_report(
         NormalizationMethod.TIC,
         NormalizationMethod.MEDIAN,
         NormalizationMethod.QUANTILE,
+        NormalizationMethod.LOG2_MEDIAN_CENTERING,
         NormalizationMethod.VSN_LIKE,
     ),
 ) -> NormalizationStrategyComparisonReport:
@@ -206,21 +219,12 @@ def normalize_label_free_table(
             normalization_factors=dict.fromkeys(sample_ids, 1.0),
         )
 
-    if method is NormalizationMethod.VSN_LIKE:
-        finite_positive = matrix[np.isfinite(matrix) & (matrix > 0.0)]
-        if finite_positive.size == 0:
-            return _rebuild_table_from_matrix(
-                table,
-                matrix.copy(),
-                normalization_method=method,
-                normalization_factors=dict.fromkeys(sample_ids, 1.0),
-            )
-        pseudocount = max(float(np.min(finite_positive)) / 2.0, 1e-6)
-        log_matrix = np.where(
-            np.isnan(matrix),
-            np.nan,
-            np.log2(np.clip(matrix, a_min=0.0, a_max=None) + pseudocount),
+    if method is NormalizationMethod.LOG2_MEDIAN_CENTERING:
+        prepared = _prepare_nonpositive_values_for_log_transform(
+            matrix,
+            method=method,
         )
+        log_matrix = prepared["log_matrix"]
         sample_medians = np.array(
             [
                 np.nanmedian(log_matrix[:, index])
@@ -249,10 +253,67 @@ def normalize_label_free_table(
         normalized_log = log_matrix.copy()
         for index, shift in enumerate(shifts):
             normalized_log[:, index] = normalized_log[:, index] + shift
-        normalized = np.where(
-            np.isnan(normalized_log),
-            np.nan,
-            np.maximum(np.power(2.0, normalized_log) - pseudocount, 0.0),
+        normalized = _restore_log_normalized_values(
+            matrix,
+            normalized_log,
+        )
+        factors = {
+            sample_id: float(np.power(2.0, shifts[index]))
+            for index, sample_id in enumerate(sample_ids)
+        }
+        return _rebuild_table_from_matrix(
+            table,
+            normalized,
+            normalization_method=method,
+            normalization_factors=factors,
+        )
+
+    if method is NormalizationMethod.VSN_LIKE:
+        prepared = _prepare_nonpositive_values_for_log_transform(
+            matrix,
+            method=method,
+        )
+        log_matrix = prepared["log_matrix"]
+        pseudocount = prepared["pseudocount"]
+        if pseudocount is None:
+            return _rebuild_table_from_matrix(
+                table,
+                matrix.copy(),
+                normalization_method=method,
+                normalization_factors=dict.fromkeys(sample_ids, 1.0),
+            )
+        sample_medians = np.array(
+            [
+                np.nanmedian(log_matrix[:, index])
+                if np.any(~np.isnan(log_matrix[:, index]))
+                else np.nan
+                for index in range(log_matrix.shape[1])
+            ],
+            dtype=float,
+        )
+        global_median = (
+            float(np.nanmedian(sample_medians))
+            if np.any(~np.isnan(sample_medians))
+            else 0.0
+        )
+        shifts = np.array(
+            [
+                (
+                    global_median - float(sample_medians[index])
+                    if math.isfinite(float(sample_medians[index]))
+                    else 0.0
+                )
+                for index in range(sample_medians.size)
+            ],
+            dtype=float,
+        )
+        normalized_log = log_matrix.copy()
+        for index, shift in enumerate(shifts):
+            normalized_log[:, index] = normalized_log[:, index] + shift
+        normalized = _restore_log_normalized_values(
+            matrix,
+            normalized_log,
+            pseudocount=pseudocount,
         )
         factors = {
             sample_id: float(np.power(2.0, shifts[index]))
@@ -304,3 +365,136 @@ def _sample_snapshot(
             np.percentile(abundances, 75) - np.percentile(abundances, 25)
         ),
     )
+
+
+def _distribution_snapshot(
+    table: LabelFreeQuantTable,
+    sample_id: str,
+) -> NormalizationDistributionSnapshot:
+    abundances = np.array(
+        [
+            value.abundance
+            for value in table.values
+            if value.sample_id == sample_id and value.abundance is not None
+        ],
+        dtype=float,
+    )
+    if abundances.size == 0:
+        return NormalizationDistributionSnapshot(
+            sample_id=sample_id,
+            observed_count=0,
+            zero_count=0,
+            negative_count=0,
+        )
+    return NormalizationDistributionSnapshot(
+        sample_id=sample_id,
+        observed_count=int(abundances.size),
+        zero_count=int(np.sum(abundances == 0.0)),
+        negative_count=int(np.sum(abundances < 0.0)),
+        min_abundance=float(np.min(abundances)),
+        lower_quartile_abundance=float(np.percentile(abundances, 25)),
+        median_abundance=float(np.percentile(abundances, 50)),
+        upper_quartile_abundance=float(np.percentile(abundances, 75)),
+        max_abundance=float(np.max(abundances)),
+    )
+
+
+def _log_transform_preparation(
+    table: LabelFreeQuantTable,
+    *,
+    method: NormalizationMethod,
+) -> tuple[NormalizationLogTransformPreparation, ...]:
+    if method not in (
+        NormalizationMethod.LOG2_MEDIAN_CENTERING,
+        NormalizationMethod.VSN_LIKE,
+    ):
+        return ()
+
+    entries: list[NormalizationLogTransformPreparation] = []
+    pseudocount = _minimum_positive_pseudocount(_table_matrix(table)[0])
+    for sample_id in table.sample_ids:
+        abundances = np.array(
+            [
+                value.abundance
+                for value in table.values
+                if value.sample_id == sample_id and value.abundance is not None
+            ],
+            dtype=float,
+        )
+        if method is NormalizationMethod.LOG2_MEDIAN_CENTERING:
+            handling_strategy = "exclude_nonpositive_values_before_log2_centering"
+            effective_pseudocount = None
+        else:
+            handling_strategy = "floor_nonpositive_values_then_add_pseudocount"
+            effective_pseudocount = pseudocount
+        entries.append(
+            NormalizationLogTransformPreparation(
+                sample_id=sample_id,
+                zero_count=int(np.sum(abundances == 0.0)),
+                negative_count=int(np.sum(abundances < 0.0)),
+                positive_count=int(np.sum(abundances > 0.0)),
+                handling_strategy=handling_strategy,
+                pseudocount=effective_pseudocount,
+            )
+        )
+    return tuple(entries)
+
+
+def _minimum_positive_pseudocount(matrix: np.ndarray) -> float | None:
+    finite_positive = matrix[np.isfinite(matrix) & (matrix > 0.0)]
+    if finite_positive.size == 0:
+        return None
+    return max(float(np.min(finite_positive)) / 2.0, 1e-6)
+
+
+def _prepare_nonpositive_values_for_log_transform(
+    matrix: np.ndarray,
+    *,
+    method: NormalizationMethod,
+) -> dict[str, np.ndarray | float | None]:
+    positive_mask = np.isfinite(matrix) & (matrix > 0.0)
+    if method is NormalizationMethod.LOG2_MEDIAN_CENTERING:
+        log_matrix = np.full(matrix.shape, np.nan, dtype=float)
+        log_matrix[positive_mask] = np.log2(matrix[positive_mask])
+        return {
+            "log_matrix": log_matrix,
+            "pseudocount": None,
+        }
+    pseudocount = _minimum_positive_pseudocount(matrix)
+    if pseudocount is None:
+        return {
+            "log_matrix": np.full(matrix.shape, np.nan, dtype=float),
+            "pseudocount": None,
+        }
+    clipped = np.where(np.isnan(matrix), np.nan, np.maximum(matrix, 0.0))
+    log_matrix = np.where(
+        np.isnan(clipped),
+        np.nan,
+        np.log2(clipped + pseudocount),
+    )
+    return {
+        "log_matrix": log_matrix,
+        "pseudocount": pseudocount,
+    }
+
+
+def _restore_log_normalized_values(
+    original_matrix: np.ndarray,
+    normalized_log_matrix: np.ndarray,
+    *,
+    pseudocount: float | None = None,
+) -> np.ndarray:
+    restored = np.full(original_matrix.shape, np.nan, dtype=float)
+    finite_mask = np.isfinite(normalized_log_matrix)
+    if pseudocount is None:
+        restored[finite_mask] = np.power(2.0, normalized_log_matrix[finite_mask])
+    else:
+        restored[finite_mask] = np.maximum(
+            np.power(2.0, normalized_log_matrix[finite_mask]) - pseudocount,
+            0.0,
+        )
+    zero_mask = np.isfinite(original_matrix) & (original_matrix == 0.0)
+    negative_mask = np.isfinite(original_matrix) & (original_matrix < 0.0)
+    restored[zero_mask] = 0.0
+    restored[negative_mask] = 0.0
+    return restored
