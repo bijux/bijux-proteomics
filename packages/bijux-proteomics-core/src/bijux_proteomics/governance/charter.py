@@ -150,6 +150,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "io/spectra.py",
             "io/stable_outputs.py",
             "identification/contracts.py",
+            "identification/contaminant_evidence.py",
             "identification/diann_import.py",
             "identification/picked_protein_fdr.py",
             "identification/peptide_evidence.py",
