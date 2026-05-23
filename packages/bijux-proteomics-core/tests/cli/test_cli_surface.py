@@ -3668,6 +3668,71 @@ def test_mzml_inspect_command_surfaces_tic_and_bpc_trace_kinds() -> None:
         assert payload["summary"]["spectrum_count"] == 2
 
 
+def test_xic_extract_command_emits_trace_json_and_tsv() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "xic_review.mzml",
+            "xic_review.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "xic_targets.tsv",
+            "xic_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-extract",
+                "xic_review.mzml",
+                "xic_targets.tsv",
+                "--tolerance-ppm",
+                "10",
+                "--tsv-out",
+                "xic_traces.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["eligible_spectra"] == 3
+        assert payload["tolerance_unit"] == "ppm"
+        assert len(payload["trace_points"]) == 8
+        assert Path("xic_traces.tsv").exists()
+        traces_tsv = Path("xic_traces.tsv").read_text(encoding="utf-8")
+        assert "target_beta\tscan=7002\t30\t700.000000\t699.993000\t700.007000\t3000\t1" in traces_tsv
+        assert "scan=7003" not in traces_tsv
+
+
+def test_xic_extract_command_rejects_dual_tolerance_modes() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "xic_review.mzml",
+            "xic_review.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "xic_targets.tsv",
+            "xic_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "xic-extract",
+                "xic_review.mzml",
+                "xic_targets.tsv",
+                "--tolerance-da",
+                "0.01",
+                "--tolerance-ppm",
+                "10",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "provide either tolerance_da or tolerance_ppm, not both" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
