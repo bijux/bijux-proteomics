@@ -1,2 +1,2 @@
-transition_id	sample_id	intensity
-bad-row	s1	1200
+transition_id	precursor_charge	sample_id	intensity
+bad-row	2	s1	1200

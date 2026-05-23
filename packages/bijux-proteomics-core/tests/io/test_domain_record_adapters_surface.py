@@ -26,10 +26,12 @@ def test_io_contracts_convert_to_canonical_domain_records() -> None:
     transition = TransitionTableEntry(
         transition_id="y7",
         precursor_id="PEPTIDE/2",
+        precursor_charge=2,
         sample_id="sample-a",
         intensity=1000.0,
         peptide_sequence="PEPTIDE",
         protein_ref="P001",
+        retention_time_minutes=12.5,
     )
     contrast = build_pairwise_contrast_record(
         left_condition="treated",
@@ -39,6 +41,8 @@ def test_io_contracts_convert_to_canonical_domain_records() -> None:
 
     assert spectrum.to_domain_record().peak_count == 1
     assert transition.to_domain_record().protein_ref == "P001"
+    assert transition.to_domain_record().precursor_charge == 2
+    assert transition.to_domain_record().retention_time_minutes == 12.5
     assert contrast.kind is ContrastKind.CASE_CONTROL
 
 

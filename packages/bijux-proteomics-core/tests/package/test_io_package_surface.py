@@ -46,3 +46,16 @@ def test_io_package_exports_spectrum_quality_owner_surface() -> None:
     assert hasattr(io, "render_spectrum_run_qc_spectra_tsv")
     assert report.spectrum_metrics[0].quality_tier.value == "high"
     assert "quality_tier" in rendered
+
+
+def test_io_package_exports_transition_table_owner_surface() -> None:
+    report = io.parse_transition_table(_format_fixture("transition_quant.tsv"))
+    first_entry = report.accepted_entries[0]
+    domain_record = first_entry.to_domain_record()
+
+    assert hasattr(io, "parse_transition_table")
+    assert len(report.accepted_entries) == 7
+    assert first_entry.precursor_charge == 2
+    assert first_entry.retention_time_minutes == 12.5
+    assert domain_record.precursor_charge == 2
+    assert domain_record.retention_time_minutes == 12.5
