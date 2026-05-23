@@ -517,6 +517,7 @@ from bijux_proteomics.ptm import (
     export_ptm_unmapped_site_annotation_tsv,
     render_ptm_ambiguity_review_summary_tsv,
     render_ptm_coordinate_validation_tsv,
+    render_ptm_evidence_site_candidate_tsv,
     render_ptm_localization_scoring_entry_tsv,
     render_ptm_localization_scoring_summary_tsv,
     render_ptm_localized_site_review_tsv,
@@ -15867,6 +15868,11 @@ def ptm_parse_peptides_command(
     default=None,
 )
 @click.option(
+    "--candidate-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--site-table-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -15906,6 +15912,7 @@ def ptm_map_sites_command(
     protein_separator: str,
     site_separator: str,
     mapping_tsv_out: Path | None,
+    candidate_tsv_out: Path | None,
     site_table_tsv_out: Path | None,
     ambiguity_tsv_out: Path | None,
     coverage_tsv_out: Path | None,
@@ -15971,6 +15978,11 @@ def ptm_map_sites_command(
             render_ptm_protein_site_mapping_tsv(mappings),
             encoding="utf-8",
         )
+    if candidate_tsv_out is not None:
+        candidate_tsv_out.write_text(
+            render_ptm_evidence_site_candidate_tsv(evidence),
+            encoding="utf-8",
+        )
     if site_table_tsv_out is not None:
         site_table_tsv_out.write_text(
             render_ptm_site_table_tsv(site_table),
@@ -15995,6 +16007,9 @@ def ptm_map_sites_command(
     _emit_json(
         {
             "accepted_rows": len(evidence.accepted_records),
+            "site_candidate_count": sum(
+                len(record.site_candidates) for record in evidence.accepted_records
+            ),
             "mapping_count": len(mappings),
             "site_count": len(site_table),
             "ambiguity_count": len(ambiguity_review.unlocalized_groups),
