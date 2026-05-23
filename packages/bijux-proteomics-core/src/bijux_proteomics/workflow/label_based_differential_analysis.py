@@ -63,9 +63,11 @@ from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
 )
 from bijux_proteomics.study import (
+    ExperimentDesignAnalysisFamily,
     ExperimentDesign,
     build_experiment_design,
     coerce_experiment_design,
+    require_matching_experiment_design_analysis_family,
     require_valid_experiment_design_for_differential_analysis,
 )
 from bijux_proteomics_foundation import JsonModel
@@ -316,6 +318,23 @@ def build_label_based_differential_analysis_report(
         analysis_design_entries,
         condition_a=condition_a,
         condition_b=condition_b,
+    )
+    require_matching_experiment_design_analysis_family(
+        experiment_design,
+        chosen_analysis_family=(
+            ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+            if selected_contrast is not None
+            else ExperimentDesignAnalysisFamily.MULTI_CONDITION_DIFFERENTIAL
+        ),
+        condition_a=(
+            selected_contrast[0] if selected_contrast is not None else condition_a
+        ),
+        condition_b=(
+            selected_contrast[1] if selected_contrast is not None else condition_b
+        ),
+        batch_field=batch_field if batch_field else None,
+        pairing_field=pairing_field,
+        require_complete_plex_channels=bool(experiment_design.plexes),
     )
     differential_report: DifferentialAbundanceReport | None = None
     multi_condition_report: MultiConditionDifferentialAbundanceReport | None = None
