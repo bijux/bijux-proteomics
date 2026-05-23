@@ -21,13 +21,7 @@ from bijux_proteomics.dia.protein_matrix import (
     DiaProteinRollupMethod,
     DiaSharedPeptidePolicy,
     build_diann_protein_matrix_report,
-)
-from bijux_proteomics.identification.contracts import TargetDecoyLabel
-from bijux_proteomics.identification.spectronaut_import import (
-    SpectronautImportReport,
-    SpectronautPrecursorReviewEntry,
-    SpectronautProteinGroupReviewEntry,
-    build_spectronaut_import_report,
+    build_spectronaut_protein_matrix_report,
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
@@ -199,33 +193,28 @@ def build_spectronaut_differential_input_report(
     config_path: Path | None = None,
     include_decoys: bool = False,
     max_q_value: float | None = 0.01,
+    peptide_rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+    target_kind: DiaProteinMatrixTargetKind = DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+    shared_peptide_policy: DiaSharedPeptidePolicy = DiaSharedPeptidePolicy.INCLUDE,
+    protein_rollup_method: DiaProteinRollupMethod = DiaProteinRollupMethod.SUM,
 ) -> DiaDifferentialInputReport:
     """Build a DIA-native quantification input packet from one Spectronaut report."""
 
-    import_report = build_spectronaut_import_report(
+    protein_matrix = build_spectronaut_protein_matrix_report(
         result_tsv_path,
         config_path=config_path,
-    )
-    table = _build_label_free_table_from_spectronaut_report(
-        import_report,
         include_decoys=include_decoys,
         max_q_value=max_q_value,
+        peptide_rollup_method=peptide_rollup_method,
+        target_kind=target_kind,
+        shared_peptide_policy=shared_peptide_policy,
+        protein_rollup_method=protein_rollup_method,
     )
-    matrix_summary = DiaDifferentialMatrixSummary(
+    return build_dia_differential_input_report(
+        protein_matrix,
         source_kind=DiaDifferentialSourceKind.SPECTRONAUT,
-        source_name="Spectronaut",
-        entity_count=len(table.entity_ids),
-        sample_count=len(table.sample_ids),
-        observed_cell_count=sum(1 for value in table.values if value.abundance is not None),
-        missing_cell_count=sum(1 for value in table.values if value.abundance is None),
-    )
-    return DiaDifferentialInputReport(
-        source_kind=DiaDifferentialSourceKind.SPECTRONAUT,
-        source_name="Spectronaut",
-        matrix_summary=matrix_summary,
-        table=table,
         note=(
-            "dia differential input preserves one protein-group sample matrix over governed Spectronaut report evidence"
+            "dia differential input preserves one protein-level sample matrix over governed Spectronaut rollup evidence"
         ),
     )
 
@@ -253,6 +242,41 @@ def build_dia_differential_input_report(
         matrix_summary=matrix_summary,
         table=table,
         note=note,
+    )
+
+
+def build_dia_protein_matrix_differential_analysis_report(
+    protein_matrix: DiaProteinMatrixReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+    *,
+    source_kind: DiaDifferentialSourceKind,
+    normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    condition_a: str | None = None,
+    condition_b: str | None = None,
+    batch_field: str = "batch",
+    covariate_fields: tuple[str, ...] = (),
+    pairing_field: str | None = None,
+    note: str | None = None,
+) -> DiaDifferentialAnalysisReport:
+    """Run owned DIA differential analysis directly from one DIA protein matrix."""
+
+    input_report = build_dia_differential_input_report(
+        protein_matrix,
+        source_kind=source_kind,
+        note=note
+        or (
+            f"dia differential input preserves one protein-level sample matrix over governed {protein_matrix.source_name} rollup evidence"
+        ),
+    )
+    return build_dia_differential_analysis_report(
+        input_report,
+        design_entries,
+        normalization_method=normalization_method,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field,
+        covariate_fields=covariate_fields,
+        pairing_field=pairing_field,
     )
 
 
@@ -358,7 +382,7 @@ def build_diann_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Build DIA-NN normalization, design, and differential results in one path."""
 
-    input_report = build_diann_differential_input_report(
+    protein_matrix = build_diann_protein_matrix_report(
         result_tsv_path,
         config_path=config_path,
         include_decoys=include_decoys,
@@ -368,9 +392,10 @@ def build_diann_differential_analysis_report(
         shared_peptide_policy=shared_peptide_policy,
         protein_rollup_method=protein_rollup_method,
     )
-    return build_dia_differential_analysis_report(
-        input_report,
+    return build_dia_protein_matrix_differential_analysis_report(
+        protein_matrix,
         design_entries,
+        source_kind=DiaDifferentialSourceKind.DIANN,
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
@@ -388,6 +413,10 @@ def build_spectronaut_differential_analysis_report(
     include_decoys: bool = False,
     max_q_value: float | None = 0.01,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
+    peptide_rollup_method: DiaPeptideRollupMethod = DiaPeptideRollupMethod.MAX,
+    target_kind: DiaProteinMatrixTargetKind = DiaProteinMatrixTargetKind.PROTEIN_GROUP,
+    shared_peptide_policy: DiaSharedPeptidePolicy = DiaSharedPeptidePolicy.INCLUDE,
+    protein_rollup_method: DiaProteinRollupMethod = DiaProteinRollupMethod.SUM,
     condition_a: str | None = None,
     condition_b: str | None = None,
     batch_field: str = "batch",
@@ -396,15 +425,20 @@ def build_spectronaut_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Build Spectronaut normalization, design, and differential results in one path."""
 
-    input_report = build_spectronaut_differential_input_report(
+    protein_matrix = build_spectronaut_protein_matrix_report(
         result_tsv_path,
         config_path=config_path,
         include_decoys=include_decoys,
         max_q_value=max_q_value,
+        peptide_rollup_method=peptide_rollup_method,
+        target_kind=target_kind,
+        shared_peptide_policy=shared_peptide_policy,
+        protein_rollup_method=protein_rollup_method,
     )
-    return build_dia_differential_analysis_report(
-        input_report,
+    return build_dia_protein_matrix_differential_analysis_report(
+        protein_matrix,
         design_entries,
+        source_kind=DiaDifferentialSourceKind.SPECTRONAUT,
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
@@ -674,90 +708,6 @@ def export_dia_differential_volcano_plot_tsv(
     """Write one DIA volcano plot payload to a stable TSV artifact."""
 
     path.write_text(render_dia_differential_volcano_plot_tsv(plot), encoding="utf-8")
-
-
-def _build_label_free_table_from_spectronaut_report(
-    import_report: SpectronautImportReport,
-    *,
-    include_decoys: bool,
-    max_q_value: float | None,
-) -> LabelFreeQuantTable:
-    sample_ids = tuple(sorted({row.sample_name for row in import_report.protein_group_rows}))
-    precursor_lookup = _spectronaut_precursor_lookup(
-        import_report.precursor_rows,
-        include_decoys=include_decoys,
-        max_q_value=max_q_value,
-    )
-    grouped_rows: dict[tuple[str, str], list[SpectronautProteinGroupReviewEntry]] = {}
-    protein_refs_by_entity: dict[str, tuple[str, ...]] = {}
-    for row in import_report.protein_group_rows:
-        if not include_decoys and row.target_decoy_label is TargetDecoyLabel.DECOY:
-            continue
-        if max_q_value is not None and row.q_value > max_q_value:
-            continue
-        grouped_rows.setdefault((row.protein_group_id, row.sample_name), []).append(row)
-        protein_refs_by_entity[row.protein_group_id] = row.protein_refs
-
-    entity_ids = tuple(sorted(protein_refs_by_entity))
-    values: list[QuantValue] = []
-    entity_member_peptides = {
-        entity_id: precursor_lookup.get(entity_id, ())
-        for entity_id in entity_ids
-    }
-    for entity_id in entity_ids:
-        for sample_id in sample_ids:
-            observations = grouped_rows.get((entity_id, sample_id), [])
-            abundances = [
-                observation.protein_group_quantity
-                for observation in observations
-                if observation.protein_group_quantity is not None
-            ]
-            abundance = max(abundances) if abundances else None
-            values.append(
-                QuantValue(
-                    sample_id=sample_id,
-                    entity_id=entity_id,
-                    abundance=abundance,
-                    missing_value_kind=(
-                        MissingValueKind.OBSERVED
-                        if abundance is not None
-                        else MissingValueKind.NOT_OBSERVED
-                    ),
-                    source_feature_count=sum(
-                        observation.source_precursor_count for observation in observations
-                    ),
-                )
-            )
-    return LabelFreeQuantTable(
-        entity_level=QuantEntityLevel.PROTEIN,
-        measure_kind=QuantMeasureKind.INTENSITY,
-        aggregation_method=QuantRollupMethod.SUM,
-        normalization_method=NormalizationMethod.NONE,
-        sample_ids=sample_ids,
-        entity_ids=entity_ids,
-        values=tuple(values),
-        entity_protein_refs=protein_refs_by_entity,
-        entity_member_peptides=entity_member_peptides,
-    )
-
-
-def _spectronaut_precursor_lookup(
-    rows: tuple[SpectronautPrecursorReviewEntry, ...],
-    *,
-    include_decoys: bool,
-    max_q_value: float | None,
-) -> dict[str, tuple[str, ...]]:
-    grouped: dict[str, set[str]] = {}
-    for row in rows:
-        if not include_decoys and row.target_decoy_label is TargetDecoyLabel.DECOY:
-            continue
-        if max_q_value is not None and row.q_value > max_q_value:
-            continue
-        grouped.setdefault(row.protein_group_id, set()).add(row.modified_peptide)
-    return {
-        protein_group_id: tuple(sorted(peptides))
-        for protein_group_id, peptides in sorted(grouped.items())
-    }
 
 
 def _condition_names(
