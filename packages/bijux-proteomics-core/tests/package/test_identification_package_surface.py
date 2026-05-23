@@ -246,6 +246,61 @@ def test_identification_package_exports_contaminant_evidence_owner_surface() -> 
     assert "heavy_contaminant_warning" in rendered
 
 
+def test_identification_package_exports_score_separation_owner_surface() -> None:
+    records = (
+        identification.PsmRecord(
+            spectrum_id="stable-001",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=100.0,
+            protein_refs=("P11111",),
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+        ),
+        identification.PsmRecord(
+            spectrum_id="stable-002",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            charge=2,
+            score=90.0,
+            protein_refs=("P11111",),
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+        ),
+        identification.PsmRecord(
+            spectrum_id="stable-003",
+            peptide="DECA",
+            canonical_peptide="DECA",
+            charge=2,
+            score=40.0,
+            protein_refs=("DECOY_P99999",),
+            target_decoy_label=identification.TargetDecoyLabel.DECOY,
+        ),
+        identification.PsmRecord(
+            spectrum_id="stable-004",
+            peptide="DECB",
+            canonical_peptide="DECB",
+            charge=2,
+            score=30.0,
+            protein_refs=("DECOY_Q99999",),
+            target_decoy_label=identification.TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    report = identification.build_score_separation_diagnostic_report(
+        records,
+        bin_count=4,
+    )
+    rendered = identification.render_score_separation_summary_tsv(report)
+
+    assert hasattr(identification, "build_score_separation_diagnostic_report")
+    assert hasattr(identification, "render_score_separation_bins_tsv")
+    assert hasattr(identification, "render_score_separation_summary_tsv")
+    assert report.summary.warning_tier.value == "stable"
+    assert report.summary.overlap_metric == 0.0
+    assert report.reproducibility_hash
+    assert "warning_tier" in rendered
+
+
 def test_identification_package_exports_protein_parsimony_owner_surface() -> None:
     raw_cases = json.loads(
         _identification_fixture("protein_parsimony_reference_cases.json").read_text(
