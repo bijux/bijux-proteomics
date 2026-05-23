@@ -60,6 +60,7 @@ from bijux_proteomics.workflow.dia_differential_analysis import (
     build_dia_differential_analysis_report,
     build_dia_differential_input_report,
     render_dia_differential_matrix_tsv,
+    render_dia_differential_qc_summary_tsv,
     render_dia_differential_results_tsv,
     render_dia_normalization_balance_plot_tsv,
 )
@@ -124,6 +125,7 @@ class DiannBiologicalWorkflowArtifactPaths(JsonModel):
     differential_raw_matrix_tsv: str = Field(..., min_length=1)
     differential_normalized_matrix_tsv: str = Field(..., min_length=1)
     differential_results_tsv: str = Field(..., min_length=1)
+    differential_qc_summary_tsv: str = Field(..., min_length=1)
     differential_balance_tsv: str = Field(..., min_length=1)
     biological_manifest_json: str = Field(..., min_length=1)
     report_html: str = Field(..., min_length=1)
@@ -300,6 +302,7 @@ def export_diann_biological_workflow_bundle(
     differential_raw_name = "diann_differential_raw_matrix.tsv"
     differential_normalized_name = "diann_differential_normalized_matrix.tsv"
     differential_results_name = "diann_differential_results.tsv"
+    differential_qc_summary_name = "diann_differential_qc_summary.tsv"
     differential_balance_name = "diann_differential_balance.tsv"
     biological_manifest_name = "biological_report_manifest.json"
 
@@ -379,6 +382,10 @@ def export_diann_biological_workflow_bundle(
         render_dia_differential_results_tsv(report.differential_analysis_report),
         encoding="utf-8",
     )
+    (output_dir / differential_qc_summary_name).write_text(
+        render_dia_differential_qc_summary_tsv(report.differential_analysis_report),
+        encoding="utf-8",
+    )
     (output_dir / differential_balance_name).write_text(
         render_dia_normalization_balance_plot_tsv(
             report.differential_analysis_report.normalization_balance_plot
@@ -414,6 +421,7 @@ def export_diann_biological_workflow_bundle(
             differential_raw_matrix_tsv=differential_raw_name,
             differential_normalized_matrix_tsv=differential_normalized_name,
             differential_results_tsv=differential_results_name,
+            differential_qc_summary_tsv=differential_qc_summary_name,
             differential_balance_tsv=differential_balance_name,
             biological_manifest_json=biological_manifest_name,
             report_html=biological_manifest.artifacts.report_html,
