@@ -5084,6 +5084,12 @@ def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
                 "targeted.samples.tsv",
                 "--flagged-tsv-out",
                 "targeted.flagged.tsv",
+                "--retained-transition-tsv-out",
+                "targeted.retained.tsv",
+                "--excluded-transition-tsv-out",
+                "targeted.excluded.tsv",
+                "--missingness-tsv-out",
+                "targeted.missingness.tsv",
             ],
         )
 
@@ -5093,32 +5099,58 @@ def test_targeted_target_matrix_command_emits_targeted_review_outputs() -> None:
         assert payload["source_name"] == "Skyline"
         assert payload["import_summary"]["observation_count"] == 6
         assert payload["matrix_summary"]["target_count"] == 2
+        assert payload["matrix_summary"]["retained_transition_count"] == 4
+        assert payload["matrix_summary"]["excluded_transition_count"] == 2
         assert payload["matrix_summary"]["quality_flag_count"] == 2
         assert payload["targets"][1]["target_id"] == "PEPTIDEK/2"
+        assert payload["targets"][1]["total_intensity"] == 273000.0
+        assert payload["retained_transitions"][0]["transition_id"] == "y5"
+        assert payload["excluded_transitions"][-1]["transition_id"] == "y8"
+        missing_entry = next(
+            entry
+            for entry in payload["missingness"]
+            if entry["target_id"] == "ACDMPEP/3" and entry["sample_id"] == "sample_B"
+        )
+        assert missing_entry["missing_reason"] == "no_observation"
         assert payload["outputs"]["summary_tsv"] == "targeted.summary.tsv"
         assert payload["outputs"]["observation_tsv"] == "targeted.observations.tsv"
         assert payload["outputs"]["target_tsv"] == "targeted.targets.tsv"
         assert payload["outputs"]["sample_tsv"] == "targeted.samples.tsv"
         assert payload["outputs"]["flagged_tsv"] == "targeted.flagged.tsv"
+        assert payload["outputs"]["retained_transition_tsv"] == "targeted.retained.tsv"
+        assert payload["outputs"]["excluded_transition_tsv"] == "targeted.excluded.tsv"
+        assert payload["outputs"]["missingness_tsv"] == "targeted.missingness.tsv"
         assert Path("targeted.summary.tsv").exists()
         assert Path("targeted.observations.tsv").exists()
         assert Path("targeted.targets.tsv").exists()
         assert Path("targeted.samples.tsv").exists()
         assert Path("targeted.flagged.tsv").exists()
-        assert "Skyline\t2\t2\t3\t1\t2" in Path("targeted.summary.tsv").read_text(
+        assert Path("targeted.retained.tsv").exists()
+        assert Path("targeted.excluded.tsv").exists()
+        assert Path("targeted.missingness.tsv").exists()
+        assert "Skyline\t2\t2\t3\t1\t0\t4\t2\t2" in Path("targeted.summary.tsv").read_text(
             encoding="utf-8"
         )
-        assert "skyline_export\ty8\tPEPTIDEK/2\tPEPTIDEK\tsample_B\t8000" in Path(
+        assert "skyline_export\ty8\tPEPTIDEK/2\t2\tPEPTIDEK\tsample_B\t8000" in Path(
             "targeted.observations.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\tPEPTIDEK\tP001\ty7;y8\t2\t281000" in Path(
+        assert "PEPTIDEK/2\tPEPTIDEK\tP001\ty7;y8\ty7;y8\ty8\t2\t1\t2\t273000" in Path(
             "targeted.targets.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\tsample_B\ty7;y8\t123000\t12.55\tinterference\ttrue" in (
+        assert "PEPTIDEK/2\tsample_B\ty7;y8\ty7\ty8\t2\t1\t1\t115000\t12.4\tinterference\t\ttrue" in (
             Path("targeted.samples.tsv").read_text(encoding="utf-8")
         )
         assert "PEPTIDEK/2\tPEPTIDEK\tP001\t1\t1" in Path(
             "targeted.flagged.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\tsample_B\ty7\t115000\t12.4\tpass" in Path(
+            "targeted.retained.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\tsample_B\ty8\t8000\t12.7\tinterference\tquality_filter" in Path(
+            "targeted.excluded.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ACDMPEP/3\tsample_B\t0\t0\t0\ttrue\tno_observation" in Path(
+            "targeted.missingness.tsv"
         ).read_text(encoding="utf-8")
 
 
