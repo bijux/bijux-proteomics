@@ -781,6 +781,8 @@ from bijux_proteomics.workflow import (
     render_dia_dda_shared_intensity_correlation_tsv,
     render_public_benchmark_suite_failures_tsv,
     render_public_benchmark_suite_summary_tsv,
+    render_trust_bundle_run_summary_tsv,
+    build_public_benchmark_trust_bundle,
     run_public_benchmark_descriptor,
     run_public_benchmark_descriptor_suite,
 )
@@ -2908,6 +2910,48 @@ def public_benchmark_runner_command(
             render_public_benchmark_suite_failures_tsv(suite),
         )
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("build-trust-bundle")
+@click.option(
+    "--benchmarks",
+    "benchmark_root",
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    required=True,
+)
+@click.option(
+    "--out",
+    "output_dir",
+    type=click.Path(file_okay=False, path_type=Path),
+    required=True,
+)
+@click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--manifest-json-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def build_trust_bundle_command(
+    benchmark_root: Path,
+    output_dir: Path,
+    summary_tsv_out: Path | None,
+    manifest_json_out: Path | None,
+) -> None:
+    """Build a regenerable trust bundle from public benchmark descriptors."""
+
+    try:
+        report = build_public_benchmark_trust_bundle(
+            benchmark_root,
+            output_dir=output_dir,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(summary_tsv_out, render_trust_bundle_run_summary_tsv(report))
+    if manifest_json_out is not None:
+        manifest_json_out.write_text(report.to_stable_json() + "\n", encoding="utf-8")
+    _emit_json(report)
 
 
 @cli.command("public-case-study")
