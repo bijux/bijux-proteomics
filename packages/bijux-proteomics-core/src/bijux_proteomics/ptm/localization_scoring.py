@@ -34,6 +34,15 @@ class PtmLocalizationProbabilitySource(StrEnum):
     NORMALIZED_SCORE = "normalized_score"
 
 
+class PtmLocalizationConfidenceTier(StrEnum):
+    """Confidence tier for one localized PTM assignment."""
+
+    HIGH_CONFIDENCE = "high_confidence"
+    SUPPORTED = "supported"
+    AMBIGUOUS = "ambiguous"
+    REFUSED = "refused"
+
+
 class PtmLocalizationScoringEntry(JsonModel):
     """One PTM localization-scoring entry for one localized modification."""
 
@@ -46,9 +55,11 @@ class PtmLocalizationScoringEntry(JsonModel):
     modification_name: str = Field(..., min_length=1)
     peptide_site_index: int = Field(..., ge=1)
     candidate_site_indices: tuple[int, ...] = Field(default_factory=tuple)
+    ambiguity_group: str = Field(..., min_length=1)
     localization_score: float = Field(..., ge=0.0)
     localization_probability: float = Field(..., ge=0.0, le=1.0)
     probability_source: PtmLocalizationProbabilitySource
+    localization_tier: PtmLocalizationConfidenceTier
     site_determining_ions: tuple[str, ...] = Field(default_factory=tuple)
     supported_site_determining_ions: tuple[str, ...] = Field(default_factory=tuple)
     ambiguous: bool
@@ -64,6 +75,9 @@ class PtmLocalizationScoringReport(JsonModel):
     entries: tuple[PtmLocalizationScoringEntry, ...] = Field(default_factory=tuple)
     ambiguous_entry_count: int = Field(..., ge=0)
     confident_entry_count: int = Field(..., ge=0)
+    high_confidence_entry_count: int = Field(..., ge=0)
+    supported_entry_count: int = Field(..., ge=0)
+    refused_entry_count: int = Field(..., ge=0)
     multi_phosphorylated_entry_count: int = Field(..., ge=0)
     fragment_supported_entry_count: int = Field(..., ge=0)
 
@@ -130,11 +144,21 @@ def build_ptm_localization_scoring_report(
                 site_determining_ion_count=len(site_determining_ions),
                 supported_site_determining_ion_count=len(supported_site_determining_ions),
             )
-            ambiguous = len(candidate_site_indices) > 1
-            note = (
-                "site remains ambiguous across multiple candidate phosphosites"
-                if ambiguous
-                else "site resolves to one candidate phosphosite"
+            ambiguity_group = _build_ambiguity_group(
+                modification_name=modification.name,
+                candidate_site_indices=candidate_site_indices,
+            )
+            tier = _determine_localization_tier(
+                localization_probability=probability,
+                probability_source=source,
+                candidate_site_indices=candidate_site_indices,
+                supported_site_determining_ion_count=len(supported_site_determining_ions),
+            )
+            ambiguous = tier is PtmLocalizationConfidenceTier.AMBIGUOUS
+            note = _localization_tier_note(
+                tier=tier,
+                probability_source=source,
+                supported_site_determining_ion_count=len(supported_site_determining_ions),
             )
             entries.append(
                 PtmLocalizationScoringEntry(
@@ -145,9 +169,11 @@ def build_ptm_localization_scoring_report(
                     modification_name=modification.name,
                     peptide_site_index=modification.site_index,
                     candidate_site_indices=candidate_site_indices,
+                    ambiguity_group=ambiguity_group,
                     localization_score=record.localization_score,
                     localization_probability=probability,
                     probability_source=source,
+                    localization_tier=tier,
                     site_determining_ions=site_determining_ions,
                     supported_site_determining_ions=supported_site_determining_ions,
                     ambiguous=ambiguous,
@@ -168,7 +194,30 @@ def build_ptm_localization_scoring_report(
     return PtmLocalizationScoringReport(
         entries=sorted_entries,
         ambiguous_entry_count=sum(1 for entry in sorted_entries if entry.ambiguous),
-        confident_entry_count=sum(1 for entry in sorted_entries if not entry.ambiguous),
+        confident_entry_count=sum(
+            1
+            for entry in sorted_entries
+            if entry.localization_tier
+            in {
+                PtmLocalizationConfidenceTier.HIGH_CONFIDENCE,
+                PtmLocalizationConfidenceTier.SUPPORTED,
+            }
+        ),
+        high_confidence_entry_count=sum(
+            1
+            for entry in sorted_entries
+            if entry.localization_tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE
+        ),
+        supported_entry_count=sum(
+            1
+            for entry in sorted_entries
+            if entry.localization_tier is PtmLocalizationConfidenceTier.SUPPORTED
+        ),
+        refused_entry_count=sum(
+            1
+            for entry in sorted_entries
+            if entry.localization_tier is PtmLocalizationConfidenceTier.REFUSED
+        ),
         multi_phosphorylated_entry_count=sum(
             1 for entry in sorted_entries if entry.multi_phosphorylated
         ),
@@ -206,6 +255,67 @@ def normalize_ptm_localization_probability(
     return round(probability, 4), source
 
 
+def _determine_localization_tier(
+    *,
+    localization_probability: float,
+    probability_source: PtmLocalizationProbabilitySource,
+    candidate_site_indices: tuple[int, ...],
+    supported_site_determining_ion_count: int,
+) -> PtmLocalizationConfidenceTier:
+    has_reported_high_probability = (
+        probability_source is PtmLocalizationProbabilitySource.REPORTED_PROBABILITY
+        and localization_probability >= 0.95
+    )
+    has_supported_site_evidence = supported_site_determining_ion_count > 0
+    unresolved_ambiguity = (
+        len(candidate_site_indices) > 1
+        and not has_reported_high_probability
+        and not has_supported_site_evidence
+    )
+    if (
+        localization_probability >= 0.95
+        and (has_reported_high_probability or has_supported_site_evidence)
+    ):
+        return PtmLocalizationConfidenceTier.HIGH_CONFIDENCE
+    if unresolved_ambiguity:
+        return PtmLocalizationConfidenceTier.AMBIGUOUS
+    if localization_probability >= 0.75 or has_supported_site_evidence:
+        return PtmLocalizationConfidenceTier.SUPPORTED
+    return PtmLocalizationConfidenceTier.REFUSED
+
+
+def _build_ambiguity_group(
+    *,
+    modification_name: str,
+    candidate_site_indices: tuple[int, ...],
+) -> str:
+    if not candidate_site_indices:
+        return f"{modification_name}:unassigned"
+    return (
+        f"{modification_name}:"
+        + "|".join(str(site_index) for site_index in candidate_site_indices)
+    )
+
+
+def _localization_tier_note(
+    *,
+    tier: PtmLocalizationConfidenceTier,
+    probability_source: PtmLocalizationProbabilitySource,
+    supported_site_determining_ion_count: int,
+) -> str:
+    if tier is PtmLocalizationConfidenceTier.HIGH_CONFIDENCE:
+        if probability_source is PtmLocalizationProbabilitySource.REPORTED_PROBABILITY:
+            return "high-confidence localization is supported by imported localization probability"
+        return "high-confidence localization is supported by site-determining fragment ions"
+    if tier is PtmLocalizationConfidenceTier.SUPPORTED:
+        return "localization is reviewable but remains short of high-confidence evidence"
+    if tier is PtmLocalizationConfidenceTier.AMBIGUOUS:
+        if supported_site_determining_ion_count == 0:
+            return "localization remains unresolved across multiple candidate phosphosites"
+        return "localization has partial support but remains unresolved across candidate phosphosites"
+    return "localization evidence remains too weak for site-level interpretation"
+
+
 def render_ptm_localization_scoring_summary_tsv(
     report: PtmLocalizationScoringReport,
 ) -> str:
@@ -218,6 +328,9 @@ def render_ptm_localization_scoring_summary_tsv(
             "entry_count",
             "ambiguous_entry_count",
             "confident_entry_count",
+            "high_confidence_entry_count",
+            "supported_entry_count",
+            "refused_entry_count",
             "multi_phosphorylated_entry_count",
             "fragment_supported_entry_count",
         ]
@@ -227,6 +340,9 @@ def render_ptm_localization_scoring_summary_tsv(
             len(report.entries),
             report.ambiguous_entry_count,
             report.confident_entry_count,
+            report.high_confidence_entry_count,
+            report.supported_entry_count,
+            report.refused_entry_count,
             report.multi_phosphorylated_entry_count,
             report.fragment_supported_entry_count,
         ]
@@ -250,9 +366,11 @@ def render_ptm_localization_scoring_entry_tsv(
             "modification_name",
             "peptide_site_index",
             "candidate_site_indices",
+            "ambiguity_group",
             "localization_score",
             "localization_probability",
             "probability_source",
+            "localization_tier",
             "ambiguous",
             "multi_phosphorylated",
             "site_determining_ions",
@@ -270,9 +388,11 @@ def render_ptm_localization_scoring_entry_tsv(
                 entry.modification_name,
                 entry.peptide_site_index,
                 ";".join(str(site) for site in entry.candidate_site_indices),
+                entry.ambiguity_group,
                 entry.localization_score,
                 entry.localization_probability,
                 entry.probability_source.value,
+                entry.localization_tier.value,
                 str(entry.ambiguous).lower(),
                 str(entry.multi_phosphorylated).lower(),
                 ";".join(entry.site_determining_ions),
