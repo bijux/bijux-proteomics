@@ -160,6 +160,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/generic_psm_mapper.py",
             "identification/maxquant_import.py",
             "identification/openms_import.py",
+            "identification/protein_parsimony.py",
             "identification/protein_grouping.py",
             "identification/sage_import.py",
             "identification/spectronaut_import.py",
