@@ -21,6 +21,7 @@ from bijux_proteomics.identification.protein_coverage_review import *  # noqa: F
 from bijux_proteomics.identification.protein_coverage_visualization import *  # noqa: F401,F403
 from bijux_proteomics.identification.protein_grouping_review import *  # noqa: F401,F403
 from bijux_proteomics.identification.psm_inspection import *  # noqa: F401,F403
+from bijux_proteomics.identification.psm_target_decoy_fdr import *  # noqa: F401,F403
 from bijux_proteomics.identification.search_adapters import *  # noqa: F401,F403
 from bijux_proteomics.identification.target_decoy_reference_validation import *  # noqa: F401,F403
 from bijux_proteomics.identification.generic_psm_mapper import *  # noqa: F401,F403
