@@ -464,7 +464,10 @@ from bijux_proteomics.targeted import (
     render_targeted_assay_qc_summary_tsv,
     render_targeted_assay_qc_transition_tsv,
     render_targeted_assay_qc_unreliable_tsv,
+    render_targeted_matrix_excluded_transition_tsv,
     render_targeted_matrix_flagged_tsv,
+    render_targeted_matrix_missingness_tsv,
+    render_targeted_matrix_retained_transition_tsv,
     render_targeted_matrix_sample_tsv,
     render_targeted_matrix_summary_tsv,
     render_targeted_matrix_target_tsv,
@@ -3655,6 +3658,13 @@ def transition_qc_command(
 @click.option("--sample-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--flagged-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--retained-transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option(
+    "--excluded-transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
+@click.option("--missingness-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -3668,6 +3678,9 @@ def targeted_target_matrix_command(
     target_tsv_out: Path | None,
     sample_tsv_out: Path | None,
     flagged_tsv_out: Path | None,
+    retained_transition_tsv_out: Path | None,
+    excluded_transition_tsv_out: Path | None,
+    missingness_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Import targeted assay results and build a precursor-target matrix review."""
@@ -3694,6 +3707,21 @@ def targeted_target_matrix_command(
         _write_text_output(sample_tsv_out, render_targeted_matrix_sample_tsv(matrix_report))
     if flagged_tsv_out is not None:
         _write_text_output(flagged_tsv_out, render_targeted_matrix_flagged_tsv(matrix_report))
+    if retained_transition_tsv_out is not None:
+        _write_text_output(
+            retained_transition_tsv_out,
+            render_targeted_matrix_retained_transition_tsv(matrix_report),
+        )
+    if excluded_transition_tsv_out is not None:
+        _write_text_output(
+            excluded_transition_tsv_out,
+            render_targeted_matrix_excluded_transition_tsv(matrix_report),
+        )
+    if missingness_tsv_out is not None:
+        _write_text_output(
+            missingness_tsv_out,
+            render_targeted_matrix_missingness_tsv(matrix_report),
+        )
 
     payload = {
         "source_kind": import_report.source_kind.value,
@@ -3702,6 +3730,13 @@ def targeted_target_matrix_command(
         "matrix_summary": matrix_report.summary.to_dict(),
         "observations": [item.to_dict() for item in import_report.observations],
         "targets": [row.to_dict() for row in matrix_report.rows],
+        "retained_transitions": [
+            item.to_dict() for item in matrix_report.retained_transitions
+        ],
+        "excluded_transitions": [
+            item.to_dict() for item in matrix_report.excluded_transitions
+        ],
+        "missingness": [item.to_dict() for item in matrix_report.missingness],
         "note": matrix_report.note,
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
@@ -3711,6 +3746,19 @@ def targeted_target_matrix_command(
             "target_tsv": None if target_tsv_out is None else str(target_tsv_out),
             "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
             "flagged_tsv": None if flagged_tsv_out is None else str(flagged_tsv_out),
+            "retained_transition_tsv": (
+                None
+                if retained_transition_tsv_out is None
+                else str(retained_transition_tsv_out)
+            ),
+            "excluded_transition_tsv": (
+                None
+                if excluded_transition_tsv_out is None
+                else str(excluded_transition_tsv_out)
+            ),
+            "missingness_tsv": (
+                None if missingness_tsv_out is None else str(missingness_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
