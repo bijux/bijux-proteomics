@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import bijux_proteomics.targeted as targeted
+from bijux_proteomics.io import parse_experimental_design_table
 
 
 def _format_fixture(name: str) -> Path:
@@ -25,3 +26,21 @@ def test_targeted_package_exports_target_matrix_owner_surface() -> None:
     assert report.summary.retained_transition_count == 4
     assert report.rows[1].total_intensity == 273000.0
     assert "no_observation" in rendered
+
+
+def test_targeted_package_exports_assay_qc_owner_surface() -> None:
+    import_report = targeted.build_skyline_result_import_report(
+        _format_fixture("skyline_targeted_qc_results.tsv")
+    )
+    design_entries = parse_experimental_design_table(
+        _format_fixture("skyline_targeted_qc.design.tsv")
+    ).accepted_entries
+    report = targeted.build_targeted_assay_qc_report(import_report, design_entries)
+    rendered = targeted.render_targeted_assay_qc_target_tsv(report)
+
+    assert hasattr(targeted, "build_targeted_assay_qc_report")
+    assert hasattr(targeted, "render_targeted_assay_qc_target_tsv")
+    assert hasattr(targeted, "render_targeted_assay_qc_transition_qc_tsv")
+    assert report.summary.target_qc_entry_count == 8
+    assert report.summary.reliable_target_entry_count == 3
+    assert "fewer than two passing transitions support the target" in rendered
