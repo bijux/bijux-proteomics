@@ -407,6 +407,7 @@ class PtmMotifBackgroundReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     modification_name: str = Field(..., min_length=1)
+    background_mode: str = Field(..., min_length=1)
     total_foreground_sites: int = Field(..., ge=0)
     total_background_sites: int = Field(..., ge=0)
     entries: tuple[PtmMotifBackgroundEntry, ...] = Field(default_factory=tuple)
@@ -1033,6 +1034,7 @@ def build_ptm_motif_background_report(
     *,
     protein_sequences: dict[str, str],
     modification_name: str = "Phospho",
+    background_mode: str = "whole_proteome_background",
 ) -> PtmMotifBackgroundReport:
     """Build a residue background report for PTM motif interpretation."""
     from bijux_proteomics.ptm.motif_analysis import (
@@ -1043,6 +1045,7 @@ def build_ptm_motif_background_report(
         site_entries,
         protein_sequences=protein_sequences,
         modification_name=modification_name,
+        background_mode=background_mode,
     )
 
 

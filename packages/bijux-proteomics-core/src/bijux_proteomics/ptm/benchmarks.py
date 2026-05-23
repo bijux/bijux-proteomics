@@ -12,6 +12,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.ptm import (
     PtmEvidenceRecord,
     PtmLocalizationConfidenceTier as PtmLocalizationScoringTier,
+    PtmMotifBackgroundMode,
     PtmOccupancyCounterpartEvidenceEntry,
     PtmOccupancyUncertainty,
     PtmProteinSiteMapping,
@@ -418,7 +419,7 @@ def build_ptm_motif_credibility_benchmark_report(
         site_entries,
         protein_sequences=protein_sequences,
         modification_name=modification_name,
-        background_universe="all_modified_residue_candidates_in_observed_proteins",
+        background_mode=PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND,
         applied_filters=(
             "preserve_site_level_ambiguity",
             "preserve_site_level_decoy_state",

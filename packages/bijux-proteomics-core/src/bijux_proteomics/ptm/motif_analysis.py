@@ -36,6 +36,13 @@ class PtmMotifRegulationDirection(StrEnum):
     DOWNREGULATED = "downregulated"
 
 
+class PtmMotifBackgroundMode(StrEnum):
+    """Background universe used for PTM motif enrichment comparison."""
+
+    OBSERVED_SITE_BACKGROUND = "observed_site_background"
+    WHOLE_PROTEOME_BACKGROUND = "whole_proteome_background"
+
+
 class PtmPhosphositeSelectionPolicy(JsonModel):
     """Selection policy for regulated phosphosite motif enrichment."""
 
@@ -53,6 +60,9 @@ class PtmMotifComparisonPolicy(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    background_mode: PtmMotifBackgroundMode = (
+        PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND
+    )
     min_frequency_difference: float = Field(default=0.1, ge=0.0, le=1.0)
     min_enrichment_ratio: float = Field(default=1.5, ge=0.0)
     max_reported_term_count: int = Field(default=25, ge=1)
@@ -137,6 +147,7 @@ class PtmMotifEnrichmentBackgroundProvenanceReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     modification_name: str = Field(..., min_length=1)
+    background_mode: PtmMotifBackgroundMode
     background_universe: str = Field(..., min_length=1)
     applied_filters: tuple[str, ...] = Field(default_factory=tuple)
     statistical_test: str = Field(..., min_length=1)
@@ -156,6 +167,7 @@ class PtmPhosphositeMotifEnrichmentReport(JsonModel):
     condition_b: str = Field(..., min_length=1)
     selection_policy: PtmPhosphositeSelectionPolicy
     comparison_policy: PtmMotifComparisonPolicy
+    background_mode: PtmMotifBackgroundMode
     protein_correction_mode: PtmProteinCorrectionMode
     flank_size: int = Field(..., ge=0)
     regulated_site_count: int = Field(..., ge=0)
@@ -203,9 +215,13 @@ def build_ptm_motif_background_report(
     *,
     protein_sequences: dict[str, str],
     modification_name: str = "Phospho",
+    background_mode: PtmMotifBackgroundMode | str = (
+        PtmMotifBackgroundMode.WHOLE_PROTEOME_BACKGROUND
+    ),
 ) -> PtmMotifBackgroundReport:
     """Build a residue background report for PTM motif interpretation."""
 
+    active_background_mode = PtmMotifBackgroundMode(background_mode)
     relevant_entries = tuple(
         entry
         for entry in site_entries
@@ -217,14 +233,14 @@ def build_ptm_motif_background_report(
         "T",
         "Y",
     )
-    foreground_counts = {
-        residue: sum(1 for entry in relevant_entries if entry.residue == residue)
-        for residue in target_residues
-    }
-    background_counts = {
-        residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
-        for residue in target_residues
-    }
+    foreground_counts = _count_background_residues(relevant_entries, target_residues)
+    if active_background_mode is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND:
+        background_counts = foreground_counts
+    else:
+        background_counts = {
+            residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+            for residue in target_residues
+        }
     entries = tuple(
         PtmMotifBackgroundEntry(
             residue=residue,
@@ -235,6 +251,7 @@ def build_ptm_motif_background_report(
     )
     return PtmMotifBackgroundReport(
         modification_name=modification_name,
+        background_mode=active_background_mode.value,
         total_foreground_sites=sum(foreground_counts.values()),
         total_background_sites=sum(background_counts.values()),
         entries=entries,
@@ -286,6 +303,7 @@ def build_ptm_phosphosite_motif_enrichment_report(
     }
     regulated_windows: list[PtmCenteredMotifWindowEntry] = []
     regulated_site_keys: set[str] = set()
+    regulated_positions: set[tuple[str, str, int]] = set()
     for entry in differential_analysis.differential_report.entries:
         row = site_rows_by_key.get(entry.site_key)
         if row is None or not _is_phospho_target_row(row):
@@ -309,6 +327,7 @@ def build_ptm_phosphosite_motif_enrichment_report(
         if centered_window is None:
             continue
         regulated_site_keys.add(row.site_key)
+        regulated_positions.add((row.protein_ref, row.residue, row.position))
         regulated_windows.append(
             PtmCenteredMotifWindowEntry(
                 site_key=row.site_key,
@@ -327,6 +346,88 @@ def build_ptm_phosphosite_motif_enrichment_report(
             )
         )
 
+    background_windows = _build_background_windows(
+        differential_analysis=differential_analysis,
+        active_policy=active_policy,
+        background_mode=active_comparison_policy.background_mode,
+        protein_sequences=protein_sequences,
+        flank_size=flank_size,
+        regulated_site_keys=regulated_site_keys,
+        regulated_positions=regulated_positions,
+    )
+
+    frequency_entries = _build_position_frequency_entries(
+        tuple(regulated_windows),
+        tuple(background_windows),
+    )
+    enriched_terms = _build_enriched_terms(
+        frequency_entries,
+        comparison_policy=active_comparison_policy,
+    )
+    logo_data = _build_logo_data(
+        tuple(regulated_windows),
+        tuple(background_windows),
+    )
+
+    return PtmPhosphositeMotifEnrichmentReport(
+        condition_a=differential_analysis.differential_report.condition_a,
+        condition_b=differential_analysis.differential_report.condition_b,
+        selection_policy=active_policy,
+        comparison_policy=active_comparison_policy,
+        background_mode=active_comparison_policy.background_mode,
+        protein_correction_mode=differential_analysis.protein_correction_mode,
+        flank_size=flank_size,
+        regulated_site_count=len(regulated_windows),
+        background_site_count=len(background_windows),
+        regulated_windows=tuple(
+            sorted(regulated_windows, key=lambda entry: (entry.site_key, entry.window_role))
+        ),
+        background_windows=tuple(
+            sorted(background_windows, key=lambda entry: (entry.site_key, entry.window_role))
+        ),
+        frequency_entries=frequency_entries,
+        enriched_terms=enriched_terms,
+        logo_data=logo_data,
+        note=(
+            "phosphosite motif enrichment preserves centered sequence windows, position-specific residue frequencies, enriched motif terms, and logo-ready data for one explicit regulated-versus-background phosphosite comparison"
+        ),
+    )
+
+
+def _build_background_windows(
+    *,
+    differential_analysis: PtmDifferentialAnalysisReport,
+    active_policy: PtmPhosphositeSelectionPolicy,
+    background_mode: PtmMotifBackgroundMode,
+    protein_sequences: dict[str, str],
+    flank_size: int,
+    regulated_site_keys: set[str],
+    regulated_positions: set[tuple[str, str, int]],
+) -> list[PtmCenteredMotifWindowEntry]:
+    if background_mode is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND:
+        return _build_observed_site_background_windows(
+            differential_analysis=differential_analysis,
+            active_policy=active_policy,
+            protein_sequences=protein_sequences,
+            flank_size=flank_size,
+            regulated_site_keys=regulated_site_keys,
+        )
+    return _build_whole_proteome_background_windows(
+        protein_correction_mode=differential_analysis.protein_correction_mode,
+        protein_sequences=protein_sequences,
+        flank_size=flank_size,
+        regulated_positions=regulated_positions,
+    )
+
+
+def _build_observed_site_background_windows(
+    *,
+    differential_analysis: PtmDifferentialAnalysisReport,
+    active_policy: PtmPhosphositeSelectionPolicy,
+    protein_sequences: dict[str, str],
+    flank_size: int,
+    regulated_site_keys: set[str],
+) -> list[PtmCenteredMotifWindowEntry]:
     background_windows: list[PtmCenteredMotifWindowEntry] = []
     for row in differential_analysis.site_quantification.rows:
         if row.site_key in regulated_site_keys or not _is_phospho_target_row(row):
@@ -356,42 +457,47 @@ def build_ptm_phosphosite_motif_enrichment_report(
                 protein_correction_mode=differential_analysis.protein_correction_mode,
             )
         )
+    return background_windows
 
-    frequency_entries = _build_position_frequency_entries(
-        tuple(regulated_windows),
-        tuple(background_windows),
-    )
-    enriched_terms = _build_enriched_terms(
-        frequency_entries,
-        comparison_policy=active_comparison_policy,
-    )
-    logo_data = _build_logo_data(
-        tuple(regulated_windows),
-        tuple(background_windows),
-    )
 
-    return PtmPhosphositeMotifEnrichmentReport(
-        condition_a=differential_analysis.differential_report.condition_a,
-        condition_b=differential_analysis.differential_report.condition_b,
-        selection_policy=active_policy,
-        comparison_policy=active_comparison_policy,
-        protein_correction_mode=differential_analysis.protein_correction_mode,
-        flank_size=flank_size,
-        regulated_site_count=len(regulated_windows),
-        background_site_count=len(background_windows),
-        regulated_windows=tuple(
-            sorted(regulated_windows, key=lambda entry: (entry.site_key, entry.window_role))
-        ),
-        background_windows=tuple(
-            sorted(background_windows, key=lambda entry: (entry.site_key, entry.window_role))
-        ),
-        frequency_entries=frequency_entries,
-        enriched_terms=enriched_terms,
-        logo_data=logo_data,
-        note=(
-            "phosphosite motif enrichment preserves centered sequence windows, position-specific residue frequencies, enriched motif terms, and logo-ready data for one explicit regulated-versus-background phosphosite comparison"
-        ),
-    )
+def _build_whole_proteome_background_windows(
+    *,
+    protein_correction_mode: PtmProteinCorrectionMode,
+    protein_sequences: dict[str, str],
+    flank_size: int,
+    regulated_positions: set[tuple[str, str, int]],
+) -> list[PtmCenteredMotifWindowEntry]:
+    background_windows: list[PtmCenteredMotifWindowEntry] = []
+    for protein_ref, sequence in sorted(protein_sequences.items()):
+        for position, residue in enumerate(sequence, start=1):
+            if residue not in {"S", "T", "Y"}:
+                continue
+            if (protein_ref, residue, position) in regulated_positions:
+                continue
+            centered_window = _extract_centered_window(
+                protein_ref,
+                position,
+                protein_sequences=protein_sequences,
+                flank_size=flank_size,
+            )
+            if centered_window is None:
+                continue
+            background_windows.append(
+                PtmCenteredMotifWindowEntry(
+                    site_key=f"{protein_ref}:{residue}{position}:background",
+                    protein_ref=protein_ref,
+                    residue=residue,
+                    position=position,
+                    modification_name="Phospho",
+                    direction=PtmMotifRegulationDirection.BOTH,
+                    window_role="background",
+                    centered_window=centered_window,
+                    flank_size=flank_size,
+                    ambiguous=False,
+                    protein_correction_mode=protein_correction_mode,
+                )
+            )
+    return background_windows
 
 
 def build_ptm_motif_enrichment_background_provenance_report(
@@ -399,26 +505,33 @@ def build_ptm_motif_enrichment_background_provenance_report(
     *,
     protein_sequences: dict[str, str],
     modification_name: str,
-    background_universe: str,
+    background_mode: PtmMotifBackgroundMode | str,
     applied_filters: tuple[str, ...],
     statistical_test: str = "fisher_exact",
     multiple_testing_correction: str = "benjamini_hochberg",
 ) -> PtmMotifEnrichmentBackgroundProvenanceReport:
     """Build a provenance-aware motif background report from one PTM site table."""
 
+    active_background_mode = PtmMotifBackgroundMode(background_mode)
     relevant = tuple(
         entry for entry in site_entries if entry.modification_name == modification_name
     )
     residues = tuple(sorted({entry.residue for entry in relevant})) or ("S", "T", "Y")
-    residue_background_counts = {
-        residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
-        for residue in residues
-    }
+    residue_foreground_counts = _count_background_residues(relevant, residues)
+    if active_background_mode is PtmMotifBackgroundMode.OBSERVED_SITE_BACKGROUND:
+        residue_background_counts = residue_foreground_counts
+        background_universe = "observed_phosphosite_background"
+    else:
+        residue_background_counts = {
+            residue: sum(sequence.count(residue) for sequence in protein_sequences.values())
+            for residue in residues
+        }
+        background_universe = "whole_proteome_background"
     term_entries: list[PtmMotifEnrichmentTermEntry] = []
     background_total = sum(residue_background_counts.values())
     foreground_total = len(relevant)
     for residue in residues:
-        foreground_count = sum(1 for entry in relevant if entry.residue == residue)
+        foreground_count = residue_foreground_counts[residue]
         background_count = residue_background_counts[residue]
         ratio = (
             (foreground_count / foreground_total)
@@ -441,6 +554,7 @@ def build_ptm_motif_enrichment_background_provenance_report(
         caveats.append("foreground is empty for requested PTM class")
     return PtmMotifEnrichmentBackgroundProvenanceReport(
         modification_name=modification_name,
+        background_mode=active_background_mode,
         background_universe=background_universe,
         applied_filters=applied_filters,
         statistical_test=statistical_test,
@@ -466,6 +580,7 @@ def render_ptm_phosphosite_motif_window_tsv(
             "residue",
             "position",
             "modification_name",
+            "background_mode",
             "window_role",
             "direction",
             "centered_window",
@@ -484,6 +599,7 @@ def render_ptm_phosphosite_motif_window_tsv(
                 entry.residue,
                 entry.position,
                 entry.modification_name,
+                report.background_mode.value,
                 entry.window_role,
                 entry.direction.value,
                 entry.centered_window,
@@ -519,6 +635,7 @@ def render_ptm_phosphosite_motif_frequency_tsv(
         (
             "position_offset",
             "residue",
+            "background_mode",
             "regulated_window_count",
             "background_window_count",
             "regulated_frequency",
@@ -530,6 +647,7 @@ def render_ptm_phosphosite_motif_frequency_tsv(
             (
                 entry.position_offset,
                 entry.residue,
+                report.background_mode.value,
                 entry.regulated_window_count,
                 entry.background_window_count,
                 f"{entry.regulated_frequency:g}",
@@ -562,6 +680,7 @@ def render_ptm_phosphosite_motif_enriched_term_tsv(
         (
             "position_offset",
             "residue",
+            "background_mode",
             "regulated_window_count",
             "background_window_count",
             "regulated_frequency",
@@ -576,6 +695,7 @@ def render_ptm_phosphosite_motif_enriched_term_tsv(
             (
                 entry.position_offset,
                 entry.residue,
+                report.background_mode.value,
                 entry.regulated_window_count,
                 entry.background_window_count,
                 f"{entry.regulated_frequency:g}",
@@ -612,6 +732,7 @@ def render_ptm_phosphosite_motif_logo_tsv(
             "window_role",
             "position_offset",
             "residue",
+            "background_mode",
             "residue_count",
             "total_window_count",
             "frequency",
@@ -623,6 +744,7 @@ def render_ptm_phosphosite_motif_logo_tsv(
                 entry.window_role,
                 entry.position_offset,
                 entry.residue,
+                report.background_mode.value,
                 entry.residue_count,
                 entry.total_window_count,
                 f"{entry.frequency:g}",
@@ -638,6 +760,16 @@ def export_ptm_phosphosite_motif_logo_tsv(
     """Write logo-ready phosphosite motif residue frequencies to a stable TSV artifact."""
 
     path.write_text(render_ptm_phosphosite_motif_logo_tsv(report), encoding="utf-8")
+
+
+def _count_background_residues(
+    relevant_entries: tuple[PtmSiteEntry, ...],
+    residues: tuple[str, ...],
+) -> dict[str, int]:
+    return {
+        residue: sum(1 for entry in relevant_entries if entry.residue == residue)
+        for residue in residues
+    }
 
 
 def _is_phospho_target_row(row: PtmSiteQuantRow) -> bool:
