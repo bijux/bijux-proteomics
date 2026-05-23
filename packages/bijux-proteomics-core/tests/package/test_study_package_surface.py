@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 from bijux_proteomics import study
 from bijux_proteomics.chemistry import calculate_peptide_mz
@@ -223,6 +224,40 @@ def test_study_package_exports_lab_protocol_context_surface(tmp_path: Path) -> N
     assert profile.interpretation_focus == "dia_discovery"
     assert study.render_lab_protocol_context_tsv(report).splitlines()[1].startswith(
         "prot-001\ttrypsin\tdia"
+    )
+
+
+def test_study_package_exports_protocol_consistency_surface() -> None:
+    report = study.build_protocol_consistency_report(
+        study.LabProtocolContextEntry(
+            protocol_id="tmt-1",
+            digestion_enzyme=study.DigestionEnzyme.OTHER,
+            acquisition_type=study.AcquisitionType.DDA,
+            labeling_method=study.LabelingMethod.TMT,
+            enrichment_type=study.EnrichmentType.NONE,
+            fractionation_mode=study.FractionationMode.NONE,
+            depletion_mode=study.DepletionMode.NONE,
+            instrument_platform="Orbitrap Eclipse",
+            metadata={},
+        ),
+        reporter_import_report=SimpleNamespace(
+            accepted_rows=(
+                SimpleNamespace(
+                    channel_intensities=(
+                        SimpleNamespace(multiplex_channel="126", intensity=1200.0),
+                        SimpleNamespace(multiplex_channel="127N", intensity=900.0),
+                    )
+                ),
+            ),
+        ),
+    )
+
+    assert hasattr(study, "build_protocol_consistency_report")
+    assert hasattr(study, "render_protocol_consistency_tsv")
+    assert hasattr(study, "require_protocol_consistency_without_blockers")
+    assert report.summary.status is study.ProtocolConsistencyStatus.PASS
+    assert study.render_protocol_consistency_tsv(report).splitlines()[0].startswith(
+        "protocol_id\taxis\tcode\tseverity"
     )
 
 
