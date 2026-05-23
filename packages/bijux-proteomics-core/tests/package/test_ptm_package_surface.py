@@ -234,3 +234,34 @@ def test_ptm_package_exports_context_annotation_owner_surface() -> None:
     )
     assert outside.context_status.value == "outside_provided_annotations"
     assert "context_status" in ptm.render_ptm_site_context_tsv(report)
+
+
+def test_ptm_package_exports_evidence_card_owner_surface() -> None:
+    evidence = ptm.parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
+    features = parse_ms1_feature_table(_ptm_fixture("ptm_features.tsv"))
+    design = parse_experimental_design_table(_ptm_fixture("ptm.design.tsv"))
+    annotations = ptm.parse_ptm_site_annotation_tsv(_ptm_fixture("ptm_site_annotations.tsv"))
+    report = ptm.build_ptm_report_bundle(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+        feature_records=features.accepted_records,
+        design_entries=design.accepted_entries,
+        batch_field="",
+        motif_selection_policy=ptm.PtmPhosphositeSelectionPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        annotation_records=annotations.accepted_records,
+        annotation_target_species="Homo sapiens",
+        regulator_enrichment_policy=ptm.PtmRegulatorEnrichmentPolicy(
+            max_adjusted_p_value=1.0,
+            min_absolute_log2_fold_change=0.0,
+        ),
+        evidence_card_policy=ptm.PtmEvidenceCardPolicy(max_adjusted_p_value=1.0),
+    )
+
+    assert hasattr(ptm, "build_ptm_evidence_card_report")
+    assert hasattr(ptm, "render_ptm_evidence_card_tsv")
+    assert report.evidence_cards is not None
+    assert report.evidence_cards.summary.card_count == 3
+    assert "card_id" in ptm.render_ptm_evidence_card_tsv(report.evidence_cards)
