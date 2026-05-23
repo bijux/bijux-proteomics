@@ -176,6 +176,11 @@ from bijux_proteomics.identification.protein_coverage import (
     render_protein_coverage_peptide_coordinates_tsv,
     render_protein_coverage_uncovered_regions_tsv,
 )
+from bijux_proteomics.identification.score_separation_diagnostic import (
+    build_score_separation_diagnostic_report,
+    render_score_separation_bins_tsv,
+    render_score_separation_summary_tsv,
+)
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
     SearchAdapterKind,
@@ -5778,6 +5783,16 @@ def peptide_evidence_command(
     "--calibration-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
+    "--score-separation-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--score-separation-bins-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def fdr_command(
@@ -5804,6 +5819,8 @@ def fdr_command(
     entries_tsv_out: Path | None,
     audit_out: Path | None,
     calibration_out: Path | None,
+    score_separation_summary_tsv_out: Path | None,
+    score_separation_bins_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Apply basic target-decoy FDR and emit filtered PSM summaries."""
@@ -5876,18 +5893,33 @@ def fdr_command(
         parse_report.accepted_records,
         score_orientation=score_orientation,
     )
+    score_separation = build_score_separation_diagnostic_report(
+        parse_report.accepted_records,
+        score_orientation=score_orientation,
+    )
     if provenance_out is not None:
         provenance_out.write_text(provenance.to_stable_json() + "\n")
     if audit_out is not None:
         audit_out.write_text(audit_trail.to_stable_json() + "\n")
     if calibration_out is not None:
         calibration_out.write_text(calibration_plot.to_stable_json() + "\n")
+    if score_separation_summary_tsv_out is not None:
+        score_separation_summary_tsv_out.write_text(
+            render_score_separation_summary_tsv(score_separation),
+            encoding="utf-8",
+        )
+    if score_separation_bins_tsv_out is not None:
+        score_separation_bins_tsv_out.write_text(
+            render_score_separation_bins_tsv(score_separation),
+            encoding="utf-8",
+        )
 
     payload = {
         "threshold": threshold,
         "score_orientation": score_orientation,
         "input_psms": len(parse_report.accepted_records),
         "accepted_psms": len(accepted),
+        "fdr_unstable": score_separation.summary.fdr_unstable,
         "fdr_report": fdr_report.summary.to_dict(),
         "fdr_reproducibility_hash": fdr_report.reproducibility_hash,
         "psm_summary": build_psm_summary_report(accepted).to_dict(),
@@ -5895,6 +5927,7 @@ def fdr_command(
         "protein_summary": build_protein_summary_report(accepted).to_dict(),
         "audit_trail": audit_trail.to_dict(),
         "calibration_plot": calibration_plot.to_dict(),
+        "score_separation": score_separation.to_dict(),
         "provenance": provenance.to_dict(),
     }
     _emit_json(payload, out_path=out_path)
