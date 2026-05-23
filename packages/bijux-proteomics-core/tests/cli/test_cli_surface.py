@@ -244,6 +244,60 @@ def test_experiment_feasibility_command_emits_supported_and_unsupported_outputs(
         )
 
 
+def test_protocol_consistency_report_command_emits_blocking_tmt_diagnostics() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("protocol.tsv").write_text(
+            "\n".join(
+                (
+                    "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                    "tmt-protocol\tother\tdda\ttmt\tnone\tnone\tnone\tOrbitrap Eclipse",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("reporters.tsv").write_text(
+            "\n".join(
+                (
+                    "source_row_id\tmodified_peptide\tproteins\tmultiplex_group\t126\t127N",
+                    "row-1\tPEPTIDE\tP11111\tplex-a\t0\t0",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protocol-consistency-report",
+                "protocol.tsv",
+                "--reporter-table",
+                "reporters.tsv",
+                "--diagnostics-tsv-out",
+                "protocol_consistency.tsv",
+                "--out",
+                "protocol_consistency.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["status"] == "blocking"
+        assert payload["report"]["diagnostics"][0]["code"] == (
+            "missing_reporter_channel_signal"
+        )
+        assert payload["outputs"]["diagnostics_tsv"] == "protocol_consistency.tsv"
+        assert "missing_reporter_channel_signal" in Path(
+            "protocol_consistency.tsv"
+        ).read_text(encoding="utf-8")
+        saved = json.loads(
+            Path("protocol_consistency.json").read_text(encoding="utf-8")
+        )
+        assert saved["report"]["summary"]["blocking_diagnostic_count"] == 1
+
+
 def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -9636,6 +9690,75 @@ def test_qc_report_command_adapts_default_policy_to_protocol_context() -> None:
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["run_assessment"]["policy_name"].endswith(":targeted-protocol")
+
+
+def test_qc_report_command_emits_protocol_consistency_report() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("spectra.mgf").write_text(
+            render_mgf(
+                (
+                    SpectrumModel(
+                        spectrum_id="scan-001",
+                        precursor_mz=500.2,
+                        precursor_charge=2,
+                        peaks=(SpectrumPeak(mz=500.2, intensity=1000.0),),
+                    ),
+                    SpectrumModel(
+                        spectrum_id="scan-002",
+                        precursor_mz=600.2,
+                        precursor_charge=2,
+                        peaks=(SpectrumPeak(mz=600.2, intensity=1100.0),),
+                    ),
+                )
+            ),
+            encoding="utf-8",
+        )
+        Path("results.tsv").write_text(
+            "\n".join(
+                (
+                    "spectrum_id\tpeptide\tcharge\tscore\tproteins\tq_value",
+                    "scan-001\tACDEFGK\t2\t120\tP11111\t0.01",
+                    "scan-002\tCDEFG\t2\t95\tP11111\t0.02",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("proteins.fasta").write_text(
+            ">sp|P11111|Protein 1\nKACDEFGKRAA\n",
+            encoding="utf-8",
+        )
+        Path("protocol.tsv").write_text(
+            "\n".join(
+                (
+                    "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                    "trypsin-protocol\ttrypsin\tdda\tlabel_free\tnone\tnone\tnone\tOrbitrap Eclipse",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "qc",
+                "report",
+                "spectra.mgf",
+                "results.tsv",
+                "proteins.fasta",
+                "--protocol-context-tsv",
+                "protocol.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["protocol_consistency_report"]["summary"]["status"] == "blocking"
+        assert payload["protocol_consistency_report"]["diagnostics"][0]["code"] == (
+            "digestion_specificity_mismatch"
+        )
 
 
 def test_workflow_plan_command_emits_runtime_bundle_and_sidecar_outputs() -> None:
