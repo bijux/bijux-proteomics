@@ -6476,6 +6476,50 @@ def test_quantify_command_reports_log2_normalization_preparation_explicitly() ->
         )
 
 
+def test_quantify_command_reports_group_aware_imputation_provenance() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        shutil.copy(fixture_dir / "quant.design.tsv", "quant.design.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "quant.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "median",
+                "--imputation",
+                "group_aware_low_intensity",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["table"]["imputation_method"] == "group_aware_low_intensity"
+        assert payload["imputation_report"]["method"] == "group_aware_low_intensity"
+        assert payload["imputation_report"]["entries"]
+        first_entry = payload["imputation_report"]["entries"][0]
+        assert first_entry["strategy"] == "condition_low_intensity_floor"
+        assert first_entry["reference_group"] in {"control", "treatment"}
+        imputed_row = next(
+            value
+            for value in payload["table"]["values"]
+            if value["entity_id"] == "P004"
+            and value["sample_id"] == "C1"
+        )
+        assert imputed_row["imputation_provenance"]["method"] == (
+            "group_aware_low_intensity"
+        )
+
+
 def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
