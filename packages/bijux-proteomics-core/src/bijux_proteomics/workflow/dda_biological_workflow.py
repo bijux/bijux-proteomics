@@ -44,6 +44,7 @@ from bijux_proteomics.quantification import (
     render_protein_lfq_pairwise_ratios_tsv,
     render_protein_lfq_summary_tsv,
 )
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -196,7 +197,7 @@ class DdaBiologicalWorkflowExportManifest(JsonModel):
 
 def build_dda_biological_workflow_bundle(
     search_result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
     adapter_kind: SearchAdapterKind = SearchAdapterKind.GENERIC,
@@ -220,6 +221,7 @@ def build_dda_biological_workflow_bundle(
 ) -> DdaBiologicalWorkflowBundle:
     """Build a governed DDA search-result-to-biology workflow bundle."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     active_policy = acceptance_policy or DdaPsmAcceptancePolicy()
     normalization = _normalize_search_results(
         source_path=search_result_tsv_path,
@@ -255,7 +257,7 @@ def build_dda_biological_workflow_bundle(
     )
     biological_report = build_biological_result_report_bundle_from_quant_table(
         quant_table,
-        design_entries,
+        experiment_design,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,

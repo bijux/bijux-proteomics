@@ -98,6 +98,7 @@ from bijux_proteomics.review import (
     render_volcano_review_tsv,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.protein_evidence_cards import (
     ProteinEvidenceCardReport,
     ProteinEvidenceCardSelectionPolicy,
@@ -225,7 +226,7 @@ class BiologicalResultReportExportManifest(JsonModel):
 
 def build_biological_result_report_bundle(
     input_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
     annotation_tsv_path: Path | None = None,
@@ -244,6 +245,7 @@ def build_biological_result_report_bundle(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle over one governed protein LFQ workflow."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     active_mapping = mapping or Ms1FeatureColumnMapping(
         sample_id="sample_id",
         feature_id="feature_id",
@@ -266,7 +268,7 @@ def build_biological_result_report_bundle(
     )
     return build_biological_result_report_bundle_from_quant_table(
         quant_table,
-        design_entries,
+        experiment_design,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
         context_annotation_tsv_path=context_annotation_tsv_path,
@@ -283,7 +285,7 @@ def build_biological_result_report_bundle(
 
 def build_biological_result_report_bundle_from_quant_table(
     quant_table: LabelFreeQuantTable,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
     annotation_tsv_path: Path | None = None,
@@ -299,6 +301,8 @@ def build_biological_result_report_bundle_from_quant_table(
 ) -> BiologicalResultReportBundle:
     """Build a biological result bundle from one governed protein quant table."""
 
+    experiment_design = coerce_experiment_design(design_entries)
+    design_entries = experiment_design.entries
     active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
     normalized_table = normalize_label_free_table(
         quant_table,
@@ -546,18 +550,17 @@ def build_biological_result_report_bundle_from_quant_table(
 
 
 def _resolve_contrast(
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     condition_a: str | None,
     condition_b: str | None,
 ) -> tuple[str, str]:
+    experiment_design = coerce_experiment_design(design_entries)
     if bool(condition_a) ^ bool(condition_b):
         raise ValueError("both condition_a and condition_b are required together")
     if condition_a is not None and condition_b is not None:
         return condition_a, condition_b
-    conditions = tuple(
-        sorted({entry.condition for entry in design_entries if entry.condition})
-    )
+    conditions = experiment_design.conditions
     if len(conditions) != 2:
         raise ValueError(
             "biological result reporting requires exactly two conditions or an explicit contrast"

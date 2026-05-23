@@ -50,6 +50,7 @@ from bijux_proteomics.identification.rejected_evidence_table import (
 )
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.biological_reporting import (
     BiologicalResultReportBundle,
     BiologicalResultReportExportManifest,
@@ -162,7 +163,7 @@ class DiannBiologicalWorkflowExportManifest(JsonModel):
 
 def build_diann_biological_workflow_bundle(
     result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
     config_path: Path | None = None,
@@ -185,6 +186,7 @@ def build_diann_biological_workflow_bundle(
 ) -> DiannBiologicalWorkflowBundle:
     """Build one governed DIA-NN-to-biology workflow bundle."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     import_report = build_diann_import_report(
         result_tsv_path,
         config_path=config_path,
@@ -216,7 +218,7 @@ def build_diann_biological_workflow_bundle(
     )
     differential_analysis_report = build_dia_differential_analysis_report(
         differential_input,
-        design_entries,
+        experiment_design,
         normalization_method=normalization_method,
         condition_a=condition_a,
         condition_b=condition_b,
@@ -229,7 +231,7 @@ def build_diann_biological_workflow_bundle(
     )
     biological_report = build_biological_result_report_bundle_from_quant_table(
         differential_analysis_report.normalized_table,
-        design_entries,
+        experiment_design,
         proteins_fasta_path=proteins_fasta_path,
         annotation_tsv_path=annotation_tsv_path,
         context_annotation_tsv_path=context_annotation_tsv_path,

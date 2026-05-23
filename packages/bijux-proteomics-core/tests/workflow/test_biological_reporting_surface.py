@@ -15,6 +15,7 @@ from bijux_proteomics.quantification.contracts import (
     QuantRollupMethod,
     QuantValue,
 )
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import build_biological_result_report_bundle
 from bijux_proteomics.workflow.biological_reporting import (
     build_biological_result_report_bundle_from_quant_table,
@@ -33,7 +34,7 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     )
     report = build_biological_result_report_bundle(
         _fixture("biological_report_features.tsv"),
-        design_entries,
+        build_experiment_design(design_entries),
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         context_annotation_tsv_path=_fixture("biological_report_context.tsv"),
         condition_a="control",

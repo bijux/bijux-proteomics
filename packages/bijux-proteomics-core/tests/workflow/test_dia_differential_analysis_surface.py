@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.dia import build_diann_protein_matrix_report
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.dia_differential_analysis import (
     DiaDifferentialSourceKind,
     build_dia_protein_matrix_differential_analysis_report,
@@ -69,10 +70,11 @@ def test_build_diann_differential_analysis_report_preserves_normalization_and_fd
     design_report = parse_experimental_design_table(
         _format_fixture("diann_differential.design.tsv")
     )
+    experiment_design = build_experiment_design(design_report.accepted_entries)
 
     report = build_diann_differential_analysis_report(
         _diann_fixture("diann_differential_report.tsv"),
-        design_report.accepted_entries,
+        experiment_design,
     )
 
     assert report.normalized_table.normalization_method.value == "median"
@@ -110,10 +112,11 @@ def test_build_dia_protein_matrix_differential_analysis_report_runs_from_core_ap
     protein_matrix = build_diann_protein_matrix_report(
         _diann_fixture("diann_differential_report.tsv")
     )
+    experiment_design = build_experiment_design(design_report.accepted_entries)
 
     report = build_dia_protein_matrix_differential_analysis_report(
         protein_matrix,
-        design_report.accepted_entries,
+        experiment_design,
         source_kind=DiaDifferentialSourceKind.DIANN,
     )
 
@@ -129,10 +132,11 @@ def test_build_spectronaut_differential_analysis_report_preserves_the_same_resul
     design_report = parse_experimental_design_table(
         _format_fixture("spectronaut_differential.design.tsv")
     )
+    experiment_design = build_experiment_design(design_report.accepted_entries)
 
     report = build_spectronaut_differential_analysis_report(
         _spectronaut_fixture("spectronaut_differential_report.tsv"),
-        design_report.accepted_entries,
+        experiment_design,
         config_path=_spectronaut_fixture("spectronaut_settings.txt"),
     )
 

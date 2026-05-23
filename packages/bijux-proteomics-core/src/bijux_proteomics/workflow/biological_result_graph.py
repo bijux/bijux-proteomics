@@ -24,6 +24,7 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     build_evidence_graph_final_result_table,
 )
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -41,16 +42,18 @@ class BiologicalResultGraphReport(JsonModel):
 def build_biological_result_graph_report(
     quant_table: LabelFreeQuantTable,
     differential_report: DifferentialAbundanceReport,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     max_adjusted_p_value: float,
     min_absolute_log2_fold_change: float,
 ) -> BiologicalResultGraphReport:
     """Build one canonical review graph for graph-backed biological final reports."""
 
+    experiment_design = coerce_experiment_design(design_entries)
+    design_entries = experiment_design.entries
     builder = ProteomicsEvidenceGraphBuilder()
-    sample_conditions = {entry.sample_id: entry.condition for entry in design_entries}
-    for entry in sorted(design_entries, key=lambda item: item.sample_id):
+    sample_conditions = {sample.sample_id: sample.condition for sample in experiment_design.samples}
+    for entry in experiment_design.runs:
         sample = builder.add_sample(
             entry.sample_id,
             label=entry.sample_id,

@@ -53,6 +53,7 @@ from bijux_proteomics.quantification.normalization import (
     build_normalization_comparison_report,
     normalize_label_free_table,
 )
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -271,7 +272,7 @@ def build_dia_differential_input_report(
 
 def build_dia_protein_matrix_differential_analysis_report(
     protein_matrix: DiaProteinMatrixReport,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     source_kind: DiaDifferentialSourceKind,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
@@ -306,7 +307,7 @@ def build_dia_protein_matrix_differential_analysis_report(
 
 def build_dia_differential_analysis_report(
     input_report: DiaDifferentialInputReport,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
@@ -317,6 +318,8 @@ def build_dia_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Normalize one DIA-native matrix, build the design, and run differential testing."""
 
+    experiment_design = coerce_experiment_design(design_entries)
+    design_entries = experiment_design.entries
     normalized_table = normalize_label_free_table(
         input_report.table,
         method=normalization_method,
@@ -472,7 +475,7 @@ def _count_significant_differential_entries(
 
 def build_diann_differential_analysis_report(
     result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     config_path: Path | None = None,
     include_decoys: bool = False,
@@ -490,6 +493,7 @@ def build_diann_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Build DIA-NN normalization, design, and differential results in one path."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     protein_matrix = build_diann_protein_matrix_report(
         result_tsv_path,
         config_path=config_path,
@@ -502,7 +506,7 @@ def build_diann_differential_analysis_report(
     )
     return build_dia_protein_matrix_differential_analysis_report(
         protein_matrix,
-        design_entries,
+        experiment_design,
         source_kind=DiaDifferentialSourceKind.DIANN,
         normalization_method=normalization_method,
         condition_a=condition_a,
@@ -515,7 +519,7 @@ def build_diann_differential_analysis_report(
 
 def build_spectronaut_differential_analysis_report(
     result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     config_path: Path | None = None,
     include_decoys: bool = False,
@@ -533,6 +537,7 @@ def build_spectronaut_differential_analysis_report(
 ) -> DiaDifferentialAnalysisReport:
     """Build Spectronaut normalization, design, and differential results in one path."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     protein_matrix = build_spectronaut_protein_matrix_report(
         result_tsv_path,
         config_path=config_path,
@@ -545,7 +550,7 @@ def build_spectronaut_differential_analysis_report(
     )
     return build_dia_protein_matrix_differential_analysis_report(
         protein_matrix,
-        design_entries,
+        experiment_design,
         source_kind=DiaDifferentialSourceKind.SPECTRONAUT,
         normalization_method=normalization_method,
         condition_a=condition_a,
@@ -858,13 +863,13 @@ def export_dia_differential_volcano_plot_tsv(
 
 
 def _condition_names(
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
 ) -> tuple[str, ...]:
-    return tuple(sorted({entry.condition for entry in design_entries if entry.condition}))
+    return coerce_experiment_design(design_entries).conditions
 
 
 def _resolve_selected_contrast(
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     condition_a: str | None,
     condition_b: str | None,

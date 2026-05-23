@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import build_diann_biological_workflow_bundle
 
 
@@ -24,7 +25,7 @@ def test_build_diann_biological_workflow_bundle_preserves_qc_differential_and_bi
 
     report = build_diann_biological_workflow_bundle(
         _fixture("diann_biological_report.tsv"),
-        design_entries,
+        build_experiment_design(design_entries),
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         annotation_tsv_path=(
             Path(__file__).resolve().parent.parent
