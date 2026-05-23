@@ -13,6 +13,7 @@ from bijux_proteomics.identification.contaminant_audit import *  # noqa: F401,F4
 from bijux_proteomics.identification.contaminant_evidence import *  # noqa: F401,F403
 from bijux_proteomics.identification.contracts import *  # noqa: F401,F403
 from bijux_proteomics.identification.evidence_level_fdr_review import *  # noqa: F401,F403
+from bijux_proteomics.identification.error_rate_annotation import *  # noqa: F401,F403
 from bijux_proteomics.identification.parsimony_review import *  # noqa: F401,F403
 from bijux_proteomics.identification.peptide_evidence import *  # noqa: F401,F403
 from bijux_proteomics.identification.peptide_evidence_review import *  # noqa: F401,F403

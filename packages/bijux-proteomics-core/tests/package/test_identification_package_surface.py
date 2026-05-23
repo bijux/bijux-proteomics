@@ -329,5 +329,43 @@ def test_identification_package_exports_protein_parsimony_owner_surface() -> Non
     assert report.summary.selected_protein_count == len(
         case["expected_selected_proteins"]
     )
+    assert "selected_protein_count" in rendered
+
+
+def test_identification_package_exports_error_rate_annotation_owner_surface() -> None:
+    records = (
+        identification.PsmRecord(
+            spectrum_id="pep-1001",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            charge=2,
+            score=100.0,
+            posterior_error_probability=0.002,
+            protein_refs=("P11111",),
+            target_decoy_label=identification.TargetDecoyLabel.TARGET,
+        ),
+        identification.PsmRecord(
+            spectrum_id="pep-1002",
+            peptide="DECA",
+            canonical_peptide="DECA",
+            charge=2,
+            score=90.0,
+            protein_refs=("DECOY_P99999",),
+            target_decoy_label=identification.TargetDecoyLabel.DECOY,
+        ),
+    )
+
+    report = identification.build_psm_error_rate_annotation_report(
+        records,
+        local_window_size=3,
+    )
+    rendered = identification.render_psm_error_rate_annotation_summary_tsv(report)
+
+    assert hasattr(identification, "build_psm_error_rate_annotation_report")
+    assert hasattr(identification, "render_psm_error_rate_annotation_tsv")
+    assert hasattr(identification, "render_psm_error_rate_annotation_summary_tsv")
+    assert report.summary.imported_pep_count == 1
+    assert report.summary.computed_local_fdr_count == 1
+    assert "imported_pep_count" in rendered
     assert report.reproducibility_hash
     assert "reproducibility_hash" in rendered
