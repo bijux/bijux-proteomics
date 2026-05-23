@@ -328,6 +328,7 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
 
     assert c1.occupancy_fraction == 0.12
     assert t2.occupancy_fraction == 0.79
+    assert c1.confidence_tier.value == "high_confidence"
     assert c1.uncertainty.value == "none"
     assert motif.window == "AAASPEP"
     assert "P11111:S5:Phospho" in enrichment.site_ids
@@ -343,4 +344,5 @@ def test_ptm_occupancy_motif_and_enrichment_outputs_follow_fixture_signal() -> N
     ambiguous = next(
         entry for entry in occupancy if entry.uncertainty.value == "ambiguous_site"
     )
+    assert ambiguous.confidence_tier.value == "ambiguous_site"
     assert ambiguous.uncertainty.value == "ambiguous_site"

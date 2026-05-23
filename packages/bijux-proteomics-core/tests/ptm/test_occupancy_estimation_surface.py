@@ -57,6 +57,7 @@ def test_ptm_site_occupancy_report_links_modified_and_unmodified_forms() -> None
 
     assert target.modified_intensity == 120.0
     assert target.unmodified_intensity == 880.0
+    assert target.confidence_tier.value == "high_confidence"
     assert target.modified_peptides == ("S[Phospho]PEPTIDEK",)
     assert target.unmodified_peptides == ("SPEPTIDEK",)
     assert target.modified_feature_count == 1
@@ -89,11 +90,47 @@ def test_ptm_site_occupancy_report_marks_missing_counterparts_and_ambiguity() ->
     missing_entry = next(
         entry
         for entry in report.entries
-        if entry.uncertainty.value == "missing_counterpart"
+        if entry.confidence_tier.value == "missing_unmodified_evidence"
     )
     ambiguous_entry = next(
-        entry for entry in report.entries if entry.uncertainty.value == "ambiguous_site"
+        entry for entry in report.entries if entry.confidence_tier.value == "ambiguous_site"
     )
 
+    assert report.summary.high_confidence_count >= 1
+    assert report.summary.missing_unmodified_evidence_count >= 1
     assert missing_entry.unmodified_feature_count == 0 or missing_entry.modified_feature_count == 0
+    assert missing_entry.uncertainty.value == "missing_counterpart"
     assert ambiguous_entry.modified_peptides
+
+
+def test_ptm_site_occupancy_report_tracks_missing_modified_evidence_explicitly() -> None:
+    parsed = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        parsed.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_entries = build_ptm_site_table(mappings)
+    feature_records = parse_ms1_feature_table(
+        _fixture_path("ptm_features.tsv")
+    ).accepted_records
+    feature_records = tuple(
+        record
+        for record in feature_records
+        if not (record.sample_id == "C1" and record.canonical_peptide == "S[Phospho]PEPTIDEK")
+    )
+
+    report = build_ptm_site_occupancy_report(
+        site_entries,
+        feature_records=feature_records,
+    )
+
+    missing_modified = next(
+        entry
+        for entry in report.entries
+        if entry.site_key == "P11111:S5:Phospho"
+        and entry.sample_id == "C1"
+    )
+
+    assert missing_modified.confidence_tier.value == "missing_modified_evidence"
+    assert missing_modified.uncertainty.value == "missing_counterpart"
+    assert missing_modified.modified_feature_count == 0
