@@ -462,7 +462,9 @@ from bijux_proteomics.targeted import (
     render_targeted_assay_qc_replicate_cv_tsv,
     render_targeted_assay_qc_retention_tsv,
     render_targeted_assay_qc_summary_tsv,
+    render_targeted_assay_qc_target_tsv,
     render_targeted_assay_qc_transition_tsv,
+    render_targeted_assay_qc_transition_qc_tsv,
     render_targeted_assay_qc_unreliable_tsv,
     render_targeted_matrix_excluded_transition_tsv,
     render_targeted_matrix_flagged_tsv,
@@ -3777,7 +3779,11 @@ def targeted_target_matrix_command(
     required=True,
 )
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--target-qc-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--transition-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option(
+    "--transition-qc-tsv-out", type=click.Path(path_type=Path, dir_okay=False)
+)
 @click.option(
     "--fragment-ratio-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -3796,7 +3802,9 @@ def targeted_assay_qc_command(
     design_path: Path,
     source_kind: str,
     summary_tsv_out: Path | None,
+    target_qc_tsv_out: Path | None,
     transition_tsv_out: Path | None,
+    transition_qc_tsv_out: Path | None,
     fragment_ratio_tsv_out: Path | None,
     retention_tsv_out: Path | None,
     replicate_cv_tsv_out: Path | None,
@@ -3820,10 +3828,20 @@ def targeted_assay_qc_command(
 
     if summary_tsv_out is not None:
         _write_text_output(summary_tsv_out, render_targeted_assay_qc_summary_tsv(assay_qc_report))
+    if target_qc_tsv_out is not None:
+        _write_text_output(
+            target_qc_tsv_out,
+            render_targeted_assay_qc_target_tsv(assay_qc_report),
+        )
     if transition_tsv_out is not None:
         _write_text_output(
             transition_tsv_out,
             render_targeted_assay_qc_transition_tsv(assay_qc_report),
+        )
+    if transition_qc_tsv_out is not None:
+        _write_text_output(
+            transition_qc_tsv_out,
+            render_targeted_assay_qc_transition_qc_tsv(assay_qc_report),
         )
     if fragment_ratio_tsv_out is not None:
         _write_text_output(
@@ -3855,9 +3873,11 @@ def targeted_assay_qc_command(
             "rejected_row_count": len(design_report.rejected_rows),
         },
         "assay_qc_summary": assay_qc_report.summary.to_dict(),
+        "target_qc": [entry.to_dict() for entry in assay_qc_report.target_qc],
         "transition_consistency": [
             entry.to_dict() for entry in assay_qc_report.transition_consistency
         ],
+        "transition_qc": [entry.to_dict() for entry in assay_qc_report.transition_qc],
         "fragment_ratios": [entry.to_dict() for entry in assay_qc_report.fragment_ratios],
         "retention_time_consistency": [
             entry.to_dict() for entry in assay_qc_report.retention_time_consistency
@@ -3869,8 +3889,16 @@ def targeted_assay_qc_command(
         "note": assay_qc_report.note,
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "target_qc_tsv": (
+                None if target_qc_tsv_out is None else str(target_qc_tsv_out)
+            ),
             "transition_tsv": (
                 None if transition_tsv_out is None else str(transition_tsv_out)
+            ),
+            "transition_qc_tsv": (
+                None
+                if transition_qc_tsv_out is None
+                else str(transition_qc_tsv_out)
             ),
             "fragment_ratio_tsv": (
                 None if fragment_ratio_tsv_out is None else str(fragment_ratio_tsv_out)
