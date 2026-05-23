@@ -732,12 +732,18 @@ from bijux_proteomics.study.qc import (
     build_instrument_batch_qc_report,
     build_lcms_run_qc_report,
     build_performance_snapshot,
+    build_protocol_aware_qc_threshold_policy,
     build_qc_evidence_manifest,
     build_run_qc_assessment,
     default_qc_threshold_policy,
     load_qc_threshold_policy,
     render_qc_assessment_html,
     render_qc_assessment_tsv,
+)
+from bijux_proteomics.study.lab_protocol_context import (
+    build_lab_protocol_interpretation_profile,
+    parse_lab_protocol_context_table,
+    require_single_lab_protocol_context,
 )
 from bijux_proteomics.study.experiment_feasibility import (
     build_experiment_feasibility_report,
@@ -847,6 +853,74 @@ def _build_volcano_review_policy(
         adjusted_p_value_threshold=adjusted_p_value_threshold,
         absolute_log2_fold_change_threshold=absolute_log2_fold_change_threshold,
         top_label_count=top_label_count,
+    )
+
+
+def _load_protocol_context(protocol_context_tsv_path: Path | None):
+    if protocol_context_tsv_path is None:
+        return None
+    return require_single_lab_protocol_context(
+        parse_lab_protocol_context_table(protocol_context_tsv_path)
+    )
+
+
+def _build_protocol_aware_selection_policy(
+    *,
+    protocol_context_tsv_path: Path | None,
+    max_adjusted_p_value: float | None,
+    min_absolute_log2_fold_change: float | None,
+    heatmap_max_entity_count: int | None,
+    heatmap_min_observed_fraction: float | None,
+) -> BiologicalResultSelectionPolicy | None:
+    if (
+        protocol_context_tsv_path is None
+        and max_adjusted_p_value is None
+        and min_absolute_log2_fold_change is None
+        and heatmap_max_entity_count is None
+        and heatmap_min_observed_fraction is None
+    ):
+        return None
+
+    baseline = BiologicalResultSelectionPolicy()
+    protocol_context = _load_protocol_context(protocol_context_tsv_path)
+    if protocol_context is not None:
+        interpretation_profile = build_lab_protocol_interpretation_profile(
+            protocol_context
+        )
+        baseline = baseline.model_copy(
+            update={
+                "max_adjusted_p_value": interpretation_profile.max_adjusted_p_value,
+                "min_absolute_log2_fold_change": (
+                    interpretation_profile.min_absolute_log2_fold_change
+                ),
+                "heatmap_max_entity_count": (
+                    interpretation_profile.heatmap_max_entity_count
+                ),
+            }
+        )
+    return baseline.model_copy(
+        update={
+            "max_adjusted_p_value": (
+                baseline.max_adjusted_p_value
+                if max_adjusted_p_value is None
+                else max_adjusted_p_value
+            ),
+            "min_absolute_log2_fold_change": (
+                baseline.min_absolute_log2_fold_change
+                if min_absolute_log2_fold_change is None
+                else min_absolute_log2_fold_change
+            ),
+            "heatmap_max_entity_count": (
+                baseline.heatmap_max_entity_count
+                if heatmap_max_entity_count is None
+                else heatmap_max_entity_count
+            ),
+            "heatmap_min_observed_fraction": (
+                baseline.heatmap_min_observed_fraction
+                if heatmap_min_observed_fraction is None
+                else heatmap_min_observed_fraction
+            ),
+        }
     )
 
 
@@ -9597,6 +9671,11 @@ def sample_exploration_command(
     default=None,
 )
 @click.option(
+    "--protocol-context-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
     "--go-annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -9643,26 +9722,22 @@ def sample_exploration_command(
 @click.option(
     "--max-adjusted-p-value",
     type=float,
-    default=0.1,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--min-absolute-log2-fold-change",
     type=float,
-    default=1.0,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-max-entities",
     type=int,
-    default=50,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-min-observed-fraction",
     type=float,
-    default=0.5,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--volcano-top-label-count",
@@ -9688,6 +9763,7 @@ def biological_report_command(
     proteins_fasta: Path,
     annotation_tsv: Path | None,
     context_annotation_tsv: Path | None,
+    protocol_context_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
     complex_membership_tsv: Path | None,
@@ -9716,11 +9792,29 @@ def biological_report_command(
 ) -> None:
     """Build one biological interpretation report bundle over governed LFQ results."""
 
+    selection_policy = _build_protocol_aware_selection_policy(
+        protocol_context_tsv_path=protocol_context_tsv,
+        max_adjusted_p_value=max_adjusted_p_value,
+        min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+        heatmap_max_entity_count=heatmap_max_entities,
+        heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+    )
+    volcano_adjusted_p_value = (
+        BiologicalResultSelectionPolicy().max_adjusted_p_value
+        if max_adjusted_p_value is None
+        else max_adjusted_p_value
+    )
+    volcano_absolute_log2_fold_change = (
+        BiologicalResultSelectionPolicy().min_absolute_log2_fold_change
+        if min_absolute_log2_fold_change is None
+        else min_absolute_log2_fold_change
+    )
     result = _run_orchestrated_workflow(
         LabelFreeWorkflowConfig(
             input_tsv_path=input_tsv,
             design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
+            protocol_context_tsv_path=protocol_context_tsv,
             annotation_tsv_path=annotation_tsv,
             context_annotation_tsv_path=context_annotation_tsv,
             go_annotation_tsv_path=go_annotation_tsv,
@@ -9743,15 +9837,12 @@ def biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            selection_policy=BiologicalResultSelectionPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-                heatmap_max_entity_count=heatmap_max_entities,
-                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
-            ),
+            selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
-                adjusted_p_value_threshold=max_adjusted_p_value,
-                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                adjusted_p_value_threshold=volcano_adjusted_p_value,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change
+                ),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -9805,6 +9896,11 @@ def biological_report_command(
 )
 @click.option(
     "--source-protein-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--protocol-context-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
 )
@@ -9864,26 +9960,22 @@ def biological_report_command(
 @click.option(
     "--max-adjusted-p-value",
     type=float,
-    default=0.1,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--min-absolute-log2-fold-change",
     type=float,
-    default=1.0,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-max-entities",
     type=int,
-    default=50,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-min-observed-fraction",
     type=float,
-    default=0.5,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--volcano-top-label-count",
@@ -9911,6 +10003,7 @@ def dda_biological_report_command(
     dialect_id: str,
     mapping_path: Path | None,
     source_protein_tsv: Path | None,
+    protocol_context_tsv: Path | None,
     annotation_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
@@ -9933,12 +10026,30 @@ def dda_biological_report_command(
 ) -> None:
     """Build one DDA search-result-to-biology report bundle."""
 
+    selection_policy = _build_protocol_aware_selection_policy(
+        protocol_context_tsv_path=protocol_context_tsv,
+        max_adjusted_p_value=max_adjusted_p_value,
+        min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+        heatmap_max_entity_count=heatmap_max_entities,
+        heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+    )
+    volcano_adjusted_p_value = (
+        BiologicalResultSelectionPolicy().max_adjusted_p_value
+        if max_adjusted_p_value is None
+        else max_adjusted_p_value
+    )
+    volcano_absolute_log2_fold_change = (
+        BiologicalResultSelectionPolicy().min_absolute_log2_fold_change
+        if min_absolute_log2_fold_change is None
+        else min_absolute_log2_fold_change
+    )
     result = _run_orchestrated_workflow(
         DdaWorkflowConfig(
             mode=WorkflowMode.GENERIC_PSM,
             search_result_tsv_path=search_result_tsv,
             design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
+            protocol_context_tsv_path=protocol_context_tsv,
             adapter_kind=SearchAdapterKind(adapter_kind),
             generic_mapping_path=mapping_path,
             dialect_id=dialect_id,
@@ -9955,15 +10066,12 @@ def dda_biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            selection_policy=BiologicalResultSelectionPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-                heatmap_max_entity_count=heatmap_max_entities,
-                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
-            ),
+            selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
-                adjusted_p_value_threshold=max_adjusted_p_value,
-                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                adjusted_p_value_threshold=volcano_adjusted_p_value,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change
+                ),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -10007,6 +10115,11 @@ def dda_biological_report_command(
 )
 @click.option(
     "--context-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--protocol-context-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
 )
@@ -10066,26 +10179,22 @@ def dda_biological_report_command(
 @click.option(
     "--max-adjusted-p-value",
     type=float,
-    default=0.1,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--min-absolute-log2-fold-change",
     type=float,
-    default=1.0,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-max-entities",
     type=int,
-    default=50,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-min-observed-fraction",
     type=float,
-    default=0.5,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--volcano-top-label-count",
@@ -10112,6 +10221,7 @@ def diann_biological_report_command(
     config_path: Path | None,
     annotation_tsv: Path | None,
     context_annotation_tsv: Path | None,
+    protocol_context_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
     complex_membership_tsv: Path | None,
@@ -10133,11 +10243,29 @@ def diann_biological_report_command(
 ) -> None:
     """Build one DIA-NN-to-biology report bundle."""
 
+    selection_policy = _build_protocol_aware_selection_policy(
+        protocol_context_tsv_path=protocol_context_tsv,
+        max_adjusted_p_value=max_adjusted_p_value,
+        min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+        heatmap_max_entity_count=heatmap_max_entities,
+        heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+    )
+    volcano_adjusted_p_value = (
+        BiologicalResultSelectionPolicy().max_adjusted_p_value
+        if max_adjusted_p_value is None
+        else max_adjusted_p_value
+    )
+    volcano_absolute_log2_fold_change = (
+        BiologicalResultSelectionPolicy().min_absolute_log2_fold_change
+        if min_absolute_log2_fold_change is None
+        else min_absolute_log2_fold_change
+    )
     result = _run_orchestrated_workflow(
         DiannWorkflowConfig(
             result_tsv_path=result_tsv,
             design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
+            protocol_context_tsv_path=protocol_context_tsv,
             config_path=config_path,
             annotation_tsv_path=annotation_tsv,
             context_annotation_tsv_path=context_annotation_tsv,
@@ -10152,15 +10280,12 @@ def diann_biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            selection_policy=BiologicalResultSelectionPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-                heatmap_max_entity_count=heatmap_max_entities,
-                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
-            ),
+            selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
-                adjusted_p_value_threshold=max_adjusted_p_value,
-                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                adjusted_p_value_threshold=volcano_adjusted_p_value,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change
+                ),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -10215,6 +10340,11 @@ def diann_biological_report_command(
     default=None,
 )
 @click.option(
+    "--protocol-context-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
     "--go-annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -10250,26 +10380,22 @@ def diann_biological_report_command(
 @click.option(
     "--max-adjusted-p-value",
     type=float,
-    default=0.1,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--min-absolute-log2-fold-change",
     type=float,
-    default=1.0,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-max-entities",
     type=int,
-    default=50,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--heatmap-min-observed-fraction",
     type=float,
-    default=0.5,
-    show_default=True,
+    default=None,
 )
 @click.option(
     "--volcano-top-label-count",
@@ -10298,6 +10424,7 @@ def maxquant_biological_report_command(
     config_path: Path | None,
     annotation_tsv: Path | None,
     context_annotation_tsv: Path | None,
+    protocol_context_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
     complex_membership_tsv: Path | None,
@@ -10316,6 +10443,23 @@ def maxquant_biological_report_command(
 ) -> None:
     """Build one MaxQuant-to-biology report bundle."""
 
+    selection_policy = _build_protocol_aware_selection_policy(
+        protocol_context_tsv_path=protocol_context_tsv,
+        max_adjusted_p_value=max_adjusted_p_value,
+        min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+        heatmap_max_entity_count=heatmap_max_entities,
+        heatmap_min_observed_fraction=heatmap_min_observed_fraction,
+    )
+    volcano_adjusted_p_value = (
+        BiologicalResultSelectionPolicy().max_adjusted_p_value
+        if max_adjusted_p_value is None
+        else max_adjusted_p_value
+    )
+    volcano_absolute_log2_fold_change = (
+        BiologicalResultSelectionPolicy().min_absolute_log2_fold_change
+        if min_absolute_log2_fold_change is None
+        else min_absolute_log2_fold_change
+    )
     result = _run_orchestrated_workflow(
         MaxquantWorkflowConfig(
             evidence_txt_path=evidence_txt,
@@ -10323,6 +10467,7 @@ def maxquant_biological_report_command(
             protein_groups_txt_path=protein_groups_txt,
             design_tsv_path=design_tsv,
             proteins_fasta_path=proteins_fasta,
+            protocol_context_tsv_path=protocol_context_tsv,
             config_path=config_path,
             annotation_tsv_path=annotation_tsv,
             context_annotation_tsv_path=context_annotation_tsv,
@@ -10334,15 +10479,12 @@ def maxquant_biological_report_command(
             normalization_method=NormalizationMethod(normalization),
             condition_a=condition_a,
             condition_b=condition_b,
-            selection_policy=BiologicalResultSelectionPolicy(
-                max_adjusted_p_value=max_adjusted_p_value,
-                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
-                heatmap_max_entity_count=heatmap_max_entities,
-                heatmap_min_observed_fraction=heatmap_min_observed_fraction,
-            ),
+            selection_policy=selection_policy,
             volcano_policy=_build_volcano_review_policy(
-                adjusted_p_value_threshold=max_adjusted_p_value,
-                absolute_log2_fold_change_threshold=min_absolute_log2_fold_change,
+                adjusted_p_value_threshold=volcano_adjusted_p_value,
+                absolute_log2_fold_change_threshold=(
+                    volcano_absolute_log2_fold_change
+                ),
                 top_label_count=volcano_top_label_count,
             ),
             output_dir=output_dir,
@@ -16450,6 +16592,11 @@ def tmt_report_command(
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
 )
+@click.option(
+    "--protocol-context-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
 @click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
 @click.option("--peptide-column", default="peptide", show_default=True)
 @click.option("--charge-column", default="charge", show_default=True)
@@ -16479,6 +16626,7 @@ def qc_report_command(
     sample_id: str | None,
     run_id: str | None,
     policy_path: Path | None,
+    protocol_context_tsv: Path | None,
     spectrum_id_column: str,
     peptide_column: str,
     charge_column: str,
@@ -16498,6 +16646,16 @@ def qc_report_command(
         if policy_path is not None:
             try:
                 policy = load_qc_threshold_policy(policy_path)
+            except Exception as exc:  # noqa: BLE001
+                raise ProteomicsOperatorError(
+                    ProteomicsOperatorErrorCode.QC_POLICY_INVALID,
+                    str(exc),
+                ) from exc
+        elif protocol_context_tsv is not None:
+            try:
+                policy = build_protocol_aware_qc_threshold_policy(
+                    _load_protocol_context(protocol_context_tsv)
+                )
             except Exception as exc:  # noqa: BLE001
                 raise ProteomicsOperatorError(
                     ProteomicsOperatorErrorCode.QC_POLICY_INVALID,
@@ -16615,6 +16773,14 @@ def qc_report_command(
                     path=str(policy_path),
                     sha256=_file_sha256(policy_path),
                     role="qc_policy",
+                )
+            )
+        if protocol_context_tsv is not None:
+            input_files.append(
+                QcEvidenceInputFile(
+                    path=str(protocol_context_tsv),
+                    sha256=_file_sha256(protocol_context_tsv),
+                    role="lab_protocol_context",
                 )
             )
         manifest = build_qc_evidence_manifest(
