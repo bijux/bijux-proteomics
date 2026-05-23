@@ -269,8 +269,12 @@ from bijux_proteomics.io.formats import (
     validate_proteomics_input,
 )
 from bijux_proteomics.io import (
+    extract_mzml_raw_signal_evidence_cards,
     render_chimeric_spectrum_competing_evidence_tsv,
     render_chimeric_spectrum_spectra_tsv,
+    render_raw_signal_evidence_card_summary_tsv,
+    render_raw_signal_evidence_card_tsv,
+    render_raw_signal_evidence_cards_html,
     score_chimeric_spectra_from_psms,
     extract_mzml_dia_fragment_trace_coelution,
     extract_mzml_chromatographic_evidence,
@@ -12406,6 +12410,161 @@ def spectrum_score_chimeric_command(
         },
     }
     _emit_json(payload, out_path=out_path)
+
+
+@cli.command("raw-signal-evidence-card")
+@click.argument(
+    "xic_target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "chromatogram_mzml",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--fragment-target-table",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--spectrum-mzml",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
+    "--psm-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--precursor-id", "precursor_ids", multiple=True)
+@click.option("--peptide-ref", "peptide_refs", multiple=True)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--aligned-rt-tolerance-seconds",
+    type=float,
+    default=5.0,
+    show_default=True,
+)
+@click.option("--min-anchor-count", type=int, default=2, show_default=True)
+@click.option(
+    "--apex-tolerance-seconds",
+    type=float,
+    default=5.0,
+    show_default=True,
+)
+@click.option("--min-correlation", type=float, default=0.8, show_default=True)
+@click.option("--min-passing-fragment-count", type=int, default=2, show_default=True)
+@click.option("--fragment-ms-level", type=int, default=2, show_default=True)
+@click.option(
+    "--default-isolation-window-half-width-da",
+    type=float,
+    default=1.0,
+    show_default=True,
+)
+@click.option(
+    "--chimeric-score-threshold",
+    type=float,
+    default=0.45,
+    show_default=True,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--card-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--html-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON raw-signal evidence-card output path.",
+)
+def raw_signal_evidence_card_command(
+    xic_target_table: Path,
+    chromatogram_mzml: tuple[Path, ...],
+    fragment_target_table: Path | None,
+    spectrum_mzml: Path | None,
+    psm_tsv: Path | None,
+    precursor_ids: tuple[str, ...],
+    peptide_refs: tuple[str, ...],
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    aligned_rt_tolerance_seconds: float,
+    min_anchor_count: int,
+    apex_tolerance_seconds: float,
+    min_correlation: float,
+    min_passing_fragment_count: int,
+    fragment_ms_level: int,
+    default_isolation_window_half_width_da: float,
+    chimeric_score_threshold: float,
+    summary_tsv_out: Path | None,
+    card_tsv_out: Path | None,
+    html_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Build one structured raw-signal evidence-card review for selected precursors."""
+    try:
+        report = extract_mzml_raw_signal_evidence_cards(
+            chromatogram_mzml,
+            xic_target_table,
+            fragment_target_table=fragment_target_table,
+            spectrum_mzml_path=spectrum_mzml,
+            psm_path=psm_tsv,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+            aligned_rt_tolerance_seconds=aligned_rt_tolerance_seconds,
+            min_anchor_count=min_anchor_count,
+            apex_tolerance_seconds=apex_tolerance_seconds,
+            min_correlation=min_correlation,
+            min_passing_fragment_count=min_passing_fragment_count,
+            fragment_ms_level=fragment_ms_level,
+            default_isolation_window_half_width_da=(
+                default_isolation_window_half_width_da
+            ),
+            chimeric_score_threshold=chimeric_score_threshold,
+            selected_precursor_ids=precursor_ids,
+            selected_peptide_refs=peptide_refs,
+        )
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_raw_signal_evidence_card_summary_tsv(report),
+        )
+    if card_tsv_out is not None:
+        _write_text_output(
+            card_tsv_out,
+            render_raw_signal_evidence_card_tsv(report),
+        )
+    if html_out is not None:
+        _write_text_output(html_out, render_raw_signal_evidence_cards_html(report))
+
+    _emit_json(
+        {
+            "report": report.to_dict(),
+            "outputs": {
+                "summary_tsv": (
+                    None if summary_tsv_out is None else str(summary_tsv_out)
+                ),
+                "card_tsv": None if card_tsv_out is None else str(card_tsv_out),
+                "html": None if html_out is None else str(html_out),
+            },
+        },
+        out_path=out_path,
+    )
 
 
 @cli.command("spectrum-similarity")
