@@ -19,6 +19,7 @@ from bijux_proteomics.targeted import TargetedResultSourceKind
 from bijux_proteomics.workflow.orchestrator import (
     DdaWorkflowConfig,
     DiannWorkflowConfig,
+    LabelFreeWorkflowConfig,
     MaxquantWorkflowConfig,
     PtmWorkflowConfig,
     TargetedWorkflowConfig,
@@ -35,6 +36,7 @@ class PublicBenchmarkSearchEngine(StrEnum):
     """Stable workflow-family identifiers accepted by public descriptors."""
 
     DIANN = "diann"
+    LFQ = "lfq"
     MAXQUANT = "maxquant"
     FRAGPIPE = "fragpipe"
     PTM = "ptm"
@@ -466,6 +468,15 @@ def _build_workflow_config(
         return DiannWorkflowConfig(
             result_tsv_path=source_map["result_tsv"],
             config_path=source_map.get("config_json"),
+            design_tsv_path=source_map["design_tsv"],
+            proteins_fasta_path=source_map["proteins_fasta"],
+            condition_a=condition_a,
+            condition_b=condition_b,
+            output_dir=output_dir,
+        )
+    if engine == PublicBenchmarkSearchEngine.LFQ:
+        return LabelFreeWorkflowConfig(
+            input_tsv_path=source_map["input_tsv"],
             design_tsv_path=source_map["design_tsv"],
             proteins_fasta_path=source_map["proteins_fasta"],
             condition_a=condition_a,
