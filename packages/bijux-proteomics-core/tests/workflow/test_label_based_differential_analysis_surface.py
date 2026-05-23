@@ -6,8 +6,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.label_based_differential_analysis import (
     LabelBasedDifferentialSourceKind,
+    build_label_based_differential_analysis_report,
     build_tmt_differential_analysis_report,
     build_tmt_differential_input_report,
 )
@@ -69,3 +71,27 @@ def test_build_tmt_differential_analysis_report_preserves_design_and_bh_results(
     assert report.volcano_plot.condition_a == "control"
     assert report.volcano_plot.condition_b == "treatment"
     assert "benjamini-hochberg-corrected differential results" in report.note
+
+
+def test_build_label_based_differential_analysis_report_blocks_missing_plex_channels() -> (
+    None
+):
+    design_report = parse_experimental_design_table(_multiplex_fixture("tmt.design.tsv"))
+    valid_entries = tuple(design_report.accepted_entries)
+    input_report = build_tmt_differential_input_report(
+        _multiplex_fixture("maxquant_tmt_evidence.tsv"),
+        valid_entries,
+    )
+    invalid_design = build_experiment_design(
+        tuple(entry for entry in valid_entries if entry.sample_id != "plex_b_127N")
+    )
+
+    try:
+        build_label_based_differential_analysis_report(
+            input_report,
+            invalid_design,
+        )
+    except ValueError as exc:
+        assert "missing_multiplex_channels" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected missing plex channels to be rejected")

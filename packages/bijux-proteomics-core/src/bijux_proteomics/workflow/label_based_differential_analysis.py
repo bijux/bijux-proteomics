@@ -62,7 +62,12 @@ from bijux_proteomics.quantification.differential_abundance import (
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
 )
-from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study import (
+    ExperimentDesign,
+    build_experiment_design,
+    coerce_experiment_design,
+    require_valid_experiment_design_for_differential_analysis,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -277,10 +282,22 @@ def build_label_based_differential_analysis_report(
     """Normalize one labeled matrix, build the design, and run differential testing."""
 
     experiment_design = coerce_experiment_design(design_entries)
+    experiment_design = require_valid_experiment_design_for_differential_analysis(
+        experiment_design,
+        require_complete_plex_channels=bool(experiment_design.plexes),
+    )
     analysis_design_entries = _analysis_design_entries(
         input_report,
         design_entries=experiment_design.entries,
     )
+    analysis_experiment_design = require_valid_experiment_design_for_differential_analysis(
+        build_experiment_design(analysis_design_entries),
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field if batch_field else None,
+        pairing_field=pairing_field,
+    )
+    analysis_design_entries = analysis_experiment_design.entries
     normalized_matrix, normalization_factors = _normalize_input_report(
         input_report,
         method=normalization_method,
