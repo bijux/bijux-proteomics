@@ -91,7 +91,9 @@ class HeatmapRowMetadataEntry(JsonModel):
     member_peptides: tuple[str, ...] = Field(default_factory=tuple)
     observed_sample_count: int = Field(..., ge=0)
     missing_sample_count: int = Field(..., ge=0)
+    filled_missing_sample_count: int = Field(..., ge=0)
     observed_fraction: float = Field(..., ge=0.0, le=1.0)
+    missing_value_policy: HeatmapMissingValuePolicy
     mean_log2_abundance: float | None = None
     variance_log2_abundance: float | None = Field(default=None, ge=0.0)
 
@@ -103,6 +105,7 @@ class HeatmapColumnMetadataEntry(JsonModel):
 
     column_index: int = Field(..., ge=0)
     sample_metadata: QuantSampleMetadataEntry
+    missing_value_policy: HeatmapMissingValuePolicy
     normalization_factor: float
 
 
@@ -184,7 +187,14 @@ def build_heatmap_preparation_report(
             member_peptides=table.entity_member_peptides.get(entity_id, ()),
             observed_sample_count=observed_sample_count,
             missing_sample_count=len(sample_ids) - observed_sample_count,
+            filled_missing_sample_count=(
+                len(sample_ids) - observed_sample_count
+                if active_policy.missing_value_policy
+                is not HeatmapMissingValuePolicy.DROP_ROWS
+                else 0
+            ),
             observed_fraction=observed_fraction,
+            missing_value_policy=active_policy.missing_value_policy,
             mean_log2_abundance=(
                 float(np.mean(raw_values[finite_mask])) if observed_sample_count else None
             ),
@@ -220,6 +230,7 @@ def build_heatmap_preparation_report(
                 sample_id,
                 QuantSampleMetadataEntry(sample_id=sample_id),
             ),
+            missing_value_policy=active_policy.missing_value_policy,
             normalization_factor=table.normalization_factors.get(sample_id, 1.0),
         )
         for index, sample_id in enumerate(sample_ids)
@@ -321,7 +332,9 @@ def render_heatmap_row_metadata_tsv(report: HeatmapPreparationReport) -> str:
             "member_peptides",
             "observed_sample_count",
             "missing_sample_count",
+            "filled_missing_sample_count",
             "observed_fraction",
+            "missing_value_policy",
             "mean_log2_abundance",
             "variance_log2_abundance",
         )
@@ -334,7 +347,9 @@ def render_heatmap_row_metadata_tsv(report: HeatmapPreparationReport) -> str:
                 ";".join(sort_strings(row.member_peptides)),
                 row.observed_sample_count,
                 row.missing_sample_count,
+                row.filled_missing_sample_count,
                 f"{row.observed_fraction:g}",
+                row.missing_value_policy.value,
                 "" if row.mean_log2_abundance is None else f"{row.mean_log2_abundance:g}",
                 ""
                 if row.variance_log2_abundance is None
@@ -359,6 +374,7 @@ def render_heatmap_column_metadata_tsv(report: HeatmapPreparationReport) -> str:
             "batch",
             "instrument",
             "search_engine",
+            "missing_value_policy",
             "normalization_factor",
         )
     )
@@ -376,6 +392,7 @@ def render_heatmap_column_metadata_tsv(report: HeatmapPreparationReport) -> str:
                 column.sample_metadata.batch or "",
                 column.sample_metadata.instrument or "",
                 column.sample_metadata.search_engine or "",
+                column.missing_value_policy.value,
                 f"{column.normalization_factor:g}",
             )
         )
