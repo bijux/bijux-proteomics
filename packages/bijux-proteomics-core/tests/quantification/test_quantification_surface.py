@@ -261,6 +261,53 @@ def test_quant_matrix_export_preserves_sample_metadata_missingness_and_provenanc
         output_path.unlink(missing_ok=True)
 
 
+def test_quant_matrix_export_preserves_per_cell_imputation_provenance() -> None:
+    report = parse_ms1_feature_table(_quant_fixture("ms1_features.tsv"))
+    design = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    normalized = normalize_label_free_table(
+        build_label_free_intensity_table(
+            report.accepted_records,
+            entity_level=QuantEntityLevel.PROTEIN,
+            aggregation_method=QuantRollupMethod.SUM,
+        ),
+        method=NormalizationMethod.MEDIAN,
+    )
+    imputed = impute_label_free_table(
+        normalized,
+        method=ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
+        design_entries=design.accepted_entries,
+    )
+    matrix_export = build_quant_matrix_export(
+        imputed,
+        design_entries=design.accepted_entries,
+    )
+
+    row = next(
+        row
+        for row in matrix_export.rows
+        if row.entity_id == "P004" and row.sample_metadata.sample_id == "C1"
+    )
+    assert row.imputation_provenance is not None
+    assert row.imputation_provenance.method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY
+    assert row.imputation_provenance.reference_group == "control"
+    assert matrix_export.imputation_provenance.imputed_value_count > 0
+
+    output_path = _quant_fixture("quant_matrix_imputed.tsv")
+    try:
+        export_quant_matrix_tsv(matrix_export, output_path)
+        header = output_path.read_text().splitlines()[0].split("\t")
+        assert "imputation_method" in header
+        assert "imputation_strategy" in header
+        first_imputed_row = next(
+            line
+            for line in output_path.read_text().splitlines()[1:]
+            if "\tP004\t" in line
+        )
+        assert "group_aware_low_intensity" in first_imputed_row
+    finally:
+        output_path.unlink(missing_ok=True)
+
+
 def test_protein_quant_rollup_evidence_lists_contributing_features_and_peptides() -> (
     None
 ):
