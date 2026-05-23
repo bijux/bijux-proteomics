@@ -101,10 +101,16 @@ def test_ptm_package_exports_differential_owner_surface() -> None:
 
     assert hasattr(ptm, "build_ptm_differential_analysis_report")
     assert hasattr(ptm, "render_ptm_site_differential_tsv")
+    corrected = next(
+        entry
+        for entry in report.differential_report.entries
+        if entry.site_key == "P11111:S5:Phospho"
+    )
     low_localization = next(
         entry
         for entry in report.differential_report.entries
         if entry.site_key == "Q9DEC1:S5:Phospho"
     )
+    assert corrected.protein_correction_status == "not_requested"
     assert low_localization.localization_tier.value == "refused"
     assert low_localization.low_localization is True
