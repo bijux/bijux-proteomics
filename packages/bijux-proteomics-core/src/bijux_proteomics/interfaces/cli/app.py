@@ -754,6 +754,8 @@ from bijux_proteomics.workflow import (
     render_maxquant_protein_identity_comparison_tsv,
     render_proteomics_run_summary_tsv,
     render_dia_dda_comparison_summary_tsv,
+    render_dia_dda_conflicting_evidence_tsv,
+    render_dia_dda_differential_comparison_tsv,
     render_dia_dda_exclusive_evidence_tsv,
     render_dia_dda_peptide_overlap_tsv,
     render_dia_dda_protein_overlap_tsv,
@@ -4183,11 +4185,29 @@ def dia_differential_command(
     "dda_psm_path", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.option("--max-q-value", type=float, default=0.05, show_default=True)
+@click.option(
+    "--dia-differential-tsv",
+    "dia_differential_tsv_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--dda-differential-tsv",
+    "dda_differential_tsv_path",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--differential-significance-threshold",
+    type=float,
+    default=0.05,
+    show_default=True,
+)
 @click.option("--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--protein-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--peptide-overlap-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--correlation-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--exclusive-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--conflicts-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--differential-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--out",
     "out_path",
@@ -4198,19 +4218,27 @@ def dia_dda_compare_command(
     diann_report_path: Path,
     dda_psm_path: Path,
     max_q_value: float,
+    dia_differential_tsv_path: Path | None,
+    dda_differential_tsv_path: Path | None,
+    differential_significance_threshold: float,
     summary_tsv_out: Path | None,
     protein_overlap_tsv_out: Path | None,
     peptide_overlap_tsv_out: Path | None,
     correlation_tsv_out: Path | None,
     exclusive_tsv_out: Path | None,
+    conflicts_tsv_out: Path | None,
+    differential_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
-    """Compare DIA-NN and DDA evidence overlap, exclusivity, and shared intensity."""
+    """Compare DIA-NN and DDA evidence, conflicts, and optional differential results."""
     try:
         comparison_report = build_diann_vs_dda_psm_comparison_report(
             diann_report_path,
             dda_psm_path,
             max_q_value=max_q_value,
+            dia_differential_tsv_path=dia_differential_tsv_path,
+            dda_differential_tsv_path=dda_differential_tsv_path,
+            differential_significance_threshold=differential_significance_threshold,
         )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -4240,6 +4268,16 @@ def dia_dda_compare_command(
             exclusive_tsv_out,
             render_dia_dda_exclusive_evidence_tsv(comparison_report),
         )
+    if conflicts_tsv_out is not None:
+        _write_text_output(
+            conflicts_tsv_out,
+            render_dia_dda_conflicting_evidence_tsv(comparison_report),
+        )
+    if differential_tsv_out is not None:
+        _write_text_output(
+            differential_tsv_out,
+            render_dia_dda_differential_comparison_tsv(comparison_report),
+        )
 
     payload = {
         "dia_source_name": comparison_report.dia_source_name,
@@ -4252,6 +4290,12 @@ def dia_dda_compare_command(
         ],
         "exclusive_evidence": [
             entry.to_dict() for entry in comparison_report.exclusive_evidence
+        ],
+        "conflicting_evidence": [
+            entry.to_dict() for entry in comparison_report.conflicting_evidence
+        ],
+        "differential_comparison": [
+            entry.to_dict() for entry in comparison_report.differential_comparison
         ],
         "note": comparison_report.note,
         "outputs": {
@@ -4271,6 +4315,14 @@ def dia_dda_compare_command(
             ),
             "exclusive_tsv": (
                 None if exclusive_tsv_out is None else str(exclusive_tsv_out)
+            ),
+            "conflicts_tsv": (
+                None if conflicts_tsv_out is None else str(conflicts_tsv_out)
+            ),
+            "differential_tsv": (
+                None
+                if differential_tsv_out is None
+                else str(differential_tsv_out)
             ),
         },
     }
