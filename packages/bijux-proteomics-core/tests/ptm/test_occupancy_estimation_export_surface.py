@@ -61,9 +61,11 @@ def test_ptm_occupancy_tsv_renderers_preserve_counterpart_linkage() -> None:
     counterpart_tsv = render_ptm_occupancy_counterpart_tsv(counterpart_report)
 
     assert summary_tsv.splitlines()[0] == (
-        "entry_count\tcomplete_count\tmissing_counterpart_count\tambiguous_site_count"
+        "entry_count\tcomplete_count\thigh_confidence_count\tmissing_counterpart_count\tmissing_unmodified_evidence_count\tmissing_modified_evidence_count\tambiguous_site_count"
     )
+    assert "confidence_tier" in entry_tsv.splitlines()[0]
     assert "S[Phospho]PEPTIDEK" in entry_tsv
     assert "SPEPTIDEK" in entry_tsv
     assert "counterpart_status" in counterpart_tsv
+    assert "high_confidence" in counterpart_tsv
     assert "complete" in counterpart_tsv
