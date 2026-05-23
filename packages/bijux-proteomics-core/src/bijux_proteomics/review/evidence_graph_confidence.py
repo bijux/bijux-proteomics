@@ -14,6 +14,7 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.io.chromatographic_evidence import (
     ChromatographicEvidenceScoreReport,
 )
+from bijux_proteomics.io.dia_fragment_coelution import DiaFragmentCoelutionReport
 from bijux_proteomics.review.evidence_graph import (
     ProteomicsEvidenceEdge,
     ProteomicsEvidenceEdgeKind,
@@ -63,6 +64,7 @@ def propagate_evidence_graph_confidence(
     graph: ProteomicsEvidenceGraph,
     *,
     chromatographic_score_report: ChromatographicEvidenceScoreReport | None = None,
+    dia_fragment_coelution_report: DiaFragmentCoelutionReport | None = None,
 ) -> EvidenceGraphConfidenceReport:
     """Propagate upstream evidence quality into final protein, PTM, and pathway claims."""
 
@@ -75,6 +77,11 @@ def propagate_evidence_graph_confidence(
             entry.peptide_ref: entry.chromatographic_evidence_score
             for entry in chromatographic_score_report.peptide_entries
         }
+    )
+    coelution_scores_by_precursor = (
+        {}
+        if dia_fragment_coelution_report is None
+        else _coelution_scores_by_precursor(dia_fragment_coelution_report)
     )
     entries: list[EvidenceGraphConfidenceEntry] = []
 
@@ -96,6 +103,7 @@ def propagate_evidence_graph_confidence(
                 protein_cache=protein_cache,
                 ptm_cache=ptm_cache,
                 chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+                coelution_scores_by_precursor=coelution_scores_by_precursor,
             )
             propagated_score = _average(
                 (
@@ -171,6 +179,7 @@ def _subject_confidence(
     protein_cache: dict[str, tuple[float, set[str], set[str]]],
     ptm_cache: dict[str, tuple[float, set[str], set[str]]],
     chromatographic_scores_by_peptide: dict[str, float],
+    coelution_scores_by_precursor: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     if subject.entity_type is ProteomicsEvidenceNodeKind.PROTEIN:
         return _protein_confidence(
@@ -178,6 +187,7 @@ def _subject_confidence(
             subject.node_id,
             protein_cache=protein_cache,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
     if subject.entity_type is ProteomicsEvidenceNodeKind.PTM_SITE:
         return _ptm_site_confidence(
@@ -186,6 +196,7 @@ def _subject_confidence(
             protein_cache=protein_cache,
             ptm_cache=ptm_cache,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
     if subject.entity_type is ProteomicsEvidenceNodeKind.PATHWAY:
         return _pathway_confidence(
@@ -193,6 +204,7 @@ def _subject_confidence(
             subject.node_id,
             protein_cache=protein_cache,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
     raise ValueError(f"unsupported confidence subject kind: {subject.entity_type.value}")
 
@@ -203,6 +215,7 @@ def _protein_confidence(
     *,
     protein_cache: dict[str, tuple[float, set[str], set[str]]],
     chromatographic_scores_by_peptide: dict[str, float],
+    coelution_scores_by_precursor: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     cached = protein_cache.get(protein_node_id)
     if cached is not None:
@@ -230,6 +243,7 @@ def _protein_confidence(
             graph,
             peptide.node_id,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
         path_scores.append(
             _average((edge.confidence, peptide_score, _trust_score(peptide.trust_class)))
@@ -254,6 +268,7 @@ def _ptm_site_confidence(
     protein_cache: dict[str, tuple[float, set[str], set[str]]],
     ptm_cache: dict[str, tuple[float, set[str], set[str]]],
     chromatographic_scores_by_peptide: dict[str, float],
+    coelution_scores_by_precursor: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     cached = ptm_cache.get(ptm_site_node_id)
     if cached is not None:
@@ -282,6 +297,7 @@ def _ptm_site_confidence(
                     graph,
                     parent_peptide.node_id,
                     chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+                    coelution_scores_by_precursor=coelution_scores_by_precursor,
                 )
                 path_scores.append(
                     _average(
@@ -314,6 +330,7 @@ def _ptm_site_confidence(
             edge.target_node_id,
             protein_cache=protein_cache,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
         protein_scores.append(_average((edge.confidence, protein_score)))
         upstream_ids.update(protein_ids | {edge.target_node_id})
@@ -348,6 +365,7 @@ def _pathway_confidence(
     *,
     protein_cache: dict[str, tuple[float, set[str], set[str]]],
     chromatographic_scores_by_peptide: dict[str, float],
+    coelution_scores_by_precursor: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     pathway = _require_node_by_id(graph, pathway_node_id)
     membership_edges = _incoming_edges(
@@ -365,6 +383,7 @@ def _pathway_confidence(
             protein.node_id,
             protein_cache=protein_cache,
             chromatographic_scores_by_peptide=chromatographic_scores_by_peptide,
+            coelution_scores_by_precursor=coelution_scores_by_precursor,
         )
         member_scores.append(
             _average((edge.confidence, protein_score, _trust_score(protein.trust_class)))
@@ -384,6 +403,7 @@ def _peptide_confidence(
     peptide_node_id: str,
     *,
     chromatographic_scores_by_peptide: dict[str, float],
+    coelution_scores_by_precursor: dict[str, float],
 ) -> tuple[float, set[str], set[str]]:
     peptide = _require_node_by_id(graph, peptide_node_id)
     support_edges = _incoming_edges(
@@ -403,9 +423,14 @@ def _peptide_confidence(
             graph,
             upstream.node_id,
         )
-        support_scores.append(
-            _average((edge.confidence, acquisition_score, _trust_score(upstream.trust_class)))
+        support_score = _average(
+            (edge.confidence, acquisition_score, _trust_score(upstream.trust_class))
         )
+        if upstream.entity_type is ProteomicsEvidenceNodeKind.PRECURSOR:
+            coelution_score = coelution_scores_by_precursor.get(upstream.entity_ref)
+            if coelution_score is not None:
+                support_score = _average((support_score, coelution_score))
+        support_scores.append(support_score)
         upstream_ids.update(acquisition_ids | {upstream.node_id})
         source_rows.update(acquisition_rows | {edge.source_row_ref})
 
@@ -538,6 +563,18 @@ def _build_rationale(
         f"{subject_kind.value.replace('_', ' ')} confidence propagates from upstream support "
         f"quality{qualifier} with final score {score:.4f}"
     )
+
+
+def _coelution_scores_by_precursor(
+    report: DiaFragmentCoelutionReport,
+) -> dict[str, float]:
+    grouped_scores: dict[str, list[float]] = {}
+    for entry in report.run_entries:
+        grouped_scores.setdefault(entry.precursor_id, []).append(entry.coelution_score)
+    return {
+        precursor_id: _average(scores)
+        for precursor_id, scores in grouped_scores.items()
+    }
 
 
 def _dict_rows_to_tsv(rows: list[dict[str, object]]) -> str:
