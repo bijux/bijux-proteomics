@@ -48,11 +48,23 @@ def _targeted_fixture(name: str) -> Path:
 
 
 def test_run_proteomics_workflow_supports_label_free_mode(tmp_path: Path) -> None:
+    protocol_path = tmp_path / "protocol.tsv"
+    protocol_path.write_text(
+        "\n".join(
+            (
+                "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                "prot-001\ttrypsin\tdia\tlabel_free\tnone\tnone\tnone\tOrbitrap Astral",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     result = run_proteomics_workflow(
         LabelFreeWorkflowConfig(
             input_tsv_path=_workflow_fixture("biological_report_features.tsv"),
             design_tsv_path=_workflow_fixture("biological_report.design.tsv"),
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            protocol_context_tsv_path=protocol_path,
             condition_a="control",
             condition_b="treatment",
             output_dir=tmp_path / "label_free",
@@ -63,6 +75,7 @@ def test_run_proteomics_workflow_supports_label_free_mode(tmp_path: Path) -> Non
     assert result.design_row_count == 6
     assert result.export_manifest is not None
     assert result.report.summary.protein_count == 5
+    assert result.report.selection_policy.heatmap_max_entity_count == 75
 
 
 def test_run_proteomics_workflow_supports_generic_psm_mode() -> None:

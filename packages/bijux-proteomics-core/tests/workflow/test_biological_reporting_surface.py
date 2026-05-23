@@ -185,3 +185,36 @@ def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_r
         and entry.protein_ref == "UNKNOWN123"
         for entry in report.annotation_report.result_entries
     )
+
+
+def test_biological_result_report_bundle_adapts_selection_policy_to_protocol_context(
+    tmp_path: Path,
+) -> None:
+    protocol_path = tmp_path / "protocol.tsv"
+    protocol_path.write_text(
+        "\n".join(
+            (
+                "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                "prot-001\ttrypsin\tdda\ttmt\tnone\tnone\tnone\tOrbitrap Exploris",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+
+    report = build_biological_result_report_bundle(
+        _fixture("biological_report_features.tsv"),
+        build_experiment_design(design_entries),
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        protocol_context_tsv_path=protocol_path,
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.selection_policy.min_absolute_log2_fold_change == 0.58
+    assert report.selection_policy.heatmap_max_entity_count == 80

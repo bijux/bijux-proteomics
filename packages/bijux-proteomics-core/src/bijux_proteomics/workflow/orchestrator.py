@@ -142,6 +142,7 @@ class LabelFreeWorkflowConfig(WorkflowBaseConfig):
     input_tsv_path: Path
     design_tsv_path: Path
     proteins_fasta_path: Path
+    protocol_context_tsv_path: Path | None = None
     annotation_tsv_path: Path | None = None
     context_annotation_tsv_path: Path | None = None
     go_annotation_tsv_path: Path | None = None
@@ -166,9 +167,7 @@ class LabelFreeWorkflowConfig(WorkflowBaseConfig):
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
     condition_b: str | None = None
-    selection_policy: BiologicalResultSelectionPolicy = Field(
-        default_factory=BiologicalResultSelectionPolicy
-    )
+    selection_policy: BiologicalResultSelectionPolicy | None = None
     volcano_policy: VolcanoReviewPolicy = Field(
         default_factory=VolcanoReviewPolicy
     )
@@ -181,6 +180,7 @@ class DdaWorkflowConfig(WorkflowBaseConfig):
     search_result_tsv_path: Path
     design_tsv_path: Path
     proteins_fasta_path: Path
+    protocol_context_tsv_path: Path | None = None
     adapter_kind: SearchAdapterKind = SearchAdapterKind.GENERIC
     generic_mapping_path: Path | None = None
     dialect_id: str = "default"
@@ -197,9 +197,7 @@ class DdaWorkflowConfig(WorkflowBaseConfig):
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
     condition_b: str | None = None
-    selection_policy: BiologicalResultSelectionPolicy = Field(
-        default_factory=BiologicalResultSelectionPolicy
-    )
+    selection_policy: BiologicalResultSelectionPolicy | None = None
     volcano_policy: VolcanoReviewPolicy = Field(
         default_factory=VolcanoReviewPolicy
     )
@@ -212,6 +210,7 @@ class DiannWorkflowConfig(WorkflowBaseConfig):
     result_tsv_path: Path
     design_tsv_path: Path
     proteins_fasta_path: Path
+    protocol_context_tsv_path: Path | None = None
     config_path: Path | None = None
     annotation_tsv_path: Path | None = None
     context_annotation_tsv_path: Path | None = None
@@ -227,9 +226,7 @@ class DiannWorkflowConfig(WorkflowBaseConfig):
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
     condition_b: str | None = None
-    selection_policy: BiologicalResultSelectionPolicy = Field(
-        default_factory=BiologicalResultSelectionPolicy
-    )
+    selection_policy: BiologicalResultSelectionPolicy | None = None
     volcano_policy: VolcanoReviewPolicy = Field(
         default_factory=VolcanoReviewPolicy
     )
@@ -244,6 +241,7 @@ class MaxquantWorkflowConfig(WorkflowBaseConfig):
     protein_groups_txt_path: Path
     design_tsv_path: Path
     proteins_fasta_path: Path
+    protocol_context_tsv_path: Path | None = None
     config_path: Path | None = None
     annotation_tsv_path: Path | None = None
     context_annotation_tsv_path: Path | None = None
@@ -255,9 +253,7 @@ class MaxquantWorkflowConfig(WorkflowBaseConfig):
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN
     condition_a: str | None = None
     condition_b: str | None = None
-    selection_policy: BiologicalResultSelectionPolicy = Field(
-        default_factory=BiologicalResultSelectionPolicy
-    )
+    selection_policy: BiologicalResultSelectionPolicy | None = None
     volcano_policy: VolcanoReviewPolicy = Field(
         default_factory=VolcanoReviewPolicy
     )
@@ -438,6 +434,7 @@ def _run_label_free_workflow(config: LabelFreeWorkflowConfig) -> WorkflowResult:
         config.input_tsv_path,
         experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
+        protocol_context_tsv_path=config.protocol_context_tsv_path,
         annotation_tsv_path=config.annotation_tsv_path,
         context_annotation_tsv_path=config.context_annotation_tsv_path,
         go_annotation_tsv_path=config.go_annotation_tsv_path,
@@ -486,6 +483,7 @@ def _run_dda_workflow(config: DdaWorkflowConfig) -> WorkflowResult:
         config.search_result_tsv_path,
         experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
+        protocol_context_tsv_path=config.protocol_context_tsv_path,
         adapter_kind=adapter_kind,
         generic_mapping_path=config.generic_mapping_path,
         dialect_id=dialect_id,
@@ -538,6 +536,7 @@ def _run_diann_workflow(config: DiannWorkflowConfig) -> WorkflowResult:
         config.result_tsv_path,
         experiment_design,
         proteins_fasta_path=config.proteins_fasta_path,
+        protocol_context_tsv_path=config.protocol_context_tsv_path,
         config_path=config.config_path,
         annotation_tsv_path=config.annotation_tsv_path,
         context_annotation_tsv_path=config.context_annotation_tsv_path,
@@ -586,6 +585,7 @@ def _run_maxquant_workflow(config: MaxquantWorkflowConfig) -> WorkflowResult:
         peptides_txt_path=config.peptides_txt_path,
         protein_groups_txt_path=config.protein_groups_txt_path,
         proteins_fasta_path=config.proteins_fasta_path,
+        protocol_context_tsv_path=config.protocol_context_tsv_path,
         config_path=config.config_path,
         normalization_method=config.normalization_method,
         condition_a=config.condition_a,

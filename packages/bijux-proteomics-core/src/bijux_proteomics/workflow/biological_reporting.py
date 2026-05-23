@@ -99,6 +99,11 @@ from bijux_proteomics.review import (
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
+from bijux_proteomics.study.lab_protocol_context import (
+    build_lab_protocol_interpretation_profile,
+    parse_lab_protocol_context_table,
+    require_single_lab_protocol_context,
+)
 from bijux_proteomics.workflow.protein_evidence_cards import (
     ProteinEvidenceCardReport,
     ProteinEvidenceCardSelectionPolicy,
@@ -122,6 +127,27 @@ class BiologicalResultSelectionPolicy(JsonModel):
     min_absolute_log2_fold_change: float = Field(default=1.0, ge=0.0)
     heatmap_max_entity_count: int = Field(default=50, ge=1)
     heatmap_min_observed_fraction: float = Field(default=0.5, ge=0.0, le=1.0)
+
+
+def _resolve_biological_result_selection_policy(
+    selection_policy: BiologicalResultSelectionPolicy | None,
+    *,
+    protocol_context_tsv_path: Path | None,
+) -> BiologicalResultSelectionPolicy:
+    if selection_policy is not None:
+        return selection_policy
+    if protocol_context_tsv_path is None:
+        return BiologicalResultSelectionPolicy()
+    protocol_context = require_single_lab_protocol_context(
+        parse_lab_protocol_context_table(protocol_context_tsv_path)
+    )
+    profile = build_lab_protocol_interpretation_profile(protocol_context)
+    return BiologicalResultSelectionPolicy(
+        max_adjusted_p_value=profile.max_adjusted_p_value,
+        min_absolute_log2_fold_change=profile.min_absolute_log2_fold_change,
+        heatmap_max_entity_count=profile.heatmap_max_entity_count,
+        heatmap_min_observed_fraction=BiologicalResultSelectionPolicy().heatmap_min_observed_fraction,
+    )
 
 
 class BiologicalResultReportSummary(JsonModel):
@@ -229,6 +255,7 @@ def build_biological_result_report_bundle(
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
+    protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
@@ -258,7 +285,10 @@ def build_biological_result_report_bundle(
         missing_reason="missing_reason",
         protein_separator=";",
     )
-    active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
+    active_selection_policy = _resolve_biological_result_selection_policy(
+        selection_policy,
+        protocol_context_tsv_path=protocol_context_tsv_path,
+    )
     parse_report = parse_ms1_feature_table(input_tsv_path, mapping=active_mapping)
     quant_table = build_label_free_intensity_table(
         parse_report.accepted_records,
@@ -270,6 +300,7 @@ def build_biological_result_report_bundle(
         quant_table,
         experiment_design,
         proteins_fasta_path=proteins_fasta_path,
+        protocol_context_tsv_path=protocol_context_tsv_path,
         annotation_tsv_path=annotation_tsv_path,
         context_annotation_tsv_path=context_annotation_tsv_path,
         go_annotation_tsv_path=go_annotation_tsv_path,
@@ -288,6 +319,7 @@ def build_biological_result_report_bundle_from_quant_table(
     design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     proteins_fasta_path: Path,
+    protocol_context_tsv_path: Path | None = None,
     annotation_tsv_path: Path | None = None,
     context_annotation_tsv_path: Path | None = None,
     go_annotation_tsv_path: Path | None = None,
@@ -303,7 +335,10 @@ def build_biological_result_report_bundle_from_quant_table(
 
     experiment_design = coerce_experiment_design(design_entries)
     design_entries = experiment_design.entries
-    active_selection_policy = selection_policy or BiologicalResultSelectionPolicy()
+    active_selection_policy = _resolve_biological_result_selection_policy(
+        selection_policy,
+        protocol_context_tsv_path=protocol_context_tsv_path,
+    )
     normalized_table = normalize_label_free_table(
         quant_table,
         method=normalization_method,
