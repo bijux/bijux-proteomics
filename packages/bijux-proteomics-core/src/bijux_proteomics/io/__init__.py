@@ -19,6 +19,7 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.target_panel",
     "bijux_proteomics.io.transition_table",
     "bijux_proteomics.io.chromatographic_peak_picking",
+    "bijux_proteomics.io.retention_time_alignment",
     "bijux_proteomics.io.xic_extraction",
 )
 
