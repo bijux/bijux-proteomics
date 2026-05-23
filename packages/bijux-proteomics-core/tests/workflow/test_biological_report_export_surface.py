@@ -50,6 +50,10 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     assert (output_dir / manifest.artifacts.differential_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.protein_card_tsv).exists()
+    assert (output_dir / manifest.artifacts.experiment_confidence_summary_tsv).exists()
+    assert (
+        output_dir / manifest.artifacts.experiment_confidence_components_tsv
+    ).exists()
     assert (output_dir / manifest.artifacts.annotation_tsv).exists()
     assert (output_dir / manifest.artifacts.context_summary_tsv).exists()
     assert (output_dir / manifest.artifacts.context_mapping_tsv).exists()
@@ -71,6 +75,15 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
     ).read_text(encoding="utf-8")
     assert "protein_card_count" in (
         output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "experiment_confidence_score" in (
+        output_dir / manifest.artifacts.summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "overall_score" in (
+        output_dir / manifest.artifacts.experiment_confidence_summary_tsv
+    ).read_text(encoding="utf-8")
+    assert "metadata_validity" in (
+        output_dir / manifest.artifacts.experiment_confidence_components_tsv
     ).read_text(encoding="utf-8")
     assert "card_id" in (
         output_dir / manifest.artifacts.protein_card_tsv
@@ -109,6 +122,9 @@ def test_biological_report_export_writes_differential_annotation_enrichment_and_
         output_dir / manifest.artifacts.volcano_tsv
     ).read_text(encoding="utf-8")
     assert "Final protein cards" in (
+        output_dir / manifest.artifacts.report_html
+    ).read_text(encoding="utf-8")
+    assert "Experiment confidence" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
     assert "Graph claim" in (

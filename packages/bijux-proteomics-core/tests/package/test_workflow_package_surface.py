@@ -35,6 +35,7 @@ def test_workflow_package_exports_protein_evidence_card_surface() -> None:
         report.protein_cards
     )
     assert report.protein_cards.summary.protein_result_count == report.summary.protein_count
+    assert report.experiment_confidence_report.summary.component_count == 7
 
 
 def test_workflow_package_exports_core_orchestrator_surface() -> None:

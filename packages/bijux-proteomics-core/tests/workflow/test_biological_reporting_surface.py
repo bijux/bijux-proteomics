@@ -47,6 +47,16 @@ def test_build_biological_result_report_bundle_preserves_differential_and_review
     assert report.summary.annotation_entry_count == 5
     assert report.summary.protein_card_count == 5
     assert report.summary.warning_card_count >= 1
+    assert report.summary.experiment_confidence_score > 0.0
+    assert report.summary.experiment_confidence_tier in {
+        "high_confidence",
+        "moderate_confidence",
+        "low_confidence",
+    }
+    assert report.experiment_confidence_report.summary.component_count == 7
+    assert report.experiment_confidence_report.summary.overall_tier.value == (
+        report.summary.experiment_confidence_tier
+    )
     assert report.graph_report.protein_claim_count == report.summary.protein_count
     assert report.summary.context_entry_count == 3
     assert report.summary.context_unmapped_count == 2
@@ -128,6 +138,7 @@ def test_build_biological_result_report_bundle_from_quant_table_uses_entity_prot
     mapped_refs = {entry.protein_ref for entry in report.annotation_report.mapped_entries}
     assert mapped_refs == {"P04637", "Q9Y243", "O14920"}
     assert report.summary.annotation_entry_count == 3
+    assert report.experiment_confidence_report.summary.component_count == 7
 
 
 def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_results() -> None:
@@ -180,6 +191,7 @@ def test_biological_result_report_bundle_keeps_unmapped_proteins_in_annotation_r
 
     assert report.summary.annotation_entry_count == 2
     assert report.summary.annotation_unmapped_count == 1
+    assert report.summary.experiment_confidence_score > 0.0
     assert any(
         entry.annotation_status.value == "unmapped"
         and entry.protein_ref == "UNKNOWN123"
@@ -218,3 +230,7 @@ def test_biological_result_report_bundle_adapts_selection_policy_to_protocol_con
 
     assert report.selection_policy.min_absolute_log2_fold_change == 0.58
     assert report.selection_policy.heatmap_max_entity_count == 80
+    assert any(
+        "protocol_consistency_caution" in component.reason_codes
+        for component in report.experiment_confidence_report.components
+    )
