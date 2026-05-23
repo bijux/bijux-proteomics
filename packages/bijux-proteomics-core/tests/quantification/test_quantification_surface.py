@@ -52,6 +52,7 @@ from bijux_proteomics.quantification import (
     build_label_free_intensity_table,
     build_label_free_provenance_bundle,
     build_missing_data_mechanism_report,
+    build_missingness_classifier_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
@@ -794,9 +795,35 @@ def test_missing_data_mechanism_report_distinguishes_biology_from_failure() -> N
     ptech = next(entry for entry in report.entries if entry.entity_id == "PTECH")
     pmix = next(entry for entry in report.entries if entry.entity_id == "PMIX")
 
-    assert pbio.mechanism is MissingDataMechanism.LIKELY_BIOLOGICAL_SPARSE
+    assert pbio.mechanism is MissingDataMechanism.CONDITION_SPECIFIC_ABSENCE
+    assert pbio.missing_conditions == ("treatment",)
     assert ptech.mechanism is MissingDataMechanism.LIKELY_TECHNICAL_FAILURE
-    assert pmix.mechanism is MissingDataMechanism.MIXED_OR_UNRESOLVED
+    assert pmix.mechanism is MissingDataMechanism.MISSING_COMPLETELY_AT_RANDOM
+
+
+def test_missingness_classifier_report_bundles_owned_tables_and_mechanisms() -> None:
+    feature_report = parse_ms1_feature_table(
+        _quant_fixture("missing_mechanism_ms1_features.tsv")
+    )
+    design_report = parse_experimental_design_table(_quant_fixture("quant.design.tsv"))
+    table = build_label_free_intensity_table(
+        feature_report.accepted_records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    report = build_missingness_classifier_report(
+        table,
+        design_entries=design_report.accepted_entries,
+    )
+
+    assert report.sample_summary.entries
+    assert report.entity_summary.entries
+    assert report.condition_summary.entries
+    assert report.intensity_dependence.plot_points
+    assert report.mechanism_report.summary_counts[
+        MissingDataMechanism.CONDITION_SPECIFIC_ABSENCE
+    ] == 1
 
 
 def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
@@ -834,6 +861,10 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     )
     missingness_intensity_dependence = build_missingness_intensity_dependence_report(
         table
+    )
+    missingness_mechanism_report = build_missing_data_mechanism_report(
+        table,
+        design_entries=design_report.accepted_entries,
     )
     comparison = build_normalization_comparison_report(
         build_label_free_intensity_table(
@@ -893,6 +924,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
         missingness_intensity_dependence=missingness_intensity_dependence,
+        missingness_mechanism_report=missingness_mechanism_report,
         replicate_qc_report=replicate_qc,
         normalization_comparison_report=comparison,
         limma_compatible_package=limma_package,
@@ -914,6 +946,7 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.missingness_entity_summary is not None
     assert bundle.missingness_condition_summary is not None
     assert bundle.missingness_intensity_dependence is not None
+    assert bundle.missingness_mechanism_report is not None
     assert bundle.replicate_qc_report is not None
     assert bundle.replicate_qc_report.replicate_correlation_report.entries
     assert bundle.replicate_qc_report.replicate_cv_report.entries

@@ -10,6 +10,7 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     build_label_free_intensity_table,
+    build_missingness_classifier_report,
     build_missingness_condition_summary_report,
     build_missingness_entity_summary_report,
     build_missingness_intensity_dependence_report,
@@ -284,3 +285,79 @@ def test_missingness_intensity_dependence_report_exposes_plot_points_and_bins() 
     assert report.intensity_dependent_missingness_detected is True
     assert report.plot_points[0].entity_id == "LOWPEP"
     assert report.plot_points[-1].entity_id == "HIGHPEP"
+
+
+def test_missingness_classifier_report_distinguishes_condition_specific_and_random_patterns() -> (
+    None
+):
+    table, design = _table_and_design()
+
+    report = build_missingness_classifier_report(
+        table,
+        design_entries=design,
+    )
+
+    mechanism_by_entity = {
+        entry.entity_id: entry for entry in report.mechanism_report.entries
+    }
+
+    assert report.sample_summary.entries
+    assert report.entity_summary.entries
+    assert report.condition_summary.entries
+    assert report.intensity_dependence.bins
+    assert (
+        mechanism_by_entity["PEPA"].mechanism.value == "condition_specific_absence"
+    )
+    assert mechanism_by_entity["PEPA"].missing_conditions == ("ctrl",)
+    assert mechanism_by_entity["PEPB"].mechanism.value == "likely_technical_failure"
+
+    random_table = build_label_free_intensity_table(
+        (
+            Ms1FeatureRecord(
+                feature_id="rand-001",
+                sample_id="a1",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=200.0,
+                protein_refs=("P3",),
+                missing_value_kind=MissingValueKind.OBSERVED,
+            ),
+            Ms1FeatureRecord(
+                feature_id="rand-002",
+                sample_id="a2",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=None,
+                protein_refs=("P3",),
+                missing_value_kind=MissingValueKind.NOT_OBSERVED,
+            ),
+            Ms1FeatureRecord(
+                feature_id="rand-003",
+                sample_id="b1",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=210.0,
+                protein_refs=("P3",),
+                missing_value_kind=MissingValueKind.OBSERVED,
+            ),
+            Ms1FeatureRecord(
+                feature_id="rand-004",
+                sample_id="b2",
+                peptide="PEPC",
+                canonical_peptide="PEPC",
+                intensity=None,
+                protein_refs=("P3",),
+                missing_value_kind=MissingValueKind.NOT_OBSERVED,
+            ),
+        ),
+        entity_level=QuantEntityLevel.PEPTIDE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    random_report = build_missingness_classifier_report(
+        random_table,
+        design_entries=design,
+    )
+    random_entry = random_report.mechanism_report.entries[0]
+    assert (
+        random_entry.mechanism.value == "missing_completely_at_random"
+    )
