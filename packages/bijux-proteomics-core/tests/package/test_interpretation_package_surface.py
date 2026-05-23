@@ -158,3 +158,22 @@ def test_interpretation_package_exports_ppi_network_module_surface() -> None:
 
     assert "module_id" in rendered.splitlines()[0]
     assert "ppi_module:P001,P002,P003" in rendered
+
+
+def test_interpretation_package_exports_biological_context_mapping_surface() -> None:
+    protein_table = interpretation.parse_protein_reference_table(
+        _fixture_path("biological_context_input.tsv")
+    )
+    context_table = interpretation.parse_biological_context_table(
+        _fixture_path("biological_context_annotations.tsv")
+    )
+    report = interpretation.build_biological_context_mapping_report(
+        protein_table.accepted_entries,
+        context_table.accepted_records,
+    )
+
+    assert hasattr(interpretation, "render_biological_context_term_tsv")
+    rendered = interpretation.render_biological_context_term_tsv(report)
+
+    assert "supporting_protein_refs" in rendered.splitlines()[0]
+    assert "P04637" in rendered
