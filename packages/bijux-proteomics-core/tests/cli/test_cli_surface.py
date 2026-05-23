@@ -4926,6 +4926,8 @@ def test_target_panel_review_command_emits_dia_panel_outputs() -> None:
         assert payload["summary"]["total_target_count"] == 4
         assert payload["summary"]["matched_target_count"] == 3
         assert payload["summary"]["missing_target_count"] == 1
+        assert payload["matched_targets"][0]["modified_peptide"] == "PEPALFA"
+        assert payload["matched_targets"][0]["expected_charge"] == 2
         assert payload["matched_targets"][1]["target_id"] == "dia-p22222"
         assert payload["missing_targets"][0]["target_id"] == "dia-missing-protein"
         assert payload["outputs"]["summary_tsv"] == "target.summary.tsv"
@@ -4935,10 +4937,10 @@ def test_target_panel_review_command_emits_dia_panel_outputs() -> None:
         assert Path("target.missing.tsv").exists()
         assert Path("target.intensity.tsv").exists()
         assert Path("target.matrix.tsv").exists()
-        assert "dia-missing-protein\tprotein\t" in Path(
+        assert "dia-missing-protein\tprotein\t\t\t" in Path(
             "target.missing.tsv"
         ).read_text(encoding="utf-8")
-        assert "dia-pepalfa\tpeptide\tPEPALFA|PG001" in Path(
+        assert "dia-pepalfa\tpeptide\tPEPALFA|PG001\tPEPALFA\tPEPALFA\t2\t2\tP11111" in Path(
             "target.matrix.tsv"
         ).read_text(encoding="utf-8")
 
@@ -4983,6 +4985,8 @@ def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
         assert payload["summary"]["matched_target_count"] == 1
         assert payload["summary"]["missing_target_count"] == 3
         assert payload["matched_targets"][0]["target_id"] == "lfq-p003"
+        assert payload["matched_targets"][0]["modified_peptide"] is None
+        assert payload["matched_targets"][0]["expected_charge"] is None
         assert payload["missing_targets"][0]["reason"] == (
             "peptide targets require a peptide-level matrix"
         )
@@ -4993,10 +4997,10 @@ def test_target_panel_review_command_emits_lfq_protein_panel_outputs() -> None:
         assert Path("lfq.target.missing.tsv").exists()
         assert Path("lfq.target.intensity.tsv").exists()
         assert Path("lfq.target.matrix.tsv").exists()
-        assert "lfq-p003\tprotein\tP003\t4" in Path(
+        assert "lfq-p003\tprotein\t\t\tP003\t4" in Path(
             "lfq.target.targets.tsv"
         ).read_text(encoding="utf-8")
-        assert "lfq-apeptide\tpeptide\tpeptide targets require a peptide-level matrix" in (
+        assert "lfq-apeptide\tpeptide\tAPEPTIDE\t2\tpeptide targets require a peptide-level matrix" in (
             Path("lfq.target.missing.tsv").read_text(encoding="utf-8")
         )
 
