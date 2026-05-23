@@ -144,6 +144,7 @@ def build_limma_compatible_quant_package(
     batch_field: str | None = "batch",
     covariate_fields: tuple[str, ...] = (),
     pairing_field: str | None = None,
+    timepoint_field: str | None = None,
 ) -> LimmaCompatibleQuantPackage:
     """Build an R-compatible limma-style assay, design, and contrast package."""
     effective_pairing_field = pairing_field
@@ -151,11 +152,17 @@ def build_limma_compatible_quant_package(
         entry.pair_id not in (None, "") for entry in design_entries
     ):
         effective_pairing_field = "pair_id"
+    effective_timepoint_field = timepoint_field
+    if effective_timepoint_field is None and all(
+        entry.metadata.get("timepoint") not in (None, "") for entry in design_entries
+    ):
+        effective_timepoint_field = "timepoint"
     design_matrix = build_quant_design_matrix_report(
         design_entries,
         batch_field=batch_field,
         covariate_fields=covariate_fields,
         pairing_field=effective_pairing_field,
+        timepoint_field=effective_timepoint_field,
     )
     return LimmaCompatibleQuantPackage(
         entity_level=table.entity_level,

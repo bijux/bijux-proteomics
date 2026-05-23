@@ -107,7 +107,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="s2.mzml",
-            batch="b1",
+            batch="b2",
         ),
         ExperimentalDesignEntry(
             sample_id="s3",
@@ -115,7 +115,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="s3.mzml",
-            batch="b2",
+            batch="b1",
         ),
         ExperimentalDesignEntry(
             sample_id="s4",
@@ -222,7 +222,7 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
             replicate=1,
             fraction=1,
             spectra_file="s5.mzml",
-            batch="b3",
+            batch="b1",
         ),
         ExperimentalDesignEntry(
             sample_id="s6",
@@ -230,7 +230,7 @@ def test_quant_review_bundle_preserves_multi_condition_differential_collection()
             replicate=2,
             fraction=1,
             spectra_file="s6.mzml",
-            batch="b3",
+            batch="b2",
         ),
     )
 

@@ -1072,9 +1072,14 @@ def build_quant_review_bundle(
                 field
                 for entry in design_entries
                 for field, value in entry.metadata.items()
-                if value not in ("", None)
+                if field != "timepoint" and value not in ("", None)
             }
         )
+    )
+    timepoint_field = (
+        "timepoint"
+        if all(entry.metadata.get("timepoint") not in ("", None) for entry in design_entries)
+        else None
     )
     pairing_field = (
         "pair_id" if all(entry.pair_id not in (None, "") for entry in design_entries) else None
@@ -1157,6 +1162,7 @@ def build_quant_review_bundle(
         batch_field="batch",
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
+        timepoint_field=timepoint_field,
     )
     msstats_input_report = build_msstats_compatible_input_report(
         records,
@@ -1167,6 +1173,7 @@ def build_quant_review_bundle(
         batch_field="batch",
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
+        timepoint_field=timepoint_field,
     )
     design_model_fit_report = fit_quant_design_matrix_model(
         imputed_table,
