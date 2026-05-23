@@ -91,6 +91,7 @@ def test_build_proteomics_run_bundle_supports_fragpipe_mode() -> None:
         metadata_entries=metadata_entries,
         proteins_fasta_path=_fixture("biological_report_reference.fasta"),
         report_tsv_path=_fixture("fragpipe_biological_psms.tsv"),
+        source_protein_tsv_path=_fixture("fragpipe_biological_proteins.tsv"),
         contrast="control-treatment",
         go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
         pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
@@ -106,6 +107,7 @@ def test_build_proteomics_run_bundle_supports_fragpipe_mode() -> None:
     assert report.summary.qc_issue_count == 0
     assert report.summary.enrichment_entry_count >= 3
     assert report.fragpipe_workflow.summary.accepted_psm_count == 30
+    assert report.fragpipe_workflow.summary.protein_group_discrepancy_count == 2
 
 
 def test_build_proteomics_run_bundle_accepts_explicit_case_control_semantics() -> None:

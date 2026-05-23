@@ -88,3 +88,39 @@ def test_build_label_free_quant_table_from_protein_lfq_report_preserves_protein_
     assert table.entity_ids == ("O14920", "P04637", "P62993", "Q8N158", "Q9Y243")
     assert table.entity_protein_refs["P04637"] == ("P04637",)
     assert table.entity_member_peptides["P04637"] == ("PEPAAA",)
+
+
+def test_build_dda_biological_workflow_bundle_tracks_fragpipe_source_protein_discrepancies() -> (
+    None
+):
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+
+    report = build_dda_biological_workflow_bundle(
+        _fixture("fragpipe_biological_psms.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+        dialect_id="fragpipe-psm",
+        source_protein_tsv_path=_fixture("fragpipe_biological_proteins.tsv"),
+        go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    assert report.summary.source_protein_group_count == 5
+    assert report.summary.protein_group_discrepancy_count == 2
+    assert report.summary.source_only_protein_group_count == 1
+    assert report.summary.workflow_only_protein_group_count == 1
+    by_protein = {
+        entry.protein_ref: entry for entry in report.protein_group_discrepancies
+    }
+    assert by_protein["Q11111"].status.value == "source_only"
+    assert by_protein["Q11111"].source_table_present is True
+    assert by_protein["P62993"].status.value == "workflow_only"
+    assert by_protein["P62993"].quantified_by_workflow is True

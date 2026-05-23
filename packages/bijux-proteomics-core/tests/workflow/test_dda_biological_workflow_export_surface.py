@@ -67,3 +67,41 @@ def test_dda_biological_workflow_export_writes_psm_parsimony_lfq_and_report_asse
     assert "Biological result report" in (
         output_dir / manifest.artifacts.report_html
     ).read_text(encoding="utf-8")
+
+
+def test_dda_biological_workflow_export_writes_fragpipe_source_protein_discrepancy_assets(
+    tmp_path: Path,
+) -> None:
+    design_entries = tuple(
+        parse_experimental_design_table(
+            _fixture("biological_report.design.tsv")
+        ).accepted_entries
+    )
+    report = build_dda_biological_workflow_bundle(
+        _fixture("fragpipe_biological_psms.tsv"),
+        design_entries,
+        proteins_fasta_path=_fixture("biological_report_reference.fasta"),
+        adapter_kind=SearchAdapterKind.MSFRAGGER,
+        dialect_id="fragpipe-psm",
+        source_protein_tsv_path=_fixture("fragpipe_biological_proteins.tsv"),
+        go_annotation_tsv_path=_fixture("biological_report_go.tsv"),
+        pathway_membership_tsv_path=_fixture("biological_report_pathways.tsv"),
+        complex_membership_tsv_path=_fixture("biological_report_complexes.tsv"),
+        condition_a="control",
+        condition_b="treatment",
+    )
+
+    manifest = export_dda_biological_workflow_bundle(
+        report,
+        tmp_path / "fragpipe_biological_report",
+    )
+    output_dir = tmp_path / "fragpipe_biological_report"
+
+    assert manifest.artifacts.protein_group_discrepancy_tsv is not None
+    assert (output_dir / manifest.artifacts.protein_group_discrepancy_tsv).exists()
+    discrepancy_tsv = (
+        output_dir / manifest.artifacts.protein_group_discrepancy_tsv
+    ).read_text(encoding="utf-8")
+    assert "status" in discrepancy_tsv
+    assert "source_only" in discrepancy_tsv
+    assert "workflow_only" in discrepancy_tsv

@@ -91,6 +91,7 @@ def test_run_proteomics_workflow_supports_fragpipe_mode() -> None:
             search_result_tsv_path=_workflow_fixture("fragpipe_biological_psms.tsv"),
             design_tsv_path=_workflow_fixture("biological_report.design.tsv"),
             proteins_fasta_path=_workflow_fixture("biological_report_reference.fasta"),
+            source_protein_tsv_path=_workflow_fixture("fragpipe_biological_proteins.tsv"),
             condition_a="control",
             condition_b="treatment",
         )
@@ -98,6 +99,7 @@ def test_run_proteomics_workflow_supports_fragpipe_mode() -> None:
 
     assert result.mode is WorkflowMode.FRAGPIPE
     assert result.report.summary.accepted_psm_count == 30
+    assert result.report.summary.protein_group_discrepancy_count == 2
     assert result.report.biological_report.summary.protein_count == 5
 
 

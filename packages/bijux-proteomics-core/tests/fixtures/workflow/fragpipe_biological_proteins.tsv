@@ -1,0 +1,6 @@
+Protein	Entry Name	Gene	Protein Description	Coverage	Total Peptides	Unique Peptides	Spectral Count	Probability
+P04637	TP53_HUMAN	TP53	Cellular tumor antigen p53	0.42	1	1	6	0.999
+Q9Y243	AKT3_HUMAN	AKT3	RAC-gamma serine/threonine-protein kinase	0.27	1	1	6	0.998
+O14920	GNAS2_HUMAN	GNAS	Partner of SLD five	0.21	1	1	6	0.997
+Q8N158	ZNF234_HUMAN	ZNF234	Zinc finger protein 234	0.18	1	1	6	0.996
+Q11111	SOURCE_ONLY_HUMAN	SRC1	Source-only comparison protein	0.11	1	1	1	0.950
