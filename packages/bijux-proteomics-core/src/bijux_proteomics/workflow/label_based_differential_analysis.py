@@ -66,6 +66,7 @@ from bijux_proteomics.study import (
     ExperimentDesignAnalysisFamily,
     ExperimentDesign,
     build_experiment_design,
+    count_effective_statistical_units_by_condition,
     coerce_experiment_design,
     require_matching_experiment_design_analysis_family,
     require_valid_experiment_design_for_differential_analysis,
@@ -1011,9 +1012,14 @@ def _build_differential_report(
     )
     if not samples_a or not samples_b:
         raise ValueError("both conditions must map to at least one sample")
+    effective_units_by_condition = count_effective_statistical_units_by_condition(
+        design_entries
+    )
     if (
-        len(samples_a) < active_policy.min_replicates_per_condition
-        or len(samples_b) < active_policy.min_replicates_per_condition
+        effective_units_by_condition.get(condition_a, 0)
+        < active_policy.min_replicates_per_condition
+        or effective_units_by_condition.get(condition_b, 0)
+        < active_policy.min_replicates_per_condition
     ) and active_policy.disposition is QuantAssessmentDisposition.ENFORCED:
         raise ValueError(
             "minimum replicate policy not satisfied for labeled differential analysis"
