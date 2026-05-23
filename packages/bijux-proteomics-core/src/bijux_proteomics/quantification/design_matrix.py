@@ -64,16 +64,19 @@ def _require_populated_design_field(
 def _build_numeric_covariate_column(
     entries: tuple[ExperimentalDesignEntry, ...],
     field: str,
+    *,
+    kind: QuantDesignMatrixColumnKind = QuantDesignMatrixColumnKind.COVARIATE,
 ) -> tuple[QuantDesignMatrixColumn, tuple[float, ...]] | None:
     values = _require_populated_design_field(entries, field)
     try:
         numeric = tuple(float(value) for value in values)
     except ValueError:
         return None
+    column_name = "timepoint" if kind is QuantDesignMatrixColumnKind.TIMEPOINT else f"covariate[{field}]"
     return (
         QuantDesignMatrixColumn(
-            column_name=f"covariate[{field}]",
-            kind=QuantDesignMatrixColumnKind.COVARIATE,
+            column_name=column_name,
+            kind=kind,
             encoding=QuantDesignMatrixColumnEncoding.NUMERIC,
             source_field=field,
         ),
@@ -95,7 +98,12 @@ def _build_categorical_columns(
     columns: list[QuantDesignMatrixColumn] = []
     data_columns: list[tuple[float, ...]] = []
     for level in levels[1:]:
-        prefix = "condition" if kind is QuantDesignMatrixColumnKind.CONDITION else field
+        if kind is QuantDesignMatrixColumnKind.CONDITION:
+            prefix = "condition"
+        elif kind is QuantDesignMatrixColumnKind.TIMEPOINT:
+            prefix = "timepoint"
+        else:
+            prefix = field
         columns.append(
             QuantDesignMatrixColumn(
                 column_name=f"{prefix}[{level}]",
@@ -116,7 +124,6 @@ def _build_condition_contrasts(
     columns: tuple[QuantDesignMatrixColumn, ...],
     *,
     conditions: tuple[str, ...],
-    condition_field: str,
 ) -> tuple[QuantDesignContrast, ...]:
     reference = conditions[0]
     condition_columns = {
@@ -141,9 +148,55 @@ def _build_condition_contrasts(
                 condition_a=condition_a,
                 condition_b=condition_b,
                 coefficient_weights=weights,
+                coefficient_vector=tuple(
+                    weights.get(column.column_name, 0.0) for column in columns
+                ),
             )
         )
     return tuple(contrasts)
+
+
+def _require_unique_sample_ids(
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> None:
+    sample_ids = tuple(entry.sample_id for entry in design_entries)
+    if len(sample_ids) != len(set(sample_ids)):
+        raise ValueError("design matrix requires unique sample_id values")
+
+
+def _require_full_rank_design(
+    columns: tuple[QuantDesignMatrixColumn, ...],
+    column_values: tuple[tuple[float, ...], ...],
+) -> None:
+    design_matrix = np.column_stack(
+        [np.array(values, dtype=float) for values in column_values]
+    )
+    if int(np.linalg.matrix_rank(design_matrix)) == len(columns):
+        return
+
+    retained: np.ndarray | None = None
+    retained_rank = 0
+    aliased_columns: list[str] = []
+    for column, values in zip(columns, column_values, strict=False):
+        candidate_column = np.array(values, dtype=float).reshape(-1, 1)
+        candidate_matrix = (
+            candidate_column
+            if retained is None
+            else np.column_stack((retained, candidate_column))
+        )
+        candidate_rank = int(np.linalg.matrix_rank(candidate_matrix))
+        if candidate_rank <= retained_rank:
+            aliased_columns.append(column.column_name)
+            continue
+        retained = candidate_matrix
+        retained_rank = candidate_rank
+
+    if not aliased_columns:
+        aliased_columns = [column.column_name for column in columns]
+    raise ValueError(
+        "design matrix is confounded or rank-deficient; aliased columns: "
+        + ", ".join(aliased_columns)
+    )
 
 
 def build_quant_design_matrix_report(
@@ -152,11 +205,13 @@ def build_quant_design_matrix_report(
     batch_field: str | None = "batch",
     covariate_fields: tuple[str, ...] = (),
     pairing_field: str | None = None,
+    timepoint_field: str | None = None,
     condition_field: str = "condition",
 ) -> QuantDesignMatrixReport:
     """Build one explicit sample design matrix for quantification modeling."""
     if not design_entries:
         raise ValueError("design matrix requires at least one design entry")
+    _require_unique_sample_ids(design_entries)
 
     conditions = tuple(
         sorted(
@@ -207,8 +262,31 @@ def build_quant_design_matrix_report(
         columns.extend(pairing_columns)
         column_values.extend(pairing_values)
 
+    if timepoint_field and timepoint_field not in {
+        condition_field,
+        batch_field,
+        pairing_field,
+    }:
+        numeric_timepoint = _build_numeric_covariate_column(
+            design_entries,
+            timepoint_field,
+            kind=QuantDesignMatrixColumnKind.TIMEPOINT,
+        )
+        if numeric_timepoint is not None:
+            column, values = numeric_timepoint
+            columns.append(column)
+            column_values.append(values)
+        else:
+            timepoint_columns, timepoint_values = _build_categorical_columns(
+                design_entries,
+                field=timepoint_field,
+                kind=QuantDesignMatrixColumnKind.TIMEPOINT,
+            )
+            columns.extend(timepoint_columns)
+            column_values.extend(timepoint_values)
+
     for field in covariate_fields:
-        if field in {condition_field, batch_field, pairing_field}:
+        if field in {condition_field, batch_field, pairing_field, timepoint_field}:
             continue
         numeric_covariate = _build_numeric_covariate_column(design_entries, field)
         if numeric_covariate is not None:
@@ -241,22 +319,24 @@ def build_quant_design_matrix_report(
             )
         )
 
+    _require_full_rank_design(tuple(columns), tuple(column_values))
+
     return QuantDesignMatrixReport(
         sample_count=len(rows),
         column_count=len(columns),
         condition_field=condition_field,
         batch_field=batch_field,
         pairing_field=pairing_field,
+        timepoint_field=timepoint_field,
         covariate_fields=tuple(covariate_fields),
         columns=tuple(columns),
         rows=tuple(rows),
         contrasts=_build_condition_contrasts(
             tuple(columns),
             conditions=conditions,
-            condition_field=condition_field,
         ),
         note=(
-            "design matrix preserves intercept, condition contrasts, optional batch blocking, optional pairing blocks, and declared sample covariates"
+            "design matrix preserves intercept, condition contrasts, optional batch blocking, optional pairing blocks, optional timepoint structure, and declared sample covariates while blocking confounded designs"
         ),
     )
 
