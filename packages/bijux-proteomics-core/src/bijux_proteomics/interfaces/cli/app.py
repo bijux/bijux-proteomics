@@ -333,6 +333,8 @@ from bijux_proteomics.panels import (
     render_target_panel_target_tsv,
 )
 from bijux_proteomics.interpretation import (
+    BiologicalContextColumnMapping,
+    BiologicalContextKind,
     ComplexEnrichmentCorrectionPolicy,
     ComplexMembershipColumnMapping,
     GoAnnotationColumnMapping,
@@ -348,6 +350,7 @@ from bijux_proteomics.interpretation import (
     apply_complex_enrichment_multiple_testing,
     apply_go_enrichment_multiple_testing,
     apply_pathway_enrichment_multiple_testing,
+    build_biological_context_mapping_report,
     build_ppi_network_module_report,
     build_complex_enrichment_report,
     build_go_enrichment_report,
@@ -358,6 +361,7 @@ from bijux_proteomics.interpretation import (
     ProteinAnnotationColumnMapping,
     ProteinReferenceColumnMapping,
     build_protein_annotation_mapping_report,
+    parse_biological_context_table,
     parse_complex_membership_table,
     parse_go_annotation_table,
     parse_ortholog_table,
@@ -369,6 +373,9 @@ from bijux_proteomics.interpretation import (
     render_complex_enrichment_entry_tsv,
     render_complex_enrichment_summary_tsv,
     render_complex_unresolved_member_tsv,
+    render_biological_context_mapping_summary_tsv,
+    render_biological_context_mapping_tsv,
+    render_biological_context_term_tsv,
     render_go_enrichment_summary_tsv,
     render_go_enrichment_term_tsv,
     render_go_enrichment_unannotated_tsv,
@@ -402,7 +409,9 @@ from bijux_proteomics.interpretation import (
     render_rejected_protein_annotation_tsv,
     render_rejected_protein_set_tsv,
     render_rejected_protein_reference_tsv,
+    render_rejected_biological_context_tsv,
     render_unmapped_ortholog_tsv,
+    render_unmapped_biological_context_tsv,
     render_unmapped_protein_annotation_tsv,
 )
 from bijux_proteomics.multiplex import (
@@ -9436,6 +9445,11 @@ def sample_exploration_command(
     default=None,
 )
 @click.option(
+    "--context-annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option(
     "--go-annotation-tsv",
     type=click.Path(exists=True, dir_okay=False, path_type=Path),
     default=None,
@@ -9526,6 +9540,7 @@ def biological_report_command(
     design_tsv: Path,
     proteins_fasta: Path,
     annotation_tsv: Path | None,
+    context_annotation_tsv: Path | None,
     go_annotation_tsv: Path | None,
     pathway_membership_tsv: Path | None,
     complex_membership_tsv: Path | None,
@@ -9563,6 +9578,7 @@ def biological_report_command(
             tuple(design_report.accepted_entries),
             proteins_fasta_path=proteins_fasta,
             annotation_tsv_path=annotation_tsv,
+            context_annotation_tsv_path=context_annotation_tsv,
             go_annotation_tsv_path=go_annotation_tsv,
             pathway_membership_tsv_path=pathway_membership_tsv,
             complex_membership_tsv_path=complex_membership_tsv,
@@ -12656,6 +12672,185 @@ def annotate_proteins_command(
                 None
                 if rejected_annotation_tsv_out is None or annotation_report is None
                 else str(rejected_annotation_tsv_out)
+            ),
+        },
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@interpretation_group.command("map-context")
+@click.argument(
+    "protein_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "context_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--protein-ref-column", default="protein_ref", show_default=True)
+@click.option("--row-id-column", default="row_id", show_default=True)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option(
+    "--context-protein-ref-column",
+    default="protein_ref",
+    show_default=True,
+)
+@click.option("--context-id-column", default="context_id", show_default=True)
+@click.option("--context-kind-column", default="context_kind", show_default=True)
+@click.option("--context-name-column", default="context_name", show_default=True)
+@click.option("--source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
+@click.option("--evidence-column", default="evidence", show_default=True)
+@click.option(
+    "--fixed-context-kind",
+    type=click.Choice([kind.value for kind in BiologicalContextKind]),
+    default=None,
+)
+@click.option(
+    "--summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--mapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--term-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--unmapped-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-input-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--rejected-context-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+def map_context_command(
+    protein_tsv: Path,
+    context_tsv: Path,
+    protein_ref_column: str,
+    row_id_column: str,
+    protein_separator: str,
+    context_protein_ref_column: str,
+    context_id_column: str,
+    context_kind_column: str,
+    context_name_column: str,
+    source_name_column: str,
+    source_accession_column: str,
+    evidence_column: str,
+    fixed_context_kind: str | None,
+    summary_tsv_out: Path | None,
+    mapped_tsv_out: Path | None,
+    term_tsv_out: Path | None,
+    unmapped_tsv_out: Path | None,
+    rejected_input_tsv_out: Path | None,
+    rejected_context_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Map protein tables onto user-supplied drug, disease, phenotype, or compartment context."""
+    try:
+        protein_table = parse_protein_reference_table(
+            protein_tsv,
+            mapping=ProteinReferenceColumnMapping(
+                protein_ref=protein_ref_column,
+                row_id=row_id_column,
+            ),
+            protein_separator=protein_separator,
+        )
+        context_table = parse_biological_context_table(
+            context_tsv,
+            mapping=BiologicalContextColumnMapping(
+                protein_ref=context_protein_ref_column,
+                context_id=context_id_column,
+                context_kind=context_kind_column,
+                context_name=context_name_column,
+                source_name=source_name_column,
+                source_accession=source_accession_column,
+                evidence=evidence_column,
+            ),
+            fixed_context_kind=(
+                None
+                if fixed_context_kind is None
+                else BiologicalContextKind(fixed_context_kind)
+            ),
+        )
+        mapping_report = build_biological_context_mapping_report(
+            protein_table.accepted_entries,
+            context_table.accepted_records,
+        )
+    except click.ClickException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_biological_context_mapping_summary_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if mapped_tsv_out is not None:
+        mapped_tsv_out.write_text(
+            render_biological_context_mapping_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if term_tsv_out is not None:
+        term_tsv_out.write_text(
+            render_biological_context_term_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if unmapped_tsv_out is not None:
+        unmapped_tsv_out.write_text(
+            render_unmapped_biological_context_tsv(mapping_report),
+            encoding="utf-8",
+        )
+    if rejected_input_tsv_out is not None:
+        rejected_input_tsv_out.write_text(
+            render_rejected_protein_reference_tsv(protein_table),
+            encoding="utf-8",
+        )
+    if rejected_context_tsv_out is not None:
+        rejected_context_tsv_out.write_text(
+            render_rejected_biological_context_tsv(context_table),
+            encoding="utf-8",
+        )
+
+    payload = {
+        "protein_table": protein_table.to_dict(),
+        "context_table": context_table.to_dict(),
+        "mapping_report": mapping_report.to_dict(),
+        "outputs": {
+            "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+            "mapped_tsv": None if mapped_tsv_out is None else str(mapped_tsv_out),
+            "term_tsv": None if term_tsv_out is None else str(term_tsv_out),
+            "unmapped_tsv": None if unmapped_tsv_out is None else str(unmapped_tsv_out),
+            "rejected_input_tsv": (
+                None
+                if rejected_input_tsv_out is None
+                else str(rejected_input_tsv_out)
+            ),
+            "rejected_context_tsv": (
+                None
+                if rejected_context_tsv_out is None
+                else str(rejected_context_tsv_out)
             ),
         },
     }
