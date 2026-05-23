@@ -3770,78 +3770,35 @@ def build_inference_disagreement_report(
     )
 
 
-def _parsimony_sort_key(
-    group: ProteinGroupEntry,
-    newly_explained: tuple[str, ...],
-    variant: ParsimonyVariant,
-) -> tuple[float | int | str, ...]:
-    if variant is ParsimonyVariant.UNIQUE_EVIDENCE_PRIORITY:
-        return (
-            -group.unique_peptide_count,
-            -len(newly_explained),
-            -group.best_score,
-            group.representative_protein,
-        )
-    if variant is ParsimonyVariant.BEST_SCORE_PRIORITY:
-        return (
-            -group.best_score,
-            -len(newly_explained),
-            -group.unique_peptide_count,
-            group.representative_protein,
-        )
-    return (
-        -len(newly_explained),
-        -group.unique_peptide_count,
-        -group.best_score,
-        group.representative_protein,
-    )
-
-
 def infer_proteins_by_parsimony(
     records: tuple[PsmRecord, ...],
     *,
     variant: ParsimonyVariant = ParsimonyVariant.GREEDY_COVERAGE,
 ) -> tuple[ParsimonyProteinEntry, ...]:
     """Greedily select a parsimonious protein set that explains observed peptides."""
-    protein_groups = build_protein_groups(records)
-    remaining = {
-        peptide.canonical_peptide
-        for peptide in rollup_peptide_evidence(records)
-        if peptide.target_decoy_label is not TargetDecoyLabel.DECOY
-    }
-    selected: list[ParsimonyProteinEntry] = []
-    available = list(protein_groups)
-    rank = 1
-    while remaining:
-        scored_candidates = []
-        for group in available:
-            newly_explained = tuple(sorted(set(group.peptides) & remaining))
-            if not newly_explained:
-                continue
-            scored_candidates.append((group, newly_explained))
-        if not scored_candidates:
-            break
-        scored_candidates.sort(
-            key=lambda item: _parsimony_sort_key(item[0], item[1], variant)
+    from bijux_proteomics.identification.protein_parsimony import (
+        build_protein_parsimony_report,
+    )
+
+    report = build_protein_parsimony_report(
+        records,
+        variant=variant,
+        review_variants=(variant,),
+    )
+    return tuple(
+        ParsimonyProteinEntry(
+            variant=entry.variant,
+            selection_rank=entry.selection_rank,
+            protein_ref=entry.protein_ref,
+            source_group_id=entry.source_group_id,
+            covered_peptides=entry.covered_peptides,
+            newly_explained_peptides=entry.newly_explained_peptides,
+            best_score=entry.best_score,
+            best_q_value=entry.best_q_value,
+            target_decoy_label=entry.target_decoy_label,
         )
-        group, newly_explained = scored_candidates[0]
-        selected.append(
-            ParsimonyProteinEntry(
-                variant=variant,
-                selection_rank=rank,
-                protein_ref=group.representative_protein,
-                source_group_id=group.group_id,
-                covered_peptides=group.peptides,
-                newly_explained_peptides=newly_explained,
-                best_score=group.best_score,
-                best_q_value=group.best_q_value,
-                target_decoy_label=group.target_decoy_label,
-            )
-        )
-        remaining -= set(newly_explained)
-        available = [entry for entry in available if entry.group_id != group.group_id]
-        rank += 1
-    return tuple(selected)
+        for entry in report.selected_proteins
+    )
 
 
 def compare_parsimony_variants(
@@ -3854,47 +3811,17 @@ def compare_parsimony_variants(
     ),
 ) -> ParsimonyVariantComparisonReport:
     """Compare multiple named parsimony policies over the same PSM evidence."""
-    results = tuple(
-        ParsimonyVariantResult(
-            variant=variant,
-            selected_proteins=infer_proteins_by_parsimony(records, variant=variant),
-        )
-        for variant in variants
+    from bijux_proteomics.identification.protein_parsimony import (
+        build_protein_parsimony_report,
     )
-    differences: list[ParsimonyVariantDifferenceEntry] = []
-    for left_index, left in enumerate(results):
-        for right in results[left_index + 1 :]:
-            left_order = [entry.protein_ref for entry in left.selected_proteins]
-            right_order = [entry.protein_ref for entry in right.selected_proteins]
-            first_difference_rank = next(
-                (
-                    rank
-                    for rank, (left_ref, right_ref) in enumerate(
-                        zip(left_order, right_order, strict=False),
-                        start=1,
-                    )
-                    if left_ref != right_ref
-                ),
-                None,
-            )
-            if first_difference_rank is None and len(left_order) != len(right_order):
-                first_difference_rank = min(len(left_order), len(right_order)) + 1
-            left_set = set(left_order)
-            right_set = set(right_order)
-            differences.append(
-                ParsimonyVariantDifferenceEntry(
-                    left_variant=left.variant,
-                    right_variant=right.variant,
-                    first_difference_rank=first_difference_rank,
-                    shared_selected_proteins=tuple(sorted(left_set & right_set)),
-                    left_only_proteins=tuple(sorted(left_set - right_set)),
-                    right_only_proteins=tuple(sorted(right_set - left_set)),
-                )
-            )
-    return ParsimonyVariantComparisonReport(
-        results=results,
-        differences=tuple(differences),
+
+    primary_variant = variants[0] if variants else ParsimonyVariant.GREEDY_COVERAGE
+    report = build_protein_parsimony_report(
+        records,
+        variant=primary_variant,
+        review_variants=variants,
     )
+    return report.variant_comparison
 
 
 def build_protein_coverage_map(
