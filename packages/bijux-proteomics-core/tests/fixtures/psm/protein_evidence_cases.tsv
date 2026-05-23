@@ -1,0 +1,8 @@
+spectrum_id	peptide	charge	score	q_value	proteins	run_id
+scan=15001	ALPHAK	2	120.0	0.002	P11111	run-control-1
+scan=15002	ALPHAK	2	118.0	0.003	P11111	run-control-2
+scan=15003	BETAK	2	110.0	0.004	P22222	run-treated-1
+scan=15004	GAMMAK	2	105.0	0.003	P33333;P44444	run-control-1
+scan=15005	CONTAMK	2	95.0	0.002	CON__KERATIN_HUMAN	run-control-1
+scan=15006	DECOYK	2	94.0	0.020	DECOY_P55555	run-control-1
+scan=15007	WEAKK	2	70.0	0.080	P66666	run-treated-1

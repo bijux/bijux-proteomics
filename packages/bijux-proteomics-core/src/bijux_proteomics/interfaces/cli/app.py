@@ -76,6 +76,7 @@ from bijux_proteomics.identification import (
     build_openms_import_report,
     build_parsimony_review_report,
     build_peptide_evidence_review_report,
+    build_protein_evidence_review_report,
     build_peptide_summary_report,
     build_peptide_uniqueness_across_database,
     build_picked_protein_fdr_review_report,
@@ -136,6 +137,8 @@ from bijux_proteomics.identification import (
     render_parsimony_review_summary_tsv,
     render_peptide_evidence_entries_tsv,
     render_peptide_evidence_summary_tsv,
+    render_protein_evidence_entries_tsv,
+    render_protein_evidence_summary_tsv,
     render_picked_protein_fdr_entries_tsv,
     render_picked_protein_fdr_summary_tsv,
     render_protein_ambiguity_entries_tsv,
@@ -5833,6 +5836,135 @@ def peptide_evidence_command(
         _write_text_output(
             entries_tsv_out,
             render_peptide_evidence_entries_tsv(review),
+        )
+
+    payload = review.to_dict()
+    payload["accepted_rows"] = len(report.accepted_records)
+    payload["rejected_rows"] = len(report.rejected_rows)
+    payload["outputs"] = {
+        "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
+        "entries_tsv": None if entries_tsv_out is None else str(entries_tsv_out),
+    }
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("protein-evidence")
+@click.argument(
+    "input_tsv", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option("--high-q-value", type=float, default=0.01, show_default=True)
+@click.option("--moderate-q-value", type=float, default=0.05, show_default=True)
+@click.option(
+    "--score-orientation",
+    type=_score_orientation_choice(),
+    default=ScoreOrientation.HIGHER_BETTER.value,
+    show_default=True,
+)
+@click.option(
+    "--design-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--exploratory-protein", multiple=True)
+@click.option("--spectrum-id-column", default="spectrum_id", show_default=True)
+@click.option("--peptide-column", default="peptide", show_default=True)
+@click.option("--run-id-column", default=None)
+@click.option("--modified-peptide-column", default=None)
+@click.option("--charge-column", default="charge", show_default=True)
+@click.option("--score-column", default="score", show_default=True)
+@click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--pep-column", default=None)
+@click.option("--protein-refs-column", default="proteins", show_default=True)
+@click.option("--decoy-label-column", default=None)
+@click.option("--contaminant-label-column", default=None)
+@click.option("--protein-separator", default=";", show_default=True)
+@click.option("--decoy-prefix", default="DECOY_", show_default=True)
+@click.option("--decoy-suffix", default=None)
+@click.option(
+    "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--entries-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+def protein_evidence_command(
+    input_tsv: Path,
+    high_q_value: float,
+    moderate_q_value: float,
+    score_orientation: str,
+    design_tsv: Path | None,
+    exploratory_protein: tuple[str, ...],
+    spectrum_id_column: str,
+    peptide_column: str,
+    run_id_column: str | None,
+    modified_peptide_column: str | None,
+    charge_column: str,
+    score_column: str,
+    q_value_column: str | None,
+    pep_column: str | None,
+    protein_refs_column: str | None,
+    decoy_label_column: str | None,
+    contaminant_label_column: str | None,
+    protein_separator: str,
+    decoy_prefix: str | None,
+    decoy_suffix: str | None,
+    summary_tsv_out: Path | None,
+    entries_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Review final protein evidence tiers with explicit downgrade reasons."""
+    try:
+        mapping = _build_psm_mapping(
+            run_id_column=run_id_column,
+            spectrum_id_column=spectrum_id_column,
+            peptide_column=peptide_column,
+            modified_peptide_column=modified_peptide_column,
+            charge_column=charge_column,
+            score_column=score_column,
+            q_value_column=q_value_column,
+            posterior_error_probability_column=pep_column,
+            protein_refs_column=protein_refs_column,
+            decoy_label_column=decoy_label_column,
+            contaminant_label_column=contaminant_label_column,
+            protein_separator=protein_separator,
+        )
+        decoy_policy = _build_decoy_policy(
+            decoy_prefix=decoy_prefix,
+            decoy_suffix=decoy_suffix,
+        )
+        report = parse_psm_tsv(
+            input_tsv,
+            mapping=mapping,
+            decoy_policy=decoy_policy,
+        )
+        run_contexts: tuple[RunDetectionContext, ...] = ()
+        if design_tsv is not None:
+            design_report = parse_experimental_design_table(design_tsv)
+            if design_report.rejected_rows:
+                raise ValueError("design table contains rejected rows")
+            run_contexts = _build_run_detection_contexts(design_report.accepted_entries)
+        review = build_protein_evidence_review_report(
+            report.accepted_records,
+            high_q_value=high_q_value,
+            moderate_q_value=moderate_q_value,
+            score_orientation=score_orientation,
+            run_contexts=run_contexts,
+            exploratory_protein_refs=exploratory_protein,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if summary_tsv_out is not None:
+        _write_text_output(
+            summary_tsv_out,
+            render_protein_evidence_summary_tsv(review),
+        )
+    if entries_tsv_out is not None:
+        _write_text_output(
+            entries_tsv_out,
+            render_protein_evidence_entries_tsv(review),
         )
 
     payload = review.to_dict()

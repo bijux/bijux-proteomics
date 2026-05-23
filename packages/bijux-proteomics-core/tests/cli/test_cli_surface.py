@@ -2344,6 +2344,62 @@ def test_peptide_evidence_command_reports_classes_and_tags() -> None:
         ).read_text(encoding="utf-8")
 
 
+def test_protein_evidence_command_reports_tiers_and_downgrade_reasons() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "protein_evidence_cases.tsv",
+            "protein_evidence_cases.tsv",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "protein_evidence.design.tsv",
+            "protein_evidence.design.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "protein-evidence",
+                "protein_evidence_cases.tsv",
+                "--design-tsv",
+                "protein_evidence.design.tsv",
+                "--run-id-column",
+                "run_id",
+                "--summary-tsv-out",
+                "protein_evidence.summary.tsv",
+                "--entries-tsv-out",
+                "protein_evidence.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["summary"]["total_groups"] == 6
+        assert payload["summary"]["high_confidence_count"] == 1
+        assert payload["summary"]["moderate_count"] == 1
+        assert payload["summary"]["weak_count"] == 1
+        assert payload["summary"]["ambiguous_count"] == 1
+        assert payload["summary"]["contaminant_count"] == 1
+        assert payload["summary"]["decoy_count"] == 1
+        by_protein = {
+            entry["representative_protein"]: entry for entry in payload["entries"]
+        }
+        assert by_protein["P11111"]["evidence_tier"] == "high_confidence"
+        assert by_protein["P22222"]["evidence_tier"] == "moderate"
+        assert by_protein["P22222"]["downgrade_reasons"] == ["single_run_only"]
+        assert by_protein["P33333"]["evidence_tier"] == "ambiguous"
+        assert by_protein["P33333"]["downgrade_reasons"] == ["shared_peptide_only"]
+        assert by_protein["P66666"]["evidence_tier"] == "weak"
+        assert Path("protein_evidence.summary.tsv").exists()
+        assert Path("protein_evidence.entries.tsv").exists()
+        assert "shared_peptide_only_count\t1" in Path(
+            "protein_evidence.summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "\tambiguous\tshared_peptide_only\t" in Path(
+            "protein_evidence.entries.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_cross_run_reproducibility_command_reports_detection_consistency() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
