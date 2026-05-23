@@ -9,7 +9,7 @@ from enum import StrEnum
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -19,13 +19,6 @@ from bijux_proteomics.domain.records import (
     ContrastKind,
     RejectedEvidence as CanonicalRejectedEvidence,
     SampleMetadata as CanonicalSampleMetadata,
-)
-from bijux_proteomics.identification import (
-    PsmRecord,
-    SearchResultColumnMapping,
-    build_psm_summary_report,
-    export_psm_jsonl,
-    parse_psm_tsv,
 )
 from bijux_proteomics.io.format_validation import FormatValidationIssue
 from bijux_proteomics.io.mzml_reader import (
@@ -57,6 +50,9 @@ from bijux_proteomics.scientific_tables import (
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 from bijux_proteomics.tabular import DelimitedTableIssue
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.identification.contracts import SearchResultColumnMapping
 
 _NS_MZML = "http://psi.hupo.org/ms/mzml"
 
@@ -456,6 +452,8 @@ def _optional_design_text(value: str | int | float | bool | None) -> str | None:
 
 
 def _default_psm_mapping() -> SearchResultColumnMapping:
+    from bijux_proteomics.identification.contracts import SearchResultColumnMapping
+
     return SearchResultColumnMapping(
         spectrum_id="spectrum_id",
         peptide="peptide",
@@ -777,6 +775,8 @@ def validate_proteomics_input(
             "rejected_records": len(fasta_report.rejected_records),
         }
     elif resolved_kind is ProteomicsFormatKind.PSM:
+        from bijux_proteomics.identification.contracts import parse_psm_tsv
+
         psm_report = parse_psm_tsv(path, mapping=_default_psm_mapping())
         for rejected_row in psm_report.rejected_rows:
             issues.append(
@@ -860,11 +860,14 @@ def convert_proteomics_format(
         export_spectra_jsonl(spectra, output_path)
         written_record_count = len(spectra)
     elif target_format is FormatConversionTarget.PSM_JSONL:
+        from bijux_proteomics.identification.contracts import (
+            export_psm_jsonl,
+            parse_psm_tsv,
+        )
+
         if resolved_kind is not ProteomicsFormatKind.PSM:
             raise ValueError("psm-jsonl conversion requires PSM TSV input")
-        records: tuple[PsmRecord, ...] = parse_psm_tsv(
-            input_path, mapping=_default_psm_mapping()
-        ).accepted_records
+        records = parse_psm_tsv(input_path, mapping=_default_psm_mapping()).accepted_records
         export_psm_jsonl(records, output_path)
         written_record_count = len(records)
     else:
@@ -934,6 +937,12 @@ def build_normalized_run_bundle(
     rejected_identification_rows = 0
     identification_kind: ProteomicsFormatKind | None = None
     if identifications_path is not None:
+        from bijux_proteomics.identification.contracts import (
+            build_psm_summary_report,
+            export_psm_jsonl,
+            parse_psm_tsv,
+        )
+
         identification_kind = detect_proteomics_format(identifications_path)
         if identification_kind is not ProteomicsFormatKind.PSM:
             raise ValueError(
