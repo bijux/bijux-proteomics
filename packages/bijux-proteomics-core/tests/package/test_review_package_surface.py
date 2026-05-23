@@ -46,3 +46,39 @@ def test_review_package_exports_evidence_graph_query_engine_surface() -> None:
     assert "protein_id\tprotein_label\trelation" in review.render_protein_evidence_summary_tsv(
         report
     )
+
+
+def test_review_package_exports_evidence_chain_reconstruction_surface() -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    protein = builder.add_protein("P11111", label="P11111")
+    quant_value = builder.add_quant_value("quant:S1:P11111", label="quant:S1:P11111")
+    statistical_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+    )
+    builder.add_protein_quantified_by_quant_value(
+        protein.node_id,
+        quant_value.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.88,
+        reason="protein matrix contains abundance for P11111 in S1",
+    )
+    builder.add_quant_value_supports_statistical_result(
+        quant_value.node_id,
+        statistical_result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.92,
+        reason="protein statistic used quantified protein abundance",
+    )
+    report = review.reconstruct_protein_evidence_chain(
+        builder.build(),
+        protein_id="P11111",
+        statistical_result_id="protein:treatment_vs_control:P11111",
+    )
+
+    assert hasattr(review, "reconstruct_protein_evidence_chain")
+    assert hasattr(review, "render_evidence_chain_tsv")
+    assert report.source_row_count == 2
+    assert "claim_kind\tclaim_id\tstatistical_result_id\trelation" in review.render_evidence_chain_tsv(
+        report
+    )
