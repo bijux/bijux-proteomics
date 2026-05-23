@@ -49,7 +49,11 @@ from bijux_proteomics.quantification.normalization import (
     build_normalization_comparison_report,
     normalize_label_free_table,
 )
-from bijux_proteomics.study import require_valid_experiment_design_for_differential_analysis
+from bijux_proteomics.study import (
+    ExperimentDesignAnalysisFamily,
+    require_matching_experiment_design_analysis_family,
+    require_valid_experiment_design_for_differential_analysis,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -95,6 +99,7 @@ class PtmSiteDifferentialReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     normalization_method: NormalizationMethod
+    test_type: DifferentialAbundanceTestType
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     entries: tuple[PtmSiteDifferentialEntry, ...] = Field(default_factory=tuple)
@@ -190,6 +195,18 @@ def build_ptm_differential_analysis_report(
         effective_pairing_field = "pair_id"
     require_valid_experiment_design_for_differential_analysis(
         design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field if batch_field else None,
+        pairing_field=effective_pairing_field,
+    )
+    require_matching_experiment_design_analysis_family(
+        design_entries,
+        chosen_analysis_family=(
+            ExperimentDesignAnalysisFamily.PAIRED_DIFFERENTIAL
+            if effective_pairing_field is not None
+            else ExperimentDesignAnalysisFamily.PAIRWISE_DIFFERENTIAL
+        ),
         condition_a=condition_a,
         condition_b=condition_b,
         batch_field=batch_field if batch_field else None,
@@ -493,6 +510,7 @@ def _build_ptm_site_differential_report(
         )
     return PtmSiteDifferentialReport(
         normalization_method=differential.normalization_method,
+        test_type=differential.assumption_report.test_type,
         condition_a=differential.condition_a,
         condition_b=differential.condition_b,
         entries=tuple(entries),
