@@ -5571,6 +5571,15 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             workflow_dir / "biological_report_reference.fasta",
             "biological_report_reference.fasta",
         )
+        interpretation_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_dir / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_context.tsv",
+            "biological_report_context.tsv",
+        )
         shutil.copy(
             workflow_dir / "biological_report_go.tsv",
             "biological_report_go.tsv",
@@ -5702,6 +5711,15 @@ def test_dda_biological_report_command_emits_psm_parsimony_lfq_and_report_assets
             workflow_dir / "biological_report_reference.fasta",
             "biological_report_reference.fasta",
         )
+        interpretation_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_dir / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_context.tsv",
+            "biological_report_context.tsv",
+        )
         shutil.copy(
             workflow_dir / "biological_report_go.tsv",
             "biological_report_go.tsv",
@@ -5791,6 +5809,14 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
             "biological_report_reference.fasta",
         )
         shutil.copy(
+            FIXTURE_ROOT / "interpretation" / "protein_annotation_custom.tsv",
+            "protein_annotation_custom.tsv",
+        )
+        shutil.copy(
+            workflow_dir / "biological_report_context.tsv",
+            "biological_report_context.tsv",
+        )
+        shutil.copy(
             workflow_dir / "biological_report_go.tsv",
             "biological_report_go.tsv",
         )
@@ -5810,6 +5836,10 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
                 "diann_biological_report.tsv",
                 "diann_biological.design.tsv",
                 "biological_report_reference.fasta",
+                "--annotation-tsv",
+                "protein_annotation_custom.tsv",
+                "--context-annotation-tsv",
+                "biological_report_context.tsv",
                 "--go-annotation-tsv",
                 "biological_report_go.tsv",
                 "--pathway-membership-tsv",
@@ -5833,9 +5863,14 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         assert payload["report"]["summary"]["protein_matrix_row_count"] == 5
         assert payload["report"]["summary"]["go_enriched_term_count"] == 1
         assert payload["report"]["summary"]["flagged_run_count"] == 0
+        assert payload["report"]["summary"]["rejected_evidence_count"] == 0
+        assert payload["report"]["summary"]["protein_card_count"] == 5
+        assert payload["report"]["summary"]["context_term_count"] == 3
         report_dir = Path("diann_biological_report")
         assert (report_dir / "diann_biological_report_manifest.json").exists()
         assert (report_dir / "diann_import_summary.tsv").exists()
+        assert (report_dir / "diann_import_rejected_rows.tsv").exists()
+        assert (report_dir / "diann_import_rejected_evidence.tsv").exists()
         assert (report_dir / "diann_precursor_quantity_matrix.tsv").exists()
         assert (report_dir / "diann_precursor_metadata.tsv").exists()
         assert (report_dir / "diann_peptide_quantity_matrix.tsv").exists()
@@ -5844,9 +5879,20 @@ def test_diann_biological_report_command_emits_matrix_qc_differential_and_report
         assert (report_dir / "diann_run_qc_runs.tsv").exists()
         assert (report_dir / "diann_differential_results.tsv").exists()
         assert (report_dir / "biological_report_manifest.json").exists()
+        assert (report_dir / "biological_protein_cards.tsv").exists()
+        assert (report_dir / "biological_context_mappings.tsv").exists()
         assert (report_dir / "biological_report.html").exists()
         assert "accepted_precursor_count" in (
             report_dir / "diann_import_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "reason_code" in (
+            report_dir / "diann_import_rejected_evidence.tsv"
+        ).read_text(encoding="utf-8")
+        assert "card_id" in (
+            report_dir / "biological_protein_cards.tsv"
+        ).read_text(encoding="utf-8")
+        assert "context_kind" in (
+            report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
         assert "precursor_key" in (
             report_dir / "diann_precursor_quantity_matrix.tsv"
