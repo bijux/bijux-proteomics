@@ -211,6 +211,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "ptm/contracts.py",
             "ptm/review.py",
             "dia/contracts.py",
+            "dia/library_coverage.py",
             "dia/precursor_matrix.py",
             "dia/protein_matrix.py",
             "dia/run_qc.py",
