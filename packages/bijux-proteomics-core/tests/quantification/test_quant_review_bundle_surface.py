@@ -99,7 +99,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="s1.mzml",
-            batch="b1",
+            batch="batch-a",
         ),
         ExperimentalDesignEntry(
             sample_id="s2",
@@ -107,7 +107,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="s2.mzml",
-            batch="b2",
+            batch="batch-a",
         ),
         ExperimentalDesignEntry(
             sample_id="s3",
@@ -115,7 +115,7 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=1,
             fraction=1,
             spectra_file="s3.mzml",
-            batch="b1",
+            batch="batch-a",
         ),
         ExperimentalDesignEntry(
             sample_id="s4",
@@ -123,7 +123,48 @@ def _design() -> tuple[ExperimentalDesignEntry, ...]:
             replicate=2,
             fraction=1,
             spectra_file="s4.mzml",
-            batch="b2",
+            batch="batch-a",
+        ),
+    )
+
+
+def _time_course_design() -> tuple[ExperimentalDesignEntry, ...]:
+    return (
+        ExperimentalDesignEntry(
+            sample_id="s1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="s1.mzml",
+            batch="batch-a",
+            metadata={"timepoint": "0"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="s2.mzml",
+            batch="batch-a",
+            metadata={"timepoint": "1"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s3",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="s3.mzml",
+            batch="batch-a",
+            metadata={"timepoint": "0"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="s4",
+            condition="ctrl",
+            replicate=2,
+            fraction=1,
+            spectra_file="s4.mzml",
+            batch="batch-a",
+            metadata={"timepoint": "1"},
         ),
     )
 
@@ -172,6 +213,23 @@ def test_quant_review_bundle_includes_expected_surfaces_and_pointers() -> None:
         "review_grade",
         "blocked",
     }
+
+
+def test_quant_review_bundle_preserves_time_course_differential_report() -> None:
+    bundle = build_quant_review_bundle(
+        _records(),
+        design_entries=_time_course_design(),
+        normalization_method=NormalizationMethod.MEDIAN,
+        imputation_method=ImputationMethod.NONE,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+
+    assert bundle.time_course_differential_report is not None
+    assert bundle.time_course_differential_report.ordered_timepoints == ("0", "1")
+    assert (
+        "quant_artifact_bundle.time_course_differential_report"
+        in bundle.evidence_pointers
+    )
 
 
 def test_quant_review_bundle_preserves_multi_condition_differential_collection() -> (

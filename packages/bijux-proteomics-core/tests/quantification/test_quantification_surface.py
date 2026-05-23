@@ -72,6 +72,7 @@ from bijux_proteomics.quantification import (
     build_spectral_count_table,
     build_study_scale_batch_effect_report,
     build_study_scale_replicate_correlation_report,
+    build_time_course_differential_report,
     export_label_free_provenance_bundle,
     export_quant_artifact_bundle,
     export_quant_matrix_tsv,
@@ -1137,6 +1138,99 @@ def test_quant_artifact_bundle_accepts_multi_condition_differential_report() -> 
     assert bundle.differential_abundance_report is None
     assert bundle.differential_abundance_multi_condition_report is not None
     assert len(bundle.differential_abundance_multi_condition_report.reports) == 3
+
+
+def test_quant_artifact_bundle_accepts_time_course_differential_report() -> None:
+    records = (
+        Ms1FeatureRecord(
+            feature_id="tca-001",
+            sample_id="c0",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="tca-002",
+            sample_id="c1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=130.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="tca-003",
+            sample_id="t0",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+        Ms1FeatureRecord(
+            feature_id="tca-004",
+            sample_id="t1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=400.0,
+            protein_refs=("P001",),
+            missing_value_kind=MissingValueKind.OBSERVED,
+        ),
+    )
+    design = (
+        ExperimentalDesignEntry(
+            sample_id="c0",
+            condition="control",
+            replicate=1,
+            fraction=1,
+            spectra_file="c0.mzml",
+            metadata={"timepoint": "0"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="c1",
+            condition="control",
+            replicate=2,
+            fraction=1,
+            spectra_file="c1.mzml",
+            metadata={"timepoint": "1"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t0",
+            condition="treatment",
+            replicate=1,
+            fraction=1,
+            spectra_file="t0.mzml",
+            metadata={"timepoint": "0"},
+        ),
+        ExperimentalDesignEntry(
+            sample_id="t1",
+            condition="treatment",
+            replicate=2,
+            fraction=1,
+            spectra_file="t1.mzml",
+            metadata={"timepoint": "1"},
+        ),
+    )
+    table = build_label_free_intensity_table(
+        records,
+        entity_level=QuantEntityLevel.PROTEIN,
+        aggregation_method=QuantRollupMethod.SUM,
+    )
+    time_course = build_time_course_differential_report(
+        table,
+        design,
+    )
+
+    bundle = build_quant_artifact_bundle(
+        table,
+        design_entries=design,
+        time_course_differential_report=time_course,
+    )
+
+    assert bundle.time_course_differential_report is not None
+    assert bundle.time_course_differential_report.ordered_timepoints == ("0", "1")
 
 
 def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_replication() -> (

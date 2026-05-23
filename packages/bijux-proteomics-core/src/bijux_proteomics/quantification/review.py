@@ -34,11 +34,11 @@ from bijux_proteomics.quantification import (
     QuantEntityLevel,
     QuantRollupMethod,
     ReplicateAndBatchQcReport,
+    TimeCourseDifferentialReport,
+    TimeCourseTestingPolicy,
     MultiConditionDifferentialAbundanceReport,
     apply_benjamini_hochberg,
     build_differential_abundance_report,
-    build_quant_design_matrix_report,
-    fit_quant_design_matrix_model,
     build_imputation_report,
     build_imputation_sensitivity_report,
     build_label_based_quant_bundle,
@@ -52,6 +52,9 @@ from bijux_proteomics.quantification import (
     build_normalization_comparison_report,
     build_normalization_strategy_comparison_report,
     build_quant_artifact_bundle,
+    build_quant_design_matrix_report,
+    build_time_course_differential_report,
+    fit_quant_design_matrix_model,
     impute_label_free_table,
     normalize_label_free_table,
     summarize_missing_values,
@@ -1060,6 +1063,7 @@ class QuantReviewBundle(JsonModel):
     differential_abundance_multi_condition_report: (
         MultiConditionDifferentialAbundanceReport | None
     ) = None
+    time_course_differential_report: TimeCourseDifferentialReport | None = None
     missingness_profile: MissingnessMechanismProfileReport
     missingness_entity_summary: MissingnessEntitySummaryReport
     missingness_condition_summary: MissingnessConditionSummaryReport
@@ -1164,6 +1168,20 @@ def build_quant_review_bundle(
         if len(conditions) == 2
         else None
     )
+    time_course_differential_report = (
+        build_time_course_differential_report(
+            imputed_table,
+            design_entries,
+            policy=TimeCourseTestingPolicy(
+                timepoint_field=timepoint_field,
+                batch_field="batch",
+                pairing_field=pairing_field,
+                covariate_fields=covariate_fields,
+            ),
+        )
+        if timepoint_field is not None
+        else None
+    )
     multi_condition_differential_report = (
         build_multi_condition_differential_abundance_report(
             imputed_table,
@@ -1225,6 +1243,7 @@ def build_quant_review_bundle(
         differential_abundance_multi_condition_report=(
             multi_condition_differential_report
         ),
+        time_course_differential_report=time_course_differential_report,
     )
     lfq_provenance = build_lfq_feature_peptide_protein_provenance_report(
         records,
@@ -1276,6 +1295,7 @@ def build_quant_review_bundle(
         "quant_artifact_bundle.design_model_fit_report",
         "quant_artifact_bundle.differential_abundance_report",
         "quant_artifact_bundle.differential_abundance_multi_condition_report",
+        "quant_artifact_bundle.time_course_differential_report",
         "lfq_provenance.feature_entries",
         "quant_review_bundle.normalization_comparison",
         "quant_review_bundle.imputation_report",
@@ -1307,6 +1327,7 @@ def build_quant_review_bundle(
         differential_abundance_multi_condition_report=(
             multi_condition_differential_report
         ),
+        time_course_differential_report=time_course_differential_report,
         missingness_profile=missingness,
         missingness_entity_summary=missingness_entity_summary,
         missingness_condition_summary=missingness_condition_summary,
