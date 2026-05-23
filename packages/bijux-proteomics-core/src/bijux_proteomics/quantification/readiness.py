@@ -140,14 +140,16 @@ def build_quant_decision_readiness_report(
         blocking_reasons.append(
             "replicate structure is underpowered for one or more conditions"
         )
+    if batch_report.batch_correction_blocked:
+        blocking_reasons.append(
+            "batch is fully confounded with condition so batch correction is blocked"
+        )
     if flagged_batch_count >= blocking_batch_count:
         blocking_reasons.append(
             "multiple batches show global-abundance shifts beyond the decision threshold"
         )
-    elif flagged_batch_count > 0:
-        advisory_reasons.append(
-            "one batch shows a global-abundance shift that keeps the output review-grade only"
-        )
+    elif batch_report.batch_warning is not None:
+        advisory_reasons.append(batch_report.batch_warning)
     if low_correlation_pair_count > 0:
         advisory_reasons.append(
             "within-condition replicate correlations show instability that weakens decision-grade interpretation"

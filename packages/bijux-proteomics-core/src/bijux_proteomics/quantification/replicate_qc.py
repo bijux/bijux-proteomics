@@ -10,13 +10,15 @@ import math
 import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
+from bijux_proteomics.quantification.batch_effect import (
+    build_batch_effect_estimator_report,
+)
 from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     QcOutlierSampleEntry,
     ReplicateAndBatchQcReport,
     ReplicateCvConditionEntry,
     ReplicateCvReport,
-    build_batch_effect_advisory,
     build_replicate_correlation_report,
     _condition_lookup,
     _matrix_value_index,
@@ -100,7 +102,7 @@ def build_replicate_and_batch_qc_report(
     replicate_cv = build_replicate_cv_report(table, design_entries)
     sample_pca = build_sample_pca_report(table, design_entries)
     condition_clustering = build_condition_clustering_report(table, design_entries)
-    batch = build_batch_effect_advisory(
+    batch = build_batch_effect_estimator_report(
         table,
         design_entries,
         shift_threshold=batch_shift_threshold,
