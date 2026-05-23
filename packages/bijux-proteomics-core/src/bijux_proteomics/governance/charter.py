@@ -243,6 +243,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "workflow/blueprint.py",
             "workflow/dia_differential_analysis.py",
+            "workflow/dia_dda_comparison.py",
             "interfaces/execution/backend.py",
             "interfaces/execution/runner.py",
             "interfaces/execution/runtime_adapter.py",
