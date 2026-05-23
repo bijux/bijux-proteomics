@@ -423,3 +423,38 @@ def test_identification_package_exports_error_rate_annotation_owner_surface() ->
     assert "imported_pep_count" in rendered
     assert report.reproducibility_hash
     assert "reproducibility_hash" in rendered
+
+
+def test_identification_package_exports_rejected_evidence_table_owner_surface() -> (
+    None
+):
+    rejected_rows = (
+        identification.RejectedPsmRow(
+            row_number=7,
+            raw_fields={"scan_ref": "scan-007", "sequence_text": "BROKEN"},
+            issues=(
+                identification.SearchResultValidationIssue(
+                    code="invalid_charge",
+                    message="charge must be an integer",
+                    row_number=7,
+                ),
+            ),
+        ),
+    )
+
+    table_rows = identification.build_rejected_evidence_rows_from_psm_rows(
+        rejected_rows,
+        source_file="generic.tsv",
+        entity_id_columns=("scan_ref", "sequence_text"),
+    )
+    rendered = identification.render_rejected_evidence_tsv(table_rows)
+
+    assert hasattr(identification, "RejectedEvidenceTableEntry")
+    assert hasattr(identification, "build_rejected_evidence_rows_from_psm_rows")
+    assert hasattr(identification, "build_rejected_evidence_rows_from_scientific_rows")
+    assert hasattr(identification, "render_rejected_evidence_tsv")
+    assert table_rows[0].entity_id == "scan-007"
+    assert table_rows[0].reason_code == "invalid_charge"
+    assert rendered.startswith(
+        "source_file\trow_number\tentity_type\tentity_id\treason_code\tdetail\n"
+    )
