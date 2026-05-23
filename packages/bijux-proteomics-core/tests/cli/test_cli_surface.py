@@ -6017,6 +6017,10 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
                 "assay.targets.tsv",
                 "--transition-tsv-out",
                 "assay.transitions.tsv",
+                "--coelution-tsv-out",
+                "assay.coelution.tsv",
+                "--transition-coelution-tsv-out",
+                "assay.transition_coelution.tsv",
                 "--transition-qc-tsv-out",
                 "assay.transition_qc.tsv",
                 "--fragment-ratio-tsv-out",
@@ -6038,10 +6042,17 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert payload["design_summary"]["accepted_entry_count"] == 4
         assert payload["assay_qc_summary"]["target_count"] == 2
         assert payload["assay_qc_summary"]["reliable_target_entry_count"] == 3
+        assert payload["assay_qc_summary"]["flagged_coelution_target_entry_count"] == 3
         assert payload["assay_qc_summary"]["flagged_replicate_cv_entry_count"] == 1
+        assert payload["transition_coelution_summary"]["coeluting_transition_entry_count"] == 14
         assert payload["outputs"]["summary_tsv"] == "assay.summary.tsv"
         assert payload["outputs"]["target_qc_tsv"] == "assay.targets.tsv"
         assert payload["outputs"]["transition_tsv"] == "assay.transitions.tsv"
+        assert payload["outputs"]["coelution_tsv"] == "assay.coelution.tsv"
+        assert (
+            payload["outputs"]["transition_coelution_tsv"]
+            == "assay.transition_coelution.tsv"
+        )
         assert payload["outputs"]["transition_qc_tsv"] == "assay.transition_qc.tsv"
         assert payload["outputs"]["fragment_ratio_tsv"] == "assay.fragments.tsv"
         assert payload["outputs"]["retention_tsv"] == "assay.retention.tsv"
@@ -6050,19 +6061,27 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
         assert Path("assay.summary.tsv").exists()
         assert Path("assay.targets.tsv").exists()
         assert Path("assay.transitions.tsv").exists()
+        assert Path("assay.coelution.tsv").exists()
+        assert Path("assay.transition_coelution.tsv").exists()
         assert Path("assay.transition_qc.tsv").exists()
         assert Path("assay.fragments.tsv").exists()
         assert Path("assay.retention.tsv").exists()
         assert Path("assay.replicate_cv.tsv").exists()
         assert Path("assay.unreliable.tsv").exists()
-        assert "Skyline\t2\t4\t8\t3\t8\t16\t10\t14\t8\t2\t4\t1\t6\t2" in Path(
+        assert "Skyline\t2\t4\t8\t3\t8\t8\t3\t16\t14\t16\t10\t14\t8\t2\t4\t1\t6\t2" in Path(
             "assay.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t1\ty7\ty8\t102000" in Path(
+        assert "PEPTIDEK/2\ttreat_r1\ttreatment\t2\t2\t2\ty7;y8\t1\ty7\ty8\t102000" in Path(
             "assay.targets.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\ttreat_r2\t1\t2\t0.5" in Path(
             "assay.transitions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "PEPTIDEK/2\ttreat_r2\t2\t1\t1\ty7\ty8\ty7\t13.3\t13.3\t12.6\t0.7\tfalse\tfalse\tfewer than two coeluting transitions support the target" in Path(
+            "assay.coelution.tsv"
+        ).read_text(encoding="utf-8")
+        assert "ACDMPEP/3\ttreat_r2\ty5\ttrue\t20.2\ty5\t20.2\t18.2\t0\t2\ttrue\ttransition is misaligned from the target reference window" in Path(
+            "assay.transition_coelution.tsv"
         ).read_text(encoding="utf-8")
         assert "PEPTIDEK/2\ttreat_r2\ttreatment\ty8\tfalse" in Path(
             "assay.transition_qc.tsv"
@@ -6077,7 +6096,7 @@ def test_targeted_assay_qc_command_emits_targeted_qc_review_outputs() -> None:
             "assay.replicate_cv.tsv"
         ).read_text(encoding="utf-8")
         assert (
-            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two passing transitions support the target; fragment-ion ratios deviate from the target reference pattern; source quality flags require review"
+            "PEPTIDEK/2\ttreat_r1\ttreatment\ty8\tinterference\tfewer than two coeluting transitions pass transition-quality review; fragment-ion ratios deviate from the target reference pattern; source quality flags require review"
             in Path("assay.unreliable.tsv").read_text(encoding="utf-8")
         )
 
