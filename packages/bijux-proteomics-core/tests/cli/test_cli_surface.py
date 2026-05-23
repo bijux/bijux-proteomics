@@ -2060,10 +2060,14 @@ def test_protein_inference_benchmarks_command_emits_catalog_and_ledgers() -> Non
         assert result.exit_code == 0
         payload = json.loads(result.output)
         assert payload["picked_threshold"] == 0.05
-        assert payload["scenario_count"] == 6
+        assert payload["scenario_count"] == 8
         assert payload["homolog_family_scenario_count"] == 1
         assert payload["contaminant_scenario_count"] == 1
-        assert payload["decoy_scenario_count"] == 1
+        assert payload["all_decoy_scenario_count"] == 1
+        assert payload["all_target_scenario_count"] == 1
+        assert payload["tied_score_scenario_count"] == 1
+        assert payload["missing_fasta_scenario_count"] == 1
+        assert payload["hidden_ambiguity_scenario_count"] == 0
         assert payload["reports"][0]["method_assessments"]
         assert Path("protein_inference_benchmarks.summary.tsv").exists()
         assert Path("protein_inference_benchmarks.scenarios.tsv").exists()
@@ -2071,10 +2075,10 @@ def test_protein_inference_benchmarks_command_emits_catalog_and_ledgers() -> Non
         assert "homolog_family_scenario_count\t1" in Path(
             "protein_inference_benchmarks.summary.tsv"
         ).read_text(encoding="utf-8")
-        assert "homolog-family-pressure" in Path(
+        assert "tied-score-ambiguity" in Path(
             "protein_inference_benchmarks.scenarios.tsv"
         ).read_text(encoding="utf-8")
-        assert "false_positive_proteins" in Path(
+        assert "selected_missing_fasta_proteins" in Path(
             "protein_inference_benchmarks.assessments.tsv"
         ).read_text(encoding="utf-8")
 
