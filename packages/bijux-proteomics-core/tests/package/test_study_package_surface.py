@@ -232,3 +232,34 @@ def test_study_package_exports_replicate_structure_surface() -> None:
     assert "effective_statistical_unit_count" in study.render_replicate_structure_tsv(
         report
     )
+
+
+def test_study_package_exports_sample_sheet_repair_suggestion_surface() -> None:
+    report = study.build_sample_sheet_repair_suggestion_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="control_1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control_1.raw",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated_1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="missing_run.raw",
+            ),
+        ),
+        observed_sample_ids=("control_1", "treated_1", "treated_2"),
+        observed_run_ids=("control_1.raw", "treated_1.raw", "treated_2.raw"),
+    )
+
+    assert hasattr(study, "build_sample_sheet_repair_suggestion_report")
+    assert hasattr(study, "render_sample_sheet_repair_suggestions_tsv")
+    assert report.summary.missing_metadata_sample_count == 1
+    assert report.summary.metadata_run_mismatch_count == 1
+    assert "suggested_fields_json" in study.render_sample_sheet_repair_suggestions_tsv(
+        report
+    )
