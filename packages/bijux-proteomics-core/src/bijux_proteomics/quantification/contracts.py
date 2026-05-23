@@ -14,6 +14,7 @@ from enum import StrEnum
 import hashlib
 import math
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 from pydantic import ConfigDict, Field, field_validator, model_validator
@@ -40,6 +41,9 @@ from bijux_proteomics.quantification.core_matrix import (
     rebuild_quant_matrix_from_dense_array,
 )
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
+
+if TYPE_CHECKING:
+    from bijux_proteomics.study.sample_run_identity import SampleRunAnalysisPolicy
 
 
 class QuantEntityLevel(StrEnum):
