@@ -270,6 +270,10 @@ from bijux_proteomics.io.formats import (
 )
 from bijux_proteomics.io import (
     extract_mzml_chromatographic_peaks,
+    extract_mzml_retention_time_alignment,
+    render_retention_time_alignment_failed_anchors_tsv,
+    render_retention_time_alignment_models_tsv,
+    render_retention_time_alignment_residuals_tsv,
     render_chromatographic_peaks_tsv,
     extract_mzml_xic_traces,
     render_xic_traces_tsv,
@@ -11787,6 +11791,103 @@ def xic_pick_peaks_command(
     payload = report.to_dict()
     payload["trace_tsv_out"] = str(trace_tsv_out) if trace_tsv_out is not None else None
     payload["peak_tsv_out"] = str(peak_tsv_out) if peak_tsv_out is not None else None
+    _emit_json(payload, out_path=out_path)
+
+
+@cli.command("xic-align-retention-times")
+@click.argument(
+    "target_table", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.argument(
+    "input_mzml",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option("--tolerance-da", type=float, default=None)
+@click.option("--tolerance-ppm", type=float, default=None)
+@click.option(
+    "--reference-run-id",
+    default=None,
+    help="Optional reference run id; defaults to the first mzML stem.",
+)
+@click.option(
+    "--aligned-rt-tolerance-seconds",
+    type=float,
+    default=5.0,
+    show_default=True,
+)
+@click.option("--min-anchor-count", type=int, default=2, show_default=True)
+@click.option(
+    "--model-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--residual-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--failed-anchor-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--out",
+    "out_path",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+    help="Optional JSON retention-time alignment output path.",
+)
+def xic_align_retention_times_command(
+    target_table: Path,
+    input_mzml: tuple[Path, ...],
+    tolerance_da: float | None,
+    tolerance_ppm: float | None,
+    reference_run_id: str | None,
+    aligned_rt_tolerance_seconds: float,
+    min_anchor_count: int,
+    model_tsv_out: Path | None,
+    residual_tsv_out: Path | None,
+    failed_anchor_tsv_out: Path | None,
+    out_path: Path | None,
+) -> None:
+    """Align run-to-run retention times from common chromatographic anchors."""
+    try:
+        report = extract_mzml_retention_time_alignment(
+            input_mzml,
+            target_table,
+            tolerance_da=tolerance_da,
+            tolerance_ppm=tolerance_ppm,
+            reference_run_id=reference_run_id,
+            aligned_rt_tolerance_seconds=aligned_rt_tolerance_seconds,
+            min_anchor_count=min_anchor_count,
+        )
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if model_tsv_out is not None:
+        _write_text_output(
+            model_tsv_out,
+            render_retention_time_alignment_models_tsv(report),
+        )
+    if residual_tsv_out is not None:
+        _write_text_output(
+            residual_tsv_out,
+            render_retention_time_alignment_residuals_tsv(report),
+        )
+    if failed_anchor_tsv_out is not None:
+        _write_text_output(
+            failed_anchor_tsv_out,
+            render_retention_time_alignment_failed_anchors_tsv(report),
+        )
+    payload = report.to_dict()
+    payload["outputs"] = {
+        "model_tsv": None if model_tsv_out is None else str(model_tsv_out),
+        "residual_tsv": None if residual_tsv_out is None else str(residual_tsv_out),
+        "failed_anchor_tsv": (
+            None
+            if failed_anchor_tsv_out is None
+            else str(failed_anchor_tsv_out)
+        ),
+    }
     _emit_json(payload, out_path=out_path)
 
 
