@@ -298,3 +298,88 @@ def test_quantification_package_exports_sample_exploration_owner_surface() -> No
     assert hasattr(quantification, "export_sample_outlier_tsv")
     assert report.summary.pairwise_correlation_count == 6
     assert rendered.startswith("sample_id_a\tsample_id_b\tcondition_a\tcondition_b")
+
+
+def test_quantification_package_exports_heatmap_preparation_owner_surface() -> None:
+    records = (
+        quantification.Ms1FeatureRecord(
+            feature_id="heat001",
+            sample_id="case-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=100.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="heat002",
+            sample_id="case-2",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=120.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="heat003",
+            sample_id="ctrl-1",
+            peptide="PEPA",
+            canonical_peptide="PEPA",
+            intensity=95.0,
+            protein_refs=("P001",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="heat004",
+            sample_id="case-1",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=200.0,
+            protein_refs=("P002",),
+        ),
+        quantification.Ms1FeatureRecord(
+            feature_id="heat005",
+            sample_id="case-2",
+            peptide="PEPB",
+            canonical_peptide="PEPB",
+            intensity=220.0,
+            protein_refs=("P002",),
+        ),
+    )
+    design_entries = (
+        ExperimentalDesignEntry(
+            sample_id="case-1",
+            condition="case",
+            replicate=1,
+            fraction=1,
+            spectra_file="case-1.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="case-2",
+            condition="case",
+            replicate=2,
+            fraction=1,
+            spectra_file="case-2.mzml",
+            batch="batch-a",
+        ),
+        ExperimentalDesignEntry(
+            sample_id="ctrl-1",
+            condition="ctrl",
+            replicate=1,
+            fraction=1,
+            spectra_file="ctrl-1.mzml",
+            batch="batch-b",
+        ),
+    )
+    table = quantification.build_label_free_intensity_table(
+        records,
+        entity_level=quantification.QuantEntityLevel.PROTEIN,
+        aggregation_method=quantification.QuantRollupMethod.SUM,
+    )
+
+    report = quantification.build_heatmap_preparation_report(table, design_entries=design_entries)
+    rendered = quantification.render_heatmap_row_metadata_tsv(report)
+
+    assert hasattr(quantification, "build_heatmap_preparation_report")
+    assert hasattr(quantification, "render_heatmap_row_metadata_tsv")
+    assert hasattr(quantification, "export_heatmap_column_metadata_tsv")
+    assert report.row_metadata[0].missing_value_policy.value == "fill_row_median"
+    assert "missing_value_policy" in rendered
