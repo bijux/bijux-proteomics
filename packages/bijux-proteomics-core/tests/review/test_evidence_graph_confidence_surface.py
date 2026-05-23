@@ -3,6 +3,10 @@
 
 from __future__ import annotations
 
+from bijux_proteomics.io.chromatographic_evidence import (
+    ChromatographicEvidenceScoreReport,
+    ChromatographicPeptideEvidenceEntry,
+)
 from bijux_proteomics.review import (
     ProteomicsEvidenceContextRef,
     ProteomicsEvidenceGraph,
@@ -252,3 +256,120 @@ def test_propagate_evidence_graph_confidence_preserves_upstream_provenance() -> 
         "protein_stats.tsv:4",
         "psm.tsv:4",
     )
+
+
+def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_scores() -> None:
+    builder = ProteomicsEvidenceGraphBuilder()
+
+    spectrum_a = builder.add_spectrum("scan=2001", label="scan=2001", trust_class="high")
+    spectrum_b = builder.add_spectrum("scan=2002", label="scan=2002", trust_class="high")
+    psm_a = builder.add_psm("psm:2001", label="psm:2001", trust_class="high")
+    psm_b = builder.add_psm("psm:2002", label="psm:2002", trust_class="high")
+    peptide_a = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
+    peptide_b = builder.add_peptide("PEPB", label="PEPB", trust_class="high")
+    protein_a = builder.add_protein("P30001", label="P30001", trust_class="high")
+    protein_b = builder.add_protein("P30002", label="P30002", trust_class="high")
+    result_a = builder.add_statistical_result(
+        "protein:treatment_vs_control:P30001",
+        label="protein A differential result",
+        claim_state="changed",
+    )
+    result_b = builder.add_statistical_result(
+        "protein:treatment_vs_control:P30002",
+        label="protein B differential result",
+        claim_state="changed",
+    )
+
+    for spectrum, psm, peptide, protein, result, row_number in (
+        (spectrum_a, psm_a, peptide_a, protein_a, result_a, 21),
+        (spectrum_b, psm_b, peptide_b, protein_b, result_b, 22),
+    ):
+        builder.add_spectrum_supports_psm(
+            spectrum.node_id,
+            psm.node_id,
+            source_row_ref=f"psm.tsv:{row_number}",
+            confidence=0.95,
+            reason="matched spectrum supports accepted PSM",
+        )
+        builder.add_psm_supports_peptide(
+            psm.node_id,
+            peptide.node_id,
+            source_row_ref=f"peptide.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted PSM supports peptide sequence",
+        )
+        builder.add_peptide_quantifies_protein(
+            peptide.node_id,
+            protein.node_id,
+            source_row_ref=f"protein_matrix.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted peptide quantifies target protein",
+        )
+        builder.add_protein_supports_statistical_result(
+            protein.node_id,
+            result.node_id,
+            source_row_ref=f"protein_stats.tsv:{row_number}",
+            confidence=0.95,
+            reason="accepted protein supports final differential result",
+        )
+
+    graph = builder.build()
+    baseline = propagate_evidence_graph_confidence(graph)
+    chromatographic = propagate_evidence_graph_confidence(
+        graph,
+        chromatographic_score_report=ChromatographicEvidenceScoreReport(
+            run_ids=("run_a", "run_b"),
+            peptide_entries=(
+                ChromatographicPeptideEvidenceEntry(
+                    peptide_ref="PEPA",
+                    target_ids=("anchor_alpha",),
+                    total_run_count=2,
+                    detected_run_count=2,
+                    peak_shape_score=1.0,
+                    apex_intensity_score=1.0,
+                    signal_to_noise_score=1.0,
+                    rt_agreement_score=1.0,
+                    missingness_score=1.0,
+                    chromatographic_evidence_score=1.0,
+                ),
+                ChromatographicPeptideEvidenceEntry(
+                    peptide_ref="PEPB",
+                    target_ids=("anchor_beta",),
+                    total_run_count=2,
+                    detected_run_count=1,
+                    peak_shape_score=0.45,
+                    apex_intensity_score=0.35,
+                    signal_to_noise_score=0.30,
+                    rt_agreement_score=0.0,
+                    missingness_score=0.5,
+                    chromatographic_evidence_score=0.32,
+                    concern_codes=("missing_peak", "rt_outside_tolerance"),
+                ),
+            ),
+        ),
+    )
+
+    baseline_by_claim = {entry.claim_node_ref: entry for entry in baseline.entries}
+    chromatographic_by_claim = {
+        entry.claim_node_ref: entry for entry in chromatographic.entries
+    }
+
+    assert (
+        baseline_by_claim["protein:treatment_vs_control:P30001"].propagated_score
+        == baseline_by_claim["protein:treatment_vs_control:P30002"].propagated_score
+    )
+    assert (
+        chromatographic_by_claim["protein:treatment_vs_control:P30001"].propagated_score
+        > chromatographic_by_claim["protein:treatment_vs_control:P30002"].propagated_score
+    )
+    assert (
+        chromatographic_by_claim["protein:treatment_vs_control:P30001"].confidence_tier.value
+        == "high"
+    )
+    assert (
+        chromatographic_by_claim["protein:treatment_vs_control:P30002"].confidence_tier.value
+        == "moderate"
+    )
+    assert "peptide chromatographic evidence" in chromatographic_by_claim[
+        "protein:treatment_vs_control:P30001"
+    ].rationale
