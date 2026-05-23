@@ -264,6 +264,59 @@ def test_replicate_structure_audit_reports_balanced_support() -> None:
     assert audit.underpowered_conditions == ()
 
 
+def test_replicate_structure_audit_does_not_treat_technical_runs_as_biological_replicates() -> (
+    None
+):
+    audit = build_replicate_structure_audit_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="control-1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control-1_run-1.mzml",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="control-1",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="control-1_run-2.mzml",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated-1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treated-1_run-1.mzml",
+                technical_replicate_id="tech-3",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated-1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treated-1_run-2.mzml",
+                technical_replicate_id="tech-4",
+            ),
+        ),
+        minimum_replicates_per_condition=2,
+    )
+
+    control = next(entry for entry in audit.entries if entry.condition == "control")
+    treatment = next(entry for entry in audit.entries if entry.condition == "treatment")
+
+    assert audit.underpowered_conditions == ("control", "treatment")
+    assert control.replicate_count == 1
+    assert control.biological_replicate_count == 1
+    assert control.technical_replicate_count == 2
+    assert treatment.replicate_count == 1
+    assert treatment.biological_replicate_count == 1
+    assert treatment.technical_replicate_count == 2
+
+
 def test_quant_decision_readiness_report_supports_false_positive_free_design() -> None:
     report = build_quant_decision_readiness_report(
         _table(_decision_grade_records()),

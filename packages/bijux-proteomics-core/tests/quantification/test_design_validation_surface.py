@@ -54,3 +54,49 @@ def test_validate_differential_abundance_design_context_reports_contrast_and_rep
     assert "degenerate_contrast" in issue_codes
     assert "unknown_contrast_condition" in issue_codes
     assert "insufficient_replicates" in issue_codes
+
+
+def test_validate_differential_abundance_design_context_ignores_technical_run_inflation() -> (
+    None
+):
+    report = validate_differential_abundance_design_context(
+        (
+            ExperimentalDesignEntry(
+                sample_id="case-1",
+                condition="case",
+                replicate=1,
+                fraction=1,
+                spectra_file="case-1_run-1.mzml",
+                technical_replicate_id="tech-1",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="case-1",
+                condition="case",
+                replicate=1,
+                fraction=1,
+                spectra_file="case-1_run-2.mzml",
+                technical_replicate_id="tech-2",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="ctrl-1",
+                condition="ctrl",
+                replicate=1,
+                fraction=1,
+                spectra_file="ctrl-1_run-1.mzml",
+                technical_replicate_id="tech-3",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="ctrl-1",
+                condition="ctrl",
+                replicate=1,
+                fraction=1,
+                spectra_file="ctrl-1_run-2.mzml",
+                technical_replicate_id="tech-4",
+            ),
+        ),
+        contrasts=(("case", "ctrl"),),
+        min_replicates_per_condition=2,
+    )
+
+    assert report.valid is False
+    assert any(issue.code == "insufficient_replicates" for issue in report.issues)
