@@ -116,7 +116,7 @@ class ProteinLfqSummary(JsonModel):
     minimum_shared_peptides: int = Field(..., ge=1)
     fully_connected_row_count: int = Field(..., ge=0)
     disconnected_row_count: int = Field(..., ge=0)
-    disconnected_component_entry_count: int = Field(..., ge=0)
+    disconnected_component_entry_count: int = Field(default=0, ge=0)
     total_pairwise_ratio_count: int = Field(..., ge=0)
     observed_cell_count: int = Field(..., ge=0)
     missing_cell_count: int = Field(..., ge=0)
