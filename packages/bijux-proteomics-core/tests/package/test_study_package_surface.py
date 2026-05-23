@@ -180,3 +180,55 @@ def test_study_package_exports_sample_run_identity_surface() -> None:
     assert hasattr(study, "resolve_sample_run_analysis_entries")
     assert report.summary.analysis_sample_count == 2
     assert report.run_assignments[0].biological_sample_id == "S1"
+
+
+def test_study_package_exports_replicate_structure_surface() -> None:
+    report = study.build_replicate_structure_report(
+        (
+            ExperimentalDesignEntry(
+                sample_id="subject-1_t0",
+                condition="control",
+                replicate=1,
+                fraction=1,
+                spectra_file="subject-1_t0_run-1.mzml",
+                pair_id="subject-1",
+                technical_replicate_id="tech-1",
+                metadata={"timepoint": "T0"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="subject-1_t1",
+                condition="control",
+                replicate=2,
+                fraction=1,
+                spectra_file="subject-1_t1_run-1.mzml",
+                pair_id="subject-1",
+                technical_replicate_id="tech-2",
+                metadata={"timepoint": "T1"},
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated-1",
+                condition="treatment",
+                replicate=1,
+                fraction=1,
+                spectra_file="treated-1_run-1.mzml",
+            ),
+            ExperimentalDesignEntry(
+                sample_id="treated-2",
+                condition="treatment",
+                replicate=2,
+                fraction=1,
+                spectra_file="treated-2_run-1.mzml",
+            ),
+        )
+    )
+
+    assert hasattr(study, "build_replicate_structure_report")
+    assert hasattr(study, "count_effective_statistical_units_by_condition")
+    assert report.summary.repeated_measure_subject_count == 1
+    assert study.count_effective_statistical_units_by_condition(report.experiment_design) == {
+        "control": 1,
+        "treatment": 2,
+    }
+    assert "effective_statistical_unit_count" in study.render_replicate_structure_tsv(
+        report
+    )
