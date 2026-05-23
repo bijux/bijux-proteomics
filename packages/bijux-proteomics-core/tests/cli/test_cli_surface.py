@@ -3190,6 +3190,52 @@ def test_spectrum_annotate_command_supports_ppm_tolerance() -> None:
         assert payload["peak_matching_report"]["tolerance_ppm"] == 20.0
 
 
+def test_spectrum_score_chimeric_command_emits_mixed_and_clean_review_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "chimeric_spectrum_review.mzml",
+            "chimeric_spectrum_review.mzml",
+        )
+        shutil.copy(
+            FIXTURE_ROOT / "psm" / "chimeric_spectrum_candidates.tsv",
+            "chimeric_spectrum_candidates.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "spectrum-score-chimeric",
+                "chimeric_spectrum_review.mzml",
+                "chimeric_spectrum_candidates.tsv",
+                "--kind",
+                "mzml",
+                "--spectra-tsv-out",
+                "chimeric.spectra.tsv",
+                "--competition-tsv-out",
+                "chimeric.competition.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["spectrum_kind"] == "mzml"
+        assert payload["psm_summary"]["accepted_record_count"] == 4
+        assert payload["chimeric_summary"]["spectrum_count"] == 2
+        assert payload["chimeric_summary"]["flagged_chimeric_count"] == 1
+        assert payload["spectra"][0]["spectrum_id"] == "scan=9002"
+        assert payload["spectra"][0]["flagged_chimeric"] is True
+        assert payload["spectra"][0]["chimeric_score"] > 0.7
+        assert Path("chimeric.spectra.tsv").exists()
+        assert Path("chimeric.competition.tsv").exists()
+        assert "scan=9002\t400.687246\t400.687246\t399.687246\t401.687246" in Path(
+            "chimeric.spectra.tsv"
+        ).read_text(encoding="utf-8")
+        assert "scan=9002\tTIDEPEP\t2\tP22222\t45.0000" in Path(
+            "chimeric.competition.tsv"
+        ).read_text(encoding="utf-8")
+
+
 def test_spectrum_similarity_command_reports_pairwise_comparison() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
