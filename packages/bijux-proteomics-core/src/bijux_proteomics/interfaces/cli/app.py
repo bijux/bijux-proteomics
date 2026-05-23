@@ -164,6 +164,11 @@ from bijux_proteomics.identification import (
     render_target_decoy_reference_entries_tsv,
     render_target_decoy_reference_summary_tsv,
 )
+from bijux_proteomics.identification.psm_target_decoy_fdr import (
+    build_psm_target_decoy_fdr_report,
+    render_psm_target_decoy_fdr_summary_tsv,
+    render_psm_target_decoy_fdr_tsv,
+)
 from bijux_proteomics.identification.search_adapters import (
     ScoreOrientation,
     SearchAdapterKind,
@@ -5701,6 +5706,12 @@ def peptide_evidence_command(
     "--provenance-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
+    "--summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
+    "--entries-tsv-out", type=click.Path(path_type=Path, dir_okay=False), default=None
+)
+@click.option(
     "--audit-out", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 @click.option(
@@ -5729,6 +5740,8 @@ def fdr_command(
     jsonl_out: Path | None,
     tsv_out: Path | None,
     provenance_out: Path | None,
+    summary_tsv_out: Path | None,
+    entries_tsv_out: Path | None,
     audit_out: Path | None,
     calibration_out: Path | None,
     out_path: Path | None,
@@ -5757,10 +5770,15 @@ def fdr_command(
             mapping=mapping,
             decoy_policy=decoy_policy,
         )
-        accepted = filter_psms_by_fdr(
+        fdr_report = build_psm_target_decoy_fdr_report(
             parse_report.accepted_records,
             threshold=threshold,
             score_orientation=score_orientation,
+        )
+        accepted = tuple(
+            entry.psm.model_copy(update={"q_value": entry.q_value})
+            for entry in fdr_report.entries
+            if entry.accepted
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
@@ -5769,6 +5787,14 @@ def fdr_command(
         export_psm_jsonl(accepted, jsonl_out)
     if tsv_out is not None:
         export_psm_tsv(accepted, tsv_out)
+    if summary_tsv_out is not None:
+        summary_tsv_out.write_text(
+            render_psm_target_decoy_fdr_summary_tsv(fdr_report), encoding="utf-8"
+        )
+    if entries_tsv_out is not None:
+        entries_tsv_out.write_text(
+            render_psm_target_decoy_fdr_tsv(fdr_report), encoding="utf-8"
+        )
 
     fdr_policy = FdrPolicy(
         threshold=threshold,
@@ -5802,6 +5828,8 @@ def fdr_command(
         "score_orientation": score_orientation,
         "input_psms": len(parse_report.accepted_records),
         "accepted_psms": len(accepted),
+        "fdr_report": fdr_report.summary.to_dict(),
+        "fdr_reproducibility_hash": fdr_report.reproducibility_hash,
         "psm_summary": build_psm_summary_report(accepted).to_dict(),
         "peptide_summary": build_peptide_summary_report(accepted).to_dict(),
         "protein_summary": build_protein_summary_report(accepted).to_dict(),

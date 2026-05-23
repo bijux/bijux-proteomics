@@ -1663,6 +1663,45 @@ def test_fdr_command_filters_by_threshold_and_writes_provenance() -> None:
         assert manifest["fdr_policy"]["threshold"] == 0.5
 
 
+def test_fdr_command_writes_ranked_summary_and_entry_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        source = FIXTURE_ROOT / "psm" / "fdr_results.tsv"
+        shutil.copy(source, "fdr.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr.tsv",
+                "--threshold",
+                "0.5",
+                "--summary-tsv-out",
+                "fdr.summary.tsv",
+                "--entries-tsv-out",
+                "fdr.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["fdr_report"]["total_psm_count"] == 5
+        assert payload["fdr_report"]["accepted_psm_count"] == 3
+        assert payload["fdr_reproducibility_hash"]
+        assert Path("fdr.summary.tsv").exists()
+        assert Path("fdr.entries.tsv").exists()
+        summary_tsv = Path("fdr.summary.tsv").read_text(encoding="utf-8")
+        entries_tsv = Path("fdr.entries.tsv").read_text(encoding="utf-8")
+        assert summary_tsv.startswith(
+            "score_orientation\ttie_handling\tthreshold\ttotal_psm_count"
+        )
+        assert "reproducibility_hash" in summary_tsv
+        assert entries_tsv.startswith(
+            "rank\ttie_group_rank\ttie_group_size\tspectrum_id\tcanonical_peptide"
+        )
+        assert "\t0.5\ttrue\n" in entries_tsv
+
+
 def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
