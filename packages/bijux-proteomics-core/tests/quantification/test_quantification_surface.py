@@ -989,6 +989,9 @@ def test_quant_artifact_bundle_preserves_reviewable_quant_outputs() -> None:
     assert bundle.imputation_report is not None
     assert bundle.imputation_report.imputed_value_count > 0
     assert bundle.imputation_sensitivity_report is not None
+    assert bundle.imputation_sensitivity_report.overlap_entries
+    assert bundle.imputation_sensitivity_report.changed_significance_entries
+    assert bundle.imputation_sensitivity_report.imputation_dependent_hits
     assert bundle.normalization_comparison_report is not None
     assert bundle.missingness_entity_summary is not None
     assert bundle.missingness_condition_summary is not None

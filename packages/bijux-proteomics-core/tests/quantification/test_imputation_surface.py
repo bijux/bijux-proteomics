@@ -434,42 +434,6 @@ def test_imputation_sensitivity_report_compares_downstream_policies() -> None:
             protein_refs=("P2",),
             missing_value_kind=MissingValueKind.OBSERVED,
         ),
-        Ms1FeatureRecord(
-            feature_id="imp-sens-009",
-            sample_id="case-1",
-            peptide="PEPC",
-            canonical_peptide="PEPC",
-            intensity=80.0,
-            protein_refs=("P3",),
-            missing_value_kind=MissingValueKind.OBSERVED,
-        ),
-        Ms1FeatureRecord(
-            feature_id="imp-sens-010",
-            sample_id="case-2",
-            peptide="PEPC",
-            canonical_peptide="PEPC",
-            intensity=82.0,
-            protein_refs=("P3",),
-            missing_value_kind=MissingValueKind.OBSERVED,
-        ),
-        Ms1FeatureRecord(
-            feature_id="imp-sens-011",
-            sample_id="ctrl-1",
-            peptide="PEPC",
-            canonical_peptide="PEPC",
-            intensity=78.0,
-            protein_refs=("P3",),
-            missing_value_kind=MissingValueKind.OBSERVED,
-        ),
-        Ms1FeatureRecord(
-            feature_id="imp-sens-012",
-            sample_id="ctrl-2",
-            peptide="PEPC",
-            canonical_peptide="PEPC",
-            intensity=79.0,
-            protein_refs=("P3",),
-            missing_value_kind=MissingValueKind.OBSERVED,
-        ),
     )
     design = (
         ExperimentalDesignEntry(
@@ -520,18 +484,34 @@ def test_imputation_sensitivity_report_compares_downstream_policies() -> None:
     assert tuple(by_method) == (
         ImputationMethod.NONE,
         ImputationMethod.LOW_INTENSITY,
-        ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
         ImputationMethod.KNN,
     )
     assert by_method[ImputationMethod.NONE].supported is True
     assert by_method[ImputationMethod.NONE].imputed_value_count == 0
     assert by_method[ImputationMethod.LOW_INTENSITY].imputed_value_count == 2
-    assert (
-        by_method[ImputationMethod.GROUP_AWARE_LOW_INTENSITY].imputed_value_count == 2
-    )
     assert by_method[ImputationMethod.KNN].imputed_value_count == 2
     assert by_method[ImputationMethod.LOW_INTENSITY].top_entity_id is not None
-    assert (
-        by_method[ImputationMethod.GROUP_AWARE_LOW_INTENSITY].top_entity_id is not None
-    )
     assert by_method[ImputationMethod.KNN].top_entity_id is not None
+    assert report.overlap_entries
+    low_vs_knn = next(
+        entry
+        for entry in report.overlap_entries
+        if entry.method_a is ImputationMethod.LOW_INTENSITY
+        and entry.method_b is ImputationMethod.KNN
+    )
+    assert low_vs_knn.overlapping_significant_entity_count >= 1
+    assert report.changed_significance_entries
+    changed_pepa = next(
+        entry
+        for entry in report.changed_significance_entries
+        if entry.entity_id == "PEPA"
+        and entry.compared_method is ImputationMethod.LOW_INTENSITY
+    )
+    assert changed_pepa.reference_significant is False
+    assert changed_pepa.compared_significant is True
+    assert report.imputation_dependent_hits
+    dependent_pepa = next(
+        entry for entry in report.imputation_dependent_hits if entry.entity_id == "PEPA"
+    )
+    assert dependent_pepa.baseline_method is ImputationMethod.NONE
+    assert ImputationMethod.LOW_INTENSITY in dependent_pepa.imputation_methods
