@@ -80,6 +80,7 @@ class NormalizationMethod(StrEnum):
     TIC = "tic"
     MEDIAN = "median"
     QUANTILE = "quantile"
+    LOG2_MEDIAN_CENTERING = "log2_median_centering"
     VSN_LIKE = "vsn_like"
 
 
@@ -953,6 +954,35 @@ class NormalizationSampleSnapshot(JsonModel):
     interquartile_range: float = Field(..., ge=0.0)
 
 
+class NormalizationDistributionSnapshot(JsonModel):
+    """Per-sample distribution summary before or after normalization."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    observed_count: int = Field(..., ge=0)
+    zero_count: int = Field(..., ge=0)
+    negative_count: int = Field(..., ge=0)
+    min_abundance: float | None = Field(default=None, ge=0.0)
+    lower_quartile_abundance: float | None = Field(default=None, ge=0.0)
+    median_abundance: float | None = Field(default=None, ge=0.0)
+    upper_quartile_abundance: float | None = Field(default=None, ge=0.0)
+    max_abundance: float | None = Field(default=None, ge=0.0)
+
+
+class NormalizationLogTransformPreparation(JsonModel):
+    """Explicit per-sample handling of nonpositive values before log transform."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    zero_count: int = Field(..., ge=0)
+    negative_count: int = Field(..., ge=0)
+    positive_count: int = Field(..., ge=0)
+    handling_strategy: str = Field(..., min_length=1)
+    pseudocount: float | None = Field(default=None, gt=0.0)
+
+
 class NormalizationComparisonReport(JsonModel):
     """Before/after report for one normalization operation."""
 
@@ -962,6 +992,15 @@ class NormalizationComparisonReport(JsonModel):
     normalization_factors: dict[str, float] = Field(default_factory=dict)
     before: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
     after: tuple[NormalizationSampleSnapshot, ...] = Field(default_factory=tuple)
+    before_distributions: tuple[NormalizationDistributionSnapshot, ...] = Field(
+        default_factory=tuple
+    )
+    after_distributions: tuple[NormalizationDistributionSnapshot, ...] = Field(
+        default_factory=tuple
+    )
+    log_transform_preparation: tuple[NormalizationLogTransformPreparation, ...] = (
+        Field(default_factory=tuple)
+    )
 
 
 class ImputationEntry(JsonModel):
