@@ -7931,7 +7931,13 @@ def test_ptm_summarize_command_emits_site_reports_and_occupancy() -> None:
             for entry in payload["occupancy"]
         )
         assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
+        assert payload["occupancy_report"]["summary"]["high_confidence_count"] >= 1
+        assert any(
+            entry["confidence_tier"] == "high_confidence"
+            for entry in payload["occupancy"]
+        )
         assert payload["occupancy_counterpart_report"]["entries"]
+        assert payload["occupancy_counterpart_report"]["missing_unmodified_evidence_count"] >= 0
         assert payload["site_quantification"]["ambiguity_policy"] == "preserve"
         assert payload["site_group_quantification"]["summary"]["group_row_count"] == 2
         assert any(
@@ -8487,7 +8493,13 @@ def test_ptm_estimate_occupancy_command_emits_occupancy_ledgers() -> None:
         assert payload["accepted_rows"] == 8
         assert payload["feature_rows"] == 12
         assert payload["occupancy_report"]["summary"]["entry_count"] >= 1
+        assert payload["occupancy_report"]["summary"]["high_confidence_count"] >= 1
+        assert any(
+            entry["confidence_tier"] == "high_confidence"
+            for entry in payload["occupancy_report"]["entries"]
+        )
         assert "S[Phospho]PEPTIDEK" in Path("ptm.occupancy.tsv").read_text()
+        assert "confidence_tier" in Path("ptm.occupancy.tsv").read_text()
         assert "counterpart_status" in Path(
             "ptm.occupancy.counterpart.tsv"
         ).read_text()
