@@ -226,6 +226,8 @@ from bijux_proteomics.dia import (
     build_diann_run_qc_report,
     build_spectronaut_precursor_matrix_report,
     render_dia_library_coverage_condition_tsv,
+    render_dia_library_coverage_observed_outside_peptide_tsv,
+    render_dia_library_coverage_observed_outside_protein_tsv,
     render_dia_library_coverage_peptide_tsv,
     render_dia_library_coverage_protein_tsv,
     render_dia_library_coverage_sample_tsv,
@@ -3446,6 +3448,14 @@ def diann_run_qc_command(
 @click.option("--peptide-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--protein-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
+    "--outside-library-peptide-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
+    "--outside-library-protein-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+)
+@click.option(
     "--out",
     "out_path",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -3463,6 +3473,8 @@ def diann_library_coverage_command(
     condition_tsv_out: Path | None,
     peptide_tsv_out: Path | None,
     protein_tsv_out: Path | None,
+    outside_library_peptide_tsv_out: Path | None,
+    outside_library_protein_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Compare DIA-NN observations against spectral-library peptide and protein scope."""
@@ -3503,6 +3515,16 @@ def diann_library_coverage_command(
             protein_tsv_out,
             render_dia_library_coverage_protein_tsv(report),
         )
+    if outside_library_peptide_tsv_out is not None:
+        _write_text_output(
+            outside_library_peptide_tsv_out,
+            render_dia_library_coverage_observed_outside_peptide_tsv(report),
+        )
+    if outside_library_protein_tsv_out is not None:
+        _write_text_output(
+            outside_library_protein_tsv_out,
+            render_dia_library_coverage_observed_outside_protein_tsv(report),
+        )
 
     payload = {
         "source_name": report.source_name,
@@ -3512,6 +3534,12 @@ def diann_library_coverage_command(
         "condition_entries": [entry.to_dict() for entry in report.condition_entries],
         "peptide_entries": [entry.to_dict() for entry in report.peptide_entries],
         "protein_entries": [entry.to_dict() for entry in report.protein_entries],
+        "observed_outside_library_peptide_entries": [
+            entry.to_dict() for entry in report.observed_outside_library_peptide_entries
+        ],
+        "observed_outside_library_protein_entries": [
+            entry.to_dict() for entry in report.observed_outside_library_protein_entries
+        ],
         "outputs": {
             "summary_tsv": None if summary_tsv_out is None else str(summary_tsv_out),
             "sample_tsv": None if sample_tsv_out is None else str(sample_tsv_out),
@@ -3520,6 +3548,16 @@ def diann_library_coverage_command(
             ),
             "peptide_tsv": None if peptide_tsv_out is None else str(peptide_tsv_out),
             "protein_tsv": None if protein_tsv_out is None else str(protein_tsv_out),
+            "outside_library_peptide_tsv": (
+                None
+                if outside_library_peptide_tsv_out is None
+                else str(outside_library_peptide_tsv_out)
+            ),
+            "outside_library_protein_tsv": (
+                None
+                if outside_library_protein_tsv_out is None
+                else str(outside_library_protein_tsv_out)
+            ),
         },
     }
     _emit_json(payload, out_path=out_path)
