@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import csv
 import math
+from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -40,6 +41,7 @@ class DiaRunQcRunEntry(JsonModel):
     median_log10_precursor_quantity: float | None = None
     precursor_missing_fraction: float = Field(..., ge=0.0, le=1.0)
     protein_missing_fraction: float = Field(..., ge=0.0, le=1.0)
+    weak_run_flag_count: int = Field(..., ge=0)
     flagged: bool = False
 
 
@@ -74,7 +76,46 @@ class DiaRunQcOutlierRunEntry(JsonModel):
 
     run_name: str = Field(..., min_length=1)
     sample_name: str = Field(..., min_length=1)
+    flags: tuple["DiaRunQcWeakRunFlagEntry", ...] = Field(default_factory=tuple)
     reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
+class DiaRunQcWeakRunFlagCode(StrEnum):
+    """Governed weak-run flag codes on DIA run QC."""
+
+    LOW_PRECURSOR_COVERAGE = "low_precursor_coverage"
+    LOW_PROTEIN_COVERAGE = "low_protein_coverage"
+    HIGH_PRECURSOR_MISSINGNESS = "high_precursor_missingness"
+    HIGH_PROTEIN_MISSINGNESS = "high_protein_missingness"
+    LOW_RUN_CORRELATION = "low_run_correlation"
+    INSUFFICIENT_SHARED_PRECURSOR_OVERLAP = "insufficient_shared_precursor_overlap"
+
+
+class DiaRunQcWeakRunFlagEntry(JsonModel):
+    """One structured weak-run flag with explicit reason and threshold."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    run_name: str = Field(..., min_length=1)
+    sample_name: str = Field(..., min_length=1)
+    code: DiaRunQcWeakRunFlagCode
+    reason: str = Field(..., min_length=1)
+    threshold_name: str = Field(..., min_length=1)
+    threshold_value: float = Field(...)
+    observed_value: float = Field(...)
+
+
+class DiaRunQcPolicy(JsonModel):
+    """Owned DIA run-QC thresholds that drive weak-run flags."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    include_decoys: bool = False
+    max_q_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    low_precursor_count_fraction: float = Field(default=0.5, ge=0.0, le=1.0)
+    low_protein_count_fraction: float = Field(default=0.5, ge=0.0, le=1.0)
+    high_missing_fraction: float = Field(default=0.4, ge=0.0, le=1.0)
+    low_correlation_threshold: float = Field(default=0.9, ge=-1.0, le=1.0)
 
 
 class DiaRunQcSummary(JsonModel):
@@ -88,6 +129,7 @@ class DiaRunQcSummary(JsonModel):
     union_protein_group_id_count: int = Field(..., ge=0)
     union_protein_id_count: int = Field(..., ge=0)
     flagged_run_count: int = Field(..., ge=0)
+    weak_run_flag_count: int = Field(..., ge=0)
 
 
 class DiaRunQcReport(JsonModel):
@@ -96,6 +138,7 @@ class DiaRunQcReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_name: str = Field(default="DIA-NN", min_length=1)
+    policy: DiaRunQcPolicy
     run_entries: tuple[DiaRunQcRunEntry, ...] = Field(default_factory=tuple)
     intensity_distribution: tuple[DiaRunQcIntensityDistributionEntry, ...] = Field(
         default_factory=tuple
@@ -120,15 +163,24 @@ def build_dia_run_qc_report(
 ) -> DiaRunQcReport:
     """Build DIA run-level QC over imported DIA-NN evidence."""
 
-    precursor_rows = _filtered_precursor_rows(
-        import_report.precursor_rows,
+    policy = DiaRunQcPolicy(
         include_decoys=include_decoys,
         max_q_value=max_q_value,
+        low_precursor_count_fraction=low_precursor_count_fraction,
+        low_protein_count_fraction=low_protein_count_fraction,
+        high_missing_fraction=high_missing_fraction,
+        low_correlation_threshold=low_correlation_threshold,
+    )
+
+    precursor_rows = _filtered_precursor_rows(
+        import_report.precursor_rows,
+        include_decoys=policy.include_decoys,
+        max_q_value=policy.max_q_value,
     )
     protein_rows = _filtered_protein_rows(
         import_report.protein_group_rows,
-        include_decoys=include_decoys,
-        max_q_value=max_q_value,
+        include_decoys=policy.include_decoys,
+        max_q_value=policy.max_q_value,
     )
     run_names = sorted({row.run_name for row in precursor_rows})
     union_precursor_keys = {_stable_precursor_key(row) for row in precursor_rows}
@@ -198,6 +250,7 @@ def build_dia_run_qc_report(
                     len(union_protein_ids) - len(protein_ids),
                     len(union_protein_ids),
                 ),
+                weak_run_flag_count=0,
             )
         )
         for bucket, count in _intensity_distribution(observed_precursor_quantities).items():
@@ -219,41 +272,117 @@ def build_dia_run_qc_report(
     )
     median_protein_count = _median([float(entry.protein_id_count) for entry in run_entries])
     median_correlation_by_run = _median_correlation_by_run(pairwise_correlations)
+    max_shared_precursor_key_count_by_run = _max_shared_precursor_key_count_by_run(
+        pairwise_correlations
+    )
     outlier_runs: list[DiaRunQcOutlierRunEntry] = []
     flagged_run_names: set[str] = set()
+    weak_run_flag_count = 0
     final_run_entries: list[DiaRunQcRunEntry] = []
     for entry in run_entries:
-        reasons: list[str] = []
+        flags: list[DiaRunQcWeakRunFlagEntry] = []
         if median_precursor_count > 0 and (
             entry.precursor_key_count / median_precursor_count
-        ) < low_precursor_count_fraction:
-            reasons.append("precursor coverage is far below the study median")
+        ) < policy.low_precursor_count_fraction:
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.LOW_PRECURSOR_COVERAGE,
+                    reason="precursor coverage is far below the study median",
+                    threshold_name="low_precursor_count_fraction",
+                    threshold_value=policy.low_precursor_count_fraction,
+                    observed_value=entry.precursor_key_count / median_precursor_count,
+                )
+            )
         if median_protein_count > 0 and (
             entry.protein_id_count / median_protein_count
-        ) < low_protein_count_fraction:
-            reasons.append("protein coverage is far below the study median")
-        if entry.precursor_missing_fraction > high_missing_fraction:
-            reasons.append("precursor missingness is above the configured threshold")
-        if entry.protein_missing_fraction > high_missing_fraction:
-            reasons.append("protein missingness is above the configured threshold")
+        ) < policy.low_protein_count_fraction:
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.LOW_PROTEIN_COVERAGE,
+                    reason="protein coverage is far below the study median",
+                    threshold_name="low_protein_count_fraction",
+                    threshold_value=policy.low_protein_count_fraction,
+                    observed_value=entry.protein_id_count / median_protein_count,
+                )
+            )
+        if entry.precursor_missing_fraction > policy.high_missing_fraction:
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.HIGH_PRECURSOR_MISSINGNESS,
+                    reason="precursor missingness is above the configured threshold",
+                    threshold_name="high_missing_fraction",
+                    threshold_value=policy.high_missing_fraction,
+                    observed_value=entry.precursor_missing_fraction,
+                )
+            )
+        if entry.protein_missing_fraction > policy.high_missing_fraction:
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.HIGH_PROTEIN_MISSINGNESS,
+                    reason="protein missingness is above the configured threshold",
+                    threshold_name="high_missing_fraction",
+                    threshold_value=policy.high_missing_fraction,
+                    observed_value=entry.protein_missing_fraction,
+                )
+            )
         median_correlation = median_correlation_by_run.get(entry.run_name)
         if median_correlation is None:
-            reasons.append("shared precursor overlap is too small for stable correlation review")
-        elif median_correlation < low_correlation_threshold:
-            reasons.append("run correlation is below the configured threshold")
-        flagged = bool(reasons)
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.INSUFFICIENT_SHARED_PRECURSOR_OVERLAP,
+                    reason="shared precursor overlap is too small for stable correlation review",
+                    threshold_name="minimum_shared_precursor_key_count",
+                    threshold_value=2.0,
+                    observed_value=float(
+                        max_shared_precursor_key_count_by_run.get(entry.run_name, 0)
+                    ),
+                )
+            )
+        elif median_correlation < policy.low_correlation_threshold:
+            flags.append(
+                DiaRunQcWeakRunFlagEntry(
+                    run_name=entry.run_name,
+                    sample_name=entry.sample_name,
+                    code=DiaRunQcWeakRunFlagCode.LOW_RUN_CORRELATION,
+                    reason="run correlation is below the configured threshold",
+                    threshold_name="low_correlation_threshold",
+                    threshold_value=policy.low_correlation_threshold,
+                    observed_value=median_correlation,
+                )
+            )
+        flagged = bool(flags)
         if flagged:
             flagged_run_names.add(entry.run_name)
+            weak_run_flag_count += len(flags)
             outlier_runs.append(
                 DiaRunQcOutlierRunEntry(
                     run_name=entry.run_name,
                     sample_name=entry.sample_name,
-                    reasons=tuple(sorted(reasons)),
+                    flags=tuple(sorted(flags, key=lambda flag: flag.code.value)),
+                    reasons=tuple(sorted(flag.reason for flag in flags)),
                 )
             )
-        final_run_entries.append(entry.model_copy(update={"flagged": flagged}))
+        final_run_entries.append(
+            entry.model_copy(
+                update={
+                    "flagged": flagged,
+                    "weak_run_flag_count": len(flags),
+                }
+            )
+        )
     sample_count = len({entry.sample_name for entry in run_entries})
     return DiaRunQcReport(
+        policy=policy,
         run_entries=tuple(sorted(final_run_entries, key=lambda entry: entry.run_name)),
         intensity_distribution=tuple(
             sorted(
@@ -270,9 +399,10 @@ def build_dia_run_qc_report(
             union_protein_group_id_count=len(union_protein_group_ids),
             union_protein_id_count=len(union_protein_ids),
             flagged_run_count=len(flagged_run_names),
+            weak_run_flag_count=weak_run_flag_count,
         ),
         note=(
-            "run qc keeps precursor and protein identity burden, intensity distribution, missingness, pairwise correlation, and explicit outlier review visible per run"
+            "run qc keeps precursor and protein identity burden, intensity distribution, missingness, pairwise correlation, and threshold-aware weak-run flags visible per run"
         ),
     )
 
@@ -309,6 +439,7 @@ def render_dia_run_qc_summary_tsv(report: DiaRunQcReport) -> str:
             "union_protein_group_id_count",
             "union_protein_id_count",
             "flagged_run_count",
+            "weak_run_flag_count",
             "note",
         ]
     )
@@ -321,6 +452,7 @@ def render_dia_run_qc_summary_tsv(report: DiaRunQcReport) -> str:
             report.summary.union_protein_group_id_count,
             report.summary.union_protein_id_count,
             report.summary.flagged_run_count,
+            report.summary.weak_run_flag_count,
             report.note,
         ]
     )
@@ -345,6 +477,7 @@ def render_dia_run_qc_run_table_tsv(report: DiaRunQcReport) -> str:
             "median_log10_precursor_quantity",
             "precursor_missing_fraction",
             "protein_missing_fraction",
+            "weak_run_flag_count",
             "flagged",
         ]
     )
@@ -364,6 +497,7 @@ def render_dia_run_qc_run_table_tsv(report: DiaRunQcReport) -> str:
                 else f"{entry.median_log10_precursor_quantity:.6g}",
                 f"{entry.precursor_missing_fraction:.6g}",
                 f"{entry.protein_missing_fraction:.6g}",
+                entry.weak_run_flag_count,
                 str(entry.flagged).lower(),
             ]
         )
@@ -419,9 +553,30 @@ def render_dia_run_qc_outlier_tsv(report: DiaRunQcReport) -> str:
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(["run_name", "sample_name", "reasons"])
+    writer.writerow(
+        [
+            "run_name",
+            "sample_name",
+            "reason_code",
+            "reason",
+            "threshold_name",
+            "threshold_value",
+            "observed_value",
+        ]
+    )
     for entry in report.outlier_runs:
-        writer.writerow([entry.run_name, entry.sample_name, ";".join(entry.reasons)])
+        for flag in entry.flags:
+            writer.writerow(
+                [
+                    entry.run_name,
+                    entry.sample_name,
+                    flag.code.value,
+                    flag.reason,
+                    flag.threshold_name,
+                    f"{flag.threshold_value:.6g}",
+                    f"{flag.observed_value:.6g}",
+                ]
+            )
     return buffer.getvalue()
 
 
@@ -586,3 +741,19 @@ def _median_correlation_by_run(
         run_name: _median(values_by_run[run_name]) if run_name in values_by_run else None
         for run_name in all_runs
     }
+
+
+def _max_shared_precursor_key_count_by_run(
+    correlations: tuple[DiaRunQcCorrelationEntry, ...],
+) -> dict[str, int]:
+    counts_by_run: dict[str, int] = {}
+    for entry in correlations:
+        counts_by_run[entry.run_name_a] = max(
+            counts_by_run.get(entry.run_name_a, 0),
+            entry.shared_precursor_key_count,
+        )
+        counts_by_run[entry.run_name_b] = max(
+            counts_by_run.get(entry.run_name_b, 0),
+            entry.shared_precursor_key_count,
+        )
+    return counts_by_run
