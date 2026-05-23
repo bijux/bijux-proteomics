@@ -59,3 +59,19 @@ def test_io_package_exports_transition_table_owner_surface() -> None:
     assert first_entry.retention_time_minutes == 12.5
     assert domain_record.precursor_charge == 2
     assert domain_record.retention_time_minutes == 12.5
+
+
+def test_io_package_exports_xic_extraction_owner_surface() -> None:
+    report = io.extract_mzml_xic_traces(
+        _format_fixture("xic_review.mzml"),
+        _format_fixture("xic_targets.tsv"),
+        tolerance_ppm=10.0,
+    )
+    rendered = io.render_xic_traces_tsv(report)
+
+    assert hasattr(io, "parse_xic_target_table")
+    assert hasattr(io, "extract_mzml_xic_traces")
+    assert hasattr(io, "render_xic_traces_tsv")
+    assert report.eligible_spectra == 3
+    assert len(report.trace_points) == 8
+    assert "target_alpha\tscan=7000\t10\t500.000000" in rendered

@@ -81,6 +81,7 @@ def test_io_package_import_contract() -> None:
     module = importlib.import_module("bijux_proteomics.io")
 
     assert hasattr(module, "parse_mzml")
+    assert hasattr(module, "extract_mzml_xic_traces")
 
 
 def test_quantification_package_import_contract() -> None:
