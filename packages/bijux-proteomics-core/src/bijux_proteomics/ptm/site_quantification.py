@@ -13,6 +13,11 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification import TargetDecoyLabel
 from bijux_proteomics.io.stable_outputs import sort_rows_by_fields, sort_strings
+from bijux_proteomics.ptm.ambiguity_handling import (
+    PtmSiteGroupQuantificationReport,
+    build_ptm_ambiguity_review_report,
+    build_ptm_site_group_quantification_report,
+)
 from bijux_proteomics.ptm.contracts import PtmSiteEntry
 from bijux_proteomics.quantification.contracts import (
     MissingValueKind,
@@ -69,11 +74,29 @@ class PtmSiteQuantSummary(JsonModel):
     site_row_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
     ambiguous_row_count: int = Field(..., ge=0)
+    ambiguous_group_row_count: int = Field(..., ge=0)
     excluded_ambiguous_row_count: int = Field(..., ge=0)
     observed_cell_count: int = Field(..., ge=0)
     zero_cell_count: int = Field(..., ge=0)
     missing_cell_count: int = Field(..., ge=0)
     filtered_cell_count: int = Field(..., ge=0)
+
+
+class PtmExcludedAmbiguousSiteRow(JsonModel):
+    """One unresolved site-level claim excluded from the exact-site matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    site_key: str = Field(..., min_length=1)
+    group_key: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    residue: str = Field(..., min_length=1, max_length=1)
+    position: int = Field(..., ge=1)
+    modification_name: str = Field(..., min_length=1)
+    candidate_positions: tuple[int, ...] = Field(default_factory=tuple)
+    localized_peptides: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    reason: str = Field(..., min_length=1)
 
 
 class PtmSiteQuantificationReport(JsonModel):
@@ -84,6 +107,10 @@ class PtmSiteQuantificationReport(JsonModel):
     ambiguity_policy: PtmSiteQuantAmbiguityPolicy
     sample_ids: tuple[str, ...] = Field(default_factory=tuple)
     rows: tuple[PtmSiteQuantRow, ...] = Field(default_factory=tuple)
+    ambiguous_group_quantification: PtmSiteGroupQuantificationReport | None = None
+    excluded_ambiguous_rows: tuple[PtmExcludedAmbiguousSiteRow, ...] = Field(
+        default_factory=tuple
+    )
     excluded_ambiguous_site_keys: tuple[str, ...] = Field(default_factory=tuple)
     missing_summary: MissingValueSummaryReport
     summary: PtmSiteQuantSummary
@@ -98,6 +125,24 @@ def build_ptm_site_quantification_report(
 ) -> PtmSiteQuantificationReport:
     """Build a PTM site-by-sample intensity matrix from localized peptide features."""
 
+    ambiguity_review = build_ptm_ambiguity_review_report(site_entries)
+    exact_site_keys = {entry.site_key for entry in ambiguity_review.localized_sites}
+    ambiguous_site_keys = {
+        site_key
+        for group in ambiguity_review.unlocalized_groups
+        for site_key in group.site_keys
+    }
+    exact_site_entries = tuple(
+        sorted(
+            (
+                entry
+                for entry in site_entries
+                if entry.site_key in exact_site_keys
+            ),
+            key=lambda row: row.site_key,
+        )
+    )
+
     sample_ids = tuple(
         sorted(
             {
@@ -106,7 +151,7 @@ def build_ptm_site_quantification_report(
             }
             | {
                 sample_id
-                for entry in site_entries
+                for entry in exact_site_entries
                 for sample_id in entry.sample_ids
             }
         )
@@ -119,20 +164,14 @@ def build_ptm_site_quantification_report(
 
     rows: list[PtmSiteQuantRow] = []
     missing_entries: list[MissingValueSummaryEntry] = []
-    excluded_ambiguous_site_keys: list[str] = []
+    excluded_ambiguous_rows: list[PtmExcludedAmbiguousSiteRow] = []
     observed_cell_count = 0
     zero_cell_count = 0
     missing_cell_count = 0
     filtered_cell_count = 0
 
     grouped_rows: dict[tuple[str, str], PtmSiteQuantValue] = {}
-    for entry in sorted(site_entries, key=lambda row: row.site_key):
-        if (
-            ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
-            and entry.ambiguous
-        ):
-            excluded_ambiguous_site_keys.append(entry.site_key)
-            continue
+    for entry in exact_site_entries:
         localized_peptides = set(entry.localized_peptides)
         values: list[PtmSiteQuantValue] = []
         for sample_id in sample_ids:
@@ -187,6 +226,27 @@ def build_ptm_site_quantification_report(
             )
         )
 
+    site_entry_by_key = {entry.site_key: entry for entry in site_entries}
+    for group in ambiguity_review.unlocalized_groups:
+        for site_key in group.site_keys:
+            entry = site_entry_by_key[site_key]
+            excluded_ambiguous_rows.append(
+                PtmExcludedAmbiguousSiteRow(
+                    site_key=entry.site_key,
+                    group_key=group.group_key,
+                    protein_ref=entry.protein_ref,
+                    residue=entry.residue,
+                    position=entry.position,
+                    modification_name=entry.modification_name,
+                    candidate_positions=entry.candidate_positions,
+                    localized_peptides=entry.localized_peptides,
+                    sample_ids=entry.sample_ids,
+                    reason=(
+                        "unresolved localization is excluded from the exact-site matrix and must travel through the ambiguity-group matrix instead"
+                    ),
+                )
+            )
+
     for sample_id in sample_ids:
         observed = 0
         zero = 0
@@ -212,11 +272,26 @@ def build_ptm_site_quantification_report(
             )
         )
 
+    ambiguous_group_quantification = None
+    if ambiguity_policy is PtmSiteQuantAmbiguityPolicy.PRESERVE:
+        ambiguous_group_quantification = build_ptm_site_group_quantification_report(
+            site_entries,
+            feature_records=feature_records,
+        )
+
+    excluded_site_rows = (
+        tuple(sort_rows_by_fields(excluded_ambiguous_rows, "site_key"))
+        if ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
+        else ()
+    )
+
     return PtmSiteQuantificationReport(
         ambiguity_policy=ambiguity_policy,
         sample_ids=sample_ids,
         rows=tuple(rows),
-        excluded_ambiguous_site_keys=tuple(excluded_ambiguous_site_keys),
+        ambiguous_group_quantification=ambiguous_group_quantification,
+        excluded_ambiguous_rows=excluded_site_rows,
+        excluded_ambiguous_site_keys=tuple(row.site_key for row in excluded_site_rows),
         missing_summary=MissingValueSummaryReport(
             entity_level=QuantEntityLevel.PEPTIDE,
             policy=MissingValueSummaryPolicy(),
@@ -227,17 +302,23 @@ def build_ptm_site_quantification_report(
         summary=PtmSiteQuantSummary(
             site_row_count=len(rows),
             sample_count=len(sample_ids),
-            ambiguous_row_count=sum(1 for row in rows if row.ambiguous),
-            excluded_ambiguous_row_count=len(excluded_ambiguous_site_keys),
+            ambiguous_row_count=len(ambiguous_site_keys),
+            ambiguous_group_row_count=(
+                0
+                if ambiguous_group_quantification is None
+                else len(ambiguous_group_quantification.rows)
+            ),
+            excluded_ambiguous_row_count=len(excluded_site_rows),
             observed_cell_count=observed_cell_count,
             zero_cell_count=zero_cell_count,
             missing_cell_count=missing_cell_count,
             filtered_cell_count=filtered_cell_count,
         ),
         note=(
-            "ptm site quantification aggregates localized peptide feature intensities "
-            "onto protein-mapped PTM sites while preserving per-sample missingness "
-            "and an explicit ambiguity policy"
+            "ptm site quantification builds one exact-site matrix from resolved site "
+            "claims, preserves unresolved localization in one ambiguity-group matrix "
+            "when requested, and records excluded ambiguous site rows under an "
+            "explicit ambiguity policy"
         ),
     )
 
@@ -253,6 +334,7 @@ def render_ptm_site_quant_summary_tsv(report: PtmSiteQuantificationReport) -> st
             "site_row_count",
             "sample_count",
             "ambiguous_row_count",
+            "ambiguous_group_row_count",
             "excluded_ambiguous_row_count",
             "observed_cell_count",
             "zero_cell_count",
@@ -266,6 +348,7 @@ def render_ptm_site_quant_summary_tsv(report: PtmSiteQuantificationReport) -> st
             report.summary.site_row_count,
             report.summary.sample_count,
             report.summary.ambiguous_row_count,
+            report.summary.ambiguous_group_row_count,
             report.summary.excluded_ambiguous_row_count,
             report.summary.observed_cell_count,
             report.summary.zero_cell_count,
@@ -351,9 +434,35 @@ def render_ptm_site_quant_excluded_tsv(report: PtmSiteQuantificationReport) -> s
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(["site_key"])
-    for site_key in sort_strings(report.excluded_ambiguous_site_keys):
-        writer.writerow([site_key])
+    writer.writerow(
+        [
+            "site_key",
+            "group_key",
+            "protein_ref",
+            "residue",
+            "position",
+            "modification_name",
+            "candidate_positions",
+            "localized_peptides",
+            "sample_ids",
+            "reason",
+        ]
+    )
+    for row in sort_rows_by_fields(report.excluded_ambiguous_rows, "site_key"):
+        writer.writerow(
+            [
+                row.site_key,
+                row.group_key,
+                row.protein_ref,
+                row.residue,
+                row.position,
+                row.modification_name,
+                ";".join(str(position) for position in sorted(row.candidate_positions)),
+                ";".join(sort_strings(row.localized_peptides)),
+                ";".join(sort_strings(row.sample_ids)),
+                row.reason,
+            ]
+        )
     return buffer.getvalue()
 
 
