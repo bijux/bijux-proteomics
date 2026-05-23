@@ -235,3 +235,26 @@ def test_io_package_exports_raw_signal_evidence_card_owner_surface() -> None:
         "peptide_y8",
     )
     assert "raw_signal_card:prec_peptide\tprec_peptide\tPEPTIDE" in rendered
+
+
+def test_io_package_exports_precursor_isotope_fit_owner_surface() -> None:
+    report = io.extract_mzml_precursor_isotope_fit(
+        (
+            _format_fixture("precursor_isotope_fit_reference.mzml"),
+            _format_fixture("precursor_isotope_fit_shifted.mzml"),
+            _format_fixture("precursor_isotope_fit_wrong_charge.mzml"),
+        ),
+        _format_fixture("precursor_isotope_fit_targets.tsv"),
+        extraction_tolerance_da=0.05,
+        fit_tolerance_da=0.05,
+        max_isotope_index=2,
+    )
+    rendered = io.render_precursor_isotope_fit_entries_tsv(report)
+
+    assert hasattr(io, "extract_mzml_precursor_isotope_fit")
+    assert hasattr(io, "render_precursor_isotope_fit_summary_tsv")
+    assert hasattr(io, "render_precursor_isotope_fit_entries_tsv")
+    assert hasattr(io, "render_precursor_isotope_fit_peaks_tsv")
+    assert report.summary.flagged_entry_count == 2
+    assert report.entries[0].run_id == "precursor_isotope_fit_reference"
+    assert "precursor_isotope_fit_shifted\tprec_peptide_ms1\tprec_peptide" in rendered
