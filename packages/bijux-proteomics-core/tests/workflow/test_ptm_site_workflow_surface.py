@@ -49,6 +49,7 @@ def test_build_ptm_site_workflow_bundle_preserves_site_biology_from_file_inputs(
     assert report.summary.total_evidence_row_count == 8
     assert report.summary.accepted_evidence_count == 8
     assert report.summary.rejected_evidence_count == 0
+    assert report.experiment_design.summary.run_count == 4
     assert report.summary.protein_sequence_count == 3
     assert report.summary.feature_row_count == 12
     assert report.summary.design_row_count == 4
@@ -81,6 +82,7 @@ def test_build_ptm_site_workflow_bundle_preserves_rejected_evidence_review() -> 
     assert report.summary.total_evidence_row_count == 2
     assert report.summary.accepted_evidence_count == 1
     assert report.summary.rejected_evidence_count == 1
+    assert report.experiment_design.summary.condition_count == 2
     assert report.evidence_parse_report.rejected_rows[0].row_number == 3
     assert {issue.code for issue in report.evidence_parse_report.rejected_rows[0].issues} == {
         "invalid_charge",

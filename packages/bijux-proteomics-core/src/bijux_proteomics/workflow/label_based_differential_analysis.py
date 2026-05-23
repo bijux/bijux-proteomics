@@ -62,6 +62,7 @@ from bijux_proteomics.quantification.differential_abundance import (
 from bijux_proteomics.quantification.protein_intensity_matrix import (
     ProteinIntensityMatrixReport,
 )
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -197,7 +198,7 @@ class LabelBasedDifferentialAnalysisReport(JsonModel):
 
 def build_tmt_differential_input_report(
     result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT,
     mapping: TmtReporterColumnMapping | None = None,
@@ -205,6 +206,7 @@ def build_tmt_differential_input_report(
 ) -> LabelBasedDifferentialInputReport:
     """Build a protein-level labeled differential input packet from TMT evidence."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     import_report = parse_tmt_reporter_table(
         result_tsv_path,
         source_kind=source_kind,
@@ -213,7 +215,7 @@ def build_tmt_differential_input_report(
     )
     feature_bundle = build_tmt_reporter_feature_bundle(
         import_report,
-        design_entries=design_entries,
+        design_entries=experiment_design.entries,
     )
     mapped_groups = {
         entry.multiplex_group
@@ -262,7 +264,7 @@ def build_silac_differential_input_report(
 
 def build_label_based_differential_analysis_report(
     input_report: LabelBasedDifferentialInputReport,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     normalization_method: NormalizationMethod = NormalizationMethod.MEDIAN,
     condition_a: str | None = None,
@@ -274,9 +276,10 @@ def build_label_based_differential_analysis_report(
 ) -> LabelBasedDifferentialAnalysisReport:
     """Normalize one labeled matrix, build the design, and run differential testing."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     analysis_design_entries = _analysis_design_entries(
         input_report,
-        design_entries=design_entries,
+        design_entries=experiment_design.entries,
     )
     normalized_matrix, normalization_factors = _normalize_input_report(
         input_report,
@@ -347,7 +350,7 @@ def build_label_based_differential_analysis_report(
 
 def build_tmt_differential_analysis_report(
     result_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT,
     mapping: TmtReporterColumnMapping | None = None,
@@ -384,7 +387,7 @@ def build_tmt_differential_analysis_report(
 
 def build_silac_differential_analysis_report(
     feature_tsv_path: Path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     mapping: SilacColumnMapping | None = None,
     quantification_policy: SilacQuantificationPolicy | None = None,

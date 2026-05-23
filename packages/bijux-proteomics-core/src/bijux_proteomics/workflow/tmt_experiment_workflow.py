@@ -27,6 +27,7 @@ from bijux_proteomics.multiplex import (
     export_multiplex_missing_condition_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow.label_based_differential_analysis import (
     LabelBasedDifferentialSourceKind,
 )
@@ -119,13 +120,14 @@ def build_tmt_experiment_workflow_bundle(
     design_report = parse_experimental_design_table(design_path)
     if design_report.rejected_rows:
         raise ValueError("design table contains rejected rows")
+    experiment_design = build_experiment_design(design_report.accepted_entries)
     metadata_validation_report = build_multiplex_metadata_validation_report(
         design_report
     )
     _require_workflow_ready_metadata(metadata_validation_report)
     report = build_tmt_label_based_report_bundle(
         result_tsv_path,
-        tuple(design_report.accepted_entries),
+        experiment_design,
         control_channel=control_channel,
         source_kind=source_kind,
         mapping=mapping,

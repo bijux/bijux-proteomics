@@ -57,6 +57,7 @@ from bijux_proteomics.multiplex import (
     render_tmt_protein_ratio_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod
+from bijux_proteomics.study import ExperimentDesign, coerce_experiment_design
 from bijux_proteomics.workflow.label_based_differential_analysis import (
     LabelBasedDifferentialAnalysisReport,
     LabelBasedDifferentialSourceKind,
@@ -164,7 +165,7 @@ class LabelBasedReportExportManifest(JsonModel):
 
 def build_tmt_label_based_report_bundle(
     result_tsv_path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     control_channel: str,
     source_kind: TmtSearchResultSourceKind = TmtSearchResultSourceKind.MAXQUANT,
@@ -180,6 +181,7 @@ def build_tmt_label_based_report_bundle(
 ) -> LabelBasedReportBundle:
     """Build one owned labeled report bundle over governed TMT workflows."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     import_report = parse_tmt_reporter_table(
         result_tsv_path,
         source_kind=source_kind,
@@ -188,7 +190,7 @@ def build_tmt_label_based_report_bundle(
     )
     feature_bundle = build_tmt_reporter_feature_bundle(
         import_report,
-        design_entries=design_entries,
+        design_entries=experiment_design.entries,
     )
     matrix_report = build_tmt_reporter_matrix_report(feature_bundle)
     normalization_policy = TmtNormalizationPolicy(method=channel_normalization_method)
@@ -204,7 +206,7 @@ def build_tmt_label_based_report_bundle(
     validation_report = build_tmt_validation_report(feature_bundle)
     differential_report = build_tmt_differential_analysis_report(
         result_tsv_path,
-        design_entries,
+        experiment_design,
         source_kind=source_kind,
         mapping=mapping,
         channel_columns=channel_columns,
@@ -244,7 +246,7 @@ def build_tmt_label_based_report_bundle(
 
 def build_silac_label_based_report_bundle(
     feature_tsv_path,
-    design_entries: tuple[ExperimentalDesignEntry, ...],
+    design_entries: ExperimentDesign | tuple[ExperimentalDesignEntry, ...],
     *,
     mapping: SilacColumnMapping | None = None,
     quantification_policy: SilacQuantificationPolicy | None = None,
@@ -258,6 +260,7 @@ def build_silac_label_based_report_bundle(
 ) -> LabelBasedReportBundle:
     """Build one owned labeled report bundle over governed SILAC workflows."""
 
+    experiment_design = coerce_experiment_design(design_entries)
     import_report = parse_silac_feature_table(
         feature_tsv_path,
         mapping=mapping,
@@ -272,7 +275,7 @@ def build_silac_label_based_report_bundle(
     )
     differential_report = build_silac_differential_analysis_report(
         feature_tsv_path,
-        design_entries,
+        experiment_design,
         mapping=mapping,
         quantification_policy=quantification_policy,
         normalization_method=differential_normalization_method,
@@ -285,7 +288,7 @@ def build_silac_label_based_report_bundle(
     sample_qc_entries = _build_silac_sample_qc_entries(
         validation_report,
         differential_report=differential_report,
-        design_entries=design_entries,
+        design_entries=experiment_design.entries,
     )
     return LabelBasedReportBundle(
         source_kind=LabelBasedDifferentialSourceKind.SILAC,

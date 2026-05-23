@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
+from bijux_proteomics.study import build_experiment_design
 from bijux_proteomics.workflow import (
     LabelBasedDifferentialSourceKind,
     build_tmt_label_based_report_bundle,
@@ -23,7 +24,7 @@ def test_tmt_label_based_report_bundle_preserves_channel_ratio_and_differential_
 
     report = build_tmt_label_based_report_bundle(
         _fixture("maxquant_tmt_evidence.tsv"),
-        design_entries,
+        build_experiment_design(design_entries),
         control_channel="126",
     )
 

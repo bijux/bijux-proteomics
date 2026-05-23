@@ -12,10 +12,7 @@ from pathlib import Path
 
 from pydantic import ConfigDict, Field
 
-from bijux_proteomics.io.formats import (
-    ExperimentalDesignEntry,
-    parse_experimental_design_table,
-)
+from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
     PtmEvidenceCardPolicy,
     PtmEvidenceParseReport,
@@ -37,6 +34,7 @@ from bijux_proteomics.quantification import (
     parse_ms1_feature_table,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.study import ExperimentDesign, build_experiment_design
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -67,7 +65,7 @@ class PtmSiteWorkflowBundle(JsonModel):
 
     evidence_parse_report: PtmEvidenceParseReport
     feature_row_count: int = Field(..., ge=0)
-    design_entries: tuple[ExperimentalDesignEntry, ...] = Field(default_factory=tuple)
+    experiment_design: ExperimentDesign
     protein_sequence_count: int = Field(..., ge=0)
     report: PtmReportBundle
     summary: PtmSiteWorkflowSummary
@@ -141,6 +139,7 @@ def build_ptm_site_workflow_bundle(
     design_report = parse_experimental_design_table(design_path)
     if design_report.rejected_rows:
         raise ValueError("design table contains rejected rows")
+    experiment_design = build_experiment_design(design_report.accepted_entries)
     fragment_ion_support_by_spectrum = _load_fragment_support_by_spectrum(
         fragment_support_json_path
     )
@@ -158,7 +157,7 @@ def build_ptm_site_workflow_bundle(
         protein_sequences=protein_sequences,
         fragment_ion_support_by_spectrum=fragment_ion_support_by_spectrum,
         feature_records=feature_report.accepted_records,
-        design_entries=design_report.accepted_entries,
+        design_entries=experiment_design.entries,
         ambiguity_policy=ambiguity_policy,
         normalization_method=normalization_method,
         condition_a=condition_a,
@@ -178,7 +177,7 @@ def build_ptm_site_workflow_bundle(
     return PtmSiteWorkflowBundle(
         evidence_parse_report=evidence_parse_report,
         feature_row_count=len(feature_report.accepted_records),
-        design_entries=design_report.accepted_entries,
+        experiment_design=experiment_design,
         protein_sequence_count=len(protein_sequences),
         report=report,
         summary=PtmSiteWorkflowSummary(
@@ -187,7 +186,7 @@ def build_ptm_site_workflow_bundle(
             rejected_evidence_count=len(evidence_parse_report.rejected_rows),
             protein_sequence_count=len(protein_sequences),
             feature_row_count=len(feature_report.accepted_records),
-            design_row_count=len(design_report.accepted_entries),
+            design_row_count=len(experiment_design.entries),
             site_row_count=report.summary.site_row_count,
             localization_entry_count=report.summary.localization_entry_count,
             quantified_site_row_count=report.summary.quantified_site_row_count,
