@@ -252,10 +252,6 @@ def build_targeted_assay_qc_report(
         (entry.analyte_id, entry.run_id, entry.fragment_id): entry
         for entry in fragment_ratio_stability.observation_entries
     }
-    ratio_fragment_by_target_transition = {
-        (entry.analyte_id, entry.fragment_id): entry
-        for entry in fragment_ratio_stability.fragment_entries
-    }
     target_to_transitions = {
         target_id: sorted(
             {
@@ -322,9 +318,6 @@ def build_targeted_assay_qc_report(
             for item in sorted(sample_observations, key=lambda record: record.transition_id):
                 ratio_observation = ratio_observation_by_target_sample_transition[
                     (target_id, sample_id, item.transition_id)
-                ]
-                ratio_fragment = ratio_fragment_by_target_transition[
-                    (target_id, item.transition_id)
                 ]
                 ratio_flagged = (
                     ratio_observation.drift_flag or ratio_observation.unstable_fragment
