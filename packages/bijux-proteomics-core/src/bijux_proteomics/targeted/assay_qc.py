@@ -48,6 +48,27 @@ class TargetedFragmentRatioEntry(JsonModel):
     flagged: bool = False
 
 
+class TargetedTransitionQcEntry(JsonModel):
+    """One sample-resolved transition QC record for a targeted precursor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    condition: str | None = None
+    transition_id: str = Field(..., min_length=1)
+    detected: bool
+    intensity: float | None = Field(default=None, ge=0.0)
+    quality_flag: str | None = None
+    relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
+    reference_relative_share: float | None = Field(default=None, ge=0.0, le=1.0)
+    absolute_share_delta: float | None = Field(default=None, ge=0.0, le=1.0)
+    quality_flagged: bool = False
+    ratio_flagged: bool = False
+    passed: bool
+    failure_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class TargetedRetentionTimeConsistencyEntry(JsonModel):
     """One sample-level retention-time consistency record for a targeted precursor."""
 
@@ -76,6 +97,31 @@ class TargetedReplicateCvEntry(JsonModel):
     flagged: bool = False
 
 
+class TargetedTargetQcEntry(JsonModel):
+    """One sample-resolved target QC record with explicit reliability semantics."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    target_id: str = Field(..., min_length=1)
+    sample_id: str = Field(..., min_length=1)
+    condition: str | None = None
+    expected_transition_count: int = Field(..., ge=0)
+    observed_transition_count: int = Field(..., ge=0)
+    passing_transition_count: int = Field(..., ge=0)
+    passing_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    failing_transition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    passing_total_intensity: float | None = Field(default=None, ge=0.0)
+    mean_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    reference_retention_time_minutes: float | None = Field(default=None, ge=0.0)
+    absolute_delta_minutes: float | None = Field(default=None, ge=0.0)
+    quality_flag_count: int = Field(..., ge=0)
+    condition_replicate_cv: float | None = Field(default=None, ge=0.0)
+    condition_replicate_cv_flagged: bool = False
+    reliability_score: float = Field(..., ge=0.0, le=1.0)
+    reliable: bool
+    reliability_reasons: tuple[str, ...] = Field(default_factory=tuple)
+
+
 class TargetedUnreliableTargetEntry(JsonModel):
     """One explicitly flagged targeted precursor under sample or condition review."""
 
@@ -96,7 +142,11 @@ class TargetedAssayQcSummary(JsonModel):
 
     target_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
+    target_qc_entry_count: int = Field(..., ge=0)
+    reliable_target_entry_count: int = Field(..., ge=0)
     transition_consistency_entry_count: int = Field(..., ge=0)
+    transition_qc_entry_count: int = Field(..., ge=0)
+    passing_transition_qc_entry_count: int = Field(..., ge=0)
     fragment_ratio_entry_count: int = Field(..., ge=0)
     retention_time_entry_count: int = Field(..., ge=0)
     flagged_retention_time_entry_count: int = Field(..., ge=0)
@@ -112,9 +162,11 @@ class TargetedAssayQcReport(JsonModel):
     model_config = ConfigDict(extra="forbid")
 
     source_name: str = Field(..., min_length=1)
+    target_qc: tuple[TargetedTargetQcEntry, ...] = Field(default_factory=tuple)
     transition_consistency: tuple[TargetedTransitionConsistencyEntry, ...] = Field(
         default_factory=tuple
     )
+    transition_qc: tuple[TargetedTransitionQcEntry, ...] = Field(default_factory=tuple)
     fragment_ratios: tuple[TargetedFragmentRatioEntry, ...] = Field(default_factory=tuple)
     retention_time_consistency: tuple[TargetedRetentionTimeConsistencyEntry, ...] = Field(
         default_factory=tuple
@@ -139,6 +191,11 @@ def build_targeted_assay_qc_report(
 
     target_ids = sorted({item.precursor_id for item in import_report.observations})
     sample_ids = sorted({item.sample_id for item in import_report.observations})
+    condition_by_sample = {
+        entry.sample_id: entry.condition
+        for entry in design_entries
+        if entry.sample_id in sample_ids
+    }
     target_to_transitions = {
         target_id: sorted(
             {
@@ -150,7 +207,9 @@ def build_targeted_assay_qc_report(
         for target_id in target_ids
     }
 
+    target_qc_entries: list[TargetedTargetQcEntry] = []
     consistency_entries: list[TargetedTransitionConsistencyEntry] = []
+    transition_qc_entries: list[TargetedTransitionQcEntry] = []
     ratio_entries: list[TargetedFragmentRatioEntry] = []
     retention_time_entries: list[TargetedRetentionTimeConsistencyEntry] = []
     ratio_flags_by_target_sample: dict[tuple[str, str], set[str]] = {}
@@ -195,6 +254,9 @@ def build_targeted_assay_qc_report(
         )
         for sample_id in sample_ids:
             sample_observations = observations_by_sample[sample_id]
+            observations_by_transition_id = {
+                item.transition_id: item for item in sample_observations
+            }
             detected_transition_ids = {item.transition_id for item in sample_observations}
             detected_count = len(detected_transition_ids)
             missing_transition_ids = set(expected_transition_ids) - detected_transition_ids
@@ -221,6 +283,7 @@ def build_targeted_assay_qc_report(
             }
             if sample_quality_flags:
                 quality_flags_by_target_sample[(target_id, sample_id)] = sample_quality_flags
+            ratio_flags_for_sample: set[str] = set()
             for item in sorted(sample_observations, key=lambda record: record.transition_id):
                 relative_share = (
                     item.intensity / total_target_intensity
@@ -234,6 +297,7 @@ def build_targeted_assay_qc_report(
                     ratio_flags_by_target_sample.setdefault((target_id, sample_id), set()).add(
                         item.transition_id
                     )
+                    ratio_flags_for_sample.add(item.transition_id)
                 ratio_entries.append(
                     TargetedFragmentRatioEntry(
                         target_id=target_id,
@@ -277,11 +341,119 @@ def build_targeted_assay_qc_report(
                 )
             )
 
-    condition_by_sample = {
-        entry.sample_id: entry.condition
-        for entry in design_entries
-        if entry.sample_id in sample_ids
-    }
+            passing_transition_ids: list[str] = []
+            failing_transition_ids: list[str] = []
+            passing_total_intensity = 0.0
+            for transition_id in expected_transition_ids:
+                observation = observations_by_transition_id.get(transition_id)
+                if observation is None:
+                    transition_qc_entries.append(
+                        TargetedTransitionQcEntry(
+                            target_id=target_id,
+                            sample_id=sample_id,
+                            condition=condition_by_sample.get(sample_id),
+                            transition_id=transition_id,
+                            detected=False,
+                            passed=False,
+                            failure_reasons=("transition not observed",),
+                        )
+                    )
+                    failing_transition_ids.append(transition_id)
+                    continue
+
+                quality_flagged = (
+                    observation.quality_flag is not None
+                    and observation.quality_flag != "pass"
+                )
+                ratio_flagged = transition_id in ratio_flags_for_sample
+                failure_reasons: list[str] = []
+                if quality_flagged:
+                    failure_reasons.append("source quality flag is not pass")
+                if ratio_flagged:
+                    failure_reasons.append(
+                        "fragment-ion ratio deviates from the target reference pattern"
+                    )
+                passed = not failure_reasons
+                if passed:
+                    passing_transition_ids.append(transition_id)
+                    passing_total_intensity += observation.intensity
+                else:
+                    failing_transition_ids.append(transition_id)
+                transition_qc_entries.append(
+                    TargetedTransitionQcEntry(
+                        target_id=target_id,
+                        sample_id=sample_id,
+                        condition=condition_by_sample.get(sample_id),
+                        transition_id=transition_id,
+                        detected=True,
+                        intensity=observation.intensity,
+                        quality_flag=observation.quality_flag,
+                        relative_share=(
+                            observation.intensity / total_target_intensity
+                            if total_target_intensity > 0.0
+                            else 0.0
+                        ),
+                        reference_relative_share=reference_relative_shares[transition_id],
+                        absolute_share_delta=abs(
+                            (
+                                observation.intensity / total_target_intensity
+                                if total_target_intensity > 0.0
+                                else 0.0
+                            )
+                            - reference_relative_shares[transition_id]
+                        ),
+                        quality_flagged=quality_flagged,
+                        ratio_flagged=ratio_flagged,
+                        passed=passed,
+                        failure_reasons=tuple(sorted(failure_reasons)),
+                    )
+                )
+
+            retention_entry = retention_time_entries[-1]
+            reliability_reasons: list[str] = []
+            if len(passing_transition_ids) < 2:
+                reliability_reasons.append(
+                    "fewer than two passing transitions support the target"
+                )
+            if retention_entry.flagged:
+                reliability_reasons.append(
+                    "retention time deviates from the target reference window"
+                )
+            transition_support_component = min(len(passing_transition_ids) / 2.0, 1.0)
+            completeness_component = (
+                len(passing_transition_ids) / expected_count if expected_count else 0.0
+            )
+            retention_component = 0.0 if retention_entry.flagged else 1.0
+            reliability_score = (
+                transition_support_component
+                + completeness_component
+                + retention_component
+            ) / 3.0
+            target_qc_entries.append(
+                TargetedTargetQcEntry(
+                    target_id=target_id,
+                    sample_id=sample_id,
+                    condition=condition_by_sample.get(sample_id),
+                    expected_transition_count=expected_count,
+                    observed_transition_count=detected_count,
+                    passing_transition_count=len(passing_transition_ids),
+                    passing_transition_ids=tuple(passing_transition_ids),
+                    failing_transition_ids=tuple(sorted(failing_transition_ids)),
+                    passing_total_intensity=(
+                        passing_total_intensity if passing_transition_ids else None
+                    ),
+                    mean_retention_time_minutes=retention_entry.mean_retention_time_minutes,
+                    reference_retention_time_minutes=(
+                        retention_entry.reference_retention_time_minutes
+                    ),
+                    absolute_delta_minutes=retention_entry.absolute_delta_minutes,
+                    quality_flag_count=len(sample_quality_flags),
+                    reliability_score=reliability_score,
+                    reliable=not reliability_reasons,
+                    reliability_reasons=tuple(sorted(reliability_reasons)),
+                )
+            )
+
     sample_ids_by_condition: dict[str, list[str]] = {}
     for sample_id in sample_ids:
         condition = condition_by_sample.get(sample_id)
@@ -313,6 +485,13 @@ def build_targeted_assay_qc_report(
             )
             if consistency_entry.consistency_fraction < 1.0:
                 reasons.append("transition detection is incomplete")
+            target_qc_entry = next(
+                entry
+                for entry in target_qc_entries
+                if entry.target_id == target_id and entry.sample_id == sample_id
+            )
+            if target_qc_entry.passing_transition_count < 2:
+                reasons.append("fewer than two passing transitions support the target")
             if ratio_flags_by_target_sample.get((target_id, sample_id)):
                 reasons.append("fragment-ion ratios deviate from the target reference pattern")
             retention_entry = next(
@@ -370,10 +549,56 @@ def build_targeted_assay_qc_report(
                         reasons=("replicate cv is above the configured threshold",),
                     )
                 )
+            for entry in target_qc_entries:
+                if entry.target_id == target_id and entry.condition == condition:
+                    target_qc_entries[target_qc_entries.index(entry)] = entry.model_copy(
+                        update={
+                            "condition_replicate_cv": coefficient_of_variation,
+                            "condition_replicate_cv_flagged": flagged,
+                            "reliability_score": (
+                                (
+                                    entry.reliability_score * 3.0
+                                    + (0.0 if flagged else 1.0)
+                                )
+                                / 4.0
+                            ),
+                            "reliable": entry.reliable and not flagged,
+                            "reliability_reasons": (
+                                entry.reliability_reasons
+                                if not flagged
+                                else tuple(
+                                    sorted(
+                                        set(entry.reliability_reasons).union(
+                                            {"replicate cv is above the configured threshold"}
+                                        )
+                                    )
+                                )
+                            ),
+                        }
+                    )
 
     return TargetedAssayQcReport(
         source_name=import_report.source_name,
+        target_qc=tuple(
+            sorted(
+                target_qc_entries,
+                key=lambda entry: (
+                    entry.target_id,
+                    entry.sample_id,
+                ),
+            )
+        ),
         transition_consistency=tuple(consistency_entries),
+        transition_qc=tuple(
+            sorted(
+                transition_qc_entries,
+                key=lambda entry: (
+                    entry.target_id,
+                    entry.sample_id,
+                    entry.transition_id,
+                ),
+            )
+        ),
         fragment_ratios=tuple(ratio_entries),
         retention_time_consistency=tuple(retention_time_entries),
         replicate_cv=tuple(replicate_cv_entries),
@@ -390,7 +615,13 @@ def build_targeted_assay_qc_report(
         summary=TargetedAssayQcSummary(
             target_count=len(target_ids),
             sample_count=len(sample_ids),
+            target_qc_entry_count=len(target_qc_entries),
+            reliable_target_entry_count=sum(entry.reliable for entry in target_qc_entries),
             transition_consistency_entry_count=len(consistency_entries),
+            transition_qc_entry_count=len(transition_qc_entries),
+            passing_transition_qc_entry_count=sum(
+                entry.passed for entry in transition_qc_entries
+            ),
             fragment_ratio_entry_count=len(ratio_entries),
             retention_time_entry_count=len(retention_time_entries),
             flagged_retention_time_entry_count=sum(
@@ -406,7 +637,7 @@ def build_targeted_assay_qc_report(
             ),
         ),
         note=(
-            "targeted assay qc keeps transition consistency, fragment-ion ratio, retention-time consistency, replicate cv, and explicit unreliable-target review visible before any sample or target is trusted"
+            "targeted assay qc keeps target-level reliability, transition-level pass-fail evidence, transition consistency, fragment-ion ratio stability, retention-time consistency, replicate cv, and explicit unreliable-target review visible before any sample or target is trusted"
         ),
     )
 
@@ -454,7 +685,11 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             "source_name",
             "target_count",
             "sample_count",
+            "target_qc_entry_count",
+            "reliable_target_entry_count",
             "transition_consistency_entry_count",
+            "transition_qc_entry_count",
+            "passing_transition_qc_entry_count",
             "fragment_ratio_entry_count",
             "retention_time_entry_count",
             "flagged_retention_time_entry_count",
@@ -470,7 +705,11 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             report.source_name,
             report.summary.target_count,
             report.summary.sample_count,
+            report.summary.target_qc_entry_count,
+            report.summary.reliable_target_entry_count,
             report.summary.transition_consistency_entry_count,
+            report.summary.transition_qc_entry_count,
+            report.summary.passing_transition_qc_entry_count,
             report.summary.fragment_ratio_entry_count,
             report.summary.retention_time_entry_count,
             report.summary.flagged_retention_time_entry_count,
@@ -481,6 +720,75 @@ def render_targeted_assay_qc_summary_tsv(report: TargetedAssayQcReport) -> str:
             report.note,
         ]
     )
+    return buffer.getvalue()
+
+
+def render_targeted_assay_qc_target_tsv(report: TargetedAssayQcReport) -> str:
+    """Render sample-resolved target QC rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "sample_id",
+            "condition",
+            "expected_transition_count",
+            "observed_transition_count",
+            "passing_transition_count",
+            "passing_transition_ids",
+            "failing_transition_ids",
+            "passing_total_intensity",
+            "mean_retention_time_minutes",
+            "reference_retention_time_minutes",
+            "absolute_delta_minutes",
+            "quality_flag_count",
+            "condition_replicate_cv",
+            "condition_replicate_cv_flagged",
+            "reliability_score",
+            "reliable",
+            "reliability_reasons",
+        ]
+    )
+    for entry in report.target_qc:
+        writer.writerow(
+            [
+                entry.target_id,
+                entry.sample_id,
+                "" if entry.condition is None else entry.condition,
+                entry.expected_transition_count,
+                entry.observed_transition_count,
+                entry.passing_transition_count,
+                ";".join(entry.passing_transition_ids),
+                ";".join(entry.failing_transition_ids),
+                "" if entry.passing_total_intensity is None else f"{entry.passing_total_intensity:g}",
+                (
+                    ""
+                    if entry.mean_retention_time_minutes is None
+                    else f"{entry.mean_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.reference_retention_time_minutes is None
+                    else f"{entry.reference_retention_time_minutes:g}"
+                ),
+                (
+                    ""
+                    if entry.absolute_delta_minutes is None
+                    else f"{entry.absolute_delta_minutes:g}"
+                ),
+                entry.quality_flag_count,
+                (
+                    ""
+                    if entry.condition_replicate_cv is None
+                    else f"{entry.condition_replicate_cv:g}"
+                ),
+                str(entry.condition_replicate_cv_flagged).lower(),
+                f"{entry.reliability_score:g}",
+                str(entry.reliable).lower(),
+                "; ".join(entry.reliability_reasons),
+            ]
+        )
     return buffer.getvalue()
 
 
@@ -506,6 +814,59 @@ def render_targeted_assay_qc_transition_tsv(report: TargetedAssayQcReport) -> st
                 entry.detected_transition_count,
                 entry.expected_transition_count,
                 f"{entry.consistency_fraction:g}",
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_targeted_assay_qc_transition_qc_tsv(report: TargetedAssayQcReport) -> str:
+    """Render sample-resolved transition QC rows as TSV."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "target_id",
+            "sample_id",
+            "condition",
+            "transition_id",
+            "detected",
+            "intensity",
+            "quality_flag",
+            "relative_share",
+            "reference_relative_share",
+            "absolute_share_delta",
+            "quality_flagged",
+            "ratio_flagged",
+            "passed",
+            "failure_reasons",
+        ]
+    )
+    for entry in report.transition_qc:
+        writer.writerow(
+            [
+                entry.target_id,
+                entry.sample_id,
+                "" if entry.condition is None else entry.condition,
+                entry.transition_id,
+                str(entry.detected).lower(),
+                "" if entry.intensity is None else f"{entry.intensity:g}",
+                "" if entry.quality_flag is None else entry.quality_flag,
+                "" if entry.relative_share is None else f"{entry.relative_share:g}",
+                (
+                    ""
+                    if entry.reference_relative_share is None
+                    else f"{entry.reference_relative_share:g}"
+                ),
+                (
+                    ""
+                    if entry.absolute_share_delta is None
+                    else f"{entry.absolute_share_delta:g}"
+                ),
+                str(entry.quality_flagged).lower(),
+                str(entry.ratio_flagged).lower(),
+                str(entry.passed).lower(),
+                "; ".join(entry.failure_reasons),
             ]
         )
     return buffer.getvalue()
