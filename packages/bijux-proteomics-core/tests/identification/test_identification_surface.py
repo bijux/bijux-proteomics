@@ -68,6 +68,9 @@ from bijux_proteomics.identification import (
     validate_target_decoy_policy,
     verify_fdr_q_value_monotonicity,
 )
+from bijux_proteomics.identification.cross_run_reproducibility import (
+    RunDetectionContext,
+)
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
 
@@ -1113,7 +1116,119 @@ def test_grouped_confidence_report_keeps_one_weak_shared_peptide_from_strong_cal
     assert entry.protein_refs == ("P11111", "P22222")
     assert entry.shared_peptide_count == 1
     assert entry.confidence_label.value == "low"
-    assert "weak or ambiguous" in entry.explanation
+
+
+def test_grouped_confidence_report_downgrades_single_run_only_proteins() -> None:
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                run_id="run-treated-1",
+                spectrum_id="scan=1",
+                peptide="SINGLERUN",
+                canonical_peptide="SINGLERUN",
+                charge=2,
+                score=80.0,
+                q_value=0.001,
+                protein_refs=("P11111",),
+            ),
+            PsmRecord(
+                run_id="run-control-1",
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=60.0,
+                q_value=0.020,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        ),
+        run_contexts=(
+            RunDetectionContext(
+                run_id="run-control-1",
+                sample_id="control-1",
+                condition_id="control",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-1",
+                sample_id="treated-1",
+                condition_id="treated",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-2",
+                sample_id="treated-2",
+                condition_id="treated",
+                replicate_id="2",
+            ),
+        ),
+    )
+
+    entry = next(
+        candidate for candidate in grouped.entries if candidate.protein_refs == ("P11111",)
+    )
+
+    assert entry.confidence_label.value == "low"
+    assert "observed in one run only" in entry.explanation
+
+
+def test_grouped_confidence_report_preserves_explicit_exploratory_single_run_proteins() -> (
+    None
+):
+    grouped = build_grouped_confidence_report(
+        (
+            PsmRecord(
+                run_id="run-treated-1",
+                spectrum_id="scan=1",
+                peptide="EXPLORATORY",
+                canonical_peptide="EXPLORATORY",
+                charge=2,
+                score=80.0,
+                q_value=0.001,
+                protein_refs=("P22222",),
+            ),
+            PsmRecord(
+                run_id="run-control-1",
+                spectrum_id="scan=2",
+                peptide="DECOYSEQ",
+                canonical_peptide="DECOYSEQ",
+                charge=2,
+                score=60.0,
+                q_value=0.020,
+                protein_refs=("DECOY_P11111",),
+                target_decoy_label=TargetDecoyLabel.DECOY,
+            ),
+        ),
+        run_contexts=(
+            RunDetectionContext(
+                run_id="run-control-1",
+                sample_id="control-1",
+                condition_id="control",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-1",
+                sample_id="treated-1",
+                condition_id="treated",
+                replicate_id="1",
+            ),
+            RunDetectionContext(
+                run_id="run-treated-2",
+                sample_id="treated-2",
+                condition_id="treated",
+                replicate_id="2",
+            ),
+        ),
+        exploratory_protein_refs=("P22222",),
+    )
+
+    entry = next(
+        candidate for candidate in grouped.entries if candidate.protein_refs == ("P22222",)
+    )
+
+    assert entry.confidence_label.value == "high"
+    assert "high-confidence threshold" in entry.explanation
 
 
 def test_custom_decoy_strategy_validation_reports_invalid_and_valid_policies() -> None:

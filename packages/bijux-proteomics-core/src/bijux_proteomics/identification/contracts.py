@@ -13,6 +13,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
@@ -40,6 +41,11 @@ from bijux_proteomics.sequences.core import NormalizedProteinRecord
 from bijux_proteomics.sequences.peptide_uniqueness_index import (
     build_peptide_uniqueness_index,
 )
+
+if TYPE_CHECKING:
+    from bijux_proteomics.identification.cross_run_reproducibility import (
+        RunDetectionContext,
+    )
 from bijux_proteomics.tabular import render_tsv_rows
 from bijux_proteomics_foundation import DocumentSchema, JsonModel
 
@@ -2734,13 +2740,30 @@ def build_grouped_confidence_report(
     *,
     high_threshold: float = 0.01,
     medium_threshold: float = 0.05,
+    run_contexts: tuple[RunDetectionContext, ...] = (),
+    exploratory_protein_refs: tuple[str, ...] = (),
 ) -> GroupedConfidenceReport:
     """Summarize confidence over indistinguishable protein groups."""
+    from bijux_proteomics.identification.cross_run_reproducibility import (
+        CrossRunReproducibilityClass,
+        build_protein_cross_run_reproducibility_report,
+    )
     from bijux_proteomics.identification.peptide_evidence import (
         PeptideEvidenceClass,
         build_peptide_evidence_report,
     )
 
+    exploratory_protein_ref_set = set(exploratory_protein_refs)
+    exploratory_canonical_peptides = tuple(
+        sorted(
+            {
+                record.canonical_peptide
+                for record in records
+                if record.protein_refs
+                and set(record.protein_refs).issubset(exploratory_protein_ref_set)
+            }
+        )
+    )
     peptide_classes = {
         entry.canonical_peptide: entry
         for entry in build_peptide_evidence_report(
@@ -2748,6 +2771,16 @@ def build_grouped_confidence_report(
             threshold=medium_threshold,
             score_orientation="higher_better",
             strong_q_value=high_threshold,
+            run_contexts=run_contexts,
+            exploratory_canonical_peptides=exploratory_canonical_peptides,
+        ).entries
+    }
+    protein_reproducibility = {
+        entry.entity_id: entry
+        for entry in build_protein_cross_run_reproducibility_report(
+            records,
+            run_contexts=run_contexts,
+            exploratory_protein_refs=exploratory_protein_refs,
         ).entries
     }
     entries: list[GroupedConfidenceEntry] = []
@@ -2795,6 +2828,22 @@ def build_grouped_confidence_report(
                 explanation = (
                     "protein evidence remains low because the supporting peptides are weak or ambiguous even though the grouped q-value is reviewable"
                 )
+        representative_reproducibility = protein_reproducibility.get(
+            group.representative_protein
+        )
+        if (
+            label is not ConfidenceLabel.DECOY
+            and representative_reproducibility is not None
+            and representative_reproducibility.reproducibility_class
+            is CrossRunReproducibilityClass.SINGLE_RUN_ONLY
+        ):
+            if label is ConfidenceLabel.HIGH:
+                label = ConfidenceLabel.MEDIUM
+            else:
+                label = ConfidenceLabel.LOW
+            explanation = (
+                "protein evidence is downgraded because the representative protein is observed in one run only and is not explicitly exploratory"
+            )
         entries.append(
             GroupedConfidenceEntry(
                 group_id=group.group_id,
