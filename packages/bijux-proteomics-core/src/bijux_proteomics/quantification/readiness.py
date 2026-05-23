@@ -15,6 +15,7 @@ from bijux_proteomics.quantification.contracts import (
     build_batch_effect_advisory,
     build_replicate_correlation_report,
 )
+from bijux_proteomics.study import build_replicate_structure_report
 from bijux_proteomics_foundation.serialization.json_contracts import JsonModel
 
 
@@ -41,6 +42,12 @@ class ReplicateStructureEntry(JsonModel):
 
     condition: str = Field(..., min_length=1)
     replicate_count: int = Field(..., ge=0)
+    biological_replicate_count: int = Field(..., ge=0)
+    technical_replicate_count: int = Field(..., ge=0)
+    injection_replicate_count: int = Field(..., ge=0)
+    fractionated_sample_count: int = Field(..., ge=0)
+    multiplex_channel_count: int = Field(..., ge=0)
+    repeated_measure_subject_count: int = Field(..., ge=0)
     underpowered: bool
 
 
@@ -78,24 +85,31 @@ def build_replicate_structure_audit_report(
 ) -> ReplicateStructureAuditReport:
     """Audit whether a quantitative design has enough replicate structure to travel."""
 
-    by_condition: dict[str, set[str]] = {}
-    for entry in design_entries:
-        by_condition.setdefault(entry.condition, set()).add(entry.sample_id)
+    structure_report = build_replicate_structure_report(
+        design_entries,
+        minimum_statistical_units_per_condition=minimum_replicates_per_condition,
+    )
     entries = tuple(
         ReplicateStructureEntry(
-            condition=condition,
-            replicate_count=len(sample_ids),
-            underpowered=len(sample_ids) < minimum_replicates_per_condition,
+            condition=entry.condition,
+            replicate_count=entry.effective_statistical_unit_count,
+            biological_replicate_count=entry.biological_replicate_count,
+            technical_replicate_count=entry.technical_replicate_count,
+            injection_replicate_count=entry.injection_replicate_count,
+            fractionated_sample_count=entry.fractionated_sample_count,
+            multiplex_channel_count=entry.multiplex_channel_count,
+            repeated_measure_subject_count=entry.repeated_measure_subject_count,
+            underpowered=entry.underpowered_for_statistics,
         )
-        for condition, sample_ids in sorted(by_condition.items())
+        for entry in structure_report.condition_entries
     )
     replicate_counts = [entry.replicate_count for entry in entries]
     underpowered = tuple(entry.condition for entry in entries if entry.underpowered)
     balanced = len(set(replicate_counts)) <= 1 if replicate_counts else True
     note = (
-        "replicate structure satisfies the current minimum policy"
+        "replicate structure satisfies the current minimum policy after separating biological support from technical, fractionated, multiplexed, and repeated-measure structure"
         if not underpowered
-        else "one or more conditions are underpowered for decision-grade quantitative claims"
+        else "one or more conditions remain underpowered for decision-grade quantitative claims after technical, injection, fraction, multiplex, and repeated-measure structure are separated from statistical units"
     )
     return ReplicateStructureAuditReport(
         entries=entries,

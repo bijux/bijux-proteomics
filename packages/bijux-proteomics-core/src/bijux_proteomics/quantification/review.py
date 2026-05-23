@@ -66,6 +66,9 @@ from bijux_proteomics.quantification.readiness import (
 from bijux_proteomics.quantification.replicate_qc import (
     build_replicate_and_batch_qc_report,
 )
+from bijux_proteomics.study.replicate_structure import (
+    count_effective_statistical_units_by_condition,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -632,14 +635,9 @@ def validate_differential_abundance_design_context(
     multiple_testing_scope: str = "global_per_analysis",
 ) -> DifferentialAbundanceDesignValidationReport:
     """Validate DA design assumptions before running statistical comparisons."""
-    by_condition: dict[str, set[str]] = {}
-    for entry in design_entries:
-        by_condition.setdefault(entry.condition, set()).add(entry.sample_id)
-    condition_replicates = {
-        condition: len(sample_ids) for condition, sample_ids in by_condition.items()
-    }
+    condition_replicates = count_effective_statistical_units_by_condition(design_entries)
     issues: list[DifferentialAbundanceDesignIssue] = []
-    known_conditions = set(by_condition)
+    known_conditions = set(condition_replicates)
     for left, right in contrasts:
         if left == right:
             issues.append(
