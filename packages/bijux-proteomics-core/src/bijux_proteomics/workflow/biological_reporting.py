@@ -98,6 +98,13 @@ from bijux_proteomics.review import (
     render_volcano_review_tsv,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
+from bijux_proteomics.workflow.protein_evidence_cards import (
+    ProteinEvidenceCardReport,
+    ProteinEvidenceCardSelectionPolicy,
+    build_protein_evidence_card_report,
+    render_protein_evidence_card_summary_tsv,
+    render_protein_evidence_card_tsv,
+)
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -122,6 +129,8 @@ class BiologicalResultReportSummary(JsonModel):
     sample_count: int = Field(..., ge=0)
     annotation_entry_count: int = Field(..., ge=0)
     annotation_unmapped_count: int = Field(..., ge=0)
+    protein_card_count: int = Field(..., ge=0)
+    warning_card_count: int = Field(..., ge=0)
     context_entry_count: int = Field(..., ge=0)
     context_unmapped_count: int = Field(..., ge=0)
     context_term_count: int = Field(..., ge=0)
@@ -139,6 +148,7 @@ class BiologicalResultReportBundle(JsonModel):
 
     differential_report: DifferentialAbundanceReport
     annotation_report: ProteinAnnotationMappingReport
+    protein_cards: ProteinEvidenceCardReport
     context_import_report: BiologicalContextImportReport | None = None
     context_mapping_report: BiologicalContextMappingReport | None = None
     go_enrichment_report: GoEnrichmentReport | None = None
@@ -159,6 +169,8 @@ class BiologicalResultReportArtifactPaths(JsonModel):
 
     summary_tsv: str = Field(..., min_length=1)
     differential_tsv: str = Field(..., min_length=1)
+    protein_card_summary_tsv: str = Field(..., min_length=1)
+    protein_card_tsv: str = Field(..., min_length=1)
     annotation_summary_tsv: str = Field(..., min_length=1)
     annotation_tsv: str = Field(..., min_length=1)
     annotation_unmapped_tsv: str = Field(..., min_length=1)
@@ -409,6 +421,28 @@ def build_biological_result_report_bundle_from_quant_table(
                 min_enrichment_ratio=1.0,
             ),
         )
+    protein_cards = build_protein_evidence_card_report(
+        normalized_table,
+        differential_report,
+        annotation_report,
+        protein_sequences={
+            record.canonical_accession: record.residues
+            for record in fasta_report.accepted_records
+        },
+        selection_policy=ProteinEvidenceCardSelectionPolicy(
+            max_adjusted_p_value=active_selection_policy.max_adjusted_p_value,
+            min_absolute_log2_fold_change=(
+                active_selection_policy.min_absolute_log2_fold_change
+            ),
+        ),
+        sample_conditions={
+            entry.sample_id: entry.condition
+            for entry in design_entries
+        },
+        context_mapping_report=context_mapping_report,
+        pathway_enrichment_report=pathway_enrichment_report,
+        complex_enrichment_report=complex_enrichment_report,
+    )
     volcano_review = build_quantification_volcano_review(
         differential_report,
         protein_refs_by_entity=normalized_table.entity_protein_refs,
@@ -439,6 +473,7 @@ def build_biological_result_report_bundle_from_quant_table(
     return BiologicalResultReportBundle(
         differential_report=differential_report,
         annotation_report=annotation_report,
+        protein_cards=protein_cards,
         context_import_report=context_import_report,
         context_mapping_report=context_mapping_report,
         go_enrichment_report=go_enrichment_report,
@@ -454,6 +489,8 @@ def build_biological_result_report_bundle_from_quant_table(
             sample_count=len(normalized_table.sample_ids),
             annotation_entry_count=len(annotation_report.result_entries),
             annotation_unmapped_count=len(annotation_report.unmapped_entries),
+            protein_card_count=protein_cards.summary.protein_result_count,
+            warning_card_count=protein_cards.summary.warning_card_count,
             context_entry_count=(
                 0
                 if context_mapping_report is None
@@ -490,7 +527,7 @@ def build_biological_result_report_bundle_from_quant_table(
             ),
         ),
         note=(
-            "biological reporting assembles governed protein differential analysis, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
+            "biological reporting assembles governed protein differential analysis, protein evidence cards, annotation mapping, optional user-supplied biological context mapping, enrichment, volcano review, heatmap preparation, and sample exploration into one owned workflow bundle"
         ),
     )
 
@@ -630,6 +667,8 @@ def render_biological_result_report_summary_tsv(
     writer.writerow(
         ("annotation_unmapped_count", report.summary.annotation_unmapped_count)
     )
+    writer.writerow(("protein_card_count", report.summary.protein_card_count))
+    writer.writerow(("warning_card_count", report.summary.warning_card_count))
     writer.writerow(("context_entry_count", report.summary.context_entry_count))
     writer.writerow(("context_unmapped_count", report.summary.context_unmapped_count))
     writer.writerow(("context_term_count", report.summary.context_term_count))
@@ -657,6 +696,8 @@ def export_biological_result_report_bundle(
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_name = "biological_report_summary.tsv"
     differential_name = "biological_differential.tsv"
+    protein_card_summary_name = "biological_protein_card_summary.tsv"
+    protein_card_name = "biological_protein_cards.tsv"
     annotation_summary_name = "biological_annotation_summary.tsv"
     annotation_name = "biological_annotations.tsv"
     annotation_unmapped_name = "biological_annotation_unmapped.tsv"
@@ -686,6 +727,14 @@ def export_biological_result_report_bundle(
     )
     (output_dir / differential_name).write_text(
         render_differential_abundance_tsv(report.differential_report),
+        encoding="utf-8",
+    )
+    (output_dir / protein_card_summary_name).write_text(
+        render_protein_evidence_card_summary_tsv(report.protein_cards),
+        encoding="utf-8",
+    )
+    (output_dir / protein_card_name).write_text(
+        render_protein_evidence_card_tsv(report.protein_cards),
         encoding="utf-8",
     )
     (output_dir / annotation_summary_name).write_text(
@@ -827,6 +876,8 @@ def export_biological_result_report_bundle(
     artifacts = BiologicalResultReportArtifactPaths(
         summary_tsv=summary_name,
         differential_tsv=differential_name,
+        protein_card_summary_tsv=protein_card_summary_name,
+        protein_card_tsv=protein_card_name,
         annotation_summary_tsv=annotation_summary_name,
         annotation_tsv=annotation_name,
         annotation_unmapped_tsv=annotation_unmapped_name,
@@ -871,7 +922,7 @@ def export_biological_result_report_bundle(
         pathway_summary_included=report.pathway_enrichment_report is not None,
         complex_summary_included=report.complex_enrichment_report is not None,
         note=(
-            "biological report export writes stable differential, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
+            "biological report export writes stable differential, protein-card, annotation, optional biological context, enrichment, volcano, heatmap, and sample exploration artifacts into one durable output directory"
         ),
     )
 
@@ -882,6 +933,8 @@ def _render_biological_result_report_html(
 ) -> str:
     sections = [
         ("Differential proteins", artifacts.differential_tsv),
+        ("Protein card summary", artifacts.protein_card_summary_tsv),
+        ("Protein cards", artifacts.protein_card_tsv),
         ("Annotation summary", artifacts.annotation_summary_tsv),
         ("Annotated proteins", artifacts.annotation_tsv),
         ("Unmapped annotations", artifacts.annotation_unmapped_tsv),
@@ -926,19 +979,70 @@ def _render_biological_result_report_html(
         for label, path in sections
         if path is not None
     )
+    card_table_html = _render_protein_card_table_html(report)
     return (
         "<html><head><title>Bijux Proteomics Biological Report</title></head><body>"
         "<h1>Biological result report</h1>"
         f"<p><strong>Contrast</strong>: {escape(report.volcano_review.condition_a)} vs {escape(report.volcano_review.condition_b)}</p>"
         f"<p><strong>Proteins</strong>: {report.summary.protein_count} | "
         f"<strong>Significant</strong>: {report.summary.significant_protein_count} | "
+        f"<strong>Protein cards</strong>: {report.summary.protein_card_count} | "
         f"<strong>Annotated</strong>: {report.summary.annotation_entry_count} | "
         f"<strong>Heatmap rows</strong>: {report.summary.heatmap_entity_count}</p>"
+        "<h2>Final protein cards</h2>"
+        f"{card_table_html}"
         "<h2>Artifacts</h2>"
         f"<ul>{section_html}</ul>"
         f"<p>{escape(report.note)}</p>"
         "</body></html>\n"
     )
+
+
+def _render_protein_card_table_html(report: BiologicalResultReportBundle) -> str:
+    headers = (
+        "Protein group",
+        "Representative protein",
+        "Gene",
+        "Evidence tier",
+        "Peptides",
+        "Coverage",
+        "log2FC",
+        "Adjusted p-value",
+        "Warnings",
+        "Pathways",
+        "Card ID",
+    )
+    header_html = "".join(f"<th>{escape(header)}</th>" for header in headers)
+    row_html = "".join(
+        (
+            "<tr>"
+            f"<td>{escape(card.protein_group_id)}</td>"
+            f"<td>{escape(card.representative_protein_ref)}</td>"
+            f"<td>{escape(card.annotation.gene_symbol or '')}</td>"
+            f"<td>{escape(card.evidence_tier.value)}</td>"
+            f"<td>{card.peptide_count}</td>"
+            f"<td>{card.coverage.coverage_fraction:.2%}</td>"
+            f"<td>{card.differential_result.log2_fold_change:.3f}</td>"
+            f"<td>{_format_optional_float(card.differential_result.adjusted_p_value)}</td>"
+            f"<td>{escape('; '.join(warning.code.value for warning in card.warnings))}</td>"
+            f"<td>{escape('; '.join(entry.entry_id for entry in card.pathways))}</td>"
+            f"<td><code>{escape(card.card_id)}</code></td>"
+            "</tr>"
+        )
+        for card in report.protein_cards.cards
+    )
+    return (
+        "<table>"
+        f"<thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{row_html}</tbody>"
+        "</table>"
+    )
+
+
+def _format_optional_float(value: float | None) -> str:
+    if value is None:
+        return ""
+    return f"{value:.4g}"
 
 
 __all__ = [
