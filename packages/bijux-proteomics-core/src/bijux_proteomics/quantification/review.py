@@ -1132,13 +1132,11 @@ def build_quant_review_bundle(
         else None
     )
     differential_report = (
-        apply_benjamini_hochberg(
-            build_differential_abundance_report(
-                imputed_table,
-                design_entries,
-                condition_a=conditions[0],
-                condition_b=conditions[1],
-            )
+        build_differential_abundance_report(
+            imputed_table,
+            design_entries,
+            condition_a=conditions[0],
+            condition_b=conditions[1],
         )
         if len(conditions) == 2
         else None

@@ -27,7 +27,6 @@ from bijux_proteomics.quantification.contracts import (
     QuantMeasureKind,
     QuantCellImputationProvenance,
     QuantValue,
-    apply_benjamini_hochberg,
     build_differential_abundance_report,
 )
 
@@ -139,13 +138,11 @@ def build_imputation_sensitivity_report(
                 design_entries=design_entries,
             )
             imputation_report = build_imputation_report(table, imputed)
-            differential = apply_benjamini_hochberg(
-                build_differential_abundance_report(
-                    imputed,
-                    design_entries,
-                    condition_a=condition_a,
-                    condition_b=condition_b,
-                )
+            differential = build_differential_abundance_report(
+                imputed,
+                design_entries,
+                condition_a=condition_a,
+                condition_b=condition_b,
             )
             differential_by_method[method] = differential
             resolved_condition_a = differential.condition_a
