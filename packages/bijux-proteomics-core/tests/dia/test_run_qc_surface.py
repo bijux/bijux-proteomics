@@ -21,12 +21,14 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     report = build_diann_run_qc_report(_bundle_root() / "diann_run_qc_report.tsv")
 
     assert report.source_name == "DIA-NN"
+    assert report.policy.low_correlation_threshold == 0.9
     assert report.summary.run_count == 3
     assert report.summary.sample_count == 3
     assert report.summary.union_precursor_key_count == 4
     assert report.summary.union_protein_group_id_count == 3
     assert report.summary.union_protein_id_count == 4
     assert report.summary.flagged_run_count == 1
+    assert report.summary.weak_run_flag_count == 5
     assert "pairwise correlation" in report.note
 
     first_run = report.run_entries[0]
@@ -50,6 +52,7 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
     assert weak_run.protein_id_count == 1
     assert weak_run.precursor_missing_fraction == 0.75
     assert weak_run.protein_missing_fraction == 0.75
+    assert weak_run.weak_run_flag_count == 5
 
     intensity_distribution = {
         (entry.run_name, entry.bucket): entry.count
@@ -69,9 +72,16 @@ def test_build_diann_run_qc_report_keeps_run_identity_counts_visible() -> None:
 
     assert len(report.outlier_runs) == 1
     assert report.outlier_runs[0].run_name == "raw_C"
-    assert "precursor coverage is far below the study median" in report.outlier_runs[
-        0
-    ].reasons
+    assert len(report.outlier_runs[0].flags) == 5
+    assert "precursor coverage is far below the study median" in report.outlier_runs[0].reasons
+    first_flag = report.outlier_runs[0].flags[0]
+    assert first_flag.threshold_name in {
+        "high_missing_fraction",
+        "low_precursor_count_fraction",
+        "low_protein_count_fraction",
+        "minimum_shared_precursor_key_count",
+    }
+    assert first_flag.threshold_value >= 0.4
     assert weak_run.flagged is True
 
 
