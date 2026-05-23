@@ -106,3 +106,15 @@ def test_parse_experimental_design_table_accepts_multi_run_sample_rows(
     assert report.accepted_entries[0].sample_id == "s1"
     assert report.accepted_entries[0].technical_replicate_id == "tech-1"
     assert report.accepted_entries[1].technical_replicate_id == "tech-2"
+
+
+def test_parse_experimental_design_table_accepts_explicit_run_order() -> None:
+    design_path = Path(__file__).resolve().parent.parent / "fixtures" / "formats" / "skyline_targeted_carryover.design.tsv"
+
+    report = parse_experimental_design_table(design_path)
+
+    assert report.rejected_rows == ()
+    assert len(report.accepted_entries) == 4
+    assert report.accepted_entries[0].run_order == 1
+    assert report.accepted_entries[1].run_order == 2
+    assert report.accepted_entries[-1].run_order == 4

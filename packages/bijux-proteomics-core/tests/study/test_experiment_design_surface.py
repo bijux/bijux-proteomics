@@ -22,6 +22,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             instrument="Exploris-1",
             search_engine="diann",
             pair_id="pair-1",
+            run_order=2,
             metadata={
                 "timepoint": "T0",
                 "species": "human",
@@ -42,6 +43,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             instrument="Exploris-1",
             search_engine="diann",
             pair_id="pair-1",
+            run_order=1,
             metadata={
                 "timepoint": "T0",
                 "species": "human",
@@ -62,6 +64,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             instrument="Orbitrap-2",
             search_engine="diann",
             pair_id="pair-1",
+            run_order=3,
             multiplex_group="plex-01",
             multiplex_channel="126",
             sample_role=ExperimentalDesignSampleRole.SAMPLE,
@@ -84,6 +87,7 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
             batch="B2",
             instrument="Orbitrap-2",
             search_engine="diann",
+            run_order=4,
             multiplex_group="plex-01",
             multiplex_channel="131",
             sample_role=ExperimentalDesignSampleRole.QC_BRIDGE,
@@ -120,8 +124,15 @@ def test_build_experiment_design_aggregates_samples_runs_plexes_and_metadata() -
     assert sample.technical_replicate_ids == ("tech-001", "tech-002")
     assert sample.batch_ids == ("B1",)
     assert sample.instrument_ids == ("Exploris-1",)
+    assert tuple(run.run_id for run in design.runs) == (
+        "run-002",
+        "run-001",
+        "run-003",
+        "run-004",
+    )
     run = next(run for run in design.runs if run.run_id == "run-001")
     assert run.technical_replicate_id == "tech-001"
+    assert run.run_order == 2
     plex = design.plexes[0]
     assert plex.plex_id == "plex-01"
     assert plex.run_ids == ("run-003", "run-004")
