@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from bijux_proteomics.identification import SearchResultColumnMapping, parse_psm_tsv
 from bijux_proteomics import io
 from bijux_proteomics.io.spectra import SpectrumModel, SpectrumPeak
 import bijux_proteomics.targeted as targeted
@@ -171,3 +172,31 @@ def test_io_package_exports_fragment_ratio_stability_owner_surface() -> None:
     assert targeted_report.summary.fragment_entry_count == 4
     assert targeted_report.summary.unstable_fragment_count == 1
     assert "targeted\tPEPTIDEK/2\tPEPTIDEK\ty8\t4\t3\t0.236842\t0.396731\t1\ttrue" in rendered
+
+
+def test_io_package_exports_chimeric_spectrum_owner_surface() -> None:
+    spectra = io.parse_mzml(_format_fixture("chimeric_spectrum_review.mzml")).accepted_spectra
+    psm_records = parse_psm_tsv(
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "psm"
+        / "chimeric_spectrum_candidates.tsv",
+        mapping=SearchResultColumnMapping(
+            spectrum_id="spectrum_id",
+            peptide="peptide",
+            charge="charge",
+            score="score",
+            q_value="q_value",
+            protein_refs="proteins",
+        ),
+    ).accepted_records
+    report = io.score_chimeric_spectra_from_psms(spectra, psm_records)
+    rendered = io.render_chimeric_spectrum_competing_evidence_tsv(report)
+
+    assert hasattr(io, "score_chimeric_spectra")
+    assert hasattr(io, "score_chimeric_spectra_from_psms")
+    assert hasattr(io, "render_chimeric_spectrum_spectra_tsv")
+    assert hasattr(io, "render_chimeric_spectrum_competing_evidence_tsv")
+    assert report.summary.flagged_chimeric_count == 1
+    assert report.spectra[0].spectrum_id == "scan=9002"
+    assert "scan=9002\tTIDEPEP\t2\tP22222\t45.0000" in rendered
