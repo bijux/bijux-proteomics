@@ -113,3 +113,24 @@ def test_io_package_exports_retention_time_alignment_owner_surface() -> None:
     assert report.run_models[1].status.value == "aligned"
     assert len(report.flagged_residuals) == 1
     assert "anchor_gamma\tanchor_gamma_peak_001\tanchor_gamma_peak_001\t60\t80\t70" in rendered
+
+
+def test_io_package_exports_chromatographic_evidence_owner_surface() -> None:
+    report = io.extract_mzml_chromatographic_evidence(
+        (
+            _format_fixture("rt_alignment_reference.mzml"),
+            _format_fixture("rt_alignment_shifted.mzml"),
+        ),
+        _format_fixture("rt_alignment_targets.tsv"),
+        tolerance_ppm=10.0,
+        aligned_rt_tolerance_seconds=5.0,
+    )
+    rendered = io.render_chromatographic_peptide_evidence_tsv(report)
+
+    assert hasattr(io, "score_chromatographic_evidence")
+    assert hasattr(io, "extract_mzml_chromatographic_evidence")
+    assert hasattr(io, "render_chromatographic_target_evidence_tsv")
+    assert hasattr(io, "render_chromatographic_peptide_evidence_tsv")
+    assert len(report.target_entries) == 4
+    assert report.peptide_entries[0].chromatographic_evidence_score == 1.0
+    assert "PEPD\tanchor_delta\t2\t1\t1.0000\t1.0000\t1.0000\t0.0000\t0.5000\t0.7250" in rendered
