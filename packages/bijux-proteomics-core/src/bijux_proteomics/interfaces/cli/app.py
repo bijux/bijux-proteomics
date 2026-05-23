@@ -16465,6 +16465,21 @@ def ptm_ambiguity_review_command(
     default=None,
 )
 @click.option(
+    "--ambiguous-group-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--ambiguous-group-matrix-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--ambiguous-group-missingness-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--excluded-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -16493,11 +16508,28 @@ def ptm_quantify_sites_command(
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     missingness_tsv_out: Path | None,
+    ambiguous_group_summary_tsv_out: Path | None,
+    ambiguous_group_matrix_tsv_out: Path | None,
+    ambiguous_group_missingness_tsv_out: Path | None,
     excluded_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Quantify PTM sites across samples from localized evidence and feature intensities."""
     try:
+        resolved_ambiguity_policy = PtmSiteQuantAmbiguityPolicy(
+            ambiguity_policy.lower()
+        )
+        if (
+            resolved_ambiguity_policy is PtmSiteQuantAmbiguityPolicy.EXCLUDE
+            and (
+                ambiguous_group_summary_tsv_out is not None
+                or ambiguous_group_matrix_tsv_out is not None
+                or ambiguous_group_missingness_tsv_out is not None
+            )
+        ):
+            raise click.ClickException(
+                "ambiguous-group TSV outputs require --ambiguity-policy preserve because excluded ambiguous site rows are not quantified into one group matrix"
+            )
         evidence = parse_ptm_localization_tsv(
             evidence_tsv,
             mapping=PtmLocalizationColumnMapping(
@@ -16540,7 +16572,7 @@ def ptm_quantify_sites_command(
         report = build_ptm_site_quantification_report(
             site_table,
             feature_records=feature_report.accepted_records,
-            ambiguity_policy=PtmSiteQuantAmbiguityPolicy(ambiguity_policy.lower()),
+            ambiguity_policy=resolved_ambiguity_policy,
         )
     except Exception as exc:  # noqa: BLE001
         raise click.ClickException(str(exc)) from exc
@@ -16558,6 +16590,36 @@ def ptm_quantify_sites_command(
     if missingness_tsv_out is not None:
         missingness_tsv_out.write_text(
             render_ptm_site_quant_missingness_tsv(report),
+            encoding="utf-8",
+        )
+    if (
+        ambiguous_group_summary_tsv_out is not None
+        and report.ambiguous_group_quantification is not None
+    ):
+        ambiguous_group_summary_tsv_out.write_text(
+            render_ptm_site_group_quant_summary_tsv(
+                report.ambiguous_group_quantification
+            ),
+            encoding="utf-8",
+        )
+    if (
+        ambiguous_group_matrix_tsv_out is not None
+        and report.ambiguous_group_quantification is not None
+    ):
+        ambiguous_group_matrix_tsv_out.write_text(
+            render_ptm_site_group_quant_matrix_tsv(
+                report.ambiguous_group_quantification
+            ),
+            encoding="utf-8",
+        )
+    if (
+        ambiguous_group_missingness_tsv_out is not None
+        and report.ambiguous_group_quantification is not None
+    ):
+        ambiguous_group_missingness_tsv_out.write_text(
+            render_ptm_site_group_quant_missingness_tsv(
+                report.ambiguous_group_quantification
+            ),
             encoding="utf-8",
         )
     if excluded_tsv_out is not None:
