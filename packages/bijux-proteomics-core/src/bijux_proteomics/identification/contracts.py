@@ -4081,93 +4081,33 @@ def calculate_picked_protein_fdr(
     decoy_policy: TargetDecoyLabelPolicy | None = None,
 ) -> tuple[PickedProteinFdrEntry, ...]:
     """Calculate picked protein FDR by pairing targets and decoys with the same base accession."""
-    active_policy = decoy_policy or TargetDecoyLabelPolicy()
-    protein_rollups = rollup_protein_evidence(records)
-
-    def _base_accession(protein_ref: str) -> str:
-        value = protein_ref
-        if active_policy.protein_prefix and value.startswith(
-            active_policy.protein_prefix
-        ):
-            value = value[len(active_policy.protein_prefix) :]
-        if active_policy.protein_suffix and value.endswith(
-            active_policy.protein_suffix
-        ):
-            value = value[: -len(active_policy.protein_suffix)]
-        return value
-
-    paired: dict[str, list[ProteinEvidenceEntry]] = defaultdict(list)
-    for rollup in protein_rollups:
-        paired[_base_accession(rollup.protein_ref)].append(rollup)
-
-    selected_entities: list[
-        tuple[str, float, TargetDecoyLabel, tuple[str, ...], str | None]
-    ] = []
-    for _base_accession_key, entries in sorted(paired.items()):
-        sorted_entries = sorted(
-            entries,
-            key=lambda entry: (
-                -entry.best_score
-                if score_orientation == "higher_better"
-                else entry.best_score,
-                entry.protein_ref,
-            ),
-        )
-        winner = sorted_entries[0]
-        partner_ref = next(
-            (
-                entry.protein_ref
-                for entry in sorted_entries[1:]
-                if entry.target_decoy_label is not winner.target_decoy_label
-            ),
-            None,
-        )
-        selected_entities.append(
-            (
-                winner.protein_ref,
-                winner.best_score,
-                winner.target_decoy_label,
-                winner.peptides,
-                partner_ref,
-            )
-        )
-
-    pseudo_records = tuple(
-        PsmRecord(
-            spectrum_id=protein_ref,
-            peptide="A",
-            canonical_peptide="A",
-            charge=1,
-            score=score,
-            protein_refs=(protein_ref,),
-            target_decoy_label=label,
-        )
-        for protein_ref, score, label, _peptides, _partner in selected_entities
+    from bijux_proteomics.identification.picked_protein_fdr import (
+        build_picked_protein_fdr_report_from_psm_records,
     )
-    annotated = calculate_basic_target_decoy_fdr(
-        pseudo_records,
+
+    report = build_picked_protein_fdr_report_from_psm_records(
+        records,
         threshold=threshold,
         score_orientation=score_orientation,
-        tie_handling="score_group",
-        decoy_policy=active_policy,
+        decoy_policy=decoy_policy,
     )
-    selected_index = {
-        protein_ref: (peptides, partner_ref)
-        for protein_ref, _score, _label, peptides, partner_ref in selected_entities
-    }
     return tuple(
         PickedProteinFdrEntry(
-            protein_ref=entry.psm.spectrum_id,
-            partner_ref=selected_index[entry.psm.spectrum_id][1],
-            score=entry.psm.score,
+            protein_ref=entry.winner_ref,
+            partner_ref=(
+                entry.decoy_ref
+                if entry.winner_target_decoy_label is TargetDecoyLabel.TARGET
+                else entry.target_ref
+            ),
+            score=entry.winner_score,
             q_value=entry.q_value,
-            fdr=entry.fdr,
+            fdr=entry.raw_fdr,
             rank=entry.rank,
             accepted=entry.accepted,
-            target_decoy_label=entry.psm.target_decoy_label,
-            supporting_peptides=selected_index[entry.psm.spectrum_id][0],
+            target_decoy_label=entry.winner_target_decoy_label,
+            supporting_peptides=entry.winner_supporting_peptides,
         )
-        for entry in annotated
+        for entry in report.entries
     )
 
 

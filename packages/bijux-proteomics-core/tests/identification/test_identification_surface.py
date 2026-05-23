@@ -1222,6 +1222,10 @@ def test_grouped_and_picked_fdr_regression_fixture_covers_realistic_edge_cases()
         ).partner_ref
         == "P55555"
     )
+    assert "P55555" not in {entry.protein_ref for entry in picked}
+    assert next(
+        entry for entry in picked if entry.protein_ref == "DECOY_P55555"
+    ).accepted is False
     assert [entry.q_value for entry in picked] == sorted(
         entry.q_value for entry in picked
     )
