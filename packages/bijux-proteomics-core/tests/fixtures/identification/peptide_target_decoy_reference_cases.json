@@ -1,0 +1,191 @@
+[
+  {
+    "case_id": "higher_better_best_score_duplicate_peptides",
+    "score_orientation": "higher_better",
+    "evidence_policy": "best_score",
+    "threshold": 0.5,
+    "records": [
+      {
+        "spectrum_id": "scan=3001",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 2,
+        "score": 100.0,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=3002",
+        "peptide": "PEPA",
+        "canonical_peptide": "PEPA",
+        "charge": 3,
+        "score": 97.0,
+        "protein_refs": [
+          "P11111"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=3003",
+        "peptide": "DECOYPEP",
+        "canonical_peptide": "DECOYPEP",
+        "charge": 2,
+        "score": 92.0,
+        "protein_refs": [
+          "DECOY_P99999"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=3004",
+        "peptide": "PEPB",
+        "canonical_peptide": "PEPB",
+        "charge": 2,
+        "score": 80.0,
+        "protein_refs": [
+          "P22222"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=3005",
+        "peptide": "DECOYLOW",
+        "canonical_peptide": "DECOYLOW",
+        "charge": 2,
+        "score": 70.0,
+        "protein_refs": [
+          "DECOY_P88888"
+        ],
+        "target_decoy_label": "decoy"
+      }
+    ],
+    "expected_entries": [
+      {
+        "rank": 1,
+        "canonical_peptide": "PEPA",
+        "psm_count": 2,
+        "cumulative_targets": 1,
+        "cumulative_decoys": 0,
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 2,
+        "canonical_peptide": "DECOYPEP",
+        "psm_count": 1,
+        "cumulative_targets": 1,
+        "cumulative_decoys": 1,
+        "raw_fdr": 1.0,
+        "q_value": 0.5,
+        "accepted": true
+      },
+      {
+        "rank": 3,
+        "canonical_peptide": "PEPB",
+        "psm_count": 1,
+        "cumulative_targets": 2,
+        "cumulative_decoys": 1,
+        "raw_fdr": 0.5,
+        "q_value": 0.5,
+        "accepted": true
+      },
+      {
+        "rank": 4,
+        "canonical_peptide": "DECOYLOW",
+        "psm_count": 1,
+        "cumulative_targets": 2,
+        "cumulative_decoys": 2,
+        "raw_fdr": 1.0,
+        "q_value": 1.0,
+        "accepted": false
+      }
+    ]
+  },
+  {
+    "case_id": "lower_better_best_score_duplicate_peptides",
+    "score_orientation": "lower_better",
+    "evidence_policy": "best_score",
+    "threshold": 0.5,
+    "records": [
+      {
+        "spectrum_id": "scan=4001",
+        "peptide": "PEPL",
+        "canonical_peptide": "PEPL",
+        "charge": 2,
+        "score": 0.001,
+        "protein_refs": [
+          "P12345"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=4002",
+        "peptide": "PEPL",
+        "canonical_peptide": "PEPL",
+        "charge": 3,
+        "score": 0.002,
+        "protein_refs": [
+          "P12345"
+        ],
+        "target_decoy_label": "target"
+      },
+      {
+        "spectrum_id": "scan=4003",
+        "peptide": "DECOYLOW",
+        "canonical_peptide": "DECOYLOW",
+        "charge": 2,
+        "score": 0.005,
+        "protein_refs": [
+          "DECOY_P77777"
+        ],
+        "target_decoy_label": "decoy"
+      },
+      {
+        "spectrum_id": "scan=4004",
+        "peptide": "PEPM",
+        "canonical_peptide": "PEPM",
+        "charge": 2,
+        "score": 0.01,
+        "protein_refs": [
+          "P54321"
+        ],
+        "target_decoy_label": "target"
+      }
+    ],
+    "expected_entries": [
+      {
+        "rank": 1,
+        "canonical_peptide": "PEPL",
+        "psm_count": 2,
+        "cumulative_targets": 1,
+        "cumulative_decoys": 0,
+        "raw_fdr": 0.0,
+        "q_value": 0.0,
+        "accepted": true
+      },
+      {
+        "rank": 2,
+        "canonical_peptide": "DECOYLOW",
+        "psm_count": 1,
+        "cumulative_targets": 1,
+        "cumulative_decoys": 1,
+        "raw_fdr": 1.0,
+        "q_value": 0.5,
+        "accepted": true
+      },
+      {
+        "rank": 3,
+        "canonical_peptide": "PEPM",
+        "psm_count": 1,
+        "cumulative_targets": 2,
+        "cumulative_decoys": 1,
+        "raw_fdr": 0.5,
+        "q_value": 0.5,
+        "accepted": true
+      }
+    ]
+  }
+]
