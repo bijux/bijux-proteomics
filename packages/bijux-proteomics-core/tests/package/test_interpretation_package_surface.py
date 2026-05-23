@@ -137,3 +137,24 @@ def test_interpretation_package_exports_protein_set_scoring_surface() -> None:
 
     assert "confidence_status" in rendered.splitlines()[0]
     assert "low_confidence" in rendered
+
+
+def test_interpretation_package_exports_ppi_network_module_surface() -> None:
+    significant = interpretation.parse_protein_reference_table(
+        _fixture_path("ppi_significant.tsv")
+    )
+    edges = interpretation.parse_ppi_edge_table(_fixture_path("ppi_edges.tsv"))
+    protein_sets = interpretation.parse_protein_set_table(
+        _fixture_path("protein_set_enrichment.tsv")
+    )
+    report = interpretation.build_ppi_network_module_report(
+        significant.accepted_entries,
+        edges.accepted_records,
+        protein_set_records=protein_sets.accepted_records,
+    )
+
+    assert hasattr(interpretation, "render_ppi_module_tsv")
+    rendered = interpretation.render_ppi_module_tsv(report)
+
+    assert "module_id" in rendered.splitlines()[0]
+    assert "ppi_module:P001,P002,P003" in rendered
