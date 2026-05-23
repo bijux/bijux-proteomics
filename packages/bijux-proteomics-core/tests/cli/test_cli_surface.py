@@ -230,17 +230,25 @@ def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers
         assert payload["rejected_features"] == 0
         assert payload["report"]["summary"]["set_count"] == 3
         assert payload["report"]["summary"]["condition_comparison_count"] == 3
+        assert payload["report"]["summary"]["low_confidence_sample_score_count"] >= 1
         assert payload["outputs"]["matrix_tsv"] == "protein_set_score.matrix.tsv"
-        assert "set_id\tset_name\tsource_name\tC1\tC2\tT1\tT2" in Path(
-            "protein_set_score.matrix.tsv"
-        ).read_text(encoding="utf-8")
+        assert (
+            "set_id\tset_name\tset_category\tsource_name\tsource_accession\tC1\tC2\tT1\tT2"
+            in Path("protein_set_score.matrix.tsv").read_text(encoding="utf-8")
+        )
         assert "sample_id\tcondition\tbatch\tactivity_score" in Path(
             "protein_set_score.samples.tsv"
         ).read_text(encoding="utf-8")
+        assert "confidence_status" in Path("protein_set_score.samples.tsv").read_text(
+            encoding="utf-8"
+        )
         assert "condition\tsample_count\tscored_sample_count" in Path(
             "protein_set_score.conditions.tsv"
         ).read_text(encoding="utf-8")
-        assert "condition_a\tcondition_b\tmean_activity_score_a" in Path(
+        assert "confidence_status" in Path(
+            "protein_set_score.conditions.tsv"
+        ).read_text(encoding="utf-8")
+        assert "condition_a_confidence_status" in Path(
             "protein_set_score.comparisons.tsv"
         ).read_text(encoding="utf-8")
         assert "P999" in Path("protein_set_score.unresolved.tsv").read_text(
