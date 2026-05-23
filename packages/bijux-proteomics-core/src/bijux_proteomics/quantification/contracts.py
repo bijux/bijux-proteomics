@@ -1401,6 +1401,7 @@ class QuantDesignMatrixColumnKind(StrEnum):
     INTERCEPT = "intercept"
     CONDITION = "condition"
     BATCH = "batch"
+    TIMEPOINT = "timepoint"
     COVARIATE = "covariate"
     PAIRING = "pairing"
 
@@ -1448,6 +1449,7 @@ class QuantDesignContrast(JsonModel):
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
     coefficient_weights: dict[str, float] = Field(default_factory=dict)
+    coefficient_vector: tuple[float, ...] = Field(default_factory=tuple)
 
 
 class QuantDesignMatrixReport(JsonModel):
@@ -1460,6 +1462,7 @@ class QuantDesignMatrixReport(JsonModel):
     condition_field: str = Field(..., min_length=1)
     batch_field: str | None = None
     pairing_field: str | None = None
+    timepoint_field: str | None = None
     covariate_fields: tuple[str, ...] = Field(default_factory=tuple)
     columns: tuple[QuantDesignMatrixColumn, ...] = Field(default_factory=tuple)
     rows: tuple[QuantDesignMatrixSampleRow, ...] = Field(default_factory=tuple)
@@ -3813,6 +3816,7 @@ def build_quant_design_matrix_report(
     batch_field: str | None = "batch",
     covariate_fields: tuple[str, ...] = (),
     pairing_field: str | None = None,
+    timepoint_field: str | None = None,
     condition_field: str = "condition",
 ) -> QuantDesignMatrixReport:
     """Build an explicit design matrix over one quantification study design."""
@@ -3825,6 +3829,7 @@ def build_quant_design_matrix_report(
         batch_field=batch_field,
         covariate_fields=covariate_fields,
         pairing_field=pairing_field,
+        timepoint_field=timepoint_field,
         condition_field=condition_field,
     )
 
