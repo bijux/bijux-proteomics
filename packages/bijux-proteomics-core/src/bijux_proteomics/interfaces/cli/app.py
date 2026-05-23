@@ -7778,6 +7778,12 @@ def quantify_command(
         quant_entity_level = QuantEntityLevel(entity_level)
         quant_measure = QuantMeasureKind(measure)
         rollup_method = QuantRollupMethod(aggregation)
+        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
+        if design_path is not None:
+            design_report = parse_experimental_design_table(design_path)
+            if design_report.rejected_rows:
+                raise click.ClickException("design table contains rejected rows")
+            design_entries = design_report.accepted_entries
         missingness_entity_summary = None
         missingness_condition_summary = None
         missingness_intensity_dependence = None
@@ -7812,13 +7818,13 @@ def quantify_command(
             table = impute_label_free_table(
                 normalized_table,
                 method=ImputationMethod(imputation),
+                design_entries=design_entries,
             )
             imputation_report = build_imputation_report(
                 normalized_table,
                 table,
             )
         missing_summary = summarize_missing_values(table)
-        design_entries: tuple[ExperimentalDesignEntry, ...] = ()
         batch_effect = None
         replicate_correlations = None
         replicate_qc = None
@@ -7830,10 +7836,6 @@ def quantify_command(
         differential = None
         differential_multi_condition = None
         if design_path is not None:
-            design_report = parse_experimental_design_table(design_path)
-            if design_report.rejected_rows:
-                raise click.ClickException("design table contains rejected rows")
-            design_entries = design_report.accepted_entries
             effective_pairing_field = design_pairing_field
             if effective_pairing_field is None and all(
                 entry.pair_id not in (None, "") for entry in design_entries
