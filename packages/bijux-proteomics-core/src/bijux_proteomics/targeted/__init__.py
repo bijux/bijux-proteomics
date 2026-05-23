@@ -1,10 +1,25 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2026 Bijan Mousavi
 
-"""Targeted proteomics result import and matrix review surfaces."""
+"""Targeted proteomics result import, coelution, QC, and matrix surfaces."""
 
 from __future__ import annotations
 
-from bijux_proteomics.targeted.assay_qc import *  # noqa: F401,F403
-from bijux_proteomics.targeted.result_import import *  # noqa: F401,F403
-from bijux_proteomics.targeted.target_matrix import *  # noqa: F401,F403
+from importlib import import_module
+
+_TARGETED_EXPORT_MODULES = (
+    "bijux_proteomics.targeted.assay_qc",
+    "bijux_proteomics.targeted.result_import",
+    "bijux_proteomics.targeted.target_matrix",
+    "bijux_proteomics.targeted.transition_coelution",
+)
+
+
+def __getattr__(name: str) -> object:
+    for module_path in _TARGETED_EXPORT_MODULES:
+        module = import_module(module_path)
+        if hasattr(module, name):
+            value = getattr(module, name)
+            globals()[name] = value
+            return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
