@@ -5861,6 +5861,18 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert payload["report"]["summary"]["protein_count"] == 5
         assert payload["report"]["summary"]["significant_protein_count"] >= 3
         assert payload["report"]["summary"]["protein_card_count"] == 5
+        assert payload["report"]["summary"]["experiment_confidence_score"] > 0.0
+        assert payload["report"]["summary"]["experiment_confidence_tier"] in {
+            "high_confidence",
+            "moderate_confidence",
+            "low_confidence",
+        }
+        assert (
+            payload["report"]["experiment_confidence_report"]["summary"][
+                "component_count"
+            ]
+            == 7
+        )
         assert payload["report"]["summary"]["context_entry_count"] == 3
         assert payload["report"]["summary"]["go_enriched_term_count"] == 1
         assert payload["export_manifest"]["context_summary_included"] is True
@@ -5871,6 +5883,8 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert (report_dir / "biological_differential.tsv").exists()
         assert (report_dir / "biological_protein_card_summary.tsv").exists()
         assert (report_dir / "biological_protein_cards.tsv").exists()
+        assert (report_dir / "biological_experiment_confidence_summary.tsv").exists()
+        assert (report_dir / "biological_experiment_confidence_components.tsv").exists()
         assert (report_dir / "biological_annotations.tsv").exists()
         assert (report_dir / "biological_context_summary.tsv").exists()
         assert (report_dir / "biological_context_mappings.tsv").exists()
@@ -5887,6 +5901,12 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         ).read_text(encoding="utf-8")
         assert "protein_card_count" in (
             report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "experiment_confidence_score" in (
+            report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
+        assert "overall_score" in (
+            report_dir / "biological_experiment_confidence_summary.tsv"
         ).read_text(encoding="utf-8")
         assert "card_id" in (
             report_dir / "biological_protein_cards.tsv"
@@ -5916,6 +5936,9 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             report_dir / "biological_volcano.html"
         ).read_text(encoding="utf-8")
         assert "Final protein cards" in (
+            report_dir / "biological_report.html"
+        ).read_text(encoding="utf-8")
+        assert "Experiment confidence" in (
             report_dir / "biological_report.html"
         ).read_text(encoding="utf-8")
         assert "Biological result report" in (
