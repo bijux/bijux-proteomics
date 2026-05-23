@@ -213,6 +213,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
         required_modules=(
             "targeted/assay_qc.py",
             "ptm/contracts.py",
+            "ptm/peptide_parser.py",
             "ptm/review.py",
             "dia/contracts.py",
             "dia/library_coverage.py",
