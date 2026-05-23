@@ -12,11 +12,11 @@ import io
 from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
-    FdrEvidenceLevel,
     PsmRecord,
     TargetDecoyLabel,
-    calculate_level_specific_fdr,
-    rollup_peptide_evidence,
+)
+from bijux_proteomics.identification.peptide_target_decoy_fdr import (
+    build_peptide_target_decoy_fdr_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -101,20 +101,14 @@ def build_peptide_evidence_review_report(
     if strong_q_value < 0.0:
         raise ValueError("strong_q_value must be non-negative")
 
-    peptide_rollups = rollup_peptide_evidence(records)
-    peptide_fdr_entries = {
-        entry.entity_id: entry
-        for entry in calculate_level_specific_fdr(
-            records,
-            threshold=threshold,
-            score_orientation=score_orientation,
-        ).peptide_entries
-        if entry.evidence_level is FdrEvidenceLevel.PEPTIDE
-    }
-
     entries: list[PeptideEvidenceReviewEntry] = []
-    for rollup in peptide_rollups:
-        evidence = peptide_fdr_entries[rollup.canonical_peptide]
+    for evidence in build_peptide_target_decoy_fdr_report(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        evidence_policy="best_score",
+    ).entries:
+        rollup = evidence.evidence
         contaminant_flag = any(
             protein_ref.startswith("CON__") for protein_ref in rollup.protein_refs
         )

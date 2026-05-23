@@ -59,3 +59,23 @@ def test_peptide_evidence_review_reports_primary_classes_and_tags() -> None:
         in entries_tsv
     )
     assert "CONTAMK\tCONTAMK\tcontaminant\tunique;contaminant" in entries_tsv
+
+
+def test_peptide_evidence_review_keeps_duplicate_psm_support_on_one_peptide_row() -> (
+    None
+):
+    report = parse_psm_tsv(
+        _psm_fixture("duplicate_spectrum_results.tsv"), mapping=_default_mapping()
+    )
+
+    review = build_peptide_evidence_review_report(
+        report.accepted_records,
+        threshold=0.05,
+    )
+
+    assert review.summary.total_peptides == 2
+    peptide_entry = next(
+        entry for entry in review.entries if entry.canonical_peptide == "PEPTIDER"
+    )
+    assert peptide_entry.psm_count == 2
+    assert peptide_entry.spectrum_count == 2
