@@ -6989,6 +6989,8 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
                 "protein_lfq.pairwise.tsv",
                 "--missingness-tsv-out",
                 "protein_lfq.missingness.tsv",
+                "--disconnected-components-tsv-out",
+                "protein_lfq.disconnected.tsv",
             ],
         )
 
@@ -7004,6 +7006,7 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
         assert Path("protein_lfq.matrix.tsv").exists()
         assert Path("protein_lfq.pairwise.tsv").exists()
         assert Path("protein_lfq.missingness.tsv").exists()
+        assert Path("protein_lfq.disconnected.tsv").exists()
         assert "feature\tmodified_peptide\tprotein\tfalse\tsum\tfalse\t2" in Path(
             "protein_lfq.summary.tsv"
         ).read_text(encoding="utf-8")
@@ -7014,6 +7017,22 @@ def test_protein_lfq_command_emits_feature_backed_matrix_and_pairwise_ledgers() 
         assert "P1\tprotein\tS1\tS2\t2\t1\t2\tPEPAAK;PEPVVK" in Path(
             "protein_lfq.pairwise.tsv"
         ).read_text(encoding="utf-8")
+        disconnected_tsv = Path("protein_lfq.disconnected.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert (
+            "P2\tprotein\tP2\t1\tS1\tS2;S3\t1\t0\tDISCAAK" in disconnected_tsv
+        )
+        assert (
+            "P2\tprotein\tP2\t2\tS2\tS1;S3\t1\t0\tDISCAAK" in disconnected_tsv
+        )
+        assert (
+            "P2\tprotein\tP2\t3\tS3\tS1;S2\t1\t0\tDISCVVK" in disconnected_tsv
+        )
+        assert (
+            payload["outputs"]["disconnected_components_tsv"]
+            == "protein_lfq.disconnected.tsv"
+        )
 
 
 def test_protein_lfq_command_emits_psm_backed_group_rollup_and_skipped_rows() -> None:
