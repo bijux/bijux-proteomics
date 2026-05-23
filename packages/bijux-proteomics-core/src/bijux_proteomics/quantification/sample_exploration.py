@@ -99,6 +99,33 @@ class SampleDistanceReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class SampleCorrelationEntry(JsonModel):
+    """One pairwise sample correlation across the filled feature matrix."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id_a: str = Field(..., min_length=1)
+    sample_id_b: str = Field(..., min_length=1)
+    condition_a: str = Field(..., min_length=1)
+    condition_b: str = Field(..., min_length=1)
+    batch_a: str | None = None
+    batch_b: str | None = None
+    pearson_correlation: float = Field(..., ge=-1.0, le=1.0)
+    same_condition: bool
+    same_batch: bool
+
+
+class SampleCorrelationReport(JsonModel):
+    """Pairwise sample-correlation report over one quantification table."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    sample_count: int = Field(..., ge=0)
+    entries: tuple[SampleCorrelationEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class SampleClusterEntry(JsonModel):
     """One average-linkage merge row in a deterministic sample cluster table."""
 
@@ -125,6 +152,29 @@ class SampleClusterReport(JsonModel):
     note: str = Field(..., min_length=1)
 
 
+class SampleOutlierEntry(JsonModel):
+    """One outlier sample with the metric labels that triggered it."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sample_id: str = Field(..., min_length=1)
+    condition: str = Field(..., min_length=1)
+    batch: str | None = None
+    outlier_reasons: tuple[str, ...] = Field(default_factory=tuple)
+    distance_from_global_centroid: float = Field(..., ge=0.0)
+    distance_from_condition_centroid: float = Field(..., ge=0.0)
+
+
+class SampleOutlierReport(JsonModel):
+    """Explicit outlier ledger over the sample exploration space."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    entity_level: QuantEntityLevel
+    entries: tuple[SampleOutlierEntry, ...] = Field(default_factory=tuple)
+    note: str = Field(..., min_length=1)
+
+
 class SampleExplorationSummary(JsonModel):
     """Compact study-space summary for one sample exploration run."""
 
@@ -136,6 +186,7 @@ class SampleExplorationSummary(JsonModel):
     normalization_method: str = Field(..., min_length=1)
     sample_count: int = Field(..., ge=0)
     feature_count: int = Field(..., ge=0)
+    pairwise_correlation_count: int = Field(..., ge=0)
     pairwise_distance_count: int = Field(..., ge=0)
     cluster_merge_count: int = Field(..., ge=0)
     outlier_sample_count: int = Field(..., ge=0)
@@ -151,8 +202,10 @@ class SampleExplorationReport(JsonModel):
     sample_pca_report: SamplePcaReport
     explained_variance_report: SamplePcaVarianceReport
     condition_clustering_report: ConditionClusteringReport
+    sample_correlation_report: SampleCorrelationReport
     sample_distance_report: SampleDistanceReport
     sample_cluster_report: SampleClusterReport
+    sample_outlier_report: SampleOutlierReport
     note: str = Field(..., min_length=1)
 
 
@@ -173,14 +226,17 @@ def build_sample_pca_report(
                 SamplePcaEntry(
                     sample_id=sample_id,
                     condition=decomposition.condition_by_sample.get(sample_id, "unknown"),
-                    batch=decomposition.batch_by_sample.get(sample_id),
-                    pc1=0.0,
-                    pc2=0.0,
-                    distance_from_global_centroid=0.0,
-                    distance_from_condition_centroid=0.0,
-                    outlier=False,
-                )
-                for sample_id in decomposition.sample_ids
+                batch=decomposition.batch_by_sample.get(sample_id),
+                pc1=0.0,
+                pc2=0.0,
+                distance_from_global_centroid=0.0,
+                distance_from_condition_centroid=0.0,
+                global_centroid_outlier=False,
+                condition_centroid_outlier=False,
+                outlier_reasons=(),
+                outlier=False,
+            )
+            for sample_id in decomposition.sample_ids
             ),
             note=(
                 "pca was not informative because fewer than two samples or features were available"
@@ -230,10 +286,19 @@ def build_sample_pca_report(
     for index, sample_id in enumerate(decomposition.sample_ids):
         condition = decomposition.condition_by_sample.get(sample_id, "unknown")
         condition_distance = condition_distances_by_sample.get(sample_id, 0.0)
-        outlier = (
-            float(global_distances[index]) > global_threshold
-            or condition_distance > condition_thresholds.get(condition, 0.0)
+        global_outlier = float(global_distances[index]) > global_threshold
+        condition_outlier = (
+            condition_distance > condition_thresholds.get(condition, 0.0)
         )
+        outlier_reasons = tuple(
+            reason
+            for reason, triggered in (
+                ("distance_from_global_centroid", global_outlier),
+                ("distance_from_condition_centroid", condition_outlier),
+            )
+            if triggered
+        )
+        outlier = bool(outlier_reasons)
         entries.append(
             SamplePcaEntry(
                 sample_id=sample_id,
@@ -243,6 +308,9 @@ def build_sample_pca_report(
                 pc2=float(pc2[index]),
                 distance_from_global_centroid=float(global_distances[index]),
                 distance_from_condition_centroid=condition_distance,
+                global_centroid_outlier=global_outlier,
+                condition_centroid_outlier=condition_outlier,
+                outlier_reasons=outlier_reasons,
                 outlier=outlier,
             )
         )
@@ -436,6 +504,63 @@ def build_sample_distance_report(
     )
 
 
+def build_sample_correlation_report(
+    table: LabelFreeQuantTable | CanonicalQuantMatrix,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> SampleCorrelationReport:
+    """Compute pairwise sample correlations across the filled feature matrix."""
+
+    table = coerce_label_free_quant_table(table)
+    decomposition = _build_sample_space_decomposition(table, design_entries)
+    entries: list[SampleCorrelationEntry] = []
+    for left_index in range(len(decomposition.sample_ids)):
+        for right_index in range(left_index + 1, len(decomposition.sample_ids)):
+            left_sample_id = decomposition.sample_ids[left_index]
+            right_sample_id = decomposition.sample_ids[right_index]
+            correlation = _safe_sample_correlation(
+                decomposition.matrix[left_index, :],
+                decomposition.matrix[right_index, :],
+            )
+            entries.append(
+                SampleCorrelationEntry(
+                    sample_id_a=left_sample_id,
+                    sample_id_b=right_sample_id,
+                    condition_a=decomposition.condition_by_sample.get(
+                        left_sample_id, "unknown"
+                    ),
+                    condition_b=decomposition.condition_by_sample.get(
+                        right_sample_id, "unknown"
+                    ),
+                    batch_a=decomposition.batch_by_sample.get(left_sample_id),
+                    batch_b=decomposition.batch_by_sample.get(right_sample_id),
+                    pearson_correlation=correlation,
+                    same_condition=(
+                        decomposition.condition_by_sample.get(left_sample_id, "unknown")
+                        == decomposition.condition_by_sample.get(
+                            right_sample_id, "unknown"
+                        )
+                    ),
+                    same_batch=decomposition.batch_by_sample.get(left_sample_id)
+                    == decomposition.batch_by_sample.get(right_sample_id),
+                )
+            )
+    entries.sort(
+        key=lambda entry: (
+            -entry.pearson_correlation,
+            entry.sample_id_a,
+            entry.sample_id_b,
+        )
+    )
+    return SampleCorrelationReport(
+        entity_level=table.entity_level,
+        sample_count=len(decomposition.sample_ids),
+        entries=tuple(entries),
+        note=(
+            "sample correlations preserve pairwise pearson agreement across the filled study feature matrix"
+        ),
+    )
+
+
 def build_sample_cluster_report(
     table: LabelFreeQuantTable | CanonicalQuantMatrix,
     design_entries: tuple[ExperimentalDesignEntry, ...],
@@ -578,8 +703,30 @@ def build_sample_exploration_report(
         table,
         design_entries,
     )
+    correlation_report = build_sample_correlation_report(table, design_entries)
     distance_report = build_sample_distance_report(table, design_entries)
     cluster_report = build_sample_cluster_report(table, design_entries)
+    outlier_entries = tuple(
+        SampleOutlierEntry(
+            sample_id=entry.sample_id,
+            condition=entry.condition,
+            batch=entry.batch,
+            outlier_reasons=entry.outlier_reasons,
+            distance_from_global_centroid=entry.distance_from_global_centroid,
+            distance_from_condition_centroid=entry.distance_from_condition_centroid,
+        )
+        for entry in pca_report.entries
+        if entry.outlier
+    )
+    outlier_report = SampleOutlierReport(
+        entity_level=table.entity_level,
+        entries=outlier_entries,
+        note=(
+            "outlier labels preserve the distance metric that triggered each sample-level exploratory flag"
+            if outlier_entries
+            else "sample exploration did not detect outliers under the current distance metrics"
+        ),
+    )
     return SampleExplorationReport(
         summary=SampleExplorationSummary(
             entity_level=table.entity_level,
@@ -588,6 +735,7 @@ def build_sample_exploration_report(
             normalization_method=table.normalization_method.value,
             sample_count=len(decomposition.sample_ids),
             feature_count=decomposition.feature_count,
+            pairwise_correlation_count=len(correlation_report.entries),
             pairwise_distance_count=len(distance_report.entries),
             cluster_merge_count=len(cluster_report.entries),
             outlier_sample_count=sum(entry.outlier for entry in pca_report.entries),
@@ -596,10 +744,12 @@ def build_sample_exploration_report(
         sample_pca_report=pca_report,
         explained_variance_report=variance_report,
         condition_clustering_report=condition_clustering_report,
+        sample_correlation_report=correlation_report,
         sample_distance_report=distance_report,
         sample_cluster_report=cluster_report,
+        sample_outlier_report=outlier_report,
         note=(
-            "sample exploration assembles pca, explained variance, pairwise distances, and average-linkage cluster review over one governed quantification table"
+            "sample exploration assembles pca, explained variance, pairwise correlations, pairwise distances, average-linkage clustering, and metric-labeled outlier review over one governed quantification table"
         ),
     )
 
@@ -617,6 +767,7 @@ def render_sample_exploration_summary_tsv(report: SampleExplorationReport) -> st
             "normalization_method",
             "sample_count",
             "feature_count",
+            "pairwise_correlation_count",
             "pairwise_distance_count",
             "cluster_merge_count",
             "outlier_sample_count",
@@ -631,6 +782,7 @@ def render_sample_exploration_summary_tsv(report: SampleExplorationReport) -> st
             report.summary.normalization_method,
             report.summary.sample_count,
             report.summary.feature_count,
+            report.summary.pairwise_correlation_count,
             report.summary.pairwise_distance_count,
             report.summary.cluster_merge_count,
             report.summary.outlier_sample_count,
@@ -654,6 +806,9 @@ def render_sample_pca_scores_tsv(report: SampleExplorationReport) -> str:
             "pc2",
             "distance_from_global_centroid",
             "distance_from_condition_centroid",
+            "global_centroid_outlier",
+            "condition_centroid_outlier",
+            "outlier_reasons",
             "outlier",
         )
     )
@@ -667,7 +822,49 @@ def render_sample_pca_scores_tsv(report: SampleExplorationReport) -> str:
                 f"{entry.pc2:g}",
                 f"{entry.distance_from_global_centroid:g}",
                 f"{entry.distance_from_condition_centroid:g}",
+                str(entry.global_centroid_outlier).lower(),
+                str(entry.condition_centroid_outlier).lower(),
+                ";".join(sort_strings(entry.outlier_reasons)),
                 str(entry.outlier).lower(),
+            )
+        )
+    return handle.getvalue()
+
+
+def render_sample_correlation_tsv(report: SampleExplorationReport) -> str:
+    """Render pairwise sample correlations as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id_a",
+            "sample_id_b",
+            "condition_a",
+            "condition_b",
+            "batch_a",
+            "batch_b",
+            "pearson_correlation",
+            "same_condition",
+            "same_batch",
+        )
+    )
+    for entry in sort_rows_by_fields(
+        report.sample_correlation_report.entries,
+        "sample_id_a",
+        "sample_id_b",
+    ):
+        writer.writerow(
+            (
+                entry.sample_id_a,
+                entry.sample_id_b,
+                entry.condition_a,
+                entry.condition_b,
+                entry.batch_a or "",
+                entry.batch_b or "",
+                f"{entry.pearson_correlation:g}",
+                str(entry.same_condition).lower(),
+                str(entry.same_batch).lower(),
             )
         )
     return handle.getvalue()
@@ -740,6 +937,38 @@ def render_sample_distance_tsv(report: SampleExplorationReport) -> str:
     return handle.getvalue()
 
 
+def render_sample_outlier_tsv(report: SampleExplorationReport) -> str:
+    """Render metric-labeled outlier rows as TSV."""
+
+    handle = StringIO()
+    writer = csv.writer(handle, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "sample_id",
+            "condition",
+            "batch",
+            "outlier_reasons",
+            "distance_from_global_centroid",
+            "distance_from_condition_centroid",
+        )
+    )
+    for entry in sort_rows_by_fields(
+        report.sample_outlier_report.entries,
+        "sample_id",
+    ):
+        writer.writerow(
+            (
+                entry.sample_id,
+                entry.condition,
+                entry.batch or "",
+                ";".join(sort_strings(entry.outlier_reasons)),
+                f"{entry.distance_from_global_centroid:g}",
+                f"{entry.distance_from_condition_centroid:g}",
+            )
+        )
+    return handle.getvalue()
+
+
 def render_sample_cluster_tsv(report: SampleExplorationReport) -> str:
     """Render the deterministic average-linkage cluster table as TSV."""
 
@@ -787,6 +1016,12 @@ def export_sample_pca_scores_tsv(report: SampleExplorationReport, path: Path) ->
     path.write_text(render_sample_pca_scores_tsv(report), encoding="utf-8")
 
 
+def export_sample_correlation_tsv(report: SampleExplorationReport, path: Path) -> None:
+    """Write pairwise sample correlations to a stable TSV artifact."""
+
+    path.write_text(render_sample_correlation_tsv(report), encoding="utf-8")
+
+
 def export_sample_pca_variance_tsv(
     report: SampleExplorationReport, path: Path
 ) -> None:
@@ -799,6 +1034,12 @@ def export_sample_distance_tsv(report: SampleExplorationReport, path: Path) -> N
     """Write pairwise sample distances to a stable TSV artifact."""
 
     path.write_text(render_sample_distance_tsv(report), encoding="utf-8")
+
+
+def export_sample_outlier_tsv(report: SampleExplorationReport, path: Path) -> None:
+    """Write metric-labeled sample outliers to a stable TSV artifact."""
+
+    path.write_text(render_sample_outlier_tsv(report), encoding="utf-8")
 
 
 def export_sample_cluster_tsv(report: SampleExplorationReport, path: Path) -> None:
@@ -890,6 +1131,17 @@ def _pairwise_distance_matrix(matrix: np.ndarray) -> np.ndarray:
     return distances
 
 
+def _safe_sample_correlation(left: np.ndarray, right: np.ndarray) -> float:
+    left_std = float(np.std(left))
+    right_std = float(np.std(right))
+    if left_std <= 0.0 or right_std <= 0.0:
+        return 1.0 if np.allclose(left, right) else 0.0
+    correlation = float(np.corrcoef(left, right)[0, 1])
+    if not math.isfinite(correlation):
+        return 0.0
+    return max(-1.0, min(1.0, correlation))
+
+
 def _average_linkage_distance(
     distance_matrix: np.ndarray,
     left_indexes: Sequence[int],
@@ -911,16 +1163,21 @@ __all__ = [
     "ConditionClusteringReport",
     "SampleClusterEntry",
     "SampleClusterReport",
+    "SampleCorrelationEntry",
+    "SampleCorrelationReport",
     "SampleDistanceEntry",
     "SampleDistanceReport",
     "SampleExplorationReport",
     "SampleExplorationSummary",
+    "SampleOutlierEntry",
+    "SampleOutlierReport",
     "SamplePcaEntry",
     "SamplePcaReport",
     "SamplePcaVarianceEntry",
     "SamplePcaVarianceReport",
     "build_condition_clustering_report",
     "build_sample_cluster_report",
+    "build_sample_correlation_report",
     "build_sample_distance_report",
     "build_sample_exploration_report",
     "build_sample_feature_matrix",
@@ -928,13 +1185,17 @@ __all__ = [
     "build_sample_pca_variance_report",
     "distance_outlier_threshold",
     "export_sample_cluster_tsv",
+    "export_sample_correlation_tsv",
     "export_sample_distance_tsv",
     "export_sample_exploration_summary_tsv",
+    "export_sample_outlier_tsv",
     "export_sample_pca_scores_tsv",
     "export_sample_pca_variance_tsv",
     "render_sample_cluster_tsv",
+    "render_sample_correlation_tsv",
     "render_sample_distance_tsv",
     "render_sample_exploration_summary_tsv",
+    "render_sample_outlier_tsv",
     "render_sample_pca_scores_tsv",
     "render_sample_pca_variance_tsv",
 ]

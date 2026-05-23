@@ -607,6 +607,9 @@ class SamplePcaEntry(JsonModel):
     pc2: float
     distance_from_global_centroid: float = Field(..., ge=0.0)
     distance_from_condition_centroid: float = Field(..., ge=0.0)
+    global_centroid_outlier: bool = False
+    condition_centroid_outlier: bool = False
+    outlier_reasons: tuple[str, ...] = Field(default_factory=tuple)
     outlier: bool
 
 
