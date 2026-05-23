@@ -153,6 +153,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/contaminant_evidence.py",
             "identification/diann_import.py",
             "identification/error_rate_annotation.py",
+            "identification/cross_run_reproducibility.py",
             "identification/picked_protein_fdr.py",
             "identification/peptide_evidence.py",
             "identification/peptide_target_decoy_fdr.py",
