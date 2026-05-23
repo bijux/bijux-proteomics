@@ -7,6 +7,7 @@ from pathlib import Path
 
 from bijux_proteomics.io.formats import parse_experimental_design_table
 from bijux_proteomics.ptm import (
+    build_ptm_protein_site_mapping_report,
     PtmCoordinateValidationIssue,
     PtmCoordinateValidationReport,
     PtmProteinCorrectionMode,
@@ -34,6 +35,7 @@ from bijux_proteomics.ptm import (
     render_ptm_site_quant_matrix_tsv,
     render_ptm_site_quant_missingness_tsv,
     render_ptm_site_table_tsv,
+    render_ptm_unmapped_peptide_tsv,
     render_ptm_unlocalized_group_review_tsv,
 )
 from bijux_proteomics.quantification import NormalizationMethod, parse_ms1_feature_table
@@ -229,6 +231,34 @@ def test_ptm_mapping_and_review_renderers_are_deterministic_under_equivalent_tup
     assert render_ptm_coordinate_validation_tsv(
         validation
     ) == render_ptm_coordinate_validation_tsv(reordered_validation)
+
+
+def test_ptm_unmapped_renderer_is_deterministic_under_equivalent_tuple_order(
+    tmp_path: Path,
+) -> None:
+    evidence_path = tmp_path / "unmapped.tsv"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "sample_id\tspectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins\tlocalization_score\tcandidate_sites\tdecoy_label",
+                "C1\tscan=unmapped-1\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP40404\t0.990\t1\ttarget",
+                "C1\tscan=unmapped-2\tT[Phospho]IDE\t2\t90.0\t0.020\tP50505\t0.700\t1\ttarget",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    evidence = parse_ptm_localization_tsv(evidence_path)
+    report = build_ptm_protein_site_mapping_report(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    reordered = tuple(reversed(report.unmapped_peptides))
+
+    assert render_ptm_unmapped_peptide_tsv(
+        report.unmapped_peptides
+    ) == render_ptm_unmapped_peptide_tsv(reordered)
 
 
 def test_ptm_ambiguity_and_differential_renderers_are_deterministic_under_equivalent_tuple_order() -> (

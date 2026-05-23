@@ -6,11 +6,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from bijux_proteomics.ptm import (
+    build_ptm_protein_site_mapping_report,
     build_ptm_site_table,
-    map_ptm_evidence_to_protein_sites,
     parse_ptm_localization_tsv,
     render_ptm_protein_site_mapping_tsv,
     render_ptm_site_table_tsv,
+    render_ptm_unmapped_peptide_tsv,
 )
 from bijux_proteomics.sequences import FastaParseMode, parse_fasta_document
 
@@ -36,10 +37,11 @@ def _protein_sequences() -> dict[str, str]:
 
 def test_ptm_protein_site_renderers_preserve_mapping_and_site_ledgers() -> None:
     evidence = parse_ptm_localization_tsv(_ptm_fixture("localization_results.tsv"))
-    mappings = map_ptm_evidence_to_protein_sites(
+    mapping_report = build_ptm_protein_site_mapping_report(
         evidence.accepted_records,
         protein_sequences=_protein_sequences(),
     )
+    mappings = mapping_report.mappings
     site_table = build_ptm_site_table(mappings)
 
     mapping_lines = render_ptm_protein_site_mapping_tsv(mappings).splitlines()
@@ -61,4 +63,37 @@ def test_ptm_protein_site_renderers_preserve_mapping_and_site_ledgers() -> None:
             "P11111:S5:Phospho\tP11111\tS\t5\tPhospho\t0.996\t0.003\t4\t1\tC1;C2;T1;T2\t5\tfalse\tfalse\ttarget\tptm-localization\t"
         )
         for line in site_lines
+    )
+    assert mapping_report.unmapped_peptides == ()
+
+
+def test_ptm_unmapped_peptide_renderer_preserves_reason_ledgers(tmp_path: Path) -> None:
+    evidence_path = tmp_path / "unmapped.tsv"
+    evidence_path.write_text(
+        "\n".join(
+            (
+                "sample_id\tspectrum_id\tpeptide\tcharge\tscore\tq_value\tproteins\tlocalization_score\tcandidate_sites\tdecoy_label",
+                "C1\tscan=unmapped\tS[Phospho]PEPTIDEK\t2\t110.0\t0.005\tP40404\t0.990\t1\ttarget",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    evidence = parse_ptm_localization_tsv(evidence_path)
+    mapping_report = build_ptm_protein_site_mapping_report(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+
+    lines = render_ptm_unmapped_peptide_tsv(mapping_report.unmapped_peptides).splitlines()
+
+    assert lines[0].startswith(
+        "spectrum_id\tsample_id\tlocalized_peptide\tcanonical_peptide\tprotein_refs"
+    )
+    assert any(
+        line.startswith(
+            "scan=unmapped\tC1\tS[Phospho]PEPTIDEK\tS[Phospho]PEPTIDEK\tP40404\tPhospho\tS\t1\t1\tmissing_protein_sequence"
+        )
+        for line in lines
     )
