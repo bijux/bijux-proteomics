@@ -7841,11 +7841,24 @@ def quantify_command(
                 entry.pair_id not in (None, "") for entry in design_entries
             ):
                 effective_pairing_field = "pair_id"
+            effective_covariates = tuple(dict.fromkeys(design_covariates))
+            effective_timepoint_field = None
+            if "timepoint" in effective_covariates:
+                effective_timepoint_field = "timepoint"
+                effective_covariates = tuple(
+                    field for field in effective_covariates if field != "timepoint"
+                )
+            elif all(
+                entry.metadata.get("timepoint") not in (None, "")
+                for entry in design_entries
+            ):
+                effective_timepoint_field = "timepoint"
             design_matrix = build_quant_design_matrix_report(
                 design_entries,
                 batch_field=design_batch_field,
-                covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                covariate_fields=effective_covariates,
                 pairing_field=effective_pairing_field,
+                timepoint_field=effective_timepoint_field,
             )
             design_model_fit = fit_quant_design_matrix_model(
                 table,
@@ -7856,8 +7869,9 @@ def quantify_command(
                     table,
                     design_entries,
                     batch_field=design_batch_field,
-                    covariate_fields=tuple(dict.fromkeys(design_covariates)),
+                    covariate_fields=effective_covariates,
                     pairing_field=effective_pairing_field,
+                    timepoint_field=effective_timepoint_field,
                 )
                 msstats_input_report = build_msstats_compatible_input_report(
                     parse_report.accepted_records,

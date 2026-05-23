@@ -6534,6 +6534,49 @@ def test_quantify_command_reports_group_aware_imputation_provenance() -> None:
         )
 
 
+def test_quantify_command_blocks_confounded_design_matrices() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "ms1_features.tsv")
+        Path("confounded.design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\tinstrument\tsearch_engine\tpair_id\ttimepoint\tage_years",
+                    "C1\tcontrol\t1\t1\tc1.mzml\tc1.tsv\tbatch-a\torbitrap-a\tsage\tpair-a\tt0\t40",
+                    "C2\tcontrol\t2\t1\tc2.mzml\tc2.tsv\tbatch-a\torbitrap-a\tsage\tpair-a\tt0\t40",
+                    "T1\ttreatment\t1\t1\tt1.mzml\tt1.tsv\tbatch-b\torbitrap-b\tsage\tpair-b\tt1\t60",
+                    "T2\ttreatment\t2\t1\tt2.mzml\tt2.tsv\tbatch-b\torbitrap-b\tsage\tpair-b\tt1\t60",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "ms1_features.tsv",
+                "--design",
+                "confounded.design.tsv",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--design-pairing-field",
+                "pair_id",
+                "--design-covariate",
+                "timepoint",
+                "--design-covariate",
+                "age_years",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "design matrix is confounded or rank-deficient" in result.output
+
+
 def test_heatmap_matrix_command_emits_normalized_matrix_payload() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
