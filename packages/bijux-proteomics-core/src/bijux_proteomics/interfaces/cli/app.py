@@ -476,6 +476,7 @@ from bijux_proteomics.targeted import (
     render_targeted_result_observation_tsv,
 )
 from bijux_proteomics.ptm import (
+    PtmEvidenceCardPolicy,
     PtmLocalizationColumnMapping,
     PtmMotifComparisonPolicy,
     PtmMotifBackgroundMode,
@@ -18263,6 +18264,18 @@ def ptm_regulator_enrichment_command(
     type=int,
 )
 @click.option(
+    "--annotation-tsv",
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    default=None,
+)
+@click.option("--species", "target_species", default=None)
+@click.option(
+    "--card-max-adjusted-p-value",
+    default=0.1,
+    show_default=True,
+    type=float,
+)
+@click.option(
     "--output-dir",
     type=click.Path(path_type=Path, file_okay=False),
     required=True,
@@ -18306,6 +18319,9 @@ def ptm_report_command(
     min_frequency_difference: float,
     min_enrichment_ratio: float,
     max_reported_term_count: int,
+    annotation_tsv: Path | None,
+    target_species: str | None,
+    card_max_adjusted_p_value: float,
     output_dir: Path,
     out_path: Path | None,
 ) -> None:
@@ -18354,6 +18370,15 @@ def ptm_report_command(
                 min_frequency_difference=min_frequency_difference,
                 min_enrichment_ratio=min_enrichment_ratio,
                 max_reported_term_count=max_reported_term_count,
+            ),
+            annotation_tsv_path=annotation_tsv,
+            annotation_target_species=target_species,
+            regulator_enrichment_policy=PtmRegulatorEnrichmentPolicy(
+                max_adjusted_p_value=max_adjusted_p_value,
+                min_absolute_log2_fold_change=min_absolute_log2_fold_change,
+            ),
+            evidence_card_policy=PtmEvidenceCardPolicy(
+                max_adjusted_p_value=card_max_adjusted_p_value
             ),
         )
         workflow_manifest = export_ptm_site_workflow_bundle(workflow_report, output_dir)

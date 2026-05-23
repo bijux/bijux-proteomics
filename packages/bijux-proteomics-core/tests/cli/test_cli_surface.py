@@ -8871,6 +8871,10 @@ def test_ptm_report_command_emits_full_report_bundle() -> None:
         )
         shutil.copy(ptm_fixture_dir / "ptm_features.tsv", "ptm_features.tsv")
         shutil.copy(ptm_fixture_dir / "ptm.design.tsv", "ptm.design.tsv")
+        shutil.copy(
+            ptm_fixture_dir / "ptm_site_annotations.tsv",
+            "ptm_site_annotations.tsv",
+        )
         shutil.copy(fasta_fixture_dir / "ptm_sites.fasta", "ptm_sites.fasta")
         Path("fragment_support.json").write_text(
             json.dumps(
@@ -8893,8 +8897,20 @@ def test_ptm_report_command_emits_full_report_bundle() -> None:
                 "ptm.design.tsv",
                 "--fragment-support-json",
                 "fragment_support.json",
+                "--annotation-tsv",
+                "ptm_site_annotations.tsv",
+                "--species",
+                "Homo sapiens",
                 "--protein-correction-mode",
                 "subtract_unmodified_protein",
+                "--design-batch-field",
+                "",
+                "--max-adjusted-p-value",
+                "1.0",
+                "--min-absolute-log2-fold-change",
+                "0.0",
+                "--card-max-adjusted-p-value",
+                "1.0",
                 "--output-dir",
                 "ptm_report",
             ],
@@ -8905,14 +8921,20 @@ def test_ptm_report_command_emits_full_report_bundle() -> None:
         assert payload["accepted_rows"] == 8
         assert payload["feature_rows"] == 12
         assert payload["design_rows"] == 4
-        assert payload["report"]["summary"]["quantified_site_row_count"] == 5
-        assert payload["report"]["summary"]["differential_site_count"] == 5
+        assert payload["report"]["summary"]["quantified_site_row_count"] == 3
+        assert payload["report"]["summary"]["differential_site_count"] == 3
+        assert payload["report"]["summary"]["evidence_card_count"] == 3
+        assert payload["report"]["summary"]["narrative_claim_count"] == 3
         assert payload["export_manifest"]["motif_summary_included"] is True
         report_dir = Path("ptm_report")
         assert (report_dir / "ptm_site_workflow_manifest.json").exists()
         assert (report_dir / "ptm_report_manifest.json").exists()
         assert (report_dir / "ptm_site_workflow_summary.tsv").exists()
         assert (report_dir / "ptm_site_workflow_accepted_evidence.tsv").exists()
+        assert (report_dir / "ptm_evidence_cards.tsv").exists()
+        assert (report_dir / "ptm_evidence_claims.tsv").exists()
+        assert "card_id" in (report_dir / "ptm_evidence_cards.tsv").read_text()
+        assert "card_id" in (report_dir / "ptm_evidence_claims.tsv").read_text()
         assert (report_dir / "ptm_site_workflow_rejected_evidence.tsv").exists()
         assert (report_dir / "ptm_peptides.tsv").exists()
         assert (report_dir / "ptm_sites.tsv").exists()
