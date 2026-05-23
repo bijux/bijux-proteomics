@@ -86,6 +86,7 @@ class SearchResultColumnMapping(JsonModel):
     intensity: str | None = None
     protein_refs: str | None = None
     q_value: str | None = None
+    posterior_error_probability: str | None = None
     decoy_label: str | None = None
     contaminant_label: str | None = None
     protein_separator: str = ";"
@@ -143,6 +144,9 @@ class PsmRecord(JsonModel):
     score: float
     intensity: float | None = Field(default=None, ge=0.0)
     q_value: float | None = Field(default=None, ge=0.0)
+    posterior_error_probability: float | None = Field(default=None, ge=0.0, le=1.0)
+    local_fdr: float | None = Field(default=None, ge=0.0, le=1.0)
+    error_rate_provenance: str | None = Field(default=None, min_length=1)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     target_decoy_label: TargetDecoyLabel = TargetDecoyLabel.UNKNOWN
     contaminant_flag: bool = False
@@ -244,6 +248,25 @@ class PsmRecord(JsonModel):
             contaminant_flag=self.contaminant_flag,
             metadata={
                 "source_contract": "identification.psm_record",
+                **(
+                    {
+                        "posterior_error_probability": str(
+                            self.posterior_error_probability
+                        )
+                    }
+                    if self.posterior_error_probability is not None
+                    else {}
+                ),
+                **(
+                    {"local_fdr": str(self.local_fdr)}
+                    if self.local_fdr is not None
+                    else {}
+                ),
+                **(
+                    {"error_rate_provenance": self.error_rate_provenance}
+                    if self.error_rate_provenance is not None
+                    else {}
+                ),
                 **(
                     self.provenance.to_metadata_fields()
                     if self.provenance is not None
@@ -1767,6 +1790,23 @@ def _parse_psm_row(
                     _row_issue("invalid_q_value", "invalid q-value", row_number)
                 )
 
+    posterior_error_probability: float | None = None
+    if mapping.posterior_error_probability:
+        pep_token = row.get(mapping.posterior_error_probability, "").strip()
+        if pep_token:
+            try:
+                posterior_error_probability = float(pep_token)
+                if posterior_error_probability < 0 or posterior_error_probability > 1:
+                    raise ValueError
+            except ValueError:
+                issues.append(
+                    _row_issue(
+                        "invalid_posterior_error_probability",
+                        "invalid posterior error probability",
+                        row_number,
+                    )
+                )
+
     protein_refs = _parse_protein_refs(
         row.get(mapping.protein_refs) if mapping.protein_refs else None,
         mapping.protein_separator,
@@ -1830,6 +1870,7 @@ def _parse_psm_row(
         score=score,
         intensity=intensity,
         q_value=q_value,
+        posterior_error_probability=posterior_error_probability,
         protein_refs=protein_refs,
         target_decoy_label=classification.target_decoy_label,
         contaminant_flag=classification.contaminant_flag,
@@ -1926,6 +1967,9 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
             "score",
             "intensity",
             "q_value",
+            "posterior_error_probability",
+            "local_fdr",
+            "error_rate_provenance",
             "protein_refs",
             "target_decoy_label",
             "target_decoy_contaminant_class",
@@ -1944,6 +1988,9 @@ def export_psm_tsv(records: tuple[PsmRecord, ...], path: Path) -> None:
                 "score": record.score,
                 "intensity": record.intensity,
                 "q_value": record.q_value,
+                "posterior_error_probability": record.posterior_error_probability,
+                "local_fdr": record.local_fdr,
+                "error_rate_provenance": record.error_rate_provenance,
                 "protein_refs": ";".join(record.protein_refs),
                 "target_decoy_label": record.target_decoy_label.value,
                 "target_decoy_contaminant_class": (

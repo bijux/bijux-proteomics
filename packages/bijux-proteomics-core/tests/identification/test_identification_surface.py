@@ -177,6 +177,41 @@ def test_psm_parser_populates_canonical_schema_fields(tmp_path: Path) -> None:
     )
 
 
+def test_psm_parser_preserves_engine_pep_without_relabeling_it_as_q_value(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "pep_psm.tsv"
+    source.write_text(
+        "\n".join(
+            (
+                "scan_ref\tsequence_text\tz\tstate_score\tpep_value\taccessions",
+                "pep-1001\tPEPTIDE\t2\t55.0\t0.002\tP12345",
+                "pep-1002\tDECOYPEP\t2\t12.0\t0.12\tDECOY_P54321",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    mapping = SearchResultColumnMapping(
+        spectrum_id="scan_ref",
+        peptide="sequence_text",
+        charge="z",
+        score="state_score",
+        posterior_error_probability="pep_value",
+        protein_refs="accessions",
+    )
+
+    report = parse_psm_tsv(source, mapping=mapping)
+
+    assert len(report.accepted_records) == 2
+    first = report.accepted_records[0]
+    assert first.posterior_error_probability == 0.002
+    assert first.q_value is None
+    second = report.accepted_records[1]
+    assert second.posterior_error_probability == 0.12
+    assert second.target_decoy_label is TargetDecoyLabel.DECOY
+
+
 def test_psm_parser_accepts_csv_tables_through_shared_engine(tmp_path: Path) -> None:
     source = tmp_path / "comma_psm.csv"
     source.write_text(

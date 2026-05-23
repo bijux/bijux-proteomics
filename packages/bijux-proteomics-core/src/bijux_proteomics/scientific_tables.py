@@ -242,6 +242,17 @@ def build_psm_table_schema(
             )
         )
         q_value_columns.append("q_value")
+    if _mapping_value(mapping, "posterior_error_probability"):
+        column_specs.append(
+            DelimitedColumnSpec(
+                name="posterior_error_probability",
+                source_columns=(
+                    _mapping_value(mapping, "posterior_error_probability"),
+                ),
+                value_type=DelimitedColumnValueType.FLOAT,
+            )
+        )
+        q_value_columns.append("posterior_error_probability")
     if _mapping_value(mapping, "intensity"):
         column_specs.append(
             DelimitedColumnSpec(
