@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright © 2025 Bijan Mousavi
 
-"""Contaminant-aware audits for protein-inference outputs."""
+"""Compatibility audits over the owned contaminant evidence separation surface."""
 
 from __future__ import annotations
 
@@ -10,6 +10,10 @@ from pydantic import ConfigDict, Field
 from bijux_proteomics.identification.confidence import (
     ProteinInferenceStrategyKind,
     compare_protein_inference_strategies,
+)
+from bijux_proteomics.identification.contaminant_evidence import (
+    ContaminantSeparatedPsmEntry as ContaminantPsmEntry,
+    build_contaminant_evidence_report,
 )
 from bijux_proteomics.identification.contracts import PsmRecord
 from bijux_proteomics_foundation import JsonModel
@@ -37,20 +41,6 @@ class ContaminantAwareProteinInferenceAudit(JsonModel):
     contaminant_protein_count: int = Field(..., ge=0)
     unresolved_contaminant_promotion: bool
     strategy_shifts: tuple[ContaminantStrategyShift, ...] = Field(default_factory=tuple)
-
-
-class ContaminantPsmEntry(JsonModel):
-    """One PSM row carrying contaminant protein evidence."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    spectrum_id: str = Field(..., min_length=1)
-    canonical_peptide: str = Field(..., min_length=1)
-    score: float
-    q_value: float | None = Field(default=None, ge=0.0)
-    contaminant_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
-    target_protein_refs: tuple[str, ...] = Field(default_factory=tuple)
-    mixed_reference: bool
 
 
 class ContaminantPeptideMatchReport(JsonModel):
@@ -171,51 +161,17 @@ def build_contaminant_peptide_match_report(
     contaminant_prefixes: tuple[str, ...] = ("CON__",),
 ) -> ContaminantPeptideMatchReport:
     """Separate contaminant-carrying PSM evidence from target-only matches."""
-
-    entries: list[ContaminantPsmEntry] = []
-    contaminant_protein_counts: dict[str, int] = {}
-    contaminant_peptides: set[str] = set()
-    pure_contaminant_psm_count = 0
-    mixed_reference_psm_count = 0
-
-    for record in records:
-        contaminant_refs = tuple(
-            ref
-            for ref in record.protein_refs
-            if _is_contaminant(ref, contaminant_prefixes)
-        )
-        if not contaminant_refs:
-            continue
-        target_refs = tuple(
-            ref for ref in record.protein_refs if ref not in contaminant_refs
-        )
-        mixed_reference = bool(target_refs)
-        if mixed_reference:
-            mixed_reference_psm_count += 1
-        else:
-            pure_contaminant_psm_count += 1
-        for protein_ref in contaminant_refs:
-            contaminant_protein_counts[protein_ref] = (
-                contaminant_protein_counts.get(protein_ref, 0) + 1
-            )
-        contaminant_peptides.add(record.canonical_peptide)
-        entries.append(
-            ContaminantPsmEntry(
-                spectrum_id=record.spectrum_id,
-                canonical_peptide=record.canonical_peptide,
-                score=record.score,
-                q_value=record.q_value,
-                contaminant_protein_refs=contaminant_refs,
-                target_protein_refs=target_refs,
-                mixed_reference=mixed_reference,
-            )
-        )
-
+    report = build_contaminant_evidence_report(
+        records,
+        contaminant_prefixes=contaminant_prefixes,
+    )
     return ContaminantPeptideMatchReport(
-        contaminant_psm_count=len(entries),
-        pure_contaminant_psm_count=pure_contaminant_psm_count,
-        mixed_reference_psm_count=mixed_reference_psm_count,
-        contaminant_peptide_count=len(contaminant_peptides),
-        contaminant_protein_counts=dict(sorted(contaminant_protein_counts.items())),
-        entries=tuple(entries),
+        contaminant_psm_count=report.summary.contaminant_psm_count,
+        pure_contaminant_psm_count=report.summary.pure_contaminant_psm_count,
+        mixed_reference_psm_count=report.summary.mixed_reference_psm_count,
+        contaminant_peptide_count=report.summary.contaminant_peptide_count,
+        contaminant_protein_counts={
+            entry.protein_ref: entry.psm_count for entry in report.protein_entries
+        },
+        entries=report.psm_entries,
     )
