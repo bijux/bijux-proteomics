@@ -17,15 +17,16 @@ _IO_EXPORT_MODULES = (
     "bijux_proteomics.io.spectra",
     "bijux_proteomics.io.target_panel",
     "bijux_proteomics.io.transition_table",
-    "bijux_proteomics.io.spectral_library",
     "bijux_proteomics.io.chimeric_spectrum",
     "bijux_proteomics.io.chromatographic_evidence",
     "bijux_proteomics.io.dia_fragment_coelution",
     "bijux_proteomics.io.fragment_ratio_stability",
+    "bijux_proteomics.io.precursor_isotope_fit",
     "bijux_proteomics.io.raw_signal_evidence_cards",
     "bijux_proteomics.io.chromatographic_peak_picking",
     "bijux_proteomics.io.retention_time_alignment",
     "bijux_proteomics.io.xic_extraction",
+    "bijux_proteomics.io.spectral_library",
 )
 
 
