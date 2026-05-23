@@ -4210,6 +4210,98 @@ def test_raw_signal_evidence_card_command_emits_structured_card_outputs() -> Non
         ).read_text(encoding="utf-8")
 
 
+def test_precursor_isotope_fit_command_emits_summary_entry_and_peak_outputs() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        format_dir = FIXTURE_ROOT / "formats"
+        shutil.copy(
+            format_dir / "precursor_isotope_fit_reference.mzml",
+            "precursor_isotope_fit_reference.mzml",
+        )
+        shutil.copy(
+            format_dir / "precursor_isotope_fit_shifted.mzml",
+            "precursor_isotope_fit_shifted.mzml",
+        )
+        shutil.copy(
+            format_dir / "precursor_isotope_fit_wrong_charge.mzml",
+            "precursor_isotope_fit_wrong_charge.mzml",
+        )
+        shutil.copy(
+            format_dir / "precursor_isotope_fit_targets.tsv",
+            "precursor_isotope_fit_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "precursor-isotope-fit",
+                "precursor_isotope_fit_targets.tsv",
+                "precursor_isotope_fit_reference.mzml",
+                "precursor_isotope_fit_shifted.mzml",
+                "precursor_isotope_fit_wrong_charge.mzml",
+                "--extraction-tolerance-da",
+                "0.05",
+                "--fit-tolerance-da",
+                "0.05",
+                "--summary-tsv-out",
+                "isotope_fit.summary.tsv",
+                "--entry-tsv-out",
+                "isotope_fit.entries.tsv",
+                "--peak-tsv-out",
+                "isotope_fit.peaks.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        report = payload["report"]
+        assert report["summary"]["run_count"] == 3
+        assert report["summary"]["flagged_entry_count"] == 2
+        assert report["entries"][0]["run_id"] == "precursor_isotope_fit_reference"
+        assert report["entries"][1]["concern_codes"] == ["shifted_monoisotopic_mz"]
+        assert report["entries"][2]["missing_isotope_indices"] == [1]
+        assert payload["outputs"]["summary_tsv"] == "isotope_fit.summary.tsv"
+        assert payload["outputs"]["entry_tsv"] == "isotope_fit.entries.tsv"
+        assert payload["outputs"]["peak_tsv"] == "isotope_fit.peaks.tsv"
+        assert Path("isotope_fit.summary.tsv").exists()
+        assert Path("isotope_fit.entries.tsv").exists()
+        assert Path("isotope_fit.peaks.tsv").exists()
+        assert "3\t3\t2\t0\t1\t0" in Path("isotope_fit.summary.tsv").read_text(
+            encoding="utf-8"
+        )
+        assert (
+            "precursor_isotope_fit_shifted\tprec_peptide_ms1\tprec_peptide\tPEPTIDE\t2\t"
+            "scan=8403\t30.0000"
+            in Path("isotope_fit.entries.tsv").read_text(encoding="utf-8")
+        )
+        assert (
+            "precursor_isotope_fit_wrong_charge\tprec_peptide_ms1\tprec_peptide\tPEPTIDE\t1\t401.188936\t0.267350"
+            in Path("isotope_fit.peaks.tsv").read_text(encoding="utf-8")
+        )
+
+
+def test_precursor_isotope_fit_command_requires_at_least_one_run() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(
+            FIXTURE_ROOT / "formats" / "precursor_isotope_fit_targets.tsv",
+            "precursor_isotope_fit_targets.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "precursor-isotope-fit",
+                "precursor_isotope_fit_targets.tsv",
+                "--fit-tolerance-da",
+                "0.05",
+            ],
+        )
+
+        assert result.exit_code != 0
+        assert "precursor isotope fit requires at least one mzML file" in result.output
+
+
 def test_spectrum_summary_command_reports_mzml_ms1_ms2_counts() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
