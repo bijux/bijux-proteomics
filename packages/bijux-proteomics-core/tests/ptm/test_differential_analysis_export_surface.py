@@ -65,7 +65,10 @@ def test_ptm_differential_renderers_preserve_site_and_volcano_ledgers() -> None:
 
     assert result_lines[0].startswith("site_key\tprotein_ref\tresidue\tposition")
     assert "localization_tier\tlow_localization" in result_lines[0]
-    assert any("P11111:S5:Phospho" in line and "corrected" in line for line in result_lines)
+    assert any(
+        "P11111:S5:Phospho" in line and "high_confidence_corrected" in line
+        for line in result_lines
+    )
     assert any(
         "Q9DEC1:S5:Phospho" in line and "\trefused\ttrue\t" in line
         for line in result_lines
