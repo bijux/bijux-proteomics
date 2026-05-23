@@ -122,6 +122,63 @@ def test_build_trust_bundle_command_emits_regenerable_bundle_outputs() -> None:
         assert "cards/index.tsv" in Path("trust_bundle/index.html").read_text()
 
 
+def test_sample_sheet_repair_suggestions_command_emits_advisory_json_and_tsv() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        Path("design.tsv").write_text(
+            "\n".join(
+                (
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file",
+                    "control_1\tcontrol\t1\t1\tcontrol_1.raw",
+                    "treated_1\ttreatment\t1\t1\tmissing_run.raw",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        Path("observed_samples.txt").write_text(
+            "control_1\ntreated_1\ntreated_2\n",
+            encoding="utf-8",
+        )
+        Path("observed_runs.txt").write_text(
+            "control_1.raw\ntreated_1.raw\ntreated_2.raw\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "sample-sheet-repair-suggestions",
+                "design.tsv",
+                "--observed-sample-id-file",
+                "observed_samples.txt",
+                "--observed-run-id-file",
+                "observed_runs.txt",
+                "--suggestions-tsv-out",
+                "sample_sheet_repairs.tsv",
+                "--out",
+                "sample_sheet_repairs.json",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["report"]["summary"]["missing_metadata_sample_count"] == 1
+        assert payload["report"]["summary"]["metadata_run_mismatch_count"] == 1
+        assert (
+            payload["outputs"]["suggestions_tsv"] == "sample_sheet_repairs.tsv"
+        )
+        assert "advisory only" in payload["report"]["note"]
+        tsv_output = Path("sample_sheet_repairs.tsv").read_text(encoding="utf-8")
+        json_output = json.loads(
+            Path("sample_sheet_repairs.json").read_text(encoding="utf-8")
+        )
+        assert "confidence" in tsv_output.splitlines()[0]
+        assert "missing_metadata_sample" in tsv_output
+        assert "treated_2.raw" in tsv_output
+        assert json_output["report"]["summary"]["suggestion_count"] == 2
+
+
 def test_annotate_proteins_command_emits_annotated_unmapped_and_rejected_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
