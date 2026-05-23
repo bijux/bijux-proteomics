@@ -15,8 +15,10 @@ import numpy as np
 
 from bijux_proteomics.io.formats import ExperimentalDesignEntry
 from bijux_proteomics.quantification.contracts import (
+    BrokenPairDisposition,
     DifferentialAbundanceContrast,
     DifferentialAbundanceAssumptionReport,
+    DifferentialBrokenPairEntry,
     DifferentialAbundanceEntry,
     DifferentialAbundanceReport,
     DifferentialAbundanceTestType,
@@ -24,6 +26,7 @@ from bijux_proteomics.quantification.contracts import (
     LabelFreeQuantTable,
     MissingValueKind,
     MultiConditionDifferentialAbundanceReport,
+    PairedDifferentialPolicy,
     QuantAssessmentDisposition,
     QuantDesignContrast,
     QuantDesignMatrixReport,
@@ -47,6 +50,7 @@ def build_differential_abundance_report(
     test_type: DifferentialAbundanceTestType = DifferentialAbundanceTestType.WELCH_T_TEST,
     design_matrix: QuantDesignMatrixReport | None = None,
     contrast_name: str | None = None,
+    paired_policy: PairedDifferentialPolicy | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
 ) -> DifferentialAbundanceReport:
     """Run one owned two-condition differential abundance engine."""
@@ -79,10 +83,22 @@ def build_differential_abundance_report(
     active_design_matrix: QuantDesignMatrixReport | None = None
     active_contrast_name = contrast_name
     selected_contrast: QuantDesignContrast | None = None
-    if test_type is DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST:
-        active_design_matrix = design_matrix or build_quant_design_matrix_report(
-            design_entries
-        )
+    active_paired_policy: PairedDifferentialPolicy | None = None
+    if test_type in (
+        DifferentialAbundanceTestType.LINEAR_MODEL_CONTRAST,
+        DifferentialAbundanceTestType.PAIRED_T_TEST,
+    ):
+        if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
+            active_paired_policy = paired_policy or PairedDifferentialPolicy()
+            active_design_matrix = design_matrix or build_quant_design_matrix_report(
+                design_entries,
+                batch_field="",
+                pairing_field=active_paired_policy.pair_id_field,
+            )
+        else:
+            active_design_matrix = design_matrix or build_quant_design_matrix_report(
+                design_entries
+            )
         selected_contrast = _resolve_design_contrast(
             active_design_matrix,
             condition_a=condition_a,
@@ -90,6 +106,30 @@ def build_differential_abundance_report(
             contrast_name=contrast_name,
         )
         active_contrast_name = selected_contrast.contrast_name
+    complete_design_pairs: tuple[tuple[str, str, str], ...] = ()
+    broken_pairs: tuple[DifferentialBrokenPairEntry, ...] = ()
+    if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
+        assert active_design_matrix is not None
+        assert active_paired_policy is not None
+        complete_design_pairs, broken_pairs = _resolve_design_pairs(
+            active_design_matrix,
+            condition_a=condition_a,
+            condition_b=condition_b,
+            paired_policy=active_paired_policy,
+        )
+        if (
+            active_paired_policy.broken_pair_disposition
+            is BrokenPairDisposition.BLOCK
+            and broken_pairs
+        ):
+            raise ValueError(
+                "paired differential testing blocked because the design contains unmatched or duplicated pairs"
+            )
+        if len(complete_design_pairs) < active_paired_policy.minimum_complete_pairs:
+            raise ValueError(
+                "paired differential testing requires at least "
+                f"{active_paired_policy.minimum_complete_pairs} complete design pairs"
+            )
 
     lookup = _matrix_value_index(table)
     entries: list[DifferentialAbundanceEntry] = []
@@ -123,6 +163,24 @@ def build_differential_abundance_report(
                 effect_note,
             ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
             uncertainty_note = _combine_notes(model_note, effect_note)
+            complete_pair_count = 0
+        elif test_type is DifferentialAbundanceTestType.PAIRED_T_TEST:
+            (
+                mean_a,
+                mean_b,
+                log2_fold_change,
+                p_value,
+                standard_error,
+                confidence_interval_low,
+                confidence_interval_high,
+                effect_size_cohens_d,
+                complete_pair_count,
+                uncertainty_note,
+            ) = _paired_t_test_statistics(
+                lookup,
+                entity_id,
+                complete_design_pairs=complete_design_pairs,
+            )
         else:
             log2_fold_change, p_value = _welch_t_test(values_a, values_b)
             (
@@ -132,6 +190,7 @@ def build_differential_abundance_report(
                 effect_size_cohens_d,
                 uncertainty_note,
             ) = _effect_size_and_uncertainty(values_a, values_b, log2_fold_change)
+            complete_pair_count = 0
 
         entries.append(
             DifferentialAbundanceEntry(
@@ -140,6 +199,7 @@ def build_differential_abundance_report(
                 condition_b=condition_b,
                 observations_a=int(values_a.size),
                 observations_b=int(values_b.size),
+                complete_pair_count=complete_pair_count,
                 zero_values_a=counts_a[MissingValueKind.ZERO],
                 zero_values_b=counts_b[MissingValueKind.ZERO],
                 not_observed_values_a=counts_a[MissingValueKind.NOT_OBSERVED],
@@ -180,13 +240,19 @@ def build_differential_abundance_report(
             variance_assumption=(
                 "unequal_variance"
                 if test_type is DifferentialAbundanceTestType.WELCH_T_TEST
-                else "design_matrix_residual_variance"
+                else (
+                    "within_pair_difference"
+                    if test_type is DifferentialAbundanceTestType.PAIRED_T_TEST
+                    else "design_matrix_residual_variance"
+                )
             ),
             multiple_testing_scope="uncorrected_report_wide_entities",
             replicate_policy=active_policy,
             contrast_name=active_contrast_name,
+            paired_policy=active_paired_policy,
         ),
         entries=ordered_entries,
+        broken_pairs=broken_pairs,
     )
     return apply_benjamini_hochberg(report)
 
@@ -318,6 +384,46 @@ def render_differential_abundance_tsv(
     return _render_differential_rows((report,))
 
 
+def render_differential_broken_pairs_tsv(
+    report: DifferentialAbundanceReport,
+) -> str:
+    """Render one paired-design broken-pair ledger as a stable TSV table."""
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "condition_a",
+            "condition_b",
+            "pair_id",
+            "sample_ids_a",
+            "sample_ids_b",
+            "reason_code",
+            "detail",
+        ]
+    )
+    for entry in report.broken_pairs:
+        writer.writerow(
+            [
+                entry.condition_a,
+                entry.condition_b,
+                entry.pair_id or "",
+                ";".join(entry.sample_ids_a),
+                ";".join(entry.sample_ids_b),
+                entry.reason_code,
+                entry.detail,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def export_differential_broken_pairs_tsv(
+    report: DifferentialAbundanceReport,
+    path: Path,
+) -> None:
+    """Write one paired-design broken-pair ledger to a stable TSV artifact."""
+    path.write_text(render_differential_broken_pairs_tsv(report), encoding="utf-8")
+
+
 def export_differential_abundance_tsv(
     report: DifferentialAbundanceReport,
     path: Path,
@@ -409,6 +515,81 @@ def _resolve_design_contrast(
             return contrast
     raise ValueError(
         "design matrix does not preserve the requested condition contrast"
+    )
+
+
+def _resolve_design_pairs(
+    design_matrix: QuantDesignMatrixReport,
+    *,
+    condition_a: str,
+    condition_b: str,
+    paired_policy: PairedDifferentialPolicy,
+) -> tuple[tuple[tuple[str, str, str], ...], tuple[DifferentialBrokenPairEntry, ...]]:
+    rows_by_pair_id: dict[str, dict[str, list[str]]] = {}
+    broken_pairs: list[DifferentialBrokenPairEntry] = []
+    for row in design_matrix.rows:
+        if row.condition not in {condition_a, condition_b}:
+            continue
+        if row.pair_id in (None, ""):
+            broken_pairs.append(
+                DifferentialBrokenPairEntry(
+                    condition_a=condition_a,
+                    condition_b=condition_b,
+                    pair_id=None,
+                    sample_ids_a=(row.sample_id,) if row.condition == condition_a else (),
+                    sample_ids_b=(row.sample_id,) if row.condition == condition_b else (),
+                    reason_code="missing_pair_id",
+                    detail=(
+                        f"sample {row.sample_id} in condition {row.condition} is missing "
+                        f"{paired_policy.pair_id_field}"
+                    ),
+                )
+            )
+            continue
+        by_condition = rows_by_pair_id.setdefault(
+            row.pair_id,
+            {condition_a: [], condition_b: []},
+        )
+        by_condition[row.condition].append(row.sample_id)
+    complete_pairs: list[tuple[str, str, str]] = []
+    for pair_id, grouped in rows_by_pair_id.items():
+        sample_ids_a = tuple(sorted(grouped[condition_a]))
+        sample_ids_b = tuple(sorted(grouped[condition_b]))
+        if len(sample_ids_a) != 1 or len(sample_ids_b) != 1:
+            if not sample_ids_a or not sample_ids_b:
+                reason_code = "unmatched_pair"
+                detail = (
+                    f"pair {pair_id} does not contain exactly one sample in each "
+                    f"of {condition_a} and {condition_b}"
+                )
+            else:
+                reason_code = "duplicated_pair_members"
+                detail = (
+                    f"pair {pair_id} contains duplicated samples within at least one condition"
+                )
+            broken_pairs.append(
+                DifferentialBrokenPairEntry(
+                    condition_a=condition_a,
+                    condition_b=condition_b,
+                    pair_id=pair_id,
+                    sample_ids_a=sample_ids_a,
+                    sample_ids_b=sample_ids_b,
+                    reason_code=reason_code,
+                    detail=detail,
+                )
+            )
+            continue
+        complete_pairs.append((pair_id, sample_ids_a[0], sample_ids_b[0]))
+    return tuple(sorted(complete_pairs)), tuple(
+        sorted(
+            broken_pairs,
+            key=lambda entry: (
+                entry.pair_id or "",
+                entry.reason_code,
+                entry.sample_ids_a,
+                entry.sample_ids_b,
+            ),
+        )
     )
 
 
@@ -509,6 +690,115 @@ def _linear_model_contrast_statistics(
     )
 
 
+def _paired_t_test_statistics(
+    lookup: dict[tuple[str, str], object],
+    entity_id: str,
+    *,
+    complete_design_pairs: tuple[tuple[str, str, str], ...],
+) -> tuple[
+    float,
+    float,
+    float,
+    float,
+    float | None,
+    float | None,
+    float | None,
+    float | None,
+    int,
+    str | None,
+]:
+    paired_a: list[float] = []
+    paired_b: list[float] = []
+    for _, sample_id_a, sample_id_b in complete_design_pairs:
+        cell_a = lookup.get((entity_id, sample_id_a))
+        cell_b = lookup.get((entity_id, sample_id_b))
+        if (
+            cell_a is None
+            or cell_b is None
+            or cell_a.abundance is None
+            or cell_b.abundance is None
+        ):
+            continue
+        paired_a.append(math.log2(cell_a.abundance + 1.0))
+        paired_b.append(math.log2(cell_b.abundance + 1.0))
+    if not paired_a:
+        return (
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            None,
+            None,
+            None,
+            None,
+            0,
+            "paired test could not use any complete observed pairs for this entity",
+        )
+    values_a = np.array(paired_a, dtype=float)
+    values_b = np.array(paired_b, dtype=float)
+    differences = values_b - values_a
+    complete_pair_count = int(differences.size)
+    mean_a = float(np.mean(values_a))
+    mean_b = float(np.mean(values_b))
+    estimate = float(np.mean(differences))
+    if complete_pair_count < 2:
+        return (
+            mean_a,
+            mean_b,
+            estimate,
+            1.0,
+            None,
+            None,
+            None,
+            None,
+            complete_pair_count,
+            "paired test requires at least two complete observed pairs per entity",
+        )
+    sample_std = float(np.std(differences, ddof=1))
+    if sample_std == 0.0 or not math.isfinite(sample_std):
+        note = "within-pair differences collapsed to one value so paired uncertainty could not be estimated robustly"
+        return (
+            mean_a,
+            mean_b,
+            estimate,
+            1.0 if estimate == 0.0 else 0.0,
+            0.0,
+            estimate,
+            estimate,
+            None,
+            complete_pair_count,
+            note,
+        )
+    standard_error = sample_std / math.sqrt(complete_pair_count)
+    t_statistic = estimate / standard_error
+    p_value = _student_t_two_sided_p_value(
+        abs(t_statistic),
+        float(complete_pair_count - 1),
+    )
+    interval_radius = 1.96 * standard_error
+    effect_size = estimate / sample_std
+    note = None
+    if complete_pair_count < len(complete_design_pairs):
+        note = (
+            f"paired test used {complete_pair_count} complete observed pairs out of "
+            f"{len(complete_design_pairs)} complete design pairs"
+        )
+    elif standard_error > 1.0:
+        note = "within-pair uncertainty remains wide relative to the estimated effect"
+    return (
+        mean_a,
+        mean_b,
+        estimate,
+        p_value,
+        standard_error,
+        estimate - interval_radius,
+        estimate + interval_radius,
+        effect_size,
+        complete_pair_count,
+        note,
+    )
+
+
 def _combine_notes(*notes: str | None) -> str | None:
     ordered_notes = tuple(
         dict.fromkeys(note for note in notes if note not in (None, ""))
@@ -531,6 +821,7 @@ def _render_differential_rows(
             "contrast_name",
             "observations_a",
             "observations_b",
+            "complete_pair_count",
             "zero_values_a",
             "zero_values_b",
             "not_observed_values_a",
@@ -559,6 +850,7 @@ def _render_differential_rows(
                     report.contrast_name or "",
                     entry.observations_a,
                     entry.observations_b,
+                    entry.complete_pair_count,
                     entry.zero_values_a,
                     entry.zero_values_b,
                     entry.not_observed_values_a,
