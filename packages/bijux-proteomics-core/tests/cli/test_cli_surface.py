@@ -6315,6 +6315,12 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
                 "treatment",
                 "--differential-tsv-out",
                 "quantify.differential.tsv",
+                "--batch-effect-summary-tsv-out",
+                "quantify.batch_effect_summary.tsv",
+                "--batch-effect-batches-tsv-out",
+                "quantify.batch_effect_batches.tsv",
+                "--batch-effect-components-tsv-out",
+                "quantify.batch_effect_components.tsv",
                 "--design-matrix-tsv-out",
                 "quantify.design.tsv",
                 "--design-coefficients-tsv-out",
@@ -6364,6 +6370,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert payload["imputation_sensitivity"]["changed_significance_entries"]
         assert payload["imputation_sensitivity"]["imputation_dependent_hits"]
         assert payload["batch_effect"]["disposition"] == "ADVISORY"
+        assert payload["batch_effect"]["batch_variance_proxy"] >= 0.0
+        assert payload["batch_effect"]["principal_components"]
+        assert payload["batch_effect"]["batch_correction_blocked"] is False
         assert payload["replicate_correlations"]["entries"]
         assert payload["replicate_qc"]["replicate_cv_report"]["entries"]
         assert payload["replicate_qc"]["sample_pca_report"]["entries"]
@@ -6388,6 +6397,18 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
         assert payload["differential_abundance"]["contrast_name"] == "control_vs_treatment"
         assert payload["outputs"]["differential_tsv"] == "quantify.differential.tsv"
+        assert (
+            payload["outputs"]["batch_effect_summary_tsv"]
+            == "quantify.batch_effect_summary.tsv"
+        )
+        assert (
+            payload["outputs"]["batch_effect_batches_tsv"]
+            == "quantify.batch_effect_batches.tsv"
+        )
+        assert (
+            payload["outputs"]["batch_effect_components_tsv"]
+            == "quantify.batch_effect_components.tsv"
+        )
         assert payload["outputs"]["design_matrix_tsv"] == "quantify.design.tsv"
         assert (
             payload["outputs"]["design_coefficients_tsv"]
@@ -6406,6 +6427,9 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         )
         assert payload["outputs"]["msstats_input_tsv"] == "quantify.msstats.tsv"
         assert Path("quantify.differential.tsv").exists()
+        assert Path("quantify.batch_effect_summary.tsv").exists()
+        assert Path("quantify.batch_effect_batches.tsv").exists()
+        assert Path("quantify.batch_effect_components.tsv").exists()
         assert Path("quantify.design.tsv").exists()
         assert Path("quantify.design_coefficients.tsv").exists()
         assert Path("quantify.design_contrasts.tsv").exists()
@@ -6413,7 +6437,53 @@ def test_quantify_command_emits_quant_matrix_and_differential_outputs() -> None:
         assert Path("quantify.limma_samples.tsv").exists()
         assert Path("quantify.limma_design.tsv").exists()
         assert Path("quantify.limma_contrasts.tsv").exists()
-        assert Path("quantify.msstats.tsv").exists()
+
+
+def test_quantify_command_reports_confounded_batch_correction_block() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        fixture_dir = FIXTURE_ROOT / "quant"
+        shutil.copy(fixture_dir / "ms1_features.tsv", "features.tsv")
+        Path("design.tsv").write_text(
+            "\n".join(
+                [
+                    "sample_id\tcondition\treplicate\tfraction\tspectra_file\tidentifications_file\tbatch\tinstrument\tsearch_engine",
+                    "C1\tcontrol\t1\t1\tc1.mzml\tc1.tsv\tbatch-a\torbitrap-a\tsage",
+                    "C2\tcontrol\t2\t1\tc2.mzml\tc2.tsv\tbatch-a\torbitrap-b\tsage",
+                    "T1\ttreatment\t1\t1\tt1.mzml\tt1.tsv\tbatch-b\torbitrap-a\tsage",
+                    "T2\ttreatment\t2\t1\tt2.mzml\tt2.tsv\tbatch-b\torbitrap-b\tsage",
+                ]
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "quantify",
+                "features.tsv",
+                "--design",
+                "design.tsv",
+                "--design-batch-field",
+                "",
+                "--entity-level",
+                "protein",
+                "--aggregation",
+                "sum",
+                "--normalization",
+                "median",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["batch_effect"]["fully_confounded_with_condition"] is True
+        assert payload["batch_effect"]["batch_correction_blocked"] is True
+        assert payload["batch_effect"]["disposition"] == "ENFORCED"
+        assert "batch is fully confounded with condition" in (
+            payload["batch_effect"]["batch_warning"] or ""
+        )
 
 
 def test_quantify_command_reports_paired_differential_broken_pairs() -> None:

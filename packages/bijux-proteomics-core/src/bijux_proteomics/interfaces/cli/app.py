@@ -543,6 +543,7 @@ from bijux_proteomics.quantification import (
     QuantRollupMethod,
     TimeCourseTestingPolicy,
     build_differential_abundance_report,
+    build_batch_effect_estimator_report,
     build_heatmap_preparation_report,
     build_limma_compatible_quant_package,
     build_msstats_compatible_input_report,
@@ -574,6 +575,9 @@ from bijux_proteomics.quantification import (
     export_heatmap_column_metadata_tsv,
     export_differential_abundance_tsv,
     export_differential_broken_pairs_tsv,
+    export_batch_effect_batches_tsv,
+    export_batch_effect_principal_components_tsv,
+    export_batch_effect_summary_tsv,
     export_heatmap_row_metadata_tsv,
     export_heatmap_summary_tsv,
     export_heatmap_matrix_tsv,
@@ -7672,6 +7676,21 @@ def _parse_timepoint_order_file(path: Path) -> tuple[str, ...]:
     default=None,
 )
 @click.option(
+    "--batch-effect-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--batch-effect-batches-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--batch-effect-components-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--time-course-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
     default=None,
@@ -7784,6 +7803,9 @@ def quantify_command(
     condition_b: str | None,
     differential_tsv_out: Path | None,
     broken_pairs_tsv_out: Path | None,
+    batch_effect_summary_tsv_out: Path | None,
+    batch_effect_batches_tsv_out: Path | None,
+    batch_effect_components_tsv_out: Path | None,
     time_course_tsv_out: Path | None,
     design_covariates: tuple[str, ...],
     design_batch_field: str,
@@ -7929,11 +7951,15 @@ def quantify_command(
                     parse_report.accepted_records,
                     design_entries,
                 )
+            batch_effect = build_batch_effect_estimator_report(
+                table,
+                design_entries,
+                batch_field=design_batch_field or "batch",
+            )
             replicate_qc = build_replicate_and_batch_qc_report(
                 table,
                 design_entries=design_entries,
             )
-            batch_effect = replicate_qc.batch_effect_report
             replicate_correlations = replicate_qc.replicate_correlation_report
             if effective_timepoint_field is not None:
                 time_course_differential = build_time_course_differential_report(
@@ -8040,6 +8066,21 @@ def quantify_command(
                 "broken-pair export requires a resolvable two-condition differential contrast"
             )
         export_differential_broken_pairs_tsv(differential, broken_pairs_tsv_out)
+    if batch_effect_summary_tsv_out is not None:
+        if batch_effect is None:
+            raise click.ClickException("batch effect export requires --design")
+        export_batch_effect_summary_tsv(batch_effect, batch_effect_summary_tsv_out)
+    if batch_effect_batches_tsv_out is not None:
+        if batch_effect is None:
+            raise click.ClickException("batch effect export requires --design")
+        export_batch_effect_batches_tsv(batch_effect, batch_effect_batches_tsv_out)
+    if batch_effect_components_tsv_out is not None:
+        if batch_effect is None:
+            raise click.ClickException("batch effect export requires --design")
+        export_batch_effect_principal_components_tsv(
+            batch_effect,
+            batch_effect_components_tsv_out,
+        )
     if time_course_tsv_out is not None:
         if time_course_differential is None:
             raise click.ClickException(
@@ -8248,6 +8289,21 @@ def quantify_command(
             "broken_pairs_tsv": (
                 str(broken_pairs_tsv_out)
                 if broken_pairs_tsv_out is not None
+                else None
+            ),
+            "batch_effect_summary_tsv": (
+                str(batch_effect_summary_tsv_out)
+                if batch_effect_summary_tsv_out is not None
+                else None
+            ),
+            "batch_effect_batches_tsv": (
+                str(batch_effect_batches_tsv_out)
+                if batch_effect_batches_tsv_out is not None
+                else None
+            ),
+            "batch_effect_components_tsv": (
+                str(batch_effect_components_tsv_out)
+                if batch_effect_components_tsv_out is not None
                 else None
             ),
             "time_course_tsv": (
