@@ -2248,99 +2248,31 @@ def calculate_basic_target_decoy_fdr(
     decoy_policy: TargetDecoyLabelPolicy | None = None,
 ) -> tuple[FdrAnnotatedPsm, ...]:
     """Annotate PSMs with cumulative target-decoy FDR and monotonic q-values."""
-    if score_orientation not in {"higher_better", "lower_better"}:
-        raise ValueError("score_orientation must be 'higher_better' or 'lower_better'")
-    if tie_handling not in {"score_group", "stable_record_order"}:
-        raise ValueError("tie_handling must be 'score_group' or 'stable_record_order'")
-    _raise_on_target_decoy_accession_collisions(records, decoy_policy=decoy_policy)
-
-    sorted_records = tuple(
-        sorted(
-            records,
-            key=(
-                (
-                    lambda record: (
-                        -record.score,
-                        record.spectrum_id,
-                        record.canonical_peptide,
-                    )
-                )
-                if score_orientation == "higher_better"
-                else (
-                    lambda record: (
-                        record.score,
-                        record.spectrum_id,
-                        record.canonical_peptide,
-                    )
-                )
-            ),
-        )
+    from bijux_proteomics.identification.psm_target_decoy_fdr import (
+        build_psm_target_decoy_fdr_report,
     )
-    annotated: list[FdrAnnotatedPsm] = []
-    cumulative_targets = 0
-    cumulative_decoys = 0
-    score_groups: list[tuple[int, tuple[PsmRecord, ...]]] = []
-    if tie_handling == "score_group":
-        grouped: list[PsmRecord] = []
-        current_score: float | None = None
-        tie_group_rank = 0
-        for record in sorted_records:
-            if current_score is None or record.score == current_score:
-                grouped.append(record)
-                current_score = record.score
-                continue
-            tie_group_rank += 1
-            score_groups.append((tie_group_rank, tuple(grouped)))
-            grouped = [record]
-            current_score = record.score
-        if grouped:
-            tie_group_rank += 1
-            score_groups.append((tie_group_rank, tuple(grouped)))
-    else:
-        score_groups = [
-            (rank, (record,)) for rank, record in enumerate(sorted_records, start=1)
-        ]
 
-    rank = 1
-    for tie_group_rank, group in score_groups:
-        group_targets = sum(
-            1
-            for record in group
-            if record.target_decoy_label is not TargetDecoyLabel.DECOY
+    _raise_on_target_decoy_accession_collisions(records, decoy_policy=decoy_policy)
+    report = build_psm_target_decoy_fdr_report(
+        records,
+        threshold=threshold,
+        score_orientation=score_orientation,
+        tie_handling=tie_handling,
+    )
+    return tuple(
+        FdrAnnotatedPsm(
+            psm=entry.psm,
+            rank=entry.rank,
+            tie_group_rank=entry.tie_group_rank,
+            tie_group_size=entry.tie_group_size,
+            cumulative_targets=entry.cumulative_targets,
+            cumulative_decoys=entry.cumulative_decoys,
+            fdr=entry.raw_fdr,
+            q_value=entry.q_value,
+            accepted=entry.accepted,
         )
-        group_decoys = len(group) - group_targets
-        cumulative_targets += group_targets
-        cumulative_decoys += group_decoys
-        fdr = min(cumulative_decoys / max(cumulative_targets, 1), 1.0)
-        for record in group:
-            annotated.append(
-                FdrAnnotatedPsm(
-                    psm=record,
-                    rank=rank,
-                    tie_group_rank=tie_group_rank,
-                    tie_group_size=len(group),
-                    cumulative_targets=cumulative_targets,
-                    cumulative_decoys=cumulative_decoys,
-                    fdr=fdr,
-                    q_value=fdr,
-                    accepted=threshold is None or fdr <= threshold,
-                )
-            )
-            rank += 1
-
-    running_min = float("inf")
-    revised: list[FdrAnnotatedPsm] = []
-    for entry in reversed(annotated):
-        running_min = min(running_min, entry.fdr)
-        revised.append(
-            entry.model_copy(
-                update={
-                    "q_value": running_min,
-                    "accepted": threshold is None or running_min <= threshold,
-                }
-            )
-        )
-    return tuple(reversed(revised))
+        for entry in report.entries
+    )
 
 
 def normalize_psm_score_orientation(

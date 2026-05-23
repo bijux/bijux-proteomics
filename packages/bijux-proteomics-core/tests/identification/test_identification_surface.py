@@ -42,6 +42,7 @@ from bijux_proteomics.identification import (
     build_search_result_provenance_manifest,
     build_shared_peptide_ambiguity_report,
     calculate_grouped_fdr,
+    calculate_basic_target_decoy_fdr,
     calculate_level_specific_fdr,
     calculate_picked_protein_fdr,
     compare_parsimony_variants,
@@ -350,6 +351,19 @@ def test_basic_target_decoy_fdr_and_q_values_are_monotonic() -> None:
     q_values = [record.q_value for record in annotated if record.q_value is not None]
     assert q_values == sorted(q_values)
     assert annotated[0].q_value == 0.0
+    assert annotated[-1].q_value == 2 / 3
+
+
+def test_basic_target_decoy_fdr_compatibility_surface_preserves_raw_counts() -> None:
+    report = parse_psm_tsv(_psm_fixture("fdr_results.tsv"), mapping=_default_mapping())
+
+    annotated = calculate_basic_target_decoy_fdr(report.accepted_records)
+
+    assert annotated[0].cumulative_targets == 1
+    assert annotated[0].cumulative_decoys == 0
+    assert annotated[0].fdr == 0.0
+    assert annotated[1].fdr == 1.0
+    assert annotated[1].q_value == 0.5
     assert annotated[-1].q_value == 2 / 3
 
 
