@@ -1319,15 +1319,23 @@ class DifferentialReplicatePolicy(JsonModel):
     disposition: QuantAssessmentDisposition = QuantAssessmentDisposition.ENFORCED
 
 
+class DifferentialAbundanceTestType(StrEnum):
+    """Supported inferential engines for differential abundance results."""
+
+    WELCH_T_TEST = "welch_t_test"
+    LINEAR_MODEL_CONTRAST = "linear_model_contrast"
+
+
 class DifferentialAbundanceAssumptionReport(JsonModel):
     """Test and correction assumptions carried by a differential abundance report."""
 
     model_config = ConfigDict(extra="forbid")
 
-    test_type: str = Field(..., min_length=1)
+    test_type: DifferentialAbundanceTestType
     variance_assumption: str = Field(..., min_length=1)
     multiple_testing_scope: str = Field(..., min_length=1)
     replicate_policy: DifferentialReplicatePolicy
+    contrast_name: str | None = None
 
 
 class DifferentialAbundanceEntry(JsonModel):
@@ -1340,6 +1348,12 @@ class DifferentialAbundanceEntry(JsonModel):
     condition_b: str = Field(..., min_length=1)
     observations_a: int = Field(..., ge=0)
     observations_b: int = Field(..., ge=0)
+    zero_values_a: int = Field(default=0, ge=0)
+    zero_values_b: int = Field(default=0, ge=0)
+    not_observed_values_a: int = Field(default=0, ge=0)
+    not_observed_values_b: int = Field(default=0, ge=0)
+    filtered_values_a: int = Field(default=0, ge=0)
+    filtered_values_b: int = Field(default=0, ge=0)
     mean_log2_abundance_a: float
     mean_log2_abundance_b: float
     log2_fold_change: float
@@ -1362,6 +1376,7 @@ class DifferentialAbundanceReport(JsonModel):
     imputation_method: ImputationMethod = ImputationMethod.NONE
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    contrast_name: str | None = None
     replicate_policy: DifferentialReplicatePolicy = Field(
         default_factory=DifferentialReplicatePolicy
     )
@@ -1376,6 +1391,7 @@ class DifferentialAbundanceContrast(JsonModel):
 
     condition_a: str = Field(..., min_length=1)
     condition_b: str = Field(..., min_length=1)
+    contrast_name: str | None = None
 
 
 class MultiConditionDifferentialAbundanceReport(JsonModel):
@@ -3737,9 +3753,12 @@ def build_differential_abundance_report(
     *,
     condition_a: str | None = None,
     condition_b: str | None = None,
+    test_type: DifferentialAbundanceTestType = DifferentialAbundanceTestType.WELCH_T_TEST,
+    design_matrix: QuantDesignMatrixReport | None = None,
+    contrast_name: str | None = None,
     replicate_policy: DifferentialReplicatePolicy | None = None,
 ) -> DifferentialAbundanceReport:
-    """Run a basic two-condition Welch-style differential abundance test."""
+    """Run one owned two-condition differential abundance engine."""
     from bijux_proteomics.quantification.differential_abundance import (
         build_differential_abundance_report as _implementation,
     )
@@ -3749,6 +3768,9 @@ def build_differential_abundance_report(
         design_entries,
         condition_a=condition_a,
         condition_b=condition_b,
+        test_type=test_type,
+        design_matrix=design_matrix,
+        contrast_name=contrast_name,
         replicate_policy=replicate_policy,
     )
 
