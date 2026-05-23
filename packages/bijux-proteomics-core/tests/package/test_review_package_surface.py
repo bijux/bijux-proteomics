@@ -150,3 +150,55 @@ def test_review_package_exports_evidence_graph_contradiction_surface() -> None:
     assert "contradiction_id\tkind\tseverity\tclaim_node_id" in (
         review.render_evidence_graph_contradictions_tsv(report)
     )
+
+
+def test_review_package_exports_evidence_graph_confidence_surface() -> None:
+    builder = review.ProteomicsEvidenceGraphBuilder()
+    spectrum = builder.add_spectrum("scan=1001", label="scan=1001", trust_class="high")
+    psm = builder.add_psm("psm:1001", label="psm:1001", trust_class="high")
+    peptide = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
+    protein = builder.add_protein("P11111", label="P11111", trust_class="high")
+    result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P11111",
+        label="protein differential result",
+        claim_state="changed",
+    )
+
+    builder.add_spectrum_supports_psm(
+        spectrum.node_id,
+        psm.node_id,
+        source_row_ref="psm.tsv:4",
+        confidence=0.97,
+        reason="strong spectrum supports accepted PSM",
+    )
+    builder.add_psm_supports_peptide(
+        psm.node_id,
+        peptide.node_id,
+        source_row_ref="peptide.tsv:4",
+        confidence=0.96,
+        reason="strong PSM supports peptide PEPA",
+    )
+    builder.add_peptide_quantifies_protein(
+        peptide.node_id,
+        protein.node_id,
+        source_row_ref="protein_matrix.tsv:4",
+        confidence=0.93,
+        reason="strong peptide quantifies protein P11111",
+    )
+    builder.add_protein_supports_statistical_result(
+        protein.node_id,
+        result.node_id,
+        source_row_ref="protein_stats.tsv:4",
+        confidence=0.91,
+        reason="strong protein differential result",
+    )
+
+    report = review.propagate_evidence_graph_confidence(builder.build())
+
+    assert hasattr(review, "propagate_evidence_graph_confidence")
+    assert hasattr(review, "render_evidence_graph_confidence_tsv")
+    assert report.entry_count == 1
+    assert report.entries[0].confidence_tier.value == "high"
+    assert "claim_node_id\tclaim_node_ref\tsubject_node_id" in (
+        review.render_evidence_graph_confidence_tsv(report)
+    )
