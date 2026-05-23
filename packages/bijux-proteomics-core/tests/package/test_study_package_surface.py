@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics import study
 from bijux_proteomics.chemistry import calculate_peptide_mz
 from bijux_proteomics.identification import PsmRecord, TargetDecoyLabel
@@ -195,6 +197,32 @@ def test_study_package_exports_experiment_feasibility_surface() -> None:
     assert report.model_support[0].analysis_family.value == "pairwise_differential"
     assert "analysis_family" in study.render_experiment_feasibility_model_support_tsv(
         report
+    )
+
+
+def test_study_package_exports_lab_protocol_context_surface(tmp_path: Path) -> None:
+    protocol_path = tmp_path / "protocol.tsv"
+    protocol_path.write_text(
+        "\n".join(
+            (
+                "protocol_id\tdigestion_enzyme\tacquisition_type\tlabeling_method\tenrichment_type\tfractionation_mode\tdepletion_mode\tinstrument_platform",
+                "prot-001\ttrypsin\tdia\tlabel_free\tnone\tnone\tnone\tOrbitrap Exploris",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = study.parse_lab_protocol_context_table(protocol_path)
+    entry = study.require_single_lab_protocol_context(report)
+    profile = study.build_lab_protocol_interpretation_profile(entry)
+
+    assert hasattr(study, "parse_lab_protocol_context_table")
+    assert hasattr(study, "build_lab_protocol_interpretation_profile")
+    assert hasattr(study, "build_protocol_aware_qc_threshold_policy")
+    assert profile.interpretation_focus == "dia_discovery"
+    assert study.render_lab_protocol_context_tsv(report).splitlines()[1].startswith(
+        "prot-001\ttrypsin\tdia"
     )
 
 
