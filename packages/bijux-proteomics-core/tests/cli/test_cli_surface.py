@@ -1741,6 +1741,73 @@ def test_fdr_command_marks_unstable_score_separation_and_writes_ledgers() -> Non
         )
 
 
+def test_fdr_command_preserves_imported_pep_and_writes_error_rate_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "psm" / "pep_results.tsv", "pep_results.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "pep_results.tsv",
+                "--threshold",
+                "0.5",
+                "--pep-column",
+                "pep",
+                "--error-rate-summary-tsv-out",
+                "error_rate.summary.tsv",
+                "--error-rate-entries-tsv-out",
+                "error_rate.entries.tsv",
+                "--tsv-out",
+                "accepted.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["error_rate_annotation"]["summary"]["imported_pep_count"] == 3
+        assert payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 0
+        assert Path("error_rate.summary.tsv").exists()
+        assert Path("error_rate.entries.tsv").exists()
+        assert "imported_pep_count\tcomputed_local_fdr_count" in Path(
+            "error_rate.summary.tsv"
+        ).read_text(encoding="utf-8")
+        entries_text = Path("error_rate.entries.tsv").read_text(encoding="utf-8")
+        accepted_text = Path("accepted.tsv").read_text(encoding="utf-8")
+        assert "posterior_error_probability\tlocal_fdr\terror_rate_provenance" in entries_text
+        assert "\t0.002\t\timported_pep\n" in entries_text
+        assert "posterior_error_probability\tlocal_fdr\terror_rate_provenance" in accepted_text
+        assert "\t0.008\t\timported_pep\tQ11111" in accepted_text
+
+
+def test_fdr_command_computes_local_fdr_when_pep_is_absent() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        shutil.copy(FIXTURE_ROOT / "psm" / "fdr_results.tsv", "fdr.tsv")
+
+        result = runner.invoke(
+            cli,
+            [
+                "fdr",
+                "fdr.tsv",
+                "--threshold",
+                "0.5",
+                "--error-rate-summary-tsv-out",
+                "error_rate.summary.tsv",
+                "--error-rate-entries-tsv-out",
+                "error_rate.entries.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["error_rate_annotation"]["summary"]["imported_pep_count"] == 0
+        assert payload["error_rate_annotation"]["summary"]["computed_local_fdr_count"] == 5
+        entries_text = Path("error_rate.entries.tsv").read_text(encoding="utf-8")
+        assert "\t\t1.0\tcomputed_local_fdr\n" in entries_text
+
+
 def test_fdr_reference_check_command_writes_summary_and_entry_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():

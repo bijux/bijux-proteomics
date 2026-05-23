@@ -167,6 +167,12 @@ from bijux_proteomics.identification import (
     render_target_decoy_reference_entries_tsv,
     render_target_decoy_reference_summary_tsv,
 )
+from bijux_proteomics.identification.error_rate_annotation import (
+    annotate_psm_error_rates,
+    build_psm_error_rate_annotation_report,
+    render_psm_error_rate_annotation_summary_tsv,
+    render_psm_error_rate_annotation_tsv,
+)
 from bijux_proteomics.identification.psm_target_decoy_fdr import (
     build_psm_target_decoy_fdr_report,
     render_psm_target_decoy_fdr_summary_tsv,
@@ -1262,6 +1268,7 @@ def _build_psm_mapping(
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
     protein_separator: str,
+    posterior_error_probability_column: str | None = None,
     intensity_column: str | None = None,
 ) -> SearchResultColumnMapping:
     return SearchResultColumnMapping(
@@ -1273,6 +1280,7 @@ def _build_psm_mapping(
         score=score_column,
         intensity=intensity_column,
         q_value=q_value_column,
+        posterior_error_probability=posterior_error_probability_column,
         protein_refs=protein_refs_column,
         decoy_label=decoy_label_column,
         contaminant_label=contaminant_label_column,
@@ -5498,6 +5506,7 @@ def psm_inspect_command(
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
+    pep_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
@@ -5526,6 +5535,7 @@ def psm_inspect_command(
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
+            posterior_error_probability_column=pep_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
             contaminant_label_column=contaminant_label_column,
@@ -5644,6 +5654,7 @@ def psm_inspect_command(
 @click.option("--charge-column", default="charge", show_default=True)
 @click.option("--score-column", default="score", show_default=True)
 @click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--pep-column", default=None)
 @click.option("--protein-refs-column", default="proteins", show_default=True)
 @click.option("--decoy-label-column", default=None)
 @click.option("--contaminant-label-column", default=None)
@@ -5755,6 +5766,7 @@ def peptide_evidence_command(
 @click.option("--charge-column", default="charge", show_default=True)
 @click.option("--score-column", default="score", show_default=True)
 @click.option("--q-value-column", default="q_value", show_default=True)
+@click.option("--pep-column", default=None)
 @click.option("--protein-refs-column", default="proteins", show_default=True)
 @click.option("--decoy-label-column", default=None)
 @click.option("--contaminant-label-column", default=None)
@@ -5793,6 +5805,16 @@ def peptide_evidence_command(
     default=None,
 )
 @click.option(
+    "--error-rate-summary-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
+    "--error-rate-entries-tsv-out",
+    type=click.Path(path_type=Path, dir_okay=False),
+    default=None,
+)
+@click.option(
     "--out", "out_path", type=click.Path(path_type=Path, dir_okay=False), default=None
 )
 def fdr_command(
@@ -5806,6 +5828,7 @@ def fdr_command(
     charge_column: str,
     score_column: str,
     q_value_column: str | None,
+    pep_column: str | None,
     protein_refs_column: str | None,
     decoy_label_column: str | None,
     contaminant_label_column: str | None,
@@ -5821,6 +5844,8 @@ def fdr_command(
     calibration_out: Path | None,
     score_separation_summary_tsv_out: Path | None,
     score_separation_bins_tsv_out: Path | None,
+    error_rate_summary_tsv_out: Path | None,
+    error_rate_entries_tsv_out: Path | None,
     out_path: Path | None,
 ) -> None:
     """Apply basic target-decoy FDR and emit filtered PSM summaries."""
@@ -5833,6 +5858,7 @@ def fdr_command(
             charge_column=charge_column,
             score_column=score_column,
             q_value_column=q_value_column,
+            posterior_error_probability_column=pep_column,
             protein_refs_column=protein_refs_column,
             decoy_label_column=decoy_label_column,
             contaminant_label_column=contaminant_label_column,
@@ -5847,9 +5873,17 @@ def fdr_command(
             mapping=mapping,
             decoy_policy=decoy_policy,
         )
-        fdr_report = build_psm_target_decoy_fdr_report(
+        annotated_records = annotate_psm_error_rates(
             parse_report.accepted_records,
+            score_orientation=score_orientation,
+        )
+        fdr_report = build_psm_target_decoy_fdr_report(
+            annotated_records,
             threshold=threshold,
+            score_orientation=score_orientation,
+        )
+        error_rate_report = build_psm_error_rate_annotation_report(
+            parse_report.accepted_records,
             score_orientation=score_orientation,
         )
         accepted = tuple(
@@ -5890,11 +5924,11 @@ def fdr_command(
         score_orientation=score_orientation,
     )
     calibration_plot = build_calibration_plot_data(
-        parse_report.accepted_records,
+        annotated_records,
         score_orientation=score_orientation,
     )
     score_separation = build_score_separation_diagnostic_report(
-        parse_report.accepted_records,
+        annotated_records,
         score_orientation=score_orientation,
     )
     if provenance_out is not None:
@@ -5913,6 +5947,16 @@ def fdr_command(
             render_score_separation_bins_tsv(score_separation),
             encoding="utf-8",
         )
+    if error_rate_summary_tsv_out is not None:
+        error_rate_summary_tsv_out.write_text(
+            render_psm_error_rate_annotation_summary_tsv(error_rate_report),
+            encoding="utf-8",
+        )
+    if error_rate_entries_tsv_out is not None:
+        error_rate_entries_tsv_out.write_text(
+            render_psm_error_rate_annotation_tsv(error_rate_report),
+            encoding="utf-8",
+        )
 
     payload = {
         "threshold": threshold,
@@ -5922,6 +5966,7 @@ def fdr_command(
         "fdr_unstable": score_separation.summary.fdr_unstable,
         "fdr_report": fdr_report.summary.to_dict(),
         "fdr_reproducibility_hash": fdr_report.reproducibility_hash,
+        "error_rate_annotation": error_rate_report.to_dict(),
         "psm_summary": build_psm_summary_report(accepted).to_dict(),
         "peptide_summary": build_peptide_summary_report(accepted).to_dict(),
         "protein_summary": build_protein_summary_report(accepted).to_dict(),

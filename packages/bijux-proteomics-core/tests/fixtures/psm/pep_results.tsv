@@ -1,0 +1,4 @@
+spectrum_id	peptide	charge	score	pep	proteins
+scan=pep-1001	PEPTIDE	2	100.0	0.002	P12345
+scan=pep-1002	DECOYPEP	2	95.0	0.120	DECOY_P99999
+scan=pep-1003	PEPTIDER	2	90.0	0.008	Q11111
