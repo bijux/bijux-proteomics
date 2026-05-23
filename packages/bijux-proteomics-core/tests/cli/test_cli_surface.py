@@ -181,6 +181,61 @@ def test_map_orthologs_command_emits_mapped_unmapped_and_rejected_ledgers() -> N
         )
 
 
+def test_map_context_command_emits_mapping_term_unmapped_and_rejected_ledgers() -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        interpretation_fixture_dir = FIXTURE_ROOT / "interpretation"
+        shutil.copy(
+            interpretation_fixture_dir / "biological_context_input.tsv",
+            "biological_context_input.tsv",
+        )
+        shutil.copy(
+            interpretation_fixture_dir / "biological_context_single_kind.tsv",
+            "biological_context_single_kind.tsv",
+        )
+
+        result = runner.invoke(
+            cli,
+            [
+                "interpretation",
+                "map-context",
+                "biological_context_input.tsv",
+                "biological_context_single_kind.tsv",
+                "--fixed-context-kind",
+                "subcellular_compartment",
+                "--summary-tsv-out",
+                "context.summary.tsv",
+                "--mapped-tsv-out",
+                "context.mapped.tsv",
+                "--term-tsv-out",
+                "context.terms.tsv",
+                "--unmapped-tsv-out",
+                "context.unmapped.tsv",
+                "--rejected-input-tsv-out",
+                "context.input_rejected.tsv",
+                "--rejected-context-tsv-out",
+                "context.context_rejected.tsv",
+            ],
+        )
+
+        assert result.exit_code == 0
+        payload = json.loads(result.output)
+        assert payload["mapping_report"]["summary"]["input_entry_count"] == 4
+        assert payload["mapping_report"]["summary"]["mapped_entry_count"] == 2
+        assert payload["mapping_report"]["summary"]["unmapped_entry_count"] == 2
+        assert payload["context_table"]["fixed_context_kind"] == "subcellular_compartment"
+        assert "subcellular_compartment" in Path("context.summary.tsv").read_text()
+        assert "GO:0005634" in Path("context.mapped.tsv").read_text()
+        assert "supporting_protein_refs" in Path("context.terms.tsv").read_text()
+        assert "UNKNOWN123" in Path("context.unmapped.tsv").read_text()
+        assert Path("context.input_rejected.tsv").read_text().splitlines() == [
+            "row_number\tvalues\treason"
+        ]
+        assert Path("context.context_rejected.tsv").read_text().splitlines() == [
+            "row_number\tvalues\treason"
+        ]
+
+
 def test_protein_set_score_command_emits_matrix_condition_and_unresolved_ledgers() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
@@ -5528,6 +5583,10 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
             workflow_dir / "biological_report_complexes.tsv",
             "biological_report_complexes.tsv",
         )
+        shutil.copy(
+            workflow_dir / "biological_report_context.tsv",
+            "biological_report_context.tsv",
+        )
 
         result = runner.invoke(
             cli,
@@ -5536,6 +5595,8 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
                 "biological_report_features.tsv",
                 "biological_report.design.tsv",
                 "biological_report_reference.fasta",
+                "--context-annotation-tsv",
+                "biological_report_context.tsv",
                 "--go-annotation-tsv",
                 "biological_report_go.tsv",
                 "--pathway-membership-tsv",
@@ -5556,13 +5617,18 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert payload["design_rows"] == 6
         assert payload["report"]["summary"]["protein_count"] == 5
         assert payload["report"]["summary"]["significant_protein_count"] >= 3
+        assert payload["report"]["summary"]["context_entry_count"] == 3
         assert payload["report"]["summary"]["go_enriched_term_count"] == 1
+        assert payload["export_manifest"]["context_summary_included"] is True
         assert payload["export_manifest"]["go_summary_included"] is True
         report_dir = Path("biological_report")
         assert (report_dir / "biological_report_manifest.json").exists()
         assert (report_dir / "biological_report_summary.tsv").exists()
         assert (report_dir / "biological_differential.tsv").exists()
         assert (report_dir / "biological_annotations.tsv").exists()
+        assert (report_dir / "biological_context_summary.tsv").exists()
+        assert (report_dir / "biological_context_mappings.tsv").exists()
+        assert (report_dir / "biological_context_terms.tsv").exists()
         assert (report_dir / "biological_go_terms.tsv").exists()
         assert (report_dir / "biological_pathway_entries.tsv").exists()
         assert (report_dir / "biological_complex_entries.tsv").exists()
@@ -5573,8 +5639,14 @@ def test_biological_report_command_emits_report_directory_and_manifest() -> None
         assert "annotation_entry_count" in (
             report_dir / "biological_report_summary.tsv"
         ).read_text(encoding="utf-8")
+        assert "context_entry_count" in (
+            report_dir / "biological_report_summary.tsv"
+        ).read_text(encoding="utf-8")
         assert "annotation_status" in (
             report_dir / "biological_annotations.tsv"
+        ).read_text(encoding="utf-8")
+        assert "context_kind" in (
+            report_dir / "biological_context_mappings.tsv"
         ).read_text(encoding="utf-8")
         assert "gene_symbol" in (
             report_dir / "biological_annotations.tsv"
