@@ -11,7 +11,6 @@ from bijux_proteomics.quantification import (
     Ms1FeatureRecord,
     QuantEntityLevel,
     QuantRollupMethod,
-    apply_benjamini_hochberg,
     build_differential_abundance_report,
     build_label_free_intensity_table,
     build_multi_condition_differential_abundance_report,
@@ -137,19 +136,19 @@ def _table():
 
 
 def test_render_differential_abundance_tsv_emits_adjusted_statistics() -> None:
-    report = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            _table(),
-            _design(),
-            condition_a="case",
-            condition_b="control",
-        )
+    report = build_differential_abundance_report(
+        _table(),
+        _design(),
+        condition_a="case",
+        condition_b="control",
     )
 
     tsv = render_differential_abundance_tsv(report)
 
     assert "entity_id\tcondition_a\tcondition_b" in tsv
     assert "adjusted_p_value" in tsv
+    assert "contrast_name" in tsv
+    assert "zero_values_a" in tsv
     assert "P001\tcase\tcontrol" in tsv
 
 
@@ -164,13 +163,11 @@ def test_render_multi_condition_differential_abundance_tsv_flattens_contrasts() 
 
 
 def test_export_differential_abundance_tsv_writes_table() -> None:
-    report = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            _table(),
-            _design(),
-            condition_a="case",
-            condition_b="control",
-        )
+    report = build_differential_abundance_report(
+        _table(),
+        _design(),
+        condition_a="case",
+        condition_b="control",
     )
     path = Path(__file__).resolve().parent.parent / "fixtures" / "quant" / "differential_abundance.tsv"
 

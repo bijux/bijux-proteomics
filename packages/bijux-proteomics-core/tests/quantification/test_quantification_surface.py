@@ -524,13 +524,11 @@ def test_differential_abundance_and_bh_correction_surface_signal() -> None:
         method=NormalizationMethod.MEDIAN,
     )
 
-    differential = apply_benjamini_hochberg(
-        build_differential_abundance_report(
-            table,
-            design_report.accepted_entries,
-            condition_a="control",
-            condition_b="treatment",
-        )
+    differential = build_differential_abundance_report(
+        table,
+        design_report.accepted_entries,
+        condition_a="control",
+        condition_b="treatment",
     )
     first = differential.entries[0]
     p001 = next(entry for entry in differential.entries if entry.entity_id == "P001")
@@ -1203,6 +1201,7 @@ def test_quant_edge_case_fixture_covers_sparse_missing_channels_and_asymmetric_r
     core = next(entry for entry in differential.entries if entry.entity_id == "P100")
     assert core.observations_a == 3
     assert core.observations_b == 2
+    assert core.not_observed_values_b >= 1
 
 
 def test_missing_value_summary_policy_applies_deterministic_correction_and_filtering() -> (
