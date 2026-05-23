@@ -1,0 +1,44 @@
+dataset_id: multiplex_tmtpro_review_package
+accession: flagship_public_package:multiplex_tmtpro_review_package
+species: human
+search_engine: tmt
+source_files:
+  - source_id: multiplex_feature_table
+    schema_id: result_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex_ms1_features.tsv
+    sha256: 54ef1f14ff94f9bbfdb4430e940b641ac3d6c31e13d3f71c8566c5dd1b63f48b
+    public_reference_url: https://www.thermofisher.com/order/catalog/product/A44520
+    note: Shipped TMTpro feature table from the flagship multiplex public package.
+  - source_id: multiplex_design
+    schema_id: design_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/multiplex_tmtpro_review_package/evidence/multiplex.design.tsv
+    sha256: a87b46b35974161d55b64096017d182658948100fcfb4ab598689ec037860363
+    public_reference_url: https://www.thermofisher.com/order/catalog/product/A44520
+    note: Shipped multiplex design table from the flagship TMTpro public package.
+expected_input_schemas:
+  - result_tsv
+  - design_tsv
+sample_groups:
+  - group_id: control
+    sample_ids: [plex_a_126, plex_a_127n, plex_a_127c, plex_a_128n]
+  - group_id: treatment
+    sample_ids: [plex_b_126, plex_b_127n, plex_b_127c, plex_b_128n]
+contrast:
+  condition_a: control
+  condition_b: treatment
+  note: The flagship multiplex package is evaluated through the owned TMT differential path using the shipped design contrast.
+expected_approximate_counts:
+  - metric_id: protein_ratio_count
+    expected: 12
+    tolerance: 12
+command:
+  cli: bijux proteomics public-benchmark-runner benchmarks/public/multiplex_tmtpro_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship TMTpro feature table through the owned multiplex workflow when the shipped public package satisfies the TMT reporter input contract.
+  parameters:
+    control_channel: "126"
+    source_kind: maxquant
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: tmt_workflow_manifest.json
+    note: The orchestrator writes this manifest when the shipped multiplex descriptor becomes runnable.
+note: The flagship multiplex public package is real and reviewable, but its current feature-table snapshot does not yet satisfy the owned TMT reporter-table contract.

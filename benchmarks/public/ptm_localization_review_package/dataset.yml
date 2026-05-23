@@ -1,0 +1,59 @@
+dataset_id: ptm_localization_review_package
+accession: flagship_public_package:ptm_localization_review_package
+species: human
+search_engine: ptm
+source_files:
+  - source_id: ptm_localization_results
+    schema_id: evidence_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/localization_results.tsv
+    sha256: a711e01b793af64df1c24802a661a53eb8c88a7d5abee2b66cd7fab89cc054d1
+    note: Shipped localization evidence from the flagship PTM public package.
+  - source_id: ptm_feature_table
+    schema_id: feature_tsv
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_features.tsv
+    sha256: b82315f3faf721e357c61d679b2e3df3de510a0ca71dd200af38c229e751fe93
+    note: Shipped PTM feature table from the flagship PTM public package.
+  - source_id: ptm_reference_fasta
+    schema_id: proteins_fasta
+    repo_relative_path: packages/bijux-proteomics-core/benchmark-assets/flagship-public-packages/ptm_localization_review_package/evidence/ptm_sites.fasta
+    sha256: e88abeb1cc950f7b839a32db2eca4b52eae97348bee9587cda066da313912a40
+    note: Shipped PTM reference FASTA from the flagship PTM public package.
+  - source_id: ptm_support_design
+    schema_id: design_tsv
+    repo_relative_path: benchmarks/public/support/ptm.design.tsv
+    sha256: beb7bdd0d2d5103369e68a1a0106006c16d3b07ebb8def58730de6ada3385593
+    note: Governed support design that makes the flagship PTM package executable through the owned PTM workflow.
+expected_input_schemas:
+  - evidence_tsv
+  - feature_tsv
+  - proteins_fasta
+  - design_tsv
+sample_groups:
+  - group_id: control
+    sample_ids: [C1, C2]
+  - group_id: treated
+    sample_ids: [T1, T2]
+contrast:
+  condition_a: control
+  condition_b: treated
+  note: The flagship PTM package is executed directly through the owned PTM site workflow with the shipped evidence and support design.
+expected_approximate_counts:
+  - metric_id: accepted_evidence_count
+    expected: 8
+    tolerance: 0
+  - metric_id: site_row_count
+    expected: 5
+    tolerance: 0
+  - metric_id: differential_site_count
+    expected: 3
+    tolerance: 0
+command:
+  cli: bijux proteomics public-benchmark-runner benchmarks/public/ptm_localization_review_package/dataset.yml --run-output-root artifacts/public-benchmark-runs
+  note: Run the flagship PTM localization public package through the owned PTM site workflow.
+  parameters:
+    batch_field: ""
+output_checks:
+  - output_id: workflow_manifest_json
+    relative_path: ptm_site_workflow_manifest.json
+    note: The owned PTM workflow writes this manifest after successful execution.
+note: This flagship PTM package already carries the evidence, feature, and FASTA surfaces needed for a real owned workflow run, with only the study design supplied as governed support.

@@ -1,0 +1,5 @@
+sample_id	condition	replicate	fraction	spectra_file	batch
+C1	control	1	1	C1.raw	batch-a
+C2	control	2	1	C2.raw	batch-a
+T1	treated	1	1	T1.raw	batch-b
+T2	treated	2	1	T2.raw	batch-b
