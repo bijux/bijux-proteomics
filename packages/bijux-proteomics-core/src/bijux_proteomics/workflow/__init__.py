@@ -15,6 +15,7 @@ from bijux_proteomics.workflow.ptm_site_workflow import *  # noqa: F401,F403
 from bijux_proteomics.workflow.protein_evidence_cards import *  # noqa: F401,F403
 from bijux_proteomics.workflow.public_benchmark_runner import *  # noqa: F401,F403
 from bijux_proteomics.workflow.tmt_experiment_workflow import *  # noqa: F401,F403
+from bijux_proteomics.workflow.trust_bundle import *  # noqa: F401,F403
 from bijux_proteomics.workflow.dia_differential_analysis import *  # noqa: F401,F403
 from bijux_proteomics.workflow.dia_dda_comparison import *  # noqa: F401,F403
 from bijux_proteomics.workflow.label_based_differential_analysis import *  # noqa: F401,F403
