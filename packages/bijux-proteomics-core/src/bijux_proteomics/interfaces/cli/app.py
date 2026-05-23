@@ -7897,11 +7897,22 @@ def quantify_command(
                     selected_contrast = (conditions[0], conditions[1])
 
                 if selected_contrast is not None:
+                    sensitivity_methods = (
+                        ImputationMethod.NONE,
+                        ImputationMethod.LOW_INTENSITY,
+                        ImputationMethod.KNN,
+                    )
+                    selected_imputation_method = ImputationMethod(imputation)
+                    if selected_imputation_method is ImputationMethod.GROUP_AWARE_LOW_INTENSITY:
+                        sensitivity_methods = sensitivity_methods + (
+                            ImputationMethod.GROUP_AWARE_LOW_INTENSITY,
+                        )
                     imputation_sensitivity = build_imputation_sensitivity_report(
                         normalized_table,
                         design_entries,
                         condition_a=selected_contrast[0],
                         condition_b=selected_contrast[1],
+                        methods=sensitivity_methods,
                     )
                     differential = apply_benjamini_hochberg(
                         build_differential_abundance_report(
