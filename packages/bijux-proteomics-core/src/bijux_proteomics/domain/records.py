@@ -514,6 +514,7 @@ class TransitionRecord(_CanonicalRecord):
 
     transition_id: str = Field(..., min_length=1)
     precursor_id: str = Field(..., min_length=1)
+    precursor_charge: int | None = Field(default=None, ge=1)
     sample_id: str = Field(..., min_length=1)
     intensity: float = Field(..., ge=0.0)
     peptide_sequence: str = Field(..., min_length=1)
