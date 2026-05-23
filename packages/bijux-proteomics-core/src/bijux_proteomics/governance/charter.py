@@ -168,6 +168,7 @@ DEFAULT_CORE_DOMAIN_ENTRIES: tuple[CoreDomainFamilyEntry, ...] = (
             "identification/protein_parsimony.py",
             "identification/protein_grouping.py",
             "identification/sage_import.py",
+            "identification/rejected_evidence_table.py",
             "identification/score_separation_diagnostic.py",
             "identification/spectronaut_import.py",
             "identification/search_adapters.py",
