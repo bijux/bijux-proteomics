@@ -49,6 +49,7 @@ from bijux_proteomics.quantification.normalization import (
     build_normalization_comparison_report,
     normalize_label_free_table,
 )
+from bijux_proteomics.study import require_valid_experiment_design_for_differential_analysis
 from bijux_proteomics_foundation import JsonModel
 
 
@@ -187,6 +188,13 @@ def build_ptm_differential_analysis_report(
         entry.pair_id not in (None, "") for entry in design_entries
     ):
         effective_pairing_field = "pair_id"
+    require_valid_experiment_design_for_differential_analysis(
+        design_entries,
+        condition_a=condition_a,
+        condition_b=condition_b,
+        batch_field=batch_field if batch_field else None,
+        pairing_field=effective_pairing_field,
+    )
     site_quant_table = _build_label_free_table_from_site_quantification(site_quantification)
     normalization_reference_table = _build_label_free_table_from_site_quantification(
         site_quantification,

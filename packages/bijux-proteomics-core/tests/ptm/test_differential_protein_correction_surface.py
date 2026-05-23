@@ -126,3 +126,44 @@ def test_ptm_differential_analysis_marks_low_localization_correction_as_review_o
     assert low_localization.protein_correction_status == "corrected_low_localization"
     assert low_localization.protein_log2_fold_change is not None
     assert low_localization.corrected_log2_fold_change is not None
+
+
+def test_ptm_differential_analysis_blocks_broken_pairs_before_statistics() -> None:
+    evidence = parse_ptm_localization_tsv(_fixture_path("localization_results.tsv"))
+    mappings = map_ptm_evidence_to_protein_sites(
+        evidence.accepted_records,
+        protein_sequences=_protein_sequences(),
+    )
+    site_table = build_ptm_site_table(mappings)
+    features = parse_ms1_feature_table(_fixture_path("ptm_features.tsv"))
+    site_quantification = build_ptm_site_quantification_report(
+        site_table,
+        feature_records=features.accepted_records,
+    )
+    design = parse_experimental_design_table(_fixture_path("ptm.design.tsv"))
+    paired_design = tuple(
+        entry.model_copy(
+            update={
+                "pair_id": (
+                    f"pair-{entry.replicate}"
+                    if entry.sample_id != "T2"
+                    else None
+                )
+            }
+        )
+        for entry in design.accepted_entries
+    )
+
+    try:
+        build_ptm_differential_analysis_report(
+            site_quantification,
+            paired_design,
+            normalization_method=NormalizationMethod.MEDIAN,
+            batch_field="",
+            pairing_field="pair_id",
+            feature_records=features.accepted_records,
+        )
+    except ValueError as exc:
+        assert "broken_pair" in str(exc)
+    else:  # pragma: no cover
+        raise AssertionError("expected broken PTM pairs to be rejected")
