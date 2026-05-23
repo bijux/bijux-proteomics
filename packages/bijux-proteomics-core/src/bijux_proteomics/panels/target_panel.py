@@ -68,6 +68,9 @@ class TargetPanelFilteredRow(JsonModel):
     target_kind: TargetPanelKind
     matched_entity_id: str = Field(..., min_length=1)
     peptide_sequence: str | None = None
+    modified_peptide: str | None = None
+    expected_charge: int | None = Field(default=None, ge=1)
+    charge_states: tuple[int, ...] = Field(default_factory=tuple)
     protein_refs: tuple[str, ...] = Field(default_factory=tuple)
     values: tuple[TargetPanelMatrixValue, ...] = Field(default_factory=tuple)
 
@@ -80,6 +83,8 @@ class TargetPanelIntensityEntry(JsonModel):
     target_id: str = Field(..., min_length=1)
     target_kind: TargetPanelKind
     matched_entity_id: str = Field(..., min_length=1)
+    modified_peptide: str | None = None
+    expected_charge: int | None = Field(default=None, ge=1)
     sample_id: str = Field(..., min_length=1)
     abundance: float | None = Field(default=None, ge=0.0)
     detected: bool
@@ -92,6 +97,8 @@ class TargetPanelMatchedTarget(JsonModel):
 
     target_id: str = Field(..., min_length=1)
     target_kind: TargetPanelKind
+    modified_peptide: str | None = None
+    expected_charge: int | None = Field(default=None, ge=1)
     matched_entity_ids: tuple[str, ...] = Field(default_factory=tuple)
     detected_sample_count: int = Field(..., ge=0)
 
@@ -103,6 +110,8 @@ class TargetPanelMissingTarget(JsonModel):
 
     target_id: str = Field(..., min_length=1)
     target_kind: TargetPanelKind
+    modified_peptide: str | None = None
+    expected_charge: int | None = Field(default=None, ge=1)
     reason: str = Field(..., min_length=1)
 
 
@@ -244,6 +253,10 @@ def build_target_panel_report_from_dia_peptide_matrix(
             _PeptideRowSpec(
                 entity_id=row.peptide_key,
                 peptide_sequence=row.canonical_peptide,
+                modified_peptides=(row.modified_peptide,),
+                charge_states=tuple(
+                    sorted({charge for value in row.values for charge in value.charge_states})
+                ),
                 protein_refs=row.protein_refs,
                 values=tuple(
                     _TargetValueSpec(
@@ -274,6 +287,8 @@ def build_target_panel_report_from_peptide_intensity_matrix(
             _PeptideRowSpec(
                 entity_id=row.entity_id,
                 peptide_sequence=row.peptide_sequence,
+                modified_peptides=row.modified_peptides,
+                charge_states=row.charge_states,
                 protein_refs=row.protein_refs,
                 values=tuple(
                     _TargetValueSpec(
@@ -387,6 +402,8 @@ class _TargetValueSpec:
 class _PeptideRowSpec:
     entity_id: str
     peptide_sequence: str
+    modified_peptides: tuple[str, ...]
+    charge_states: tuple[int, ...]
     protein_refs: tuple[str, ...]
     values: tuple[_TargetValueSpec, ...]
 
@@ -418,6 +435,8 @@ def _build_peptide_target_panel_report(
                 TargetPanelMissingTarget(
                     target_id=target.target_id,
                     target_kind=target.target_kind,
+                    modified_peptide=target.modified_peptide,
+                    expected_charge=target.expected_charge,
                     reason="target is absent from the selected peptide-level matrix",
                 )
             )
@@ -432,6 +451,8 @@ def _build_peptide_target_panel_report(
             TargetPanelMatchedTarget(
                 target_id=target.target_id,
                 target_kind=target.target_kind,
+                modified_peptide=target.modified_peptide,
+                expected_charge=target.expected_charge,
                 matched_entity_ids=tuple(row.entity_id for row in matching_rows),
                 detected_sample_count=len(detected_samples),
             )
@@ -443,6 +464,9 @@ def _build_peptide_target_panel_report(
                     target_kind=target.target_kind,
                     matched_entity_id=row.entity_id,
                     peptide_sequence=row.peptide_sequence,
+                    modified_peptide=target.modified_peptide,
+                    expected_charge=target.expected_charge,
+                    charge_states=row.charge_states,
                     protein_refs=row.protein_refs,
                     values=tuple(
                         TargetPanelMatrixValue(
@@ -460,6 +484,8 @@ def _build_peptide_target_panel_report(
                         target_id=target.target_id,
                         target_kind=target.target_kind,
                         matched_entity_id=row.entity_id,
+                        modified_peptide=target.modified_peptide,
+                        expected_charge=target.expected_charge,
                         sample_id=value.sample_id,
                         abundance=value.abundance,
                         detected=value.detected,
@@ -506,6 +532,8 @@ def _build_protein_target_panel_report(
                 TargetPanelMissingTarget(
                     target_id=target.target_id,
                     target_kind=target.target_kind,
+                    modified_peptide=target.modified_peptide,
+                    expected_charge=target.expected_charge,
                     reason="peptide targets require a peptide-level matrix",
                 )
             )
@@ -516,6 +544,8 @@ def _build_protein_target_panel_report(
                 TargetPanelMissingTarget(
                     target_id=target.target_id,
                     target_kind=target.target_kind,
+                    modified_peptide=target.modified_peptide,
+                    expected_charge=target.expected_charge,
                     reason="target is absent from the selected protein-level matrix",
                 )
             )
@@ -530,6 +560,8 @@ def _build_protein_target_panel_report(
             TargetPanelMatchedTarget(
                 target_id=target.target_id,
                 target_kind=target.target_kind,
+                modified_peptide=target.modified_peptide,
+                expected_charge=target.expected_charge,
                 matched_entity_ids=tuple(row.entity_id for row in matching_rows),
                 detected_sample_count=len(detected_samples),
             )
@@ -540,6 +572,8 @@ def _build_protein_target_panel_report(
                     target_id=target.target_id,
                     target_kind=target.target_kind,
                     matched_entity_id=row.entity_id,
+                    modified_peptide=target.modified_peptide,
+                    expected_charge=target.expected_charge,
                     protein_refs=row.protein_refs,
                     values=tuple(
                         TargetPanelMatrixValue(
@@ -557,6 +591,8 @@ def _build_protein_target_panel_report(
                         target_id=target.target_id,
                         target_kind=target.target_kind,
                         matched_entity_id=row.entity_id,
+                        modified_peptide=target.modified_peptide,
+                        expected_charge=target.expected_charge,
                         sample_id=value.sample_id,
                         abundance=value.abundance,
                         detected=value.detected,
@@ -593,6 +629,14 @@ def _matching_peptide_rows(
             row
             for row in row_specs
             if row.peptide_sequence == target.peptide_sequence
+            and (
+                target.modified_peptide is None
+                or target.modified_peptide in row.modified_peptides
+            )
+            and (
+                target.expected_charge is None
+                or target.expected_charge in row.charge_states
+            )
         )
     return tuple(
         row for row in row_specs if target.protein_ref in row.protein_refs
@@ -651,6 +695,8 @@ def render_target_panel_target_tsv(report: TargetPanelReport) -> str:
         [
             "target_id",
             "target_kind",
+            "modified_peptide",
+            "expected_charge",
             "matched_entity_ids",
             "detected_sample_count",
         ]
@@ -660,6 +706,8 @@ def render_target_panel_target_tsv(report: TargetPanelReport) -> str:
             [
                 entry.target_id,
                 entry.target_kind.value,
+                entry.modified_peptide or "",
+                "" if entry.expected_charge is None else entry.expected_charge,
                 ";".join(entry.matched_entity_ids),
                 entry.detected_sample_count,
             ]
@@ -672,9 +720,19 @@ def render_target_panel_missing_tsv(report: TargetPanelReport) -> str:
 
     buffer = StringIO()
     writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
-    writer.writerow(["target_id", "target_kind", "reason"])
+    writer.writerow(
+        ["target_id", "target_kind", "modified_peptide", "expected_charge", "reason"]
+    )
     for entry in report.missing_targets:
-        writer.writerow([entry.target_id, entry.target_kind.value, entry.reason])
+        writer.writerow(
+            [
+                entry.target_id,
+                entry.target_kind.value,
+                entry.modified_peptide or "",
+                "" if entry.expected_charge is None else entry.expected_charge,
+                entry.reason,
+            ]
+        )
     return buffer.getvalue()
 
 
@@ -688,6 +746,8 @@ def render_target_panel_intensity_tsv(report: TargetPanelReport) -> str:
             "target_id",
             "target_kind",
             "matched_entity_id",
+            "modified_peptide",
+            "expected_charge",
             "sample_id",
             "abundance",
             "detected",
@@ -699,6 +759,8 @@ def render_target_panel_intensity_tsv(report: TargetPanelReport) -> str:
                 entry.target_id,
                 entry.target_kind.value,
                 entry.matched_entity_id,
+                entry.modified_peptide or "",
+                "" if entry.expected_charge is None else entry.expected_charge,
                 entry.sample_id,
                 "" if entry.abundance is None else entry.abundance,
                 str(entry.detected).lower(),
@@ -718,6 +780,9 @@ def render_target_panel_matrix_tsv(report: TargetPanelReport) -> str:
             "target_kind",
             "matched_entity_id",
             "peptide_sequence",
+            "modified_peptide",
+            "expected_charge",
+            "charge_states",
             "protein_refs",
             *report.sample_ids,
         ]
@@ -730,6 +795,9 @@ def render_target_panel_matrix_tsv(report: TargetPanelReport) -> str:
                 row.target_kind.value,
                 row.matched_entity_id,
                 row.peptide_sequence or "",
+                row.modified_peptide or "",
+                "" if row.expected_charge is None else row.expected_charge,
+                ";".join(str(charge) for charge in row.charge_states),
                 ";".join(row.protein_refs),
                 *[
                     "" if values_by_sample.get(sample_id) is None else values_by_sample[sample_id]
