@@ -727,6 +727,7 @@ from bijux_proteomics.workflow import (
     export_ptm_site_workflow_bundle,
     export_tmt_experiment_workflow_bundle,
     export_dia_differential_matrix_tsv,
+    export_dia_differential_qc_summary_tsv,
     export_dia_differential_results_tsv,
     export_dia_differential_volcano_plot_tsv,
     export_label_based_report_bundle,
@@ -3836,6 +3837,7 @@ def targeted_assay_qc_command(
     type=click.Path(path_type=Path, dir_okay=False),
 )
 @click.option("--differential-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
+@click.option("--qc-summary-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option("--design-matrix-tsv-out", type=click.Path(path_type=Path, dir_okay=False))
 @click.option(
     "--design-coefficients-tsv-out",
@@ -3888,6 +3890,7 @@ def dia_differential_command(
     matrix_tsv_out: Path | None,
     normalized_matrix_tsv_out: Path | None,
     differential_tsv_out: Path | None,
+    qc_summary_tsv_out: Path | None,
     design_matrix_tsv_out: Path | None,
     design_coefficients_tsv_out: Path | None,
     volcano_tsv_out: Path | None,
@@ -3972,6 +3975,8 @@ def dia_differential_command(
         export_dia_differential_matrix_tsv(report.normalized_table, normalized_matrix_tsv_out)
     if differential_tsv_out is not None:
         export_dia_differential_results_tsv(report, differential_tsv_out)
+    if qc_summary_tsv_out is not None:
+        export_dia_differential_qc_summary_tsv(report, qc_summary_tsv_out)
     if design_matrix_tsv_out is not None:
         export_quant_design_matrix_tsv(report.design_matrix, design_matrix_tsv_out)
     if design_coefficients_tsv_out is not None:
@@ -4004,6 +4009,7 @@ def dia_differential_command(
         "normalization_comparison": report.normalization_comparison.to_dict(),
         "design_matrix": report.design_matrix.to_dict(),
         "design_model_fit": report.design_model_fit.to_dict(),
+        "qc_summary": report.qc_summary.to_dict(),
         "differential_abundance": (
             report.differential_abundance_report.to_dict()
             if report.differential_abundance_report is not None
@@ -4027,6 +4033,9 @@ def dia_differential_command(
             ),
             "differential_tsv": (
                 None if differential_tsv_out is None else str(differential_tsv_out)
+            ),
+            "qc_summary_tsv": (
+                None if qc_summary_tsv_out is None else str(qc_summary_tsv_out)
             ),
             "design_matrix_tsv": (
                 None if design_matrix_tsv_out is None else str(design_matrix_tsv_out)
