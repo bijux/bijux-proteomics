@@ -144,6 +144,13 @@ class ProteinAnnotationSourceKind(StrEnum):
     MERGED = "merged"
 
 
+class ProteinAnnotationStatus(StrEnum):
+    """Stable status labels for the primary protein-annotation result table."""
+
+    ANNOTATED = "annotated"
+    UNMAPPED = "unmapped"
+
+
 class ProteinAnnotationEntry(JsonModel):
     """One mapped protein annotation row with explicit provenance."""
 
@@ -155,13 +162,14 @@ class ProteinAnnotationEntry(JsonModel):
     protein_ref: str = Field(..., min_length=1)
     accession_namespace: str | None = None
     source_identifier: str | None = None
+    accession_aliases: tuple[str, ...] = Field(default_factory=tuple)
     gene_symbol: str | None = None
     description: str | None = None
     organism: str | None = None
     annotation_identifier: str = Field(..., min_length=1)
     annotation_source: ProteinAnnotationSourceKind
     input_metadata: dict[str, str] = Field(default_factory=dict)
-    annotation_metadata: dict[str, str] = Field(default_factory=dict)
+    custom_annotation: dict[str, str] = Field(default_factory=dict)
 
 
 class UnmappedProteinAnnotationEntry(JsonModel):
@@ -173,8 +181,32 @@ class UnmappedProteinAnnotationEntry(JsonModel):
     source_row_id: str | None = None
     input_protein_ref: str = Field(..., min_length=1)
     protein_ref: str = Field(..., min_length=1)
+    accession_aliases: tuple[str, ...] = Field(default_factory=tuple)
     input_metadata: dict[str, str] = Field(default_factory=dict)
     reason: str = Field(..., min_length=1)
+
+
+class ProteinAnnotationResultEntry(JsonModel):
+    """One primary protein-annotation result row that preserves mapped and unmapped cases."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    row_number: int = Field(..., ge=2)
+    source_row_id: str | None = None
+    input_protein_ref: str = Field(..., min_length=1)
+    protein_ref: str = Field(..., min_length=1)
+    accession_namespace: str | None = None
+    source_identifier: str | None = None
+    accession_aliases: tuple[str, ...] = Field(default_factory=tuple)
+    gene_symbol: str | None = None
+    description: str | None = None
+    organism: str | None = None
+    annotation_identifier: str | None = None
+    annotation_source: ProteinAnnotationSourceKind | None = None
+    custom_annotation: dict[str, str] = Field(default_factory=dict)
+    input_metadata: dict[str, str] = Field(default_factory=dict)
+    annotation_status: ProteinAnnotationStatus
+    unmapped_reason: str | None = None
 
 
 class ProteinAnnotationMappingSummary(JsonModel):
@@ -199,6 +231,7 @@ class ProteinAnnotationMappingReport(JsonModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    result_entries: tuple[ProteinAnnotationResultEntry, ...] = Field(default_factory=tuple)
     mapped_entries: tuple[ProteinAnnotationEntry, ...] = Field(default_factory=tuple)
     unmapped_entries: tuple[UnmappedProteinAnnotationEntry, ...] = Field(
         default_factory=tuple
@@ -456,27 +489,71 @@ def build_protein_annotation_mapping_report(
     custom_annotation_map = {
         record.protein_ref: record for record in custom_annotations
     }
+    result_entries: list[ProteinAnnotationResultEntry] = []
     mapped_entries: list[ProteinAnnotationEntry] = []
     unmapped_entries: list[UnmappedProteinAnnotationEntry] = []
     for entry in protein_entries:
         fasta_record = fasta_annotations.get(entry.protein_ref)
         custom_record = custom_annotation_map.get(entry.protein_ref)
+        accession_aliases = _accession_aliases(entry, fasta_record)
         if fasta_record is None and custom_record is None:
+            unmapped_reason = (
+                "protein reference was not present in the FASTA annotations "
+                "or the custom annotation table"
+            )
+            result_entries.append(
+                ProteinAnnotationResultEntry(
+                    row_number=entry.row_number,
+                    source_row_id=entry.source_row_id,
+                    input_protein_ref=entry.input_protein_ref,
+                    protein_ref=entry.protein_ref,
+                    accession_aliases=accession_aliases,
+                    input_metadata=entry.metadata,
+                    annotation_status=ProteinAnnotationStatus.UNMAPPED,
+                    unmapped_reason=unmapped_reason,
+                )
+            )
             unmapped_entries.append(
                 UnmappedProteinAnnotationEntry(
                     row_number=entry.row_number,
                     source_row_id=entry.source_row_id,
                     input_protein_ref=entry.input_protein_ref,
                     protein_ref=entry.protein_ref,
+                    accession_aliases=accession_aliases,
                     input_metadata=entry.metadata,
-                    reason=(
-                        "protein reference was not present in the FASTA annotations "
-                        "or the custom annotation table"
-                    ),
+                    reason=unmapped_reason,
                 )
             )
             continue
         annotation_source = _annotation_source_kind(fasta_record, custom_record)
+        custom_annotation = {} if custom_record is None else custom_record.metadata
+        result_entries.append(
+            ProteinAnnotationResultEntry(
+                row_number=entry.row_number,
+                source_row_id=entry.source_row_id,
+                input_protein_ref=entry.input_protein_ref,
+                protein_ref=entry.protein_ref,
+                accession_namespace=(
+                    None if fasta_record is None else fasta_record.accession_namespace
+                ),
+                source_identifier=(
+                    None if fasta_record is None else fasta_record.source_identifier
+                ),
+                accession_aliases=accession_aliases,
+                gene_symbol=_merged_gene_symbol(fasta_record, custom_record),
+                description=_merged_description(fasta_record, custom_record),
+                organism=_merged_organism(fasta_record, custom_record),
+                annotation_identifier=_merged_annotation_identifier(
+                    entry.protein_ref,
+                    fasta_record,
+                    custom_record,
+                ),
+                annotation_source=annotation_source,
+                custom_annotation=custom_annotation,
+                input_metadata=entry.metadata,
+                annotation_status=ProteinAnnotationStatus.ANNOTATED,
+            )
+        )
         mapped_entries.append(
             ProteinAnnotationEntry(
                 row_number=entry.row_number,
@@ -489,6 +566,7 @@ def build_protein_annotation_mapping_report(
                 source_identifier=(
                     None if fasta_record is None else fasta_record.source_identifier
                 ),
+                accession_aliases=accession_aliases,
                 gene_symbol=_merged_gene_symbol(fasta_record, custom_record),
                 description=_merged_description(fasta_record, custom_record),
                 organism=_merged_organism(fasta_record, custom_record),
@@ -499,9 +577,7 @@ def build_protein_annotation_mapping_report(
                 ),
                 annotation_source=annotation_source,
                 input_metadata=entry.metadata,
-                annotation_metadata=(
-                    {} if custom_record is None else custom_record.metadata
-                ),
+                custom_annotation=custom_annotation,
             )
         )
 
@@ -536,6 +612,7 @@ def build_protein_annotation_mapping_report(
         ),
     )
     return ProteinAnnotationMappingReport(
+        result_entries=tuple(result_entries),
         mapped_entries=tuple(mapped_entries),
         unmapped_entries=tuple(unmapped_entries),
         summary=summary,
@@ -584,6 +661,55 @@ def render_protein_annotation_summary_tsv(
     return buffer.getvalue()
 
 
+def render_protein_annotation_tsv(report: ProteinAnnotationMappingReport) -> str:
+    """Render the primary protein-annotation result table with explicit status fields."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        (
+            "row_number",
+            "source_row_id",
+            "input_protein_ref",
+            "protein_ref",
+            "accession_namespace",
+            "source_identifier",
+            "accession_aliases",
+            "gene_symbol",
+            "description",
+            "organism",
+            "annotation_identifier",
+            "annotation_source",
+            "custom_annotation",
+            "annotation_status",
+            "unmapped_reason",
+            "input_metadata",
+        )
+    )
+    for entry in report.result_entries:
+        writer.writerow(
+            (
+                entry.row_number,
+                entry.source_row_id or "",
+                entry.input_protein_ref,
+                entry.protein_ref,
+                entry.accession_namespace or "",
+                entry.source_identifier or "",
+                ";".join(entry.accession_aliases),
+                entry.gene_symbol or "",
+                entry.description or "",
+                entry.organism or "",
+                entry.annotation_identifier or "",
+                "" if entry.annotation_source is None else entry.annotation_source.value,
+                _metadata_json(entry.custom_annotation),
+                entry.annotation_status.value,
+                entry.unmapped_reason or "",
+                _metadata_json(entry.input_metadata),
+            )
+        )
+    return buffer.getvalue()
+
+
 def render_mapped_protein_annotation_tsv(report: ProteinAnnotationMappingReport) -> str:
     """Render mapped protein-annotation entries as TSV."""
 
@@ -597,13 +723,14 @@ def render_mapped_protein_annotation_tsv(report: ProteinAnnotationMappingReport)
             "protein_ref",
             "accession_namespace",
             "source_identifier",
+            "accession_aliases",
             "gene_symbol",
             "description",
             "organism",
             "annotation_identifier",
             "annotation_source",
             "input_metadata",
-            "annotation_metadata",
+            "custom_annotation",
         )
     )
     for entry in report.mapped_entries:
@@ -615,13 +742,14 @@ def render_mapped_protein_annotation_tsv(report: ProteinAnnotationMappingReport)
                 entry.protein_ref,
                 entry.accession_namespace or "",
                 entry.source_identifier or "",
+                ";".join(entry.accession_aliases),
                 entry.gene_symbol or "",
                 entry.description or "",
                 entry.organism or "",
                 entry.annotation_identifier,
                 entry.annotation_source.value,
                 _metadata_json(entry.input_metadata),
-                _metadata_json(entry.annotation_metadata),
+                _metadata_json(entry.custom_annotation),
             )
         )
     return buffer.getvalue()
@@ -640,6 +768,7 @@ def render_unmapped_protein_annotation_tsv(
             "source_row_id",
             "input_protein_ref",
             "protein_ref",
+            "accession_aliases",
             "input_metadata",
             "reason",
         )
@@ -651,6 +780,7 @@ def render_unmapped_protein_annotation_tsv(
                 entry.source_row_id or "",
                 entry.input_protein_ref,
                 entry.protein_ref,
+                ";".join(entry.accession_aliases),
                 _metadata_json(entry.input_metadata),
                 entry.reason,
             )
@@ -695,6 +825,21 @@ def _annotation_source_kind(
     if custom_record is not None:
         return ProteinAnnotationSourceKind.CUSTOM
     return ProteinAnnotationSourceKind.FASTA
+
+
+def _accession_aliases(
+    entry: ProteinReferenceEntry,
+    fasta_record: NormalizedProteinRecord | None,
+) -> tuple[str, ...]:
+    aliases = {
+        token
+        for token in (
+            entry.input_protein_ref,
+            None if fasta_record is None else fasta_record.source_identifier,
+        )
+        if token not in (None, "", entry.protein_ref)
+    }
+    return tuple(sorted(aliases))
 
 
 def _merged_gene_symbol(
