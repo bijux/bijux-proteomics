@@ -3,9 +3,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from bijux_proteomics.io.chromatographic_evidence import (
     ChromatographicEvidenceScoreReport,
     ChromatographicPeptideEvidenceEntry,
+)
+from bijux_proteomics.io.dia_fragment_coelution import (
+    extract_mzml_dia_fragment_trace_coelution,
 )
 from bijux_proteomics.review import (
     ProteomicsEvidenceContextRef,
@@ -14,6 +19,10 @@ from bijux_proteomics.review import (
     ProteomicsEvidenceNodeKind,
     propagate_evidence_graph_confidence,
 )
+
+
+def _format_fixture(name: str) -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "formats" / name
 
 
 def build_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
@@ -221,6 +230,108 @@ def build_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
     return builder.build()
 
 
+def build_precursor_confidence_fixture_graph() -> ProteomicsEvidenceGraph:
+    builder = ProteomicsEvidenceGraphBuilder()
+
+    strong_spectrum = builder.add_spectrum("scan=2001", label="scan=2001", trust_class="high")
+    shifted_spectrum = builder.add_spectrum("scan=2002", label="scan=2002", trust_class="high")
+    strong_precursor = builder.add_precursor(
+        "prec_alpha",
+        label="prec_alpha",
+        trust_class="high",
+    )
+    shifted_precursor = builder.add_precursor(
+        "prec_beta",
+        label="prec_beta",
+        trust_class="high",
+    )
+    strong_peptide = builder.add_peptide("PEPA", label="PEPA", trust_class="high")
+    shifted_peptide = builder.add_peptide("PEPB", label="PEPB", trust_class="high")
+    strong_protein = builder.add_protein("P33333", label="P33333", trust_class="high")
+    shifted_protein = builder.add_protein("P44444", label="P44444", trust_class="high")
+
+    strong_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P33333",
+        label="strong precursor-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P33333",
+            ),
+        ),
+    )
+    shifted_result = builder.add_statistical_result(
+        "protein:treatment_vs_control:P44444",
+        label="shifted precursor-backed result",
+        claim_state="changed",
+        context_refs=(
+            ProteomicsEvidenceContextRef(
+                entity_type=ProteomicsEvidenceNodeKind.PROTEIN,
+                entity_ref="P44444",
+            ),
+        ),
+    )
+
+    builder.add_spectrum_assigns_precursor(
+        strong_spectrum.node_id,
+        strong_precursor.node_id,
+        source_row_ref="dia_precursors.tsv:4",
+        confidence=0.95,
+        reason="accepted DIA precursor assignment",
+    )
+    builder.add_spectrum_assigns_precursor(
+        shifted_spectrum.node_id,
+        shifted_precursor.node_id,
+        source_row_ref="dia_precursors.tsv:5",
+        confidence=0.95,
+        reason="accepted DIA precursor assignment",
+    )
+    builder.add_precursor_supports_peptide(
+        strong_precursor.node_id,
+        strong_peptide.node_id,
+        source_row_ref="dia_peptides.tsv:4",
+        confidence=0.93,
+        reason="coeluting DIA fragments support PEPA",
+    )
+    builder.add_precursor_supports_peptide(
+        shifted_precursor.node_id,
+        shifted_peptide.node_id,
+        source_row_ref="dia_peptides.tsv:5",
+        confidence=0.93,
+        reason="shifted DIA fragments support PEPB",
+    )
+    builder.add_peptide_quantifies_protein(
+        strong_peptide.node_id,
+        strong_protein.node_id,
+        source_row_ref="protein_matrix.tsv:10",
+        confidence=0.92,
+        reason="PEPA quantifies P33333",
+    )
+    builder.add_peptide_quantifies_protein(
+        shifted_peptide.node_id,
+        shifted_protein.node_id,
+        source_row_ref="protein_matrix.tsv:11",
+        confidence=0.92,
+        reason="PEPB quantifies P44444",
+    )
+    builder.add_protein_supports_statistical_result(
+        strong_protein.node_id,
+        strong_result.node_id,
+        source_row_ref="protein_stats.tsv:10",
+        confidence=0.91,
+        reason="P33333 differential result",
+    )
+    builder.add_protein_supports_statistical_result(
+        shifted_protein.node_id,
+        shifted_result.node_id,
+        source_row_ref="protein_stats.tsv:11",
+        confidence=0.91,
+        reason="P44444 differential result",
+    )
+    return builder.build()
+
+
 def test_propagate_evidence_graph_confidence_depends_on_upstream_quality() -> None:
     report = propagate_evidence_graph_confidence(build_confidence_fixture_graph())
 
@@ -256,6 +367,27 @@ def test_propagate_evidence_graph_confidence_preserves_upstream_provenance() -> 
         "protein_stats.tsv:4",
         "psm.tsv:4",
     )
+
+
+def test_propagate_evidence_graph_confidence_penalizes_shifted_dia_fragments() -> None:
+    coelution_report = extract_mzml_dia_fragment_trace_coelution(
+        (_format_fixture("dia_fragment_coelution.mzml"),),
+        _format_fixture("dia_fragment_targets.tsv"),
+        tolerance_ppm=10.0,
+    )
+
+    report = propagate_evidence_graph_confidence(
+        build_precursor_confidence_fixture_graph(),
+        dia_fragment_coelution_report=coelution_report,
+    )
+
+    by_claim = {entry.claim_node_ref: entry for entry in report.entries}
+    strong_entry = by_claim["protein:treatment_vs_control:P33333"]
+    shifted_entry = by_claim["protein:treatment_vs_control:P44444"]
+
+    assert strong_entry.confidence_tier.value == "high"
+    assert strong_entry.propagated_score > shifted_entry.propagated_score
+    assert shifted_entry.confidence_tier.value in {"moderate", "low"}
 
 
 def test_propagate_evidence_graph_confidence_absorbs_chromatographic_peptide_scores() -> None:
