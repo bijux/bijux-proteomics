@@ -13,8 +13,9 @@ from pydantic import ConfigDict, Field
 
 from bijux_proteomics.identification.contracts import (
     PsmRecord,
-    calculate_basic_target_decoy_fdr,
-    compute_fdr_reproducibility_hash,
+)
+from bijux_proteomics.identification.psm_target_decoy_fdr import (
+    build_psm_target_decoy_fdr_report,
 )
 from bijux_proteomics_foundation import JsonModel
 
@@ -134,7 +135,7 @@ def _build_reference_validation_entry(
     if observed is None or observed.cumulative_decoys != expected.cumulative_decoys:
         mismatches.append("cumulative_decoys")
     if not _floats_match(
-        expected.fdr, None if observed is None else observed.fdr, tolerance=1e-9
+        expected.fdr, None if observed is None else observed.raw_fdr, tolerance=1e-9
     ):
         mismatches.append("fdr")
     if not _floats_match(
@@ -162,7 +163,7 @@ def _build_reference_validation_entry(
         if observed is None
         else observed.cumulative_decoys,
         expected_fdr=expected.fdr,
-        observed_fdr=None if observed is None else observed.fdr,
+        observed_fdr=None if observed is None else observed.raw_fdr,
         expected_q_value=expected.q_value,
         observed_q_value=None if observed is None else observed.q_value,
         expected_accepted=expected.accepted,
@@ -176,13 +177,13 @@ def build_target_decoy_reference_validation_report(
     """Validate curated target-decoy reference cases against the owned FDR engine."""
     case_reports: list[TargetDecoyReferenceCaseReport] = []
     for case in cases:
-        annotated = calculate_basic_target_decoy_fdr(
+        fdr_report = build_psm_target_decoy_fdr_report(
             case.records,
             threshold=case.threshold,
             score_orientation=case.score_orientation,
             tie_handling=case.tie_handling,
-            decoy_policy=None,
         )
+        annotated = tuple(fdr_report.entries)
         entries = tuple(
             _build_reference_validation_entry(
                 case,
@@ -212,12 +213,7 @@ def build_target_decoy_reference_validation_report(
                 score_orientation=case.score_orientation,
                 tie_handling=case.tie_handling,
                 threshold=case.threshold,
-                reproducibility_hash=compute_fdr_reproducibility_hash(
-                    case.records,
-                    threshold=case.threshold,
-                    score_orientation=case.score_orientation,
-                    tie_handling=case.tie_handling,
-                ),
+                reproducibility_hash=fdr_report.reproducibility_hash,
                 q_values_monotonic=q_values_monotonic,
                 expected_entry_count=len(case.expected_entries),
                 observed_entry_count=len(annotated),
