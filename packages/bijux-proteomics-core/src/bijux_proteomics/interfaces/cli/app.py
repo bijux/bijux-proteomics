@@ -341,6 +341,7 @@ from bijux_proteomics.interpretation import (
     PathwayEnrichmentCorrectionPolicy,
     PathwayMembershipColumnMapping,
     ProteinSetColumnMapping,
+    ProteinSetScoringPolicy,
     ProteinSetEnrichmentMissingBackgroundPolicy,
     ProteinSetEnrichmentPolicy,
     apply_complex_enrichment_multiple_testing,
@@ -12875,8 +12876,20 @@ def map_orthologs_command(
 @click.option("--protein-separator", default=";", show_default=True)
 @click.option("--set-id-column", default="set_id", show_default=True)
 @click.option("--set-name-column", default="set_name", show_default=True)
+@click.option("--set-category-column", default="set_category", show_default=True)
 @click.option("--source-name-column", default="source_name", show_default=True)
+@click.option(
+    "--source-accession-column",
+    default="source_accession",
+    show_default=True,
+)
 @click.option("--set-protein-ref-column", default="protein_ref", show_default=True)
+@click.option(
+    "--minimum-observed-member-count",
+    type=int,
+    default=2,
+    show_default=True,
+)
 @click.option(
     "--summary-tsv-out",
     type=click.Path(path_type=Path, dir_okay=False),
@@ -12937,8 +12950,11 @@ def protein_set_score_command(
     protein_separator: str,
     set_id_column: str,
     set_name_column: str,
+    set_category_column: str,
     source_name_column: str,
+    source_accession_column: str,
     set_protein_ref_column: str,
+    minimum_observed_member_count: int,
     summary_tsv_out: Path | None,
     matrix_tsv_out: Path | None,
     sample_score_tsv_out: Path | None,
@@ -12982,7 +12998,9 @@ def protein_set_score_command(
                 set_id=set_id_column,
                 protein_ref=set_protein_ref_column,
                 set_name=set_name_column,
+                set_category=set_category_column,
                 source_name=source_name_column,
+                source_accession=source_accession_column,
             ),
         )
         report = build_protein_set_scoring_report(
@@ -12992,6 +13010,9 @@ def protein_set_score_command(
             ),
             protein_sets.accepted_records,
             design_entries=design_entries,
+            policy=ProteinSetScoringPolicy(
+                minimum_observed_member_count=minimum_observed_member_count,
+            ),
         )
     except click.ClickException:
         raise
