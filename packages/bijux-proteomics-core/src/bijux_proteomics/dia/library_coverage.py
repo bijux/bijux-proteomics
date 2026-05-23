@@ -62,6 +62,31 @@ class DiaLibraryCoverageProteinEntry(JsonModel):
     detected_condition_count: int = Field(..., ge=0)
 
 
+class DiaObservedOutsideLibraryPeptideEntry(JsonModel):
+    """One observed DIA peptide that is absent from the imported library."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    canonical_peptide: str = Field(..., min_length=1)
+    protein_refs: tuple[str, ...] = Field(default_factory=tuple)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    condition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    detected_sample_count: int = Field(..., ge=0)
+    detected_condition_count: int = Field(..., ge=0)
+
+
+class DiaObservedOutsideLibraryProteinEntry(JsonModel):
+    """One observed DIA protein that is absent from the imported library."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    protein_ref: str = Field(..., min_length=1)
+    sample_ids: tuple[str, ...] = Field(default_factory=tuple)
+    condition_ids: tuple[str, ...] = Field(default_factory=tuple)
+    detected_sample_count: int = Field(..., ge=0)
+    detected_condition_count: int = Field(..., ge=0)
+
+
 class DiaLibraryCoverageConditionEntry(JsonModel):
     """One condition-scoped spectral-library coverage entry."""
 
@@ -82,8 +107,10 @@ class DiaLibraryCoverageSummary(JsonModel):
 
     library_peptide_count: int = Field(..., ge=0)
     detected_peptide_count: int = Field(..., ge=0)
+    observed_outside_library_peptide_count: int = Field(..., ge=0)
     library_protein_count: int = Field(..., ge=0)
     detected_protein_count: int = Field(..., ge=0)
+    observed_outside_library_protein_count: int = Field(..., ge=0)
     sample_count: int = Field(..., ge=0)
     condition_count: int = Field(..., ge=0)
     peptide_coverage_fraction: float = Field(..., ge=0.0, le=1.0)
@@ -103,6 +130,12 @@ class DiaLibraryCoverageReport(JsonModel):
     protein_entries: tuple[DiaLibraryCoverageProteinEntry, ...] = Field(
         default_factory=tuple
     )
+    observed_outside_library_peptide_entries: tuple[
+        DiaObservedOutsideLibraryPeptideEntry, ...
+    ] = Field(default_factory=tuple)
+    observed_outside_library_protein_entries: tuple[
+        DiaObservedOutsideLibraryProteinEntry, ...
+    ] = Field(default_factory=tuple)
     sample_entries: tuple[DiaLibraryCoverageSampleEntry, ...] = Field(default_factory=tuple)
     condition_entries: tuple[DiaLibraryCoverageConditionEntry, ...] = Field(
         default_factory=tuple
@@ -147,6 +180,20 @@ def build_dia_library_coverage_report(
         protein_matrix=protein_matrix,
         design_entries=design_entries,
     )
+    observed_outside_library_peptide_entries = (
+        _build_observed_outside_library_peptide_entries(
+            library_peptides=library_peptides,
+            peptide_matrix=peptide_matrix,
+            design_entries=design_entries,
+        )
+    )
+    observed_outside_library_protein_entries = (
+        _build_observed_outside_library_protein_entries(
+            library_proteins=library_proteins,
+            protein_matrix=protein_matrix,
+            design_entries=design_entries,
+        )
+    )
     sample_entries = _build_sample_entries(
         library_peptides=library_peptides,
         library_proteins=library_proteins,
@@ -164,13 +211,21 @@ def build_dia_library_coverage_report(
         library_source_format=library_report.source_format.value,
         peptide_entries=peptide_entries,
         protein_entries=protein_entries,
+        observed_outside_library_peptide_entries=observed_outside_library_peptide_entries,
+        observed_outside_library_protein_entries=observed_outside_library_protein_entries,
         sample_entries=sample_entries,
         condition_entries=condition_entries,
         summary=DiaLibraryCoverageSummary(
             library_peptide_count=len(library_peptides),
             detected_peptide_count=len(detected_peptides & library_peptides),
+            observed_outside_library_peptide_count=len(
+                observed_outside_library_peptide_entries
+            ),
             library_protein_count=len(library_proteins),
             detected_protein_count=len(detected_proteins & library_proteins),
+            observed_outside_library_protein_count=len(
+                observed_outside_library_protein_entries
+            ),
             sample_count=len(sample_entries),
             condition_count=len(condition_entries),
             peptide_coverage_fraction=_fraction(
@@ -183,7 +238,7 @@ def build_dia_library_coverage_report(
             ),
         ),
         note=(
-            "library coverage compares observed DIA peptide and protein evidence against the measurable library scope instead of treating imported intensity as full proteome visibility"
+            "library coverage compares observed DIA peptide and protein evidence against the measurable library scope while preserving observed evidence that is absent from the imported library as separate ledgers"
         ),
     )
 
@@ -234,8 +289,10 @@ def render_dia_library_coverage_summary_tsv(report: DiaLibraryCoverageReport) ->
             "library_source_format",
             "library_peptide_count",
             "detected_peptide_count",
+            "observed_outside_library_peptide_count",
             "library_protein_count",
             "detected_protein_count",
+            "observed_outside_library_protein_count",
             "sample_count",
             "condition_count",
             "peptide_coverage_fraction",
@@ -249,8 +306,10 @@ def render_dia_library_coverage_summary_tsv(report: DiaLibraryCoverageReport) ->
             report.library_source_format,
             report.summary.library_peptide_count,
             report.summary.detected_peptide_count,
+            report.summary.observed_outside_library_peptide_count,
             report.summary.library_protein_count,
             report.summary.detected_protein_count,
+            report.summary.observed_outside_library_protein_count,
             report.summary.sample_count,
             report.summary.condition_count,
             report.summary.peptide_coverage_fraction,
@@ -369,6 +428,66 @@ def render_dia_library_coverage_protein_tsv(report: DiaLibraryCoverageReport) ->
     return buffer.getvalue()
 
 
+def render_dia_library_coverage_observed_outside_peptide_tsv(
+    report: DiaLibraryCoverageReport,
+) -> str:
+    """Render observed DIA peptides that are absent from the imported library."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "canonical_peptide",
+            "protein_refs",
+            "sample_ids",
+            "condition_ids",
+            "detected_sample_count",
+            "detected_condition_count",
+        ]
+    )
+    for entry in report.observed_outside_library_peptide_entries:
+        writer.writerow(
+            [
+                entry.canonical_peptide,
+                ";".join(entry.protein_refs),
+                ";".join(entry.sample_ids),
+                ";".join(entry.condition_ids),
+                entry.detected_sample_count,
+                entry.detected_condition_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
+def render_dia_library_coverage_observed_outside_protein_tsv(
+    report: DiaLibraryCoverageReport,
+) -> str:
+    """Render observed DIA proteins that are absent from the imported library."""
+
+    buffer = StringIO()
+    writer = csv.writer(buffer, delimiter="\t", lineterminator="\n")
+    writer.writerow(
+        [
+            "protein_ref",
+            "sample_ids",
+            "condition_ids",
+            "detected_sample_count",
+            "detected_condition_count",
+        ]
+    )
+    for entry in report.observed_outside_library_protein_entries:
+        writer.writerow(
+            [
+                entry.protein_ref,
+                ";".join(entry.sample_ids),
+                ";".join(entry.condition_ids),
+                entry.detected_sample_count,
+                entry.detected_condition_count,
+            ]
+        )
+    return buffer.getvalue()
+
+
 def export_dia_library_coverage_summary_tsv(
     report: DiaLibraryCoverageReport,
     path: Path,
@@ -402,6 +521,26 @@ def export_dia_library_coverage_protein_tsv(
     path: Path,
 ) -> None:
     path.write_text(render_dia_library_coverage_protein_tsv(report), encoding="utf-8")
+
+
+def export_dia_library_coverage_observed_outside_peptide_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(
+        render_dia_library_coverage_observed_outside_peptide_tsv(report),
+        encoding="utf-8",
+    )
+
+
+def export_dia_library_coverage_observed_outside_protein_tsv(
+    report: DiaLibraryCoverageReport,
+    path: Path,
+) -> None:
+    path.write_text(
+        render_dia_library_coverage_observed_outside_protein_tsv(report),
+        encoding="utf-8",
+    )
 
 
 def _build_sample_entries(
@@ -493,6 +632,42 @@ def _build_peptide_entries(
     return tuple(entries)
 
 
+def _build_observed_outside_library_peptide_entries(
+    *,
+    library_peptides: set[str],
+    peptide_matrix: DiaPeptideMatrixReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[DiaObservedOutsideLibraryPeptideEntry, ...]:
+    entries: list[DiaObservedOutsideLibraryPeptideEntry] = []
+    for row in sorted(peptide_matrix.rows, key=lambda entry: entry.canonical_peptide):
+        if row.canonical_peptide in library_peptides:
+            continue
+        detected_samples = tuple(
+            sorted({value.sample_id for value in row.values if value.detected})
+        )
+        if not detected_samples:
+            continue
+        condition_ids = tuple(
+            sorted(
+                _condition_ids_for_sample_ids(
+                    set(detected_samples),
+                    design_entries=design_entries,
+                )
+            )
+        )
+        entries.append(
+            DiaObservedOutsideLibraryPeptideEntry(
+                canonical_peptide=row.canonical_peptide,
+                protein_refs=row.protein_refs,
+                sample_ids=detected_samples,
+                condition_ids=condition_ids,
+                detected_sample_count=len(detected_samples),
+                detected_condition_count=len(condition_ids),
+            )
+        )
+    return tuple(entries)
+
+
 def _build_protein_entries(
     *,
     library_proteins: set[str],
@@ -519,6 +694,41 @@ def _build_protein_entries(
                         design_entries=design_entries,
                     )
                 ),
+            )
+        )
+    return tuple(entries)
+
+
+def _build_observed_outside_library_protein_entries(
+    *,
+    library_proteins: set[str],
+    protein_matrix: DiaProteinMatrixReport,
+    design_entries: tuple[ExperimentalDesignEntry, ...],
+) -> tuple[DiaObservedOutsideLibraryProteinEntry, ...]:
+    entries: list[DiaObservedOutsideLibraryProteinEntry] = []
+    for row in sorted(protein_matrix.rows, key=lambda entry: entry.entity_id):
+        if row.entity_id in library_proteins:
+            continue
+        detected_samples = tuple(
+            sorted({value.sample_id for value in row.values if value.detected})
+        )
+        if not detected_samples:
+            continue
+        condition_ids = tuple(
+            sorted(
+                _condition_ids_for_sample_ids(
+                    set(detected_samples),
+                    design_entries=design_entries,
+                )
+            )
+        )
+        entries.append(
+            DiaObservedOutsideLibraryProteinEntry(
+                protein_ref=row.entity_id,
+                sample_ids=detected_samples,
+                condition_ids=condition_ids,
+                detected_sample_count=len(detected_samples),
+                detected_condition_count=len(condition_ids),
             )
         )
     return tuple(entries)
